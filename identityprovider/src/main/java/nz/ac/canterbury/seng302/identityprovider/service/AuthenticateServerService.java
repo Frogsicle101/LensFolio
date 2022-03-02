@@ -14,6 +14,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticationServiceGrp
 @GrpcService
 public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
+    //ToDo connect these default values to the database instead
     private final int VALID_USER_ID = 1;
     private final String VALID_USER = "abc123";
     private final String VALID_PASSWORD = "Password123!";

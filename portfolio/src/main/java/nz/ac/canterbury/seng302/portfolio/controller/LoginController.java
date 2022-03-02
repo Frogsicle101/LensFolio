@@ -41,6 +41,7 @@ public class LoginController {
     public String login(
             HttpServletRequest request,
             HttpServletResponse response,
+            // ToDo take these request params from an HTML form etc
             @RequestParam(name="username", required=false, defaultValue="abc123") String username,
             @RequestParam(name="password", required=false, defaultValue="Password123!") String password,
             Model model
