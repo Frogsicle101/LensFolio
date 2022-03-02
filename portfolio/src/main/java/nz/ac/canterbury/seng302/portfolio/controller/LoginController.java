@@ -42,6 +42,8 @@ public class LoginController {
             HttpServletRequest request,
             HttpServletResponse response,
             // ToDo take these request params from an HTML form etc
+            // This may require using the checkAuthState method and if a login is authorised, redirecting
+            // I am guessing there should be a post mapping involved for attempting to log in
             @RequestParam(name="username", required=false, defaultValue="abc123") String username,
             @RequestParam(name="password", required=false, defaultValue="Password123!") String password,
             Model model

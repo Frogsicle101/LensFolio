@@ -31,7 +31,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
     @Override
     public void authenticate(AuthenticateRequest request, StreamObserver<AuthenticateResponse> responseObserver) {
         AuthenticateResponse.Builder reply = AuthenticateResponse.newBuilder();
-        
+        // ToDo Connect this to the database rather that example value
         if (request.getUsername().equals(VALID_USER) && request.getPassword().equals(VALID_PASSWORD)) {
 
             String token = jwtTokenService.generateTokenForUser(VALID_USER, VALID_USER_ID, FULL_NAME_OF_USER, ROLE_OF_USER);
