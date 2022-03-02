@@ -26,6 +26,8 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.0'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.0'
 
+    implementation 'com.h2database:h2:2.1.210'
+
     implementation 'net.devh:grpc-spring-boot-starter:2.13.1.RELEASE' // GRPC server / client dependencies
     implementation 'nz.ac.canterbury.seng302:shared:1.0' // Local package containing .proto files
 
@@ -33,6 +35,7 @@ dependencies {
 
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 }
 
 tasks.named('test') {
