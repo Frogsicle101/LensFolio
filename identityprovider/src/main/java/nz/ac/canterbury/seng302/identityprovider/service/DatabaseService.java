@@ -29,13 +29,15 @@ public class DatabaseService {
                 "EMAIL VARCHAR(30));";
         statement.executeUpdate(sql);
 
+        DatabaseService.addTestUser(); // For testing
+
     }
 
     public static void addUsertoDatabase(User user) throws SQLException {
         String sql = "INSERT INTO USERS VALUES (?,?,?,?,?,?,?,?);";
         PreparedStatement ps = conn.prepareStatement(sql);
 
-        int i = 0;
+        int i = 1;
         ps.setString(i++, user.getUsername());
         ps.setString(i++, user.getPassword());
         ps.setString(i++, user.getFirstName());
@@ -52,24 +54,43 @@ public class DatabaseService {
     public static User getUserfromDatabase(String username) throws SQLException {
         String sql = "SELECT * FROM USERS WHERE USERNAME LIKE ?;";
         PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, username);
         ResultSet result = ps.executeQuery();
 
         if (result.next()) {
             return new User(
-                result.getString(0),
+
                 result.getString(1),
                 result.getString(2),
                 result.getString(3),
                 result.getString(4),
                 result.getString(5),
                 result.getString(6),
-                result.getString(7)
+                result.getString(7),
+                result.getString(8)
             );
         } else {
-            return null;
+            // Throw exception for username not found
+            throw new NullPointerException("Username not found");
         }
+    }
 
-
+    // This method is only for testing purposes and should be removed for launch
+    private static void addTestUser() throws SQLException {
+        try {
+        DatabaseService.addUsertoDatabase(new User(
+                "abc123",
+                "Password123!",
+                "Valid",
+                "User",
+                "val",
+                "bio for Valid User",
+                "he/him",
+                "example@email.com"
+        ));
+        } catch (SQLException exception) {
+            System.out.println("Failed to add test user to database");
+        }
     }
 
 }

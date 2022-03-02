@@ -4,6 +4,7 @@ import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 
+import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.authentication.AuthenticationServerInterceptor;
 import nz.ac.canterbury.seng302.identityprovider.authentication.JwtTokenUtil;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
@@ -15,12 +16,8 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticationServiceGrp
 public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
     //ToDo connect these default values to the database instead
+
     private final int VALID_USER_ID = 1;
-    private final String VALID_USER = "abc123";
-    private final String VALID_PASSWORD = "Password123!";
-    private final String FIRST_NAME_OF_USER = "Valid";
-    private final String LAST_NAME_OF_USER = "User";
-    private final String FULL_NAME_OF_USER = FIRST_NAME_OF_USER + " " + LAST_NAME_OF_USER;
     private final String ROLE_OF_USER = "student"; // Puce teams may want to change this to "teacher" to test some functionality
 
     private JwtTokenUtil jwtTokenService = JwtTokenUtil.getInstance();
@@ -31,24 +28,41 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
     @Override
     public void authenticate(AuthenticateRequest request, StreamObserver<AuthenticateResponse> responseObserver) {
         AuthenticateResponse.Builder reply = AuthenticateResponse.newBuilder();
-        // ToDo Connect this to the database rather that example value
-        if (request.getUsername().equals(VALID_USER) && request.getPassword().equals(VALID_PASSWORD)) {
 
-            String token = jwtTokenService.generateTokenForUser(VALID_USER, VALID_USER_ID, FULL_NAME_OF_USER, ROLE_OF_USER);
+        // Attempt to retrieve user form the database
+        try {
+            User attemptedUser = DatabaseService.getUserfromDatabase(request.getUsername());
+            if (request.getPassword().equals(attemptedUser.getPassword())) {
+
+                String token = jwtTokenService.generateTokenForUser(
+                        attemptedUser.getUsername(),
+                        VALID_USER_ID,
+                        attemptedUser.getFullName(),
+                        ROLE_OF_USER);
+                reply
+                        .setEmail(attemptedUser.getEmail())
+                        .setFirstName(attemptedUser.getFirstName())
+                        .setLastName(attemptedUser.getLastName())
+                        .setMessage("Logged in successfully!")
+                        .setSuccess(true)
+                        .setToken(token)
+                        .setUserId(1)
+                        .setUsername(attemptedUser.getUsername());
+            } else {
+                reply
+                        .setMessage("Log in attempt failed: username or password incorrect")
+                        .setSuccess(false)
+                        .setToken("");
+            }
+
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+
+        } catch (NullPointerException exception) {
             reply
-                .setEmail("validuser@email.com")
-                .setFirstName(FIRST_NAME_OF_USER)
-                .setLastName(LAST_NAME_OF_USER)
-                .setMessage("Logged in successfully!")
-                .setSuccess(true)
-                .setToken(token)
-                .setUserId(1)
-                .setUsername(VALID_USER);
-        } else {
-            reply
-            .setMessage("Log in attempt failed: username or password incorrect")
-            .setSuccess(false)
-            .setToken("");
+                .setMessage(exception.getMessage())
+                .setSuccess(false)
+                .setToken("");
         }
 
         responseObserver.onNext(reply.build());
