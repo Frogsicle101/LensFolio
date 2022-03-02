@@ -1,9 +1,12 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
+import nz.ac.canterbury.seng302.identityprovider.User;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseService {
@@ -13,7 +16,7 @@ public class DatabaseService {
     public static void setUpDatabase() throws SQLException {
 
         String url = "jdbc:h2:mem:";
-        Connection conn = DriverManager.getConnection(url);
+        conn = DriverManager.getConnection(url);
         Statement statement = conn.createStatement();
         String sql = "CREATE TABLE USERS (" +
                 "USERNAME VARCHAR(20) PRIMARY KEY," +
@@ -28,42 +31,45 @@ public class DatabaseService {
 
     }
 
+    public static void addUsertoDatabase(User user) throws SQLException {
+        String sql = "INSERT INTO USERS VALUES (?,?,?,?,?,?,?,?);";
+        PreparedStatement ps = conn.prepareStatement(sql);
 
-    public static void main(String[] args) {
-        Connection conn = null;
-        try {
-            String url = "jdbc:h2:mem:";
-            conn = DriverManager.getConnection(url);
-            Statement statement = conn.createStatement();
-            String sql = "create table if not exists ftest (\n" +
-                    "    id int,\n" +
-                    "    name varchar(20)\n" +
-                    ");";
+        int i = 0;
+        ps.setString(i++, user.getUsername());
+        ps.setString(i++, user.getPassword());
+        ps.setString(i++, user.getFirstName());
+        ps.setString(i++, user.getLastName());
+        ps.setString(i++, user.getNickname());
+        ps.setString(i++, user.getBio());
+        ps.setString(i++, user.getPronouns());
+        ps.setString(i, user.getEmail());
 
-            statement.executeUpdate(sql);
+        ps.executeUpdate();
 
-            sql = "insert into ftest values (10, 'Freddy');";
-            statement.executeUpdate(sql);
+    }
 
-            ResultSet result = conn.createStatement().executeQuery("SELECT * FROM ftest");
-            while (result.next()) {
-                System.out.print(result.getInt("id"));
-                System.out.print(" ");
-                System.out.println(result.getString("name"));
-            }
+    public static User getUserfromDatabase(String username) throws SQLException {
+        String sql = "SELECT * FROM USERS WHERE USERNAME LIKE ?;";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ResultSet result = ps.executeQuery();
 
-
-        } catch (SQLException e) {
-            throw new Error("Problem", e);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
+        if (result.next()) {
+            return new User(
+                result.getString(0),
+                result.getString(1),
+                result.getString(2),
+                result.getString(3),
+                result.getString(4),
+                result.getString(5),
+                result.getString(6),
+                result.getString(7)
+            );
+        } else {
+            return null;
         }
+
+
     }
 
 }
