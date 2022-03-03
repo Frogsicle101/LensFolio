@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Account Page</title>
+    <!-- The link to the css file, in thymeleaf format -->
+    <link th:href="@{/account.css}" rel="stylesheet" />
 </head>
 <body>
-<div>
+<div class="headerBar">
     This is where the little bar at the top could be!
-    <p th:text="${username}"></p>
+    <p class="username" th:text="${username}"></p>
 </div>
 <div>
     Here are the details of your user account!
     <!-- This is an HTML comment
     These are variables given to us by AccountController
     We are then displaying them as plaintext
+    The classes of these are for css editing
     -->
-    <p th:text="${email}"></p>
-    <p th:text="${fullname}"></p>
-    <p th:text="${nickname}"></p>
-    <p th:text="${pronouns}"></p>
-    <p th:text="${userBio}"></p>
+    <p class="email" th:text="${email}"></p>
+    <p class="fullname" th:text="${fullname}"></p>
+    <p class="nickname" th:text="${nickname}"></p>
+    <p class="pronouns" th:text="${pronouns}"></p>
+    <p class="userbio" th:text="${userBio}"></p>
 </div>
 </body>
 </html>

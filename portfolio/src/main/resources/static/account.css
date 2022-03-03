@@ -1,0 +1,13 @@
+/* Make a black header bar with white text */
+.headerBar {
+    background-color: #333;
+    overflow: hidden;
+    color: white;
+
+}
+
+/* properties of the username text */
+.username {
+    text-align: right;
+    padding-right: 50px;
+}
