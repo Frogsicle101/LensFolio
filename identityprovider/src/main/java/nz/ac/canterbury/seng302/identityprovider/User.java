@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.identityprovider;
 
 public class User {
 
+    private int id;
     private String username;
     private String password;
     private String firstName;
@@ -11,7 +12,8 @@ public class User {
     private String pronouns;
     private String email;
 
-    public User(String username, String password, String firstName, String lastName, String nickname, String bio, String pronouns, String email) {
+    public User(int id, String username, String password, String firstName, String lastName, String nickname, String bio, String pronouns, String email) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.firstName = firstName;
@@ -20,6 +22,10 @@ public class User {
         this.bio = bio;
         this.pronouns = pronouns;
         this.email = email;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getUsername() {
