@@ -6,16 +6,16 @@
 </head>
 <body>
     <h1>Register New Account</h1>
-    <h3>* Required Fields</h3>
+    <h3 style="color :red; ">* Required Fields</h3>
     <p th:text="${test}" />
     <form method="get" action="/register">
-        * Username: <input type="text" name="username"><br>
-        * Full Name: <input type="text" name="full name"><br>
-        * Email: <input type="text" name="email"><br>
-        * Password: <input type="password" name="password"><br>
-        Nickname: <input type="text" name="nickname"><br>
-        Personal Pronouns: <input type="text" name="pronouns"><br>
-        Bio: <input type="text" name="bio"><br>
+        * Username:<br> <input type="text" name="username" required><br>
+        * Full Name:<br> <input type="text" name="full name" required><br>
+        * Email:<br> <input type="email" name="email" required><br>
+        * Password:<br> <input type="password" name="password" required><br>
+        Nickname:<br> <input type="text" name="nickname"><br>
+        Personal Pronouns:<br> <input type="text" name="pronouns"><br>
+        Bio:<br> <input type="text" name="bio"><br>
         <input type="submit" value="Register">
     </form>
 </body>
