@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Register Account Page</title>
+</head>
+<body>
+    <h1>Register New Account</h1>
+    <h2>* Required Fields</h2>
+    <p th:text="${hello}" />
+    <form method="get" action="/register">
+        * Username: <input type="text" name="username"><br>
+        * Full Name: <input type="text" name="full name"><br>
+        * Email: <input type="text" name="email"><br>
+        * Password: <input type="password" name="password"><br>
+        Nickname: <input type="text" name="nickname"><br>
+        Personal Pronouns: <input type="text" name="pronouns"><br>
+        Bio: <input type="text" name="bio"><br>
+        <input type="submit" value="Register">
+    </form>
+</body>
+</html>
