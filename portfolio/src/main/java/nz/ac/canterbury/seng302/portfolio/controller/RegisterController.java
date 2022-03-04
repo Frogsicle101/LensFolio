@@ -14,7 +14,7 @@ public class RegisterController {
 
     @GetMapping("/register")
     public String register(Model model) {
-        model.addAttribute("hello", "test"); //to remove just for testing
+        model.addAttribute("test", "test"); //to remove just for testing
         return "register";
     }
 }

@@ -24,6 +24,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .antMatchers(HttpMethod.GET, "/login")
                     .permitAll()
+                    .antMatchers(HttpMethod.GET, "/register")
+                    .permitAll()
                     .and()
                 .authorizeRequests()
                     .anyRequest()
@@ -47,5 +49,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception
     {
         web.ignoring().antMatchers("/login");
+        web.ignoring().antMatchers("/register");
     }
 }
