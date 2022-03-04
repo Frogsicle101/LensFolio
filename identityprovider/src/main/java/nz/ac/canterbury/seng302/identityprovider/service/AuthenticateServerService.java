@@ -14,6 +14,9 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticationServiceGrpc.AuthenticationServiceImplBase;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 
 @GrpcService
 public class AuthenticateServerService extends AuthenticationServiceImplBase{
@@ -33,35 +36,62 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
         AuthenticateResponse.Builder reply = AuthenticateResponse.newBuilder();
 
+
+        //Look for the user in the database
         User foundUser = repository.findByUsername(request.getUsername());
-        if (foundUser != null && foundUser.getPassword().equals(request.getPassword())) {
 
-            String token = jwtTokenService.generateTokenForUser(
-                    foundUser.getUsername(),
-                    foundUser.getId(),
-                    foundUser.getFirstName() + " " + foundUser.getLastName(),
-                    ROLE_OF_USER
-            );
+        /*
+         * The authentication process is setup so there is no difference between the "incorrect username" and
+         * "incorrect password" messages. This stops people from being able to guess usernames.
+         */
 
+        try {
+            boolean validLogin = false;
+            if (foundUser != null) { // Username was in database
+                PasswordEncryptorService encryptor = new PasswordEncryptorService();
+                String inputPWHash = encryptor.getHash(request.getPassword(), foundUser.getSalt());
+
+                if (inputPWHash.equals(foundUser.getPwhash())) { // Password matches stored hash
+                    validLogin = true;
+                }
+
+            }
+
+            if (validLogin) {
+                String token = jwtTokenService.generateTokenForUser(
+                        foundUser.getUsername(),
+                        foundUser.getId(),
+                        foundUser.getFirstName() + " " + foundUser.getLastName(),
+                        ROLE_OF_USER
+                );
+
+                reply
+                        .setEmail(foundUser.getEmail())
+                        .setFirstName(foundUser.getFirstName())
+                        .setLastName(foundUser.getLastName())
+                        .setMessage("Logged in successfully!")
+                        .setSuccess(true)
+                        .setToken(token)
+                        .setUserId(1)
+                        .setUsername(foundUser.getUsername());
+            } else {
+                reply
+                        .setMessage("Log in attempt failed: username or password incorrect")
+                        .setSuccess(false)
+                        .setToken("");
+            }
+
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             reply
-                .setEmail(foundUser.getEmail())
-                .setFirstName(foundUser.getFirstName())
-                .setLastName(foundUser.getLastName())
-                .setMessage("Logged in successfully!")
-                .setSuccess(true)
-                .setToken(token)
-                .setUserId(1)
-                .setUsername(foundUser.getUsername());
-        } else {
-            reply
-            .setMessage("Log in attempt failed: username or password incorrect")
-            .setSuccess(false)
-            .setToken("");
+                    .setMessage("Log in attempt failed: Unexpected Error (" + e.getMessage() + ")")
+                    .setSuccess(false)
+                    .setToken("");
         }
 
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
+
 
     /**
      * The AuthenticationInterceptor already handles validating the authState for us, so here we just need to
