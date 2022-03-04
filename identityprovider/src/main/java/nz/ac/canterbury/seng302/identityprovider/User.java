@@ -15,25 +15,27 @@ public class User {
     @Column(unique = true)
     private String username;
 
-    private String password;
+    private String pwhash;
     private String firstName;
     private String lastName;
     private String nickname;
     private String bio;
     private String pronouns;
     private String email;
+    private String salt;
 
     protected User () {} // Used by JPA
 
-    public User(String username, String password, String firstName, String lastName, String nickname, String bio, String pronouns, String email) {
+    public User(String username, String pwhash, String firstName, String lastName, String nickname, String bio, String pronouns, String email, String salt) {
         this.username = username;
-        this.password = password;
+        this.pwhash = pwhash;
         this.firstName = firstName;
         this.lastName = lastName;
         this.nickname = nickname;
         this.bio = bio;
         this.pronouns = pronouns;
         this.email = email;
+        this.salt = salt;
     }
 
     @Override
@@ -49,8 +51,8 @@ public class User {
         return username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPwhash() {
+        return pwhash;
     }
 
     public String getFirstName() {
@@ -77,5 +79,7 @@ public class User {
         return email;
     }
 
-    public String getFullName() {return username + " " + lastName;}
+    public String getSalt() {
+        return salt;
+    }
 }
