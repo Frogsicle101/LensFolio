@@ -11,6 +11,9 @@ import nz.ac.canterbury.seng302.shared.identityprovider.UserRegisterResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
  * user_accounts.proto rpc contracts.
@@ -53,10 +56,39 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    /**
+     * Follows the gRPC contract and provides the server side service for registering new users, adding them to the database
+     *
+     * @param request - A UserRegisterRequest formatted to satisfy the user_accounts.proto contract
+     * @param responseObserver - Used to return the response to the client side.
+     */
     @Override
     public void register(UserRegisterRequest request, StreamObserver<UserRegisterResponse> responseObserver) {
-        super.register(request, responseObserver);
-        //ToDo add the requested user to the database, and return the UserRegisterResponse through the observer.
+        UserRegisterResponse.Builder reply = UserRegisterResponse.newBuilder();
+        // Untested
+        try {
+            User user = new User(
+                    request.getUsername(),
+                    request.getPassword(),
+                    request.getFirstName(),
+                    request.getLastName(),
+                    request.getNickname(),
+                    request.getBio(),
+                    request.getPersonalPronouns(),
+                    request.getEmail()
+            );
+
+            repository.save(user);
+            reply.setIsSuccess(true)
+                    .setNewUserId(user.getId())
+                    .setMessage("Your account has successfully been registered");
+
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        responseObserver.onNext(reply.build());
+        responseObserver.onCompleted();
     }
 
 }
