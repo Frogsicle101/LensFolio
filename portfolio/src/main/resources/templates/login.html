@@ -1,14 +1,22 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
     <head>
-        <title>Getting Started: Serving Web Content</title>
+        <title>Log In</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link th:href="@{/login.css}" rel="stylesheet" />
     </head>
     <body>
-        <p th:text="${loginMessage}" />
-        <form method="get" action="/login">
-            Username: <input type="text" name="username"><br>
-            Password: <input type="password" name="password"><br>
+        <p th:text="${loginMessage}" class="loginMessage"></p>
+        <form th:action="@{/login}" th:object="${loginForm}"  method="post">
+
+            <div class="loginBoxes">
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username"><br>
+            </div>
+            <div class="loginBoxes">
+                <label for="password">Password:</label>
+                <input type="password" name="password" id="password"><br>
+            </div>
             <input type="submit" value="Login">
         </form>
     </body>

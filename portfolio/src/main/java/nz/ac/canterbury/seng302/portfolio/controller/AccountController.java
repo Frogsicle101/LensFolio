@@ -1,5 +1,12 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
+import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
+import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class AccountController {
 
+    @Autowired
+    private UserAccountsClientService userAccountsClientService;
+
     /**
      * This method is responsible for populating the account page template
      * It adds in variables to the html template, as well as the values of those variables
@@ -23,9 +33,12 @@ public class AccountController {
      * @return the Thymeleaf template
      */
     @RequestMapping("/account")
-    public String account(Model model) {
+    public String account(
+            @AuthenticationPrincipal AuthState principal,
+            Model model
+    ) {
 
-        addModelAttributes(model);
+        addModelAttributes(principal, model);
       return "account";
     }
 
@@ -36,17 +49,28 @@ public class AccountController {
      * This is really just to make the code a bit nicer to look at
      * @param model The model you're adding attributes to
      */
-    private void addModelAttributes(Model model) {
+    private void addModelAttributes(
+            AuthState principal,
+            Model model) {
         /*
         These addAttribute methods inject variables that we can use in our html file
         Their values have been hard-coded for now, but they can be the result of functions!
         ideally, these would be functions like getUsername and so forth
          */
-        model.addAttribute("username", "ojo26");
-        model.addAttribute("email", "ojo26@uclive.ac.nz");
-        model.addAttribute("fullname", "Oliver Johnson");
-        model.addAttribute("nickname", "Cromulus 'The Cube' Cronson");
-        model.addAttribute("pronouns", "he/him/mr code goblin");
-        model.addAttribute("userBio", "The guy whose brain is wrinkling by understanding Thymeleaf");
+        int id = Integer.parseInt(principal.getClaimsList().stream()
+                .filter(claim -> claim.getType().equals("id"))
+                .findFirst()
+                .map(ClaimDTO::getValue)
+                .orElse("NOT FOUND"));
+        GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
+        request.setId(id);
+        UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
+        model.addAttribute("username", userResponse.getUsername());
+        model.addAttribute("email", userResponse.getEmail());
+        model.addAttribute("fullname", userResponse.getFirstName() + " " + userResponse.getLastName());
+        model.addAttribute("nickname", userResponse.getNickname());
+        model.addAttribute("pronouns", userResponse.getNickname());
+        model.addAttribute("userBio", userResponse.getBio());
+
     }
 }
