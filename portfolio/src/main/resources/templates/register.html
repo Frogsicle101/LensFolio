@@ -8,14 +8,15 @@
     <h1>Register New Account</h1>
     <h3 style="color :red; ">* Required Fields</h3>
     <p th:text="${test}" />
-    <form method="get" action="/register">
-        * Username:<br> <input type="text" name="username" required><br>
-        * Full Name:<br> <input type="text" name="full name" required><br>
-        * Email:<br> <input type="email" name="email" required><br>
-        * Password:<br> <input type="password" name="password" required><br>
-        Nickname:<br> <input type="text" name="nickname"><br>
-        Personal Pronouns:<br> <input type="text" name="pronouns"><br>
-        Bio:<br> <input type="text" name="bio"><br>
+    <form method="post" action="/register" th:object=${registerForm}">
+        * Username:<br> <input type="text" name="username" id="Username" required><br>
+        * First Name:<br> <input type="text" name="first name" id="FirstName" required><br>
+        * Last Name:<br> <input type="text" name="last name" id="LastName" required><br>
+        * Email:<br> <input type="email" name="email" id="Email" required><br>
+        * Password:<br> <input type="password" name="password" id="Password" required><br>
+        Nickname:<br> <input type="text" name="nickname" id="Nickname"><br>
+        Personal Pronouns:<br> <input type="text" name="pronouns" id="PersonalPronouns"><br>
+        Bio:<br> <input type="text" name="bio" id="Bio"><br>
         <input type="submit" value="Register">
     </form>
 </body>
