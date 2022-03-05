@@ -6,6 +6,8 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRegisterRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRegisterResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -50,5 +52,11 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
-    
+
+    @Override
+    public void register(UserRegisterRequest request, StreamObserver<UserRegisterResponse> responseObserver) {
+        super.register(request, responseObserver);
+        //ToDo add the requested user to the database, and return the UserRegisterResponse through the observer.
+    }
+
 }

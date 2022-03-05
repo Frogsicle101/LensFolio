@@ -27,4 +27,13 @@ public class UserAccountsClientService {
         return userAccountStub.getUserAccountById(request);
     }
 
+    /**
+     * Sends a request to the UserAccountServerService to register a new user, with a UserRegisterRequest message
+     *
+     * @param request - The request for a registration, uses the UserRegisterRequest message type defined in the user_accounts.proto contract
+     * @return response - A UserRegisterResponse with the information returned regarding the registration attempt.
+     */
+    public UserRegisterResponse register(UserRegisterRequest request) {
+        return userAccountStub.register(request);
+    }
 }
