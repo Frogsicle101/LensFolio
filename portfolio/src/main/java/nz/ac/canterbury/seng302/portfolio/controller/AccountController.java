@@ -48,27 +48,6 @@ public class AccountController {
     }
 
     /**
-     * Logs the user out by clearing their session cookie
-     * @param response The HTTP response
-     * @param model Parameters sent to thymeleaf template to be rendered into HTML
-     * @return A redirect to the login page
-     */
-    @RequestMapping("/account/logout")
-    public ModelAndView logout(
-            HttpServletResponse response,
-            Model model
-    ) {
-        //Invalidate/clear the cookie the cookie
-        CookieUtil.clear(
-                response,
-                "lens-session-token"
-        );
-        System.out.println("hello");
-        //Redirect to the login page
-        return new ModelAndView("redirect:/login");
-    }
-
-    /**
      * Helper function to add attributes to the model
      * Given a Thymeleaf model, adds a bunch of attributes into it
      *

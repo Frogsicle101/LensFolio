@@ -34,10 +34,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         security.cors();
         security.csrf().disable();
         security.logout()
+                .logoutSuccessUrl("/login")
                 .permitAll()
                 .invalidateHttpSession(true)
-                .deleteCookies("lens-session-token")
-                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK));
+                .deleteCookies("lens-session-token");
 
         // Disable basic http security and the spring security login form
         security
@@ -46,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception
+    public void configure(WebSecurity web)
     {
         web.ignoring().antMatchers("/login");
         web.ignoring().antMatchers("/register");
