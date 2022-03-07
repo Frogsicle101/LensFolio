@@ -70,6 +70,7 @@ public class AccountController {
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
         request.setId(id);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
+        //todo add middle name here (don't forget that users might not have a middle name, see Aidan if confused
         model.addAttribute("username", "Username: " + userResponse.getUsername());
         model.addAttribute("email", "Email: " + userResponse.getEmail());
         model.addAttribute("fullname", "Name: " + userResponse.getFirstName() + " " + userResponse.getLastName());

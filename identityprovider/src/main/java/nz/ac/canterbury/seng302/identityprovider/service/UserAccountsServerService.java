@@ -78,12 +78,17 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     request.getEmail()
             );
 
-            repository.save(user);
-            reply.setIsSuccess(true)
-                    .setNewUserId(user.getId())
-                    .setMessage("Your account has successfully been registered");
+            if (repository.findByUsername(user.getUsername()) == null) {
+                repository.save(user);
+                reply.setIsSuccess(true)
+                        .setNewUserId(user.getId())
+                        .setMessage("Your account has successfully been registered");
+            } else {
+                reply.setIsSuccess(false);
+                reply.setMessage("Username already in use");
+            }
 
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | io.grpc.StatusRuntimeException e) {
             e.printStackTrace();
         }
 

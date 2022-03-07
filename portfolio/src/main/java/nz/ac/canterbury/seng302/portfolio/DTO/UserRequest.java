@@ -8,10 +8,10 @@ public class UserRequest {
 
     private String username;
     private String password;
-    private String firstName;
-    private String middleName;
-    private String lastName;
-    private String nickName;
+    private String firstname;
+    private String middlename;
+    private String lastname;
+    private String nickname;
     private String bio;
     private String personalPronouns;
     private String email;
@@ -26,6 +26,8 @@ public class UserRequest {
         this.username = username;
         this.password = password;
     }
+
+
 
     public String getUsername() {
         return username;
@@ -43,36 +45,36 @@ public class UserRequest {
         this.password = password;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getFirstname() {
+        return firstname;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
     }
 
-    public String getMiddleName() {
-        return middleName;
+    public String getMiddlename() {
+        return middlename;
     }
 
-    public void setMiddleName(String middleName) {
-        this.middleName = middleName;
+    public void setMiddlename(String middlename) {
+        this.middlename = middlename;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getLastname() {
+        return lastname;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
-    public String getNickName() {
-        return nickName;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getBio() {
