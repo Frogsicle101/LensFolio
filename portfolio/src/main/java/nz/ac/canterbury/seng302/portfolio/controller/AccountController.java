@@ -58,19 +58,19 @@ public class AccountController {
         ideally, these would be functions like getUsername and so forth
          */
         int id = Integer.parseInt(principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("id"))
+                .filter(claim -> claim.getType().equals("nameid"))
                 .findFirst()
                 .map(ClaimDTO::getValue)
                 .orElse("NOT FOUND"));
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
         request.setId(id);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
-        model.addAttribute("username", userResponse.getUsername());
-        model.addAttribute("email", userResponse.getEmail());
-        model.addAttribute("fullname", userResponse.getFirstName() + " " + userResponse.getLastName());
-        model.addAttribute("nickname", userResponse.getNickname());
-        model.addAttribute("pronouns", userResponse.getNickname());
-        model.addAttribute("userBio", userResponse.getBio());
+        model.addAttribute("username", "Username: " + userResponse.getUsername());
+        model.addAttribute("email", "Email: " + userResponse.getEmail());
+        model.addAttribute("fullname", "Name: " + userResponse.getFirstName() + " " + userResponse.getLastName());
+        model.addAttribute("nickname", "Nickname: " + userResponse.getNickname());
+        model.addAttribute("pronouns", "Pronouns: " + userResponse.getPersonalPronouns());
+        model.addAttribute("userBio", "Bio: " + userResponse.getBio());
 
     }
 }
