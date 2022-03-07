@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import io.grpc.StatusRuntimeException;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
+import nz.ac.canterbury.seng302.portfolio.authentication.AuthenticationException;
 import nz.ac.canterbury.seng302.portfolio.authentication.CookieUtil;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
@@ -18,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 public class LoginController {
 
     @Autowired
-    private AuthenticateClientService authenticateClientService;
+    public AuthenticateClientService authenticateClientService;
 
     /**
      * Shows the login page to anyone who wants to see it.
@@ -49,37 +50,60 @@ public class LoginController {
     public ModelAndView login(
             HttpServletRequest request,
             HttpServletResponse response,
-            @ModelAttribute(name="loginForm") UserRequest login,
+            @ModelAttribute(name="loginForm") UserRequest userRequest,
             Model model
     ) {
-        //Get the username and password from the form.
-        //Username of account to log in to IdP with
-        String username = login.getUsername();
-        //Password associated with username
-        String password = login.getPassword();
+
         AuthenticateResponse loginReply;
         //This try/catch block is the login attempt
         try {
-            loginReply = authenticateClientService.authenticate(username, password);
-        } catch (StatusRuntimeException e){
+            loginReply = attemptLogin(userRequest, request, response, authenticateClientService);
+        } catch (AuthenticationException e){
             model.addAttribute("loginMessage", "Error connecting to Identity Provider...");
             return new ModelAndView("login");
         }
-        //If the login was successful, create a cookie!
+        // If login was successful redirect to account, otherwise add failure message
         if (loginReply.getSuccess()) {
-            var domain = request.getHeader("host");
-            CookieUtil.create(
-                response,
-                "lens-session-token",
-                    loginReply.getToken(),
-                true,
-                5 * 60 * 60, // Expires in 5 hours
-                domain.startsWith("localhost") ? null : domain
-            );
             return new ModelAndView("redirect:/account");
+        } else {
+            model.addAttribute("loginMessage", loginReply.getMessage());
+            return new ModelAndView("login");
         }
-        model.addAttribute("loginMessage", loginReply.getMessage());
-        return new ModelAndView("login");
     }
 
+    /**
+     * This method attempts to authenticate a user by sending an Authentication request to the server and if successful
+     * adding a Cookie, otherwise it does not add the cookie
+     *
+     * @param userRequest - The userRequest object with the authentication fields
+     * @param request - used for creating the cookie
+     * @param response - used for creating the cookie
+     * @return authenticate response - contains information about the authentication attempt.
+     * @throws AuthenticationException - if the Identity provider can't be reached.
+     */
+    public AuthenticateResponse attemptLogin(UserRequest userRequest,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     AuthenticateClientService authenticateClientService) throws AuthenticationException {
+        AuthenticateResponse authenticateResponse;
+        //This try/catch block is the login attempt
+        try {
+            authenticateResponse = authenticateClientService.authenticate(userRequest.getUsername(), userRequest.getPassword());
+        } catch (StatusRuntimeException e){
+            throw new AuthenticationException("failed to connect to the Identity Provider");
+        }
+        //If the login was successful, create a cookie!
+        if (authenticateResponse.getSuccess()) {
+            var domain = request.getHeader("host");
+            CookieUtil.create(
+                    response,
+                    "lens-session-token",
+                    authenticateResponse.getToken(),
+                    true,
+                    5 * 60 * 60, // Expires in 5 hours
+                    domain.startsWith("localhost") ? null : domain
+            );
+        }
+        return authenticateResponse;
+    }
 }

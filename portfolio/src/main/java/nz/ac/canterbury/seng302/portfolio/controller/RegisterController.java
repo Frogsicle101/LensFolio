@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import io.grpc.StatusRuntimeException;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
+import nz.ac.canterbury.seng302.portfolio.authentication.AuthenticationException;
 import nz.ac.canterbury.seng302.portfolio.authentication.CookieUtil;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -47,51 +48,49 @@ public class RegisterController {
     public ModelAndView attemptRegistration(
             HttpServletRequest request,
             HttpServletResponse response,
-            @ModelAttribute(name="registerForm") UserRequest registerRequest,
+            @ModelAttribute(name="registerForm") UserRequest userRequest,
             Model model
     ) {
-        //ToDo, clean this up with better names, maybe put in own method
-        UserRegisterRequest.Builder registerRequest2 = UserRegisterRequest.newBuilder();
-        registerRequest2.setUsername(registerRequest.getUsername())
-                .setPassword(registerRequest.getPassword())
-                .setFirstName(registerRequest.getFirstname())
-                .setMiddleName(registerRequest.getMiddlename())
-                .setLastName(registerRequest.getLastname())
-                .setEmail(registerRequest.getEmail())
-                .setBio(registerRequest.getBio())
-                .setPersonalPronouns(registerRequest.getPersonalPronouns())
-                .setNickname(registerRequest.getNickname());
+        // Make UserRegisterRequest and send to Server
+        UserRegisterResponse registerReply = userAccountsClientService.register(createUserRegisterRequest(userRequest));
 
-
-        UserRegisterResponse registerReply = userAccountsClientService.register(registerRequest2.build());
-
-        //todo check if this can be done in LoginController
+        // Attempt to login new user
         if (registerReply.getIsSuccess()) {
-            AuthenticateResponse loginReply;
-            //This try/catch block is the login attempt
             try {
-                loginReply = authenticateClientService.authenticate(registerRequest.getUsername(), registerRequest.getPassword());
-            } catch (StatusRuntimeException e){
-                model.addAttribute("loginMessage", "Error connecting to Identity Provider...");
-                return new ModelAndView("login");
+                AuthenticateResponse authenticateResponse = new LoginController()
+                    .attemptLogin(userRequest,
+                                request,
+                                response,
+                                authenticateClientService);
+            } catch (AuthenticationException exception) {
+                model.addAttribute("errorMessage", exception.getMessage());
+                return new ModelAndView("register");
             }
-            //If the login was successful, create a cookie!
-            if (loginReply.getSuccess()) {
-                var domain = request.getHeader("host");
-                CookieUtil.create(
-                        response,
-                        "lens-session-token",
-                        loginReply.getToken(),
-                        true,
-                        5 * 60 * 60, // Expires in 5 hours
-                        domain.startsWith("localhost") ? null : domain
-                );
-                return new ModelAndView("redirect:/account");
-            }
-        }
 
+            return new ModelAndView("redirect:/account");
+        }
         model.addAttribute("errorMessage", registerReply.getMessage());
         return new ModelAndView("register");
     }
 
+    /**
+     * Takes a UserRequest object populated from a registration form and returns a UserRegisterRequest to send to the server
+     * 
+     * @param userRequest - A UserRequest object populated from a register.html form
+     * @return userRegisterRequest - a populated userRegisterRequest from the user_accounts.proto format
+     */
+    private UserRegisterRequest createUserRegisterRequest(UserRequest userRequest) {
+        
+        UserRegisterRequest.Builder userRegisterRequest = UserRegisterRequest.newBuilder();
+        userRegisterRequest.setUsername(userRequest.getUsername())
+                .setPassword(userRequest.getPassword())
+                .setFirstName(userRequest.getFirstname())
+                .setMiddleName(userRequest.getMiddlename())
+                .setLastName(userRequest.getLastname())
+                .setEmail(userRequest.getEmail())
+                .setBio(userRequest.getBio())
+                .setPersonalPronouns(userRequest.getPersonalPronouns())
+                .setNickname(userRequest.getNickname());
+        return userRegisterRequest.build();
+    }
 }
