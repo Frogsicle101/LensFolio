@@ -77,7 +77,6 @@ public class LoginController {
                 5 * 60 * 60, // Expires in 5 hours
                 domain.startsWith("localhost") ? null : domain
             );
-            //Commented out for testing
             return new ModelAndView("redirect:/account");
         }
         model.addAttribute("loginMessage", loginReply.getMessage());

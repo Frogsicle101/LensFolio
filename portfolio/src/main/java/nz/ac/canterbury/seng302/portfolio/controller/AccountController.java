@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.CookieUtil;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
@@ -9,7 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Controller class for the account page
@@ -40,6 +45,27 @@ public class AccountController {
 
         addModelAttributes(principal, model);
       return "account";
+    }
+
+    /**
+     * Logs the user out by clearing their session cookie
+     * @param response The HTTP response
+     * @param model Parameters sent to thymeleaf template to be rendered into HTML
+     * @return A redirect to the login page
+     */
+    @RequestMapping("/account/logout")
+    public ModelAndView logout(
+            HttpServletResponse response,
+            Model model
+    ) {
+        //Invalidate/clear the cookie the cookie
+        CookieUtil.clear(
+                response,
+                "lens-session-token"
+        );
+        System.out.println("hello");
+        //Redirect to the login page
+        return new ModelAndView("redirect:/login");
     }
 
     /**
