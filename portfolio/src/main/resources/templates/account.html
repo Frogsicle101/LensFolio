@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <title>Account Page</title>
     <!-- The link to the css file, in thymeleaf format -->
-    <link th:href="@{/account.css}" rel="stylesheet" />
+    <link th:href="@{account.css}" rel="stylesheet" />
 </head>
 <body>
 <div class="headerBar">
-    This is where the little bar at the top could be!
-    <p class="username" th:text="${username}"></p>
+    <span class="headerSpan">This is where the little bar at the top could be!</span>
+    <div class="dropdown">
+        <p class="username" th:text="${username}"></p>
+        <div class="dropdown-content">
+            <button class="logout" th:action="@{/account}" th:method="delete">Log Out</button>
+        </div>
+    </div>
 </div>
 <div>
     Here are the details of your user account!
