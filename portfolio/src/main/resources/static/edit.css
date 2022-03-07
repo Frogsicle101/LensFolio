@@ -1,0 +1,16 @@
+.reqLine {
+    color: red;
+}
+
+.body {
+    display: flex;
+    flex-direction: row;
+}
+
+.details {
+    width: 50%;
+}
+
+.password {
+    width: 50%;
+}
