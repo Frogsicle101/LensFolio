@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.Login;
+import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRegisterRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRegisterResponse;
@@ -37,14 +38,14 @@ public class RegisterController {
 
     @PostMapping("/register")
     public ModelAndView attemptRegistration(
-            @ModelAttribute(name="registerForm") UserRegisterRequest registerRequest,
+            @ModelAttribute(name="registerForm") UserRequest registerRequest,
             Model model
     ) {
         //ToDo, use registerReply to update model
         UserRegisterResponse registerReply;
         try {
-            registerReply = userAccountsClientService.register(registerRequest);
-
+            // registerReply = userAccountsClientService.register(registerRequest);
+            System.out.println(registerRequest.getUsername());
         } catch (Exception e) {
             e.printStackTrace();
         }
