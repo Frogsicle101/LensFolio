@@ -37,7 +37,23 @@ public class UserAccountsClientService {
         return userAccountStub.register(request);
     }
 
+    /**
+     * Sends a request to the UserAccountServerService to edit the details of a user, with a EditUserRequest message
+     *
+     * @param request -The request for an edit, uses the EditUserRequest message type defined in the user_accounts.proto contract
+     * @return response - A EditUserResponse with the information returned regarding the detail editing attempt.
+     */
     public EditUserResponse editUser(EditUserRequest request) {
         return userAccountStub.editUser(request);
+    }
+
+    /**
+     * Sends a request to the UserAccountServerService to change the password of a user, with a ChangePasswordRequest message
+     *
+     * @param request -The request to change password, uses the ChangePasswordRequest message type defined in the user_accounts.proto contract
+     * @return response - A ChangePasswordResponse with the information returned regarding the changing of passwords.
+     */
+    public ChangePasswordResponse changeUserPassword(ChangePasswordRequest request) {
+        return userAccountStub.changeUserPassword(request);
     }
 }

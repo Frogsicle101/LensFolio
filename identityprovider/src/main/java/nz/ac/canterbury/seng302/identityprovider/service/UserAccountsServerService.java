@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import nz.ac.canterbury.seng302.identityprovider.User;
@@ -7,6 +8,7 @@ import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -97,9 +99,34 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     }
 
 
+    @Transactional
     @Override
     public void editUser(EditUserRequest request, StreamObserver<EditUserResponse> responseObserver) {
-        super.editUser(request, responseObserver);
+        EditUserResponse.Builder response = EditUserResponse.newBuilder();
+        // Try find user by ID
+        User userToEdit = repository.findById(request.getUserId());
+        if (userToEdit != null) {
+            try {
+                userToEdit.setFirstName(request.getFirstName());
+                userToEdit.setMiddleName(request.getMiddleName());
+                userToEdit.setLastName(request.getLastName());
+                userToEdit.setNickname(request.getNickname());
+                userToEdit.setBio(request.getBio());
+                userToEdit.setPronouns(request.getPersonalPronouns());
+                userToEdit.setEmail(request.getEmail());
+                repository.save(userToEdit);
+                response.setIsSuccess(true)
+                        .setMessage("Successfully updated details for " + userToEdit.getUsername());
+            } catch (StatusRuntimeException e) {
+                e.printStackTrace();
+            }
+        } else {
+            response.setIsSuccess(false)
+                    .setMessage("Could not find user to edit");
+        }
+
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
     }
 
     /*
@@ -111,4 +138,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
    string PersonalPronouns = 7;
    string Email = 8;
      */
+
+    @Override
+    public void changeUserPassword(ChangePasswordRequest request, StreamObserver<ChangePasswordResponse> responseObserver) {
+        super.changeUserPassword(request, responseObserver);
+    }
+
 }

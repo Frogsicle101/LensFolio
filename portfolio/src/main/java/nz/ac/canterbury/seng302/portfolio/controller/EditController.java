@@ -3,10 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -100,10 +97,29 @@ public class EditController {
     public ModelAndView editDetails(
             HttpServletRequest request,
             HttpServletResponse response,
+            @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editDetailsForm") UserRequest editInfo,
             Model model
     ) {
         //TODO: Wire this up to the database to change the user's details
+        EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
+
+        Integer id = Integer.valueOf(principal.getClaimsList().stream()
+                .filter(claim -> claim.getType().equals("nameid"))
+                .findFirst()
+                .map(ClaimDTO::getValue)
+                .orElse("-100"));
+
+        editRequest.setUserId(id)
+                .setFirstName(editInfo.getFirstname())
+                .setMiddleName(editInfo.getMiddlename())
+                .setLastName(editInfo.getLastname())
+                .setNickname(editInfo.getNickname())
+                .setBio(editInfo.getBio())
+                .setPersonalPronouns(editInfo.getPersonalPronouns())
+                .setEmail(editInfo.getEmail());
+        EditUserResponse reply = userAccountsClientService.editUser(editRequest.build());
+        System.out.println(reply);
         //Since they're at a different endpoint, redirect back to the main edit endpoint
         return new ModelAndView("redirect:/edit");
     }
