@@ -39,10 +39,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .invalidateHttpSession(true)
                 .deleteCookies("lens-session-token");
 
-        // Disable basic http security and the spring security login form
+        security.exceptionHandling().accessDeniedPage("/index.html");
+
+        // Disable basic http security
         security
-            .httpBasic().disable()
-            .formLogin().disable();
+            .httpBasic().disable();
+
+
+        // Tells spring where our login page is, so it redirects users there if they are not authenticated
+        security.formLogin().loginPage("/login");
     }
 
     @Override
