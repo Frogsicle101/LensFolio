@@ -45,9 +45,15 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
          * "incorrect password" messages. This stops people from being able to guess usernames.
          */
 
-        try {
-            boolean validLogin = false;
-            if (foundUser != null) { // Username was in database
+
+        boolean validLogin = false;
+        if (foundUser == null) { // Username not found
+            reply
+                    .setMessage("Log in attempt failed: could not find user: " + request.getUsername())
+                    .setSuccess(false)
+                    .setToken("");
+        } else { //Username in database
+            try {
                 PasswordEncryptorService encryptor = new PasswordEncryptorService();
                 String inputPWHash = encryptor.getHash(request.getPassword(), foundUser.getSalt());
 
@@ -55,37 +61,35 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
                     validLogin = true;
                 }
 
-            }
+                if (validLogin) { // correct password achieved so add token
+                    String token = jwtTokenService.generateTokenForUser(
+                            foundUser.getUsername(),
+                            foundUser.getId(),
+                            foundUser.getFirstName() + " " + foundUser.getLastName(),
+                            ROLE_OF_USER
+                    );
 
-            if (validLogin) {
-                String token = jwtTokenService.generateTokenForUser(
-                        foundUser.getUsername(),
-                        foundUser.getId(),
-                        foundUser.getFirstName() + " " + foundUser.getLastName(),
-                        ROLE_OF_USER
-                );
-
+                    reply
+                            .setEmail(foundUser.getEmail())
+                            .setFirstName(foundUser.getFirstName())
+                            .setLastName(foundUser.getLastName())
+                            .setMessage("Logged in successfully!")
+                            .setSuccess(true)
+                            .setToken(token)
+                            .setUserId(1)
+                            .setUsername(foundUser.getUsername());
+                } else { // Incorrect password
+                    reply
+                            .setMessage("Log in attempt failed: username or password incorrect")
+                            .setSuccess(false)
+                            .setToken("");
+                }
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 reply
-                        .setEmail(foundUser.getEmail())
-                        .setFirstName(foundUser.getFirstName())
-                        .setLastName(foundUser.getLastName())
-                        .setMessage("Logged in successfully!")
-                        .setSuccess(true)
-                        .setToken(token)
-                        .setUserId(1)
-                        .setUsername(foundUser.getUsername());
-            } else {
-                reply
-                        .setMessage("Log in attempt failed: username or password incorrect")
+                        .setMessage("Log in attempt failed: Unexpected Error (" + e.getMessage() + ")")
                         .setSuccess(false)
                         .setToken("");
             }
-
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            reply
-                    .setMessage("Log in attempt failed: Unexpected Error (" + e.getMessage() + ")")
-                    .setSuccess(false)
-                    .setToken("");
         }
 
         responseObserver.onNext(reply.build());
