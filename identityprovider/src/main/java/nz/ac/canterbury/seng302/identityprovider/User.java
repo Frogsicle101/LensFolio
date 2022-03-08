@@ -1,13 +1,11 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
-import nz.ac.canterbury.seng302.identityprovider.service.PasswordService;
+import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 
 @Entity
 public class User {
@@ -45,7 +43,7 @@ public class User {
      * @param pronouns - the users personal pronouns
      * @param email - the email of the user
      */
-    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email) {
         this.username = username;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -55,7 +53,7 @@ public class User {
         this.pronouns = pronouns;
         this.email = email;
 
-        PasswordService encryptor = new PasswordService();
+        LoginService encryptor = new LoginService();
 
         this.salt = encryptor.getNewSalt();
         this.pwhash = encryptor.getHash(password, salt);
@@ -161,8 +159,8 @@ public class User {
         this.email = email;
     }
 
-    public void setPwhash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        PasswordService encryptor = new PasswordService();
+    public void setPwhash(String password) {
+        LoginService encryptor = new LoginService();
 
         this.pwhash = encryptor.getHash(password, salt);
     }

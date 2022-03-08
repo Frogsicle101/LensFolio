@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
 import nz.ac.canterbury.seng302.identityprovider.User;
+import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateRequest;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -14,8 +15,46 @@ import java.util.Base64;
  * Service class used to hash passwords so they are not stored in plain text.
  * Hashing details adapted from <a href="https://www.quickprogrammingtips.com/java/how-to-securely-store-passwords-in-java.html">www.quickprogrammingtips.com</a>
  */
-public class PasswordService {
+public class LoginService {
 
+    /**
+     * Enum to store different possible outcomes of attempting to log in
+     */
+    enum LoginStatus {
+        VALID,
+        USER_INVALID,
+        PASSWORD_INVALID
+    }
+
+    /**
+     * Processes a request to login
+     * @param foundUser The user, retrieved from the database, to check against. If the user was not in the database
+     *                  may be null
+     * @param request The AuthenticateRequest sent by the client, containing the password entered on the website
+     * @return One of LoginStatus.VALID, LoginStatus.USER_INVALID, or LoginStatus.PASSWORD_INVALID
+     */
+    public LoginStatus checkLogin(User foundUser, AuthenticateRequest request) {
+
+        if (foundUser == null) {
+            // User not in database
+            return LoginStatus.USER_INVALID;
+        } else {
+            //User in database
+
+            if (passwordMatches(request.getPassword(), foundUser)) { // Password matches stored hash
+                return LoginStatus.VALID;
+            } else { // Incorrect password
+                return LoginStatus.PASSWORD_INVALID;
+            }
+        }
+    }
+
+
+    /**
+     * Checks that the given password matches with the given user
+     * @param password The password (from the website)
+     * @param user The user to check against
+     */
     public boolean passwordMatches(String password, User user) {
         return getHash(password, user.getSalt()).equals(user.getPwhash());
     }
@@ -42,7 +81,7 @@ public class PasswordService {
             SecretKeyFactory factory = SecretKeyFactory.getInstance(algorithm);
             encBytes = factory.generateSecret(spec).getEncoded();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            //
+            // This exception will only be thrown if the java algorithm specification changes
             throw new RuntimeException("Could not hash password: " + e.getMessage());
         }
 
@@ -60,6 +99,7 @@ public class PasswordService {
         try {
             random = SecureRandom.getInstance("SHA1PRNG");
         } catch (NoSuchAlgorithmException e) {
+            // This exception will only be thrown if the java algorithm specification changes
             throw new RuntimeException("Could not get salt: " + e.getMessage());
         }
 

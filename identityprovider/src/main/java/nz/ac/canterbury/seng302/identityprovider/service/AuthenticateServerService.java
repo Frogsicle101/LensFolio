@@ -14,8 +14,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticationServiceGrpc.AuthenticationServiceImplBase;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
+
 
 
 @GrpcService
@@ -70,24 +69,16 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
         AuthenticateResponse.Builder reply = AuthenticateResponse.newBuilder();
 
-
-        //Look for the user in the database
         User foundUser = repository.findByUsername(request.getUsername());
 
+        LoginService service = new LoginService();
+        LoginService.LoginStatus status = service.checkLogin(foundUser, request);
 
-        if (foundUser == null) {
-            // Username not in database
-            setNoUserReply(request.getUsername(), reply);
-        } else {
-            // Username in database
+        switch (status) {
+            case VALID -> setSuccessReply(foundUser, reply);
+            case USER_INVALID -> setNoUserReply(foundUser.getUsername(), reply);
+            case PASSWORD_INVALID -> setBadPasswordReply(reply);
 
-            PasswordService service = new PasswordService();
-
-            if (service.passwordMatches(request.getPassword(), foundUser)) { // Password matches stored hash
-                setSuccessReply(foundUser, reply);
-            } else { // Incorrect password
-                setBadPasswordReply(reply);
-            }
         }
 
         responseObserver.onNext(reply.build());
