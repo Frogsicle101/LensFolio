@@ -10,9 +10,6 @@ import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.U
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
  * user_accounts.proto rpc contracts.
@@ -90,7 +87,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 reply.setMessage("Username already in use");
             }
 
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException | io.grpc.StatusRuntimeException e) {
+        } catch (io.grpc.StatusRuntimeException e) {
             e.printStackTrace();
         }
 
@@ -140,7 +137,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             // User is found, check correct current password provided
             try {
                 // encrypt attempted current password to "match" pwhash
-                PasswordEncryptorService encryptor = new PasswordEncryptorService();
+                LoginService encryptor = new LoginService();
                 String inputPWHash = encryptor.getHash(request.getCurrentPassword(), userToUpdate.getSalt());
                 // Check encrypted password against pw hash
                 if (userToUpdate.getPwhash().equals(inputPWHash)) {
@@ -154,7 +151,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     response.setIsSuccess(false)
                             .setMessage("Incorrect current password provided");
                 }
-            } catch (StatusRuntimeException | NoSuchAlgorithmException |InvalidKeySpecException e) {
+            } catch (StatusRuntimeException e) {
                 response.setIsSuccess(false)
                         .setMessage("An error has occurred while connecting to the database");
             }

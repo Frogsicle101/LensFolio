@@ -14,8 +14,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticationServiceGrpc.AuthenticationServiceImplBase;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
+
 
 
 @GrpcService
@@ -28,6 +27,40 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
     @Autowired
     private UserRepository repository;
 
+    private void setSuccessReply(User foundUser, AuthenticateResponse.Builder reply) {
+        String token = jwtTokenService.generateTokenForUser(
+                foundUser.getUsername(),
+                foundUser.getId(),
+                foundUser.getFirstName() + " " + foundUser.getLastName(),
+                ROLE_OF_USER
+        );
+
+        reply
+                .setEmail(foundUser.getEmail())
+                .setFirstName(foundUser.getFirstName())
+                .setLastName(foundUser.getLastName())
+                .setMessage("Logged in successfully!")
+                .setSuccess(true)
+                .setToken(token)
+                .setUserId(1)
+                .setUsername(foundUser.getUsername());
+    }
+
+    private void setNoUserReply(String username, AuthenticateResponse.Builder reply) {
+        reply
+                .setMessage("Log in attempt failed: could not find user: " + username)
+                .setSuccess(false)
+                .setToken("");
+    }
+
+    private void setBadPasswordReply(AuthenticateResponse.Builder reply) {
+        reply
+                .setMessage("Log in attempt failed: username or password incorrect")
+                .setSuccess(false)
+                .setToken("");
+    }
+
+
     /**
      * Attempts to authenticate a user with a given username and password. 
      */
@@ -36,65 +69,22 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
         AuthenticateResponse.Builder reply = AuthenticateResponse.newBuilder();
 
-
-        //Look for the user in the database
         User foundUser = repository.findByUsername(request.getUsername());
 
-        /*
-         * The authentication process is setup so there is no difference between the "incorrect username" and
-         * "incorrect password" messages. This stops people from being able to guess usernames.
-         */
+        LoginService service = new LoginService();
+        LoginService.LoginStatus status = service.checkLogin(foundUser, request);
 
+        switch (status) {
+            case VALID -> setSuccessReply(foundUser, reply);
+            case USER_INVALID -> setNoUserReply(foundUser.getUsername(), reply);
+            case PASSWORD_INVALID -> setBadPasswordReply(reply);
 
-        boolean validLogin = false;
-        if (foundUser == null) { // Username not found
-            reply
-                    .setMessage("Log in attempt failed: could not find user: " + request.getUsername())
-                    .setSuccess(false)
-                    .setToken("");
-        } else { //Username in database
-            try {
-                PasswordEncryptorService encryptor = new PasswordEncryptorService();
-                String inputPWHash = encryptor.getHash(request.getPassword(), foundUser.getSalt());
-
-                if (inputPWHash.equals(foundUser.getPwhash())) { // Password matches stored hash
-                    validLogin = true;
-                }
-
-                if (validLogin) { // correct password achieved so add token
-                    String token = jwtTokenService.generateTokenForUser(
-                            foundUser.getUsername(),
-                            foundUser.getId(),
-                            foundUser.getFirstName() + " " + foundUser.getLastName(),
-                            ROLE_OF_USER
-                    );
-
-                    reply
-                            .setEmail(foundUser.getEmail())
-                            .setFirstName(foundUser.getFirstName())
-                            .setLastName(foundUser.getLastName())
-                            .setMessage("Logged in successfully!")
-                            .setSuccess(true)
-                            .setToken(token)
-                            .setUserId(1)
-                            .setUsername(foundUser.getUsername());
-                } else { // Incorrect password
-                    reply
-                            .setMessage("Log in attempt failed: username or password incorrect")
-                            .setSuccess(false)
-                            .setToken("");
-                }
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                reply
-                        .setMessage("Log in attempt failed: Unexpected Error (" + e.getMessage() + ")")
-                        .setSuccess(false)
-                        .setToken("");
-            }
         }
 
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
+
 
 
     /**
