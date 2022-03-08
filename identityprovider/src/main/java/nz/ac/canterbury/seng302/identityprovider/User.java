@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
 import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptorService;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 
 @Entity
 public class User {
@@ -28,6 +30,8 @@ public class User {
     private String pronouns;
     private String email;
     private String salt;
+    private ArrayList<UserRole> roles = new ArrayList<>();
+
 
     /**
      * Generic constructor used by JPA
@@ -54,6 +58,7 @@ public class User {
         this.bio = bio;
         this.pronouns = pronouns;
         this.email = email;
+        this.roles.add(UserRole.STUDENT); //To automatically assign a new user as a student, subject to change
 
         PasswordEncryptorService encryptor = new PasswordEncryptorService();
 
@@ -79,6 +84,7 @@ public class User {
         this.pronouns = pronouns;
         this.email = email;
         this.salt = salt;
+        this.roles.add(UserRole.STUDENT); //To automatically assign a new user as a student, subject to change
     }
 
 
@@ -132,6 +138,8 @@ public class User {
     public String getSalt() {
         return salt;
     }
+
+    public ArrayList<UserRole> getRoles() { return roles; }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;

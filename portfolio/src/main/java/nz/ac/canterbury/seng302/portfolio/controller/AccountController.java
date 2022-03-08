@@ -77,6 +77,10 @@ public class AccountController {
         model.addAttribute("nickname", "Nickname: " + userResponse.getNickname());
         model.addAttribute("pronouns", "Pronouns: " + userResponse.getPersonalPronouns());
         model.addAttribute("userBio", "Bio: " + userResponse.getBio());
-
+        String rolesList = "";
+        for (int i = 0; i < userResponse.getRolesCount(); i++) {
+            rolesList += userResponse.getRoles(i) + "  ";
+        }
+        model.addAttribute("roles", "Roles: " + rolesList);
     }
 }
