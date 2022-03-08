@@ -43,7 +43,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         //Build UserResponse (proto) from User
         reply.setUsername(user.getUsername())
                 .setFirstName(user.getFirstName())
-//                .setMiddleName(user.getMiddleName())
+                .setMiddleName(user.getMiddleName())
                 .setLastName(user.getLastName())
                 .setNickname(user.getNickname())
                 .setBio(user.getBio())

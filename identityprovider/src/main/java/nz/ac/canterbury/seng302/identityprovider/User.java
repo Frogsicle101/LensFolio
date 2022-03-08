@@ -68,7 +68,7 @@ public class User {
      * @param pwhash The base64 encoded password hash
      * @param salt The salt used to generate the hash
      */
-    public User(String username, String pwhash, String firstName, String middleName,String lastName, String nickname, String bio, String pronouns, String email, String salt) {
+    public User(String username, String pwhash, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email, String salt) {
         this.username = username;
         this.pwhash = pwhash;
         this.firstName = firstName;
