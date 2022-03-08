@@ -140,7 +140,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             // User is found, check correct current password provided
             try {
                 // encrypt attempted current password to "match" pwhash
-                PasswordEncryptorService encryptor = new PasswordEncryptorService();
+                PasswordService encryptor = new PasswordService();
                 String inputPWHash = encryptor.getHash(request.getCurrentPassword(), userToUpdate.getSalt());
                 // Check encrypted password against pw hash
                 if (userToUpdate.getPwhash().equals(inputPWHash)) {

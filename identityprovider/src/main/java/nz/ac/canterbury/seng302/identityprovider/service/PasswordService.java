@@ -12,7 +12,7 @@ import java.util.Base64;
  * Service class used to hash passwords so they are not stored in plain text.
  * Adapted from <a href="https://www.quickprogrammingtips.com/java/how-to-securely-store-passwords-in-java.html">www.quickprogrammingtips.com</a>
  */
-public class PasswordEncryptorService {
+public class PasswordService {
 
     /**
      * Hashes the given password

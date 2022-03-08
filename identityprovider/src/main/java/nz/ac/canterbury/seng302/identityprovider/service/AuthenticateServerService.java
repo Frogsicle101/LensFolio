@@ -54,7 +54,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
                     .setToken("");
         } else { //Username in database
             try {
-                PasswordEncryptorService encryptor = new PasswordEncryptorService();
+                PasswordService encryptor = new PasswordService();
                 String inputPWHash = encryptor.getHash(request.getPassword(), foundUser.getSalt());
 
                 if (inputPWHash.equals(foundUser.getPwhash())) { // Password matches stored hash

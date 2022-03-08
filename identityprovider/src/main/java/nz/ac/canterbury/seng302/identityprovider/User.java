@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
-import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptorService;
+import nz.ac.canterbury.seng302.identityprovider.service.PasswordService;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -55,7 +55,7 @@ public class User {
         this.pronouns = pronouns;
         this.email = email;
 
-        PasswordEncryptorService encryptor = new PasswordEncryptorService();
+        PasswordService encryptor = new PasswordService();
 
         this.salt = encryptor.getNewSalt();
         this.pwhash = encryptor.getHash(password, salt);
@@ -162,7 +162,7 @@ public class User {
     }
 
     public void setPwhash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        PasswordEncryptorService encryptor = new PasswordEncryptorService();
+        PasswordService encryptor = new PasswordService();
 
         this.pwhash = encryptor.getHash(password, salt);
     }
