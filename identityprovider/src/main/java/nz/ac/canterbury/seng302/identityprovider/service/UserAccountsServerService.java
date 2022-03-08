@@ -129,19 +129,42 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    /*
-       string FirstName = 2;
-   string MiddleName = 3;
-   string LastName = 4;
-   string Nickname = 5;
-   string Bio = 6;
-   string PersonalPronouns = 7;
-   string Email = 8;
-     */
 
+    @Transactional
     @Override
     public void changeUserPassword(ChangePasswordRequest request, StreamObserver<ChangePasswordResponse> responseObserver) {
-        super.changeUserPassword(request, responseObserver);
+        ChangePasswordResponse.Builder response = ChangePasswordResponse.newBuilder();
+
+        User userToUpdate = repository.findById(request.getUserId());
+        if (userToUpdate != null) {
+            // User is found, check correct current password provided
+            try {
+                // encrypt attempted current password to "match" pwhash
+                PasswordEncryptorService encryptor = new PasswordEncryptorService();
+                String inputPWHash = encryptor.getHash(request.getCurrentPassword(), userToUpdate.getSalt());
+                // Check encrypted password against pw hash
+                if (userToUpdate.getPwhash().equals(inputPWHash)) {
+                    // If password hash matches, update
+                    userToUpdate.setPwhash(request.getNewPassword());
+                    repository.save(userToUpdate);
+                    response.setIsSuccess(true)
+                            .setMessage("Successfully updated details for " + userToUpdate.getUsername());
+                } else {
+                    // Password hash doesn't match so don't update
+                    response.setIsSuccess(false)
+                            .setMessage("Incorrect current password provided");
+                }
+            } catch (StatusRuntimeException | NoSuchAlgorithmException |InvalidKeySpecException e) {
+                response.setIsSuccess(false)
+                        .setMessage("An error has occurred while connecting to the database");
+            }
+        } else {
+            response.setIsSuccess(false)
+                    .setMessage("Could not find user");
+        }
+
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
     }
 
 }

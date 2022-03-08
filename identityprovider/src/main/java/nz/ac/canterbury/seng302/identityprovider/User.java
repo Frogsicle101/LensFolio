@@ -36,14 +36,14 @@ public class User {
 
     /**
      * Constructs a new user object. Calculates and stores a hash of the given password with unique salt.
-     * @param username
-     * @param password
-     * @param firstName
-     * @param lastName
-     * @param nickname
-     * @param bio
-     * @param pronouns
-     * @param email
+     * @param username - the username of the user
+     * @param password - the password of the user
+     * @param firstName - the first name of the user
+     * @param lastName - the last name of the user
+     * @param nickname - the nickname of the user
+     * @param bio - the bio of the user
+     * @param pronouns - the users personal pronouns
+     * @param email - the email of the user
      */
     public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email) throws NoSuchAlgorithmException, InvalidKeySpecException {
         this.username = username;
@@ -159,5 +159,11 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public void setPwhash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        PasswordEncryptorService encryptor = new PasswordEncryptorService();
+
+        this.pwhash = encryptor.getHash(password, salt);
     }
 }

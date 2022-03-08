@@ -136,16 +136,30 @@ public class EditController {
     public ModelAndView editPassword(
             HttpServletRequest request,
             HttpServletResponse response,
+            @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editPasswordForm") PasswordRequest editInfo,
             Model model
     ){
-        //TODO: Wire this up to the database to change the user's password. Check that new and confirm are the same.
-        //Get the details from the form
-        String oldPassword = editInfo.getOldPassword();
-        String newPassword = editInfo.getNewPassword();
-        String confirmPassword = editInfo.getConfirmPassword();
-        //Just some testing
-        System.out.println(oldPassword + " and " + newPassword + " and " + confirmPassword);
+        ChangePasswordRequest.Builder changePasswordRequest = ChangePasswordRequest.newBuilder();
+        // Get user ID, this really needs to be a method
+        Integer id = Integer.valueOf(principal.getClaimsList().stream()
+                .filter(claim -> claim.getType().equals("nameid"))
+                .findFirst()
+                .map(ClaimDTO::getValue)
+                .orElse("-100"));
+
+        ChangePasswordResponse changePasswordResponse;
+        if (editInfo.getNewPassword().equals(editInfo.getConfirmPassword())) {
+            //Create request
+            changePasswordRequest.setUserId(id)
+                    .setCurrentPassword(editInfo.getOldPassword())
+                    .setNewPassword(editInfo.getNewPassword());
+            changePasswordResponse = userAccountsClientService.changeUserPassword(changePasswordRequest.build());
+            System.out.println(changePasswordResponse.getMessage());
+        } else {
+            // Do something with this (user message)
+            System.out.println("Confirm password does not match new password.");
+        }
         //Since they're at a different endpoint, redirect back to the main edit endpoint
         return new ModelAndView("redirect:/edit");
     }
