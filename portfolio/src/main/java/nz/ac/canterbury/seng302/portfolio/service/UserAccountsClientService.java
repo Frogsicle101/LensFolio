@@ -36,4 +36,8 @@ public class UserAccountsClientService {
     public UserRegisterResponse register(UserRegisterRequest request) {
         return userAccountStub.register(request);
     }
+
+    public EditUserResponse editUser(EditUserRequest request) {
+        return userAccountStub.editUser(request);
+    }
 }

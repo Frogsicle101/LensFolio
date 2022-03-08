@@ -21,6 +21,7 @@ public class IdentityProviderApplication {
                 "steve",
                 "password",
                 "Steve",
+                "McSteve",
                 "Steveson",
                 "Stev",
                 "kdsflkdjf",

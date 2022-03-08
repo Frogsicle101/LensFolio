@@ -4,11 +4,8 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserRegisterRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserRegisterResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.security.NoSuchAlgorithmException;
@@ -26,6 +23,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     /** The repository where Users details are stored */
     @Autowired
     private UserRepository repository;
+
+
 
     /**
      * getUserAccountByID follows the gRPC contract and provides the server side service for retrieving
@@ -71,6 +70,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     request.getUsername(),
                     request.getPassword(),
                     request.getFirstName(),
+                    request.getMiddleName(),
                     request.getLastName(),
                     request.getNickname(),
                     request.getBio(),
@@ -96,4 +96,19 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+
+    @Override
+    public void editUser(EditUserRequest request, StreamObserver<EditUserResponse> responseObserver) {
+        super.editUser(request, responseObserver);
+    }
+
+    /*
+       string FirstName = 2;
+   string MiddleName = 3;
+   string LastName = 4;
+   string Nickname = 5;
+   string Bio = 6;
+   string PersonalPronouns = 7;
+   string Email = 8;
+     */
 }

@@ -21,6 +21,7 @@ public class User {
 
     private String pwhash;
     private String firstName;
+    private String middleName;
     private String lastName;
     private String nickname;
     private String bio;
@@ -44,9 +45,10 @@ public class User {
      * @param pronouns
      * @param email
      */
-    public User(String username, String password, String firstName, String lastName, String nickname, String bio, String pronouns, String email) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email) throws NoSuchAlgorithmException, InvalidKeySpecException {
         this.username = username;
         this.firstName = firstName;
+        this.middleName = middleName;
         this.lastName = lastName;
         this.nickname = nickname;
         this.bio = bio;
@@ -66,10 +68,11 @@ public class User {
      * @param pwhash The base64 encoded password hash
      * @param salt The salt used to generate the hash
      */
-    public User(String username, String pwhash, String firstName, String lastName, String nickname, String bio, String pronouns, String email, String salt) {
+    public User(String username, String pwhash, String firstName, String middleName,String lastName, String nickname, String bio, String pronouns, String email, String salt) {
         this.username = username;
         this.pwhash = pwhash;
         this.firstName = firstName;
+        this.middleName = middleName;
         this.lastName = lastName;
         this.nickname = nickname;
         this.bio = bio;
@@ -102,6 +105,10 @@ public class User {
         return firstName;
     }
 
+    public String getMiddleName() {
+        return middleName;
+    }
+
     public String getLastName() {
         return lastName;
     }
@@ -124,5 +131,33 @@ public class User {
 
     public String getSalt() {
         return salt;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void setPronouns(String pronouns) {
+        this.pronouns = pronouns;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
