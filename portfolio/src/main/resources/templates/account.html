@@ -11,7 +11,15 @@
     <span class="headerSpan">This is where the little bar at the top could be!</span>
     <div class="dropdown">
         <p class="username" th:text="${username}"></p>
-        <div class="dropdown-content">
+        <img th:src="@{defaultProfile.png}" alt="Your profile photo!" class="profilePic" id="profile" onclick="toggleDropDown()">
+        <!-- Here's our on-click script -->
+        <script>
+            function toggleDropDown() {
+                document.getElementById("dropdownContent").classList.toggle("show");
+            }
+        </script>
+        <!-- And now back to our regularly scheduled HTML -->
+        <div class="dropdown-content" id="dropdownContent">
             <a class="logout" href="/logout">Log Out</a>
             <a class="edit" th:href="@{/edit}">Edit Details</a>
         </div>
