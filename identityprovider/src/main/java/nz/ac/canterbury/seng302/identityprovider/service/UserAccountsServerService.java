@@ -50,8 +50,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setBio(user.getBio())
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime())
-                .setEmail(user.getEmail());
+                .setCreated(user.getAccountCreatedTime()
+            );
+
 
         // To add all the users roles to the response
         ArrayList<UserRole> roles = user.getRoles();
@@ -78,6 +79,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         // Untested
 
         try {
+
             User user = new User(
                     request.getUsername(),
                     request.getPassword(),
@@ -87,10 +89,11 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     request.getNickname(),
                     request.getBio(),
                     request.getPersonalPronouns(),
-                    request.getEmail()
-            );
+                    request.getEmail(),
+                    TimeService.getTimeStamp());
 
-            if (repository.findByUsername(user.getUsername()) == null) {
+
+                if (repository.findByUsername(user.getUsername()) == null) {
                 repository.save(user);
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Account Page</title>
+    <title>Lensfolio | Account</title>
     <!-- The link to the css file, in thymeleaf format -->
     <link th:href="@{account.css}" rel="stylesheet" />
 </head>
@@ -38,6 +38,7 @@
     <p class="nickname" th:text="${nickname}"></p>
     <p class="pronouns" th:text="${pronouns}"></p>
     <p class="userbio" th:text="${userBio}"></p>
+    <p class="roles" th:text="${roles}"></p>
     <p class="membersince" th:text="${membersince}"></p>
 </div>
 </body>

@@ -2,7 +2,6 @@ package nz.ac.canterbury.seng302.identityprovider;
 
 import com.google.protobuf.Timestamp;
 import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
-import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptorService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 
 import javax.persistence.Column;
@@ -64,7 +63,7 @@ public class User {
      * @param email - the email of the user
      * @param accountCreatedTime - the time the account was created
      */
-    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email, Timestamp accountCreatedTime) {
         this.username = username;
         this.firstName = firstName;
         this.middleName = middleName;

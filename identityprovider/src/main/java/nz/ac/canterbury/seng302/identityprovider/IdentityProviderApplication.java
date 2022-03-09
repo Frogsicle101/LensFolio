@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

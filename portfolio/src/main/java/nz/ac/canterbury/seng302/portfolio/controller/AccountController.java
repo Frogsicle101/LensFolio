@@ -69,7 +69,6 @@ public class AccountController {
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
         request.setId(id);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
-        //todo add middle name here (don't forget that users might not have a middle name, see Aidan if confused
         model.addAttribute("username", "Username: " + userResponse.getUsername());
         model.addAttribute("email", "Email: " + userResponse.getEmail());
         String fullname = userResponse.getFirstName() + " " + userResponse.getMiddleName() + " " + userResponse.getLastName();
@@ -77,16 +76,17 @@ public class AccountController {
         model.addAttribute("nickname", "Nickname: " + userResponse.getNickname());
         model.addAttribute("pronouns", "Pronouns: " + userResponse.getPersonalPronouns());
         model.addAttribute("userBio", "Bio: " + userResponse.getBio());
+        String rolesList = "";
+        for (int i = 0; i < userResponse.getRolesCount(); i++) {
+            rolesList += userResponse.getRoles(i) + "  ";
+        }
+        model.addAttribute("roles", "Roles: " + rolesList);
 
         String memberSince = "Member Since: "
                 + ReadableTimeService.getReadableDate(userResponse.getCreated())
                 + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
         model.addAttribute("membersince", memberSince);
 
-        String rolesList = "";
-        for (int i = 0; i < userResponse.getRolesCount(); i++) {
-            rolesList += userResponse.getRoles(i) + "  ";
-        }
-        model.addAttribute("roles", "Roles: " + rolesList);
+
     }
 }
