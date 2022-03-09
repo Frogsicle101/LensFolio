@@ -11,6 +11,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Controller class for the account page
@@ -79,5 +82,10 @@ public class AccountController {
                 + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
         model.addAttribute("membersince", memberSince);
 
+        String rolesList = "";
+        for (int i = 0; i < userResponse.getRolesCount(); i++) {
+            rolesList += userResponse.getRoles(i) + "  ";
+        }
+        model.addAttribute("roles", "Roles: " + rolesList);
     }
 }

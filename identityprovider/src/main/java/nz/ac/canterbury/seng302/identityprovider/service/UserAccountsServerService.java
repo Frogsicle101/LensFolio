@@ -10,6 +10,10 @@ import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.U
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
  * user_accounts.proto rpc contracts.
@@ -46,7 +50,15 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setBio(user.getBio())
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime());
+                .setCreated(user.getAccountCreatedTime())
+                .setEmail(user.getEmail());
+
+        // To add all the users roles to the response
+        ArrayList<UserRole> roles = user.getRoles();
+        for (UserRole role : roles) {
+            reply.addRoles(role);
+        }
+
 //                .setProfileImagePath(user.profileImagePath())
 //                .setRoles(user.getRoles())
 
@@ -75,8 +87,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     request.getNickname(),
                     request.getBio(),
                     request.getPersonalPronouns(),
-                    request.getEmail(),
-                    TimeService.getTimeStamp());
+                    request.getEmail()
+            );
 
             if (repository.findByUsername(user.getUsername()) == null) {
                 repository.save(user);

@@ -18,7 +18,7 @@ public class IdentityProviderApplication {
 
     @EventListener(ApplicationReadyEvent.class)
     public void setup() {
-        repository.save(new User(
+        User testUser = new User(
                 "steve",
                 "password",
                 "Steve",
@@ -28,7 +28,10 @@ public class IdentityProviderApplication {
                 "kdsflkdjf",
                 "Steve/Steve",
                 "steve@example.com",
-                TimeService.getTimeStamp()));
+                TimeService.getTimeStamp()
+        );
+        testUser.addRole(UserRole.TEACHER);
+        repository.save(testUser);
 
     }
 

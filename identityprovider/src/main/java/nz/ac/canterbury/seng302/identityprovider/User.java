@@ -2,11 +2,17 @@ package nz.ac.canterbury.seng302.identityprovider;
 
 import com.google.protobuf.Timestamp;
 import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
+import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptorService;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 
 /**
  * The object used to store Users in the database
@@ -35,10 +41,11 @@ public class User {
     private String bio;
     private String pronouns;
     private String email;
-
+    private String salt;
     @Column(length = 100000)
     private Timestamp accountCreatedTime;
-    private String salt;
+    private ArrayList<UserRole> roles = new ArrayList<>();
+
 
     /**
      * Generic constructor used by JPA
@@ -57,7 +64,7 @@ public class User {
      * @param email - the email of the user
      * @param accountCreatedTime - the time the account was created
      */
-    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email, Timestamp accountCreatedTime) {
+    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email) throws NoSuchAlgorithmException, InvalidKeySpecException {
         this.username = username;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -66,6 +73,7 @@ public class User {
         this.bio = bio;
         this.pronouns = pronouns;
         this.email = email;
+        this.roles.add(UserRole.STUDENT); //To automatically assign a new user as a student, subject to change
         this.accountCreatedTime = accountCreatedTime;
 
         LoginService encryptor = new LoginService();
@@ -94,6 +102,7 @@ public class User {
         this.email = email;
         this.accountCreatedTime = accountCreatedTime;
         this.salt = salt;
+        this.roles.add(UserRole.STUDENT); //To automatically assign a new user as a student, subject to change
     }
 
 
@@ -148,6 +157,8 @@ public class User {
         return salt;
     }
 
+    public ArrayList<UserRole> getRoles() { return roles; }
+
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -184,5 +195,15 @@ public class User {
 
     public Timestamp getAccountCreatedTime() {
         return accountCreatedTime;
+    }
+
+    public void addRole(UserRole role) {
+        if (! roles.contains(role)) {
+            roles.add(role);
+        }
+    }
+
+    public void deleteRole(UserRole role) {
+        roles.remove(role);
     }
 }
