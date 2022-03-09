@@ -101,7 +101,6 @@ public class EditController {
             @ModelAttribute(name="editDetailsForm") UserRequest editInfo,
             Model model
     ) {
-        //TODO: Wire this up to the database to change the user's details
         EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
 
         Integer id = Integer.valueOf(principal.getClaimsList().stream()

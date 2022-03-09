@@ -7,6 +7,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+/**
+ * The object used to store Users in the database
+ * <br>
+ * These users have an automatically generated id which is the primary key for users in the database.
+ * The attributes contained in this class reflect the attributes that would be passed/used in the user_accounts.proto
+ * contract.
+ *
+ * @author Frederik Markwell
+ */
 @Entity
 public class User {
 

@@ -1,11 +1,14 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
     <head>
-        <title>Log In</title>
+        <title>Lensfolio | Log In</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link th:href="@{/login.css}" rel="stylesheet" />
+        <link th:href="@{css/login.css}" rel="stylesheet" />
     </head>
-    <body>
+    <body style="width: 50%; margin: auto;">
+        <h1>Lensfolio</h1>
+
+        <h2>Login</h2>
         <p th:text="${loginMessage}" class="loginMessage"></p>
         <form th:action="@{/login}" th:object="${loginForm}"  method="post">
 
@@ -19,6 +22,10 @@
             </div>
             <input type="submit" value="Login">
         </form>
-        <a href="/register"> register </a>
+
+        <hr>
+
+        <h2>Register</h2>
+        <p>Click <a href="/register">here</a> to register a new user</p>
     </body>
 </html>

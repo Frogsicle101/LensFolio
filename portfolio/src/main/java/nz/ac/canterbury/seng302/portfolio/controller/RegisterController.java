@@ -44,6 +44,16 @@ public class RegisterController {
         return "register";
     }
 
+    /**
+     * Called when a user attempts to register a new account, if the registration is successful forwards a user to
+     * their account page, otherwise informs the user why their attempt was unsuccessful.
+     *
+     * @param request - used to add a authentication cookie to successfully registered accounts
+     * @param response - used to add a authentication cookie to successfully registered accounts
+     * @param userRequest - A UserRequest object used to retrieve user input from the html.
+     * @param model - Used to add attributes to the html page if needed.
+     * @return view - the html page redirected to, either account details on successful registration or register on failure.
+     */
     @PostMapping("/register")
     public ModelAndView attemptRegistration(
             HttpServletRequest request,

@@ -15,8 +15,15 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticationServiceGrp
 import org.springframework.beans.factory.annotation.Autowired;
 
 
-
-
+/**
+ * The Server side gRPC service used to authenticate users, both attempting to login and
+ * checking the status of a user, ie checking their authentication status.
+ * <br>
+ * This class was initially
+ * provided by the university of canterbury and was then built upon.
+ *
+ * @author Sam Clark, Frederik Markwell
+ */
 @GrpcService
 public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
@@ -27,42 +34,13 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
     @Autowired
     private UserRepository repository;
 
-    private void setSuccessReply(User foundUser, AuthenticateResponse.Builder reply) {
-        String token = jwtTokenService.generateTokenForUser(
-                foundUser.getUsername(),
-                foundUser.getId(),
-                foundUser.getFirstName() + " " + foundUser.getLastName(),
-                ROLE_OF_USER
-        );
-
-        reply
-                .setEmail(foundUser.getEmail())
-                .setFirstName(foundUser.getFirstName())
-                .setLastName(foundUser.getLastName())
-                .setMessage("Logged in successfully!")
-                .setSuccess(true)
-                .setToken(token)
-                .setUserId(1)
-                .setUsername(foundUser.getUsername());
-    }
-
-    private void setNoUserReply(String username, AuthenticateResponse.Builder reply) {
-        reply
-                .setMessage("Log in attempt failed: could not find user: " + username)
-                .setSuccess(false)
-                .setToken("");
-    }
-
-    private void setBadPasswordReply(AuthenticateResponse.Builder reply) {
-        reply
-                .setMessage("Log in attempt failed: username or password incorrect")
-                .setSuccess(false)
-                .setToken("");
-    }
-
-
     /**
-     * Attempts to authenticate a user with a given username and password. 
+     * Attempts to authenticate a user with a given username and password.
+     * <br>
+     * This method attempts to find a user in the repository by the username provided in the request.
+     * This user is then passed to the LoginController to check if the request forms a valid login.
+     * Depending on the Login status returned from the LoginService, one of 3 helper methods is called to form
+     * the request response.
      */
     @Override
     public void authenticate(AuthenticateRequest request, StreamObserver<AuthenticateResponse> responseObserver) {
@@ -76,7 +54,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
         switch (status) {
             case VALID -> setSuccessReply(foundUser, reply);
-            case USER_INVALID -> setNoUserReply(foundUser.getUsername(), reply);
+            case USER_INVALID -> setNoUserReply(request.getUsername(), reply);
             case PASSWORD_INVALID -> setBadPasswordReply(reply);
 
         }
@@ -96,4 +74,60 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
         responseObserver.onNext(AuthenticationServerInterceptor.AUTH_STATE.get());
         responseObserver.onCompleted();
     }
+
+
+    /**
+     * Helper function for the authenticate method. This is called when a user enters the correct
+     * login details, to set the reply details to reflect a successful login response
+     *
+     * @param foundUser - the user being logged in as
+     * @param reply - the AuthenticateResponse.Builder to add the correct elements to.
+     */
+    private void setSuccessReply(User foundUser, AuthenticateResponse.Builder reply) {
+        String token = jwtTokenService.generateTokenForUser(
+                foundUser.getUsername(),
+                foundUser.getId(),
+                foundUser.getFirstName() + " " + foundUser.getLastName(),
+                ROLE_OF_USER
+        );
+
+        reply
+                .setEmail(foundUser.getEmail())
+                .setFirstName(foundUser.getFirstName())
+                .setLastName(foundUser.getLastName())
+                .setMessage("Logged in successfully!")
+                .setSuccess(true)
+                .setToken(token)
+                .setUserId(1)
+                .setUsername(foundUser.getUsername());
+    }
+
+    /**
+     * Helper function for the authenticate method. This is called when a user attempt to login
+     * using a username that can't be found in the database
+     *
+     * @param username - the username that was attempted to be login in as
+     * @param reply - the AuthenticateResponse.Builder to add the response elements to.
+     */
+    private void setNoUserReply(String username, AuthenticateResponse.Builder reply) {
+        reply
+                .setMessage("Log in attempt failed: could not find user: " + username)
+                .setSuccess(false)
+                .setToken("");
+    }
+
+    /**
+     * Helper function for the authenticate method. This is called when a user attempt to log in
+     * to an account but the password is not correct for the user.
+     *
+     * @param reply - the AuthenticateResponse.Builder to add the response elements to.
+     */
+    private void setBadPasswordReply(AuthenticateResponse.Builder reply) {
+        reply
+                .setMessage("Log in attempt failed: username or password incorrect")
+                .setSuccess(false)
+                .setToken("");
+    }
+
+
 }
