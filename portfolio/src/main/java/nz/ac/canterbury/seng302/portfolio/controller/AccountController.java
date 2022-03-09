@@ -72,7 +72,8 @@ public class AccountController {
         //todo add middle name here (don't forget that users might not have a middle name, see Aidan if confused
         model.addAttribute("username", "Username: " + userResponse.getUsername());
         model.addAttribute("email", "Email: " + userResponse.getEmail());
-        model.addAttribute("fullname", "Name: " + userResponse.getFirstName() + " " + userResponse.getLastName());
+        String fullname = userResponse.getFirstName() + " " + userResponse.getMiddleName() + " " + userResponse.getLastName();
+        model.addAttribute("fullname", "Name: " + fullname.replaceAll(" +", " "));
         model.addAttribute("nickname", "Nickname: " + userResponse.getNickname());
         model.addAttribute("pronouns", "Pronouns: " + userResponse.getPersonalPronouns());
         model.addAttribute("userBio", "Bio: " + userResponse.getBio());
