@@ -76,7 +76,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
         switch (status) {
             case VALID -> setSuccessReply(foundUser, reply);
-            case USER_INVALID -> setNoUserReply(foundUser.getUsername(), reply);
+            case USER_INVALID -> setNoUserReply(request.getUsername(), reply);
             case PASSWORD_INVALID -> setBadPasswordReply(reply);
 
         }
