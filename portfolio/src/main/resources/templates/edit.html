@@ -2,45 +2,66 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Register Account Page</title>
+    <title>Edit Details</title>
     <link th:href="@{/edit.css}" rel="stylesheet" />
 </head>
 <body>
-<div class="details">
-    <h1>Edit Account Details</h1>
-    <h3 class="reqLine">* Required Fields</h3>
-    <!-- NOTE: The name tags for the inputs have to be the same names as the object properties -->
-    <form th:action="@{/edit/details}" th:object="${editDetailsForm}" method="post">
-        <p id="Username" th:text="${username}"></p> <br>
-        <label for="FirstName">* First Name:</label>
-        <input type="text" name="firstname" id="FirstName" th:value="${firstname}" required><br>
-        <label for="MiddleName">Middle Name:</label>
-        <input type="text" name="middlename" id="MiddleName" th:value="${middlename}"><br>
-        <label for="LastName">* Last Name:</label>
-        <input type="text" name="lastname" id="LastName" th:value="${lastname}" required><br>
-        <label for="Email">* Email:</label>
-        <input type="email" name="email" id="Email" th:value="${email}" required><br>
-        <label for="Nickname">Nickname:</label>
-        <input type="text" name="nickname" id="Nickname" th:value="${nickname}"><br>
-        <label for="PersonalPronouns">Personal Pronouns:</label>
-        <input type="text" name="personalPronouns" id="PersonalPronouns" th:value="${pronouns}"><br>
-        <label for="Bio">Bio:</label>
-        <input type="text" name="bio" id="Bio" th:value="${userBio}"><br>
-        <input type="submit" value="Save Changes">
-    </form>
-</div>
-<div class="password">
-    <h1>Change Password</h1>
-    <h3 class="reqLine">* Required Fields</h3>
-    <form method="post" th:action="@{/edit/password}" th:object="${editPasswordForm}">
-        <label for="OldPassword">* Old Password:</label>
-        <input type="password" name="old password" id="OldPassword" th:field="*{oldPassword}" required><br>
-        <label for="NewPassword">* New Password:</label>
-        <input type="password" name="new password" id="NewPassword" th:field="*{newPassword}" required><br>
-        <label for="ConfirmPassword">* New Password:</label>
-        <input type="password" name="new password" id="ConfirmPassword" th:field="*{confirmPassword}" required><br>
-        <input type="submit" value="Change Password">
-    </form>
-</div>
+    <div class="headerBar">
+        <span class="headerSpan">This is where the little bar at the top could be!</span>
+        <div class="dropdown">
+            <p class="username" th:text="${username}"></p>
+            <img th:src="@{defaultProfile.png}" alt="Your profile photo!" class="profilePic" id="profile" onclick="toggleDropDown()">
+            <!-- Here's our on-click script -->
+            <script>
+                function toggleDropDown() {
+                    document.getElementById("dropdownContent").classList.toggle("show");
+                }
+            </script>
+            <!-- And now back to our regularly scheduled HTML -->
+            <div class="dropdown-content" id="dropdownContent">
+                <a class="logout" href="/logout">Log Out</a><br>
+                <a class="edit" th:href="@{/edit}">Edit Details</a><br>
+                <a class="account" th:href="@{/account}">Account</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="details">
+        <h1>Edit Account Details</h1>
+        <h3 class="reqLine">* Required Fields</h3>
+        <!-- NOTE: The name tags for the inputs have to be the same names as the object properties -->
+        <form th:action="@{/edit/details}" th:object="${editDetailsForm}" method="post">
+            <p id="Username" th:text="${username}"></p> <br>
+            <label for="FirstName">* First Name:</label>
+            <input type="text" name="firstname" id="FirstName" th:value="${firstname}" required><br>
+            <label for="MiddleName">Middle Name:</label>
+            <input type="text" name="middlename" id="MiddleName" th:value="${middlename}"><br>
+            <label for="LastName">* Last Name:</label>
+            <input type="text" name="lastname" id="LastName" th:value="${lastname}" required><br>
+            <label for="Email">* Email:</label>
+            <input type="email" name="email" id="Email" th:value="${email}" required><br>
+            <label for="Nickname">Nickname:</label>
+            <input type="text" name="nickname" id="Nickname" th:value="${nickname}"><br>
+            <label for="PersonalPronouns">Personal Pronouns:</label>
+            <input type="text" name="personalPronouns" id="PersonalPronouns" th:value="${pronouns}"><br>
+            <label for="Bio">Bio:</label>
+            <input type="text" name="bio" id="Bio" th:value="${userBio}"><br>
+            <input type="submit" value="Save Changes">
+        </form>
+    </div>
+
+    <div class="password">
+        <h1>Change Password</h1>
+        <h3 class="reqLine">* Required Fields</h3>
+        <form method="post" th:action="@{/edit/password}" th:object="${editPasswordForm}">
+            <label for="OldPassword">* Old Password:</label>
+            <input type="password" name="old password" id="OldPassword" th:field="*{oldPassword}" required><br>
+            <label for="NewPassword">* New Password:</label>
+            <input type="password" name="new password" id="NewPassword" th:field="*{newPassword}" required><br>
+            <label for="ConfirmPassword">* New Password:</label>
+            <input type="password" name="new password" id="ConfirmPassword" th:field="*{confirmPassword}" required><br>
+            <input type="submit" value="Change Password">
+        </form>
+    </div>
 </body>
 </html>
