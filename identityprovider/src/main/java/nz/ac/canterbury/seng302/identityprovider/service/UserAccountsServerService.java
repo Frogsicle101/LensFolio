@@ -96,11 +96,21 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     }
 
 
+    /**
+     * Follows the gRPC contract for editing users, this method attempts to edit the details of a user.
+     * <br>
+     * This service first attempts to find the user by their id so that they can have their details edited <br>
+     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *  - Otherwise the users details are updated as according to the request.
+     *
+     * @param request - The gRPC EditUserRequest passed from the client
+     * @param responseObserver - Used to return the response to the client side.
+     */
     @Transactional
     @Override
     public void editUser(EditUserRequest request, StreamObserver<EditUserResponse> responseObserver) {
         EditUserResponse.Builder response = EditUserResponse.newBuilder();
-        // Try find user by ID
+        // Try to find user by ID
         User userToEdit = repository.findById(request.getUserId());
         if (userToEdit != null) {
             try {
@@ -126,7 +136,19 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
-
+    /**
+     * Follows the gRPC contract for editing users, this method attempts to change the password of a User
+     * <br>
+     * This service first attempts to find the user by their id so that they can have their password changed <br>
+     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *  - Otherwise the oldPassword is checked against the database to make sure the user knows their old password
+     *  before changing <br>
+     *    - If this password is correct the password is updated to the new password, otherwise the user is informed
+     *    that they have used an incorrect old password.
+     *
+     * @param request - The gRPC ChangePasswordRequest passed from the client
+     * @param responseObserver - Used to return the response to the client side.
+     */
     @Transactional
     @Override
     public void changeUserPassword(ChangePasswordRequest request, StreamObserver<ChangePasswordResponse> responseObserver) {
