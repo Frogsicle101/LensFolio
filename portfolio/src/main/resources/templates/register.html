@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Register Account Page</title>
+    <title>Lensfolio | Register</title>
 </head>
-<body>
+<body style="width: 50%; margin: auto;">
     <h1>Register New Account</h1>
     <h3 style="color :red; ">* Required Fields</h3>
     <p th:text="${errorMessage}" />
@@ -20,5 +20,6 @@
         Bio:<br> <textarea rows="5" name="bio" id="bio"> </textarea><br>
         <input type="submit" value="Register">
     </form>
+    <a href="/login">Back to login</a>
 </body>
 </html>
