@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.authentication.CookieUtil;
+import nz.ac.canterbury.seng302.portfolio.service.ReadableTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
@@ -10,11 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Controller class for the account page
@@ -77,6 +73,11 @@ public class AccountController {
         model.addAttribute("nickname", "Nickname: " + userResponse.getNickname());
         model.addAttribute("pronouns", "Pronouns: " + userResponse.getPersonalPronouns());
         model.addAttribute("userBio", "Bio: " + userResponse.getBio());
+
+        String memberSince = "Member Since: "
+                + ReadableTimeService.getReadableDate(userResponse.getCreated())
+                + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
+        model.addAttribute("membersince", memberSince);
 
     }
 }

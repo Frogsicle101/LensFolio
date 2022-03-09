@@ -26,8 +26,8 @@ class LoginServiceTest {
                 "test",
                 "test",
                 "test/test",
-                "test@example.com"
-        );
+                "test@example.com",
+                TimeService.getTimeStamp());
     }
 
     @Test
@@ -98,17 +98,6 @@ class LoginServiceTest {
 
     @Test
     void testNonMatchingPasswords() {
-        User user = new User(
-                "test",
-                "password",
-                "test",
-                "test",
-                "test",
-                "test",
-                "test",
-                "test/test",
-                "test@example.com"
-        );
 
         assertFalse(service.passwordMatches("different_password", user));
     }

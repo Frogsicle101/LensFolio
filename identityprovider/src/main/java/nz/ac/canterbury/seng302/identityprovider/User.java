@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
+import com.google.protobuf.Timestamp;
 import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
 
 import javax.persistence.Column;
@@ -25,6 +26,9 @@ public class User {
     private String bio;
     private String pronouns;
     private String email;
+
+    @Column(length = 100000)
+    private Timestamp accountCreatedTime;
     private String salt;
 
     /**
@@ -42,8 +46,9 @@ public class User {
      * @param bio - the bio of the user
      * @param pronouns - the users personal pronouns
      * @param email - the email of the user
+     * @param accountCreatedTime - the time the account was created
      */
-    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email) {
+    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email, Timestamp accountCreatedTime) {
         this.username = username;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -52,6 +57,7 @@ public class User {
         this.bio = bio;
         this.pronouns = pronouns;
         this.email = email;
+        this.accountCreatedTime = accountCreatedTime;
 
         LoginService encryptor = new LoginService();
 
@@ -64,9 +70,10 @@ public class User {
      * Constructor to explicitly set all properties of the new object. Unlike the other constructor, accepts a value for
      * pwhash and salt instead of generating them.
      * @param pwhash The base64 encoded password hash
+     * @param accountCreatedTime the time the account was created
      * @param salt The salt used to generate the hash
      */
-    public User(String username, String pwhash, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email, String salt) {
+    public User(String username, String pwhash, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email, Timestamp accountCreatedTime, String salt) {
         this.username = username;
         this.pwhash = pwhash;
         this.firstName = firstName;
@@ -76,6 +83,7 @@ public class User {
         this.bio = bio;
         this.pronouns = pronouns;
         this.email = email;
+        this.accountCreatedTime = accountCreatedTime;
         this.salt = salt;
     }
 
@@ -163,5 +171,9 @@ public class User {
         LoginService encryptor = new LoginService();
 
         this.pwhash = encryptor.getHash(password, salt);
+    }
+
+    public Timestamp getAccountCreatedTime() {
+        return accountCreatedTime;
     }
 }

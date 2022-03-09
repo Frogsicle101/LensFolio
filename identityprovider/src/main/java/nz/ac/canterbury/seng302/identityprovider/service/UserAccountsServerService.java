@@ -45,8 +45,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setNickname(user.getNickname())
                 .setBio(user.getBio())
                 .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail());
-//                .setCreated()  ??
+                .setEmail(user.getEmail())
+                .setCreated(user.getAccountCreatedTime());
 //                .setProfileImagePath(user.profileImagePath())
 //                .setRoles(user.getRoles())
 
@@ -64,6 +64,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     public void register(UserRegisterRequest request, StreamObserver<UserRegisterResponse> responseObserver) {
         UserRegisterResponse.Builder reply = UserRegisterResponse.newBuilder();
         // Untested
+
         try {
             User user = new User(
                     request.getUsername(),
@@ -74,8 +75,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     request.getNickname(),
                     request.getBio(),
                     request.getPersonalPronouns(),
-                    request.getEmail()
-            );
+                    request.getEmail(),
+                    TimeService.getTimeStamp());
 
             if (repository.findByUsername(user.getUsername()) == null) {
                 repository.save(user);

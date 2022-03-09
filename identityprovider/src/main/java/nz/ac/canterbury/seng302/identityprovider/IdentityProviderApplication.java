@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
+import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,7 +17,7 @@ public class IdentityProviderApplication {
     UserRepository repository;
 
     @EventListener(ApplicationReadyEvent.class)
-    public void setup() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public void setup() {
         repository.save(new User(
                 "steve",
                 "password",
@@ -26,8 +27,8 @@ public class IdentityProviderApplication {
                 "Stev",
                 "kdsflkdjf",
                 "Steve/Steve",
-                "steve@example.com"
-        ));
+                "steve@example.com",
+                TimeService.getTimeStamp()));
 
     }
 
