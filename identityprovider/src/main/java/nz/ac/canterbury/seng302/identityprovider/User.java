@@ -3,10 +3,7 @@ package nz.ac.canterbury.seng302.identityprovider;
 import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptorService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
@@ -173,5 +170,14 @@ public class User {
         PasswordEncryptorService encryptor = new PasswordEncryptorService();
 
         this.pwhash = encryptor.getHash(password, salt);
+    }
+    public void addRole(UserRole role) {
+        if (! roles.contains(role)) {
+            roles.add(role);
+        }
+    }
+
+    public void deleteRole(UserRole role) {
+        roles.remove(role);
     }
 }

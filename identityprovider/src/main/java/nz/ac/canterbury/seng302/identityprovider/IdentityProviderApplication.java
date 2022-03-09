@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,7 +18,7 @@ public class IdentityProviderApplication {
 
     @EventListener(ApplicationReadyEvent.class)
     public void setup() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        repository.save(new User(
+        User testUser = new User(
                 "steve",
                 "password",
                 "Steve",
@@ -27,7 +28,9 @@ public class IdentityProviderApplication {
                 "kdsflkdjf",
                 "Steve/Steve",
                 "steve@example.com"
-        ));
+        );
+        testUser.addRole(UserRole.TEACHER);
+        repository.save(testUser);
 
     }
 
