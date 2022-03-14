@@ -24,6 +24,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .antMatchers(HttpMethod.GET, "/login")
                     .permitAll()
+                    .antMatchers(HttpMethod.GET, "/register")
+                    .permitAll()
                     .and()
                 .authorizeRequests()
                     .anyRequest()
@@ -32,23 +34,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         security.cors();
         security.csrf().disable();
         security.logout()
+                .logoutSuccessUrl("/login")
                 .permitAll()
                 .invalidateHttpSession(true)
-                .deleteCookies("lens-session-token")
-                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK));
+                .deleteCookies("lens-session-token");
 
-        // Disable basic http security and the spring security login form
+        security.exceptionHandling().accessDeniedPage("/index.html");
+
+        // Disable basic http security
         security
-            .httpBasic().disable()
-            .formLogin().disable();
+            .httpBasic().disable();
 
-        // let the H2 console embed itself in a frame
-        security.headers().frameOptions().sameOrigin();
+
+        // Tells spring where our login page is, so it redirects users there if they are not authenticated
+        security.formLogin().loginPage("/login");
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception
+    public void configure(WebSecurity web)
     {
         web.ignoring().antMatchers("/login");
+        web.ignoring().antMatchers("/register");
     }
 }

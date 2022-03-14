@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lensfolio | Account</title>
+    <!-- The link to the css file, in thymeleaf format -->
+    <link th:href="@{account.css}" rel="stylesheet" />
+</head>
+<body>
+<div class="headerBar">
+    <span class="headerSpan">This is where the little bar at the top could be!</span>
+    <div class="dropdown">
+        <p class="username" th:text="${username}"></p>
+        <img th:src="@{defaultProfile.png}" alt="Your profile photo!" class="profilePic" id="profile" onclick="toggleDropDown()">
+        <!-- Here's our on-click script -->
+        <script>
+            function toggleDropDown() {
+                document.getElementById("dropdownContent").classList.toggle("show");
+            }
+        </script>
+        <!-- And now back to our regularly scheduled HTML -->
+        <div class="dropdown-content" id="dropdownContent">
+            <a class="logout" href="/logout">Log Out</a><br>
+            <a class="edit" th:href="@{/edit}">Edit Details</a><br>
+            <a class="account" th:href="@{/account}">Account</a>
+        </div>
+    </div>
+</div>
+<div>
+    Here are the details of your user account!
+    <!-- This is an HTML comment
+    These are variables given to us by AccountController
+    We are then displaying them as plaintext
+    The classes of these are for css editing
+    -->
+    <p class="email" th:text="${email}"></p>
+    <p class="fullname" th:text="${fullname}"></p>
+    <p class="nickname" th:text="${nickname}"></p>
+    <p class="pronouns" th:text="${pronouns}"></p>
+    <p class="userbio" th:text="${userBio}"></p>
+    <p class="roles" th:text="${roles}"></p>
+    <p class="membersince" th:text="${membersince}"></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,7 @@
+/* The log-in message, which is essentially an error
+If everything goes according to plan, we won't be on the login page!
+So we won't see this if things go right.
+ */
+.loginMessage {
+    color: red;
+}
