@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script type="application/javascript" th:src="@{js/project-script.js}"></script>
+    <link type="text/css" rel="stylesheet" th:href="@{css/project-style.css}"/>
+
+    <meta charset="UTF-8">
+    <title>Project</title>
+</head>
+<body>
+
+
+
+
+
+
+<div class="container-fluid" id="main-body-container">
+    <div class="row" id="pageBody">
+        <div class="col-sm-2 bg-dark shadow g-0"  style="height: 100vh" id="helper-bar">
+
+            <div class="navbar-top">
+                <a class="navbar-brand fw-bold text-light" href="#">Project Name</a>
+                <img th:src="@{avatar5.png}" class="avatar" alt="avatar">
+                <h1 class="user-name" th:text="${portfolioUserName}"></h1>
+                <p class="user-role" th:text="${portfolioUserRole}"></p>
+            </div>
+
+            <nav class="nav flex-column align-items-center" id="navbar">
+
+                <ul class="navbar-nav ">
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="#">Project</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="#">Sprints</a>
+                    </li>
+
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <button class="btn btn-danger" >Logout</button>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+
+
+
+        <div class="col g-0">
+            <div class="container-fluid" style="height: 100vh" id="project-container">
+
+                <div class="row" id="alert-bar">
+
+                </div>
+
+                <!-- Project Info Row -->
+                <div class="row" id="project-info-row">
+                    <div class="col">
+                        <div class="container-fluid" id="project-info">
+                            <div class="row">
+                                <div class="col" >
+                                    <h1 id="project-name">Project</h1>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <h5>Start Date:</h5>
+                                    <h3 id="project-start-date">??/??/????</h3>
+                                </div>
+                                <div class="col">
+                                    <h5>End Date:</h5>
+                                    <h3 id="project-end-date">??/??/????</h3>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-2">
+                                    <h5>Project Description:</h5>
+
+                                </div>
+                                <div class="col">
+                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec facilisis luctus commodo. Fusce nec lectus orci. In hac habitasse platea dictumst. Donec neque mi, ullamcorper quis sagittis a, tempor sit amet neque. Praesent vehicula, diam quis molestie posuere, diam tellus cursus est, ac fermentum eros erat vel quam. Vivamus placerat augue neque, sed cursus mauris posuere ut. Aliquam erat volutpat.</p>
+
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Add sprint button row -->
+                <div class="row mb-3">
+                    <div class="col">
+                        <button class="btn btn-primary" id="add-sprint-button" type="submit" onclick="">Add Sprint</button>
+                    </div>
+
+                </div>
+
+
+                <!-- Container for the sprints -->
+                <div class="row">
+                    <div class="col" id="sprints-container">
+                        <div class="container-fluid" id="SprintForm" style="display: none">
+                            <form class="p-3 border">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="FormControlSprintName" placeholder="Name">
+                                    <label for="FormControlSprintName">Sprint Name</label>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="FormControlStartDate">Start Date</label>
+                                        <input type="date" id="FormControlStartDate" class="form-control">
+                                    </div>
+                                    <div class="col">
+                                        <label for="FormControlEndDate">End Date</label>
+                                        <input type="date" id="FormControlEndDate" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="FormControlDescription">Sprint Description</label>
+                                        <textarea class="form-control" id="FormControlDescription"></textarea>
+                                    </div>
+
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-1">
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                    <div class="col-1">
+                                        <button type="submit" class="btn btn-danger">Cancel</button>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+
+
+
+
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete confirm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this Sprint? This action cannot be reversed.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="sprintDeletedAlert()" data-bs-dismiss="modal">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="last-deleted-element" style="display: none">
+
+</div>
+
+</body>
+</html>
