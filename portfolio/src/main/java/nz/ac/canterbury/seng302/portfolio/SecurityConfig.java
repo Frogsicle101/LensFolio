@@ -28,7 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .anyRequest()
                     .authenticated();
-
+        security.headers().frameOptions().disable();
         security.cors();
         security.csrf().disable();
         security.logout()
@@ -41,14 +41,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         security
             .httpBasic().disable()
             .formLogin().disable();
-
-        // let the H2 console embed itself in a frame
-        security.headers().frameOptions().sameOrigin();
     }
 
     @Override
     public void configure(WebSecurity web) throws Exception
     {
         web.ignoring().antMatchers("/login");
+        //web.ignoring().antMatchers("/h2-console");
     }
 }
