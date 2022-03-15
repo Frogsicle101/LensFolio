@@ -11,9 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Controller class for the account page
@@ -69,21 +67,22 @@ public class AccountController {
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
         request.setId(id);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
-        model.addAttribute("username", "Username: " + userResponse.getUsername());
-        model.addAttribute("email", "Email: " + userResponse.getEmail());
+        String username = userResponse.getUsername();
+        model.addAttribute("username", username);
+        model.addAttribute("email", userResponse.getEmail());
         String fullname = userResponse.getFirstName() + " " + userResponse.getMiddleName() + " " + userResponse.getLastName();
-        model.addAttribute("fullname", "Name: " + fullname.replaceAll(" +", " "));
-        model.addAttribute("nickname", "Nickname: " + userResponse.getNickname());
-        model.addAttribute("pronouns", "Pronouns: " + userResponse.getPersonalPronouns());
-        model.addAttribute("userBio", "Bio: " + userResponse.getBio());
+        model.addAttribute("fullname", fullname.replaceAll(" +", " "));
+        model.addAttribute("nickname", userResponse.getNickname());
+        model.addAttribute("pronouns", userResponse.getPersonalPronouns());
+        model.addAttribute("userBio", userResponse.getBio());
         String rolesList = "";
         for (int i = 0; i < userResponse.getRolesCount(); i++) {
             rolesList += userResponse.getRoles(i) + "  ";
         }
-        model.addAttribute("roles", "Roles: " + rolesList);
+        model.addAttribute("roles", rolesList);
 
-        String memberSince = "Member Since: "
-                + ReadableTimeService.getReadableDate(userResponse.getCreated())
+        String memberSince =
+                ReadableTimeService.getReadableDate(userResponse.getCreated())
                 + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
         model.addAttribute("membersince", memberSince);
 

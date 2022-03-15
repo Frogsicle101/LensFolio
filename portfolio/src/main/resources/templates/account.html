@@ -4,42 +4,83 @@
     <meta charset="UTF-8">
     <title>Lensfolio | Account</title>
     <!-- The link to the css file, in thymeleaf format -->
-    <link th:href="@{account.css}" rel="stylesheet" />
+    <script type="application/javascript" th:src="@{js/jquery-3.6.0.js}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script type="application/javascript" th:src="@{js/account-script.js}"></script>
+    <link th:href="@{css/account.css}" rel="stylesheet" />
 </head>
 <body>
-<div class="headerBar">
-    <span class="headerSpan">This is where the little bar at the top could be!</span>
-    <div class="dropdown">
-        <p class="username" th:text="${username}"></p>
-        <img th:src="@{defaultProfile.png}" alt="Your profile photo!" class="profilePic" id="profile" onclick="toggleDropDown()">
-        <!-- Here's our on-click script -->
-        <script>
-            function toggleDropDown() {
-                document.getElementById("dropdownContent").classList.toggle("show");
-            }
-        </script>
-        <!-- And now back to our regularly scheduled HTML -->
-        <div class="dropdown-content" id="dropdownContent">
-            <a class="logout" href="/logout">Log Out</a><br>
-            <a class="edit" th:href="@{/edit}">Edit Details</a><br>
-            <a class="account" th:href="@{/account}">Account</a>
+    <div class="headerBar">
+        <div class="profileNav">
+            <div class="profileDropdown">
+                <img th:src="@{defaultProfile.png}" alt="Your profile photo!" class="profilePic" id="profile">
+                <p class="username" th:text="${username}"></p>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down" viewBox="0 0 16 16">
+                    <path d="M3.204 5h9.592L8 10.481 3.204 5zm-.753.659 4.796 5.48a1 1 0 0 0 1.506 0l4.796-5.48c.566-.647.106-1.659-.753-1.659H3.204a1 1 0 0 0-.753 1.659z"/>
+                </svg>
+            </div>
+            <div>
+                <div class="dropdown-content" id="dropdownContent">
+                    <a class="logout" href="/logout">Log Out</a><br>
+                    <a class="edit" th:href="@{/edit}">Edit Details</a><br>
+                    <a class="account" th:href="@{/account}">Account</a>
+                </div>
+            </div>
+
         </div>
     </div>
-</div>
-<div>
-    Here are the details of your user account!
-    <!-- This is an HTML comment
-    These are variables given to us by AccountController
-    We are then displaying them as plaintext
-    The classes of these are for css editing
-    -->
-    <p class="email" th:text="${email}"></p>
-    <p class="fullname" th:text="${fullname}"></p>
-    <p class="nickname" th:text="${nickname}"></p>
-    <p class="pronouns" th:text="${pronouns}"></p>
-    <p class="userbio" th:text="${userBio}"></p>
-    <p class="roles" th:text="${roles}"></p>
-    <p class="membersince" th:text="${membersince}"></p>
-</div>
+    <div class="accountBody">
+        <div class="accountInfo">
+            <form class="accountInfo">
+                <h1>Personal Information</h1>
+
+                <div class="mb-3">
+                    <label for="nameInput" class="form-label">Name</label>
+                    <input type="text" class="form-control canDisable" id="nameInput" th:value="${fullname}" maxlength="50" disabled required>
+                </div>
+                <div class="mb-3">
+                    <label for="nicknameInput" class="form-label">Nickname</label>
+                    <input type="text" class="form-control" id="nicknameInput" th:value="${nickname}" maxlength="100" disabled required>
+                </div>
+                <div class="mb-3">
+                    <label for="usernameInput" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="usernameInput" th:value="${username}" maxlength="100" disabled required>
+                </div>
+                <div class="mb-3">
+                    <label for="emailInput" class="form-label">Email address</label>
+                    <input type="email" class="form-control canDisable" id="emailInput" th:value="${email}" maxlength="100" disabled required>
+                </div>
+                <div class="mb-3">
+                    <div class="mb-3">
+                        <label for="bioInput" class="form-label">User Bio</label>
+                        <textarea  class="form-control" id="bioInput" th:text="${userBio}" maxlength="300" disabled required></textarea>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="roleInputSelect" class="form-label">Role</label>
+                        <select class="form-select canDisable" id="roleInputSelect" aria-label="Default select example" disabled>
+                            <option selected>Teacher</option>
+                            <option value="2">Student</option>
+                            <option value="3">Admin</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label for="pronounsInput" class="form-label">Pronouns</label>
+                        <input type="text" class="form-control canDisable" id="pronounsInput" th:value="${pronouns}" maxlength="100" disabled>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <p class="membersince" th:text="${membersince}"></p>
+                </div>
+                <button type="submit" class="btn btn-primary canDisable" disabled>Submit</button>
+                <button type="button" class="btn btn-secondary editUserButton" >Edit</button>
+
+            </form>
+
+        </div>
+    </div>
 </body>
 </html>
