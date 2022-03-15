@@ -48,20 +48,10 @@
             <input type="text" name="bio" id="Bio" th:value="${userBio}"><br>
             <input type="submit" value="Save Changes">
         </form>
+
+
     </div>
 
-    <div class="password">
-        <h1>Change Password</h1>
-        <h3 class="reqLine">* Required Fields</h3>
-        <form method="post" th:action="@{/edit/password}" th:object="${editPasswordForm}">
-            <label for="OldPassword">* Old Password:</label>
-            <input type="password" name="old password" id="OldPassword" th:field="*{oldPassword}" required><br>
-            <label for="NewPassword">* New Password:</label>
-            <input type="password" name="new password" id="NewPassword" th:field="*{newPassword}" required><br>
-            <label for="ConfirmPassword">* New Password:</label>
-            <input type="password" name="new password" id="ConfirmPassword" th:field="*{confirmPassword}" required><br>
-            <input type="submit" value="Change Password">
-        </form>
-    </div>
+
 </body>
 </html>

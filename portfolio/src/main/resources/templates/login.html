@@ -3,29 +3,31 @@
     <head>
         <title>Lensfolio | Log In</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link th:href="@{css/login.css}" rel="stylesheet" />
+        <script type="application/javascript" th:src="@{js/jquery-3.6.0.js}"></script>
+        <script th:src="@{bootstrap/js/bootstrap.bundle.js}"></script>
+        <link th:href="@{bootstrap/css/bootstrap.css}" rel="stylesheet" />
     </head>
     <body style="width: 50%; margin: auto;">
-        <h1>Lensfolio</h1>
-
-        <h2>Login</h2>
         <p th:text="${loginMessage}" class="loginMessage"></p>
         <form th:action="@{/login}" th:object="${loginForm}"  method="post">
+            <h1>Login</h1>
 
-            <div class="loginBoxes">
-                <label for="username">Username:</label>
-                <input type="text" name="username" id="username"><br>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control canDisable" name="username" id="username" maxlength="50" required>
             </div>
-            <div class="loginBoxes">
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password"><br>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" name="password" id="password" maxlength="100" required>
             </div>
-            <input type="submit" value="Login">
+
+            <div class="mb-3">
+
+            </div>
+
+            <button type="submit" class="btn btn-primary canDisable" >Submit</button>
+
         </form>
-
-        <hr>
-
-        <h2>Register</h2>
         <p>Click <a href="/register">here</a> to register a new user</p>
     </body>
 </html>
