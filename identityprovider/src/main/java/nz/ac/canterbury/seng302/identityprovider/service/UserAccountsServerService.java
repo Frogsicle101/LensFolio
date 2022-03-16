@@ -183,7 +183,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     userToUpdate.setPwhash(request.getNewPassword());
                     repository.save(userToUpdate);
                     response.setIsSuccess(true)
-                            .setMessage("Successfully updated details for " + userToUpdate.getUsername());
+                            .setMessage("Successfully updated password for " + userToUpdate.getUsername());
                 } else {
                     // Password hash doesn't match so don't update
                     response.setIsSuccess(false)

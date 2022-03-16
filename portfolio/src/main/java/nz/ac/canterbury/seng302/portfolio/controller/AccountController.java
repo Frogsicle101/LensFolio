@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -39,7 +40,7 @@ public class AccountController {
     @RequestMapping("/account")
     public String account(
             @AuthenticationPrincipal AuthState principal,
-            Model model
+            ModelMap model
     ) {
 
         addModelAttributes(principal, model);
@@ -55,11 +56,9 @@ public class AccountController {
      */
     private void addModelAttributes(
             AuthState principal,
-            Model model) {
+            ModelMap model) {
         /*
         These addAttribute methods inject variables that we can use in our html file
-        Their values have been hard-coded for now, but they can be the result of functions!
-        ideally, these would be functions like getUsername and so forth
          */
         int id = Integer.parseInt(principal.getClaimsList().stream()
                 .filter(claim -> claim.getType().equals("nameid"))
@@ -86,8 +85,6 @@ public class AccountController {
                 + ReadableTimeService.getReadableDate(userResponse.getCreated())
                 + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
         model.addAttribute("membersince", memberSince);
-        //TODO: The value of this should be set to any error messages that occur
-        model.addAttribute("errormessage", "");
 
 
     }
