@@ -1,7 +1,10 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
+import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.FileUploadStatus;
+import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.springframework.stereotype.Service;
 
 /**
@@ -55,5 +58,24 @@ public class UserAccountsClientService {
      */
     public ChangePasswordResponse changeUserPassword(ChangePasswordRequest request) {
         return userAccountStub.changeUserPassword(request);
+    }
+
+    public StreamObserver<FileUploadStatusResponse> uploadUserProfilePhoto(StreamObserver<UploadUserProfilePhotoRequest> request) {
+        return new StreamObserver<FileUploadStatusResponse>() {
+            @Override
+            public void onNext(FileUploadStatusResponse value) {
+
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+
+            }
+        }
     }
 }

@@ -1,5 +1,7 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
+import com.google.protobuf.ByteString;
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -7,9 +9,13 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
+import nz.ac.canterbury.seng302.shared.util.FileUploadStatus;
+import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
@@ -51,7 +57,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
                 .setCreated(user.getAccountCreatedTime()
-            );
+                );
 
 
         // To add all the users roles to the response
@@ -93,7 +99,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     TimeService.getTimeStamp());
 
 
-                if (repository.findByUsername(user.getUsername()) == null) {
+            if (repository.findByUsername(user.getUsername()) == null) {
                 repository.save(user);
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())
@@ -110,7 +116,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
-
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to edit the details of a user.
@@ -199,6 +204,78 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         }
 
         responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public StreamObserver<UploadUserProfilePhotoRequest> uploadUserProfilePhoto(StreamObserver<FileUploadStatusResponse> responseObserver) {
+        return new StreamObserver<UploadUserProfilePhotoRequest>() {
+            private int userId;
+            private String fileType;
+            private ByteArrayOutputStream imageContent;
+
+            @Override
+            public void onNext(UploadUserProfilePhotoRequest request) {
+                if (request.getUploadDataCase() == UploadUserProfilePhotoRequest.UploadDataCase.METADATA) {
+                    ProfilePhotoUploadMetadata metadata = request.getMetaData();
+                    System.out.println("Received image metadata: " + metadata);
+
+
+                    userId = metadata.getUserId();
+                    fileType = metadata.getFileType();
+                    imageContent = new ByteArrayOutputStream();
+
+                    return;
+                } else {
+                    ByteString fileContent = request.getFileContent();
+                    System.out.println("Received image chunk of size: " + fileContent.size());
+
+                    if (imageContent == null) {
+                        System.out.println("Image metadata data not sent before transfer");
+                        responseObserver.onError(
+                                Status.INVALID_ARGUMENT
+                                        .withDescription("Image Content sent before metadata")
+                                        .asRuntimeException()
+                        );
+                        return;
+                    } else {
+                        try {
+                            fileContent.writeTo(imageContent);
+                        } catch (IOException e) {
+                            responseObserver.onError(Status.INVALID_ARGUMENT
+                                    .withDescription("Failed to write chunks: " + fileContent)
+                                    .asRuntimeException());
+                        }
+                        return;
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                // check this tells client
+                System.out.println(throwable.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+                int imageSize = imageContent.size();
+                // Implement saving of (userId, filetype, imageContents)
+                FileUploadStatusResponse response = FileUploadStatusResponse.newBuilder()
+                        .setStatus(FileUploadStatus.SUCCESS)
+                        .setMessage("COMPLETE: Successfully transferred " + imageSize + " bytes")
+                        .build();
+                responseObserver.onNext(response);
+                responseObserver.onCompleted();
+            }
+        };
+    }
+
+    @Override
+    public void deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request, StreamObserver<DeleteUserProfilePhotoResponse> responseObserver) {
+        DeleteUserProfilePhotoResponse.Builder reply = DeleteUserProfilePhotoResponse.newBuilder();
+        // Populate response and do stuff with request
+        responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
 
