@@ -28,7 +28,9 @@
 </div>
 <div>
     Here are the details of your user account!
-    <!-- This is an HTML comment
+    <!-- An empty message that gets populated if we encounter errors -->
+    <p class="error" th:text="${errormessage}"></p>
+    <!--
     These are variables given to us by AccountController
     We are then displaying them as plaintext
     The classes of these are for css editing

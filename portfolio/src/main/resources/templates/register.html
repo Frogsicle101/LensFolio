@@ -7,8 +7,8 @@
 <body style="width: 50%; margin: auto;">
     <h1>Register New Account</h1>
     <h3 style="color :red; ">* Required Fields</h3>
-    <p th:text="${errorMessage}" />
-    <form method="post" action="/register" th:object="${registerForm}">
+    <p class="error" th:text="${errorMessage}"></p>
+    <form method="post" th:action="@{/register}" th:object="${registerForm}">
         * Username:<br> <input type="text" name="username" id="username" required><br>
         * First Name:<br> <input type="text" name="firstname" id="firstname" required><br>
         Middle Name:<br> <input type="text" name="middlename" id="middlename"><br>

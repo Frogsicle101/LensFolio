@@ -86,6 +86,8 @@ public class AccountController {
                 + ReadableTimeService.getReadableDate(userResponse.getCreated())
                 + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
         model.addAttribute("membersince", memberSince);
+        //TODO: The value of this should be set to any error messages that occur
+        model.addAttribute("errormessage", "");
 
 
     }

@@ -83,6 +83,9 @@ public class EditController {
         model.addAttribute("nickname", userResponse.getNickname());
         model.addAttribute("pronouns", userResponse.getPersonalPronouns());
         model.addAttribute("userBio", userResponse.getBio());
+        //TODO: make the value(s) of these set to either a success message, or the error message if one occurs
+        model.addAttribute("detailchangemessage", "");
+        model.addAttribute("passwordchangemessage", "");
     }
 
     /**
