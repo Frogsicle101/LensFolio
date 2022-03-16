@@ -3,9 +3,12 @@ package nz.ac.canterbury.seng302.portfolio.service;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
-import nz.ac.canterbury.seng302.shared.util.FileUploadStatus;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayInputStream;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The UserAccountsClientServices class implements the functionality of the services outlined
@@ -19,6 +22,9 @@ public class UserAccountsClientService {
 
     @GrpcClient(value = "identity-provider-grpc-server")
     private UserAccountServiceGrpc.UserAccountServiceBlockingStub userAccountStub;
+
+    @GrpcClient(value = "identity-provider-grpc-server")
+    private UserAccountServiceGrpc.UserAccountServiceStub nonBlockingStub;
 
     /**
      * Sends a request to the UserAccountsServerService containing the id of a user, requesting the users account details.
@@ -60,22 +66,40 @@ public class UserAccountsClientService {
         return userAccountStub.changeUserPassword(request);
     }
 
-    public StreamObserver<FileUploadStatusResponse> uploadUserProfilePhoto(StreamObserver<UploadUserProfilePhotoRequest> request) {
-        return new StreamObserver<FileUploadStatusResponse>() {
-            @Override
-            public void onNext(FileUploadStatusResponse value) {
+    /**
+     * Takes a list of request chunks built in the controller and sends them one by on to the server.
+     * Note the first chunk should be metadata and the rest file data.
+     *
+     * @param requestChunks
+     */
+    public void uploadUserProfilePhoto(List<UploadUserProfilePhotoRequest> requestChunks) {
 
-            }
+        int numChunks = requestChunks.size();
+        int currentChunk = 0;
 
-            @Override
-            public void onError(Throwable t) {
+        // Get the server side observer
+        StreamObserver<UploadUserProfilePhotoRequest> requestObserver = nonBlockingStub
+                .withDeadlineAfter(5, TimeUnit.SECONDS)
+                .uploadUserProfilePhoto(new StreamObserver<FileUploadStatusResponse>() {
+                    //Define the client side observer
+                    @Override
+                    public void onNext(FileUploadStatusResponse value) {
 
-            }
+                    }
 
-            @Override
-            public void onCompleted() {
+                    @Override
+                    public void onError(Throwable t) {
 
-            }
-        }
+                    }
+
+                    @Override
+                    public void onCompleted() {
+
+                    }
+                });
+
+        requestObserver.onNext(requestChunks.get(currentChunk++));
+        requestObserver.onCompleted();
+
     }
 }

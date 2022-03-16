@@ -207,53 +207,89 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    /**
+     * The gRPC implementation of bidirectional streaming used to receive uploaded user profile images.
+     * <br>
+     * The server creates a stream observer and defines its actions when the client calls the OnNext, onError and
+     * onComplete methods. <br>
+     *  - onNext: should be called by the client when they are sending data to the server. The first chunk should be
+     *            metadata, and every chunk following should be fileContent. On reception the server calls the clients
+     *            onNext method to request the next chunk. <br>
+     *  - onError: has little effect for the server, as it is more crucial for the client, however it informs the server
+     *             to drop the content received as the transfer was unsuccessful, <br>
+     *  - onComplete: When called the server can save the data received return a FileUploadStatus.SUCCESS onNext and
+     *                onComplete to tell the client that the server has saved the image.
+     *
+     * <br>
+     * @param responseObserver - Contains an observer, which the Client side defines the implementation for. This allows
+     *                           client side actions to be called from the server side. E.g., if bytes have been
+     *                           received from the client successfully, the server will call
+     *                           responseObserver.onNext(FileUploadStatusResponse) to inform the client to send more.
+     *
+     * @return requestObserver - Contains an observer defined by the server, so that the client can call server side
+     *                           actions. Therefore, this method defines the servers actions when the client calls them.
+     */
     @Override
     public StreamObserver<UploadUserProfilePhotoRequest> uploadUserProfilePhoto(StreamObserver<FileUploadStatusResponse> responseObserver) {
-        return new StreamObserver<UploadUserProfilePhotoRequest>() {
+        return new StreamObserver<>() {
             private int userId;
             private String fileType;
             private ByteArrayOutputStream imageContent;
 
             @Override
             public void onNext(UploadUserProfilePhotoRequest request) {
+//  --------------------------------- Check if the first "packet" is the metadata --------------------------------------
                 if (request.getUploadDataCase() == UploadUserProfilePhotoRequest.UploadDataCase.METADATA) {
                     ProfilePhotoUploadMetadata metadata = request.getMetaData();
                     System.out.println("Received image metadata: " + metadata);
 
-
+                    // Metadata received, create new image and tell client with PENDING status
                     userId = metadata.getUserId();
                     fileType = metadata.getFileType();
                     imageContent = new ByteArrayOutputStream();
-
-                    return;
+                    // Update client that metadata received
+                    responseObserver.onNext(FileUploadStatusResponse.newBuilder()
+                            .setStatus(FileUploadStatus.PENDING)
+                            .setMessage("Received image metadata: " + metadata)
+                            .build()
+                    );
+//  ---------------------------- Otherwise the incoming content must be file chunks ------------------------------------
                 } else {
                     ByteString fileContent = request.getFileContent();
                     System.out.println("Received image chunk of size: " + fileContent.size());
 
+                    // If the metadata wasn't received first as error will occur
                     if (imageContent == null) {
                         System.out.println("Image metadata data not sent before transfer");
                         responseObserver.onError(
-                                Status.INVALID_ARGUMENT
+                                        Status.INVALID_ARGUMENT
                                         .withDescription("Image Content sent before metadata")
                                         .asRuntimeException()
                         );
-                        return;
                     } else {
                         try {
                             fileContent.writeTo(imageContent);
+                            // Update client that contents received
+                            responseObserver.onNext(FileUploadStatusResponse.newBuilder()
+                                    .setStatus(FileUploadStatus.IN_PROGRESS)
+                                    .setMessage("Received " + fileContent.size() + " bytes of image data")
+                                    .build()
+                            );
                         } catch (IOException e) {
                             responseObserver.onError(Status.INVALID_ARGUMENT
                                     .withDescription("Failed to write chunks: " + fileContent)
                                     .asRuntimeException());
                         }
-                        return;
                     }
                 }
             }
 
             @Override
             public void onError(Throwable throwable) {
-                // check this tells client
+                responseObserver.onNext(FileUploadStatusResponse.newBuilder()
+                        .setStatus(FileUploadStatus.FAILED)
+                        .setMessage("An error has occurred")
+                        .build());
                 System.out.println(throwable.getMessage());
             }
 
@@ -268,7 +304,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 responseObserver.onNext(response);
                 responseObserver.onCompleted();
             }
+
+
         };
+
     }
 
     @Override
