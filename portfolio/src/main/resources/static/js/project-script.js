@@ -306,7 +306,7 @@ function showSprintForm(sprint) {
         '                            <label for="FormControlEndDate">End Date</label>\n' +
         '                            <input type="date" name="endDate" id="FormControlEndDate" class="form-control" value="'+endDate+'" required>\n' +
         '                        </div>\n' +
-        '                    </div>\n' +
+        '                    </div>\n' +account,
         '                    <div class="row mb-3">\n' +
         '                        <div class="form-floating col">\n' +
         '                            <textarea class="form-control" name="description" placeholder="Describe the sprint here" id="FormControlSprintDescription" required>'+description+'</textarea>\n' +
@@ -322,7 +322,7 @@ function showSprintForm(sprint) {
         '                    </div>\n' +
         '\n' +
         '                </form>\n' +
-        '            </div>')
+        '            </div>');
 
 }
 
