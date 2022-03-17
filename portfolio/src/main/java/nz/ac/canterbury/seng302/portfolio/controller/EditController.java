@@ -179,12 +179,12 @@ public class EditController {
             //Give the user the response from the IDP
             System.out.println(changePasswordResponse.getMessage());
             //Flash attributes aren't visible in the URL, which is why this is a flash attribute
-            attributes.addFlashAttribute("passwordchangemessage",
+            attributes.addFlashAttribute("passwordChangeMessage",
                     changePasswordResponse.getMessage());
         } else {
             // Tell the user to confirm their passwords match
             System.out.println("Confirm password does not match new password.");
-            attributes.addFlashAttribute("passwordchangemessage",
+            attributes.addFlashAttribute("passwordChangeMessage",
                     "Confirm password does not match new password.");
         }
         //Since they're at a different endpoint, redirect back to the main edit endpoint
