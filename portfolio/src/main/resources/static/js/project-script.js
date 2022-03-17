@@ -25,8 +25,25 @@ $(document).ready(function() {
         $(".authenticated-user").css("display", "block")
     }
 
+    let username = $(".username").html() // Gets username
+    $(".username").html(username.charAt(0).toUpperCase() + username.slice(1)) // Sets username to capitalized.
+
+    $(".profileDropdown").click(() => {
+        toggleDropDown()
+    })
+
+    $(".editUserButton").click(() => {
+        $(".canDisable").prop("disabled",false);
+    })
+
 
 })
+
+function toggleDropDown() {
+    $(".dropdown-content").slideToggle();
+
+    return $(this);
+}
 
 /**
  * Populates the page.
@@ -127,15 +144,15 @@ $(document).on("click", "#ProjectFormSubmit", function () {
  * Has a couple of visual things like fadeouts and fadein.
  */
 function reDisplaySprints() {
-    $("#sprint-container").fadeOut("fast");
+    $(".sprintsContainer").fadeOut("fast");
     setTimeout(function () {
-        $("#sprint-container").empty();
+        $(".sprintsContainer").empty();
         numberOfSprints = 0;
         populatePage()
     },300)
 
     setTimeout(function () {
-        $("#sprint-container").fadeIn("fast");
+        $(".sprintsContainer").fadeIn("fast");
     }, 600)
 }
 
@@ -157,7 +174,7 @@ function reDisplayProject() {
  * Sends a POST request to the server to create a default sprint.
  * Receives response from server and runs addSprint()
  */
-$(document).on("click", ".project-add-sprint-button", function () {
+$(document).on("click", ".projectAddSprint", function () {
     let sprintName = numberOfSprints + 1
     $.post("addSprint", {"name": "Sprint "+sprintName+"", "projectId": projectId}, function(data) {
         addSprint(data)
@@ -335,7 +352,7 @@ function showSprintForm(sprint) {
 function addSprint(element) {
     numberOfSprints ++;
     if (isTeacher) {
-        $("#sprint-container").append('<div style="border-left-color: ' + element.colour+ '" class="sprint-details-container container-fluid  p-3" id="sprint-'+ numberOfSprints +'">\n' +
+        $(".sprintsContainer").append('<div style="border-left-color: ' + element.colour+ '" class="sprint-details-container container-fluid  p-3" id="sprint-'+ numberOfSprints +'">\n' +
             '                <div class="row justify-content-between">\n' +
             '                <p class="sprint-colour-data" style="display: none">'+element.colour+'</p>\n' +
             '                <p class="sprintId" style="display: none">'+element.id+'</p>\n' +

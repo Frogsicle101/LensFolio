@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thymeleaf Fragments: home</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
+    <script type="application/javascript" th:src="@{js/project.js}"></script>
+</head>
+<body>
+<!--The below section <header> pulls the fragment from fragments/general-->
+<header th:insert="fragments/general.html :: header"> </header>
+<section>
+    <form th:action="@{/projectEdit}" th:object="${editProjectForm}" method="post">
+        <h1>Personal Information</h1>
+        <input type="text" name="projectId" style="display: none" id="projectId" th:value="${projectId}">
+        <div class="mb-3">
+            <label for="projectName" class="form-label">Project Name</label>
+            <input type="text" class="form-control canDisable" name="projectName" id="projectName" th:value="${projectName}" required >
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="projectStartDate" class="form-label">Project Start</label>
+                <input type="date" class="form-control canDisable" name="projectStartDate" id="projectStartDate" th:value="${projectStart}" required>
+            </div>
+            <div class="col">
+                <label for="projectEndDate" class="form-label">Project End</label>
+                <input type="date" class="form-control canDisable" name="projectEndDate" id="projectEndDate" th:value="${projectEnd}" required>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="projectDescription" class="form-label">Project Description</label>
+            <textarea class="form-control canDisable" name="projectDescription" id="projectDescription" th:value="${projectDescription}"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" onclick="history.back()" class="btn btn-danger" >Cancel</button>
+
+    </form>
+</section>
+</body>
+</html>

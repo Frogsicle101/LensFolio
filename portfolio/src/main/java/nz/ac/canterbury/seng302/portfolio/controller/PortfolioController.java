@@ -1,12 +1,19 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
+import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
+import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.service.ReadableTimeService;
 import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
 
+import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
+import nz.ac.canterbury.seng302.shared.identityprovider.EditUserRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.EditUserResponse;
+import org.h2.engine.Mode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +21,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -46,81 +55,86 @@ public class PortfolioController {
      * @return portfolio.html
      */
     @GetMapping("/portfolio")
-    public ModelAndView portfolio(@AuthenticationPrincipal AuthState principal, Model model) {
-
-        String role = principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("role"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("NOT FOUND");
-
-        Integer id = Integer.valueOf(principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("nameid"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("-100"));
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("portfolio");
-
-        model.addAttribute("role", role);
-        model.addAttribute("id", id);
-        model.addAttribute("name", principal.getName());
-        model.addAttribute("authenticated", principal.getIsAuthenticated());
-
-
-
+    public ModelAndView getPortfolio(
+                                  @AuthenticationPrincipal AuthState principal,
+                                  Model model
+    ) {
+        ModelAndView modelAndView = new ModelAndView("portfolio");
+       // Project project = new Project(1L, "Bravo");
+        Project project = projectRepository.getProjectByName("Project Bravo");
+        addModelAttributeProject(modelAndView, project);
+        modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
         return modelAndView;
     }
 
-    @GetMapping("getProject")
-    public Project getProjectById(){
-        if (projectRepository.count() > 0 && !projectHasBeenCreated) {
-            projectHasBeenCreated = true;
-            projectCreatedID = 2;
-        }
-        if (projectHasBeenCreated) {
-            return projectRepository.getProjectById(projectCreatedID);
-        }
-
-        Project newProject = new Project(1, "Project ".concat(String.valueOf(LocalDate.now().getYear())));
-        projectCreatedID = projectRepository.save(newProject).getId();
-        projectHasBeenCreated = true;
-        return projectRepository.getProjectById(projectCreatedID);
-
-
+    @RequestMapping("/editProject")
+    public ModelAndView edit(
+            @AuthenticationPrincipal AuthState principal,
+            @RequestParam (value = "projectId") String projectId,
+            Model model
+    ) {
+        Long longProjectId = Long.parseLong(projectId);
+        ModelAndView modelAndView = new ModelAndView("projectEdit");
+        addModelAttributeProject(modelAndView, projectRepository.getProjectById(longProjectId));
+        return modelAndView;
     }
 
 
-    @PutMapping("editProject")
-    public ResponseEntity<String> updateProject(@RequestParam (value = "id") Long id,
-                                              @RequestParam (value = "name") String name,
-                                              @RequestParam (value = "startDate")String startDate,
-                                              @RequestParam (value = "endDate") String endDate,
-                                              @RequestParam (value = "description") String description){
+    @PostMapping("/projectEdit")
+    public ModelAndView editDetails(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @AuthenticationPrincipal AuthState principal,
+            @ModelAttribute(name="editProjectForm") ProjectRequest editInfo,
+            Model model
+    ) {
+        Project project = projectRepository.getProjectById(Long.parseLong(editInfo.getProjectId()));
+        project.setName(editInfo.getProjectName());
+        project.setStartDate(editInfo.getProjectStartDate());
+        project.setEndDate(editInfo.getProjectEndDate());
+        project.setDescription(editInfo.getProjectDescription());
+        projectRepository.save(project);
 
-        LocalDate sDate = LocalDate.parse(startDate);
-        LocalDate eDate = LocalDate.parse(endDate);
-        if (eDate.isBefore(sDate)) {
-            return new ResponseEntity<>("End Date is before Start Date",HttpStatus.NOT_ACCEPTABLE);
-        }
-        if (name.isEmpty()) {
-            return new ResponseEntity<>("Please enter a name", HttpStatus.NOT_ACCEPTABLE);
-        }
-        if (sDate.isBefore(LocalDate.now().minusYears(1))) {
-            return new ResponseEntity<>("Project cannot start more than a year ago", HttpStatus.NOT_ACCEPTABLE);
-        }
-        else {
-            Project projectToChange = projectRepository.findById(id).get();
-            projectToChange.setDescription(description);
-            projectToChange.setStartDate(startDate);
-            projectToChange.setEndDate(endDate);
-            projectToChange.setName(name);
-            projectRepository.save(projectToChange);
-            return new ResponseEntity<>(HttpStatus.ACCEPTED);
-        }
-
+        return new ModelAndView("redirect:/portfolio");
     }
+
+    public void addModelAttributeProject(ModelAndView model, Project project){
+        model.addObject("projectId", project.getId());
+        model.addObject("projectName", project.getName());
+        model.addObject("projectStart", project.getStartDate());
+        model.addObject("projectEnd", project.getEndDate());
+        model.addObject("projectDescription", project.getDescription());
+    }
+
+//    @PutMapping("editProject")
+//    public ResponseEntity<String> updateProject(@RequestParam (value = "id") Long id,
+//                                              @RequestParam (value = "name") String name,
+//                                              @RequestParam (value = "startDate")String startDate,
+//                                              @RequestParam (value = "endDate") String endDate,
+//                                              @RequestParam (value = "description") String description){
+//
+//        LocalDate sDate = LocalDate.parse(startDate);
+//        LocalDate eDate = LocalDate.parse(endDate);
+//        if (eDate.isBefore(sDate)) {
+//            return new ResponseEntity<>("End Date is before Start Date",HttpStatus.NOT_ACCEPTABLE);
+//        }
+//        if (name.isEmpty()) {
+//            return new ResponseEntity<>("Please enter a name", HttpStatus.NOT_ACCEPTABLE);
+//        }
+//        if (sDate.isBefore(LocalDate.now().minusYears(1))) {
+//            return new ResponseEntity<>("Project cannot start more than a year ago", HttpStatus.NOT_ACCEPTABLE);
+//        }
+//        else {
+//            Project projectToChange = projectRepository.findById(id).get();
+//            projectToChange.setDescription(description);
+//            projectToChange.setStartDate(startDate);
+//            projectToChange.setEndDate(endDate);
+//            projectToChange.setName(name);
+//            projectRepository.save(projectToChange);
+//            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+//        }
+//
+//    }
 
 
     /**

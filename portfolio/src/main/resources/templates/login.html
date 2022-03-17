@@ -1,17 +1,25 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-    <head>
-        <title>Lensfolio | Log In</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <script type="application/javascript" th:src="@{js/jquery-3.6.0.js}"></script>
-        <script th:src="@{bootstrap/js/bootstrap.bundle.js}"></script>
-        <link th:href="@{bootstrap/css/bootstrap.css}" rel="stylesheet" />
-        <link th:href="@{css/bad.css}" rel="stylesheet" />
-    </head>
-    <body style="width: 50%; margin: auto;">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lensfolio | Login</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header >
+
+</header>
+<section class="loginSection">
+    <div class="logoBox">
+        <h1 class="logo">Lensfolio</h1>
+    </div>
+    <div class="loginBox">
         <p th:text="${loginMessage}" class="loginMessage"></p>
         <form th:action="@{/login}" th:object="${loginForm}"  method="post">
-            <h1>Login</h1>
+            <h1 class="signIn">Sign In</h1>
 
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
@@ -22,13 +30,14 @@
                 <input type="password" class="form-control" name="password" id="password" maxlength="100" required>
             </div>
 
-            <div class="mb-3">
-
-            </div>
-
             <button type="submit" class="btn btn-primary canDisable" >Submit</button>
 
         </form>
+        <hr>
         <p>Click <a th:href="@{/register}">here</a> to register a new user</p>
+    </div>
+
+</section>
+
     </body>
 </html>

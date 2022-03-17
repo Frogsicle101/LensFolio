@@ -18,5 +18,7 @@ public interface ProjectRepository extends CrudRepository<Project, Long> {
     @Query
     Project getProjectById(Long projectId);
 
+    @Query
+    Project getProjectByName(String projectName);
 
 }
