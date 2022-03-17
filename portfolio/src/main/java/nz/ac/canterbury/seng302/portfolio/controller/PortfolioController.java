@@ -149,14 +149,16 @@ public class PortfolioController {
 
     /**
      * Mapping for POST request "addSprint"
-     * @param name Name of Sprint
      * @param projectId the project in which you want to add sprint too.
      * @return Returns JSON of Sprint Object
      */
     @PostMapping("addSprint")
-    public Sprint addSprint(@RequestParam (value = "name") String name,
-                            @RequestParam (value = "projectId") long projectId)  {
+    public Sprint addSprint(
+            @RequestParam (value = "projectId") String projectId)  {
 
+        long longProjectId = Long.parseLong(projectId);
+        int amountOfSprints = sprintRepository.findAllByProjectId(longProjectId).size() + 1;
+        String name = "Sprint " + amountOfSprints;
         String startDate;
         if (sprintRepository.count() > 0) {
             Iterable<Sprint> sprints = sprintRepository.findAll();
@@ -177,7 +179,7 @@ public class PortfolioController {
         }
 
 
-        return sprintRepository.save(new Sprint(projectId, name, startDate));
+        return sprintRepository.save(new Sprint(longProjectId, name, startDate));
     }
 
     /**
@@ -251,7 +253,7 @@ public class PortfolioController {
 
     /**
      * Mapping for PUT request "deleteSprint"
-     * @param sprintId UUID of sprint to delete
+     * @param id UUID of sprint to delete
      * @return Confirmation of delete
      */
    @DeleteMapping("deleteSprint")

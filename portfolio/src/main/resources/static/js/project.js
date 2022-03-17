@@ -1,12 +1,35 @@
 $(document).ready(() => {
+    //Gets the project Id
+    const projectId = $("#projectId").html()
 
 
 
+    // Project buttons
     $("#projectEditSprint").click(() => {
-        let projectId = $("#projectId").html()
-        location.href = "/editProject?projectId=" + projectId
+        location.href = "/editProject?projectId=" + projectId;
     })
 
+    $("#projectAddSprint").click(function () {
+        $.ajax({
+            url: "addSprint",
+            type: "POST",
+            data: {"projectId": projectId},
+        }).done(function () {
+            location.reload()
+        }).fail(function () {
+
+        })
+    })
+
+
+
+
+
+
+
+
+
+    // Sprint Buttons
     $(".editSprint").click(function () {
         let sprintId = $(this).closest(".sprint").find(".sprintId").text();
         location.href = "/sprintEdit?sprintId=" + $(this).closest(".sprint").find(".sprintId").text();
@@ -24,6 +47,7 @@ $(document).ready(() => {
         })
 
     })
+
 
 
 })
