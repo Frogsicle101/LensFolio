@@ -404,5 +404,15 @@ function addSprint(element) {
             '            </div>')
     }
 
+
 }
+
+/**
+ *
+ * @param imageInput
+ */
+function updateImagePreview(imageInput) {
+    $('#profileImagePreview').attr('src', imageInput.files[0].target.result);
+    alert("Preview Updated");
+};
 
