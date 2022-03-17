@@ -36,19 +36,19 @@
         <form th:action="@{/edit/details}" th:object="${editDetailsForm}" method="post">
             <p id="Username" th:text="${username}"></p> <br>
             <label for="FirstName">* First Name:</label>
-            <input type="text" name="firstname" id="FirstName" th:value="${firstname}" required><br>
+            <input type="text" name="firstname" id="FirstName" th:value="${firstname}" required maxlength="200"><br>
             <label for="MiddleName">Middle Name:</label>
-            <input type="text" name="middlename" id="MiddleName" th:value="${middlename}"><br>
+            <input type="text" name="middlename" id="MiddleName" th:value="${middlename}" maxlength="200"><br>
             <label for="LastName">* Last Name:</label>
-            <input type="text" name="lastname" id="LastName" th:value="${lastname}" required><br>
+            <input type="text" name="lastname" id="LastName" th:value="${lastname}" required maxlength="200"><br>
             <label for="Email">* Email:</label>
-            <input type="email" name="email" id="Email" th:value="${email}" required><br>
+            <input type="email" name="email" id="Email" th:value="${email}" required maxlength="200"><br>
             <label for="Nickname">Nickname:</label>
-            <input type="text" name="nickname" id="Nickname" th:value="${nickname}"><br>
+            <input type="text" name="nickname" id="Nickname" th:value="${nickname}" maxlength="200"><br>
             <label for="PersonalPronouns">Personal Pronouns:</label>
-            <input type="text" name="personalPronouns" id="PersonalPronouns" th:value="${pronouns}"><br>
+            <input type="text" name="personalPronouns" id="PersonalPronouns" th:value="${pronouns}" maxlength="200"><br>
             <label for="Bio">Bio:</label>
-            <input type="text" name="bio" id="Bio" th:value="${userBio}"><br>
+            <textarea name="bio" id="Bio" th:text="${userBio}" maxlength="200"></textarea><br>
             <input type="submit" value="Save Changes">
         </form>
     </div>
