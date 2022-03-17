@@ -1,20 +1,34 @@
 $(document).ready(() => {
-    let projectId = $("#projectId").html()
-    console.log(projectId)
+
+
+
     $("#projectEditSprint").click(() => {
-        console.log("clicked")
         let projectId = $("#projectId").html()
-        console.log(projectId)
         location.href = "/editProject?projectId=" + projectId
     })
 
-
-    $(".sprint").each((element) => {
-        let sprintColour = $(this).find(".sprintColour");
-        console.log(sprintColour)
-        // $(element).css("border","solid 1rem red" )
+    $(".editSprint").click(function () {
+        let sprintId = $(this).closest(".sprint").find(".sprintId").text();
+        location.href = "/sprintEdit?sprintId=" + $(this).closest(".sprint").find(".sprintId").text();
     })
+
+
+    $(".deleteSprint").click(function() {
+        let sprintId = $(this).closest(".sprint").find(".sprintId").text();
+        $.ajax({
+            url: "deleteSprint",
+            type: "DELETE",
+            data: {"sprintId": sprintId},
+        }).done(function () {
+             location.reload()
+        })
+
+    })
+
+
 })
+
+
 
 
 

@@ -35,6 +35,7 @@
     <div class="sprintsContainer">
         <div th:each="sprint: ${sprints}" class="sprint" style="border-left: solid 0.5rem" th:attrappend="style=${' ' + sprint.colour}" >
             <p class="sprintColour" style="display: none" th:text="${sprint.colour}"></p>
+            <p class="sprintId" style="display: none" th:text="${sprint.id}"></p>
             <div class="row">
                 <div class="col" >
                     <h1 th:text="${sprint.name}"></h1>
@@ -53,6 +54,13 @@
             <div class="mb-3">
                 <p th:text="${sprint.description}"></p>
             </div>
+            <div class="mb3">
+
+                <button type="button" class="btn btn-outline-danger deleteSprint">Delete</button>
+                <button type="button" class="btn btn-outline-success editSprint">Edit</button>
+
+            </div>
+
         </div>
 
     </div>
