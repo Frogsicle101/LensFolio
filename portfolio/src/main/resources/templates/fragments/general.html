@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="headerfiles">
+    <meta charset="UTF-8" />
+
+
+    <script type="application/javascript" th:src="@{js/jquery-3.6.0.js}"></script>
+    <script th:src="@{bootstrap/js/bootstrap.bundle.js}"></script>
+    <link th:href="@{bootstrap/css/bootstrap.css}" rel="stylesheet" />
+
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <script type="application/javascript" th:src="@{js/header.js}"></script>
+</head>
+<body>
+<div th:fragment="header" class="headerBar">
+    <div class="profileNav" id="navbar">
+        <div class="profileDropdown">
+            <img th:src="@{defaultProfile.png}" alt="Your profile photo!" class="profilePic" id="profile">
+            <p class="username" th:text="${username}"></p>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down" viewBox="0 0 16 16">
+                <path d="M3.204 5h9.592L8 10.481 3.204 5zm-.753.659 4.796 5.48a1 1 0 0 0 1.506 0l4.796-5.48c.566-.647.106-1.659-.753-1.659H3.204a1 1 0 0 0-.753 1.659z"/>
+            </svg>
+        </div>
+        <div>
+            <div class="dropdown-content" id="dropdownContent" style="display: none">
+                <a class="logout" href="/logout">Log Out</a><br>
+                <a class="account" th:href="@{/account}">Account</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!--<aside>-->
+<!--    <div>This is a sidebar</div>-->
+<!--</aside>-->
+<!--<div class="another">This is another sidebar</div>-->
+<!--<footer th:fragment="footer">-->
+<!--    <a th:href="@{/fragments}">Fragments Index</a> |-->
+<!--    <a th:href="@{/markup}">Markup inclussion</a> |-->
+<!--    <a th:href="@{/params}">Fragment params</a> |-->
+<!--    <a th:href="@{/other}">Other</a>-->
+<!--</footer>-->
+</body>
+</html>
