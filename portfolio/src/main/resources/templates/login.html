@@ -8,14 +8,14 @@
 </head>
 <body>
 <header >
-
 </header>
+
 <section class="loginSection">
     <div class="logoBox">
         <h1 class="logo">Lensfolio</h1>
     </div>
     <div class="loginBox">
-        <p th:text="${loginMessage}" class="loginMessage"></p>
+        <div th:insert="fragments/general.html :: errorBox"> </div>
         <form th:action="@{/login}" th:object="${loginForm}"  method="post">
             <h1 class="signIn">Sign In</h1>
 

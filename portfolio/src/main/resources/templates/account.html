@@ -7,12 +7,10 @@
 </head>
 <body>
 <header th:insert="fragments/general.html :: header"> </header>
-<div class="accountBody">
+<section class="accountBody">
     <div class="accountInfo">
         <form th:action="@{/edit/details}" th:object="${editDetailsForm}" method="post">
             <h1>Personal Information</h1>
-
-
 
             <div class="row">
                 <div class="col">
@@ -86,7 +84,7 @@
         </form>
 
     </div>
-</div>
+</section>
 
 </body>
 </html>
