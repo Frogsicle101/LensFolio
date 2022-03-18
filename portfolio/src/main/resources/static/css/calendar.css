@@ -72,27 +72,26 @@
   line-height: 90px;
 }
 
-/* current day number color */
-.currentDay {
+/* current day and project day */
+.currentDay_project {
   color: red;
+  background-color: rgb(248, 245, 245);
 }
 
-/* current month number color */
-.currentMonth {
-  color: #999;
-}
-
-/* other month number color */
-.otherMonth {
-  color: #ede;
+/* current day and no project day */
+.currentDay_no_project {
+  color: red;
+  background-color: rgb(207, 205, 205);
 }
 
 /* project day background color */
-.project-back {
-  color: rgb(250, 244, 250);
+.project-bgcolor {
+  color: rgb(27, 27, 27);
+  background-color: rgb(250, 246, 246);
 }
 
 /* without project day background color */
-.no-project-back {
-  color: rgb(124, 124, 124);
+.no-project-bgcolor {
+  color: rgb(17, 17, 17);
+  background-color: rgb(207, 205, 205);
 }
