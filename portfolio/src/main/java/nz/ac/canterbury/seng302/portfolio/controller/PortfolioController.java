@@ -5,11 +5,15 @@ import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 
 
+import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,13 +31,15 @@ import java.util.UUID;
 @RestController
 public class PortfolioController {
 
-
-
+    @Autowired
+    private UserAccountsClientService userAccountsClientService;
 
     private final SprintRepository sprintRepository;
     private final ProjectRepository projectRepository;
     boolean projectHasBeenCreated = false;
     long projectCreatedID;
+
+
 
 
     /**
@@ -58,9 +64,11 @@ public class PortfolioController {
                                   @AuthenticationPrincipal AuthState principal,
                                   Model model
     ) {
+        // Get user from server
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("portfolio");
         Project project = projectRepository.getProjectByName("Project Bravo");
-        addModelAttributeProject(modelAndView, project);
+        addModelAttributeProject(modelAndView, project, user);
         modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
         return modelAndView;
     }
@@ -81,9 +89,11 @@ public class PortfolioController {
             @RequestParam (value = "projectId") String projectId,
             Model model
     ) {
+        // Get user from server
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         Long longProjectId = Long.parseLong(projectId);
         ModelAndView modelAndView = new ModelAndView("projectEdit");
-        addModelAttributeProject(modelAndView, projectRepository.getProjectById(longProjectId));
+        addModelAttributeProject(modelAndView, projectRepository.getProjectById(longProjectId), user);
         return modelAndView;
     }
 
@@ -126,12 +136,13 @@ public class PortfolioController {
      * @param project The project
      * @param model The model you're adding attributes to
      */
-    public void addModelAttributeProject(ModelAndView model, Project project){
+    public void addModelAttributeProject(ModelAndView model, Project project, UserResponse user){
         model.addObject("projectId", project.getId());
         model.addObject("projectName", project.getName());
         model.addObject("projectStart", project.getStartDate());
         model.addObject("projectEnd", project.getEndDate());
         model.addObject("projectDescription", project.getDescription());
+        model.addObject("username", user.getUsername());
     }
 
 
@@ -196,9 +207,11 @@ public class PortfolioController {
             @RequestParam (value = "sprintId") String sprintId,
             Model model
     ) {
+        // Get user from server
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         UUID uuidSprintId = UUID.fromString(sprintId);
         ModelAndView modelAndView = new ModelAndView("sprintEdit");
-        addModelAttributeSprint(modelAndView, sprintRepository.getSprintById(uuidSprintId));
+        addModelAttributeSprint(modelAndView, sprintRepository.getSprintById(uuidSprintId), user);
         return modelAndView;
     }
 
@@ -241,13 +254,14 @@ public class PortfolioController {
      * @param sprint The sprint
      * @param model The model you're adding attributes to
      */
-    public void addModelAttributeSprint(ModelAndView model, Sprint sprint){
+    public void addModelAttributeSprint(ModelAndView model, Sprint sprint, UserResponse user){
         model.addObject("sprintId", sprint.getId());
         model.addObject("sprintName", sprint.getName());
         model.addObject("sprintStart", sprint.getStartDate());
         model.addObject("sprintEnd", sprint.getEndDate());
         model.addObject("sprintDescription", sprint.getDescription());
         model.addObject("sprintColour", sprint.getColour());
+        model.addObject("username", user.getUsername());
     }
 
 

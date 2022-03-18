@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -75,11 +76,7 @@ public class EditController {
         Their values have been hard-coded for now, but they can be the result of functions!
         ideally, these would be functions like getUsername and so forth
          */
-        int id = Integer.parseInt(principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("nameid"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("NOT FOUND"));
+        int id = Integer.parseInt(PrincipalAttributes.getClaim(principal, "nameid"));
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
         request.setId(id);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
@@ -116,6 +113,7 @@ public class EditController {
             ModelMap model
     ) {
         EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
+        Integer id = Integer.valueOf(PrincipalAttributes.getClaim(principal, "nameid"));
 
 
         editRequest.setUserId(id)
@@ -131,7 +129,7 @@ public class EditController {
         //Add in the message for changing details
         attributes.addFlashAttribute("detailChangeMessage", reply.getMessage());
         //Since they're at a different endpoint, redirect back to the main edit endpoint
-        return new ModelAndView("redirect:/edit");
+        return new ModelAndView("redirect:/account");
     }
 
     /**
@@ -157,11 +155,7 @@ public class EditController {
     ){
         ChangePasswordRequest.Builder changePasswordRequest = ChangePasswordRequest.newBuilder();
         // Get user ID, this really needs to be a method
-        Integer id = Integer.valueOf(principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("nameid"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("-100"));
+        Integer id = Integer.valueOf(PrincipalAttributes.getClaim(principal, "nameid"));
 
         ChangePasswordResponse changePasswordResponse;
         if (editInfo.getNewPassword().equals(editInfo.getConfirmPassword())) {
@@ -182,6 +176,6 @@ public class EditController {
                     "Confirm password does not match new password.");
         }
         //Since they're at a different endpoint, redirect back to the main edit endpoint
-        return new ModelAndView("redirect:/edit");
+        return new ModelAndView("redirect:/account");
     }
 }

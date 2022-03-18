@@ -12,18 +12,18 @@
         <form th:action="@{/edit/details}" th:object="${editDetailsForm}" method="post">
             <h1>Personal Information</h1>
 
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col">
                     <label for="FirstName" class="form-label">First name</label>
-                    <input type="text" class="form-control canDisable"name="firstname" id="FirstName" th:value="${firstname}" required disabled>
+                    <input type="text" class="form-control canDisable"name="firstname" id="FirstName" th:value="${firstName}" required disabled>
                 </div>
                 <div class="col">
                     <label for="MiddleName" class="form-label">Middle name</label>
-                    <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${middlename}" disabled required>
+                    <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${middleName}" disabled required>
                 </div>
                 <div class="col">
                     <label for="LastName" class="form-label">Last name</label>
-                    <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${lastname}" disabled  required>
+                    <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${lastName}" disabled  required>
                 </div>
             </div>
             <div class="mb-3">
@@ -47,12 +47,9 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <label for="roleInputSelect" class="form-label">Role</label>
-                    <select class="form-select " id="roleInputSelect" aria-label="Default select example" disabled>
-                        <option selected th:text="${roles}"></option>
-                        <option value="2">Student</option>
-                        <option value="3">Admin</option>
-                    </select>
+
+                    <label for="roles" class="form-label">Roles</label>
+                    <input type="text" class="form-control" name="roles" id="roles" th:value="${roles}" disabled>
                 </div>
                 <div class="col">
                     <label for="personalPronouns" class="form-label">Pronouns</label>
@@ -60,14 +57,15 @@
                 </div>
             </div>
             <div class="mb-3">
-                <p class="membersince" th:text="${membersince}"></p>
+                <p class="membersince" th:text="'Member since: ' + ${membersince}"></p>
             </div>
             <button type="submit" class="btn btn-primary canDisable" disabled>Submit</button>
             <button type="button" class="btn btn-secondary editUserButton" >Edit</button>
 
         </form>
+        <hr class="mt-3 mb-3">
         <form method="post" th:action="@{/edit/password}" th:object="${editPasswordForm}">
-
+            <h1>Change Password</h1>
             <div class="mb-3">
                 <label for="OldPassword" class="form-label">Old password</label>
                 <input type="password" class="form-control canDisable" name="old password" id="OldPassword" th:field="*{oldPassword}" maxlength="100" required disabled>
