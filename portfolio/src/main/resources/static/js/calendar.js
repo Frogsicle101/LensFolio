@@ -1,3 +1,6 @@
+let beginDateStr = ${"#projectStartDate"}.html();
+let endDateStr = ${"#projectEndDate"}.html();
+
 (function () {
   /*
    * Display calendar from current system time

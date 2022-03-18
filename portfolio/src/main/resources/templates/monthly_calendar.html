@@ -1,11 +1,19 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
-  <head>
+<head>
     <link rel="stylesheet" href="@{css/calendar.css}" />
-    <title>demo</title>
-  </head>
-  <body>
+    <title>Thymeleaf Fragments: calendar</title>
+</head>
+<body>
+<!--The below section <header> pulls the fragment from fragments/general-->
+<header th:insert="fragments/general.html :: header"> </header>
+<section>
+  <p id="projectStartDate" th:text="${projectStartDate}"></p>
+  <p id="projectEndDate" th:text="${projectEndDate}"></p>
     <div class="calendar" id="calendar"></div>
-    <script type="text/javascript" src="@{css/calendar.js}"></script>
-  </body>
+    <script type="text/javascript" src="@{css/calendar.js}">
+    </script>
+</section>
+
+</body>
 </html>
