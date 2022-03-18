@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -57,7 +56,7 @@ public class EditController {
         so let's grab all those details and put them in the model
          */
         addModelAttributes(principal, model);
-        return "edit";
+        return "accountEdit";
     }
 
     /**
@@ -118,11 +117,6 @@ public class EditController {
     ) {
         EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
 
-        Integer id = Integer.valueOf(principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("nameid"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("-100"));
 
         editRequest.setUserId(id)
                 .setFirstName(editInfo.getFirstname())

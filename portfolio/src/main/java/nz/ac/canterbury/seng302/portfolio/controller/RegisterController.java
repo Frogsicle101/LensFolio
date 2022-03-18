@@ -41,7 +41,7 @@ public class RegisterController {
      */
     @GetMapping("/register")
     public String register(Model model) {
-        return "register";
+        return "accountRegister";
     }
 
     /**
@@ -74,19 +74,19 @@ public class RegisterController {
                                 authenticateClientService);
             } catch (AuthenticationException exception) {
                 model.addAttribute("errorMessage", exception.getMessage());
-                return new ModelAndView("register");
+                return new ModelAndView("accountRegister");
             }
 
             return new ModelAndView("redirect:/account");
         }
         model.addAttribute("errorMessage", registerReply.getMessage());
-        return new ModelAndView("register");
+        return new ModelAndView("accountRegister");
     }
 
     /**
      * Takes a UserRequest object populated from a registration form and returns a UserRegisterRequest to send to the server
      * 
-     * @param userRequest - A UserRequest object populated from a register.html form
+     * @param userRequest - A UserRequest object populated from a accountRegister.html form
      * @return userRegisterRequest - a populated userRegisterRequest from the user_accounts.proto format
      */
     private UserRegisterRequest createUserRegisterRequest(UserRequest userRequest) {
