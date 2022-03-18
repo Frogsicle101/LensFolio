@@ -59,14 +59,14 @@ public class LoginController {
         try {
             loginReply = attemptLogin(userRequest, request, response, authenticateClientService);
         } catch (AuthenticationException e){
-            model.addAttribute("loginMessage", "Error connecting to Identity Provider...");
+            model.addAttribute("errorMessage", "Error connecting to Identity Provider...");
             return new ModelAndView("login");
         }
         // If login was successful redirect to account, otherwise add failure message
         if (loginReply.getSuccess()) {
             return new ModelAndView("redirect:/account");
         } else {
-            model.addAttribute("loginMessage", loginReply.getMessage());
+            model.addAttribute("errorMessage", loginReply.getMessage());
             return new ModelAndView("login");
         }
     }

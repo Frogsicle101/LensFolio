@@ -1,11 +1,14 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+
+import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
+import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
+
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -42,84 +47,91 @@ public class PortfolioController {
     }
 
     /**
-     * Mapping for GET request /portfolio
-     * @return portfolio.html
+     * Main entry point for portfolio.
+     *
+     * @param principal The authentication state
+     * @param model The Thymeleaf model
+     * @return Thymleaf template
      */
     @GetMapping("/portfolio")
-    public ModelAndView portfolio(@AuthenticationPrincipal AuthState principal, Model model) {
-
-        String role = principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("role"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("NOT FOUND");
-
-        Integer id = Integer.valueOf(principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("nameid"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("-100"));
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("portfolio");
-
-        model.addAttribute("role", role);
-        model.addAttribute("id", id);
-        model.addAttribute("name", principal.getName());
-        model.addAttribute("authenticated", principal.getIsAuthenticated());
-
-
-
+    public ModelAndView getPortfolio(
+                                  @AuthenticationPrincipal AuthState principal,
+                                  Model model
+    ) {
+        ModelAndView modelAndView = new ModelAndView("portfolio");
+        Project project = projectRepository.getProjectByName("Project Bravo");
+        addModelAttributeProject(modelAndView, project);
+        modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
         return modelAndView;
     }
 
-    @GetMapping("getProject")
-    public Project getProjectById(){
-        if (projectRepository.count() > 0 && !projectHasBeenCreated) {
-            projectHasBeenCreated = true;
-            projectCreatedID = 2;
-        }
-        if (projectHasBeenCreated) {
-            return projectRepository.getProjectById(projectCreatedID);
-        }
-
-        Project newProject = new Project(1, "Project ".concat(String.valueOf(LocalDate.now().getYear())));
-        projectCreatedID = projectRepository.save(newProject).getId();
-        projectHasBeenCreated = true;
-        return projectRepository.getProjectById(projectCreatedID);
-
-
+    /**
+     * Mapping for /editProject
+     * Retrieves the Project from the project repository by the id passed in with request parameters.
+     * Calls helper function and returns thymleaf template.
+     *
+     * @param principal The authentication state
+     * @param projectId Id of project
+     * @param model The Thymeleaf model
+     * @return a thymeleaf template
+     */
+    @RequestMapping("/editProject")
+    public ModelAndView edit(
+            @AuthenticationPrincipal AuthState principal,
+            @RequestParam (value = "projectId") String projectId,
+            Model model
+    ) {
+        Long longProjectId = Long.parseLong(projectId);
+        ModelAndView modelAndView = new ModelAndView("projectEdit");
+        addModelAttributeProject(modelAndView, projectRepository.getProjectById(longProjectId));
+        return modelAndView;
     }
 
 
-    @PutMapping("editProject")
-    public ResponseEntity<String> updateProject(@RequestParam (value = "id") Long id,
-                                              @RequestParam (value = "name") String name,
-                                              @RequestParam (value = "startDate")String startDate,
-                                              @RequestParam (value = "endDate") String endDate,
-                                              @RequestParam (value = "description") String description){
+    /**
+     * Mapping for /projectEdit
+     * Called when user has edited a project and hit submit.
+     * Gets the correct project and updates all the information and redirects user back to main page
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @param principal The authentication state
+     * @param editInfo the thymeleaf-created form object
+     * @param model the thymeleaf model
+     * @return a redirect to portfolio
+     */
+    @PostMapping("/projectEdit")
+    public ModelAndView editDetails(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @AuthenticationPrincipal AuthState principal,
+            @ModelAttribute(name="editProjectForm") ProjectRequest editInfo,
+            Model model
+    ) {
+        Project project = projectRepository.getProjectById(Long.parseLong(editInfo.getProjectId()));
+        project.setName(editInfo.getProjectName());
+        project.setStartDate(editInfo.getProjectStartDate());
+        project.setEndDate(editInfo.getProjectEndDate());
+        project.setDescription(editInfo.getProjectDescription());
+        projectRepository.save(project);
 
-        LocalDate sDate = LocalDate.parse(startDate);
-        LocalDate eDate = LocalDate.parse(endDate);
-        if (eDate.isBefore(sDate)) {
-            return new ResponseEntity<>("End Date is before Start Date",HttpStatus.NOT_ACCEPTABLE);
-        }
-        if (name.isEmpty()) {
-            return new ResponseEntity<>("Please enter a name", HttpStatus.NOT_ACCEPTABLE);
-        }
-        if (sDate.isBefore(LocalDate.now().minusYears(1))) {
-            return new ResponseEntity<>("Project cannot start more than a year ago", HttpStatus.NOT_ACCEPTABLE);
-        }
-        else {
-            Project projectToChange = projectRepository.findById(id).get();
-            projectToChange.setDescription(description);
-            projectToChange.setStartDate(startDate);
-            projectToChange.setEndDate(endDate);
-            projectToChange.setName(name);
-            projectRepository.save(projectToChange);
-            return new ResponseEntity<>(HttpStatus.ACCEPTED);
-        }
+        return new ModelAndView("redirect:/portfolio");
+    }
 
+
+    /**
+     * Helper function to add objects to the model
+     * Given a Thymeleaf model, adds a bunch of attributes into it
+     *
+     * This is really just to make the code a bit nicer to look at
+     * @param project The project
+     * @param model The model you're adding attributes to
+     */
+    public void addModelAttributeProject(ModelAndView model, Project project){
+        model.addObject("projectId", project.getId());
+        model.addObject("projectName", project.getName());
+        model.addObject("projectStart", project.getStartDate());
+        model.addObject("projectEnd", project.getEndDate());
+        model.addObject("projectDescription", project.getDescription());
     }
 
 
@@ -137,14 +149,16 @@ public class PortfolioController {
 
     /**
      * Mapping for POST request "addSprint"
-     * @param name Name of Sprint
      * @param projectId the project in which you want to add sprint too.
      * @return Returns JSON of Sprint Object
      */
     @PostMapping("addSprint")
-    public Sprint addSprint(@RequestParam (value = "name") String name,
-                            @RequestParam (value = "projectId") long projectId)  {
+    public Sprint addSprint(
+            @RequestParam (value = "projectId") String projectId)  {
 
+        long longProjectId = Long.parseLong(projectId);
+        int amountOfSprints = sprintRepository.findAllByProjectId(longProjectId).size() + 1;
+        String name = "Sprint " + amountOfSprints;
         String startDate;
         if (sprintRepository.count() > 0) {
             Iterable<Sprint> sprints = sprintRepository.findAll();
@@ -165,60 +179,77 @@ public class PortfolioController {
         }
 
 
-        return sprintRepository.save(new Sprint(projectId, name, startDate));
+        return sprintRepository.save(new Sprint(longProjectId, name, startDate));
     }
 
     /**
-     * Mapping for PUT request "editSprint"
-     * @param id UUID of sprint
-     * @param name Name of sprint
-     * @param projectId Project Id of Sprint
-     * @param startDate Start Date of Sprint
-     * @param endDate End Date of Sprint
-     * @param description Description of Sprint
-     * @param colour Colour of Sprint
-     * @return Response entity
+     * Mapping for /sprintEdit. Looks for a sprint that matches the id
+     * and then populates the form.
+     * @param principal The authentication state
+     * @param sprintId The sprint id
+     * @param model Thymleaf model
+     * @return Thymleaf template
      */
-   @PutMapping("editSprint")
-   public ResponseEntity<String>updateSprint(@RequestParam (value = "id") UUID id,
-                              @RequestParam (value = "name") String name,
-                              @RequestParam (value = "projectId") long projectId,
-                              @RequestParam (value = "startDate")String startDate ,
-                              @RequestParam (value = "endDate") String endDate,
-                              @RequestParam (value = "description") String description,
-                              @RequestParam (value = "colour") String colour){
+    @RequestMapping("/sprintEdit")
+    public ModelAndView sprintEdit(
+            @AuthenticationPrincipal AuthState principal,
+            @RequestParam (value = "sprintId") String sprintId,
+            Model model
+    ) {
+        UUID uuidSprintId = UUID.fromString(sprintId);
+        ModelAndView modelAndView = new ModelAndView("sprintEdit");
+        addModelAttributeSprint(modelAndView, sprintRepository.getSprintById(uuidSprintId));
+        return modelAndView;
+    }
 
-       LocalDate sDate = LocalDate.parse(startDate);
-       LocalDate eDate = LocalDate.parse(endDate);
+    /**
+     * Takes the request to update the sprint.
+     * Tries to update the sprint then redirects user.
+     *
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @param principal The authentication state
+     * @param sprintInfo the thymeleaf-created form object
+     * @param model Thymleaf model
+     * @return redirect to portfolio
+     */
+    @PostMapping("/sprintSubmit")
+    public ModelAndView updateSprint(
+                                     HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     @AuthenticationPrincipal AuthState principal,
+                                     @ModelAttribute(name="sprintEditForm") SprintRequest sprintInfo,
+                                     Model model
+    ) {
 
-       Sprint sprintToChange = sprintRepository.findById(id).get();
-       Iterable<Sprint> sprints = sprintRepository.findAllByIdNot(id);
-       for (Sprint sp:sprints) {
-           LocalDate prevSprintEndDate = LocalDate.parse(sp.getEndDate());
-           if (sDate.isBefore(prevSprintEndDate) && eDate.isAfter(prevSprintEndDate)) {
-               return new ResponseEntity<>("Oops, looks like this sprint has date conflict",HttpStatus.NOT_ACCEPTABLE);
-           }
-       }
+        Sprint sprint = sprintRepository.getSprintById(sprintInfo.getSprintId());
+        sprint.setName(sprintInfo.getSprintName());
+        sprint.setStartDate(sprintInfo.getSprintStartDate());
+        sprint.setEndDate(sprintInfo.getSprintEndDate());
+        sprint.setDescription(sprintInfo.getSprintDescription());
+        sprint.setColour(sprintInfo.getSprintColour());
+        sprintRepository.save(sprint);
 
-        if (eDate.isBefore(sDate)) {
-            return new ResponseEntity<>("End Date is before Start Date",HttpStatus.NOT_ACCEPTABLE);
-        }
-        if (name.isEmpty()) {
-            return new ResponseEntity<>("Please enter a name", HttpStatus.NOT_ACCEPTABLE);
-        }
+        return new ModelAndView("redirect:/portfolio");
+    }
 
-         else {
+    /**
+     * Helper function to add objects to the model
+     * Given a Thymeleaf model, adds a bunch of attributes into it
+     *
+     * This is really just to make the code a bit nicer to look at
+     * @param sprint The sprint
+     * @param model The model you're adding attributes to
+     */
+    public void addModelAttributeSprint(ModelAndView model, Sprint sprint){
+        model.addObject("sprintId", sprint.getId());
+        model.addObject("sprintName", sprint.getName());
+        model.addObject("sprintStart", sprint.getStartDate());
+        model.addObject("sprintEnd", sprint.getEndDate());
+        model.addObject("sprintDescription", sprint.getDescription());
+        model.addObject("sprintColour", sprint.getColour());
+    }
 
-            sprintToChange.setColour(colour);
-            sprintToChange.setDescription(description);
-            sprintToChange.setStartDate(startDate);
-            sprintToChange.setEndDate(endDate);
-            sprintToChange.setName(name);
-            sprintRepository.save(sprintToChange);
-            return new ResponseEntity<>(HttpStatus.ACCEPTED);
-        }
-
-   }
 
     /**
      * Mapping for PUT request "deleteSprint"
@@ -226,7 +257,7 @@ public class PortfolioController {
      * @return Confirmation of delete
      */
    @DeleteMapping("deleteSprint")
-    public ResponseEntity<String> deleteSprint(@RequestParam (value = "id")UUID id) {
+    public ResponseEntity<String> deleteSprint(@RequestParam (value = "sprintId")UUID id) {
         sprintRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
    }

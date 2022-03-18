@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="application/javascript" th:src="@{js/jquery-3.6.0.js}"></script>
+    <script th:src="@{bootstrap/js/bootstrap.bundle.js}"></script>
+    <link th:href="@{bootstrap/css/bootstrap.css}" rel="stylesheet"/>
+    <title>Lensfolio | Register</title>
+</head>
+<body style="width: 50%; margin: auto;">
+    <p th:text="${errorMessage}" />
+
+    <form method="post" action="/register" th:object="${registerForm}">
+        <h1>Register account</h1>
+
+        <div class="row mb-3">
+            <div class="col">
+                <label for="firstname" class="form-label">First name(s)</label>
+                <input type="text" class="form-control canDisable" name="firstname" id="firstname"  maxlength="50" required>
+            </div>
+            <div class="col">
+                <label for="middlename" class="form-label">Middle name(s)</label>
+                <input type="text" class="form-control canDisable" name="middlename" id="middlename"  maxlength="50">
+            </div>
+            <div class="col">
+                <label for="lastname" class="form-label">Last name(s)</label>
+                <input type="text" class="form-control canDisable" name="lastname" id="lastname"  maxlength="50" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" name="username" id="username" maxlength="100" required>
+            </div>
+            <div class="col">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control canDisable" name="password" id="password"  maxlength="100" required>
+            </div>
+
+        </div>
+        <div class="mb3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control canDisable" name="email" id="email"  maxlength="100" required>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col">
+                <label for="nickname" class="form-label">Nickname</label>
+                <input type="text" class="form-control canDisable" name="nickname" id="nickname"  maxlength="50">
+            </div>
+            <div class="col">
+                <label for="personalPronouns" class="form-label">Pronouns</label>
+                <input type="text" class="form-control canDisable" name="personalPronouns" id="personalPronouns"  maxlength="100" >
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="bio" class="form-label">Bio</label>
+            <textarea class="form-control canDisable" id="bio"  name="bio" maxlength="500" ></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary canDisable">Submit</button>
+
+    </form>
+</body>
+</html>
