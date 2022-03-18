@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +37,10 @@ public class EditController {
      * @param principal The authentication state
      * @param editInfo A thymeleaf-created object
      * @param passInfo A thymeleaf-created object
+     * @param detailChangeMessage This is actually an injected thymeleaf attribute from editDetails. It is a message
+     *                            detailing the success/errors of the detail change attempt
+     * @param passwordChangeMessage This is an injected thymeleaf attribute from editPassword. It is a message
+     *                              detailing the success/errors of the password change attempt.
      * @param model The thymeleaf model
      * @return The thymeleaf template
      */
@@ -42,7 +49,9 @@ public class EditController {
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editDetailsForm") UserRequest editInfo,
             @ModelAttribute(name="editPasswordForm") PasswordRequest passInfo,
-            Model model
+            @ModelAttribute(name="detailChangeMessage") String detailChangeMessage,
+            @ModelAttribute(name="passwordChangeMessage") String passwordChangeMessage,
+            ModelMap model
     ) {
         /*We want to fill in the form details with what the user already has
         so let's grab all those details and put them in the model
@@ -61,7 +70,7 @@ public class EditController {
      */
     private void addModelAttributes(
             AuthState principal,
-            Model model) {
+            ModelMap model) {
         /*
         These addAttribute methods inject variables that we can use in our html file
         Their values have been hard-coded for now, but they can be the result of functions!
@@ -83,26 +92,29 @@ public class EditController {
         model.addAttribute("nickname", userResponse.getNickname());
         model.addAttribute("pronouns", userResponse.getPersonalPronouns());
         model.addAttribute("userBio", userResponse.getBio());
-        //TODO: make the value(s) of these set to either a success message, or the error message if one occurs
-        model.addAttribute("detailchangemessage", "");
-        model.addAttribute("passwordchangemessage", "");
+
     }
 
     /**
      * Entry point for editing account details
+     * This also handle the logic for changing the account details
+     * Note: this injects an attribute called "detailchangemessage" into the template it redirects to
+     * @param attributes extra attributes that are being given along with the redirect
      * @param request the HTTP request
      * @param response the HTTP response
+     * @param principal The authentication state
      * @param editInfo The thymeleaf-created form object
      * @param model The thymeleaf model
      * @return a redirect to the main /edit endpoint
      */
     @PostMapping("/edit/details")
     public ModelAndView editDetails(
+            RedirectAttributes attributes,
             HttpServletRequest request,
             HttpServletResponse response,
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editDetailsForm") UserRequest editInfo,
-            Model model
+            ModelMap model
     ) {
         EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
 
@@ -122,25 +134,32 @@ public class EditController {
                 .setEmail(editInfo.getEmail());
         EditUserResponse reply = userAccountsClientService.editUser(editRequest.build());
         System.out.println(reply);
+        //Add in the message for changing details
+        attributes.addFlashAttribute("detailChangeMessage", reply.getMessage());
         //Since they're at a different endpoint, redirect back to the main edit endpoint
         return new ModelAndView("redirect:/edit");
     }
 
     /**
      * Entry point for editing the password
+     * This also handle the logic for changing the password
+     * Note: this injects an attribute called "passwordchangemessage" into the template it redirects to
+     * @param attributes extra attributes that are being given along with the redirect
      * @param request the HTTP request
      * @param response the HTTP response
+     * @param principal The authentication state
      * @param editInfo the thymeleaf-created form object
      * @param model the thymeleaf model
      * @return a redirect to the main /edit endpoint
      */
     @PostMapping("/edit/password")
     public ModelAndView editPassword(
+            RedirectAttributes attributes,
             HttpServletRequest request,
             HttpServletResponse response,
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editPasswordForm") PasswordRequest editInfo,
-            Model model
+            ModelMap model
     ){
         ChangePasswordRequest.Builder changePasswordRequest = ChangePasswordRequest.newBuilder();
         // Get user ID, this really needs to be a method
@@ -157,10 +176,16 @@ public class EditController {
                     .setCurrentPassword(editInfo.getOldPassword())
                     .setNewPassword(editInfo.getNewPassword());
             changePasswordResponse = userAccountsClientService.changeUserPassword(changePasswordRequest.build());
+            //Give the user the response from the IDP
             System.out.println(changePasswordResponse.getMessage());
+            //Flash attributes aren't visible in the URL, which is why this is a flash attribute
+            attributes.addFlashAttribute("passwordChangeMessage",
+                    changePasswordResponse.getMessage());
         } else {
-            // Do something with this (user message)
+            // Tell the user to confirm their passwords match
             System.out.println("Confirm password does not match new password.");
+            attributes.addFlashAttribute("passwordChangeMessage",
+                    "Confirm password does not match new password.");
         }
         //Since they're at a different endpoint, redirect back to the main edit endpoint
         return new ModelAndView("redirect:/edit");
