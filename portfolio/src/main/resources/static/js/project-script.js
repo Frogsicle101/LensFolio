@@ -413,7 +413,7 @@ function addSprint(element) {
 $(function () {
     $("#profileImageInput").change(function () {
         if (this.files && this.files[0]) {
-            var reader = new FileReader();
+            let reader = new FileReader();
             reader.onload = imageIsLoaded;
             reader.readAsDataURL(this.files[0]);
         }
@@ -426,4 +426,37 @@ $(function () {
  */
 function imageIsLoaded(event) {
     $('#profileImagePreview').attr('src', event.target.result);
+}
+
+
+/**
+ *  Resizes image to desired width and height. Adjusts image quality according to constant value.
+ * @param imageId   Id of html <img> element to be resized
+ * @param newWidth  Desired new width in pixels
+ * @param newHeight Desired new height in pixels
+ */
+function resizeImage(imageId,newWidth, newHeight) {
+    let imgToCompress = document.getElementById(imageId);
+    const quality = 0.8;
+
+    // resizing the image
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
+    context.drawImage(imgToCompress, 0, 0, newWidth, newHeight);
+
+    // reducing the quality of the image
+    canvas.toBlob(
+        (blob) => {
+            if (blob) {
+                // showing the compressed image
+                imgToCompress.src = URL.createObjectURL(blob);
+            }
+        },
+        "image/jpeg",
+        quality
+    );
 }
