@@ -408,11 +408,22 @@ function addSprint(element) {
 }
 
 /**
- *
- * @param imageInput
+ *  Waits for user to select an image and then displays it as a preview.
  */
-function updateImagePreview(imageInput) {
-    $('#profileImagePreview').attr('src', imageInput.files[0].target.result);
-    alert("Preview Updated");
-};
+$(function () {
+    $("#profileImageInput").change(function () {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+            reader.onload = imageIsLoaded;
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+});
 
+/**
+ * Updates image preview when image is loaded.
+ * @param event image loaded event
+ */
+function imageIsLoaded(event) {
+    $('#profileImagePreview').attr('src', event.target.result);
+}
