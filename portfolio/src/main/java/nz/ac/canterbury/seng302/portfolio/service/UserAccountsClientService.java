@@ -5,6 +5,8 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -24,6 +26,8 @@ public class UserAccountsClientService {
 
     @GrpcClient(value = "identity-provider-grpc-server")
     private UserAccountServiceGrpc.UserAccountServiceStub asynchStub;
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Sends a request to the UserAccountsServerService containing the id of a user, requesting the users account details.
@@ -82,7 +86,7 @@ public class UserAccountsClientService {
 
             @Override
             public void onError(Throwable t) {
-
+                logger.error(t.getMessage(), t);
             }
 
             @Override
@@ -103,6 +107,7 @@ public class UserAccountsClientService {
                 .build()
         );
 
+        logger.info("Uploading profile photo");
 
         // Send file, split into 4KiB chunks
         InputStream inputStream = new FileInputStream(photo);

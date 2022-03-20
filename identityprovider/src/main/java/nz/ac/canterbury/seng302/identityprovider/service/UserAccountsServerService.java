@@ -9,6 +9,8 @@ import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     /** The repository where Users details are stored */
     @Autowired
     private UserRepository repository;
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
 
@@ -231,7 +235,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
             @Override
             public void onError(Throwable t) {
-
+                logger.error(t.getMessage(), t);
             }
 
             @Override
@@ -243,7 +247,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     bytes.writeTo(out);
                     out.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage(), e);
                 }
                 responseObserver.onCompleted();
 
