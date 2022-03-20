@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>List of Users</title>
+    </head>
+    <body>
+        <h1>Users</h1>
+
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Aliases</th>
+                <th>Roles</th>
+            </tr>
+            <tr th:each="user : ${user_list}">
+                <td th:text="${user.firstName} +  ' ' + ${user.middleName} + ' ' + ${user.lastName}">Name</td>
+                <td th:text="${user.username}">Username</td>
+                <td th:text="${user.nickname}">Nickname</td>
+                <td th:text="${#strings.listJoin(user.rolesList, ', ')}"></td>
+            </tr>
+        </table>
+    </body>
+</html>

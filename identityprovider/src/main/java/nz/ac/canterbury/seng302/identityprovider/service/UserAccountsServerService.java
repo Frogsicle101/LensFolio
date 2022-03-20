@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -27,6 +29,18 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Autowired
     private UserRepository repository;
 
+    //Name Comparator
+    Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
+
+    //Username Comparator
+    Comparator<User> compareByUsername = Comparator.comparing(User::getUsername);
+
+    //alias Comparator
+    Comparator<User> compareByAlias = Comparator.comparing(User::getNickname);
+
+    //role Comparator
+    //todo fix this so that it somehow grabs the roles, perhaps sort the roles list then grab that alphabetically?
+    //Comparator<User> compareByRole = Comparator.comparing(User::getRoles);
 
 
     /**
@@ -76,7 +90,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Override
     public void register(UserRegisterRequest request, StreamObserver<UserRegisterResponse> responseObserver) {
         UserRegisterResponse.Builder reply = UserRegisterResponse.newBuilder();
-        // Untested
+        //todo Untested
 
         try {
 
@@ -202,4 +216,61 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    /**
+     * Follows the gRPC contract for retrieving the paginated users. Does this by sorting a list of all the users based
+     * on what was requested and then looping through to add the specific page of users to the response
+     *
+     * @param request the GetPaginatedUsersRequest passed through from the client service
+     * @param responseObserver Used to return the response to the client side.
+     */
+    @Override
+    public void getPaginatedUsers(GetPaginatedUsersRequest request, StreamObserver<PaginatedUsersResponse> responseObserver) {
+        PaginatedUsersResponse.Builder reply = PaginatedUsersResponse.newBuilder();
+        List<User> allUsers = (List<User>) repository.findAll();
+        String sortMethod = request.getOrderBy();
+
+        switch (sortMethod) {
+            //todo below is commented out as need to discuss the correct way to sort by roles
+            //case "role" -> allUsers.sort(compareByRole);
+            case "username" -> allUsers.sort(compareByUsername);
+            case "alias" -> allUsers.sort(compareByAlias);
+            default -> allUsers.sort(compareByName);
+        }
+        //for each user up to the limit or until all the users have been looped through, add to the response
+        for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
+            reply.addUsers(retrieveUser(allUsers.get(i)));
+        }
+        reply.setResultSetSize(allUsers.size());
+
+        responseObserver.onNext(reply.build());
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * Helper function to grab all the info from a specific user and add it to a UserResponse
+     *
+     * @param user User passed through from the getPaginatedUsers method
+     * @return UserResponse - a response with all the info about the user passed through
+     */
+    private UserResponse retrieveUser(User user) {
+        UserResponse.Builder response = UserResponse.newBuilder();
+        response.setUsername(user.getUsername())
+                .setFirstName(user.getFirstName())
+                .setMiddleName(user.getMiddleName())
+                .setLastName(user.getLastName())
+                .setNickname(user.getNickname())
+                .setBio(user.getBio())
+                .setPersonalPronouns(user.getPronouns())
+                .setEmail(user.getEmail())
+                .setCreated(user.getAccountCreatedTime()
+                );
+
+        // To add all the users roles to the response
+        ArrayList<UserRole> roles = user.getRoles();
+        for (UserRole role : roles) {
+            response.addRoles(role);
+        }
+
+        return response.build();
+    }
 }

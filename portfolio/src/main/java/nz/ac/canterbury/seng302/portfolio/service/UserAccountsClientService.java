@@ -56,4 +56,17 @@ public class UserAccountsClientService {
     public ChangePasswordResponse changeUserPassword(ChangePasswordRequest request) {
         return userAccountStub.changeUserPassword(request);
     }
+
+
+    /**
+     * Sends a request to the userAccountServerService to get a specific page for the users list, through a
+     * GetPaginatedUsersRequest
+     *
+     * @param request the GetPaginatedUsersRequest passed through from the controller, with the page, size of the list
+     *                and the sort order
+     * @return response - a PaginatedUsersResponse, a response with a list of users and the total amount of users
+     */
+    public PaginatedUsersResponse getPaginatedUsers(GetPaginatedUsersRequest request) {
+        return userAccountStub.getPaginatedUsers(request);
+    }
 }
