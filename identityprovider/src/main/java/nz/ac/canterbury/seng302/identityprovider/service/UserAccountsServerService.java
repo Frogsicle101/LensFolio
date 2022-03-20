@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
+import com.google.protobuf.ByteString;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -7,11 +8,12 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
+import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -200,4 +202,55 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    /**
+     * Follows the gRPC contract for uploading a profile photo. This function is the server side of a bidirctional
+     * stream for sending the photos over gRPC. File data is sent here, using the StreamObserver this function returns.
+     * @param responseObserver - Used to communicate information about the file upload back to the caller
+     * @return - The StreamObserver object used for the transmission of file data
+     */
+    @Override
+    public StreamObserver<UploadUserProfilePhotoRequest> uploadUserProfilePhoto(StreamObserver<FileUploadStatusResponse> responseObserver) {
+
+        return new StreamObserver<>() {
+
+            ByteString bytes = ByteString.EMPTY;
+            String fileType;
+            int userId;
+
+            @Override
+            public void onNext(UploadUserProfilePhotoRequest upload) {
+
+                if (upload.hasFileContent()) {
+                    bytes = bytes.concat(upload.getFileContent());
+                } else {
+                    ProfilePhotoUploadMetadata metadata = upload.getMetaData();
+                    fileType = metadata.getFileType();
+                    userId = metadata.getUserId();
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                try {
+                    FileOutputStream out = new FileOutputStream(
+                            "src/main/resources/profile-photos/" + userId + "." + fileType
+                    );
+                    bytes.writeTo(out);
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                responseObserver.onCompleted();
+
+            }
+        };
+
+    }
+
 }
+
