@@ -26,7 +26,14 @@ public class LoginController {
      * @return The Thymeleaf login html template.
      */
     @GetMapping("/login")
-    public String showLogin() {
+    public String showLogin(HttpServletRequest request,
+                            Model model) {
+
+        String ipAddr = request.getLocalAddr();
+
+        String path = "http://" + ipAddr + ":9001/profile/profile.jpg";
+
+        model.addAttribute("path", path);
         return "login";
     }
 

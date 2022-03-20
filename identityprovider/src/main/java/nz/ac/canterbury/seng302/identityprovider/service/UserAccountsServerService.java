@@ -42,7 +42,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         User user = repository.findById(request.getId());
 
         //Build UserResponse (proto) from User
-        reply.setUsername(user.getUsername())
+        reply
+                .setUsername(user.getUsername())
                 .setFirstName(user.getFirstName())
                 .setMiddleName(user.getMiddleName())
                 .setLastName(user.getLastName())
@@ -50,8 +51,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setBio(user.getBio())
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime()
-            );
+                .setCreated(user.getAccountCreatedTime())
+                .setProfileImagePath(user.getProfileImagePath());
 
 
         // To add all the users roles to the response
@@ -59,9 +60,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         for (UserRole role : roles) {
             reply.addRoles(role);
         }
-
-//                .setProfileImagePath(user.profileImagePath())
-//                .setRoles(user.getRoles())
 
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();

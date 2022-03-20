@@ -15,33 +15,33 @@
             <div class="row mb-3">
                 <div class="col">
                     <label for="FirstName" class="form-label">First name</label>
-                    <input type="text" class="form-control canDisable"name="firstname" id="FirstName" th:value="${firstName}" required disabled>
+                    <input type="text" class="form-control canDisable"name="firstname" id="FirstName" th:value="${user.firstName}" required disabled>
                 </div>
                 <div class="col">
                     <label for="MiddleName" class="form-label">Middle name</label>
-                    <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${middleName}" disabled required>
+                    <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${user.middleName}" disabled required>
                 </div>
                 <div class="col">
                     <label for="LastName" class="form-label">Last name</label>
-                    <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${lastName}" disabled  required>
+                    <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${user.lastName}" disabled  required>
                 </div>
             </div>
             <div class="mb-3">
                 <label for="nickname" class="form-label">Nickname</label>
-                <input type="text" class="form-control canDisable" name="nickname" id="nickname" th:value="${nickname}" maxlength="100" disabled required>
+                <input type="text" class="form-control canDisable" name="nickname" id="nickname" th:value="${user.nickname}" maxlength="100" disabled required>
             </div>
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" th:value="${username}" maxlength="100" disabled required>
+                <input type="text" class="form-control" id="username" name="username" th:value="${user.username}" maxlength="100" disabled required>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <input type="email" class="form-control canDisable" id="email" name="email" th:value="${email}" maxlength="100" disabled required>
+                <input type="email" class="form-control canDisable" id="email" name="email" th:value="${user.email}" maxlength="100" disabled required>
             </div>
             <div class="mb-3">
                 <div class="mb-3">
                     <label for="bio" class="form-label">User Bio</label>
-                    <textarea  class="form-control canDisable" id="bio" name="bio" th:text="${userBio}" maxlength="300" disabled required></textarea>
+                    <textarea  class="form-control canDisable" id="bio" name="bio" th:text="${user.bio}" maxlength="300" disabled required></textarea>
                 </div>
 
             </div>
@@ -53,7 +53,7 @@
                 </div>
                 <div class="col">
                     <label for="personalPronouns" class="form-label">Pronouns</label>
-                    <input type="text" class="form-control canDisable" id="personalPronouns" name="personalPronouns" th:value="${pronouns}" maxlength="100" disabled>
+                    <input type="text" class="form-control canDisable" id="personalPronouns" name="personalPronouns" th:value="${user.personalPronouns}" maxlength="100" disabled>
                 </div>
             </div>
             <div class="mb-3">
