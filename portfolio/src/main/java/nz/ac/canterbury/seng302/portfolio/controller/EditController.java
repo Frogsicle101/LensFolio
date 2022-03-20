@@ -57,7 +57,7 @@ public class EditController {
         so let's grab all those details and put them in the model
          */
         addModelAttributes(principal, model);
-        return "edit";
+        return "accountEdit";
     }
 
     /**
@@ -76,11 +76,7 @@ public class EditController {
         Their values have been hard-coded for now, but they can be the result of functions!
         ideally, these would be functions like getUsername and so forth
          */
-        int id = Integer.parseInt(principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("nameid"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("NOT FOUND"));
+        int id = Integer.parseInt(PrincipalAttributes.getClaim(principal, "nameid"));
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
         request.setId(id);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
@@ -117,12 +113,8 @@ public class EditController {
             ModelMap model
     ) {
         EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
+        Integer id = Integer.valueOf(PrincipalAttributes.getClaim(principal, "nameid"));
 
-        Integer id = Integer.valueOf(principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("nameid"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("-100"));
 
         editRequest.setUserId(id)
                 .setFirstName(editInfo.getFirstname())
@@ -137,7 +129,7 @@ public class EditController {
         //Add in the message for changing details
         attributes.addFlashAttribute("detailChangeMessage", reply.getMessage());
         //Since they're at a different endpoint, redirect back to the main edit endpoint
-        return new ModelAndView("redirect:/edit");
+        return new ModelAndView("redirect:/account");
     }
 
     /**
@@ -163,11 +155,7 @@ public class EditController {
     ){
         ChangePasswordRequest.Builder changePasswordRequest = ChangePasswordRequest.newBuilder();
         // Get user ID, this really needs to be a method
-        Integer id = Integer.valueOf(principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("nameid"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("-100"));
+        Integer id = Integer.valueOf(PrincipalAttributes.getClaim(principal, "nameid"));
 
         ChangePasswordResponse changePasswordResponse;
         if (editInfo.getNewPassword().equals(editInfo.getConfirmPassword())) {
@@ -179,15 +167,15 @@ public class EditController {
             //Give the user the response from the IDP
             System.out.println(changePasswordResponse.getMessage());
             //Flash attributes aren't visible in the URL, which is why this is a flash attribute
-            attributes.addFlashAttribute("passwordchangemessage",
+            attributes.addFlashAttribute("passwordChangeMessage",
                     changePasswordResponse.getMessage());
         } else {
             // Tell the user to confirm their passwords match
             System.out.println("Confirm password does not match new password.");
-            attributes.addFlashAttribute("passwordchangemessage",
+            attributes.addFlashAttribute("passwordChangeMessage",
                     "Confirm password does not match new password.");
         }
         //Since they're at a different endpoint, redirect back to the main edit endpoint
-        return new ModelAndView("redirect:/edit");
+        return new ModelAndView("redirect:/account");
     }
 }
