@@ -10,6 +10,15 @@
 <section class="accountBody">
     <div class="accountInfo">
         <form th:action="@{/edit/details}" th:object="${editDetailsForm}" method="post">
+
+            <!--Below are the divs that handle error messages
+            If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
+            they will be displayed below-->
+            <div th:insert="fragments/general.html :: errorBox"> </div>
+            <div th:insert="fragments/general.html :: successBox"> </div>
+            <div th:insert="fragments/general.html :: infoBox"> </div>
+
+
             <h1>Personal Information</h1>
 
             <div class="row mb-3">
@@ -64,6 +73,7 @@
 
         </form>
         <hr class="mt-3 mb-3">
+
         <form method="post" th:action="@{/edit/password}" th:object="${editPasswordForm}">
             <h1>Change Password</h1>
             <div class="mb-3">
