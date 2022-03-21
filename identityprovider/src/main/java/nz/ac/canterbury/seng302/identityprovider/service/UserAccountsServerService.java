@@ -202,9 +202,37 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    /**
+     * Follows the gRPC contract for editing users, this method attempts to add a role to a User.
+     * <br>
+     * This service first attempts to find the user by their id so that they can have their role changed <br>
+     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *  - Otherwise the role to be added is checked against the user's current roles to prevent duplication, then the
+     *  role is added if it's unique for the user.
+     *
+     * @param request - The gRPC ModifyRoleOfUserRequest passed from the client
+     * @param responseObserver - Used to return the response to the client side.
+     */
     @Override
     public void addRoleToUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
         super.addRoleToUser(request, responseObserver);
-    }
+        UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
 
+        User userToUpdate = repository.findById(request.getUserId());
+        if (userToUpdate != null) {
+            if (!userToUpdate.getRoles().contains(request.getRole())) {
+                userToUpdate.addRole(request.getRole());
+                response.setIsSuccess(true)
+                        .setMessage(true);
+            } else {
+                response.setIsSuccess(false)
+                        .setMessage(false);
+            }
+        } else {
+            response.setIsSuccess(false)
+                    .setMessage(false);
+        }
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
 }
