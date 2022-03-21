@@ -1,7 +1,10 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.EventRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
+import nz.ac.canterbury.seng302.portfolio.events.Event;
+import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -31,6 +34,7 @@ public class PortfolioController {
 
     private final SprintRepository sprintRepository;
     private final ProjectRepository projectRepository;
+    private final EventRepository eventRepository;
 
     //Selectors for the error/info/success boxes.
     private final String errorMessage = "errorMessage";
@@ -46,9 +50,11 @@ public class PortfolioController {
      * @param sprintRepository repository
      * @param projectRepository repository
      */
-    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository) {
+    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository) {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
+        this.eventRepository = eventRepository;
+        createDefaultEvents();
     }
 
     /**
@@ -73,6 +79,7 @@ public class PortfolioController {
         Project project = projectRepository.getProjectById(2L);
         addModelAttributeProject(modelAndView, project, user);
         modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
+        modelAndView.addObject("events", eventRepository.findAllByProjectId(project.getId()));
         return modelAndView;
     }
 
@@ -284,5 +291,33 @@ public class PortfolioController {
    }
 
 
+
+
+
+
+    @GetMapping("addEvent")
+    public ModelAndView addEvent(
+            @ModelAttribute EventRequest eventRequest,
+            RedirectAttributes attributes) {
+        try {
+            Event event = new Event(eventRequest.getProjectId(), eventRequest.getEventName(),
+                    eventRequest.getEventStartDate(),
+                    eventRequest.getEventEndDate());
+            eventRepository.save(event);
+            attributes.addFlashAttribute("successMessage", "Event added!");
+        } catch(Exception err) {
+            attributes.addFlashAttribute("errorMessage", err);
+        }
+
+        return new ModelAndView("redirect:/portfolio");
+
+    }
+
+    public void createDefaultEvents() {
+        Event event1 = new Event(2L, "Hello", "2022-04-04", "2022-04-04");
+        Event event2 = new Event(2L, "Hello1", "2022-04-04", "2022-04-04");
+        eventRepository.save(event1);
+        eventRepository.save(event2);
+    }
 
 }
