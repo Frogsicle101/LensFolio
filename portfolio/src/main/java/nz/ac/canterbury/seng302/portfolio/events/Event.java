@@ -1,8 +1,11 @@
 package nz.ac.canterbury.seng302.portfolio.events;
 
+import com.google.type.DateTime;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
 
@@ -15,18 +18,20 @@ public class Event {
 
     private long projectId;
     private String name;
-    private String startDate;
-    private String endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     public Event() {
     }
 
-    public Event(long projectId, String name, String startDate, String endDate) {
+    public Event(long projectId, String name, LocalDate startDate, LocalDate endDate) {
         this.projectId = projectId;
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+
 
     public UUID getId() {
         return id;
@@ -52,19 +57,19 @@ public class Event {
         this.name = name;
     }
 
-    public String getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public String getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 }

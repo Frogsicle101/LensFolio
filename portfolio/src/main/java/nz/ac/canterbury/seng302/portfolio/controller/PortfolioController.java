@@ -23,6 +23,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -78,8 +80,10 @@ public class PortfolioController {
         //TODO Change the below line so that it isn't just grabbing one single project?.
         Project project = projectRepository.getProjectById(2L);
         addModelAttributeProject(modelAndView, project, user);
+        List<Event> eventList = eventRepository.findAllByProjectIdOrderByStartDate(project.getId());
+
         modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
-        modelAndView.addObject("events", eventRepository.findAllByProjectId(project.getId()));
+        modelAndView.addObject("events", eventList);
         return modelAndView;
     }
 
@@ -295,29 +299,32 @@ public class PortfolioController {
 
 
 
-    @GetMapping("addEvent")
-    public ModelAndView addEvent(
-            @ModelAttribute EventRequest eventRequest,
-            RedirectAttributes attributes) {
-        try {
-            Event event = new Event(eventRequest.getProjectId(), eventRequest.getEventName(),
-                    eventRequest.getEventStartDate(),
-                    eventRequest.getEventEndDate());
-            eventRepository.save(event);
-            attributes.addFlashAttribute("successMessage", "Event added!");
-        } catch(Exception err) {
-            attributes.addFlashAttribute("errorMessage", err);
-        }
-
-        return new ModelAndView("redirect:/portfolio");
-
-    }
+//    @GetMapping("addEvent")
+//    public ModelAndView addEvent(
+//            @ModelAttribute EventRequest eventRequest,
+//            RedirectAttributes attributes) {
+//        try {
+//            Event event = new Event(eventRequest.getProjectId(), eventRequest.getEventName(),
+//                    eventRequest.getEventStartDate(),
+//                    eventRequest.getEventEndDate());
+//            eventRepository.save(event);
+//            attributes.addFlashAttribute("successMessage", "Event added!");
+//        } catch(Exception err) {
+//            attributes.addFlashAttribute("errorMessage", err);
+//        }
+//
+//        return new ModelAndView("redirect:/portfolio");
+//
+//    }
 
     public void createDefaultEvents() {
-        Event event1 = new Event(2L, "Hello", "2022-04-04", "2022-04-04");
-        Event event2 = new Event(2L, "Hello1", "2022-04-04", "2022-04-04");
-        eventRepository.save(event1);
-        eventRepository.save(event2);
+       LocalDate date = LocalDate.now();
+       Event event1 = new Event(2L, "Hello", date, date.plusDays(5));
+       Event event2 = new Event(2L, "Hello1", date.plusDays(10), date.plusDays(20));
+       Event event3 = new Event(2L, "Hello3", date.minusDays(10), date.plusDays(20));
+       eventRepository.save(event1);
+       eventRepository.save(event2);
+       eventRepository.save(event3);
     }
 
 }

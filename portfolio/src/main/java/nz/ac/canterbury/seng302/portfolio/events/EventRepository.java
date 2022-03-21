@@ -9,4 +9,7 @@ import java.util.UUID;
 public interface EventRepository extends CrudRepository<Event, UUID> {
     @Query
     List<Event> findAllByProjectId(Long projectId);
+
+    @Query
+    List<Event> findAllByProjectIdOrderByStartDate(Long projectId);
 }
