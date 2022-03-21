@@ -235,4 +235,49 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
+
+    /**
+     * Follows the gRPC contract for editing users, this method attempts to remove a role from a User.
+     * <br>
+     * This service first attempts to find the user by their id so that they can have their role changed <br>
+     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *  - Otherwise the role to be removed is checked against the user's current roles to prevent deleting a role
+     *  that doesn't exist. <br>
+     *  - Finally, we attempt to delete the role. If the user has 1 - or somehow no roles (which should not happen) -
+     *  then an exception gets thrown, because a user should always have at least 1 role. We catch this exception
+     *  and send a failure message.
+     *
+     * @param request - The gRPC ModifyRoleOfUserRequest passed from the client
+     * @param responseObserver - Used to return the response to the client side.
+     */
+    @Override
+    public void removeRoleFromUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
+        super.removeRoleFromUser(request, responseObserver);
+        UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
+
+        User userToUpdate = repository.findById(request.getUserId());
+        if (userToUpdate != null) {
+            //We've found the user!
+            if (userToUpdate.getRoles().contains(request.getRole())) {
+                //The user has the role - so delete it
+                try {
+                    userToUpdate.deleteRole(request.getRole());
+                    response.setIsSuccess(true)
+                            .setMessage(true);
+                } catch (IllegalStateException e) {
+                    //The user has only one role - we can't delete it!
+                    response.setIsSuccess(false)
+                            .setMessage(false);
+                }
+            } else {
+                //The user doesn't have the role, so don't bother deleting it
+                response.setIsSuccess(false)
+                        .setMessage(false);
+            }
+        } else {
+            //Here, we couldn't find the user, so we do not succeed.
+            response.setIsSuccess(false)
+                    .setMessage(false);
+        }
+    }
 }
