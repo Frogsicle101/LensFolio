@@ -70,36 +70,15 @@ public class UserAccountsClientService {
      * Takes a list of request chunks built in the controller and sends them one by on to the server.
      * Note the first chunk should be metadata and the rest file data.
      *
-     * @param requestChunks
+     * @param requestChunks -  the List<UploadUserProfilePhotoRequest> containing the image data chunks.
      */
     public void uploadUserProfilePhoto(List<UploadUserProfilePhotoRequest> requestChunks) {
 
-        int numChunks = requestChunks.size();
-        int currentChunk = 0;
-
-        // Get the server side observer
-        StreamObserver<UploadUserProfilePhotoRequest> requestObserver = nonBlockingStub
-                .withDeadlineAfter(5, TimeUnit.SECONDS)
-                .uploadUserProfilePhoto(new StreamObserver<FileUploadStatusResponse>() {
-                    //Define the client side observer
-                    @Override
-                    public void onNext(FileUploadStatusResponse value) {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-
-                    }
-
-                    @Override
-                    public void onCompleted() {
-
-                    }
-                });
-
-        requestObserver.onNext(requestChunks.get(currentChunk++));
-        requestObserver.onCompleted();
+        ImageResponseStreamObserver responseObserver = new ImageResponseStreamObserver();
+        StreamObserver<UploadUserProfilePhotoRequest> requestObserver = nonBlockingStub.uploadUserProfilePhoto(responseObserver);
+        responseObserver.initialise(requestObserver);
+        responseObserver.sendImage(requestChunks);
+        // may want to return the results from the sendImage method.
 
     }
 }
