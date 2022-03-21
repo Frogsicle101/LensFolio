@@ -65,6 +65,16 @@ public class PortfolioController {
         return modelAndView;
     }
 
+    @GetMapping("/portfolio/calender")
+    public ModelAndView getCalender
+    (@RequestParam (value = "projectId") Long projectId,
+    Model model) {
+        Project project = projectRepository.getProjectById(projectId);
+        model.addAttribute("projectStartDate", project.getStartDate());
+        model.addAttribute("projectEndDate", project.getEndDate());
+        return new ModelAndView("monthly_calendar");
+    }
+
     /**
      * Mapping for /editProject
      * Retrieves the Project from the project repository by the id passed in with request parameters.
