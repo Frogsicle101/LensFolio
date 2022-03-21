@@ -202,4 +202,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void addRoleToUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
+        super.addRoleToUser(request, responseObserver);
+    }
+
 }

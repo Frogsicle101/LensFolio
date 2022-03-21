@@ -56,4 +56,8 @@ public class UserAccountsClientService {
     public ChangePasswordResponse changeUserPassword(ChangePasswordRequest request) {
         return userAccountStub.changeUserPassword(request);
     }
+
+    public UserRoleChangeResponse addRoleToUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
+        return userAccountStub.addRoleToUser(modifyRoleOfUserRequest);
+    }
 }
