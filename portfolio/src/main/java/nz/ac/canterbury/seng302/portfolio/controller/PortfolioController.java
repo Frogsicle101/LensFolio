@@ -61,10 +61,15 @@ public class PortfolioController {
     public ModelAndView getPortfolio(
                                   @AuthenticationPrincipal AuthState principal
     ) {
+
+
+
+
+
         // Get user from server
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("portfolio");
-        //TODO Change the below line so that it isn't just grabbing one single project.
+        //TODO Change the below line so that it isn't just grabbing one single project?.
         Project project = projectRepository.getProjectById(2L);
         addModelAttributeProject(modelAndView, project, user);
         modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
