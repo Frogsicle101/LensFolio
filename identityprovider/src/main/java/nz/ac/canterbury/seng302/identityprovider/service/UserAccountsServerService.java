@@ -266,6 +266,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void removeRoleFromUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
+        logger.info("Service - Removing role " + request.getRole() +  " from user " + request.getUserId());
         super.removeRoleFromUser(request, responseObserver);
         UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
 
@@ -276,20 +277,27 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 //The user has the role - so delete it
                 try {
                     userToUpdate.deleteRole(request.getRole());
+                    logger.info("Role Removal Success - removed " + request.getRole()
+                            +  " from user " + request.getUserId());
                     response.setIsSuccess(true)
                             .setMessage(true);
                 } catch (IllegalStateException e) {
                     //The user has only one role - we can't delete it!
+                    logger.info("Role Removal Failure - user " + request.getUserId()
+                            + " has 1 role. Users cannot have 0 roles");
                     response.setIsSuccess(false)
                             .setMessage(false);
                 }
             } else {
                 //The user doesn't have the role, so don't bother deleting it
+                logger.info("Role Removal Failure - user " + request.getUserId()
+                        + " does not have role " + request.getRole());
                 response.setIsSuccess(false)
                         .setMessage(false);
             }
         } else {
             //Here, we couldn't find the user, so we do not succeed.
+            logger.info("Role Removal Failure - could not find user " + request.getUserId());
             response.setIsSuccess(false)
                     .setMessage(false);
         }
