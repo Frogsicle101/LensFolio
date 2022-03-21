@@ -10,15 +10,7 @@ $(document).ready(() => {
     })
 
     $("#projectAddSprint").click(function () {
-        $.ajax({
-            url: "addSprint",
-            type: "POST",
-            data: {"projectId": projectId},
-        }).done(function () {
-            location.reload()
-        }).fail(function () {
-
-        })
+        location.href = "/portfolio/addSprint?projectId=" + projectId;
     })
 
 
@@ -43,7 +35,7 @@ $(document).ready(() => {
             type: "DELETE",
             data: {"sprintId": sprintId},
         }).done(function () {
-             location.reload()
+            location.href = "/portfolio"
         })
 
     })
