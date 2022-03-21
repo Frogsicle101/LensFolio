@@ -21,6 +21,9 @@ $(document).ready(function() {
     $(".editUserButton").click(() => {
         $(".canDisable").prop("disabled",!$(".canDisable").prop("disabled"));
     })
+    $(".editPasswordButton").click(() => {
+        $(".canDisablePassword").prop("disabled",!$(".canDisablePassword").prop("disabled"));
+    })
 });
 
 

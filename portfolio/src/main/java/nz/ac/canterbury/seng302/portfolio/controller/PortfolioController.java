@@ -18,8 +18,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -163,9 +165,10 @@ public class PortfolioController {
      * @param projectId the project in which you want to add sprint too.
      * @return Returns JSON of Sprint Object
      */
-    @PostMapping("addSprint")
-    public Sprint addSprint(
-            @RequestParam (value = "projectId") String projectId)  {
+    @GetMapping("/portfolio/addSprint")
+    public ModelAndView addSprint(
+            @RequestParam (value = "projectId") String projectId,
+            RedirectAttributes attributes)  {
 
         long longProjectId = Long.parseLong(projectId);
         int amountOfSprints = sprintRepository.findAllByProjectId(longProjectId).size() + 1;
@@ -188,9 +191,10 @@ public class PortfolioController {
         } else {
             startDate = LocalDate.now().toString();
         }
+        sprintRepository.save(new Sprint(longProjectId, name, startDate));
 
-
-        return sprintRepository.save(new Sprint(longProjectId, name, startDate));
+        attributes.addFlashAttribute("successMessage", "Sprint added!");
+        return new ModelAndView("redirect:/portfolio");
     }
 
     /**
@@ -228,22 +232,36 @@ public class PortfolioController {
      */
     @PostMapping("/sprintSubmit")
     public ModelAndView updateSprint(
-                                     HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     @AuthenticationPrincipal AuthState principal,
-                                     @ModelAttribute(name="sprintEditForm") SprintRequest sprintInfo,
-                                     Model model
+            HttpServletRequest request,
+            RedirectAttributes attributes,
+            HttpServletResponse response,
+            @AuthenticationPrincipal AuthState principal,
+            @ModelAttribute(name="sprintEditForm") SprintRequest sprintInfo,
+            ModelMap model
     ) {
+        try {
+            LocalDate sprintStart = LocalDate.parse(sprintInfo.getSprintStartDate());
+            LocalDate sprintEnd = LocalDate.parse(sprintInfo.getSprintEndDate());
+            if (sprintStart.isAfter(sprintEnd)) {
+                String dateErrorMessage = "Start date needs to be before end date";
+                attributes.addFlashAttribute("errorMessage", dateErrorMessage);
+            } else {
+                Sprint sprint = sprintRepository.getSprintById(sprintInfo.getSprintId());
+                sprint.setName(sprintInfo.getSprintName());
+                sprint.setStartDate(sprintInfo.getSprintStartDate());
+                sprint.setEndDate(sprintInfo.getSprintEndDate());
+                sprint.setDescription(sprintInfo.getSprintDescription());
+                sprint.setColour(sprintInfo.getSprintColour());
+                sprintRepository.save(sprint);
+                return new ModelAndView("redirect:/portfolio");
+            }
+            return new ModelAndView("redirect:/sprintEdit?sprintId=" + sprintInfo.getSprintId());
 
-        Sprint sprint = sprintRepository.getSprintById(sprintInfo.getSprintId());
-        sprint.setName(sprintInfo.getSprintName());
-        sprint.setStartDate(sprintInfo.getSprintStartDate());
-        sprint.setEndDate(sprintInfo.getSprintEndDate());
-        sprint.setDescription(sprintInfo.getSprintDescription());
-        sprint.setColour(sprintInfo.getSprintColour());
-        sprintRepository.save(sprint);
+        } catch(Exception err) {
 
-        return new ModelAndView("redirect:/portfolio");
+            attributes.addFlashAttribute("errorMessage", err);
+            return new ModelAndView("redirect:/sprintEdit?sprintId=" + sprintInfo.getSprintId());
+        }
     }
 
     /**
