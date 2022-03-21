@@ -205,4 +205,8 @@ public class User {
     public void deleteRole(UserRole role) {
         roles.remove(role);
     }
+
+    public String getProfileImagePath() {
+        return "profile/" + id + ".jpg";
+    }
 }

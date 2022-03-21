@@ -29,9 +29,6 @@
     <div class="details">
         <h1>Edit Account Details</h1>
         <h3 class="reqLine">* Required Fields</h3>
-        <!-- an empty message that gets populated if we encounter errors, or if the change is successful
-        This should only display messages related to changing user details, not passwords! -->
-        <p class="changemessage" th:text="${detailchangemessage}"></p>
         <!-- NOTE: The name tags for the inputs have to be the same names as the object properties -->
         <form th:action="@{/edit/details}" th:object="${editDetailsForm}" method="post">
             <p id="Username" th:text="${username}"></p> <br>
@@ -51,23 +48,10 @@
             <input type="text" name="bio" id="Bio" th:value="${userBio}"><br>
             <input type="submit" value="Save Changes">
         </form>
+
+
     </div>
 
-    <div class="password">
-        <h1>Change Password</h1>
-        <h3 class="reqLine">* Required Fields</h3>
-        <!-- an empty message that gets populated if we encounter errors, or if the change is successful
-        This should only display errors related to passwords -->
-        <p class="changemessage" th:text="${passwordchangemessage}"></p>
-        <form method="post" th:action="@{/edit/password}" th:object="${editPasswordForm}">
-            <label for="OldPassword">* Old Password:</label>
-            <input type="password" name="old password" id="OldPassword" th:field="*{oldPassword}" required><br>
-            <label for="NewPassword">* New Password:</label>
-            <input type="password" name="new password" id="NewPassword" th:field="*{newPassword}" required><br>
-            <label for="ConfirmPassword">* New Password:</label>
-            <input type="password" name="new password" id="ConfirmPassword" th:field="*{confirmPassword}" required><br>
-            <input type="submit" value="Change Password">
-        </form>
-    </div>
+
 </body>
 </html>
