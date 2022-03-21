@@ -29,7 +29,7 @@
         </div>
         <div class="mb-3">
             <label for="projectDescription" class="form-label">Project Description</label>
-            <textarea class="form-control canDisable" name="projectDescription" id="projectDescription" th:value="${projectDescription}"></textarea>
+            <textarea class="form-control canDisable" name="projectDescription" id="projectDescription" th:text="${projectDescription}"></textarea>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
         <button type="button" onclick="history.back()" class="btn btn-danger" >Cancel</button>

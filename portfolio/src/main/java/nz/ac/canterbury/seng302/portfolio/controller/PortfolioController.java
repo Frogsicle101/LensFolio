@@ -32,6 +32,11 @@ public class PortfolioController {
     private final SprintRepository sprintRepository;
     private final ProjectRepository projectRepository;
 
+    //Selectors for the error/info/success boxes.
+    private final String errorMessage = "errorMessage";
+    private final String infoMessage = "infoMessage";
+    private final String successMessage = "successMessage";
+
 
 
 
@@ -60,7 +65,7 @@ public class PortfolioController {
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("portfolio");
         //TODO Change the below line so that it isn't just grabbing one single project.
-        Project project = projectRepository.getProjectByName("Project Bravo");
+        Project project = projectRepository.getProjectById(2L);
         addModelAttributeProject(modelAndView, project, user);
         modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
         return modelAndView;
@@ -83,8 +88,9 @@ public class PortfolioController {
         // Get user from server
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         Long longProjectId = Long.parseLong(projectId);
+        Project project = projectRepository.getProjectById(longProjectId);
         ModelAndView modelAndView = new ModelAndView("projectEdit");
-        addModelAttributeProject(modelAndView, projectRepository.getProjectById(longProjectId), user);
+        addModelAttributeProject(modelAndView, project, user);
         return modelAndView;
     }
 
@@ -108,9 +114,9 @@ public class PortfolioController {
             project.setEndDate(editInfo.getProjectEndDate());
             project.setDescription(editInfo.getProjectDescription());
             projectRepository.save(project);
-            attributes.addFlashAttribute("successMessage", "Project Updated!");
+            attributes.addFlashAttribute(successMessage, "Project Updated!");
         } catch(Exception err) {
-           attributes.addFlashAttribute("errorMessage", err);
+           attributes.addFlashAttribute(errorMessage, err);
         }
         return new ModelAndView("redirect:/portfolio");
     }
@@ -169,9 +175,9 @@ public class PortfolioController {
                 startDate = LocalDate.now().toString();
             }
             sprintRepository.save(new Sprint(longProjectId, sprintName, startDate));
-            attributes.addFlashAttribute("successMessage", "Sprint added!");
+            attributes.addFlashAttribute(successMessage, "Sprint added!");
         } catch(Exception err) {
-            attributes.addFlashAttribute("errorMessage", err);
+            attributes.addFlashAttribute(errorMessage, err);
         }
 
         return new ModelAndView("redirect:/portfolio");
@@ -199,7 +205,7 @@ public class PortfolioController {
             addModelAttributeSprint(modelAndView, sprintRepository.getSprintById(uuidSprintId), user);
             return modelAndView;
         } catch(Exception err) {
-            attributes.addFlashAttribute("errorMessage", err);
+            attributes.addFlashAttribute(errorMessage, err);
             return new ModelAndView("redirect:/portfolio");
         }
 
@@ -222,7 +228,7 @@ public class PortfolioController {
             LocalDate sprintEnd = LocalDate.parse(sprintInfo.getSprintEndDate());
             if (sprintStart.isAfter(sprintEnd)) {
                 String dateErrorMessage = "Start date needs to be before end date";
-                attributes.addFlashAttribute("errorMessage", dateErrorMessage);
+                attributes.addFlashAttribute(errorMessage, dateErrorMessage);
             } else {
                 Sprint sprint = sprintRepository.getSprintById(sprintInfo.getSprintId());
                 sprint.setName(sprintInfo.getSprintName());
@@ -237,7 +243,7 @@ public class PortfolioController {
 
         } catch(Exception err) {
 
-            attributes.addFlashAttribute("errorMessage", err);
+            attributes.addFlashAttribute(errorMessage, err);
             return new ModelAndView("redirect:/sprintEdit?sprintId=" + sprintInfo.getSprintId());
         }
     }
