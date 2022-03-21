@@ -202,4 +202,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    public void addUserRole(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
+        User userToUpdate = repository.findById(request.getUserId());
+
+        if (userToUpdate != null) {
+
+        }
+    }
+
 }
