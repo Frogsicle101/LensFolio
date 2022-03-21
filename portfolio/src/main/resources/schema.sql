@@ -32,4 +32,12 @@ CREATE TABLE Sprint(
     constraint chk_date CHECK(end_date >= start_date)
 );
 
+CREATE TABLE Event(
+    id         UUID primary key,
+    project_id int         not null references Project (id),
+    name       varchar(60) not null,
+    start_date DATE        not null,
+    end_date   DATE        not null
+);
+
 
