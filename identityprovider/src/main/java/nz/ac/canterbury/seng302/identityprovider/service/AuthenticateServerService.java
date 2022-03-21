@@ -12,6 +12,8 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticationServiceGrpc.AuthenticationServiceImplBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
@@ -31,6 +33,8 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
     private JwtTokenUtil jwtTokenService = JwtTokenUtil.getInstance();
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private UserRepository repository;
 
@@ -44,7 +48,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
      */
     @Override
     public void authenticate(AuthenticateRequest request, StreamObserver<AuthenticateResponse> responseObserver) {
-
+        logger.info("Service - Authenticating user with username: " + request.getUsername());
         AuthenticateResponse.Builder reply = AuthenticateResponse.newBuilder();
 
         User foundUser = repository.findByUsername(request.getUsername());
