@@ -4,6 +4,8 @@ import io.grpc.stub.StreamObserver;
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatus;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.List;
  * @author Sam Clark
  */
 public class ImageResponseStreamObserver implements StreamObserver<FileUploadStatusResponse> {
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private StreamObserver<UploadUserProfilePhotoRequest> requestObserver;
     private List<UploadUserProfilePhotoRequest> requestChunks;
@@ -34,22 +38,22 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
     @Override
     public void onNext(FileUploadStatusResponse status) {
         switch (status.getStatusValue()) {
-            case FileUploadStatus.FAILED_VALUE -> System.out.println("Transfer failed");
+            case FileUploadStatus.FAILED_VALUE -> logger.error("Transfer failed");
             case FileUploadStatus.IN_PROGRESS_VALUE -> {
                 if (currentChunk < numChunks) {
-                    System.out.println("Sending next chunk: " + currentChunk);
+                    logger.info("Sending next chunk: " + currentChunk);
                     requestObserver.onNext(requestChunks.get(currentChunk++));
                 } else {
-                    System.out.println("Sent all image chunks calling onComplete() for server");
+                    logger.info("Sent all image chunks calling onComplete() for server");
                     requestObserver.onCompleted();
                 }
             }
             case FileUploadStatus.PENDING_VALUE -> {
                 if (currentChunk == 1) {
-                    System.out.println("Sending next chunk: " + currentChunk);
+                    logger.info("Sending next chunk: " + currentChunk);
                     requestObserver.onNext(requestChunks.get(currentChunk++));
                 } else {
-                    System.out.println("Got code PENDING but expected code IN_PROGRESS");
+                    logger.error("Got code PENDING but expected code IN_PROGRESS");
                     requestObserver.onError(new FileNotFoundException("Client Got code PENDING but expected code IN_PROGRESS"));
                 }
             }
@@ -66,7 +70,7 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
      */
     @Override
     public void onError(Throwable throwable) {
-        System.out.println("Image transfer failure for user "  +
+        logger.error("Image transfer failure for user "  +
                 requestChunks.get(0).getMetaData().getUserId() +
                 ":\n" + throwable.getMessage());
     }
@@ -76,7 +80,7 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
      */
     @Override
     public void onCompleted() {
-        System.out.println("Image transfer successful for user " + requestChunks.get(0).getMetaData().getUserId());
+        logger.info("Image transfer successful for user " + requestChunks.get(0).getMetaData().getUserId());
     }
 
     /**

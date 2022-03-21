@@ -17,6 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
 
 
 /**
@@ -49,8 +51,11 @@ public class AccountController {
             @ModelAttribute(name = "editPasswordForm") PasswordRequest passInfo,
             @ModelAttribute(name = "detailChangeMessage") String detailChangeMessage,
             @ModelAttribute(name = "passwordChangeMessage") String passwordChangeMessage
-    ) {
+    ) throws IOException {
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        int id = Integer.parseInt(PrincipalAttributes.getClaim(principal,"nameid"));
+
+        userAccountsClientService.uploadProfilePhoto(new File("src/main/resources/frog.jpg"), id, "jpg");
 
         model.addAttribute("user", user);
 

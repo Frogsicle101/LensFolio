@@ -28,9 +28,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Autowired
     private UserRepository repository;
 
-    Logger logger = LoggerFactory.getLogger(this.getClass());
-
-
 
     /**
      * getUserAccountByID follows the gRPC contract and provides the server side service for retrieving
@@ -53,8 +50,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setBio(user.getBio())
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime()
-            );
+                .setCreated(user.getAccountCreatedTime())
+                .setProfileImagePath(user.getProfileImagePath()
+        );
 
 
         // To add all the users roles to the response
@@ -63,8 +61,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             reply.addRoles(role);
         }
 
-//                .setProfileImagePath(user.profileImagePath())
-//                .setRoles(user.getRoles())
+//                .
 
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();

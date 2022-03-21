@@ -7,6 +7,8 @@ import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetada
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatus;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
@@ -20,9 +22,12 @@ import java.io.IOException;
  */
 public class ImageRequestStreamObserver implements StreamObserver<UploadUserProfilePhotoRequest> {
 
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private int userId;
     private String fileType;
-    private ByteArrayOutputStream imageContent;
+    private ByteString bytes;
     private final StreamObserver<FileUploadStatusResponse> responseObserver;
 
     public ImageRequestStreamObserver (StreamObserver<FileUploadStatusResponse> responseObserver) {
@@ -41,12 +46,12 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
 //  --------------------------------- Check if the first "packet" is the metadata --------------------------------------
         if (request.getUploadDataCase() == UploadUserProfilePhotoRequest.UploadDataCase.METADATA) {
             ProfilePhotoUploadMetadata metadata = request.getMetaData();
-            System.out.println("Received image metadata: " + metadata);
+            logger.info("Received image metadata: " + metadata);
 
             // Metadata received, create new image and tell client with PENDING status
             userId = metadata.getUserId();
             fileType = metadata.getFileType();
-            imageContent = new ByteArrayOutputStream();
+            bytes = ByteString.EMPTY;
             // Update client that metadata received
             responseObserver.onNext(FileUploadStatusResponse.newBuilder()
                     .setStatus(FileUploadStatus.PENDING)
@@ -56,30 +61,25 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
 //  ---------------------------- Otherwise the incoming content must be file chunks ------------------------------------
         } else {
             ByteString fileContent = request.getFileContent();
-            System.out.println("Received image chunk of size: " + fileContent.size());
+            logger.info("Received image chunk of size: " + fileContent.size());
 
             // If the metadata wasn't received first as error will occur
-            if (imageContent == null) {
-                System.out.println("Image metadata data not sent before transfer");
+            if (bytes == null) {
+                logger.error("Image metadata data not sent before transfer");
                 responseObserver.onError(
                         Status.INVALID_ARGUMENT
                                 .withDescription("Image Content sent before metadata")
                                 .asRuntimeException()
                 );
             } else {
-                try {
-                    fileContent.writeTo(imageContent);
-                    // Update client that contents received
-                    responseObserver.onNext(FileUploadStatusResponse.newBuilder()
-                            .setStatus(FileUploadStatus.IN_PROGRESS)
-                            .setMessage("Received " + fileContent.size() + " bytes of image data")
-                            .build()
-                    );
-                } catch (IOException e) {
-                    responseObserver.onError(Status.INVALID_ARGUMENT
-                            .withDescription("Failed to write chunks: " + fileContent)
-                            .asRuntimeException());
-                }
+                bytes = bytes.concat(fileContent);
+                // Update client that contents received
+                responseObserver.onNext(FileUploadStatusResponse.newBuilder()
+                        .setStatus(FileUploadStatus.IN_PROGRESS)
+                        .setMessage("Received " + fileContent.size() + " bytes of image data")
+                        .build()
+                );
+
             }
         }
     }
@@ -99,7 +99,7 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
                 .setStatus(FileUploadStatus.FAILED)
                 .setMessage("An error has occurred")
                 .build());
-        System.out.println(throwable.getMessage());
+        logger.error(throwable.getMessage());
     }
 
     /**
@@ -108,13 +108,11 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
      */
     @Override
     public void onCompleted() {
-        int imageSize = imageContent.size();
-        // ToDo Implement saving of (userId, filetype, imageContents)
         FileUploadStatusResponse.Builder response = FileUploadStatusResponse.newBuilder();
         try {
             saveImageToGallery();
             response.setStatus(FileUploadStatus.SUCCESS)
-                    .setMessage("COMPLETE: Successfully transferred " + imageSize + " bytes");
+                    .setMessage("COMPLETE: Successfully transferred bytes");
         } catch (IOException exception) {
             response.setStatus(FileUploadStatus.FAILED)
                     .setMessage("FAILURE: Failed to save image.");
@@ -123,6 +121,8 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
 
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
+
+
     }
 
     /**
@@ -132,8 +132,15 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
      * @throws IOException -  Throws an IO Exception if either the writeTo method fails or the close method
      */
     private void saveImageToGallery() throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream("gallery/" + userId + "/profile" + fileType);
-        imageContent.writeTo(fileOutputStream);
-        fileOutputStream.close();
+        try {
+            FileOutputStream out = new FileOutputStream(
+                    "src/main/resources/profile-photos/" + userId + "." + fileType
+            );
+            bytes.writeTo(out);
+            out.close();
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 }
+
