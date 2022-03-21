@@ -1,5 +1,5 @@
-let beginDateStr = ${"#projectStartDate"}.html();
-let endDateStr = ${"#projectEndDate"}.html();
+let beginDateStr = $("#projectStartDate").html();
+let endDateStr = $("#projectEndDate").html();
 
 (function () {
   /*
