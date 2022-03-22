@@ -37,7 +37,10 @@ CREATE TABLE Event(
     project_id int         not null references Project (id),
     name       varchar(60) not null,
     start_date DATE        not null,
-    end_date   DATE        not null
+    end_date   DATE        not null,
+    start_date_colour varchar(7),
+    end_date_colour varchar(7)
+
 );
 
 

@@ -1,12 +1,15 @@
 package nz.ac.canterbury.seng302.portfolio.DTO;
 
+import org.apache.tomcat.jni.Local;
+
+import java.time.LocalDate;
 import java.util.UUID;
 
 public class SprintRequest {
     private UUID sprintId;
     private String sprintName;
-    private String sprintStartDate;
-    private String sprintEndDate;
+    private LocalDate sprintStartDate;
+    private LocalDate sprintEndDate;
     private String sprintDescription;
     private String sprintColour;
 
@@ -14,7 +17,7 @@ public class SprintRequest {
         super();
     }
 
-    public SprintRequest(String sprintId, String sprintName, String sprintStartDate, String sprintEndDate, String sprintDescription, String sprintColour) {
+    public SprintRequest(String sprintId, String sprintName, LocalDate sprintStartDate, LocalDate sprintEndDate, String sprintDescription, String sprintColour) {
         super();
         this.sprintId = UUID.fromString(sprintId);
         this.sprintName = sprintName;
@@ -48,19 +51,19 @@ public class SprintRequest {
         this.sprintName = sprintName;
     }
 
-    public String getSprintStartDate() {
+    public LocalDate getSprintStartDate() {
         return sprintStartDate;
     }
 
-    public void setSprintStartDate(String sprintStartDate) {
+    public void setSprintStartDate(LocalDate sprintStartDate) {
         this.sprintStartDate = sprintStartDate;
     }
 
-    public String getSprintEndDate() {
+    public LocalDate getSprintEndDate() {
         return sprintEndDate;
     }
 
-    public void setSprintEndDate(String sprintEndDate) {
+    public void setSprintEndDate(LocalDate sprintEndDate) {
         this.sprintEndDate = sprintEndDate;
     }
 

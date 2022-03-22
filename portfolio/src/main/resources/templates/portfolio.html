@@ -50,10 +50,11 @@
     </div>
     <div class="projectContainer">
         <div class="eventContainer">
-            <div th:each="event: ${events}" class="event">
-                <p th:text="${event.name}"></p>
-                <p th:text="${event.startDate}"></p>
-                <p th:text="${event.endDate}"></p>
+            <div th:each="event: ${events}" class="event" >
+                <p th:text="${event.name} + ':'" class="eventName" ></p>
+                <p th:text="${event.startDate}" class="eventStart"></p>
+                <p> - </p>
+                <p th:text="${event.endDate}" class="eventEnd"></p>
             </div>
         </div>
 
@@ -65,6 +66,13 @@
                 <div class="row">
                     <div class="col" >
                         <h2 th:text="${sprint.name}"></h2>
+                        <div th:each="event: ${sprint.getEventList()}" class="eventInSprint">
+                            <p th:text="${event.getName()}"></p>
+                            <p th:text="${event.getStartDate()}" style="color:" th:attrappend="style=${' ' + event.startDateColour}"></p>
+                            <p th:text="${event.getEndDate()}" style="color:" th:attrappend="style=${' ' + event.endDateColour}"></p>
+
+                        </div>
+
                     </div>
                 </div>
                 <div class="row">

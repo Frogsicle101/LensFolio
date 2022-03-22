@@ -1,6 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.sprints;
+import nz.ac.canterbury.seng302.portfolio.events.Event;
+
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -9,10 +12,12 @@ public class Sprint {
     private @Id UUID id; // @Id lets JPA know it's the objects ID
     private long projectId;
     private String name;
-    private String startDate;
-    private String endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String description;
     private String colour;
+    @OneToMany
+    private List<Event> eventList;
 
     protected Sprint() {}
 
@@ -25,7 +30,7 @@ public class Sprint {
      * @param description description of sprint.
      * @param colour colour of sprint.
      */
-    public Sprint(long projectId, String name, String startDate, String endDate, String description, String colour) {
+    public Sprint(long projectId, String name, LocalDate startDate, LocalDate endDate, String description, String colour) {
         this.id = UUID.randomUUID();
         this.projectId = projectId;
         this.name = name;
@@ -40,17 +45,29 @@ public class Sprint {
      * @param projectId Project the sprint belongs too.
      * @param name Name of the Sprint.
      */
-    public Sprint(long projectId, String name, String startDate) {
+    public Sprint(long projectId, String name, LocalDate startDate) {
 
         this.id = UUID.randomUUID();
         this.projectId = projectId;
         this.name = name;
         this.startDate = startDate;
-        this.endDate = LocalDate.parse(startDate).plusWeeks(3).toString();
+        this.endDate = (startDate).plusWeeks(3);
         this.description = "No description";
         this.colour = "#f554f5";
 
 
+    }
+
+    public void addEvent(Event event){
+        eventList.add(event);
+    }
+
+    public List<Event> getEventList() {
+        return eventList;
+    }
+
+    public void setEventList(List<Event> eventList) {
+        this.eventList = eventList;
     }
 
     /**
@@ -105,7 +122,7 @@ public class Sprint {
      * Getter for Start Date
      * @return Start Date
      */
-    public String getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
@@ -113,7 +130,7 @@ public class Sprint {
      * Setter for Start Date.
      * @param start_date Start Date.
      */
-    public void setStartDate(String start_date) {
+    public void setStartDate(LocalDate start_date) {
         this.startDate = start_date;
     }
 
@@ -121,7 +138,7 @@ public class Sprint {
      * Getter for End Date
      * @return End Date
      */
-    public String getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
@@ -129,7 +146,7 @@ public class Sprint {
      * Setter for End Date.
      * @param end_date End Date.
      */
-    public void setEndDate(String end_date) {
+    public void setEndDate(LocalDate end_date) {
         this.endDate = end_date;
     }
 

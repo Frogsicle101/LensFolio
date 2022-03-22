@@ -20,6 +20,8 @@ public class Event {
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;
+    private String startDateColour;
+    private String endDateColour;
 
     public Event() {
     }
@@ -31,7 +33,21 @@ public class Event {
         this.endDate = endDate;
     }
 
+    public String getStartDateColour() {
+        return startDateColour;
+    }
 
+    public void setStartDateColour(String startDateColour) {
+        this.startDateColour = startDateColour;
+    }
+
+    public String getEndDateColour() {
+        return endDateColour;
+    }
+
+    public void setEndDateColour(String endDateColour) {
+        this.endDateColour = endDateColour;
+    }
 
     public UUID getId() {
         return id;

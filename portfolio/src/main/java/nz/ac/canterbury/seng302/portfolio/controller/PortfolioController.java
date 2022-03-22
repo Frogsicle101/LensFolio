@@ -43,6 +43,9 @@ public class PortfolioController {
     private final String infoMessage = "infoMessage";
     private final String successMessage = "successMessage";
 
+    //below is for testing purposes
+    private long projectId;
+
 
 
 
@@ -56,8 +59,57 @@ public class PortfolioController {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
-        createDefaultEvents();
+
+        //Below are only for testing purposes.
+        this.projectId = createDefaultProject();
+        createDefaultEvents(this.projectId);
+        createDefaultSprints(this.projectId);
     }
+
+
+
+
+
+    //Testing purposes
+    public long createDefaultProject(){
+        Project project = projectRepository.save(new Project(1, "Project Default"));
+        return project.getId();
+
+    }
+
+    public void createDefaultEvents(long projectId) {
+        LocalDate date = LocalDate.now();
+        Event event1 = new Event(projectId, "Sprint1 to Sprint2", date, date.plusWeeks(4));
+        Event event2 = new Event(projectId, "Sprint1 to Sprint4", date, date.plusWeeks(12));
+        Event event3 = new Event(projectId, "Merry Chrysler Day", date.minusDays(10), date.plusDays(20));
+        Event event4 = new Event(projectId, "Not in a sprint - Sprint 6", date.plusWeeks(19), date.plusWeeks(21));
+        eventRepository.save(event1);
+        eventRepository.save(event2);
+        eventRepository.save(event3);
+        eventRepository.save(event4);
+    }
+
+    public void createDefaultSprints(long projectId) {
+        LocalDate date = LocalDate.now();
+        Sprint sprint1 = new Sprint(projectId, "Sprint 1", date, date.plusWeeks(3), "Default", "#ef476f");
+        Sprint sprint2 = new Sprint(projectId, "Sprint 2", date.plusWeeks(3).plusDays(1), date.plusWeeks(6), "Default", "#ffd166");
+        Sprint sprint3 = new Sprint(projectId, "Sprint 3", date.plusWeeks(6).plusDays(1), date.plusWeeks(9), "Default", "#06d6a0");
+        Sprint sprint4 = new Sprint(projectId, "Sprint 4", date.plusWeeks(9).plusDays(1), date.plusWeeks(12), "Default", "#118ab2");
+        Sprint sprint5 = new Sprint(projectId, "Sprint 5", date.plusWeeks(12).plusDays(1), date.plusWeeks(15), "Default", "#219ebc");
+        Sprint sprint6 = new Sprint(projectId, "Sprint 6", date.plusWeeks(20).plusDays(1), date.plusWeeks(22), "Default", "#f48c06");
+        sprintRepository.save(sprint1);
+        sprintRepository.save(sprint2);
+        sprintRepository.save(sprint3);
+        sprintRepository.save(sprint4);
+        sprintRepository.save(sprint5);
+        sprintRepository.save(sprint6);
+    }
+
+
+
+
+
+
 
     /**
      * Main entry point for portfolio.
@@ -78,9 +130,39 @@ public class PortfolioController {
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("portfolio");
         //TODO Change the below line so that it isn't just grabbing one single project?.
-        Project project = projectRepository.getProjectById(2L);
+        Project project = projectRepository.getProjectById(projectId);
         addModelAttributeProject(modelAndView, project, user);
+
+
+
         List<Event> eventList = eventRepository.findAllByProjectIdOrderByStartDate(project.getId());
+        List<Sprint> sprintList = sprintRepository.findAllByProjectId(project.getId());
+        for(Event event: eventList) {
+            for (Sprint sprint: sprintList) {
+                LocalDate eStart = event.getStartDate();
+                LocalDate eEnd = event.getEndDate();
+                LocalDate sStart = sprint.getStartDate();
+                LocalDate sEnd = sprint.getEndDate();
+                if ((eStart.isAfter(sStart) || eStart.isEqual(sStart)) && (eStart.isBefore(sEnd) || eStart.isEqual(sEnd))){
+                    //Event start date is between or equal to sprint start and end dates.
+                    event.setStartDateColour(sprint.getColour());
+                    if(!sprint.getEventList().contains(event)) {
+                        sprint.addEvent(event);
+                    }
+                }
+                if ((eEnd.isAfter(sStart) || eEnd.isEqual(sStart)) && (eEnd.isBefore(sEnd) || eEnd.isEqual(sEnd))){
+                    //Event end date is between or equal to sprint start and end dates.
+                    event.setEndDateColour(sprint.getColour());
+                    if(!sprint.getEventList().contains(event)) {
+                        sprint.addEvent(event);
+                    }
+
+                }
+            }
+        }
+
+
+
 
         modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
         modelAndView.addObject("events", eventList);
@@ -170,7 +252,7 @@ public class PortfolioController {
             long longProjectId = Long.parseLong(projectId);
             int amountOfSprints = sprintRepository.findAllByProjectId(longProjectId).size() + 1;
             String sprintName = "Sprint " + amountOfSprints;
-            String startDate;
+            LocalDate startDate;
 
             //If there are sprints in the repository, start date of added sprint is after the last sprints end date.
             if (sprintRepository.count() > 0) {
@@ -178,17 +260,17 @@ public class PortfolioController {
                 LocalDate prevSprintEndDate = null;
                 for (Sprint sprint:sprints) {
                     if (prevSprintEndDate == null){
-                        prevSprintEndDate = LocalDate.parse(sprint.getEndDate());
+                        prevSprintEndDate = sprint.getEndDate();
                     } else {
-                        if (LocalDate.parse(sprint.getEndDate()).isAfter(prevSprintEndDate)) {
-                            prevSprintEndDate = LocalDate.parse(sprint.getEndDate());
+                        if (sprint.getEndDate().isAfter(prevSprintEndDate)) {
+                            prevSprintEndDate = sprint.getEndDate();
                         }
                     }
                 }
                 assert prevSprintEndDate != null;
-                startDate = prevSprintEndDate.plusDays(1).toString();
+                startDate = prevSprintEndDate.plusDays(1);
             } else {
-                startDate = LocalDate.now().toString();
+                startDate = LocalDate.now();
             }
             sprintRepository.save(new Sprint(longProjectId, sprintName, startDate));
             attributes.addFlashAttribute(successMessage, "Sprint added!");
@@ -240,8 +322,8 @@ public class PortfolioController {
             @ModelAttribute(name="sprintEditForm") SprintRequest sprintInfo) {
 
         try {
-            LocalDate sprintStart = LocalDate.parse(sprintInfo.getSprintStartDate());
-            LocalDate sprintEnd = LocalDate.parse(sprintInfo.getSprintEndDate());
+            LocalDate sprintStart = sprintInfo.getSprintStartDate();
+            LocalDate sprintEnd = sprintInfo.getSprintEndDate();
             if (sprintStart.isAfter(sprintEnd)) {
                 String dateErrorMessage = "Start date needs to be before end date";
                 attributes.addFlashAttribute(errorMessage, dateErrorMessage);
@@ -317,14 +399,6 @@ public class PortfolioController {
 //
 //    }
 
-    public void createDefaultEvents() {
-       LocalDate date = LocalDate.now();
-       Event event1 = new Event(2L, "Hello", date, date.plusDays(5));
-       Event event2 = new Event(2L, "Hello1", date.plusDays(10), date.plusDays(20));
-       Event event3 = new Event(2L, "Hello3", date.minusDays(10), date.plusDays(20));
-       eventRepository.save(event1);
-       eventRepository.save(event2);
-       eventRepository.save(event3);
-    }
+
 
 }
