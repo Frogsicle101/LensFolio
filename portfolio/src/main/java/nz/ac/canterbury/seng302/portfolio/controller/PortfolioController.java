@@ -23,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -78,7 +79,7 @@ public class PortfolioController {
     }
 
     public void createDefaultEvents(long projectId) {
-        LocalDate date = LocalDate.now();
+        LocalDateTime date = LocalDateTime.now();
         Event event1 = new Event(projectId, "Sprint1 to Sprint2", date, date.plusWeeks(4));
         Event event2 = new Event(projectId, "Sprint1 to Sprint4", date, date.plusWeeks(12));
         Event event3 = new Event(projectId, "Merry Chrysler Day", date.minusDays(10), date.plusDays(20));
@@ -140,8 +141,8 @@ public class PortfolioController {
         List<Sprint> sprintList = sprintRepository.findAllByProjectId(project.getId());
         for(Event event: eventList) {
             for (Sprint sprint: sprintList) {
-                LocalDate eStart = event.getStartDate();
-                LocalDate eEnd = event.getEndDate();
+                LocalDate eStart = LocalDate.from(event.getStartDate());
+                LocalDate eEnd = LocalDate.from(event.getEndDate());
                 LocalDate sStart = sprint.getStartDate();
                 LocalDate sEnd = sprint.getEndDate();
                 if ((eStart.isAfter(sStart) || eStart.isEqual(sStart)) && (eStart.isBefore(sEnd) || eStart.isEqual(sEnd))){

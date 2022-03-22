@@ -180,14 +180,32 @@ section{
 .eventContainer{
     display: flex;
     flex-direction: column;
-    align-items: center;
-    width: 25rem;
+    min-width: 25rem;
+    max-width: 50rem;
     border-right: solid 1px var(--main-border-colour);
+    padding-left: 1rem;
+    padding-top: 1rem;
+    padding-right: 1rem;
+}
+.eventName{
+    font-weight: bolder;
 }
 
 .event{
     display: flex;
+    flex-direction: column;
+    padding-bottom: 1rem;
+}
+
+.event p{
+    margin: 0;
+}
+.eventDateDiv{
+    display: flex;
     flex-direction: row;
+}
+.eventDateDiv p{
+    margin: 0 0 0 0;
 }
 
 .eventInSprint{
@@ -197,8 +215,8 @@ section{
 
 .eventInSprint p {
     padding: 0;
-    margin: 0;
     opacity: 50%;
+    margin: 0 0 0 0;
 }
 
 

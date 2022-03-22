@@ -7,8 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.LocalDateTime;
+
 import java.util.UUID;
 
 @Entity
@@ -20,8 +20,8 @@ public class Event {
 
     private long projectId;
     private String name;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private String startDateColour;
     private String endDateColour;
 
@@ -29,7 +29,7 @@ public class Event {
     public Event() {
     }
 
-    public Event(long projectId, String name, LocalDate startDate, LocalDate endDate) {
+    public Event(long projectId, String name, LocalDateTime startDate, LocalDateTime endDate) {
         this.projectId = projectId;
         this.name = name;
         this.startDate = startDate;
@@ -76,27 +76,27 @@ public class Event {
         this.name = name;
     }
 
-    public LocalDate getStartDate() {
+    public LocalDateTime getStartDate() {
         return startDate;
     }
 
     public String getStartDateFormatted() {
 
-        return getStartDate().format(DateTimeFormat.dayDateMonthYear());
+        return getStartDate().format(DateTimeFormat.timeDateMonthYear());
     }
     public String getEndDateFormatted() {
 
-        return getEndDate().format(DateTimeFormat.dayDateMonthYear());
+        return getEndDate().format(DateTimeFormat.timeDateMonthYear());
     }
-    public void setStartDate(LocalDate startDate) {
+    public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
+    public LocalDateTime getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
+    public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
     }
 }

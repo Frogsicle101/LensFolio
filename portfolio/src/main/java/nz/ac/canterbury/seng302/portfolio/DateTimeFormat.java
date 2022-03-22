@@ -5,7 +5,10 @@ import java.time.format.DateTimeFormatter;
 public class DateTimeFormat {
 
     public static DateTimeFormatter dayDateMonthYear() {
-        DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("E d MMMM y");
-        return formatter;
+        return DateTimeFormatter.ofPattern("E d MMMM y");
+    }
+
+    public static DateTimeFormatter timeDateMonthYear() {
+        return DateTimeFormatter.ofPattern("hh:mma E d MMMM y");
     }
 }
