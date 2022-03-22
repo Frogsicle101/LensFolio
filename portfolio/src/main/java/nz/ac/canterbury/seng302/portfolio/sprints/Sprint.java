@@ -1,4 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.sprints;
+import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.events.Event;
 
 import javax.persistence.*;
@@ -124,6 +125,14 @@ public class Sprint {
      */
     public LocalDate getStartDate() {
         return startDate;
+    }
+
+    public String getStartDateFormatted() {
+        return startDate.format(DateTimeFormat.dayDateMonthYear());
+    }
+
+    public String getEndDateFormatted() {
+        return endDate.format(DateTimeFormat.dayDateMonthYear());
     }
 
     /**

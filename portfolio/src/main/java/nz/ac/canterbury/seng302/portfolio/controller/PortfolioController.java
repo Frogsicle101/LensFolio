@@ -131,6 +131,7 @@ public class PortfolioController {
         ModelAndView modelAndView = new ModelAndView("portfolio");
         //TODO Change the below line so that it isn't just grabbing one single project?.
         Project project = projectRepository.getProjectById(projectId);
+
         addModelAttributeProject(modelAndView, project, user);
 
 
@@ -169,6 +170,7 @@ public class PortfolioController {
 
 
 
+        modelAndView.addObject("project", project);
         modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
         modelAndView.addObject("events", eventList);
         return modelAndView;
@@ -211,10 +213,12 @@ public class PortfolioController {
             RedirectAttributes attributes
     ) {
         try {
+            LocalDate projectStart = LocalDate.parse(editInfo.getProjectStartDate());
+            LocalDate projectEnd = LocalDate.parse(editInfo.getProjectEndDate());
             Project project = projectRepository.getProjectById(Long.parseLong(editInfo.getProjectId()));
             project.setName(editInfo.getProjectName());
-            project.setStartDate(editInfo.getProjectStartDate());
-            project.setEndDate(editInfo.getProjectEndDate());
+            project.setStartDate(projectStart);
+            project.setEndDate(projectEnd);
             project.setDescription(editInfo.getProjectDescription());
             projectRepository.save(project);
             attributes.addFlashAttribute(successMessage, "Project Updated!");
