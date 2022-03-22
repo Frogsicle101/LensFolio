@@ -19,7 +19,7 @@ import java.util.Base64;
  */
 public class LoginService {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Enum to store different possible outcomes of attempting to log in
