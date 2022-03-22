@@ -27,7 +27,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Autowired
     private UserRepository repository;
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * getUserAccountByID follows the gRPC contract and provides the server side service for retrieving
@@ -38,7 +38,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void getUserAccountById(GetUserByIdRequest request, StreamObserver<UserResponse> responseObserver) {
-        logger.info("Service - Getting user details by Id: " + request.getId());
+        logger.info("SERVICE - Getting user details by Id: " + request.getId());
         UserResponse.Builder reply = UserResponse.newBuilder();
         User user = repository.findById(request.getId());
         logger.info("Sending user details for " + user.getUsername());
@@ -73,7 +73,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void register(UserRegisterRequest request, StreamObserver<UserRegisterResponse> responseObserver) {
-        logger.info("Service - Registering new user with username " + request.getUsername());
+        logger.info("SERVICE - Registering new user with username " + request.getUsername());
         UserRegisterResponse.Builder reply = UserRegisterResponse.newBuilder();
         // Untested
 
@@ -97,7 +97,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 repository.save(user);
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())
-                        .setMessage("Your account has successfully been registered");
+                        .setMessage("Account has successfully been registered");
             } else {
                     logger.info("Registration Failure - username " + request.getUsername() + " already in use");
                     reply.setIsSuccess(false);
@@ -105,6 +105,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             }
 
         } catch (io.grpc.StatusRuntimeException e) {
+            reply.setIsSuccess(false);
+            reply.setMessage("An error occurred registering user from request");
             logger.error("An error occurred registering user from request: " + request + "\n see stack trace below \n");
             logger.error(e.getMessage());
         }
@@ -127,7 +129,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Transactional
     @Override
     public void editUser(EditUserRequest request, StreamObserver<EditUserResponse> responseObserver) {
-        logger.info("Service - Editing details for user with id " + request.getUserId());
+        logger.info("SERVICE - Editing details for user with id " + request.getUserId());
         EditUserResponse.Builder response = EditUserResponse.newBuilder();
         // Try to find user by ID
         User userToEdit = repository.findById(request.getUserId());
@@ -176,7 +178,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Transactional
     @Override
     public void changeUserPassword(ChangePasswordRequest request, StreamObserver<ChangePasswordResponse> responseObserver) {
-        logger.info("Service - Changing password for user with id" + request.getUserId());
+        logger.info("SERVICE - Changing password for user with id" + request.getUserId());
         ChangePasswordResponse.Builder response = ChangePasswordResponse.newBuilder();
 
         User userToUpdate = repository.findById(request.getUserId());

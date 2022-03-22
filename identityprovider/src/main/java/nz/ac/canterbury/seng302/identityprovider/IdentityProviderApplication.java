@@ -2,6 +2,8 @@ package nz.ac.canterbury.seng302.identityprovider;
 
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,8 +16,12 @@ public class IdentityProviderApplication {
     @Autowired
     UserRepository repository;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
     @EventListener(ApplicationReadyEvent.class)
     public void setup() {
+        logger.info("Initialising test user steve");
         User testUser = new User(
                 "steve",
                 "password",

@@ -7,6 +7,8 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticationServiceGrpc;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,6 +22,8 @@ public class AuthenticateClientService {
     @GrpcClient("identity-provider-grpc-server")
     private AuthenticationServiceGrpc.AuthenticationServiceBlockingStub authenticationStub;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     /**
      * Attempts to authenticate a user by sending an AuthenticationRequest to the server side
      *
@@ -28,6 +32,7 @@ public class AuthenticateClientService {
      * @return authenticationResponse - the servers response to the authentication, following the AuthenticationResponse contract
      */
     public AuthenticateResponse authenticate(final String username, final String password)  {
+        logger.info("SERVICE - send authentication request to server");
         AuthenticateRequest authRequest = AuthenticateRequest.newBuilder()
                 .setUsername(username)
                 .setPassword(password)

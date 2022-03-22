@@ -4,6 +4,8 @@ import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -27,6 +29,8 @@ public class EditController {
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * The main/entry endpoint into the edit page
@@ -53,10 +57,14 @@ public class EditController {
             @ModelAttribute(name="passwordChangeMessage") String passwordChangeMessage,
             ModelMap model
     ) {
-        /*We want to fill in the form details with what the user already has
+        /*
+        We want to fill in the form details with what the user already has
         so let's grab all those details and put them in the model
          */
-        addModelAttributes(principal, model);
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        logger.info("REQUEST /edit - retrieving account details for user " + userId);
+        addModelAttributes(userId, model);
+        logger.info("Edit account details populated for " + userId);
         return "accountEdit";
     }
 
@@ -65,20 +73,19 @@ public class EditController {
      * Given a Thymeleaf model, adds a bunch of attributes into it
      *
      * This is really just to make the code a bit nicer to look at
-     * @param principal The authentication state
+     * @param userId The user id of the account being edited
      * @param model The model you're adding attributes to
      */
     private void addModelAttributes(
-            AuthState principal,
+            int userId,
             ModelMap model) {
         /*
         These addAttribute methods inject variables that we can use in our html file
         Their values have been hard-coded for now, but they can be the result of functions!
         ideally, these would be functions like getUsername and so forth
          */
-        int id = Integer.parseInt(PrincipalAttributes.getClaim(principal, "nameid"));
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
-        request.setId(id);
+        request.setId(userId);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
         model.addAttribute("username", "Username:" + userResponse.getUsername());
         model.addAttribute("email", userResponse.getEmail());
@@ -93,8 +100,10 @@ public class EditController {
 
     /**
      * Entry point for editing account details
-     * This also handle the logic for changing the account details
+     * This also handle the logic for changing the account details\
+     * <br>
      * Note: this injects an attribute called "detailchangemessage" into the template it redirects to
+     * <br>
      * @param attributes extra attributes that are being given along with the redirect
      * @param request the HTTP request
      * @param response the HTTP response
@@ -113,10 +122,10 @@ public class EditController {
             ModelMap model
     ) {
         EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
-        Integer id = Integer.valueOf(PrincipalAttributes.getClaim(principal, "nameid"));
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        logger.info(" POST REQUEST /edit/details - update account details for user " + userId);
 
-
-        editRequest.setUserId(id)
+        editRequest.setUserId(userId)
                 .setFirstName(editInfo.getFirstname())
                 .setMiddleName(editInfo.getMiddlename())
                 .setLastName(editInfo.getLastname())
@@ -125,7 +134,11 @@ public class EditController {
                 .setPersonalPronouns(editInfo.getPersonalPronouns())
                 .setEmail(editInfo.getEmail());
         EditUserResponse reply = userAccountsClientService.editUser(editRequest.build());
-        System.out.println(reply);
+        if (reply.getIsSuccess()) {
+            logger.info("Successfully updated details for user " + userId);
+        } else {
+            logger.error("Failed to update details for user " + userId);
+        }
         //Add in the message for changing details
         attributes.addFlashAttribute("detailChangeMessage", reply.getMessage());
         //Since they're at a different endpoint, redirect back to the main edit endpoint
@@ -153,26 +166,31 @@ public class EditController {
             @ModelAttribute(name="editPasswordForm") PasswordRequest editInfo,
             ModelMap model
     ){
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        logger.info("POST REQUEST /edit/password - update password for user " + userId);
         ChangePasswordRequest.Builder changePasswordRequest = ChangePasswordRequest.newBuilder();
-        // Get user ID, this really needs to be a method
-        Integer id = Integer.valueOf(PrincipalAttributes.getClaim(principal, "nameid"));
 
         ChangePasswordResponse changePasswordResponse;
         if (editInfo.getNewPassword().equals(editInfo.getConfirmPassword())) {
+            logger.info("New password and confirm password match, requesting change password service (" + userId + ")");
             //Create request
-            changePasswordRequest.setUserId(id)
+            changePasswordRequest.setUserId(userId)
                     .setCurrentPassword(editInfo.getOldPassword())
                     .setNewPassword(editInfo.getNewPassword());
             changePasswordResponse = userAccountsClientService.changeUserPassword(changePasswordRequest.build());
+            if (changePasswordResponse.getIsSuccess()) {
+                logger.info("Password change success: " + changePasswordResponse.getMessage());
+            } else {
+                logger.info("Password change failed: " + changePasswordResponse.getMessage());
+            }
             //Give the user the response from the IDP
-            System.out.println(changePasswordResponse.getMessage());
             //Flash attributes aren't visible in the URL, which is why this is a flash attribute
             attributes.addFlashAttribute("successMessage",
                     changePasswordResponse.getMessage());
 
         } else {
+            logger.info("Confirm password does not match new password. Cancelling password change for " + userId);
             // Tell the user to confirm their passwords match
-            System.out.println("Confirm password does not match new password.");
             attributes.addFlashAttribute("errorMessage",
                     "Confirm password does not match new password.");
         }

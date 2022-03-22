@@ -5,18 +5,17 @@ import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.service.ReadableTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -30,13 +29,15 @@ public class AccountController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     /**
      * This method is responsible for populating the account page template
      * It adds in variables to the html template, as well as the values of those variables
      * It then returns the 'filled in' html template, to be displayed in a web browser
-     * <p>
+     * <br>
      * Once a user class is created, we will want to supply this page with the specific user that is viewing it
-     *
+     * <br>
      * @param model Parameters sent to thymeleaf template to be rendered into HTML
      * @return the Thymeleaf template
      */
@@ -49,8 +50,10 @@ public class AccountController {
             @ModelAttribute(name = "detailChangeMessage") String detailChangeMessage,
             @ModelAttribute(name = "passwordChangeMessage") String passwordChangeMessage
     ) {
-
-        addModelAttributes(principal, model);
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        logger.info("REQUEST /account - retrieving account details for user " + userId);
+        addModelAttributes(userId, model);
+        logger.info("Account details populated for " + userId);
         return "account";
     }
 
@@ -59,18 +62,19 @@ public class AccountController {
      * Given a Thymeleaf model, adds a bunch of attributes into it
      * <p>
      * This is really just to make the code a bit nicer to look at
-     *
-     * @param model The model you're adding attributes to
+     * <br>
+     * @param userId - the userId of the account whose details are being retrieved
+     * @param model - The model you're adding attributes to
      */
     private void addModelAttributes(
-            AuthState principal,
+            int userId,
             ModelMap model) {
+        // NOTE: no logger as this is a helper function and calling function logs the input
         /*
         These addAttribute methods inject variables that we can use in our html file
          */
-        int id = Integer.parseInt(PrincipalAttributes.getClaim(principal, "nameid"));
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
-        request.setId(id);
+        request.setId(userId);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
         model.addAttribute("username", userResponse.getUsername());
         model.addAttribute("email", userResponse.getEmail());
