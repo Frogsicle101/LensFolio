@@ -1,11 +1,13 @@
 package nz.ac.canterbury.seng302.portfolio.events;
 
 import com.google.type.DateTime;
+import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.UUID;
 
@@ -22,6 +24,7 @@ public class Event {
     private LocalDate endDate;
     private String startDateColour;
     private String endDateColour;
+
 
     public Event() {
     }
@@ -77,6 +80,14 @@ public class Event {
         return startDate;
     }
 
+    public String getStartDateFormatted() {
+
+        return getStartDate().format(DateTimeFormat.dayDateMonthYear());
+    }
+    public String getEndDateFormatted() {
+
+        return getEndDate().format(DateTimeFormat.dayDateMonthYear());
+    }
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }

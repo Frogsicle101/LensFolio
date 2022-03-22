@@ -8,8 +8,8 @@ import java.util.UUID;
 public class SprintRequest {
     private UUID sprintId;
     private String sprintName;
-    private LocalDate sprintStartDate;
-    private LocalDate sprintEndDate;
+    private String sprintStartDate;
+    private String sprintEndDate;
     private String sprintDescription;
     private String sprintColour;
 
@@ -17,7 +17,7 @@ public class SprintRequest {
         super();
     }
 
-    public SprintRequest(String sprintId, String sprintName, LocalDate sprintStartDate, LocalDate sprintEndDate, String sprintDescription, String sprintColour) {
+    public SprintRequest(String sprintId, String sprintName, String sprintStartDate, String sprintEndDate, String sprintDescription, String sprintColour) {
         super();
         this.sprintId = UUID.fromString(sprintId);
         this.sprintName = sprintName;
@@ -51,19 +51,19 @@ public class SprintRequest {
         this.sprintName = sprintName;
     }
 
-    public LocalDate getSprintStartDate() {
+    public String getSprintStartDate() {
         return sprintStartDate;
     }
 
-    public void setSprintStartDate(LocalDate sprintStartDate) {
+    public void setSprintStartDate(String sprintStartDate) {
         this.sprintStartDate = sprintStartDate;
     }
 
-    public LocalDate getSprintEndDate() {
+    public String getSprintEndDate() {
         return sprintEndDate;
     }
 
-    public void setSprintEndDate(LocalDate sprintEndDate) {
+    public void setSprintEndDate(String sprintEndDate) {
         this.sprintEndDate = sprintEndDate;
     }
 

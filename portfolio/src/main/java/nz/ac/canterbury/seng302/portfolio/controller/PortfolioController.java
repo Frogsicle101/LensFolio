@@ -156,7 +156,12 @@ public class PortfolioController {
                     if(!sprint.getEventList().contains(event)) {
                         sprint.addEvent(event);
                     }
-
+                }
+                if (eStart.isBefore(sStart) && eEnd.isAfter(sEnd)) {
+                    //Event spans over the entire sprint
+                    if(!sprint.getEventList().contains(event)) {
+                        sprint.addEvent(event);
+                    }
                 }
             }
         }
@@ -322,16 +327,16 @@ public class PortfolioController {
             @ModelAttribute(name="sprintEditForm") SprintRequest sprintInfo) {
 
         try {
-            LocalDate sprintStart = sprintInfo.getSprintStartDate();
-            LocalDate sprintEnd = sprintInfo.getSprintEndDate();
+            LocalDate sprintStart = LocalDate.parse(sprintInfo.getSprintStartDate());
+            LocalDate sprintEnd = LocalDate.parse(sprintInfo.getSprintEndDate());
             if (sprintStart.isAfter(sprintEnd)) {
                 String dateErrorMessage = "Start date needs to be before end date";
                 attributes.addFlashAttribute(errorMessage, dateErrorMessage);
             } else {
                 Sprint sprint = sprintRepository.getSprintById(sprintInfo.getSprintId());
                 sprint.setName(sprintInfo.getSprintName());
-                sprint.setStartDate(sprintInfo.getSprintStartDate());
-                sprint.setEndDate(sprintInfo.getSprintEndDate());
+                sprint.setStartDate(sprintStart);
+                sprint.setEndDate(sprintEnd);
                 sprint.setDescription(sprintInfo.getSprintDescription());
                 sprint.setColour(sprintInfo.getSprintColour());
                 sprintRepository.save(sprint);

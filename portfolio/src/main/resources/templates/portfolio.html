@@ -52,9 +52,8 @@
         <div class="eventContainer">
             <div th:each="event: ${events}" class="event" >
                 <p th:text="${event.name} + ':'" class="eventName" ></p>
-                <p th:text="${event.startDate}" class="eventStart"></p>
-                <p> - </p>
-                <p th:text="${event.endDate}" class="eventEnd"></p>
+                <p th:text="${event.getStartDateFormatted()}" class="eventStart"></p>
+                <p th:text="${event.getEndDateFormatted()}" class="eventEnd"></p>
             </div>
         </div>
 
@@ -68,8 +67,8 @@
                         <h2 th:text="${sprint.name}"></h2>
                         <div th:each="event: ${sprint.getEventList()}" class="eventInSprint">
                             <p th:text="${event.getName()}"></p>
-                            <p th:text="${event.getStartDate()}" style="color:" th:attrappend="style=${' ' + event.startDateColour}"></p>
-                            <p th:text="${event.getEndDate()}" style="color:" th:attrappend="style=${' ' + event.endDateColour}"></p>
+                            <p th:text="${event.getStartDateFormatted()}" style="color:" th:attrappend="style=${' ' + event.startDateColour}"></p>
+                            <p th:text="${event.getEndDateFormatted()}" style="color:" th:attrappend="style=${' ' + event.endDateColour}"></p>
 
                         </div>
 
