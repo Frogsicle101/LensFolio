@@ -54,8 +54,10 @@
         </div>
         <div>
             <div class="dropdown-content" id="dropdownContent" style="display: none">
-                <a class="logout" href="/logout">Log Out</a><br>
                 <a class="account" th:href="@{/account}">Account</a>
+                <a class="portfolio" th:href="@{/portfolio}">Portfolio</a>
+                <a class="logout" href="/logout">Log Out</a><br>
+
             </div>
         </div>
 
@@ -65,22 +67,22 @@
 
 
 <div th:fragment="errorBox">
-    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+    <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
         <p class="errorMessage" th:text="${errorMessage}"></p>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 </div>
 
 <div th:fragment="infoBox">
-    <div class="alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
-        <p class="errorMessage" th:text="${infoMessage}"></p>
+    <div class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
+        <p class="infoMessage" th:text="${infoMessage}"></p>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 </div>
 
 <div th:fragment="successBox">
-    <div class="alert alert-success alert-dismissible fade show" role="alert" style="display: none">
-        <p class="errorMessage" th:text="${successMessage}"></p>
+    <div class="successMessageParent alert alert-success alert-dismissible fade show" role="alert" style="display: none">
+        <p class="successMessage" th:text="${successMessage}"></p>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 </div>

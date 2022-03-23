@@ -79,11 +79,8 @@ let endDateStr = $("#projectEndDate").html();
   /**
    * chech it is during project date or not
    */
-  function isDuringDate(beginDateStr, endDateStr, dateCheckStr) {
-    let curDate = new Date(dateCheckStr),
-      beginDate = new Date(beginDateStr),
-      endDate = new Date(endDateStr);
-    if (curDate >= beginDate && curDate <= endDate) {
+  function isDuringDate(dateCheckStr) {
+    if (dateCheckStr >= beginDateStr && endDateStr >= dateCheckStr) {
       return true;
     }
     return false;
@@ -92,7 +89,7 @@ let endDateStr = $("#projectEndDate").html();
   /**
    * display numbers in table
    */
-  function showCalendarData(beginDateStr, endDateStr) {
+  function showCalendarData() {
     let _year = dateObj.getDate().getFullYear();
     let _month = dateObj.getDate().getMonth() + 1;
     let _dateStr = getDateStr(dateObj.getDate());
@@ -109,6 +106,7 @@ let endDateStr = $("#projectEndDate").html();
     for (let i = 0; i < _tds.length; i++) {
       let _thisDay = new Date(_year, _month - 1, i + 1 - _firstDay.getDay());
       let _thisDayStr = getDateStr(_thisDay);
+
       _tds[i].innerText = _thisDay.getDate();
       //_tds[i].data = _thisDayStr;
       _tds[i].setAttribute("data", _thisDayStr);
@@ -116,7 +114,7 @@ let endDateStr = $("#projectEndDate").html();
         // current day
         _tds[i].className = "currentDay_project";
       }
-      if (isDuringDate(beginDateStr, endDateStr, _thisDayStr)) {
+      if (isDuringDate(_thisDayStr)) {
         if (_thisDayStr == getDateStr(new Date())) {
           // current day + project date
           _tds[i].className = "currentDay_project";

@@ -10,7 +10,13 @@
 <header th:insert="fragments/general.html :: header"> </header>
 <section>
     <form th:action="@{/sprintSubmit}" th:object="${sprintEditForm}" method="post">
-        <h1>Personal Information</h1>
+        <!--Below are the divs that handle error messages
+            If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
+            they will be displayed below-->
+        <div th:insert="fragments/general.html :: errorBox"> </div>
+        <div th:insert="fragments/general.html :: successBox"> </div>
+        <div th:insert="fragments/general.html :: infoBox"> </div>
+        <h1>Edit Sprint</h1>
         <input type="text" name="sprintId" style="display: none" id="sprintId" th:value="${sprintId}">
         <div class="row">
             <div class="col">
