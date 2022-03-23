@@ -10,7 +10,14 @@
 <body>
 <!--The below section <header> pulls the fragment from fragments/general-->
 <header th:insert="fragments/general.html :: header"> </header>
+
 <section>
+    <!--Below are the divs that handle error messages
+            If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
+            they will be displayed below-->
+    <div th:insert="fragments/general.html :: errorBox"> </div>
+    <div th:insert="fragments/general.html :: successBox"> </div>
+    <div th:insert="fragments/general.html :: infoBox"> </div>
     <div class="projectDetails">
         <div id="project-details">
             <h1 id="projectId" th:text="${projectId}" style="display: none"></h1>

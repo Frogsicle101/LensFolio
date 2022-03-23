@@ -2,6 +2,8 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 
 import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -16,6 +18,8 @@ import java.util.Base64;
  * Hashing details adapted from <a href="https://www.quickprogrammingtips.com/java/how-to-securely-store-passwords-in-java.html">www.quickprogrammingtips.com</a>
  */
 public class LoginService {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Enum to store different possible outcomes of attempting to log in
@@ -36,14 +40,17 @@ public class LoginService {
     public LoginStatus checkLogin(User foundUser, AuthenticateRequest request) {
 
         if (foundUser == null) {
-            // User not in database
+            logger.info("Authentication failure - could not find user");
             return LoginStatus.USER_INVALID;
+
         } else {
             //User in database
-
             if (passwordMatches(request.getPassword(), foundUser)) { // Password matches stored hash
+                logger.info(String.format("Authentication success - %s", foundUser.getUsername()));
                 return LoginStatus.VALID;
+
             } else { // Incorrect password
+                logger.info(String.format("Authentication failure - incorrect password for %s", foundUser.getUsername()));
                 return LoginStatus.PASSWORD_INVALID;
             }
         }

@@ -9,6 +9,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -51,7 +52,7 @@ public class LoginController {
             HttpServletRequest request,
             HttpServletResponse response,
             @ModelAttribute(name="loginForm") UserRequest userRequest,
-            Model model
+            ModelMap model
     ) {
 
         AuthenticateResponse loginReply;
@@ -59,7 +60,8 @@ public class LoginController {
         try {
             loginReply = attemptLogin(userRequest, request, response, authenticateClientService);
         } catch (AuthenticationException e){
-            model.addAttribute("errorMessage", "Error connecting to Identity Provider...");
+            model.addAttribute("errorMessage", "Error connecting to Identity Provider... " +
+                    "Try again later.");
             return new ModelAndView("login");
         }
         // If login was successful redirect to account, otherwise add failure message
