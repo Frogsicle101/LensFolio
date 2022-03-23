@@ -1,11 +1,9 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
 import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.shared.identityprovider.ModifyRoleOfUserRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.ModifyRoleOfUserRequestOrBuilder;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserRoleChangeResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +14,8 @@ class UserAccountsServerServiceTest {
     UserAccountsServerService service;
     User user;
 
+    @GrpcClient(value = "identity-provider-grpc-server")
+    private UserAccountServiceGrpc.UserAccountServiceBlockingStub userAccountStub;
 
     @BeforeEach
     void setUp() {
@@ -39,12 +39,17 @@ class UserAccountsServerServiceTest {
         user.addRole(UserRole.STUDENT);
         user.addRole(UserRole.TEACHER);
 
-        ModifyRoleOfUserRequest.Builder request = ModifyRoleOfUserRequest.newBuilder();
-        UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
-        request.setRole(UserRole.TEACHER);
-        request.setUserId(user.getId());
-        request.build();
+        ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
+        .setRole(UserRole.TEACHER)
+        .setUserId(user.getId())
+        .build();
+
+
+        UserRoleChangeResponse response;
         //How do I build these right so I can call the method?
-        //service.removeRoleFromUser(request, response);
+        response = userAccountStub.removeRoleFromUser(request);
+
+        assertTrue(response.getIsSuccess());
+        assertEquals(1, user.getRoles().size());
     }
 }

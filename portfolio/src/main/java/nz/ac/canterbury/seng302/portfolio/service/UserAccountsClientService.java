@@ -60,4 +60,8 @@ public class UserAccountsClientService {
     public UserRoleChangeResponse addRoleToUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
         return userAccountStub.addRoleToUser(modifyRoleOfUserRequest);
     }
+
+    public UserRoleChangeResponse removeRoleFromUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
+        return userAccountStub.removeRoleFromUser(modifyRoleOfUserRequest);
+    }
 }

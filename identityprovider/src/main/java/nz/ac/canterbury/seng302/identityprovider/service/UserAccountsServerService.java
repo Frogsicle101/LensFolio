@@ -301,5 +301,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             response.setIsSuccess(false)
                     .setMessage(false);
         }
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
     }
 }
