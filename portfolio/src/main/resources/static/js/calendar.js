@@ -1,5 +1,6 @@
 let beginDateStr = $("#projectStartDate").html();
 let endDateStr = $("#projectEndDate").html();
+//let sprintList = $("#$sprints").html();
 
 (function () {
   /*
@@ -79,7 +80,7 @@ let endDateStr = $("#projectEndDate").html();
   /**
    * chech it is during project date or not
    */
-  function isDuringDate(dateCheckStr) {
+   function isDuringDate(dateCheckStr) {
     if (dateCheckStr >= beginDateStr && endDateStr >= dateCheckStr) {
       return true;
     }
@@ -106,7 +107,7 @@ let endDateStr = $("#projectEndDate").html();
     for (let i = 0; i < _tds.length; i++) {
       let _thisDay = new Date(_year, _month - 1, i + 1 - _firstDay.getDay());
       let _thisDayStr = getDateStr(_thisDay);
-
+   
       _tds[i].innerText = _thisDay.getDate();
       //_tds[i].data = _thisDayStr;
       _tds[i].setAttribute("data", _thisDayStr);
