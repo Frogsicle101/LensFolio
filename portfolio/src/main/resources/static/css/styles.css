@@ -180,7 +180,7 @@ section{
 .eventContainer{
     display: flex;
     flex-direction: column;
-    min-width: 25rem;
+    min-width: 35rem;
     max-width: 50rem;
     border-right: solid 1px var(--main-border-colour);
     padding-left: 1rem;
