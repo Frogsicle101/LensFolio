@@ -14,7 +14,7 @@ public class AuthenticationServerInterceptor implements ServerInterceptor {
     public static final Context.Key<String> SESSION_TOKEN = Context.key("lens-session-token");
     public static final Context.Key<AuthState> AUTH_STATE = Context.key("auth-state");
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(

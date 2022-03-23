@@ -19,7 +19,7 @@ import java.util.Base64;
  */
 public class LoginService {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Enum to store different possible outcomes of attempting to log in
@@ -89,6 +89,7 @@ public class LoginService {
             encBytes = factory.generateSecret(spec).getEncoded();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             // This exception will only be thrown if the java algorithm specification changes
+            logger.error("ERROR - failed to hash password");
             throw new RuntimeException("Could not hash password: " + e.getMessage());
         }
 
@@ -107,6 +108,7 @@ public class LoginService {
             random = SecureRandom.getInstance("SHA1PRNG");
         } catch (NoSuchAlgorithmException e) {
             // This exception will only be thrown if the java algorithm specification changes
+            logger.error("ERROR - failed to retrieve salt for password");
             throw new RuntimeException("Could not get salt: " + e.getMessage());
         }
 

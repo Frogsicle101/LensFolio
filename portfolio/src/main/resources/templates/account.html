@@ -25,7 +25,7 @@
             <div class="row mb-3">
                 <div class="col">
                     <label for="FirstName" class="form-label">First name</label>
-                    <input type="text" class="form-control canDisable"name="firstname" id="FirstName" th:value="${firstName}" required disabled>
+                    <input type="text" class="form-control canDisable" name="firstname" id="FirstName" th:value="${firstName}" required disabled>
                 </div>
                 <div class="col">
                     <label for="MiddleName" class="form-label">Middle name</label>
@@ -42,7 +42,7 @@
             </div>
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" th:value="${username}" maxlength="100" disabled required>
+                <input type="text" class="form-control" id="username" name="username" th:value="${username}" maxlength="50" disabled required>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
@@ -83,11 +83,11 @@
             </div>
             <div class="mb-3">
                 <label for="NewPassword" class="form-label">New password</label>
-                <input class="form-control canDisablePassword" type="password" name="new password" id="NewPassword" th:field="*{newPassword}" required disabled>
+                <input class="form-control canDisablePassword" type="password" name="new password" id="NewPassword" th:field="*{newPassword}"  maxlength="100" required disabled>
             </div>
             <div class="mb-3">
                 <label for="ConfirmPassword" class="form-label">Confirm password</label>
-                <input class="form-control canDisablePassword"  type="password" name="new password" id="ConfirmPassword" th:field="*{confirmPassword}" required disabled>
+                <input class="form-control canDisablePassword"  type="password" name="new password" id="ConfirmPassword" th:field="*{confirmPassword}"  maxlength="100" required disabled>
             </div>
             <button type="submit" class="btn btn-primary canDisablePassword" disabled>Change</button>
             <button type="button" class="btn btn-secondary editPasswordButton" >Edit Password</button>
