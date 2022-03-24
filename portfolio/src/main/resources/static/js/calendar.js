@@ -9,8 +9,18 @@ endDateStr = endDateStr.replace('-','');
 
 //let sprintList = $("#$sprints").html();
 
+
 (function () {
+
+
   console.log(beginDateStr)
+  $.ajax({
+    url: "getProjectSprints",
+    type: "GET",
+    data: {"projectId": 2},
+  }).done(function (obj) {
+    let sprints = obj;
+  })
   /*
    * Display calendar from current system time
    */
@@ -130,6 +140,7 @@ endDateStr = endDateStr.replace('-','');
         } else {
           _tds[i].className = "project-bgcolor"; // project date
         }
+
       } else {
         if (_thisDayStr == getDateStr(new Date())) {
           // current day + no project date
@@ -138,8 +149,10 @@ endDateStr = endDateStr.replace('-','');
           _tds[i].className = "no-project-bgcolor"; // not project date
         }
       }
+
     }
   }
+
 
   /**
    * Bind previous month to next month events

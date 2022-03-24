@@ -65,15 +65,7 @@ public class PortfolioController {
         return modelAndView;
     }
 
-    @GetMapping("/calendar")
-    public ModelAndView getCalendar() {
-        ModelAndView model = new ModelAndView("monthly_calendar");
-        Project project = projectRepository.getProjectByName("Project Bravo");
-        model.addObject("project", project);
-        model.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
 
-        return model;
-    }
 
     /**
      * Mapping for /editProject
