@@ -196,6 +196,16 @@ public class User {
         return accountCreatedTime;
     }
 
+    public void setRoles(ArrayList<UserRole> roles) {
+        for (UserRole role : roles) {
+            addRole(role);
+        }
+        for (UserRole role : getRoles()) {
+            if (!roles.contains(role)) {
+                deleteRole(role);
+            }
+        }
+    }
     public void addRole(UserRole role) {
         if (! roles.contains(role)) {
             roles.add(role);
