@@ -11,6 +11,7 @@
   width: 1000px;
   height: 1000px;
   display: block;
+  align-items: initial;
 }
 
 /**
@@ -75,7 +76,7 @@
 /* current day and project day */
 .currentDay_project {
   color: red;
-  background-color: rgb(248, 245, 245);
+  background-color: rgb(255, 255, 255);
 }
 
 /* current day and no project day */
@@ -87,7 +88,7 @@
 /* project day background color */
 .project-bgcolor {
   color: rgb(27, 27, 27);
-  background-color: rgb(248, 245, 245);
+  background-color: rgb(255, 255, 255);
 }
 
 /* without project day background color */
@@ -95,3 +96,59 @@
   color: rgb(17, 17, 17);
   background-color: rgb(207, 205, 205);
 }
+
+/* calendar_VS_info */
+.calendar-info{
+  display:flex
+}
+
+/* project_vs_sprints*/
+.progect-sprints{
+  display: flex;
+  flex-direction: column;
+}
+
+/*projectInfo*/
+.projectInfo{
+  width: 30rem;
+  padding: 2rem;
+}
+
+.projectDetails{
+  padding: 2rem;
+}
+
+.projectDetails h1{
+  font-weight: bold;
+}
+
+
+/*sprintInfo*/
+.sprintsInfo{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sprint{
+  position: relative;
+  width: 30rem;
+  padding: 2rem;
+  margin-top: 1rem;
+}
+
+.sprint h6{
+  color: var(--secondary-text-colour-darker);
+}
+
+.sprintLabel {
+  align-self: flex-start;
+  position: absolute;
+  top: 0.1rem;
+  left: 0.1rem;
+  color: var(--secondary-text-colour);
+
+}
+
+
+
