@@ -1,33 +1,33 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Lensfolio | Portfolio | Calendar</title>
-  <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
-          </th:block> /*/-->
+    <!--Make sure to change the below title    -->
+    <title>Thymeleaf Fragments: home</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
     <link rel="stylesheet" th:href="@{css/calendar.css}" />
-    
+
+
 </head>
 <body>
-  <!--The below section <header> pulls the fragment from fragments/general-->
-  <header th:insert="fragments/general.html :: header"> </header>
-  
-  <section>
-      <!--Below are the divs that handle error messages
-              If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
-              they will be displayed below-->
-      <div th:insert="fragments/general.html :: errorBox"> </div>
-      <div th:insert="fragments/general.html :: successBox"> </div>
-      <div th:insert="fragments/general.html :: infoBox"> </div>
+<!--The below section <header> pulls the fragment from fragments/general-->
+<header th:insert="fragments/general.html :: header"> </header>
+<section>
+    <!--Below are the divs that handle error messages
+            If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
+            they will be displayed below-->
+    <div th:insert="fragments/general.html :: errorBox"> </div>
+    <div th:insert="fragments/general.html :: successBox"> </div>
+    <div th:insert="fragments/general.html :: infoBox"> </div>
 
 
-      <p id="projectStartDate" th:text="${projectStartDate}" style="display: none;"></p>
-      <p id="projectEndDate" th:text="${projectEndDate}" style="display: none;"></p>
-     <!-- <p id="sprints" th:text="${sprints}"></p> should it be 'text' or not ?-->
-      <div class="calendar" id="calendar"></div>
-      <script type="application/javascript" th:src="@{js/calendar.js}">
+    <p id="projectStartDate" th:text="${project.getStartDate()}" style="display: none;"></p>
+    <p id="projectEndDate" th:text="${project.getEndDate()}" style="display: none;"></p>
+    <!-- <p id="sprints" th:text="${sprints}"></p> should it be 'text' or not ?-->
+    <div class="calendar" id="calendar"></div>
+    <script type="application/javascript" th:src="@{js/calendar.js}"></script>
 
-        
-      </script>
-    </section>
-  </body>
+</section>
+</body>
 </html>
+

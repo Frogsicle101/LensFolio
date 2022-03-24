@@ -1,8 +1,16 @@
-let beginDateStr = $("#projectStartDate").html();
-let endDateStr = $("#projectEndDate").html();
+let beginDateStr = $("#projectStartDate").html().toString();
+let endDateStr = $("#projectEndDate").html().toString();
+
+beginDateStr = beginDateStr.replace('-','');
+beginDateStr = beginDateStr.replace('-','');
+endDateStr = endDateStr.replace('-','');
+endDateStr = endDateStr.replace('-','');
+
+
 //let sprintList = $("#$sprints").html();
 
 (function () {
+  console.log(beginDateStr)
   /*
    * Display calendar from current system time
    */

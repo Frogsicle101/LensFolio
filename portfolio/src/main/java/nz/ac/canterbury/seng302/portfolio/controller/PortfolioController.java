@@ -65,14 +65,14 @@ public class PortfolioController {
         return modelAndView;
     }
 
-    @GetMapping("/portfolio/calendar")
-    public ModelAndView getCalendar
-    (@RequestParam (value = "projectId") Long projectId,
-    Model model) {
-        Project project = projectRepository.getProjectById(projectId);
-        model.addAttribute("projectStartDate", project.getStartDate());
-        model.addAttribute("projectEndDate", project.getEndDate());
-        return new ModelAndView("monthly_calendar");
+    @GetMapping("/calendar")
+    public ModelAndView getCalendar() {
+        ModelAndView model = new ModelAndView("monthly_calendar");
+        Project project = projectRepository.getProjectByName("Project Bravo");
+        model.addObject("project", project);
+        model.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
+
+        return model;
     }
 
     /**
