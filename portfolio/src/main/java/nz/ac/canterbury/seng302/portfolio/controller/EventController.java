@@ -26,6 +26,14 @@ public class EventController {
     }
 
 
+    /**
+     * Mapping for a put request to add event.
+     * @param projectId id of project to add event to.
+     * @param name Name of event.
+     * @param start date of the start of the event
+     * @param end date of the end of the event.
+     * @return A response indicating either success, or an error-code as to why it failed.
+     */
     @PutMapping("/addEvent")
     public ResponseEntity<String> addEvent(
             @RequestParam(value = "projectId") Long projectId,
@@ -57,7 +65,11 @@ public class EventController {
 
     }
 
-
+    /**
+     * Mapping for a delete request for event.
+     * @param eventId Id of event to be deleted.
+     * @return A status code indicating request was successful, or failed.
+     */
     @DeleteMapping("/deleteEvent")
     public ResponseEntity<String> deleteEvent(
             @RequestParam(value = "eventId") UUID eventId

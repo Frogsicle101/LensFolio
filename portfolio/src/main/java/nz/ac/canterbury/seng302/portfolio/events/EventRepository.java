@@ -12,4 +12,7 @@ public interface EventRepository extends CrudRepository<Event, UUID> {
 
     @Query
     List<Event> findAllByProjectIdOrderByStartDate(Long projectId);
+
+    @Query
+    Event getById(UUID eventId);
 }
