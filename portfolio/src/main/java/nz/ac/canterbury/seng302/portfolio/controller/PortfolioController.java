@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.EventRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.events.Event;
@@ -24,7 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,7 +43,7 @@ public class PortfolioController {
     private final String successMessage = "successMessage";
 
     //below is for testing purposes
-    private long projectId;
+    private Project project;
 
 
 
@@ -62,28 +60,21 @@ public class PortfolioController {
         this.eventRepository = eventRepository;
 
         //Below are only for testing purposes.
-        this.projectId = createDefaultProject();
-        createDefaultEvents(this.projectId);
-        createDefaultSprints(this.projectId);
+        this.project = projectRepository.save(new Project("Project Default"));
+        createDefaultEvents(project);
+        createDefaultSprints(project.getId());
     }
 
 
 
 
 
-    //Testing purposes
-    public long createDefaultProject(){
-        Project project = projectRepository.save(new Project(1, "Project Default"));
-        return project.getId();
-
-    }
-
-    public void createDefaultEvents(long projectId) {
+    public void createDefaultEvents(Project project) {
         LocalDateTime date = LocalDateTime.now();
-        Event event1 = new Event(projectId, "Sprint1 to Sprint2", date, date.plusWeeks(4));
-        Event event2 = new Event(projectId, "Sprint1 to Sprint4", date, date.plusWeeks(12));
-        Event event3 = new Event(projectId, "Merry Chrysler Day", date.minusDays(10), date.plusDays(20));
-        Event event4 = new Event(projectId, "Not in a sprint - Sprint 6", date.plusWeeks(19), date.plusWeeks(21));
+        Event event1 = new Event(project, "Sprint1 to Sprint2", date, date.plusWeeks(4));
+        Event event2 = new Event(project, "Sprint1 to Sprint4", date, date.plusWeeks(12));
+        Event event3 = new Event(project, "Merry Chrysler Day", date.minusDays(10), date.plusDays(20));
+        Event event4 = new Event(project, "Not in a sprint - Sprint 6", date.plusWeeks(19), date.plusWeeks(21));
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
@@ -92,12 +83,12 @@ public class PortfolioController {
 
     public void createDefaultSprints(long projectId) {
         LocalDate date = LocalDate.now();
-        Sprint sprint1 = new Sprint(projectId, "Sprint 1", date, date.plusWeeks(3), "Default", "#ef476f");
-        Sprint sprint2 = new Sprint(projectId, "Sprint 2", date.plusWeeks(3).plusDays(1), date.plusWeeks(6), "Default", "#ffd166");
-        Sprint sprint3 = new Sprint(projectId, "Sprint 3", date.plusWeeks(6).plusDays(1), date.plusWeeks(9), "Default", "#06d6a0");
-        Sprint sprint4 = new Sprint(projectId, "Sprint 4", date.plusWeeks(9).plusDays(1), date.plusWeeks(12), "Default", "#118ab2");
-        Sprint sprint5 = new Sprint(projectId, "Sprint 5", date.plusWeeks(12).plusDays(1), date.plusWeeks(15), "Default", "#219ebc");
-        Sprint sprint6 = new Sprint(projectId, "Sprint 6", date.plusWeeks(20).plusDays(1), date.plusWeeks(22), "Default", "#f48c06");
+        Sprint sprint1 = new Sprint(projectId, "Sprint 1", date, date.plusWeeks(3), "Default1", "#ef476f");
+        Sprint sprint2 = new Sprint(projectId, "Sprint 2", date.plusWeeks(3).plusDays(1), date.plusWeeks(6), "Default2", "#ffd166");
+        Sprint sprint3 = new Sprint(projectId, "Sprint 3", date.plusWeeks(6).plusDays(1), date.plusWeeks(9), "Default3", "#06d6a0");
+        Sprint sprint4 = new Sprint(projectId, "Sprint 4", date.plusWeeks(9).plusDays(1), date.plusWeeks(12), "Default4", "#118ab2");
+        Sprint sprint5 = new Sprint(projectId, "Sprint 5", date.plusWeeks(12).plusDays(1), date.plusWeeks(15), "Default5", "#219ebc");
+        Sprint sprint6 = new Sprint(projectId, "Sprint 6", date.plusWeeks(20).plusDays(1), date.plusWeeks(22), "Default6", "#f48c06");
         sprintRepository.save(sprint1);
         sprintRepository.save(sprint2);
         sprintRepository.save(sprint3);
@@ -131,7 +122,7 @@ public class PortfolioController {
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("portfolio");
         //TODO Change the below line so that it isn't just grabbing one single project?.
-        Project project = projectRepository.getProjectById(projectId);
+
 
         addModelAttributeProject(modelAndView, project, user);
 
@@ -159,11 +150,9 @@ public class PortfolioController {
                         sprint.addEvent(event);
                     }
                 }
-                if (eStart.isBefore(sStart) && eEnd.isAfter(sEnd)) {
-                    //Event spans over the entire sprint
-                    if(!sprint.getEventList().contains(event)) {
-                        sprint.addEvent(event);
-                    }
+                //Event spans over the entire sprint
+                if (eStart.isBefore(sStart) && eEnd.isAfter(sEnd) && !sprint.getEventList().contains(event)) {
+                    sprint.addEvent(event);
                 }
             }
         }

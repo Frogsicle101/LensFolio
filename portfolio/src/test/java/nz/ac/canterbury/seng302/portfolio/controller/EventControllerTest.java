@@ -36,11 +36,11 @@ class EventControllerTest {
 
 
     @Test
-    public void testAddEventNoReqParams() throws Exception {
+    void testAddEventNoReqParams() throws Exception {
         this.mockMvc.perform(put("/addEvent")).andExpect(status().isBadRequest());
     }
     @Test
-    public void testAddEventWithAllParams() throws Exception {
+    void testAddEventWithAllParams() throws Exception {
         project = projectRepository.getProjectByName("Project Default");
         HashMap<String, String> params = new HashMap<>();
         params.put("projectId", project.getId().toString());
@@ -53,7 +53,7 @@ class EventControllerTest {
     }
 
     @Test
-    public void testAddEventWithBadEventDateParams() throws Exception {
+    void testAddEventWithBadEventDateParams() throws Exception {
         project = projectRepository.getProjectByName("Project Default");
         HashMap<String, String> params = new HashMap<>();
         params.put("projectId", project.getId().toString());
@@ -67,7 +67,7 @@ class EventControllerTest {
 
 
     @Test
-    public void testAddEventWithBadProjectIdParams() throws Exception {
+    void testAddEventWithBadProjectIdParams() throws Exception {
         project = projectRepository.getProjectByName("Project Default");
         HashMap<String, String> params = new HashMap<>();
         params.put("projectId", "notCorrect");
@@ -83,7 +83,7 @@ class EventControllerTest {
 
 
     @Test
-    public void testAddEventWithNonExistingProject() throws Exception {
+    void testAddEventWithNonExistingProject() throws Exception {
         project = projectRepository.getProjectByName("Project Default");
         Long projectId = 1 + project.getId();
 

@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.events.Event;
 import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,8 +10,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @RestController
 public class EventController {
@@ -22,6 +25,7 @@ public class EventController {
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
     }
+
 
     @PutMapping("/addEvent")
     public ResponseEntity<String> deleteSprint(
@@ -35,10 +39,19 @@ public class EventController {
             // DateTimeFormatter.ISO_DATE_TIME helps parse that string by declaring its format.
             LocalDateTime eventStart = LocalDateTime.parse(start, DateTimeFormatter.ISO_DATE_TIME);
             LocalDateTime eventEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
+            Project project = projectRepository.getProjectById(projectId);
+            if (project == null) {
+                throw new EntityNotFoundException();
+            }
 
-            Event event = new Event(projectId, name, eventStart, eventEnd);
+            Event event = new Event(project, name, eventStart, eventEnd);
             eventRepository.save(event);
-            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        } catch(EntityNotFoundException err) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch(DateTimeParseException err) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch(Exception err) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

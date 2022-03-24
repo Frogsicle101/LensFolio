@@ -1,7 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.projects;
 
 import com.google.type.DateTime;
-import com.sun.istack.NotNull;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -17,6 +16,8 @@ public interface ProjectRepository extends CrudRepository<Project, Long> {
 
     @Query
     Project getProjectById(Long projectId);
+
+
 
     @Query
     Project getProjectByName(String projectName);

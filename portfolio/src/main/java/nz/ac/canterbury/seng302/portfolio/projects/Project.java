@@ -13,7 +13,6 @@ import java.time.LocalDate;
 public class Project {
 
     private @Id @GeneratedValue long id; // @Id lets JPA know it's the objects ID
-    private long plannerId;
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -25,14 +24,13 @@ public class Project {
     /**
      * Constructor for Project.
      *
-     * @param plannerId  The planner on which the project was created.
      * @param name        Name of project.
      * @param startDate  Start date of project.
      * @param endDate    End date of project.
      * @param description description of project.
      */
-    public Project(long plannerId, String name, LocalDate startDate, LocalDate endDate, String description) {
-        this.plannerId = plannerId;
+    public Project( String name, LocalDate startDate, LocalDate endDate, String description) {
+
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -45,9 +43,8 @@ public class Project {
      *
      * @param name Name of the Project.
      */
-    public Project(long plannerId, String name) {
+    public Project(String name) {
         LocalDate localDate = LocalDate.now();
-        this.plannerId = plannerId;
         this.name = name;
         this.startDate = localDate;
         this.endDate = localDate.plusMonths(8);
@@ -73,23 +70,7 @@ public class Project {
         this.id = id;
     }
 
-    /**
-     * Getter for Planner ID.
-     *
-     * @return long planner_id.
-     */
-    public long getPlannerId() {
-        return plannerId;
-    }
 
-    /**
-     * Setter for Planner ID.
-     *
-     * @param plannerId planner ID.
-     */
-    public void setPlannerId(long plannerId) {
-        this.plannerId = plannerId;
-    }
 
     /**
      * Getter for Name.
