@@ -6,14 +6,13 @@ import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.UUID;
 
 @RestController
 public class EventController {
@@ -28,7 +27,7 @@ public class EventController {
 
 
     @PutMapping("/addEvent")
-    public ResponseEntity<String> deleteSprint(
+    public ResponseEntity<String> addEvent(
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart")  String start,
@@ -57,4 +56,24 @@ public class EventController {
         }
 
     }
+
+
+    @DeleteMapping("/deleteEvent")
+    public ResponseEntity<String> deleteEvent(
+            @RequestParam(value = "eventId") UUID eventId
+    ) {
+        try{
+            Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(
+                    "Event with id " + eventId + "was not found"
+            ));
+            eventRepository.delete(event);
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        } catch(EntityNotFoundException err) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch(Exception err){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
