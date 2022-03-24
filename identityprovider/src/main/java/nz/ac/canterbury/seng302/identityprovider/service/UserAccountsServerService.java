@@ -236,6 +236,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         if (userToUpdate != null) {
             if (!userToUpdate.getRoles().contains(request.getRole())) {
                 userToUpdate.addRole(request.getRole());
+                repository.save(userToUpdate);
                 response.setIsSuccess(true)
                         .setMessage(true);
             } else {
@@ -277,6 +278,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 //The user has the role - so delete it
                 try {
                     userToUpdate.deleteRole(request.getRole());
+                    repository.save(userToUpdate);
                     logger.info("Role Removal Success - removed " + request.getRole()
                             +  " from user " + request.getUserId());
                     response.setIsSuccess(true)
