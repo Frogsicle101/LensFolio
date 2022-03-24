@@ -39,7 +39,6 @@ class EventControllerTest {
     public void testAddEventNoReqParams() throws Exception {
         this.mockMvc.perform(put("/addEvent")).andExpect(status().isBadRequest());
     }
-
     @Test
     public void testAddEventWithAllParams() throws Exception {
         project = projectRepository.getProjectByName("Project Default");
