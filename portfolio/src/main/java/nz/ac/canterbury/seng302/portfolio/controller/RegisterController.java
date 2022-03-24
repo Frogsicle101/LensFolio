@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,7 +65,7 @@ public class RegisterController {
             HttpServletRequest request,
             HttpServletResponse response,
             @ModelAttribute(name="registerForm") UserRequest userRequest,
-            Model model
+            ModelMap model
     ) {
         logger.info("POST REQUEST /register - attempt to register new user");
         // Make UserRegisterRequest and send to Server
