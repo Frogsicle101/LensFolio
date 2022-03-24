@@ -4,7 +4,7 @@
   <title>Lensfolio | Portfolio | Calendar</title>
   <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
           </th:block> /*/-->
-    <link rel="stylesheet" href="@{css/calendar.css}" />
+    <link rel="stylesheet" th:href="@{css/calendar.css}" />
     
 </head>
 <body>
@@ -20,12 +20,14 @@
       <div th:insert="fragments/general.html :: infoBox"> </div>
 
 
-      <p id="projectStartDate" th:text="${projectStartDate}"></p>
-      <p id="projectEndDate" th:text="${projectEndDate}"></p>
+      <p id="projectStartDate" th:text="${projectStartDate}" style="display: none;"></p>
+      <p id="projectEndDate" th:text="${projectEndDate}" style="display: none;"></p>
      <!-- <p id="sprints" th:text="${sprints}"></p> should it be 'text' or not ?-->
-      ${sprints}
       <div class="calendar" id="calendar"></div>
-      <script type="text/javascript" src="@{js/calendar.js}"></script>
+      <script type="application/javascript" th:src="@{js/calendar.js}">
+
+        
+      </script>
     </section>
   </body>
 </html>
