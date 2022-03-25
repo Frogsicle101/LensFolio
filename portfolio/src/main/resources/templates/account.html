@@ -1,47 +1,88 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
     <title>Lensfolio | Account</title>
-    <!-- The link to the css file, in thymeleaf format -->
-    <link th:href="@{account.css}" rel="stylesheet" />
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
 </head>
 <body>
-<div class="headerBar">
-    <span class="headerSpan">This is where the little bar at the top could be!</span>
-    <div class="dropdown">
-        <p class="username" th:text="${username}"></p>
-        <img th:src="@{defaultProfile.png}" alt="Your profile photo!" class="profilePic" id="profile" onclick="toggleDropDown()">
-        <!-- Here's our on-click script -->
-        <script>
-            function toggleDropDown() {
-                document.getElementById("dropdownContent").classList.toggle("show");
-            }
-        </script>
-        <!-- And now back to our regularly scheduled HTML -->
-        <div class="dropdown-content" id="dropdownContent">
-            <a class="logout" href="/logout">Log Out</a><br>
-            <a class="edit" th:href="@{/edit}">Edit Details</a><br>
-            <a class="account" th:href="@{/account}">Account</a>
-        </div>
+<header th:insert="fragments/general.html :: header"> </header>
+<section class="accountBody">
+    <div class="accountInfo">
+        <form th:action="@{/edit/details}" th:object="${editDetailsForm}" method="post">
+            <h1>Personal Information</h1>
+
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="FirstName" class="form-label">First name</label>
+                    <input type="text" class="form-control canDisable"name="firstname" id="FirstName" th:value="${user.firstName}" required disabled>
+                </div>
+                <div class="col">
+                    <label for="MiddleName" class="form-label">Middle name</label>
+                    <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${user.middleName}" disabled required>
+                </div>
+                <div class="col">
+                    <label for="LastName" class="form-label">Last name</label>
+                    <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${user.lastName}" disabled  required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="nickname" class="form-label">Nickname</label>
+                <input type="text" class="form-control canDisable" name="nickname" id="nickname" th:value="${user.nickname}" maxlength="100" disabled required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" th:value="${user.username}" maxlength="100" disabled required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" class="form-control canDisable" id="email" name="email" th:value="${user.email}" maxlength="100" disabled required>
+            </div>
+            <div class="mb-3">
+                <div class="mb-3">
+                    <label for="bio" class="form-label">User Bio</label>
+                    <textarea  class="form-control canDisable" id="bio" name="bio" th:text="${user.bio}" maxlength="300" disabled required></textarea>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col">
+
+                    <label for="roles" class="form-label">Roles</label>
+                    <input type="text" class="form-control" name="roles" id="roles" th:value="${roles}" disabled>
+                </div>
+                <div class="col">
+                    <label for="personalPronouns" class="form-label">Pronouns</label>
+                    <input type="text" class="form-control canDisable" id="personalPronouns" name="personalPronouns" th:value="${user.personalPronouns}" maxlength="100" disabled>
+                </div>
+            </div>
+            <div class="mb-3">
+                <p class="membersince" th:text="'Member since: ' + ${membersince}"></p>
+            </div>
+            <button type="submit" class="btn btn-primary canDisable" disabled>Submit</button>
+            <button type="button" class="btn btn-secondary editUserButton" >Edit</button>
+
+        </form>
+        <hr class="mt-3 mb-3">
+        <form method="post" th:action="@{/edit/password}" th:object="${editPasswordForm}">
+            <h1>Change Password</h1>
+            <div class="mb-3">
+                <label for="OldPassword" class="form-label">Old password</label>
+                <input type="password" class="form-control canDisable" name="old password" id="OldPassword" th:field="*{oldPassword}" maxlength="100" required disabled>
+            </div>
+            <div class="mb-3">
+                <label for="NewPassword" class="form-label">New password</label>
+                <input class="form-control canDisable" type="password" name="new password" id="NewPassword" th:field="*{newPassword}" required disabled>
+            </div>
+            <div class="mb-3">
+                <label for="ConfirmPassword" class="form-label">Confirm password</label>
+                <input class="form-control canDisable"  type="password" name="new password" id="ConfirmPassword" th:field="*{confirmPassword}" required disabled>
+            </div>
+            <button type="submit" class="btn btn-primary canDisable canDisable" disabled>Change</button>
+        </form>
+
     </div>
-</div>
-<div>
-    Here are the details of your user account!
-    <!-- An empty message that gets populated if we encounter errors -->
-    <p class="error" th:text="${errormessage}"></p>
-    <!--
-    These are variables given to us by AccountController
-    We are then displaying them as plaintext
-    The classes of these are for css editing
-    -->
-    <p class="email" th:text="${email}"></p>
-    <p class="fullname" th:text="${fullname}"></p>
-    <p class="nickname" th:text="${nickname}"></p>
-    <p class="pronouns" th:text="${pronouns}"></p>
-    <p class="userbio" th:text="${userBio}"></p>
-    <p class="roles" th:text="${roles}"></p>
-    <p class="membersince" th:text="${membersince}"></p>
-</div>
+</section>
+
 </body>
 </html>

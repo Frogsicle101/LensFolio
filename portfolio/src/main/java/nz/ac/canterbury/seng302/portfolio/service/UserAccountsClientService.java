@@ -1,14 +1,16 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
+import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.io.*;
+import java.util.ArrayList;
 
 /**
  * The UserAccountsClientServices class implements the functionality of the services outlined
@@ -24,7 +26,9 @@ public class UserAccountsClientService {
     private UserAccountServiceGrpc.UserAccountServiceBlockingStub userAccountStub;
 
     @GrpcClient(value = "identity-provider-grpc-server")
-    private UserAccountServiceGrpc.UserAccountServiceStub nonBlockingStub;
+    private UserAccountServiceGrpc.UserAccountServiceStub asynchStub;
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Sends a request to the UserAccountsServerService containing the id of a user, requesting the users account details.
@@ -67,18 +71,44 @@ public class UserAccountsClientService {
     }
 
     /**
-     * Takes a list of request chunks built in the controller and sends them one by on to the server.
-     * Note the first chunk should be metadata and the rest file data.
-     *
-     * @param requestChunks -  the List<UploadUserProfilePhotoRequest> containing the image data chunks.
+     * This function is the server side of a bidirctional stream for sending the photos over gRPC. It calls a function
+     * in UserAccountServerService which returns a StreamObserver, that is then used to send the file data.
+     * <br>
+     * @param photo - A File object containing a photo
+     * @param userId - The id of the user
+     * @param fileType - The file extension of the photo
+     * @throws IOException if reading the photo fails
      */
-    public void uploadUserProfilePhoto(List<UploadUserProfilePhotoRequest> requestChunks) {
+    public void uploadProfilePhoto(File photo, int userId, String fileType) throws IOException {
+        logger.info("Uploading profile photo");
+        ArrayList<UploadUserProfilePhotoRequest> requestChunks = new ArrayList<UploadUserProfilePhotoRequest>();
+
+        ProfilePhotoUploadMetadata metadata = ProfilePhotoUploadMetadata.newBuilder()
+                .setUserId(userId)
+                .setFileType(fileType)
+                .build();
+
+
+        requestChunks.add(UploadUserProfilePhotoRequest.newBuilder()
+                .setMetaData(metadata)
+                .build()
+        );
+        // Send file, split into 4KiB chunks
+        InputStream inputStream = new FileInputStream(photo);
+        byte[] bytes = new byte[4096];
+        int size;
+        while ((size = inputStream.read(bytes)) > 0){
+            UploadUserProfilePhotoRequest uploadRequest = UploadUserProfilePhotoRequest.newBuilder()
+                    .setFileContent(ByteString.copyFrom(bytes, 0 , size))
+                    .build();
+            requestChunks.add(uploadRequest);
+        }
+        inputStream.close();
 
         ImageResponseStreamObserver responseObserver = new ImageResponseStreamObserver();
-        StreamObserver<UploadUserProfilePhotoRequest> requestObserver = nonBlockingStub.uploadUserProfilePhoto(responseObserver);
+        StreamObserver<UploadUserProfilePhotoRequest> requestObserver = asynchStub.uploadUserProfilePhoto(responseObserver);
         responseObserver.initialise(requestObserver);
         responseObserver.sendImage(requestChunks);
-        // may want to return the results from the sendImage method.
 
     }
 }

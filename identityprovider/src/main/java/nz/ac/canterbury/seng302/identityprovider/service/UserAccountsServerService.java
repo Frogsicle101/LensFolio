@@ -1,7 +1,5 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
-import com.google.protobuf.ByteString;
-import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -9,15 +7,12 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
-import nz.ac.canterbury.seng302.shared.util.FileUploadStatus;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 
 /**
@@ -32,7 +27,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     /** The repository where Users details are stored */
     @Autowired
     private UserRepository repository;
-
 
 
     /**
@@ -56,8 +50,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setBio(user.getBio())
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime()
-                );
+                .setCreated(user.getAccountCreatedTime())
+                .setProfileImagePath(user.getProfileImagePath()
+        );
 
 
         // To add all the users roles to the response
@@ -66,8 +61,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             reply.addRoles(role);
         }
 
-//                .setProfileImagePath(user.profileImagePath())
-//                .setRoles(user.getRoles())
+//                .
 
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
@@ -99,7 +93,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     TimeService.getTimeStamp());
 
 
-            if (repository.findByUsername(user.getUsername()) == null) {
+                if (repository.findByUsername(user.getUsername()) == null) {
                 repository.save(user);
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())
@@ -116,6 +110,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
+
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to edit the details of a user.

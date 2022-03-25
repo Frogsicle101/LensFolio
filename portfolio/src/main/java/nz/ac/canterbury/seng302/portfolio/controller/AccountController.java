@@ -1,19 +1,25 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
+import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.service.ReadableTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+
 
 /**
  * Controller class for the account page
@@ -30,7 +36,7 @@ public class AccountController {
      * This method is responsible for populating the account page template
      * It adds in variables to the html template, as well as the values of those variables
      * It then returns the 'filled in' html template, to be displayed in a web browser
-     *
+     * <p>
      * Once a user class is created, we will want to supply this page with the specific user that is viewing it
      *
      * @param model Parameters sent to thymeleaf template to be rendered into HTML
@@ -39,56 +45,40 @@ public class AccountController {
     @RequestMapping("/account")
     public String account(
             @AuthenticationPrincipal AuthState principal,
-            Model model
-    ) {
+            ModelMap model,
+            HttpServletRequest request,
+            @ModelAttribute(name = "editDetailsForm") UserRequest editInfo,
+            @ModelAttribute(name = "editPasswordForm") PasswordRequest passInfo,
+            @ModelAttribute(name = "detailChangeMessage") String detailChangeMessage,
+            @ModelAttribute(name = "passwordChangeMessage") String passwordChangeMessage
+    ) throws IOException {
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        int id = Integer.parseInt(PrincipalAttributes.getClaim(principal,"nameid"));
 
-        addModelAttributes(principal, model);
-      return "account";
-    }
+        userAccountsClientService.uploadProfilePhoto(new File("src/main/resources/frog.jpg"), id, "jpg");
 
-    /**
-     * Helper function to add attributes to the model
-     * Given a Thymeleaf model, adds a bunch of attributes into it
-     *
-     * This is really just to make the code a bit nicer to look at
-     * @param model The model you're adding attributes to
-     */
-    private void addModelAttributes(
-            AuthState principal,
-            Model model) {
-        /*
-        These addAttribute methods inject variables that we can use in our html file
-        Their values have been hard-coded for now, but they can be the result of functions!
-        ideally, these would be functions like getUsername and so forth
-         */
-        int id = Integer.parseInt(principal.getClaimsList().stream()
-                .filter(claim -> claim.getType().equals("nameid"))
-                .findFirst()
-                .map(ClaimDTO::getValue)
-                .orElse("NOT FOUND"));
-        GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
-        request.setId(id);
-        UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
-        model.addAttribute("username", "Username: " + userResponse.getUsername());
-        model.addAttribute("email", "Email: " + userResponse.getEmail());
-        String fullname = userResponse.getFirstName() + " " + userResponse.getMiddleName() + " " + userResponse.getLastName();
-        model.addAttribute("fullname", "Name: " + fullname.replaceAll(" +", " "));
-        model.addAttribute("nickname", "Nickname: " + userResponse.getNickname());
-        model.addAttribute("pronouns", "Pronouns: " + userResponse.getPersonalPronouns());
-        model.addAttribute("userBio", "Bio: " + userResponse.getBio());
+        model.addAttribute("user", user);
+
+        String ip = request.getLocalAddr();
+        String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
+
+
+        model.addAttribute("profileImageUrl", url);
+
         String rolesList = "";
-        for (int i = 0; i < userResponse.getRolesCount(); i++) {
-            rolesList += userResponse.getRoles(i) + "  ";
+        for (int i = 0; i < user.getRolesCount(); i++) {
+            rolesList += user.getRoles(i) + "  ";
         }
-        model.addAttribute("roles", "Roles: " + rolesList);
+        model.addAttribute("roles", rolesList);
 
-        String memberSince = "Member Since: "
-                + ReadableTimeService.getReadableDate(userResponse.getCreated())
-                + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
+        String memberSince =
+                ReadableTimeService.getReadableDate(user.getCreated())
+                        + " (" + ReadableTimeService.getReadableTimeSince(user.getCreated()) + ")";
         model.addAttribute("membersince", memberSince);
-        //TODO: The value of this should be set to any error messages that occur
-        model.addAttribute("errormessage", "");
 
-
+        return "account";
     }
 }
+
+
+

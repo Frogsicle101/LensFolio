@@ -1,31 +1,41 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-    <head>
-        <title>Lensfolio | Log In</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link th:href="@{css/login.css}" rel="stylesheet" />
-    </head>
-    <body style="width: 50%; margin: auto;">
-        <h1>Lensfolio</h1>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lensfolio | Login</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
 
-        <h2>Login</h2>
-        <p th:text="${loginMessage}" class="loginMessage"></p>
+</head>
+<body>
+<header >
+</header>
+
+<section class="loginSection">
+    <div class="logoBox">
+        <h1 class="logo">Lensfolio</h1>
+    </div>
+    <div class="loginBox">
+        <div th:insert="fragments/general.html :: errorBox"> </div>
         <form th:action="@{/login}" th:object="${loginForm}"  method="post">
+            <h1 class="signIn">Sign In</h1>
 
-            <div class="loginBoxes">
-                <label for="username">Username:</label>
-                <input type="text" name="username" id="username"><br>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control canDisable" name="username" id="username" maxlength="50" required>
             </div>
-            <div class="loginBoxes">
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password"><br>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" name="password" id="password" maxlength="100" required>
             </div>
-            <input type="submit" value="Login">
+
+            <button type="submit" class="btn btn-primary canDisable" >Submit</button>
+
         </form>
-
         <hr>
+        <p>Click <a th:href="@{/register}">here</a> to register a new user</p>
+    </div>
 
-        <h2>Register</h2>
-        <p>Click <a href="/register">here</a> to register a new user</p>
+</section>
+
     </body>
 </html>
