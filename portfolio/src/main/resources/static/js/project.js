@@ -72,7 +72,7 @@ $(document).ready(() => {
             type: "put",
             data: eventData,
             success: function(response) {
-                location.href = "/portfolio"
+                location.href = "/portfolio?projectId=" + projectId
             },
             error: function(response) {
 
