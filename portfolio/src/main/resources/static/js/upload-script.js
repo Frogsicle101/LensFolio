@@ -18,7 +18,16 @@ $(function () {
 function imageIsLoaded(event) {
     const imgElement = document.getElementById('profileImagePreview');
     $('#profileImagePreview').attr('src', event.target.result);
-    document.querySelector("#size").innerHTML = bytesToSize(imgElement.size);
+    const imgSrc = document.getElementById(imageId).attr('src');
+    // Convert image to blob to get file size
+    fetch(imgSrc)
+        .then(function(response) {
+            return response.blob()
+        })
+        .then(function(blob) {
+            document.querySelector("#size").innerHTML = bytesToSize(blob.size);
+        });
+
 }
 
 
@@ -29,7 +38,8 @@ function imageIsLoaded(event) {
  * @param newHeight Desired new height in pixels
  */
 function resizeImage(imageId,newWidth, newHeight) {
-    let imgToCompress = document.getElementById(imageId);
+    const imgToCompress = document.getElementById(imageId);
+    const formDataURLField = document.getElementById("formDataURLField");
     const quality = 0.8; // A value from 0 - 1
 
     // resizing the image
@@ -53,6 +63,7 @@ function resizeImage(imageId,newWidth, newHeight) {
             if (blob) {
                 // showing the compressed image
                 imgToCompress.src = URL.createObjectURL(blob);
+                formDataURLField.setAttribute("imageURLFromJavascript", imgToCompress.src);
                 document.querySelector("#size").innerHTML = bytesToSize(blob.size); // Sends image size to upload form
                 imgFileBlob = blob;
             }
@@ -63,6 +74,9 @@ function resizeImage(imageId,newWidth, newHeight) {
 }
 
 function sendImagePostRequest(imageId, clientToken) {
+    const fileSrc = document.getElementById('profileImageInput');
+    const fileExt = fileSrc.files[0].type;
+    alert(fileExt);
     const imgSrc = document.getElementById(imageId).attr('src');
     fetch(imgSrc)
         .then(function(response) {
@@ -71,8 +85,9 @@ function sendImagePostRequest(imageId, clientToken) {
         .then(function(blob) {
             const formdata = new FormData();
             formdata.append("image", blob);
+            formdata.append("fileExt", fileExt);
         });
-    fetch("http://localhost:9000/image", {
+    fetch("http://localhost:9000/upload", {
         method: "POST",
         headers: {
             Accept: "application/json",
