@@ -51,6 +51,8 @@ $(document).ready(() => {
         $(".addEventSvg").toggleClass('rotated');
         $(".eventForm").slideToggle();
 
+
+
     })
 
 
@@ -98,6 +100,15 @@ $(document).ready(() => {
         }
 
     }
+
+    setAddSprintButtonPlacement()
+
+    function setAddSprintButtonPlacement() {
+        $(".addSprint").css("left", $(".eventContainer").width() + "px")
+        $(".addSprint").css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
+    }
+
+
 
 
 

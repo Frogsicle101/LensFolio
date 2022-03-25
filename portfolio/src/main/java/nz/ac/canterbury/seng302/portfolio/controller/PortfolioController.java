@@ -86,9 +86,9 @@ public class PortfolioController {
 
     public void createDefaultSprints(Project project) {
         LocalDate date = LocalDate.now();
-        Sprint sprint1 = new Sprint(project, "Sprint 1", date, date.plusWeeks(3), "Default1", "#ef476f");
-        Sprint sprint2 = new Sprint(project, "Sprint 2", date.plusWeeks(3).plusDays(1), date.plusWeeks(6), "Default2", "#ffd166");
-        Sprint sprint3 = new Sprint(project, "Sprint 3", date.plusWeeks(6).plusDays(1), date.plusWeeks(9), "Default3", "#06d6a0");
+        Sprint sprint1 = new Sprint(project, "Sprint 1", date, date.plusWeeks(3), "Default1", "#0066cc");
+        Sprint sprint2 = new Sprint(project, "Sprint 2", date.plusWeeks(3).plusDays(1), date.plusWeeks(6), "Default2", "#ffcc00");
+        Sprint sprint3 = new Sprint(project, "Sprint 3", date.plusWeeks(6).plusDays(1), date.plusWeeks(9), "Default3", "#f48c06");
         Sprint sprint4 = new Sprint(project, "Sprint 4", date.plusWeeks(9).plusDays(1), date.plusWeeks(12), "Default4", "#118ab2");
         Sprint sprint5 = new Sprint(project, "Sprint 5", date.plusWeeks(12).plusDays(1), date.plusWeeks(15), "Default5", "#219ebc");
         Sprint sprint6 = new Sprint(project, "Sprint 6", date.plusWeeks(20).plusDays(1), date.plusWeeks(22), "Default6", "#f48c06");
