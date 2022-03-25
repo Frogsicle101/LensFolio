@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.sprints;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.Project;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -10,8 +11,11 @@ import java.util.UUID;
 
 @Entity // This maps Sprint to a table in the Db called "Sprint"
 public class Sprint {
-    private @Id UUID id; // @Id lets JPA know it's the objects ID
-    private long projectId;
+    private @Id
+    UUID id; // @Id lets JPA know it's the objects ID
+
+    @ManyToOne
+    private Project project;
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -20,20 +24,22 @@ public class Sprint {
     @OneToMany
     private List<Event> eventList;
 
-    protected Sprint() {}
+    protected Sprint() {
+    }
 
     /**
      * Constructor for Sprint
-     * @param projectId Project the sprint belongs to.
-     * @param name Name of sprint.
-     * @param startDate Start date of sprint.
-     * @param endDate End date of sprint.
+     *
+     * @param project     Project the sprint belongs to.
+     * @param name        Name of sprint.
+     * @param startDate   Start date of sprint.
+     * @param endDate     End date of sprint.
      * @param description description of sprint.
-     * @param colour colour of sprint.
+     * @param colour      colour of sprint.
      */
-    public Sprint(long projectId, String name, LocalDate startDate, LocalDate endDate, String description, String colour) {
+    public Sprint(Project project, String name, LocalDate startDate, LocalDate endDate, String description, String colour) {
         this.id = UUID.randomUUID();
-        this.projectId = projectId;
+        this.project = project;
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -43,13 +49,14 @@ public class Sprint {
 
     /**
      * Default Constructor for Sprint
-     * @param projectId Project the sprint belongs too.
-     * @param name Name of the Sprint.
+     *
+     * @param project Project the sprint belongs too.
+     * @param name    Name of the Sprint.
      */
-    public Sprint(long projectId, String name, LocalDate startDate) {
+    public Sprint(Project project, String name, LocalDate startDate) {
 
         this.id = UUID.randomUUID();
-        this.projectId = projectId;
+        this.project = project;
         this.name = name;
         this.startDate = startDate;
         this.endDate = (startDate).plusWeeks(3);
@@ -59,7 +66,7 @@ public class Sprint {
 
     }
 
-    public void addEvent(Event event){
+    public void addEvent(Event event) {
         eventList.add(event);
     }
 
@@ -71,58 +78,7 @@ public class Sprint {
         this.eventList = eventList;
     }
 
-    /**
-     * Getter for Id
-     * @return UUID id.
-     */
-    public UUID getId() {
-        return id;
-    }
 
-    /**
-     * Setter for Id
-     * @param id UUID id
-     */
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    /**
-     * Getter for project id
-     * @return long projectId
-     */
-    public long getProjectId() {
-        return projectId;
-    }
-
-    /**
-     * Setter for project id
-     * @param projectId ProjectId
-     */
-    public void setProjectId(long projectId) {
-        this.projectId = projectId;
-    }
-
-    /**
-     * Getter for Name.
-     * @return name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Setter for Name.
-     * @param name Name.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Getter for Start Date
-     * @return Start Date
-     */
     public LocalDate getStartDate() {
         return startDate;
     }
@@ -135,59 +91,56 @@ public class Sprint {
         return endDate.format(DateTimeFormat.dayDateMonthYear());
     }
 
-    /**
-     * Setter for Start Date.
-     * @param start_date Start Date.
-     */
-    public void setStartDate(LocalDate start_date) {
-        this.startDate = start_date;
+    public UUID getId() {
+        return id;
     }
 
-    /**
-     * Getter for End Date
-     * @return End Date
-     */
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
     public LocalDate getEndDate() {
         return endDate;
     }
 
-    /**
-     * Setter for End Date.
-     * @param end_date End Date.
-     */
-    public void setEndDate(LocalDate end_date) {
-        this.endDate = end_date;
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
-    /**
-     * Getter for Description.
-     * @return Description.
-     */
     public String getDescription() {
         return description;
     }
 
-    /**
-     * Setter for Description.
-     * @param description Description
-     */
     public void setDescription(String description) {
         this.description = description;
     }
 
-    /**
-     * Getter for Colour
-     * @return Colour
-     */
     public String getColour() {
         return colour;
     }
 
-    /**
-     * Setter for Colour
-     * @param colour Colour
-     */
     public void setColour(String colour) {
         this.colour = colour;
     }
 }
+

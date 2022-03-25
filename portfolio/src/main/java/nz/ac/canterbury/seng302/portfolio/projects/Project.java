@@ -122,8 +122,8 @@ public class Project {
      *
      * @return Project start date.
      */
-    public String getStartDate() {
-        return startDate.toString();
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
     public String getStartDateFormatted(){

@@ -17,31 +17,32 @@
         <div th:insert="fragments/general.html :: successBox"> </div>
         <div th:insert="fragments/general.html :: infoBox"> </div>
         <h1>Edit Sprint</h1>
-        <input type="text" name="sprintId" style="display: none" id="sprintId" th:value="${sprintId}">
+        <input type="text" name="sprintId" style="display: none" id="sprintId" th:value="${sprint.getId()}">
         <div class="row">
             <div class="col">
                 <label for="sprintName" class="form-label">Sprint Name</label>
-                <input type="text" class="form-control canDisable" name="sprintName" id="sprintName" th:value="${sprintName}" required >
+                <input type="text" class="form-control canDisable" name="sprintName" id="sprintName" th:value="${sprint.getName()}" required >
             </div>
             <div class="col">
                 <label for="sprintColour" class="form-label">Colour picker</label>
-                <input type="color" class="form-control form-control-color" id="sprintColour" name="sprintColour" th:value="${sprintColour}" title="Choose your sprint colour" required>
+                <input type="color" class="form-control form-control-color" id="sprintColour" name="sprintColour" th:value="${sprint.getColour()}" title="Choose your sprint colour" required>
             </div>
         </div>
 
         <div class="row">
             <div class="col">
-                <label for="sprintStartDate" class="form-label">Project Start</label>
-                <input type="date" class="form-control canDisable" name="sprintStartDate" id="sprintStartDate" th:value="${sprintStart}" required>
+                <label for="sprintStartDate" class="form-label">Sprint Start</label>
+                <input type="date" class="form-control canDisable" name="sprintStartDate" th:min="${previousSprintEnd}" th:max="${nextSprintStart}" id="sprintStartDate" th:value="${sprint.getStartDate()}" required>
+
             </div>
             <div class="col">
-                <label for="sprintEndDate" class="form-label">Project End</label>
-                <input type="date" class="form-control canDisable" name="sprintEndDate" id="sprintEndDate" th:value="${sprintEnd}" required>
+                <label for="sprintEndDate" class="form-label">Sprint End</label>
+                <input type="date" class="form-control canDisable" name="sprintEndDate" id="sprintEndDate" th:min="${previousSprintEnd}" th:max="${nextSprintStart}" th:value="${sprint.getEndDate()}" required>
             </div>
         </div>
         <div class="mb-3">
-            <label for="sprintDescription" class="form-label">Project Description</label>
-            <textarea class="form-control canDisable" name="sprintDescription" id="sprintDescription" th:text="${sprintDescription}"></textarea>
+            <label for="sprintDescription" class="form-label">Sprint Description</label>
+            <textarea class="form-control canDisable" name="sprintDescription" id="sprintDescription" th:text="${sprint.getDescription()}"></textarea>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
         <button type="button" onclick="history.back()" class="btn btn-danger" >Cancel</button>

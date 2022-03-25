@@ -2,13 +2,13 @@ $(document).ready(() => {
     //Gets the project Id
     const projectId = $("#projectId").html()
 
-
+    console.log(projectId)
     /**
      * When project edit button is clicked.
      * Redirect page.
      */
     $("#projectEditSprint").click(() => {
-        location.href = "/editProject?projectId=" + projectId;
+        location.href = "/editProject?projectId=" + projectId ;
     })
     /**
      * When project add sprint button is pressed.
@@ -25,7 +25,7 @@ $(document).ready(() => {
      */
     $(".editSprint").click(function () {
         let sprintId = $(this).closest(".sprint").find(".sprintId").text();
-        location.href = "/sprintEdit?sprintId=" + $(this).closest(".sprint").find(".sprintId").text();
+        location.href = "/sprintEdit?sprintId=" + $(this).closest(".sprint").find(".sprintId").text() +"&projectId=" + projectId;
     })
 
     /**
@@ -40,7 +40,7 @@ $(document).ready(() => {
             type: "DELETE",
             data: {"sprintId": sprintId},
         }).done(function () {
-            location.href = "/portfolio"
+            location.href = "/portfolio?projectId=" + projectId
         })
     })
 

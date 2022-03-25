@@ -52,7 +52,6 @@ public class PortfolioController {
 
 
 
-
     /**
      * Constructor for PortfolioController
      * @param sprintRepository repository
@@ -66,7 +65,7 @@ public class PortfolioController {
         //Below are only for testing purposes.
         this.defaultProject = projectRepository.save(new Project("Project Default"));
         createDefaultEvents(defaultProject);
-        createDefaultSprints(defaultProject.getId());
+        createDefaultSprints(defaultProject);
     }
 
 
@@ -85,14 +84,14 @@ public class PortfolioController {
         eventRepository.save(event4);
     }
 
-    public void createDefaultSprints(long projectId) {
+    public void createDefaultSprints(Project project) {
         LocalDate date = LocalDate.now();
-        Sprint sprint1 = new Sprint(projectId, "Sprint 1", date, date.plusWeeks(3), "Default1", "#ef476f");
-        Sprint sprint2 = new Sprint(projectId, "Sprint 2", date.plusWeeks(3).plusDays(1), date.plusWeeks(6), "Default2", "#ffd166");
-        Sprint sprint3 = new Sprint(projectId, "Sprint 3", date.plusWeeks(6).plusDays(1), date.plusWeeks(9), "Default3", "#06d6a0");
-        Sprint sprint4 = new Sprint(projectId, "Sprint 4", date.plusWeeks(9).plusDays(1), date.plusWeeks(12), "Default4", "#118ab2");
-        Sprint sprint5 = new Sprint(projectId, "Sprint 5", date.plusWeeks(12).plusDays(1), date.plusWeeks(15), "Default5", "#219ebc");
-        Sprint sprint6 = new Sprint(projectId, "Sprint 6", date.plusWeeks(20).plusDays(1), date.plusWeeks(22), "Default6", "#f48c06");
+        Sprint sprint1 = new Sprint(project, "Sprint 1", date, date.plusWeeks(3), "Default1", "#ef476f");
+        Sprint sprint2 = new Sprint(project, "Sprint 2", date.plusWeeks(3).plusDays(1), date.plusWeeks(6), "Default2", "#ffd166");
+        Sprint sprint3 = new Sprint(project, "Sprint 3", date.plusWeeks(6).plusDays(1), date.plusWeeks(9), "Default3", "#06d6a0");
+        Sprint sprint4 = new Sprint(project, "Sprint 4", date.plusWeeks(9).plusDays(1), date.plusWeeks(12), "Default4", "#118ab2");
+        Sprint sprint5 = new Sprint(project, "Sprint 5", date.plusWeeks(12).plusDays(1), date.plusWeeks(15), "Default5", "#219ebc");
+        Sprint sprint6 = new Sprint(project, "Sprint 6", date.plusWeeks(20).plusDays(1), date.plusWeeks(22), "Default6", "#f48c06");
         sprintRepository.save(sprint1);
         sprintRepository.save(sprint2);
         sprintRepository.save(sprint3);
@@ -107,12 +106,7 @@ public class PortfolioController {
 
 
 
-    /**
-     * Main entry point for portfolio.
-     *
-     * @param principal The authentication state
-     * @return Thymeleaf template
-     */
+
     @GetMapping("/portfolio")
     public ModelAndView getPortfolio(
                                   @AuthenticationPrincipal AuthState principal,
@@ -133,6 +127,7 @@ public class PortfolioController {
             //View that we are going to return.
             ModelAndView modelAndView = new ModelAndView("portfolio");
 
+            // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
             List<UserRole> roles = user.getRolesList();
             if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
                 modelAndView.addObject("userCanEdit", true);
@@ -157,6 +152,9 @@ public class PortfolioController {
             //Add the user object to the view to be accessed on the front end.
             modelAndView.addObject("username", user.getUsername());
 
+            //TESTING PURPOSES. Passes the projectId to the front end. This will be removed when there is a way
+            //to have each user select what project they want to go to from the navbar.
+            modelAndView.addObject("projectId", projectId);
 
 
             return modelAndView;
@@ -170,15 +168,7 @@ public class PortfolioController {
 
     }
 
-    /**
-     * Mapping for /editProject
-     * Retrieves the Project from the project repository by the id passed in with request parameters.
-     * Calls helper function and returns thymeleaf template.
-     *
-     * @param principal The authentication state
-     * @param projectId Id of project
-     * @return a thymeleaf template
-     */
+
     @RequestMapping("/editProject")
     public ModelAndView edit(
             @AuthenticationPrincipal AuthState principal,
@@ -215,77 +205,82 @@ public class PortfolioController {
     }
 
 
-    /**
-     * Mapping for /projectEdit
-     * Called when user has edited a project and hit submit.
-     * Gets the correct project and updates all the information and redirects user back to main page
-     * @param editInfo the thymeleaf-created form object
-     * @return a redirect to portfolio
-     */
+
     @PostMapping("/projectEdit")
     public ModelAndView editDetails(
             @ModelAttribute(name="editProjectForm") ProjectRequest editInfo,
             RedirectAttributes attributes
     ) {
         try {
+
             LocalDate projectStart = LocalDate.parse(editInfo.getProjectStartDate());
             LocalDate projectEnd = LocalDate.parse(editInfo.getProjectEndDate());
-            Project project = projectRepository.getProjectById(Long.parseLong(editInfo.getProjectId()));
+
+
+            Project project = projectRepository.findById(Long.parseLong(editInfo.getProjectId())).orElseThrow(() -> new EntityNotFoundException(
+                    "Project with id " + editInfo.getProjectId() + "was not found"
+            ));
+
+            //Updates the project's details
             project.setName(editInfo.getProjectName());
             project.setStartDate(projectStart);
             project.setEndDate(projectEnd);
             project.setDescription(editInfo.getProjectDescription());
             projectRepository.save(project);
+
+            // Adds success message that is shown on the frontend after redirect
             attributes.addFlashAttribute(successMessage, "Project Updated!");
-        } catch(Exception err) {
-           attributes.addFlashAttribute(errorMessage, err);
+
+        } catch(EntityNotFoundException err) {
+            attributes.addFlashAttribute(errorMessage, err.getMessage());
+        }catch(Exception err) {
+           return new ModelAndView("errorPage").addObject(errorMessage, err);
         }
-        return new ModelAndView("redirect:/portfolio");
+        return new ModelAndView("redirect:/portfolio?projectId=" + editInfo.getProjectId());
     }
 
 
 
 
-    /**
-     * Mapping for POST request "addSprint"
-     * @param projectId the project in which you want to add sprint too.
-     * @return Returns JSON of Sprint Object
-     */
+
     @GetMapping("/portfolio/addSprint")
     public ModelAndView addSprint(
-            @RequestParam (value = "projectId") String projectId,
+            @RequestParam (value = "projectId") Long projectId,
             RedirectAttributes attributes)  {
         try {
-            long longProjectId = Long.parseLong(projectId);
-            int amountOfSprints = sprintRepository.findAllByProjectId(longProjectId).size() + 1;
-            String sprintName = "Sprint " + amountOfSprints;
-            LocalDate startDate;
 
-            //If there are sprints in the repository, start date of added sprint is after the last sprints end date.
-            if (sprintRepository.count() > 0) {
-                Iterable<Sprint> sprints = sprintRepository.findAll();
-                LocalDate prevSprintEndDate = null;
-                for (Sprint sprint:sprints) {
-                    if (prevSprintEndDate == null){
-                        prevSprintEndDate = sprint.getEndDate();
-                    } else {
-                        if (sprint.getEndDate().isAfter(prevSprintEndDate)) {
-                            prevSprintEndDate = sprint.getEndDate();
-                        }
-                    }
-                }
-                assert prevSprintEndDate != null;
-                startDate = prevSprintEndDate.plusDays(1);
-            } else {
-                startDate = LocalDate.now();
+            // Gets the amount of sprints belonging to the project
+            int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
+            String sprintName = "Sprint " + amountOfSprints;
+
+
+            Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
+                    "Project with id " + projectId.toString() + " was not found"
+            ));
+
+            // Initially startDate is set to the projects start date.
+            LocalDate startDate = project.getStartDate();
+
+            //If there are sprints in the repository, startDate is set to the day after the last sprint.
+            List<Sprint> sprintList = sprintRepository.getAllByProjectOrderByEndDateDesc(project);
+            if (!sprintList.isEmpty()) {
+                startDate = sprintList.get(0).getEndDate().plusDays(1);
             }
-            sprintRepository.save(new Sprint(longProjectId, sprintName, startDate));
+
+            //Save the new sprint
+            sprintRepository.save(new Sprint(project, sprintName, startDate));
+
             attributes.addFlashAttribute(successMessage, "Sprint added!");
-        } catch(Exception err) {
+
+        } catch(EntityNotFoundException err) {
+            attributes.addFlashAttribute(errorMessage, err.getMessage());
+            return new ModelAndView("error");
+        }catch(Exception err) {
             attributes.addFlashAttribute(errorMessage, err);
+            return new ModelAndView("error");
         }
 
-        return new ModelAndView("redirect:/portfolio");
+        return new ModelAndView("redirect:/portfolio?projectId=" + projectId);
     }
 
     /**
@@ -299,19 +294,69 @@ public class PortfolioController {
     public ModelAndView sprintEdit(
             @AuthenticationPrincipal AuthState principal,
             @RequestParam (value = "sprintId") String sprintId,
+            @RequestParam (value = "projectId") Long projectId,
             RedirectAttributes attributes
     ) {
-        // Get user from server
-        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+
 
         try {
-            UUID uuidSprintId = UUID.fromString(sprintId);
             ModelAndView modelAndView = new ModelAndView("sprintEdit");
-            addModelAttributeSprint(modelAndView, sprintRepository.getSprintById(uuidSprintId), user);
+
+            // Get user from server
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+
+
+            UUID uuidSprintId = UUID.fromString(sprintId);
+
+            Sprint sprint = sprintRepository.findById(uuidSprintId).orElseThrow(() -> new EntityNotFoundException(
+                    "Sprint with id " + projectId.toString() + " was not found"
+            ));
+
+
+
+            Project project = projectRepository.getProjectById(projectId);
+
+            // Gets a list of all sprints that belong to the project and orders them by start date: earliest to latest
+            List<Sprint> sprintList = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
+
+            int indexOfPrevSprint = sprintList.indexOf(sprint);
+            int indexOfNextSprint = sprintList.indexOf(sprint);
+
+            // Checks if the selected sprint is not the first on the list
+            if (indexOfPrevSprint > 0) {
+                indexOfPrevSprint = indexOfPrevSprint - 1;
+                // Adds an object to the view that limits the calendar to dates past the previous sprints end.
+                modelAndView.addObject("previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate().plusDays(1));
+            } else {
+                // Else adds an object to the view that limits the calendar to project start .
+                modelAndView.addObject("previousSprintEnd", project.getStartDate());
+            }
+            // Checks if the selected sprint is not the last on the list
+            if (indexOfNextSprint < sprintList.size() - 1) {
+                indexOfNextSprint = indexOfNextSprint + 1;
+                // Adds an object to the view that limits the calendar to dates before the next sprints starts.
+                modelAndView.addObject("nextSprintStart", sprintList.get(indexOfNextSprint).getStartDate().minusDays(1));
+            } else {
+                // Else adds an object to the view that limits the calendar to be before the project end.
+                modelAndView.addObject("nextSprintStart", project.getEndDate());
+            }
+
+
+
+
+
+
+            // Adds the username to the view for use.
+            modelAndView.addObject("username", user.getUsername());
+
+            // Add the sprint to the view for use.
+            modelAndView.addObject("sprint", sprint);
+
+
             return modelAndView;
         } catch(Exception err) {
             attributes.addFlashAttribute(errorMessage, err);
-            return new ModelAndView("redirect:/portfolio");
+            return new ModelAndView("redirect:/portfolio?projectId=" + projectId);
         }
 
 
@@ -329,6 +374,9 @@ public class PortfolioController {
             @ModelAttribute(name="sprintEditForm") SprintRequest sprintInfo) {
 
         try {
+
+            Project project = sprintRepository.getSprintById(sprintInfo.getSprintId()).getProject();
+
             LocalDate sprintStart = LocalDate.parse(sprintInfo.getSprintStartDate());
             LocalDate sprintEnd = LocalDate.parse(sprintInfo.getSprintEndDate());
             if (sprintStart.isAfter(sprintEnd)) {
@@ -342,7 +390,7 @@ public class PortfolioController {
                 sprint.setDescription(sprintInfo.getSprintDescription());
                 sprint.setColour(sprintInfo.getSprintColour());
                 sprintRepository.save(sprint);
-                return new ModelAndView("redirect:/portfolio");
+                return new ModelAndView("redirect:/portfolio?projectId=" + project.getId());
             }
             return new ModelAndView("redirect:/sprintEdit?sprintId=" + sprintInfo.getSprintId());
 
@@ -384,27 +432,6 @@ public class PortfolioController {
    }
 
 
-
-
-
-
-//    @GetMapping("addEvent")
-//    public ModelAndView addEvent(
-//            @ModelAttribute EventRequest eventRequest,
-//            RedirectAttributes attributes) {
-//        try {
-//            Event event = new Event(eventRequest.getProjectId(), eventRequest.getEventName(),
-//                    eventRequest.getEventStartDate(),
-//                    eventRequest.getEventEndDate());
-//            eventRepository.save(event);
-//            attributes.addFlashAttribute("successMessage", "Event added!");
-//        } catch(Exception err) {
-//            attributes.addFlashAttribute("errorMessage", err);
-//        }
-//
-//        return new ModelAndView("redirect:/portfolio");
-//
-//    }
 
 
 
