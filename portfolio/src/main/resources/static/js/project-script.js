@@ -246,25 +246,6 @@ $(document).on("click", "#ProjectFormCancel", function () {
     $("#edit-project-form").slideUp()
 });
 
-$(document).on("click", "table-edit-roles-button", function () {
-    document.getElementById("#table-edit-roles-button").style.display = 'none';
-    document.getElementById("#edit-roles-button").style.display = 'none';
-
-    $("#table-edit-roles-button").hide();
-    $("#edit-roles-button").hide();
-
-    // $("user-role-selection").show();
-    // let roles = $("#FormSelectRoles").val();
-    // $.ajax({
-    //     url: "setRoles",
-    //     type: "PUT",
-    //     data: {"roles" : roles}
-    //     }).done(function (data) {
-    //     $("user-role-selection").hide();
-    //     $("#user-list").html(data);
-    // })
-})
-
 
 
 /**
