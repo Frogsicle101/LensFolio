@@ -4,7 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="application/javascript" th:src="@{js/jquery-3.6.0.js}"></script>
   <link type="text/css" rel="stylesheet" th:href="@{css/project-style.css}"/>
-  <script type="application/javascript" th:src="@{js/project-script.js}"></script>
+  <script type="application/javascript" th:src="@{js/upload-script.js}"></script>
 
     <meta charset="UTF-8">
     <title>Upload Image</title>
@@ -15,7 +15,9 @@
   <br>
   <input id="profileImageInput" type='file' accept="image/png, image/jpeg"/>
   <br>
-  <button type="button" onclick="resizeImage('profileImagePreview', 150, 150)">Compress</button>
+  <button type="button" onclick="resizeImage('profileImagePreview', 150, 150)">Crop/Compress</button>
+  <br>
+  <b>Size:</b> <span id="size"></span>
   <br>
   <img id="profileImagePreview" src="#" alt="Profile Photo Preview" />
 
