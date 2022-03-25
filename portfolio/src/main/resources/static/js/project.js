@@ -3,25 +3,36 @@ $(document).ready(() => {
     const projectId = $("#projectId").html()
 
 
-
-    // Project button edit
+    /**
+     * When project edit button is clicked.
+     * Redirect page.
+     */
     $("#projectEditSprint").click(() => {
         location.href = "/editProject?projectId=" + projectId;
     })
-    // Project button add
+    /**
+     * When project add sprint button is pressed.
+     * Redirect page.
+     */
     $("#projectAddSprint").click(function () {
         location.href = "/portfolio/addSprint?projectId=" + projectId;
     })
 
 
-
-    // Sprint Button Edit
+    /**
+     * When edit sprint button is clicked.
+     * Redirect page.
+     */
     $(".editSprint").click(function () {
         let sprintId = $(this).closest(".sprint").find(".sprintId").text();
         location.href = "/sprintEdit?sprintId=" + $(this).closest(".sprint").find(".sprintId").text();
     })
 
-    // Sprint Button delete
+    /**
+     * When sprint delete button is clicked.
+     * Sends ajax delete request.
+     * Then reloads page.
+     */
     $(".deleteSprint").click(function() {
         let sprintId = $(this).closest(".sprint").find(".sprintId").text();
         $.ajax({
@@ -33,10 +44,17 @@ $(document).ready(() => {
         })
     })
 
+    /**
+     * Slide toggle for when add event button is clicked.
+     */
     $(".addEventButton").click(function() {
         $(".eventForm").slideToggle();
     })
 
+
+    /**
+     * When event is submitted.
+     */
     $("#eventSubmit").click(function(event) {
         event.preventDefault();
         let eventData = {
@@ -58,6 +76,26 @@ $(document).ready(() => {
         })
     })
 
+    $(".form-control").each(countCharacters)
+    $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+
+    /**
+     * Function that gets the maxlength of an input and lets the user know how many characters they have left.
+     */
+    function countCharacters() {
+        let maxLength = $(this).attr("maxLength")
+        let lengthOfCurrentInput = $(this).val().length;
+        let counter = maxLength - lengthOfCurrentInput;
+        let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
+
+        //If one character remains, changes from "characters remaining" to "character remaining"
+        if (counter !== 1) {
+            helper.text(counter + " characters remaining")
+        } else {
+            helper.text(counter + " character remaining")
+        }
+
+    }
 
 
 

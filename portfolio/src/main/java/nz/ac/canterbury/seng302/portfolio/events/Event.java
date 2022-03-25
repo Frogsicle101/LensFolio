@@ -23,8 +23,7 @@ public class Event {
 
     @Column(length=50)
     private String name;
-
-
+    private static int nameLengthRestriction = 50;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private String startDateColour;
@@ -41,6 +40,9 @@ public class Event {
         this.endDate = endDate;
     }
 
+    public static int getNameLengthRestriction(){
+        return nameLengthRestriction;
+    }
 
     public String getStartDateFormatted() {
 

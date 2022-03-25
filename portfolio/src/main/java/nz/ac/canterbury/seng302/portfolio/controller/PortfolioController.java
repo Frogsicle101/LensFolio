@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.events.Event;
+import nz.ac.canterbury.seng302.portfolio.events.EventHelper;
 import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 
+
 @RestController
 public class PortfolioController {
 
@@ -38,9 +40,9 @@ public class PortfolioController {
     private final EventRepository eventRepository;
 
     //Selectors for the error/info/success boxes.
-    private final String errorMessage = "errorMessage";
-    private final String infoMessage = "infoMessage";
-    private final String successMessage = "successMessage";
+    private static final String errorMessage = "errorMessage";
+    private static final String infoMessage = "infoMessage";
+    private static final String successMessage = "successMessage";
 
     //below is for testing purposes
     private Project project;
@@ -114,55 +116,19 @@ public class PortfolioController {
                                   @AuthenticationPrincipal AuthState principal
     ) {
 
-
-
-
-
         // Get user from server
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("portfolio");
-        //TODO Change the below line so that it isn't just grabbing one single project?.
-
 
         addModelAttributeProject(modelAndView, project, user);
-
-
-
-        List<Event> eventList = eventRepository.findAllByProjectIdOrderByStartDate(project.getId());
-        List<Sprint> sprintList = sprintRepository.findAllByProjectId(project.getId());
-        for(Event event: eventList) {
-            for (Sprint sprint: sprintList) {
-                LocalDate eStart = LocalDate.from(event.getStartDate());
-                LocalDate eEnd = LocalDate.from(event.getEndDate());
-                LocalDate sStart = sprint.getStartDate();
-                LocalDate sEnd = sprint.getEndDate();
-                if ((eStart.isAfter(sStart) || eStart.isEqual(sStart)) && (eStart.isBefore(sEnd) || eStart.isEqual(sEnd))){
-                    //Event start date is between or equal to sprint start and end dates.
-                    event.setStartDateColour(sprint.getColour());
-                    if(!sprint.getEventList().contains(event)) {
-                        sprint.addEvent(event);
-                    }
-                }
-                if ((eEnd.isAfter(sStart) || eEnd.isEqual(sStart)) && (eEnd.isBefore(sEnd) || eEnd.isEqual(sEnd))){
-                    //Event end date is between or equal to sprint start and end dates.
-                    event.setEndDateColour(sprint.getColour());
-                    if(!sprint.getEventList().contains(event)) {
-                        sprint.addEvent(event);
-                    }
-                }
-                //Event spans over the entire sprint
-                if (eStart.isBefore(sStart) && eEnd.isAfter(sEnd) && !sprint.getEventList().contains(event)) {
-                    sprint.addEvent(event);
-                }
-            }
-        }
-
+        List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
 
 
 
         modelAndView.addObject("project", project);
         modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
         modelAndView.addObject("events", eventList);
+        modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
         return modelAndView;
     }
 
