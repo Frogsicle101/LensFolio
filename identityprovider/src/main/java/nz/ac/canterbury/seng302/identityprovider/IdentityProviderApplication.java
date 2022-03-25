@@ -34,6 +34,25 @@ public class IdentityProviderApplication {
         testUser.addRole(UserRole.TEACHER);
         repository.save(testUser);
 
+        /*
+        TODO: Remove this when finished testing
+         */
+        for (int i = 0; i < 10000; i++) {
+            User lemming = new User(
+                    "Lemming number: " + i,
+                    "password",
+                    "Steve",
+                    "McSteve",
+                    "Steveson",
+                    "Stev",
+                    "kdsflkdjf",
+                    "Steve/Steve",
+                    "steve@example.com",
+                    TimeService.getTimeStamp()
+            );
+            repository.save(lemming);
+        }
+
     }
 
     public static void main(String[] args) {
