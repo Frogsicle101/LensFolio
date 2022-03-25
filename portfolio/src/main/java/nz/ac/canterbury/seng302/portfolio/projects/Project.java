@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Entity // Maps Project object to a table in the database called "Project"
@@ -51,6 +52,24 @@ public class Project {
         this.description = "No description";
         this.timeDeactivated = null;
     }
+
+    /**
+     * Converts from projects LocalDate start date to LocalDateTime
+     * @return LocalDateTime version of start date.
+     */
+    public LocalDateTime getStartDateAsLocalDateTime() {
+        return startDate.atStartOfDay();
+    }
+
+    /**
+     * Converts from projects LocalDate end date to LocalDateTime
+     * @return LocalDateTime version of end date.
+     */
+    public LocalDateTime getEndDateAsLocalDateTime() {
+        return endDate.atStartOfDay();
+    }
+
+
 
     /**
      * Getter for ID.

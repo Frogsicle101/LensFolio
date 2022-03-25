@@ -59,17 +59,17 @@
                 <form>
                     <div class="mb-1">
                         <label for="eventName" class="form-label">Event name</label>
-                        <input type="text" class="form-control form-control-sm" th:maxlength="${eventNameLengthRestriction}" name="eventName" id="eventName"required>
+                        <input type="text" class="form-control form-control-sm" th:maxlength="${eventNameLengthRestriction}" name="eventName" id="eventName" required>
                         <small class="form-text text-muted">0 characters remaining</small>
                     </div>
                     <div class="row mb-1">
                         <div class="col">
                             <label for="eventStart" class="form-label">Start</label>
-                            <input type="datetime-local" class="form-control form-control-sm" th:min="${project.startDate}" th:max="${project.endDate}" name="eventStart" id="eventStart" required>
+                            <input type="datetime-local" class="form-control form-control-sm" th:min="${project.getStartDateAsLocalDateTime()}" th:max="${project.getEndDateAsLocalDateTime()}" name="eventStart" id="eventStart" required>
                         </div>
                         <div class="col">
                             <label for="eventEnd" class="form-label">End</label>
-                            <input type="datetime-local" class="form-control form-control-sm" name="eventEnd" id="eventEnd" required>
+                            <input type="datetime-local" class="form-control form-control-sm" th:min="${project.getStartDateAsLocalDateTime()}" th:max="${project.getEndDateAsLocalDateTime()}" name="eventEnd" id="eventEnd" required>
                         </div>
                     </div>
                     <div class="mb-1">
