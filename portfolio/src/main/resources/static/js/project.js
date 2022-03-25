@@ -2,7 +2,7 @@ $(document).ready(() => {
     //Gets the project Id
     const projectId = $("#projectId").html()
 
-    console.log(projectId)
+
     /**
      * When project edit button is clicked.
      * Redirect page.
@@ -48,7 +48,9 @@ $(document).ready(() => {
      * Slide toggle for when add event button is clicked.
      */
     $(".addEventButton").click(function() {
+        $(".addEventSvg").toggleClass('rotated');
         $(".eventForm").slideToggle();
+
     })
 
 
@@ -96,6 +98,8 @@ $(document).ready(() => {
         }
 
     }
+
+
 
 
 

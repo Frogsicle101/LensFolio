@@ -20,6 +20,7 @@ section{
     --main-border-colour: #d7d6d6;
     --secondary-text-colour: #c4c3c3;
     --secondary-text-colour-darker: #696969;
+    --select-green: #95fd97;
 
 }
 
@@ -187,15 +188,36 @@ section{
     padding-top: 1rem;
     padding-right: 1rem;
 }
+.eventNameAndAddButton{
+    display: flex;
+    flex-direction: row;
+}
 .eventName{
     font-weight: bolder;
 }
+
 
 .event{
     display: flex;
     flex-direction: column;
     padding-bottom: 1rem;
 }
+
+.addEventSvg{
+    vertical-align: baseline;
+    transition: transform 200ms;
+}
+
+
+.rotated{
+    transform: rotate(45deg);
+    color: #ff0000;
+}
+
+
+
+
+
 
 .event p{
     margin: 0;
@@ -269,7 +291,7 @@ section{
 }
 
 .editSprint:hover{
-    color: #95fd97;
+    color: var(--select-green);
 }
 
 
