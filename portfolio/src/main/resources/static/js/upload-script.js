@@ -54,11 +54,34 @@ function resizeImage(imageId,newWidth, newHeight) {
                 // showing the compressed image
                 imgToCompress.src = URL.createObjectURL(blob);
                 document.querySelector("#size").innerHTML = bytesToSize(blob.size); // Sends image size to upload form
+                imgFileBlob = blob;
             }
         },
         "image/jpeg",
         quality
     );
+}
+
+function sendImagePostRequest(imageId, clientToken) {
+    const imgSrc = document.getElementById(imageId).attr('src');
+    fetch(imgSrc)
+        .then(function(response) {
+            return response.blob()
+        })
+        .then(function(blob) {
+            const formdata = new FormData();
+            formdata.append("image", blob);
+        });
+    fetch("http://localhost:9000/image", {
+        method: "POST",
+        headers: {
+            Accept: "application/json",
+            Authorization: clientToken
+        },
+        body: formdata
+    }).then((response) => {
+        // Check response here
+    });
 }
 
 // source: https://stackoverflow.com/a/18650828
