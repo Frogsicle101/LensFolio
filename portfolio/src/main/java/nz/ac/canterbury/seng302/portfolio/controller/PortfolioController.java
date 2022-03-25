@@ -101,12 +101,12 @@ public class PortfolioController {
     }
 
 
-
-
-
-
-
-
+    /**
+     * Get mapping for /Portfolio
+     * @param principal
+     * @param projectId Id of the project to display
+     * @return returns the portfolio view, or error-page
+     */
     @GetMapping("/portfolio")
     public ModelAndView getPortfolio(
                                   @AuthenticationPrincipal AuthState principal,
@@ -168,7 +168,12 @@ public class PortfolioController {
 
     }
 
-
+    /**
+     * Request mapping for /editProject
+     * @param principal
+     * @param projectId The project to edit
+     * @return Returns the project edit page or the error page
+     */
     @RequestMapping("/editProject")
     public ModelAndView edit(
             @AuthenticationPrincipal AuthState principal,
@@ -205,7 +210,12 @@ public class PortfolioController {
     }
 
 
-
+    /**
+     * Postmapping for /projectEdit, this is called when user submits there project changes.
+     * @param editInfo A DTO of project from the inputs on the edit page.
+     * @param attributes attributes that we can add stuff to display errors/info on view that it returns.
+     * @return Returns to the portfolio page.
+     */
     @PostMapping("/projectEdit")
     public ModelAndView editDetails(
             @ModelAttribute(name="editProjectForm") ProjectRequest editInfo,
@@ -240,9 +250,13 @@ public class PortfolioController {
     }
 
 
-
-
-
+    /**
+     * Get mapping for portfolio/addSprint
+     * This is called when user wants to add a sprint.
+     * @param projectId Project to add the sprint to.
+     * @param attributes Attributes we can use to return errors/info.
+     * @return Either the portfolio page, or the error page.
+     */
     @GetMapping("/portfolio/addSprint")
     public ModelAndView addSprint(
             @RequestParam (value = "projectId") Long projectId,
@@ -327,6 +341,8 @@ public class PortfolioController {
                 indexOfPrevSprint = indexOfPrevSprint - 1;
                 // Adds an object to the view that limits the calendar to dates past the previous sprints end.
                 modelAndView.addObject("previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate().plusDays(1));
+                String textForPreviousSprint = "Previous sprint ends on " + sprintList.get(indexOfPrevSprint).getEndDateFormatted();
+                modelAndView.addObject("textForPrevSprint", textForPreviousSprint);
             } else {
                 // Else adds an object to the view that limits the calendar to project start .
                 modelAndView.addObject("previousSprintEnd", project.getStartDate());
@@ -336,6 +352,8 @@ public class PortfolioController {
                 indexOfNextSprint = indexOfNextSprint + 1;
                 // Adds an object to the view that limits the calendar to dates before the next sprints starts.
                 modelAndView.addObject("nextSprintStart", sprintList.get(indexOfNextSprint).getStartDate().minusDays(1));
+                String textForNextSprint = "Next sprint starts on " + sprintList.get(indexOfNextSprint).getStartDateFormatted();
+                modelAndView.addObject("textForNextSprint", textForNextSprint);
             } else {
                 // Else adds an object to the view that limits the calendar to be before the project end.
                 modelAndView.addObject("nextSprintStart", project.getEndDate());
@@ -401,23 +419,6 @@ public class PortfolioController {
         }
     }
 
-    /**
-     * Helper function to add objects to the model
-     * Given a Thymeleaf model, adds a bunch of attributes into it
-     *
-     * This is really just to make the code a bit nicer to look at
-     * @param sprint The sprint
-     * @param model The model you're adding attributes to
-     */
-    public void addModelAttributeSprint(ModelAndView model, Sprint sprint, UserResponse user){
-        model.addObject("sprintId", sprint.getId());
-        model.addObject("sprintName", sprint.getName());
-        model.addObject("sprintStart", sprint.getStartDate());
-        model.addObject("sprintEnd", sprint.getEndDate());
-        model.addObject("sprintDescription", sprint.getDescription());
-        model.addObject("sprintColour", sprint.getColour());
-        model.addObject("username", user.getUsername());
-    }
 
 
     /**

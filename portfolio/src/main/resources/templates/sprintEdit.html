@@ -33,11 +33,12 @@
             <div class="col">
                 <label for="sprintStartDate" class="form-label">Sprint Start</label>
                 <input type="date" class="form-control canDisable" name="sprintStartDate" th:min="${previousSprintEnd}" th:max="${nextSprintStart}" id="sprintStartDate" th:value="${sprint.getStartDate()}" required>
-
+                <small class="form-text text-muted" th:text="${textForPrevSprint}"></small>
             </div>
             <div class="col">
                 <label for="sprintEndDate" class="form-label">Sprint End</label>
                 <input type="date" class="form-control canDisable" name="sprintEndDate" id="sprintEndDate" th:min="${previousSprintEnd}" th:max="${nextSprintStart}" th:value="${sprint.getEndDate()}" required>
+                <small class="form-text text-muted" th:text="${textForNextSprint}"></small>
             </div>
         </div>
         <div class="mb-3">
