@@ -14,6 +14,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 
 
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,7 +47,7 @@ public class PortfolioController {
     private static final String successMessage = "successMessage";
 
     //below is for testing purposes
-    private Project project;
+    private Project defaultProject;
 
 
 
@@ -62,9 +64,9 @@ public class PortfolioController {
         this.eventRepository = eventRepository;
 
         //Below are only for testing purposes.
-        this.project = projectRepository.save(new Project("Project Default"));
-        createDefaultEvents(project);
-        createDefaultSprints(project.getId());
+        this.defaultProject = projectRepository.save(new Project("Project Default"));
+        createDefaultEvents(defaultProject);
+        createDefaultSprints(defaultProject.getId());
     }
 
 
@@ -113,23 +115,59 @@ public class PortfolioController {
      */
     @GetMapping("/portfolio")
     public ModelAndView getPortfolio(
-                                  @AuthenticationPrincipal AuthState principal
+                                  @AuthenticationPrincipal AuthState principal,
+                                  @RequestParam(value = "projectId") long projectId
     ) {
-
-        // Get user from server
-        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
-        ModelAndView modelAndView = new ModelAndView("portfolio");
-
-        addModelAttributeProject(modelAndView, project, user);
-        List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
+        try {
+            // Get user from server
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
 
+            Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
+                    "Event with id " + projectId + " was not found"
+            ));
 
-        modelAndView.addObject("project", project);
-        modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
-        modelAndView.addObject("events", eventList);
-        modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
-        return modelAndView;
+
+
+
+            //View that we are going to return.
+            ModelAndView modelAndView = new ModelAndView("portfolio");
+
+            List<UserRole> roles = user.getRolesList();
+            if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
+                modelAndView.addObject("userCanEdit", true);
+            } else {
+                modelAndView.addObject("userCanEdit", false);
+            }
+            //Creates the list of events for the front end.
+            List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
+
+            //Add the project object to the view to be accessed on the frontend.
+            modelAndView.addObject("project", project);
+
+            //Add a list of sprint objects to the view to be accessed on the frontend.
+            modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
+
+            //Add a list of event objects to the view to be accessed on the frontend.
+            modelAndView.addObject("events", eventList);
+
+            //Add an object that lets us access the event name restriction length on the frontend.
+            modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
+
+            //Add the user object to the view to be accessed on the front end.
+            modelAndView.addObject("username", user.getUsername());
+
+
+
+            return modelAndView;
+
+        } catch(EntityNotFoundException err) {
+            return new ModelAndView("errorPage").addObject(errorMessage, err.getMessage());
+        }
+        catch(Exception err) {
+            return new ModelAndView("errorPage").addObject(errorMessage, err);
+        }
+
     }
 
     /**
@@ -144,15 +182,36 @@ public class PortfolioController {
     @RequestMapping("/editProject")
     public ModelAndView edit(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam (value = "projectId") String projectId
+            @RequestParam (value = "projectId") Long projectId
     ) {
-        // Get user from server
-        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
-        Long longProjectId = Long.parseLong(projectId);
-        Project project = projectRepository.getProjectById(longProjectId);
-        ModelAndView modelAndView = new ModelAndView("projectEdit");
-        addModelAttributeProject(modelAndView, project, user);
-        return modelAndView;
+        try{
+            // Get user from server
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+
+            // Gets the project that the request is referring to.
+            Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
+                    "Event with id " + projectId + "was not found"
+            ));
+
+            // The view we are going to return.
+            ModelAndView modelAndView = new ModelAndView("projectEdit");
+
+            // Adds the project object to the view for use.
+            modelAndView.addObject("project", project);
+
+            // Adds the username to the view for use.
+            modelAndView.addObject("username", user.getUsername());
+
+
+
+            return modelAndView;
+
+        }catch(EntityNotFoundException err) {
+            return new ModelAndView("errorPage").addObject(errorMessage, err);
+        } catch(Exception err) {
+            return new ModelAndView("errorPage");
+        }
+
     }
 
 
@@ -184,23 +243,6 @@ public class PortfolioController {
         return new ModelAndView("redirect:/portfolio");
     }
 
-
-    /**
-     * Helper function to add objects to the model
-     * Given a Thymeleaf model, adds a bunch of attributes into it
-     *
-     * This is really just to make the code a bit nicer to look at
-     * @param project The project
-     * @param model The model you're adding attributes to
-     */
-    public void addModelAttributeProject(ModelAndView model, Project project, UserResponse user){
-        model.addObject("projectId", project.getId());
-        model.addObject("projectName", project.getName());
-        model.addObject("projectStart", project.getStartDate());
-        model.addObject("projectEnd", project.getEndDate());
-        model.addObject("projectDescription", project.getDescription());
-        model.addObject("username", user.getUsername());
-    }
 
 
 

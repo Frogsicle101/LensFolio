@@ -69,6 +69,14 @@ public class Project {
         return endDate.atStartOfDay();
     }
 
+    /**
+     * Gets the minimum start date for a project which is now minus a year.
+     * @return LocalDate set a year in the past.
+     */
+    public LocalDate getMinStartDateAsLocalDateTime() {
+        return LocalDate.now().minusYears(1);
+    }
+
 
 
     /**
