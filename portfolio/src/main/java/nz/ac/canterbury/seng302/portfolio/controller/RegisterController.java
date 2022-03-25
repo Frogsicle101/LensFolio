@@ -1,17 +1,20 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import io.grpc.StatusRuntimeException;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.AuthenticationException;
-import nz.ac.canterbury.seng302.portfolio.authentication.CookieUtil;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRegisterRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRegisterResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +37,8 @@ public class RegisterController {
     @Autowired
     private AuthenticateClientService authenticateClientService;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     /**
      *
      * @param model Parameters sent to thymeleaf template to be rendered into HTML
@@ -41,6 +46,7 @@ public class RegisterController {
      */
     @GetMapping("/register")
     public String register(Model model) {
+        logger.info("GET REQUEST /register - get register page");
         return "accountRegister";
     }
 
@@ -59,26 +65,31 @@ public class RegisterController {
             HttpServletRequest request,
             HttpServletResponse response,
             @ModelAttribute(name="registerForm") UserRequest userRequest,
-            Model model
+            ModelMap model
     ) {
+        logger.info("POST REQUEST /register - attempt to register new user");
         // Make UserRegisterRequest and send to Server
         UserRegisterResponse registerReply = userAccountsClientService.register(createUserRegisterRequest(userRequest));
 
         // Attempt to login new user
         if (registerReply.getIsSuccess()) {
+            logger.info("Registration Success: " + registerReply.getMessage());
+            logger.info("Log in new user");
             try {
+                // NOTE: Successful login and cookie adding logged in LoginController
                 AuthenticateResponse authenticateResponse = new LoginController()
                     .attemptLogin(userRequest,
                                 request,
                                 response,
                                 authenticateClientService);
             } catch (AuthenticationException exception) {
+                //Note: error logged when thrown
                 model.addAttribute("errorMessage", exception.getMessage());
                 return new ModelAndView("accountRegister");
             }
-
             return new ModelAndView("redirect:/account");
         }
+        logger.info("Registration Failed: " + registerReply.getMessage());
         model.addAttribute("errorMessage", registerReply.getMessage());
         return new ModelAndView("accountRegister");
     }
@@ -90,7 +101,7 @@ public class RegisterController {
      * @return userRegisterRequest - a populated userRegisterRequest from the user_accounts.proto format
      */
     private UserRegisterRequest createUserRegisterRequest(UserRequest userRequest) {
-        
+        logger.info("Creating user register request from UserRequest");
         UserRegisterRequest.Builder userRegisterRequest = UserRegisterRequest.newBuilder();
         userRegisterRequest.setUsername(userRequest.getUsername())
                 .setPassword(userRequest.getPassword())
