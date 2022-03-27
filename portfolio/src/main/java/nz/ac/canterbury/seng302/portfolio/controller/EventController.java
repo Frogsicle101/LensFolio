@@ -28,6 +28,16 @@ public class EventController {
 
     /**
      * Mapping for a put request to add event.
+     * The method first parses the two date strings that are passed as request parameters.
+     * They are being passed in, in a format called ISO_DATE_TIME, the parsers converts them from that to the standard
+     * LocalDateTime format that we use.
+     *
+     * The project is then grabbed from the repository by its ID.
+     * If the project can't be found, it throws an EntityNotFoundException
+     *
+     * The Event is then created with the parameters passed, and saved to the event repository.
+     * If all went successful, it returns OK, otherwise one of the errors is returned.
+     *
      * @param projectId id of project to add event to.
      * @param name Name of event.
      * @param start date of the start of the event
@@ -46,10 +56,10 @@ public class EventController {
             // DateTimeFormatter.ISO_DATE_TIME helps parse that string by declaring its format.
             LocalDateTime eventStart = LocalDateTime.parse(start, DateTimeFormatter.ISO_DATE_TIME);
             LocalDateTime eventEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
-            Project project = projectRepository.getProjectById(projectId);
-            if (project == null) {
-                throw new EntityNotFoundException();
-            }
+
+            Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
+                    "Project with id " + projectId.toString() + " was not found"
+            ));
 
             Event event = new Event(project, name, eventStart, eventEnd);
             eventRepository.save(event);
@@ -67,6 +77,9 @@ public class EventController {
 
     /**
      * Mapping for a delete request for event.
+     * Trys to find the event with the Id given.
+     * If it can't find the event an exception is thrown and then caught, with the error being returned.
+     * If it can find the event, it tries to delete the event and if successful returns OK.
      * @param eventId Id of event to be deleted.
      * @return A status code indicating request was successful, or failed.
      */
@@ -76,7 +89,7 @@ public class EventController {
     ) {
         try{
             Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(
-                    "Event with id " + eventId + "was not found"
+                    "Event with id " + eventId + " was not found"
             ));
             eventRepository.delete(event);
             return new ResponseEntity<>(HttpStatus.OK);
