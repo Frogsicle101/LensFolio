@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import com.google.rpc.context.AttributeContext;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -7,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @Controller
 public class UploadController {
@@ -32,6 +35,16 @@ public class UploadController {
         String ip = request.getLocalAddr();
         String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
         model.addAttribute("profileImageUrl", url);
+        return "upload-image";
+    }
+
+    @PostMapping("/upload")
+    public String upload(
+            @AuthenticationPrincipal AuthState principal,
+            @RequestParam("image") MultipartFile file
+    ) throws IOException {
+        int id = PrincipalAttributes.getId(principal);
+        userAccountsClientService.uploadProfilePhoto(file.getInputStream(), id, "jpg");
         return "upload-image";
     }
 

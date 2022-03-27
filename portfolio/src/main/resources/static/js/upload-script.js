@@ -65,7 +65,6 @@ function resizeImage(imageId,newWidth, newHeight) {
                 imgToCompress.src = URL.createObjectURL(blob);
                 formDataURLField.setAttribute("imageURLFromJavascript", imgToCompress.src);
                 document.querySelector("#size").innerHTML = bytesToSize(blob.size); // Sends image size to upload form
-                imgFileBlob = blob;
             }
         },
         "image/jpeg",
@@ -73,30 +72,18 @@ function resizeImage(imageId,newWidth, newHeight) {
     );
 }
 
-function sendImagePostRequest(imageId, clientToken) {
-    const fileSrc = document.getElementById('profileImageInput');
-    const fileExt = fileSrc.files[0].type;
-    alert(fileExt);
-    const imgSrc = document.getElementById(imageId).attr('src');
-    fetch(imgSrc)
-        .then(function(response) {
-            return response.blob()
-        })
-        .then(function(blob) {
-            const formdata = new FormData();
-            formdata.append("image", blob);
-            formdata.append("fileExt", fileExt);
-        });
-    fetch("http://localhost:9000/upload", {
+async function sendImagePostRequest(imageId) {
+    const url = document.getElementById(imageId).getAttribute('src');
+    const formData = new FormData();
+    formData.append("image", await fetch(url).then(r => r.blob()));
+
+    await fetch("http://localhost:9000/upload", {
         method: "POST",
-        headers: {
-            Accept: "application/json",
-            Authorization: clientToken
-        },
-        body: formdata
-    }).then((response) => {
-        // Check response here
+        body: formData
     });
+
+
+
 }
 
 // source: https://stackoverflow.com/a/18650828

@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class PrincipalAttributes {
 
+    public static int getId(AuthState principal) {
+        return Integer.parseInt(getClaim(principal, "nameid"));
+    }
 
     public static String getClaim(AuthState principal, String claimType) {
         return principal.getClaimsList().stream()
@@ -22,8 +25,7 @@ public class PrincipalAttributes {
         // Get user from server
         int user_id = Integer.parseInt(PrincipalAttributes.getClaim(principal, "nameid"));
         GetUserByIdRequest userRequest = GetUserByIdRequest.newBuilder().setId(user_id).build();
-        UserResponse user = userAccountsClientService.getUserAccountById(userRequest);
-        return user;
+        return userAccountsClientService.getUserAccountById(userRequest);
     }
 
 }

@@ -79,9 +79,9 @@ public class UserAccountsClientService {
      * @param fileType - The file extension of the photo
      * @throws IOException if reading the photo fails
      */
-    public void uploadProfilePhoto(File photo, int userId, String fileType) throws IOException {
+    public void uploadProfilePhoto(InputStream photo, int userId, String fileType) throws IOException {
         logger.info("Uploading profile photo");
-        ArrayList<UploadUserProfilePhotoRequest> requestChunks = new ArrayList<UploadUserProfilePhotoRequest>();
+        ArrayList<UploadUserProfilePhotoRequest> requestChunks = new ArrayList<>();
 
         ProfilePhotoUploadMetadata metadata = ProfilePhotoUploadMetadata.newBuilder()
                 .setUserId(userId)
@@ -94,16 +94,16 @@ public class UserAccountsClientService {
                 .build()
         );
         // Send file, split into 4KiB chunks
-        InputStream inputStream = new FileInputStream(photo);
+
         byte[] bytes = new byte[4096];
         int size;
-        while ((size = inputStream.read(bytes)) > 0){
+        while ((size = photo.read(bytes)) > 0){
             UploadUserProfilePhotoRequest uploadRequest = UploadUserProfilePhotoRequest.newBuilder()
                     .setFileContent(ByteString.copyFrom(bytes, 0 , size))
                     .build();
             requestChunks.add(uploadRequest);
         }
-        inputStream.close();
+        photo.close();
 
         ImageResponseStreamObserver responseObserver = new ImageResponseStreamObserver();
         StreamObserver<UploadUserProfilePhotoRequest> requestObserver = asynchStub.uploadUserProfilePhoto(responseObserver);
