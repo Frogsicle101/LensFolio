@@ -403,6 +403,6 @@ function addSprint(element) {
             '\n' +
             '            </div>')
     }
-
 }
+
 
