@@ -57,6 +57,14 @@ public class UserAccountsClientService {
         return userAccountStub.changeUserPassword(request);
     }
 
+    public UserRoleChangeResponse addRoleToUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
+        return userAccountStub.addRoleToUser(modifyRoleOfUserRequest);
+    }
+
+    public UserRoleChangeResponse removeRoleFromUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
+        return userAccountStub.removeRoleFromUser(modifyRoleOfUserRequest);
+    }
+
 
     /**
      * Sends a request to the userAccountServerService to get a specific page for the users list, through a

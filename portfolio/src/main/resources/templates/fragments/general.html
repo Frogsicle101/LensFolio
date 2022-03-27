@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+
+
+
+<!--The head fragment-->
+<head th:fragment="headerfiles">
+    <meta charset="UTF-8" />
+
+    <!--jQuery and Bootstrap-->
+    <script type="application/javascript" th:src="@{js/jquery-3.6.0.js}"></script>
+    <script th:src="@{bootstrap/js/bootstrap.bundle.js}"></script>
+    <link th:href="@{bootstrap/css/bootstrap.css}" rel="stylesheet" />
+
+    <!--Roboto Font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+
+
+    <!--Lobster Font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+    <!--Style Sheet-->
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+
+    <!--Script files-->
+    <script type="application/javascript" th:src="@{js/header.js}"></script>
+    <script type="application/javascript" th:src="@{js/general.js}"></script>
+
+
+</head>
+
+
+
+
+
+
+<body>
+
+<!--The header fragment-->
+<div th:fragment="header" class="headerBar">
+    <div class="profileNav" id="navbar">
+        <div class="profileDropdown">
+            <img th:src="@{defaultProfile.png}" alt="Your profile photo!" class="profilePic" id="profile">
+            <p class="username" th:text="${username}"></p>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down" viewBox="0 0 16 16">
+                <path d="M3.204 5h9.592L8 10.481 3.204 5zm-.753.659 4.796 5.48a1 1 0 0 0 1.506 0l4.796-5.48c.566-.647.106-1.659-.753-1.659H3.204a1 1 0 0 0-.753 1.659z"/>
+            </svg>
+        </div>
+        <div>
+            <div class="dropdown-content" id="dropdownContent" style="display: none">
+                <a class="account" th:href="@{/account}">Account</a>
+                <a class="portfolio" th:href="@{/portfolio}">Portfolio</a>
+                <a class="logout" href="/logout">Log Out</a><br>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<div th:fragment="errorBox">
+    <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+        <p class="errorMessage" th:text="${errorMessage}"></p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+
+<div th:fragment="infoBox">
+    <div class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
+        <p class="infoMessage" th:text="${infoMessage}"></p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+
+<div th:fragment="successBox">
+    <div class="successMessageParent alert alert-success alert-dismissible fade show" role="alert" style="display: none">
+        <p class="successMessage" th:text="${successMessage}"></p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+<!--<aside>-->
+<!--    <div>This is a sidebar</div>-->
+<!--</aside>-->
+<!--<div class="another">This is another sidebar</div>-->
+<!--<footer th:fragment="footer">-->
+<!--    <a th:href="@{/fragments}">Fragments Index</a> |-->
+<!--    <a th:href="@{/markup}">Markup inclussion</a> |-->
+<!--    <a th:href="@{/params}">Fragment params</a> |-->
+<!--    <a th:href="@{/other}">Other</a>-->
+<!--</footer>-->
+</body>
+</html>

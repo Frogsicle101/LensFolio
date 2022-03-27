@@ -1,74 +1,99 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="application/javascript" th:src="@{js/jquery-3.6.0.js}"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <link type="text/css" rel="stylesheet" th:href="@{css/project-style.css}"/>
-    <script type="application/javascript" th:src="@{js/project-script.js}"></script>
+    <title>Lensfolio | Portfolio</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
 
-    <meta charset="UTF-8">
-    <title>Project</title>
+    <script type="application/javascript" th:src="@{js/project.js}"></script>
 </head>
 <body>
+<!--The below section <header> pulls the fragment from fragments/general-->
+<header th:insert="fragments/general.html :: header"> </header>
 
-<script>
-    let role = "[[${role}]]";
-    let id = "[[${id}]]";
-    let name = "[[${name}]]";
-</script>
-<div id="main-page">
-    <div class="background-blocker" style="display: none"></div>
-    <div id="navbar">
-        <div id="user-details">
-            <img class="avatar" src="avatar5.png" alt="avatar">
-            <h2 class="user-name"></h2>
-            <p class="user-role"></p>
+<section>
+    <!--Below are the divs that handle error messages
+            If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
+            they will be displayed below-->
+    <div th:insert="fragments/general.html :: errorBox"> </div>
+    <div th:insert="fragments/general.html :: successBox"> </div>
+    <div th:insert="fragments/general.html :: infoBox"> </div>
+    <div class="projectDetails">
+        <div id="project-details">
+            <h1 id="projectId" th:text="${projectId}" style="display: none"></h1>
+            <div class="mb3">
+                <h1 id="projectName" th:text="${projectName}"></h1>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    <h6>Start</h6>
+                    <h6 id="project-start-date" th:text="${projectStart}"></h6>
+                </div>
+                <div class="col-2">
+                    <h6>End</h6>
+                    <h6 id="project-end-date" th:text="${projectEnd}"></h6>
+                </div>
+            </div>
+            <div class="mb-3">
+                <p th:text="${projectDescription}"></p>
+            </div>
+
+
         </div>
-        <nav id="navigation-links">
-            <button class="btn btn-primary project-add-sprint-button" id="bottom-navbar-project-add-sprint-button">Add Sprint</button>
-            <a class="nav-link" href="#project-details">Project</a>
-            <a class="nav-link" href="#sprint-container">Sprints</a>
-            <button class="btn btn-danger" style="display: none" >Logout</button>
+        <div id="edit-project-form" style="display: none">
 
-        </nav>
+        </div>
+
+        <div>
+            <button class="btn btn-outline-primary project-add-sprint-button authenticated-user" id="projectAddSprint" >Add Sprint</button>
+            <button class="btn btn-outline-success project-add-sprint-button authenticated-user" id="projectEditSprint">Edit Project</button>
+        </div>
 
 
     </div>
+    <div class="sprintsContainer">
+        <div th:each=" sprint: ${sprints}" class="sprint" style="border-left: solid 0.2rem" th:attrappend="style=${' ' + sprint.colour}" >
+            <p class="sprintColour" style="display: none" th:text="${sprint.colour}"></p>
+            <p class="sprintId" style="display: none" th:text="${sprint.id}"></p>
+            <p class="sprintLabel" th:text="'Sprint ' + ${sprintStat.index + 1}"></p>
+            <div class="row">
+                <div class="col" >
+                    <h2 th:text="${sprint.name}"></h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h6>Start</h6>
+                    <h6 th:text="${sprint.startDate}"></h6>
+                </div>
+                <div class="col">
+                    <h6>End</h6>
+                    <h6 th:text="${sprint.endDate}"></h6>
+                </div>
+            </div>
+            <div class="mb-3">
+                <p th:text="${sprint.description}"></p>
+            </div>
+            <div class="mb3">
 
-    <div id="container" >
-
-        <div id="project-header">
-           <div id="project-details">
-               <h1 id="projectName">Project</h1>
-                <h6 id="project-start-date">Start Date:</h6>
-                <h6 id="project-end-date">End Date:</h6>
-                <h2>Project Description</h2>
-                <p id="projectDescription"> </p>
-           </div>
-            <div id="edit-project-form" style="display: none">
+                <button type="button" class="deleteSprint noStyleButton sprintButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+                <button type="button" class="editSprint noStyleButton sprintButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
+                    <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
+                    </svg>
+                </button>
 
             </div>
 
-            <div id="add-sprint">
-                <button class="btn btn-primary project-add-sprint-button authenticated-user" id="project-add-sprint-button">Add Sprint</button>
-                <button class="btn btn-success project-add-sprint-button authenticated-user" id="ProjectEditButton">Edit Project</button>
-            </div>
-
         </div>
-        <div id="sprint-container">
 
-
-        </div>
     </div>
-</div>
-
-
-
-
-
-
-
+</section>
 </body>
 </html>
