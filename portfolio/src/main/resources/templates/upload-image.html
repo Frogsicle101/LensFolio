@@ -1,25 +1,35 @@
 <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script type="application/javascript" th:src="@{js/jquery-3.6.0.js}"></script>
-  <link type="text/css" rel="stylesheet" th:href="@{css/project-style.css}"/>
-  <script type="application/javascript" th:src="@{js/upload-script.js}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="application/javascript" th:src="@{js/jquery-3.6.0.js}"></script>
+    <link type="text/css" rel="stylesheet" th:href="@{css/project-style.css}"/>
+    <script type="application/javascript" th:src="@{js/upload-script.js}"></script>
 
     <meta charset="UTF-8">
     <title>Upload Image</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
+
 </head>
 <body>
 
-  <h1>Upload Image</h1>
-  <br>
-  <input id="profileImageInput" type='file' accept="image/png, image/jpeg"/>
-  <br>
-  <button type="button" onclick="resizeImage('profileImagePreview', 150, 150)">Crop/Compress</button>
-  <br>
-  <b>Size:</b> <span id="size"></span>
-  <br>
-  <img id="profileImagePreview" src="#" alt="Profile Photo Preview" />
+<header th:insert="fragments/general.html :: header"></header>
+
+<div class="accountBody">
+    <div class="accountInfo">
+    <h1>Upload Image</h1>
+    <br>
+    <input id="profileImageInput" type='file' accept="image/png, image/jpeg"/>
+    <br>
+    <button type="button" onclick="resizeImage('profileImagePreview', 150, 150)">Crop/Compress</button>
+    <br>
+    <b>Size:</b> <span id="size"></span>
+    <br>
+    <img id="profileImagePreview" src="#" alt="Profile Photo Preview"/>
+    </div>
+</div>
 
 
 </body>
