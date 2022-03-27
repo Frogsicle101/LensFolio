@@ -53,9 +53,7 @@ public class AccountController {
             @ModelAttribute(name = "passwordChangeMessage") String passwordChangeMessage
     ) throws IOException {
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
-        int id = Integer.parseInt(PrincipalAttributes.getClaim(principal,"nameid"));
 
-        userAccountsClientService.uploadProfilePhoto(new File("src/main/resources/frog.jpg"), id, "jpg");
 
         model.addAttribute("user", user);
 
