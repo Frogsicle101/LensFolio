@@ -42,7 +42,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     //todo fix this so that it somehow grabs the roles, perhaps sort the roles list then grab that alphabetically?
     //Comparator<User> compareByRole = Comparator.comparing(User::getRoles);
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * getUserAccountByID follows the gRPC contract and provides the server side service for retrieving
