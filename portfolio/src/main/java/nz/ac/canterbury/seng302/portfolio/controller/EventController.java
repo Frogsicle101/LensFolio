@@ -103,5 +103,38 @@ public class EventController {
 
 
 
+    @PostMapping("/editEvent")
+    public ResponseEntity<String> editEvent(
+            @RequestParam(value = "eventId") UUID eventId,
+            @RequestParam(value = "eventName") String name,
+            @RequestParam(value = "eventStart")  String start,
+            @RequestParam(value = "eventEnd") String end
+    )
+    {
+        try{
+            Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(
+                    "Event with id " + eventId + " was not found"
+            ));
+
+            // eventStart and eventEnd return a string in the format "1986-01-28T11:38:00.01"
+            // DateTimeFormatter.ISO_DATE_TIME helps parse that string by declaring its format.
+            LocalDateTime eventStart = LocalDateTime.parse(start, DateTimeFormatter.ISO_DATE_TIME);
+            LocalDateTime eventEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
+
+
+            event.setName(name);
+            event.setStartDate(eventStart);
+            event.setEndDate(eventEnd);
+            eventRepository.save(event);
+            
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(EntityNotFoundException err) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch(Exception err){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 }

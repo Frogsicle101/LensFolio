@@ -102,11 +102,73 @@ $(document).ready(() => {
     }
 
     setAddSprintButtonPlacement()
-
     function setAddSprintButtonPlacement() {
         $(".addSprint").css("left", $(".eventContainer").width() + "px")
         $(".addSprint").css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
     }
+
+
+    $(".eventEditButton").click(function() {
+        let eventId = $(this).closest(".event").find(".eventId").text();
+        let eventName = $(this).closest(".event").find(".eventName").text();
+        let eventStart = $(this).closest(".event").find(".eventStartDateNilFormat").text().slice(0,16);
+        let eventEnd = $(this).closest(".event").find(".eventEndDateNilFormat").text().slice(0,16);
+
+        $(this).closest(".event").append('<form class="existingEventForm">\n' +
+            '                    <div class="mb-1">\n' +
+            '                        <label for="eventName" class="form-label">Event name</label>\n' +
+            '                        <input type="text" class="form-control form-control-sm eventName" th:maxlength="${eventNameLengthRestriction}" value="'+ eventName +'" name="eventName" required>\n' +
+            '                        <small class="form-text text-muted countChar">0 characters remaining</small>\n' +
+            '                    </div>\n' +
+            '                    <div class="row mb-1">\n' +
+            '                        <div class="col">\n' +
+            '                            <label for="eventStart" class="form-label">Start</label>\n' +
+            '                            <input type="datetime-local" class="form-control form-control-sm eventStart" value="'+ eventStart +'" th:min="${project.getStartDateAsLocalDateTime()}" th:max="${project.getEndDateAsLocalDateTime()}" name="eventStart"  required>\n' +
+            '                        </div>\n' +
+            '                        <div class="col">\n' +
+            '                            <label for="eventEnd" class="form-label">End</label>\n' +
+            '                            <input type="datetime-local" class="form-control form-control-sm eventEnd" value="'+ eventEnd +'" th:min="${project.getStartDateAsLocalDateTime()}" th:max="${project.getEndDateAsLocalDateTime()}" name="eventEnd" required>\n' +
+            '                        </div>\n' +
+            '                    </div>\n' +
+            '                    <div class="mb-1">\n' +
+            '                        <button type="submit" class="btn btn-primary existingEventSubmit">Save</button>\n' +
+            '                        <button type="button" class="btn btn-secondary existingEventCancel" >Cancel</button>\n' +
+            '                    </div>\n' +
+            '                </form>')
+        $(".existingEventCancel").click(function() {
+            $(this).closest(".event").find(".eventEditButton").show();
+            $(this).closest(".event").find(".existingEventForm").remove();
+
+        })
+        $(this).closest(".event").find(".eventEditButton").hide();
+        $(".existingEventSubmit").click(function() {
+            this.preventDefault();
+            let eventData = {
+                "projectId": projectId,
+                "eventName": $(this).closest(".event").find(".eventName").val(),
+                "eventStart": $(this).closest(".event").find(".eventStart").val(),
+                "eventEnd": $(this).closest(".event").find(".eventEnd").val()
+            }
+            $.ajax({
+                url: "/editEvent",
+                type: "post",
+                data: eventData,
+                success: function(response) {
+                    location.href = "/portfolio?projectId=" + projectId
+                },
+                error: function(response) {
+
+                }
+            })
+
+        })
+
+        console.log(eventStart)
+
+    })
+
+
+
 
 
 

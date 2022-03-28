@@ -12,6 +12,11 @@
 <header th:insert="fragments/general.html :: header"> </header>
 
 <section>
+
+
+
+
+
     <!--Below are the divs that handle error messages
             If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
             they will be displayed below-->
@@ -87,7 +92,11 @@
                 </form>
             </div>
             <div th:each="event: ${events}" class="event" >
-                <p th:text="${event.name} + ':'" class="eventName" ></p>
+                <p th:text="${event.id}" class="eventId" style="display: none"></p>
+                <p th:text="${event.startDate}" class="eventStartDateNilFormat" style="display: none"></p>
+                <p th:text="${event.endDate}" class="eventEndDateNilFormat" style="display: none"></p>
+                <p th:text="${event.name}" class="eventName" ></p>
+                <button class="btn btn-primary eventEditButton" th:if="${userCanEdit == true}">Edit</button>
                 <div class="eventDateDiv">
                     <p th:text="${event.getStartDateFormatted()}" class="eventStart"></p>
 
