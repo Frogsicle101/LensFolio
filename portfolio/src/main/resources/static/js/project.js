@@ -208,12 +208,20 @@ $(document).ready(() => {
                     }
                 })
             }
-
-
-
         })
 
+    })
 
+    $(".eventDeleteButton").click(function(){
+        let eventData = {"eventId": $(this).closest(".event").find(".eventId").text()}
+        $.ajax({
+            url: "/deleteEvent",
+            type: "DELETE",
+            data: eventData,
+            success: function(response) {
+                location.reload()
+            }
+        })
     })
 
 

@@ -21,6 +21,7 @@ section{
     --secondary-text-colour: #c4c3c3;
     --secondary-text-colour-darker: #696969;
     --select-green: #95fd97;
+    --select-red: #ff0000;
     --border-radius: 0.4rem;
 
 }
@@ -247,11 +248,20 @@ section{
 .eventEditButton{
     position: absolute;
     top: 1rem;
-    right: 1rem;
+    right: 2.5rem;
 }
 
 .eventEditButton:hover{
     color: var(--select-green);
+}
+
+.eventDeleteButton{
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+.eventDeleteButton:hover{
+    color: var(--select-red);
 }
 .event{
     position: relative;
