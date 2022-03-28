@@ -62,8 +62,18 @@ public class Sprint {
         this.endDate = (startDate).plusWeeks(3);
         this.description = "No description";
         this.colour = "#f554f5";
+    }
 
 
+    public Sprint(Project project, String name, LocalDate startDate, LocalDate endDate) {
+
+        this.id = UUID.randomUUID();
+        this.project = project;
+        this.name = name;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.description = "No description";
+        this.colour = "#f554f5";
     }
 
     public void addEvent(Event event) {

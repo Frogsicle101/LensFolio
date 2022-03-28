@@ -280,11 +280,28 @@ public class PortfolioController {
             if (!sprintList.isEmpty()) {
                 startDate = sprintList.get(0).getEndDate().plusDays(1);
             }
+            //If start date of sprint is after the project end date then send a message to the user informing them
+            //that no more sprints can be added.
+            if (startDate.isAfter(project.getEndDate())) {
+                attributes.addFlashAttribute(errorMessage, "No more room to add sprints within project dates!");
+            } else {
+                // Check that if the end date (startDate.plus(3)weeks) is after project end date, then set the end date
+                // to be the project end date.
+                 if (startDate.plusWeeks(3).isAfter(project.getEndDate())) {
+                    //Save the new sprint
+                    sprintRepository.save(new Sprint(project, sprintName, startDate, project.getEndDate()));
+                }else {
+                    //Save the new sprint
+                    sprintRepository.save(new Sprint(project, sprintName, startDate));
+                }
+                attributes.addFlashAttribute(successMessage, "Sprint added!");
+            }
 
-            //Save the new sprint
-            sprintRepository.save(new Sprint(project, sprintName, startDate));
 
-            attributes.addFlashAttribute(successMessage, "Sprint added!");
+
+
+
+
 
         } catch(EntityNotFoundException err) {
             attributes.addFlashAttribute(errorMessage, err.getMessage());
