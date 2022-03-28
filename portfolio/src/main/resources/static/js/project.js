@@ -65,8 +65,10 @@ $(document).ready(() => {
             "projectId": projectId,
             "eventName": $("#eventName").val(),
             "eventStart": $("#eventStart").val(),
-            "eventEnd": $("#eventEnd").val()
+            "eventEnd": $("#eventEnd").val(),
+            "typeOfEvent": $(".typeOfEvent").val()
         }
+        console.log(eventData.typeOfEvent)
         if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
             $(this).closest(".eventForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -128,29 +130,46 @@ $(document).ready(() => {
         let eventName = $(this).closest(".event").find(".eventName").text();
         let eventStart = $(this).closest(".event").find(".eventStartDateNilFormat").text().slice(0,16);
         let eventEnd = $(this).closest(".event").find(".eventEndDateNilFormat").text().slice(0,16);
+        let typeOfEvent = $(this).closest(".event").find(".typeOfEvent").text()
 
 
-        $(this).closest(".event").append('<form class="existingEventForm">\n' +
-            '                    <div class="mb-1">\n' +
-            '                        <label for="eventName" class="form-label">Event name</label>\n' +
-            '                        <input type="text" class="form-control form-control-sm eventName" maxlength="'+eventNameLengthRestriction+'" value="'+ eventName +'" name="eventName" required>\n' +
-            '                        <small class="form-text text-muted countChar">0 characters remaining</small>\n' +
-            '                    </div>\n' +
-            '                    <div class="row mb-1">\n' +
-            '                        <div class="col">\n' +
-            '                            <label for="eventStart" class="form-label">Start</label>\n' +
-            '                            <input type="datetime-local" class="form-control form-control-sm eventStart" value="'+ eventStart +'" min="'+ projectStart +'" max="'+projectEnd+'" name="eventStart"  required>\n' +
-            '                        </div>\n' +
-            '                        <div class="col">\n' +
-            '                            <label for="eventEnd" class="form-label">End</label>\n' +
-            '                            <input type="datetime-local" class="form-control form-control-sm eventEnd" value="'+ eventEnd +'" min="'+ projectStart +'" max="'+projectEnd+'" name="eventEnd" required>\n' +
-            '                        </div>\n' +
-            '                    </div>\n' +
-            '                    <div class="mb-1">\n' +
-            '                        <button type="button" class="btn btn-primary existingEventSubmit">Save</button>\n' +
-            '                        <button type="button" class="btn btn-secondary existingEventCancel" >Cancel</button>\n' +
-            '                    </div>\n' +
-            '                </form>')
+
+        $(this).closest(".event").append(`
+                <form class="existingEventForm">
+                        <div class="mb-1">
+                        <label for="eventName" class="form-label">Event name</label>
+                        <input type="text" class="form-control form-control-sm eventName" value="`+ eventName +`" maxlength="`+eventNameLengthRestriction+`" name="eventName" required>
+                        <small class="form-text text-muted countChar">0 characters remaining</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Type of event</label>
+                        <select class="form-select typeOfEvent" id="exampleFormControlInput1">
+                            <option value="1">Event</option>
+                            <option value="2">Test</option>
+                            <option value="3">Meeting</option>
+                            <option value="4">Workshop</option>
+                            <option value="5">Special Event</option>
+                            <option value="6">Attention Required</option>
+                        </select>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col">
+                            <label for="eventStart" class="form-label">Start</label>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputStartDate eventStart" value="`+eventStart+`" min="`+projectStart+`" max="`+projectEnd+`" name="eventStart" required>
+                        </div>
+                        <div class="col">
+                            <label for="eventEnd" class="form-label">End</label>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputEndDate eventEnd" value="`+eventEnd+`" min="`+projectStart+`" max="`+projectEnd+`" name="eventEnd" required>
+                        </div>
+                    </div>
+                    <div class="mb-1">
+                        <button type="button" class="btn btn-primary existingEventSubmit">Save</button>
+                        <button type="button" class="btn btn-secondary existingEventCancel" >Cancel</button>
+                    </div>
+                </form>`)
+
+
+
         $(".existingEventCancel").click(function() {
             $(this).closest(".event").find(".eventEditButton").show();
             $(this).closest(".event").find(".existingEventForm").remove();
@@ -159,7 +178,7 @@ $(document).ready(() => {
         $(".form-control").each(countCharacters)
         $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
         $(this).closest(".event").find(".eventEditButton").hide();
-
+        $(this).closest(".event").find(".existingEventForm").find(".typeOfEvent").val(typeOfEvent)
 
         $(".existingEventSubmit").click(function() {
             let eventData = {
@@ -167,7 +186,8 @@ $(document).ready(() => {
                 "eventId" : eventId,
                 "eventName": $(this).closest(".existingEventForm").find(".eventName").val(),
                 "eventStart": $(this).closest(".existingEventForm").find(".eventStart").val(),
-                "eventEnd": $(this).closest(".existingEventForm").find(".eventEnd").val()
+                "eventEnd": $(this).closest(".existingEventForm").find(".eventEnd").val(),
+                "typeOfEvent": $(this).closest(".existingEventForm").find(".typeOfEvent").val()
             }
             if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
                 $(this).closest(".existingEventForm").append(`
@@ -199,7 +219,6 @@ $(document).ready(() => {
 
         })
 
-        console.log(eventStart)
 
     })
 

@@ -74,10 +74,10 @@ public class PortfolioController {
 
     public void createDefaultEvents(Project project) {
         LocalDateTime date = LocalDateTime.now();
-        Event event1 = new Event(project, "Sprint1 to Sprint2", date, date.plusWeeks(4));
-        Event event2 = new Event(project, "Sprint1 to Sprint4", date, date.plusWeeks(12));
-        Event event3 = new Event(project, "Merry Chrysler Day", date.minusDays(10), date.plusDays(20));
-        Event event4 = new Event(project, "Not in a sprint - Sprint 6", date.plusWeeks(19), date.plusWeeks(21));
+        Event event1 = new Event(project, "Sprint1 to Sprint2", date, date.plusWeeks(4), 1);
+        Event event2 = new Event(project, "Sprint1 to Sprint4", date, date.plusWeeks(12), 2);
+        Event event3 = new Event(project, "Merry Chrysler Day", date.minusDays(10), date.plusDays(20), 3);
+        Event event4 = new Event(project, "Not in a sprint - Sprint 6", date.plusWeeks(19), date.plusWeeks(21), 4);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);

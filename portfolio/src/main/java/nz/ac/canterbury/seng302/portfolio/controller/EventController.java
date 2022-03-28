@@ -49,7 +49,8 @@ public class EventController {
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart")  String start,
-            @RequestParam(value = "eventEnd") String end
+            @RequestParam(value = "eventEnd") String end,
+            @RequestParam(value = "typeOfEvent") int typeOfEvent
     ) {
         try {
             // eventStart and eventEnd return a string in the format "1986-01-28T11:38:00.01"
@@ -61,7 +62,7 @@ public class EventController {
                     "Project with id " + projectId.toString() + " was not found"
             ));
 
-            Event event = new Event(project, name, eventStart, eventEnd);
+            Event event = new Event(project, name, eventStart, eventEnd, typeOfEvent);
             eventRepository.save(event);
             return new ResponseEntity<>(HttpStatus.OK);
 
@@ -108,7 +109,8 @@ public class EventController {
             @RequestParam(value = "eventId") UUID eventId,
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart")  String start,
-            @RequestParam(value = "eventEnd") String end
+            @RequestParam(value = "eventEnd") String end,
+            @RequestParam(value = "typeOfEvent") int typeOfEvent
     )
     {
         try{
@@ -125,6 +127,7 @@ public class EventController {
             event.setName(name);
             event.setStartDate(eventStart);
             event.setEndDate(eventEnd);
+            event.setTypeOfEvent(typeOfEvent);
             eventRepository.save(event);
             
             return new ResponseEntity<>(HttpStatus.OK);

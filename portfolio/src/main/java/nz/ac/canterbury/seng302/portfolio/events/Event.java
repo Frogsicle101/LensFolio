@@ -29,16 +29,26 @@ public class Event {
     private LocalDateTime endDate;
     private String startDateColour;
     private String endDateColour;
+    private int typeOfEvent;
 
 
     public Event() {
     }
 
-    public Event(Project project, String name, LocalDateTime startDate, LocalDateTime endDate) {
+    public Event(Project project, String name, LocalDateTime startDate, LocalDateTime endDate, int typeOfEvent) {
         this.project = project;
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.typeOfEvent = typeOfEvent;
+    }
+
+    public int getTypeOfEvent() {
+        return typeOfEvent;
+    }
+
+    public void setTypeOfEvent(int typeOfEvent) {
+        this.typeOfEvent = typeOfEvent;
     }
 
     public static int getNameLengthRestriction(){
