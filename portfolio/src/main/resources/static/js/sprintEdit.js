@@ -8,9 +8,12 @@ $(document).ready(function(){
                                 <strong>Oh no!</strong> You should probably make the start date be before the end date
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
-            $(".submitButton").attr("disabled", true)
+            $(".canDisable").attr("disabled", true)
+            $(this).attr("disabled", false)
+            $(this).addClass("is-invalid")
         } else {
-            $(".submitButton").attr("disabled", false)
+            $(".canDisable").attr("disabled", false)
+            $(this).removeClass("is-invalid")
             $(".alert-danger").remove()
 
         }
@@ -24,9 +27,12 @@ $(document).ready(function(){
                                 <strong>Oh no!</strong> You should probably make the end date be after the start date
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
-            $(".submitButton").attr("disabled", true)
+            $(".canDisable").attr("disabled", true)
+            $(this).attr("disabled", false)
+            $(this).addClass("is-invalid")
         } else {
-            $(".submitButton").attr("disabled", false)
+            $(".canDisable").attr("disabled", false)
+            $(this).removeClass("is-invalid")
             $(".alert-danger").remove()
 
         }
@@ -37,10 +43,11 @@ $(document).ready(function(){
         console.log(sprintName.length)
         if (sprintName.length === 0 || sprintName.trim().length === 0) {
             $(this).addClass("is-invalid")
-            $(".submitButton").attr("disabled", true)
+            $(".canDisable").attr("disabled", true)
+            $(this).attr("disabled", false)
         } else {
             $(this).removeClass("is-invalid")
-            $(".submitButton").attr("disabled", false)
+            $(".canDisable").attr("disabled", false)
         }
 
     })

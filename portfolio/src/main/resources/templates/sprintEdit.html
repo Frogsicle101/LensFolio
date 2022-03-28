@@ -45,7 +45,7 @@
             <label for="sprintDescription" class="form-label">Sprint Description</label>
             <textarea class="form-control canDisable" name="sprintDescription" id="sprintDescription" th:text="${sprint.getDescription()}"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary submitButton">Submit</button>
+        <button type="submit" class="btn btn-primary submitButton canDisable">Submit</button>
         <button type="button" onclick="history.back()" class="btn btn-danger" >Cancel</button>
 
     </form>
