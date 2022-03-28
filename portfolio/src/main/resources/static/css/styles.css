@@ -211,7 +211,6 @@ section{
     display: flex;
     flex-direction: column;
     min-width: 20rem;
-    max-width: 50rem;
     border-right: solid 1px var(--main-border-colour);
     padding-left: 1rem;
     padding-top: 1rem;
