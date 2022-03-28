@@ -95,6 +95,7 @@ public class UserListController {
             @RequestParam(value = "username") String username,
             @RequestParam(value = "newUserRoles") List<String> newUserRoles) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+
         HashMap<String, UserRole> stringToRole = new HashMap<>();
         stringToRole.put("STUDENT", UserRole.STUDENT);
         stringToRole.put("TEACHER", UserRole.TEACHER);
@@ -103,7 +104,7 @@ public class UserListController {
         for (String role : newUserRoles) {
             ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                     .setRole(stringToRole.get(role))
-                    .setUserId(Integer.parseInt(userId))
+                    .setUserId(Integer.parseInt(String.valueOf(userId)))
                     .build();
             UserRoleChangeResponse response = userAccountsClientService.addRoleToUser(request);
 

@@ -18,6 +18,16 @@ public class PrincipalAttributes {
                 .orElse("NOT FOUND");
     }
 
+    /**
+     * Specific use of the getClaim method for returning a userId from their AuthState.
+     *
+     * @param principal - The AuthState gRPC message.
+     * @return userId (int) - a user Id of the principal.
+     */
+    public static int getIdFromPrincipal(AuthState principal) {
+        return Integer.parseInt(PrincipalAttributes.getClaim(principal, "nameid"));
+    }
+
     public static UserResponse getUserFromPrincipal(AuthState principal, UserAccountsClientService userAccountsClientService) {
         // Get user from server
         int user_id = Integer.parseInt(PrincipalAttributes.getClaim(principal, "nameid"));
