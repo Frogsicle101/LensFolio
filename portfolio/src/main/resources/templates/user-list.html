@@ -38,8 +38,19 @@
                         <td th:text="${user.firstName} +  ' ' + ${user.middleName} + ' ' + ${user.lastName}">Name</td>
                         <td class="username" th:text="${user.username}">Username</td>
                         <td th:text="${user.nickname}">Nickname</td>
-                        <td th:text="${#strings.listJoin(user.rolesList, ', ')}">Roles</td>
+                        <td class="roleButtonsContainer">
+                            <div th:each="activeRole : ${user.rolesList}" class="badge border d-inline-flex align-items-center">
+                                <div class="tagDiv">
+                                    <div class=" text-black roleType" th:text="${activeRole}"></div>
+                                    <button class="btn-close roleTagDivButton" style="font-size: 0.75em;">x</button>
+                                </div>
+                            </div>
+                            <button id="tag-menu-button" class="btn badge border text-light bg-primary tagDelete">+</button>
+
+                        </td>
+<!--                        <td th:each="${#strings.listJoin(user.rolesList, ', ')}">Roles</td>-->
                         <td class="parent">
+                            <button th:each="role : ${possibleRoles}" th:text="${role}"></button>
                             <select class="form-select roleWithButton" multiple aria-label="user-role-selection roleSelector" id="user-role-selection"> // th:if="${userCanEdit == true}
                                 <option th:selected="${user.rolesList.contains(role)}" th:each="role : ${possibleRoles}" th:text="${role}" ></option>
                             </select>

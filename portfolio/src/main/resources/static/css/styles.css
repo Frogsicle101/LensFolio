@@ -237,5 +237,9 @@ section{
 
 }
 
-
+/*edit roles page*/
+.tagDiv {
+    display: flex;
+    flex-direction: row;
+}
 
