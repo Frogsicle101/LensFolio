@@ -159,6 +159,8 @@ $(document).ready(() => {
         $(".form-control").each(countCharacters)
         $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
         $(this).closest(".event").find(".eventEditButton").hide();
+
+
         $(".existingEventSubmit").click(function() {
             let eventData = {
                 "projectId": projectId,
@@ -167,17 +169,33 @@ $(document).ready(() => {
                 "eventStart": $(this).closest(".existingEventForm").find(".eventStart").val(),
                 "eventEnd": $(this).closest(".existingEventForm").find(".eventEnd").val()
             }
-            $.ajax({
-                url: "/editEvent",
-                type: "POST",
-                data: eventData,
-                success: function(response) {
-                    location.reload()
-                },
-                error: function(response) {
+            if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
+                $(this).closest(".existingEventForm").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Oh no!</strong> You probably should enter an event name!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
+            } else if (eventData.eventEnd < eventData.eventStart) {
+                $(this).closest(".existingEventForm").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Oh no!</strong> Your event end date shouldn't be before your event start date!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
+            } else {
+                $.ajax({
+                    url: "/editEvent",
+                    type: "POST",
+                    data: eventData,
+                    success: function(response) {
+                        location.reload()
+                    },
+                    error: function(response) {
 
-                }
-            })
+                    }
+                })
+            }
+
+
 
         })
 
