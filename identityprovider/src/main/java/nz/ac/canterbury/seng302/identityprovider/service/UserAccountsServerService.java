@@ -250,7 +250,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void addRoleToUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
-        super.addRoleToUser(request, responseObserver);
+//        super.addRoleToUser(request, responseObserver);
         UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
 
         User userToUpdate = repository.findById(request.getUserId());

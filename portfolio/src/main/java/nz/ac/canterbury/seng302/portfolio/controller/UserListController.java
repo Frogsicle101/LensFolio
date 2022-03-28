@@ -99,25 +99,37 @@ public class UserListController {
     public ResponseEntity<String> editUserRoles(
             @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "username") String username,
-            @RequestParam(value = "newUserRoles") List<String> newUserRoles) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+            @RequestParam(value = "newUserRoles") String newUserRoles) {
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal); //TODO change this because the user to be changed is not necessarily the user editing the table
 
+        logger.info("username: " + username + "\nnewUserRoles: " + newUserRoles);
         HashMap<String, UserRole> stringToRole = new HashMap<>();
         stringToRole.put("STUDENT", UserRole.STUDENT);
         stringToRole.put("TEACHER", UserRole.TEACHER);
         stringToRole.put("COURSE_ADMINISTRATOR", UserRole.COURSE_ADMINISTRATOR);
         stringToRole.put("UNRECOGNIZED", UserRole.UNRECOGNIZED);
-        for (String role : newUserRoles) {
-            ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
-                    .setRole(stringToRole.get(role))
-                    .setUserId(Integer.parseInt(String.valueOf(userId)))
-                    .build();
-            UserRoleChangeResponse response = userAccountsClientService.addRoleToUser(request);
-
+        boolean validChange = true;
+        for (String role : stringToRole.keySet()) {
+            UserRoleChangeResponse response;
+            if (newUserRoles.contains(role)) {
+                ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
+                        .setRole(stringToRole.get(role))
+                        .setUserId(Integer.parseInt(String.valueOf(userId)))
+                        .build();
+                response = userAccountsClientService.addRoleToUser(request);
+            } else {
+                ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
+                        .setRole(stringToRole.get(role))
+                        .setUserId(Integer.parseInt(String.valueOf(userId)))
+                        .build();
+                response = userAccountsClientService.removeRoleFromUser(request);
+            }
+            if (! response.getIsSuccess()) {
+                validChange = false;
+            }
         }
-        return new ResponseEntity<>(HttpStatus.OK);
 
-
+        return new ResponseEntity<>(validChange ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR);
     }
     /**
      * A helper function to get the values of the offset and users per page limit and send a request to the client
