@@ -67,17 +67,32 @@ $(document).ready(() => {
             "eventStart": $("#eventStart").val(),
             "eventEnd": $("#eventEnd").val()
         }
-        $.ajax({
-            url: "/addEvent",
-            type: "put",
-            data: eventData,
-            success: function(response) {
-                location.href = "/portfolio?projectId=" + projectId
-            },
-            error: function(response) {
+        if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
+            $(this).closest(".eventForm").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Oh no!</strong> You probably should enter an event name!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
+        } else if (eventData.eventEnd < eventData.eventStart) {
+            $(this).closest(".eventForm").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Oh no!</strong> Your event end date shouldn't be before your event start date!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
+        } else {
+            $.ajax({
+                url: "/addEvent",
+                type: "put",
+                data: eventData,
+                success: function(response) {
+                    location.href = "/portfolio?projectId=" + projectId
+                },
+                error: function(response) {
 
-            }
-        })
+                }
+            })
+        }
+
     })
 
     $(".form-control").each(countCharacters)

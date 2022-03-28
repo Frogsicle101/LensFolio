@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title>Lensfolio | Portfolio</title>
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
@@ -61,7 +61,7 @@
         <div class="eventContainer">
             <div class="mb-2 eventNameAndAddButton">
                 <h4>Events</h4>
-                <button type="button" class="addEventButton noStyleButton" th:if="${userCanEdit == true}" data-bs-toggle="tooltip" data-bs-placement="top" title="Toggle Event form" >
+                <button type="button" class="addEventButton noStyleButton" th:if="${userCanEdit == true}" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Event" >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-circle addEventSvg" viewBox="0 0 16 16">
                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                         <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
@@ -79,11 +79,11 @@
                     <div class="row mb-1">
                         <div class="col">
                             <label for="eventStart" class="form-label">Start</label>
-                            <input type="datetime-local" class="form-control form-control-sm" th:value="${project.getStartDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}" th:max="${project.getEndDateAsLocalDateTime()}" name="eventStart" id="eventStart" required>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputStartDate" th:value="${project.getStartDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}" th:max="${project.getEndDateAsLocalDateTime()}" name="eventStart" id="eventStart" required>
                         </div>
                         <div class="col">
                             <label for="eventEnd" class="form-label">End</label>
-                            <input type="datetime-local" class="form-control form-control-sm" th:value="${project.getStartDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}" th:max="${project.getEndDateAsLocalDateTime()}" name="eventEnd" id="eventEnd" required>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputEndDate" th:value="${project.getStartDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}" th:max="${project.getEndDateAsLocalDateTime()}" name="eventEnd" id="eventEnd" required>
                         </div>
                     </div>
                     <div class="mb-1">
@@ -115,9 +115,11 @@
                         <h2 th:text="${sprint.name}"></h2>
                         <div th:each="event: ${sprint.getEventList()}" class="eventInSprint">
                             <p th:text="${event.getName()} + ':'"></p>
-                            <p th:text="${event.getStartDateFormatted()}" style="color:" th:attrappend="style=${' ' + event.startDateColour}"  ></p>
+                            <p th:if="${event.startDate.toLocalDate().isAfter(sprint.startDate.minusDays(1)) && event.startDate.toLocalDate().isBefore(sprint.endDate.plusDays(1))}" th:text="${event.getStartDateFormatted()}" th:style="'color: ' + ${event.startDateColour}" class="bold" data-bs-toggle="tooltip" data-bs-placement="top" title="Event will start this sprint"></p>
+                            <p th:unless="${event.startDate.toLocalDate().isAfter(sprint.startDate.minusDays(1)) && event.startDate.toLocalDate().isBefore(sprint.endDate.plusDays(1))}"th:text="${event.getStartDateFormatted()}" th:style="'color: ' + ${event.startDateColour}"></p>
                             <p>-</p>
-                            <p th:text="${event.getEndDateFormatted()}" style="color:" th:attrappend="style=${' ' + event.endDateColour}"></p>
+                            <p th:if="${event.endDate.toLocalDate().isAfter(sprint.startDate.minusDays(1)) && event.endDate.toLocalDate().isBefore(sprint.endDate.plusDays(1))}" th:text="${event.getEndDateFormatted()}" th:style="'color: ' + ${event.endDateColour}" class="bold" data-bs-toggle="tooltip" data-bs-placement="top" title="Event will end this sprint"></p>
+                            <p th:unless="${event.endDate.toLocalDate().isAfter(sprint.startDate.minusDays(1)) && event.endDate.toLocalDate().isBefore(sprint.endDate.plusDays(1))}"th:text="${event.getEndDateFormatted()}" th:style="'color: ' + ${event.endDateColour}" ></p>
 
                         </div>
 

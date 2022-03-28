@@ -70,6 +70,7 @@ public class Sprint {
         eventList.add(event);
     }
 
+
     public List<Event> getEventList() {
         return eventList;
     }

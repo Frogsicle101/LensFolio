@@ -7,6 +7,7 @@ import nz.ac.canterbury.seng302.portfolio.projects.Project;
 
 import javax.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import java.util.UUID;
@@ -51,6 +52,14 @@ public class Event {
     public String getEndDateFormatted() {
 
         return getEndDate().format(DateTimeFormat.timeDateMonthYear());
+    }
+
+    public LocalDate getStartAsLocal(){
+        return this.startDate.toLocalDate();
+    }
+
+    public LocalDate getEndAsLocal(){
+        return this.endDate.toLocalDate();
     }
 
     public UUID getId() {
