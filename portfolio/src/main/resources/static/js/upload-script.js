@@ -44,7 +44,7 @@ async function processImage() {
 
     // Calculate quality value needed
     if (imageSize <= maxFileSize) {
-        quality = 0.8;
+        quality = 0.9;
     } else {
         quality = maxFileSize/imageSize;
     }
@@ -91,6 +91,7 @@ async function sendImagePostRequest() {
         method: "POST",
         body: formData
     });
+    location.reload();
 
 
 
