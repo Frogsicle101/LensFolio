@@ -3,16 +3,16 @@ $(document).ready(function(){
 
     $(".editRoleSaveButton").click(function() {
         let roleList = $(this).siblings().children(":selected").text()
-        let userId = $(this).closest(".userId").length;
+        let username = $(this).parent().siblings(".username").text();
         console.log(roleList)
-        console.log(userId)
+        console.log(username)
 
         $.ajax('/editUserRole', {
             type: "POST",
-            data:  {"userId": userId,
+            data:  {"username": username,
                 "newUserRoles": roleList},
             success: function() {
-                // location.href = "/user-list"
+                location.href = "/user-list"
             }
         })
     })

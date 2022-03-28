@@ -56,7 +56,8 @@ public class UserListController {
         int pageNum = page.orElse(1);
         int usersPerPageLimit = 50;
         int offset = (pageNum - 1) * usersPerPageLimit;
-    public String getUserList(Model model, @RequestParam("page") Optional<Integer> page) {
+
+//    public String getUserList(Model model, @RequestParam("page") Optional<Integer> page) {
         pageNum = page.orElse(1);
         if (pageNum <= 1) { //to ensure no negative page numbers
             pageNum = 1;
@@ -91,10 +92,9 @@ public class UserListController {
     @PostMapping("/editUserRole")
     public ResponseEntity<String> editUserRoles(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam(value = "userId") String userId,
+            @RequestParam(value = "username") String username,
             @RequestParam(value = "newUserRoles") List<String> newUserRoles) {
-
-        logger.info("bingaling");
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         HashMap<String, UserRole> stringToRole = new HashMap<>();
         stringToRole.put("STUDENT", UserRole.STUDENT);
         stringToRole.put("TEACHER", UserRole.TEACHER);

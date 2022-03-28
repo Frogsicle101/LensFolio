@@ -24,29 +24,28 @@
         <div id="user-list">
             <table class="table table-bordered table-responsive-sm">
                 <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Username</th>
-                    <th>Aliases</th>
-                    <th>Roles</th>
-                    <th>Role Editor</th>
-                </tr>
+                    <tr>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Aliases</th>
+                        <th>Roles</th>
+                        <th>Role Editor</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr th:each="user : ${user_list}" class="userRoleRow">
-                    <td class="userId" th:text="user.userId" style="display: none"></td>
-                    <td th:text="${user.firstName} +  ' ' + ${user.middleName} + ' ' + ${user.lastName}">Name</td>
-                    <td class="username" th:text="${user.username}">Username</td>
-                    <td th:text="${user.nickname}">Nickname</td>
-                    <td th:text="${#strings.listJoin(user.rolesList, ', ')}">Roles</td>
-                    <td class="parent">
+                    <tr th:each="user : ${user_list}" class="userRoleRow">
+<!--                        <td class="userId" th:text="${user.username}" style="display: none"></td>-->
+                        <td th:text="${user.firstName} +  ' ' + ${user.middleName} + ' ' + ${user.lastName}">Name</td>
+                        <td class="username" th:text="${user.username}">Username</td>
+                        <td th:text="${user.nickname}">Nickname</td>
+                        <td th:text="${#strings.listJoin(user.rolesList, ', ')}">Roles</td>
+                        <td class="parent">
                             <select class="form-select roleWithButton" multiple aria-label="user-role-selection roleSelector" id="user-role-selection"> // th:if="${userCanEdit == true}
                                 <option th:selected="${user.rolesList.contains(role)}" th:each="role : ${possibleRoles}" th:text="${role}" ></option>
                             </select>
-
                             <button class="btn btn-primary editRoleSaveButton">Save</button>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
