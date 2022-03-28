@@ -94,7 +94,7 @@ public class UserListController {
             @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "username") String username,
             @RequestParam(value = "newUserRoles") List<String> newUserRoles) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal); //TODO change this because the user to be changed is not necessarily the user editing the table
 
         HashMap<String, UserRole> stringToRole = new HashMap<>();
         stringToRole.put("STUDENT", UserRole.STUDENT);
