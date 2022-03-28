@@ -99,24 +99,24 @@
 /* Page Layout */
 .wrapper {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 100px 100px 100px 100px;
+  grid-template-columns: 70% 30%;
+  grid-template-rows: 10% 90%;
   grid-gap: 10px;
 }
 
 .calendarBox {
-  grid-column: 1 / 3;
-  grid-row: 1 / 4;
+  grid-column: 1;
+  grid-row: 2;
 }
 
 .projectBox {
-  grid-column: 1 / 3;
-  grid-row: 4;
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .sprintsBox {
-  grid-row: 3;
-  grid-column: 1 / 5;
+  grid-row: 1/3;
+  grid-column: 2;
 }
 
 /*projectInfo*/
