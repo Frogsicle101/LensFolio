@@ -21,6 +21,7 @@ section{
     --secondary-text-colour: #c4c3c3;
     --secondary-text-colour-darker: #696969;
     --select-green: #95fd97;
+    --border-radius: 0.4rem;
 
 }
 
@@ -56,7 +57,7 @@ section{
     min-width: 10rem;
 
     margin: 0.1rem;
-    border-radius: .25rem;
+    border-radius: var(--border-radius);
 
 }
 
@@ -238,16 +239,29 @@ section{
     align-items: center;
     justify-content: center;
     border: solid 1px var(--secondary-text-colour);
-    border-radius: 0.4rem;
+    border-radius: var(--border-radius);
     padding: 0.2rem;
     width: 2rem;
     height: 2rem;
 }
 
+.eventEditButton{
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.eventEditButton:hover{
+    color: var(--select-green);
+}
 .event{
+    position: relative;
+    margin-bottom: 1rem;
+    border: solid 1px var(--secondary-text-colour);
+    border-radius: var(--border-radius);
     display: flex;
     flex-direction: column;
-    padding-bottom: 1rem;
+    padding: 1rem;
 }
 
 .addEventSvg{
@@ -305,7 +319,7 @@ section{
     padding: 2rem;
     border: solid 1px var(--main-border-colour);
     background-color: #ffffff;
-    border-radius: 1rem;
+    border-radius: var(--border-radius);
     margin-top: 1rem;
     box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     transition: all 0.3s ease-out;

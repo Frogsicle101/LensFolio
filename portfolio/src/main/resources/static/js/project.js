@@ -25,7 +25,7 @@ $(document).ready(() => {
      */
     $(".editSprint").click(function () {
         let sprintId = $(this).closest(".sprint").find(".sprintId").text();
-        location.href = "/sprintEdit?sprintId=" + $(this).closest(".sprint").find(".sprintId").text() +"&projectId=" + projectId;
+        location.href = "/sprintEdit?sprintId=" + sprintId +"&projectId=" + projectId;
     })
 
     /**
@@ -88,9 +88,6 @@ $(document).ready(() => {
                 data: eventData,
                 success: function(response) {
                     location.href = "/portfolio?projectId=" + projectId
-                },
-                error: function(response) {
-
                 }
             })
         }
@@ -208,9 +205,6 @@ $(document).ready(() => {
                     data: eventData,
                     success: function(response) {
                         location.reload()
-                    },
-                    error: function(response) {
-
                     }
                 })
             }
