@@ -96,49 +96,60 @@
   background-color: rgb(207, 205, 205);
 }
 
-/* calendar_VS_info */
-.calendar-info{
-  display:flex
+/* Page Layout */
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 100px 100px 100px 100px;
+  grid-gap: 10px;
 }
 
-/* project_vs_sprints*/
-.progect-sprints{
-  display: flex;
-  flex-direction: column;
+.calendarBox {
+  grid-column: 1 / 3;
+  grid-row: 1 / 4;
+}
+
+.projectBox {
+  grid-column: 1 / 3;
+  grid-row: 4;
+}
+
+.sprintsBox {
+  grid-row: 3;
+  grid-column: 1 / 5;
 }
 
 /*projectInfo*/
-.projectInfo{
+.projectInfo {
   position: relative;
   width: 30rem;
   padding: 2rem;
   margin-top: 1rem;
 }
 
-.projectDetails{
+.projectDetails {
   padding: 2rem;
 }
 
-.projectDetails h1{
+.projectDetails h1 {
   font-weight: bold;
 }
 
-
 /*sprintInfo*/
-.sprintsInfo{
+.sprintsInfo {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.sprint{
+.sprint {
   position: relative;
   width: 30rem;
   padding: 2rem;
   margin-top: 1rem;
 }
 
-.sprint h6{
+.sprint h6 {
   color: var(--secondary-text-colour-darker);
 }
 
@@ -148,8 +159,4 @@
   top: 0.1rem;
   left: 0.1rem;
   color: var(--secondary-text-colour);
-
 }
-
-
-
