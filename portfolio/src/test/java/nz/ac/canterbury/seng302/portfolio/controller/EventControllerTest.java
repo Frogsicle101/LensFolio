@@ -146,6 +146,57 @@ class EventControllerTest {
 
     }
 
+    @Test
+    void testEditEvent() throws Exception {
+        project = projectRepository.getProjectByName("Project Default");
+        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("eventId", event.getId().toString());
+        params.put("eventName", "ChangedName");
+        params.put("eventStart", "2022-03-28T11:38:00.01");
+        params.put("eventEnd", "2022-04-29T11:38:00.01");
+
+        String eventId = event.getId().toString();
+        ResultActions result = this.mockMvc.perform(post("/editEvent"+ joinParameters(params)));
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    void testEditEventWithNoParams() throws Exception {
+        project = projectRepository.getProjectByName("Project Default");
+        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("eventId", event.getId().toString());
+        params.put("eventName", "ChangedName");
+        params.put("eventStart", "2022-03-28T11:38:00.01");
+        params.put("eventEnd", "2022-04-29T11:38:00.01");
+
+        String eventId = event.getId().toString();
+        ResultActions result = this.mockMvc.perform(post("/editEvent"));
+        result.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testEditEventWithWrongEventId() throws Exception {
+        project = projectRepository.getProjectByName("Project Default");
+        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+        Event event2 = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("eventId", event2.getId().toString());
+        params.put("eventName", "ChangedName");
+        params.put("eventStart", "2022-03-28T11:38:00.01");
+        params.put("eventEnd", "2022-04-29T11:38:00.01");
+
+        eventRepository.delete(event2);
+        String eventId = event.getId().toString();
+        ResultActions result = this.mockMvc.perform(post("/editEvent"+ joinParameters(params)));
+        result.andExpect(status().isNotFound());
+    }
+
 
 
 
