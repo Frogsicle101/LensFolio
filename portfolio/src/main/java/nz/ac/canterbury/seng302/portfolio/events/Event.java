@@ -42,6 +42,13 @@ public class Event {
         this.endDate = endDate;
         this.typeOfEvent = typeOfEvent;
     }
+    public Event(Project project, String name, LocalDateTime startDate, LocalDateTime endDate) {
+        this.project = project;
+        this.name = name;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.typeOfEvent = 1;
+    }
 
     public int getTypeOfEvent() {
         return typeOfEvent;

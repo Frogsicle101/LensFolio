@@ -50,7 +50,7 @@ public class EventController {
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart")  String start,
             @RequestParam(value = "eventEnd") String end,
-            @RequestParam(value = "typeOfEvent") int typeOfEvent
+            @RequestParam(defaultValue = "1",value = "typeOfEvent") int typeOfEvent
     ) {
         try {
             // eventStart and eventEnd return a string in the format "1986-01-28T11:38:00.01"
@@ -110,7 +110,7 @@ public class EventController {
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart")  String start,
             @RequestParam(value = "eventEnd") String end,
-            @RequestParam(value = "typeOfEvent") int typeOfEvent
+            @RequestParam(defaultValue = "1", value = "typeOfEvent") int typeOfEvent
     )
     {
         try{
