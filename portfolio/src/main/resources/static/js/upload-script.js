@@ -18,9 +18,6 @@ async function loadImage(imageUrl) {
 
 /**
  *  Resizes image to desired width and height. Adjusts image quality according to constant value.
- * @param imageId   ID of html <img> element to be resized
- * @param newWidth  Desired new width in pixels
- * @param newHeight Desired new height in pixels
  */
 async function processImage() {
 
@@ -33,15 +30,24 @@ async function processImage() {
     const context = canvas.getContext("2d");
 
     // Set constants
-    const quality = 0.8; // Value must be between 0 and 1
     const uploadImageDataURL = URL.createObjectURL(fileUploadInput.files[0]);
     const uploadImageObject = await loadImage(uploadImageDataURL);
     const originalWidth = uploadImageObject.width;
     const originalHeight = uploadImageObject.height;
+    const maxFileSize = 5000000; // 5MB
 
     // Initialize Variables
     let newHeight;
     let newWidth;
+    let imageSize = fileUploadInput.files[0].size;
+    let quality;
+
+    // Calculate quality value needed
+    if (imageSize <= maxFileSize) {
+        quality = 0.8;
+    } else {
+        quality = maxFileSize/imageSize;
+    }
 
     // Find smaller dimension of image for making square
     if (originalWidth <= originalHeight) {
