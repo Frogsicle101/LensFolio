@@ -9,8 +9,8 @@
 <body>
 <!--The below section <header> pulls the fragment from fragments/general-->
 <header th:insert="fragments/general.html :: header"> </header>
-<section>
-    <form th:action="@{/projectEdit}" th:object="${editProjectForm}" method="post">
+<section class="editProjectContainer">
+    <form th:action="@{/projectEdit}" th:object="${editProjectForm}" method="post" class="projectEditForm">
         <h1>Project</h1>
         <input type="text" name="projectId" style="display: none" id="projectId" th:value="${project.getId()}">
         <div class="mb-3">
@@ -32,10 +32,11 @@
             <label for="projectDescription" class="form-label">Project Description</label>
             <textarea class="form-control canDisable" name="projectDescription" id="projectDescription" th:text="${project.getDescription()}"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary canDisable">Submit</button>
         <button type="button" onclick="history.back()" class="btn btn-danger" >Cancel</button>
 
     </form>
 </section>
 </body>
+<script type="application/javascript" th:src="@{js/projectEdit.js}"></script>
 </html>

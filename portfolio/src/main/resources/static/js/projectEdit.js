@@ -1,9 +1,9 @@
 $(document).ready(function(){
 
-    $("#sprintStartDate").on("change", function () {
-        let sprintStart = $(this).val()
-        let sprintEnd = $("#sprintEndDate").val()
-        if (sprintStart >= sprintEnd) {
+    $("#projectStartDate").on("change", function () {
+        let projectStart = $(this).val()
+        let projectEnd = $("#projectEndDate").val()
+        if (projectStart >= projectEnd) {
             $(this).closest(".col").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You should probably make the start date be before the end date
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -19,12 +19,12 @@ $(document).ready(function(){
         }
     })
 
-    $("#sprintEndDate").on("change", function () {
-        let sprintStart = $("#sprintStartDate").val()
-        let sprintEnd = $(this).val()
-        if (sprintStart >= sprintEnd) {
+    $("#projectEndDate").on("change", function () {
+        let projectStart = $("#projectStartDate").val()
+        let projectEnd = $(this).val()
+        if (projectStart >= projectEnd) {
             $(this).closest(".col").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>Oh no!</strong> You should probably make the end date be after the start date
+                                <strong>Oh no!</strong> You should probably make the start date be before the end date
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
             $(".canDisable").attr("disabled", true)
@@ -38,10 +38,10 @@ $(document).ready(function(){
         }
     })
 
-    $("#sprintName").keyup(function() {
-        let sprintName = $("#sprintName").val()
+    $("#projectName").keyup(function() {
+        let projectName = $("#projectName").val()
 
-        if (sprintName.length === 0 || sprintName.trim().length === 0) {
+        if (projectName.length === 0 || projectName.trim().length === 0) {
             $(this).addClass("is-invalid")
             $(".canDisable").attr("disabled", true)
             $(this).attr("disabled", false)
