@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -29,18 +30,23 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Autowired
     private UserRepository repository;
 
-    //Name Comparator
+    /** Name Comparator */
     Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
 
-    //Username Comparator
+    /** Username Comparator */
     Comparator<User> compareByUsername = Comparator.comparing(User::getUsername);
 
-    //alias Comparator
+    /** alias Comparator */
     Comparator<User> compareByAlias = Comparator.comparing(User::getNickname);
 
-    //role Comparator
-    //todo fix this so that it somehow grabs the roles, perhaps sort the roles list then grab that alphabetically?
-    //Comparator<User> compareByRole = Comparator.comparing(User::getRoles);
+    /** role Comparator */
+    Comparator<User> compareByRole = (userOne, userTwo) -> {
+        ArrayList<UserRole> userOneRoles = userOne.getRoles();
+        ArrayList<UserRole> userTwoRoles = userTwo.getRoles();
+        Collections.sort(userOneRoles);
+        Collections.sort(userTwoRoles);
+        return userOneRoles.toString().compareTo(userTwoRoles.toString());
+    };
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -335,10 +341,25 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
-            //todo below is commented out as need to discuss the correct way to sort by roles
-            //case "role" -> allUsers.sort(compareByRole);
-            case "username" -> allUsers.sort(compareByUsername);
-            case "alias" -> allUsers.sort(compareByAlias);
+            case "roles-increasing" -> allUsers.sort(compareByRole);
+            case "roles-decreasing" -> {
+                allUsers.sort(compareByRole);
+                Collections.reverse(allUsers);
+            }
+            case "username-increasing" -> allUsers.sort(compareByUsername);
+            case "username-decreasing" -> {
+                allUsers.sort(compareByUsername);
+                Collections.reverse(allUsers);
+            }
+            case "aliases-increasing" -> allUsers.sort(compareByAlias);
+            case "aliases-decreasing" -> {
+                allUsers.sort(compareByAlias);
+                Collections.reverse(allUsers);
+            }
+            case "name-decreasing" -> {
+                allUsers.sort(compareByName);
+                Collections.reverse(allUsers);
+            }
             default -> allUsers.sort(compareByName);
         }
         //for each user up to the limit or until all the users have been looped through, add to the response
@@ -346,7 +367,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             reply.addUsers(retrieveUser(allUsers.get(i)));
         }
         reply.setResultSetSize(allUsers.size());
-
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }

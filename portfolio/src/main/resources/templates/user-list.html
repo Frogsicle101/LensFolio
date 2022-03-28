@@ -24,13 +24,29 @@
         <div id="user-list">
             <table class="table table-bordered table-responsive-sm">
                 <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>Aliases</th>
-                        <th>Roles</th>
-                        <th>Role Editor</th>
-                    </tr>
+                <tr>
+                    <th th:switch="${sortOrder}">
+                        <a th:case="'name-increasing'" th:href="@{'/user-list?sortField=name-decreasing'}">Name &#8593;</a>
+                        <a th:case="'name-decreasing'" th:href="@{'/user-list?sortField=name-increasing'}">Name &#8595;</a>
+                        <a th:case="*" th:href="@{'/user-list?sortField=name-increasing'}">Name</a>
+                    </th>
+                    <th th:switch="${sortOrder}">
+                        <a th:case="'username-increasing'" th:href="@{'/user-list?sortField=username-decreasing'}">Username &#8593;</a>
+                        <a th:case="'username-decreasing'" th:href="@{'/user-list?sortField=username-increasing'}">Username &#8595;</a>
+                        <a th:case="*" th:href="@{'/user-list?sortField=username-increasing'}">Username</a>
+                    </th>
+                    <th th:switch="${sortOrder}">
+                        <a th:case="'aliases-increasing'" th:href="@{'/user-list?sortField=aliases-decreasing'}">Aliases &#8593;</a>
+                        <a th:case="'aliases-decreasing'" th:href="@{'/user-list?sortField=aliases-increasing'}">Aliases &#8595;</a>
+                        <a th:case="*" th:href="@{'/user-list?sortField=aliases-increasing'}">Aliases</a>
+                    </th>
+                    <th th:switch="${sortOrder}">
+                        <a th:case="'roles-increasing'" th:href="@{'/user-list?sortField=roles-decreasing'}">Roles &#8593;</a>
+                        <a th:case="'roles-decreasing'" th:href="@{'/user-list?sortField=roles-increasing'}">Roles &#8595;</a>
+                        <a th:case="*" th:href="@{'/user-list?sortField=roles-increasing'}">Roles</a>
+                    </th>
+                    <th>Role Editor</th>
+                </tr>
                 </thead>
                 <tbody>
                     <tr th:each="user : ${user_list}" class="userRoleRow">
