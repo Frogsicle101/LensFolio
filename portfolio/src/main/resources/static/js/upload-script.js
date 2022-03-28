@@ -1,35 +1,20 @@
 /**
- *  Waits for user to select an image and then displays it as a preview.
+ * Creates a new Image object and waits for it to load before continuing
+ * @param imageUrl src url of new image object ot be created
+ * @returns {Promise<*>}
  */
-$(function () {
-    $("#profileImageInput").change(function () {
-        if (this.files && this.files[0]) {
-            let reader = new FileReader();
-            reader.onload = imageIsLoaded;
-            reader.readAsDataURL(this.files[0]);
-        }
+async function loadImage(imageUrl) {
+    let img;
+    const imageLoadPromise = new Promise(resolve => {
+        img = new Image();
+        img.onload = resolve;
+        img.src = imageUrl;
     });
-});
 
-/**
- * Updates image preview and file size when image is loaded.
- * @param event image loaded event
- */
-function imageIsLoaded(event) {
-    const imgElement = document.getElementById('profileImagePreview');
-    $('#profileImagePreview').attr('src', event.target.result);
-    const imgSrc = document.getElementById(imageId).attr('src');
-    // Convert image to blob to get file size
-    fetch(imgSrc)
-        .then(function(response) {
-            return response.blob()
-        })
-        .then(function(blob) {
-            document.querySelector("#size").innerHTML = bytesToSize(blob.size);
-        });
+    await imageLoadPromise;
+    return img
 
 }
-
 
 /**
  *  Resizes image to desired width and height. Adjusts image quality according to constant value.
@@ -37,33 +22,52 @@ function imageIsLoaded(event) {
  * @param newWidth  Desired new width in pixels
  * @param newHeight Desired new height in pixels
  */
-function resizeImage(imageId,newWidth, newHeight) {
-    const imgToCompress = document.getElementById(imageId);
-    const formDataURLField = document.getElementById("formDataURLField");
-    const quality = 0.8; // A value from 0 - 1
+async function processImage() {
 
-    // resizing the image
+    // Get elements from HTML page
+    const previewImage = document.getElementById('profileImagePreview');
+    const fileUploadInput = document.getElementById('profileImageInput');
+
+    // Create canvas and context objects
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
 
-    const originalWidth = imgToCompress.width;
-    const originalHeight = imgToCompress.height;
+    // Set constants
+    const quality = 0.8; // Value must be between 0 and 1
+    const uploadImageDataURL = URL.createObjectURL(fileUploadInput.files[0]);
+    const uploadImageObject = await loadImage(uploadImageDataURL);
+    const originalWidth = uploadImageObject.width;
+    const originalHeight = uploadImageObject.height;
 
+    // Initialize Variables
+    let newHeight;
+    let newWidth;
+
+    // Find smaller dimension of image for making square
+    if (originalWidth <= originalHeight) {
+        newHeight = originalWidth;
+        newWidth = originalWidth;
+    } else {
+        newHeight = originalHeight;
+        newWidth = originalHeight;
+    }
+
+    // Resizing the image
     const cropOffsetX = 0;
     const cropOffsetY = 0;
 
     canvas.width = newWidth;
     canvas.height = newHeight;
 
-    context.drawImage(imgToCompress, cropOffsetX, cropOffsetY, newWidth, newHeight, 0, 0, newWidth, newHeight);
+    // Image with new parameters is drawn using canvas object
+    context.drawImage(uploadImageObject, cropOffsetX, cropOffsetY, newWidth, newHeight, 0, 0, newWidth, newHeight);
 
-    // reducing the quality of the image
+    // Compressing the image and converting to jpeg using a blob object
     canvas.toBlob(
         (blob) => {
             if (blob) {
                 // showing the compressed image
-                imgToCompress.src = URL.createObjectURL(blob);
-                formDataURLField.setAttribute("imageURLFromJavascript", imgToCompress.src);
+                previewImage.src = URL.createObjectURL(blob);
                 document.querySelector("#size").innerHTML = bytesToSize(blob.size); // Sends image size to upload form
             }
         },
@@ -72,8 +76,8 @@ function resizeImage(imageId,newWidth, newHeight) {
     );
 }
 
-async function sendImagePostRequest(imageId) {
-    const url = document.getElementById(imageId).getAttribute('src');
+async function sendImagePostRequest() {
+    const url = document.getElementById('profileImagePreview').getAttribute('src');
     const formData = new FormData();
     formData.append("image", await fetch(url).then(r => r.blob()));
 
