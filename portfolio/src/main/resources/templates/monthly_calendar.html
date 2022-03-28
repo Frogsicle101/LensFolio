@@ -94,6 +94,18 @@
             style="display: none"
           ></p>
 
+          <script>
+            var startList = new Array();
+            var endList = new Array();
+            var sprintColour = new Array();
+            for( "sprint: ${sprints}") {
+              startList.push("${sprint.startDate}");
+              endList.push("${sprint.endDate}");
+              sprintColour.push("${sprint.colour}");
+            }
+          </script>
+          
+          
           <p
             id="sprints"
             th:val="${sprints}"
@@ -105,7 +117,8 @@
           <script
             type="application/javascript"
             th:src="@{js/calendar.js}"
-          ></script>
+          >
+          </script>
         </div>
       </div>
     </section>
