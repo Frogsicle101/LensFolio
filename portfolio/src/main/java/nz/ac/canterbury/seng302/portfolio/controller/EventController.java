@@ -104,7 +104,7 @@ public class EventController {
 
 
     @PostMapping("/editEvent")
-    public ResponseEntity<String> editEvent(
+    public ResponseEntity editEvent(
             @RequestParam(value = "eventId") UUID eventId,
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart")  String start,
@@ -131,7 +131,8 @@ public class EventController {
         } catch(EntityNotFoundException err) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }catch(Exception err){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
         }
     }
 

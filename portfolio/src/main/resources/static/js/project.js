@@ -129,24 +129,25 @@ $(document).ready(() => {
         let eventStart = $(this).closest(".event").find(".eventStartDateNilFormat").text().slice(0,16);
         let eventEnd = $(this).closest(".event").find(".eventEndDateNilFormat").text().slice(0,16);
 
+
         $(this).closest(".event").append('<form class="existingEventForm">\n' +
             '                    <div class="mb-1">\n' +
             '                        <label for="eventName" class="form-label">Event name</label>\n' +
-            '                        <input type="text" class="form-control form-control-sm eventName" th:maxlength="${eventNameLengthRestriction}" value="'+ eventName +'" name="eventName" required>\n' +
+            '                        <input type="text" class="form-control form-control-sm eventName" maxlength="'+eventNameLengthRestriction+'" value="'+ eventName +'" name="eventName" required>\n' +
             '                        <small class="form-text text-muted countChar">0 characters remaining</small>\n' +
             '                    </div>\n' +
             '                    <div class="row mb-1">\n' +
             '                        <div class="col">\n' +
             '                            <label for="eventStart" class="form-label">Start</label>\n' +
-            '                            <input type="datetime-local" class="form-control form-control-sm eventStart" value="'+ eventStart +'" th:min="${project.getStartDateAsLocalDateTime()}" th:max="${project.getEndDateAsLocalDateTime()}" name="eventStart"  required>\n' +
+            '                            <input type="datetime-local" class="form-control form-control-sm eventStart" value="'+ eventStart +'" min="'+ projectStart +'" max="'+projectEnd+'" name="eventStart"  required>\n' +
             '                        </div>\n' +
             '                        <div class="col">\n' +
             '                            <label for="eventEnd" class="form-label">End</label>\n' +
-            '                            <input type="datetime-local" class="form-control form-control-sm eventEnd" value="'+ eventEnd +'" th:min="${project.getStartDateAsLocalDateTime()}" th:max="${project.getEndDateAsLocalDateTime()}" name="eventEnd" required>\n' +
+            '                            <input type="datetime-local" class="form-control form-control-sm eventEnd" value="'+ eventEnd +'" min="'+ projectStart +'" max="'+projectEnd+'" name="eventEnd" required>\n' +
             '                        </div>\n' +
             '                    </div>\n' +
             '                    <div class="mb-1">\n' +
-            '                        <button type="submit" class="btn btn-primary existingEventSubmit">Save</button>\n' +
+            '                        <button type="button" class="btn btn-primary existingEventSubmit">Save</button>\n' +
             '                        <button type="button" class="btn btn-secondary existingEventCancel" >Cancel</button>\n' +
             '                    </div>\n' +
             '                </form>')
@@ -155,21 +156,23 @@ $(document).ready(() => {
             $(this).closest(".event").find(".existingEventForm").remove();
 
         })
+        $(".form-control").each(countCharacters)
+        $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
         $(this).closest(".event").find(".eventEditButton").hide();
         $(".existingEventSubmit").click(function() {
-            this.preventDefault();
             let eventData = {
                 "projectId": projectId,
-                "eventName": $(this).closest(".event").find(".eventName").val(),
-                "eventStart": $(this).closest(".event").find(".eventStart").val(),
-                "eventEnd": $(this).closest(".event").find(".eventEnd").val()
+                "eventId" : eventId,
+                "eventName": $(this).closest(".existingEventForm").find(".eventName").val(),
+                "eventStart": $(this).closest(".existingEventForm").find(".eventStart").val(),
+                "eventEnd": $(this).closest(".existingEventForm").find(".eventEnd").val()
             }
             $.ajax({
                 url: "/editEvent",
-                type: "post",
+                type: "POST",
                 data: eventData,
                 success: function(response) {
-                    location.href = "/portfolio?projectId=" + projectId
+                    location.reload()
                 },
                 error: function(response) {
 

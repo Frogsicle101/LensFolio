@@ -5,7 +5,7 @@
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
             </th:block> /*/-->
 
-    <script type="application/javascript" th:src="@{js/project.js}"></script>
+
 </head>
 <body>
 <!--The below section <header> pulls the fragment from fragments/general-->
@@ -14,8 +14,16 @@
 <section>
 
 
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        let projectStart = /*[[${project.getStartDateAsLocalDateTime()}]]*/ 'default';
+        let projectEnd = /*[[${project.getEndDateAsLocalDateTime()}]]*/ 'default';
+        let eventNameLengthRestriction = /*[[${eventNameLengthRestriction}]]*/ 'default';
 
 
+        /*]]>*/
+    </script>
 
     <!--Below are the divs that handle error messages
             If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
@@ -167,4 +175,5 @@
 
 </section>
 </body>
+<script type="application/javascript" th:src="@{js/project.js}"></script>
 </html>
