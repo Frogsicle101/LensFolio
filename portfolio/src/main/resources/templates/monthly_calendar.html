@@ -18,6 +18,11 @@
       <div th:insert="fragments/general.html :: successBox"></div>
       <div th:insert="fragments/general.html :: infoBox"></div>
 
+      <script>
+        var sprints = "[[${sprints}]]";
+        console.log(sprints)
+    </script>
+
       <div class="wrapper">
         <div class="projectBox">
           <!--project info display-->
@@ -42,7 +47,7 @@
             <div
               th:each=" sprint: ${sprints}"
               class="sprint"
-              style="border-inline: solid 4rem"
+              style="background-color: solid 1rem"
               th:attrappend="style=${' ' + sprint.colour}"
             >
               <p
@@ -50,15 +55,18 @@
                 style="display: none"
                 th:text="${sprint.colour}"
               ></p>
+
               <p
                 class="sprintId"
                 style="display: none"
                 th:text="${sprint.id}"
               ></p>
+
               <p
                 class="sprintLabel"
                 th:text="'Sprint ' + ${sprintStat.index + 1}"
               ></p>
+
               <div class="row">
                 <div class="col">
                   <h2 th:text="${sprint.name}" th:style="${sprint.colour}"></h2>
@@ -73,16 +81,25 @@
 
         <div class="calendarBox">
           <!--monthly calendar display-->
+
           <p
             id="projectStartDate"
             th:text="${project.getStartDate()}"
             style="display: none"
           ></p>
+
           <p
             id="projectEndDate"
             th:text="${project.getEndDate()}"
             style="display: none"
           ></p>
+
+          <p
+            id="sprints"
+            th:val="${sprints}"
+            style="display: none"
+          ></p>
+
           <!-- <p id="sprints" th:text="${sprints}"></p> should it be 'text' or not ?-->
           <div class="calendar" id="calendar"></div>
           <script

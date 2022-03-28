@@ -1,6 +1,9 @@
 let beginDateStr = $("#projectStartDate").html().toString();
 let endDateStr = $("#projectEndDate").html().toString();
 
+let sprintList = $("#sprints").val();
+console.log(sprintList)
+
 beginDateStr = beginDateStr.replace('-','');
 beginDateStr = beginDateStr.replace('-','');
 endDateStr = endDateStr.replace('-','');
@@ -116,6 +119,20 @@ endDateStr = endDateStr.replace('-','');
     // setting calendar title information
     let calendarTitle = document.getElementById("calendarTitle");
     let titleStr = _dateStr.substr(0, 4) + " - " + _dateStr.substr(4, 2);
+
+    console.log("print the sprints information");
+    for(let sprint in sprintList){
+      let sprint_name = sprint.name;
+      let sprint_desctiption = sprint.desctiption;
+      let sprint_end_date = sprint.endDate;
+      let sprint_stat_date = sprint.startDate
+      console.log(sprint_name);
+      console.log(sprint_desctiption);
+      console.log(sprint_end_date);
+      console.log(sprint_stat_date);
+    }
+   
+
     calendarTitle.innerText = titleStr;
 
     // setting numbers in body table
