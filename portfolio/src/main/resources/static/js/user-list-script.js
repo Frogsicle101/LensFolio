@@ -31,6 +31,16 @@ $(document).ready(function() {
             data: {
                 "userId": userId,
                 "role": role
+            },
+            success: function() {
+                location.reload()
+            },
+            error: function(response) {
+                $(".title").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                `+response.toString()+`
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
             }
         })
     });
