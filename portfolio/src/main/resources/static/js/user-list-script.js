@@ -11,7 +11,8 @@ $(document).ready(function() {
                 "role": role
             },
             success: function () {
-                $(this).parent().parent().remove()
+                // $(this).parent().parent().remove()
+                location.reload()
             }
         })
 
@@ -27,7 +28,7 @@ $(document).ready(function() {
         let userId = $(this).closest(".roleButtonsContainer").siblings(".userId").text();
         $.ajax({
             url: "/editUserRole",
-            type: "POST",
+            type: "PUT",
             data: {
                 "userId": userId,
                 "role": role

@@ -16,14 +16,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.*;
 
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.ArrayList;
 
 @Controller
@@ -34,12 +32,12 @@ public class UserListController {
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private int pageNum = 1;
-    private int usersPerPageLimit = 50;
+    private final int usersPerPageLimit = 50;
     private int offset = 0;
     private int numUsers= 0;
     private int totalPages = 1;
     private String sortOrder = "name-increasing";
-    private ArrayList<Integer> footerNumberSequence = new ArrayList<>();
+    private final ArrayList<Integer> footerNumberSequence = new ArrayList<>();
     private List<UserResponse> userResponseList;
     HashMap<String, UserRole> stringToRole;
 
@@ -115,7 +113,7 @@ public class UserListController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/editUserRole")
+    @PutMapping("/editUserRole")
     public ResponseEntity<String> addUserRole(
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(value = "userId") String userId,
@@ -142,13 +140,10 @@ public class UserListController {
         if (stringToRole == null) {
             populateRolesDict();
         }
-        // ToDo convert the username retrieved from the html to the userId
-        ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
+        return ModifyRoleOfUserRequest.newBuilder()
                 .setRole(stringToRole.get(roleString))
                 .setUserId(Integer.parseInt(userId))
                 .build();
-
-        return request;
     }
 
 
