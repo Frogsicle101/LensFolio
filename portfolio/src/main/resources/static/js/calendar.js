@@ -18,18 +18,6 @@ endDateStr = endDateStr.replace("-", "");
 
 (function () {
 
-
-  //console.log(beginDateStr);
-
-
-
-
-
-
-
-
-
-
   /*
    * Display calendar from current system time
    */
@@ -53,10 +41,6 @@ endDateStr = endDateStr.replace("-", "");
   bindEvent();
 
   checkIfSprint()
-
-
-
-
 
   function checkIfSprint(){
     let sprints = $.ajax({
@@ -94,11 +78,6 @@ endDateStr = endDateStr.replace("-", "");
 
           return true
         })
-
-
-
-
-
 
       })
 
@@ -169,41 +148,10 @@ endDateStr = endDateStr.replace("-", "");
   }
 
   /**
-   * chech it is date type: today, projectDay, sprintDay
-   */
-  function dateType(
-    dateCheckStr,
-    sprintStartIndex,
-    sprintEndIndex,
-    sprintColorList
-  ) {
-    if (_thisDayStr == getDateStr(new Date())) {
-      // current day
-      _tds[i].className = "currentDay_project";
-    }
-    if (isDuringDate(_thisDayStr)) {
-      if (_thisDayStr == getDateStr(new Date())) {
-        // current day + project date
-        _tds[i].className = "currentDay_project";
-      } else {
-        _tds[i].className = "project-bgcolor"; // project date
-      }
-    } else {
-      if (_thisDayStr == getDateStr(new Date())) {
-        // current day + no project date
-        _tds[i].className = "currentDay_no_project";
-      } else {
-        _tds[i].className = "no-project-bgcolor"; // not project date
-      }
-    }
-
-    return className;
-  }
-
-  /**
    * display numbers in table
    */
   function showCalendarData() {
+
     let _year = dateObj.getDate().getFullYear();
     let _month = dateObj.getDate().getMonth() + 1;
     let _dateStr = getDateStr(dateObj.getDate());
@@ -211,18 +159,6 @@ endDateStr = endDateStr.replace("-", "");
     // setting calendar title information
     let calendarTitle = document.getElementById("calendarTitle");
     let titleStr = _dateStr.substr(0, 4) + " - " + _dateStr.substr(4, 2);
-
-    // console.log("print the sprints information");
-    // for (let sprint in sprintList) {
-    //   let sprint_name = sprint.name;
-    //   let sprint_desctiption = sprint.desctiption;
-    //   let sprint_end_date = sprint.endDate;
-    //   let sprint_stat_date = sprint.startDate;
-    //   console.log(sprint_name);
-    //   console.log(sprint_desctiption);
-    //   console.log(sprint_end_date);
-    //   console.log(sprint_stat_date);
-    // }
 
     calendarTitle.innerText = titleStr;
 
@@ -261,8 +197,6 @@ endDateStr = endDateStr.replace("-", "");
   }
 
 
-
-
   /**
    * Bind previous month to next month events
    */
@@ -298,11 +232,18 @@ endDateStr = endDateStr.replace("-", "");
   /**
    * Click the previous month icon
    */
-  function toPrevMonth() {
+   function toPrevMonth() {
     let date = dateObj.getDate();
-    dateObj.setDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
-    showCalendarData();
-    checkIfSprint()
+    if(getDateStr(date) >= beginDateStr){
+      dateObj.setDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
+    }
+    else {
+      dateObj.setDate(new Date(date.getFullYear(), date.getMonth(), 1));
+    }
+      showCalendarData();
+      checkIfSprint()
+    
+    
 
   }
 
@@ -311,7 +252,11 @@ endDateStr = endDateStr.replace("-", "");
    */
   function toNextMonth() {
     let date = dateObj.getDate();
-    dateObj.setDate(new Date(date.getFullYear(), date.getMonth() + 1, 1));
+    if(getDateStr(date) <= endDateStr){
+      dateObj.setDate(new Date(date.getFullYear(), date.getMonth() + 1, 1));
+    } else {
+      dateObj.setDate(new Date(date.getFullYear(), date.getMonth(), 1));
+    }
     showCalendarData();
     checkIfSprint()
   }
