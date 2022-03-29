@@ -2,28 +2,24 @@ let beginDateStr = $("#projectStartDate").html().toString();
 let endDateStr = $("#projectEndDate").html().toString();
 
 let sprintList = $("#sprints").val();
-console.log(sprintList)
+console.log(sprintList);
 
-beginDateStr = beginDateStr.replace('-','');
-beginDateStr = beginDateStr.replace('-','');
-endDateStr = endDateStr.replace('-','');
-endDateStr = endDateStr.replace('-','');
-
+beginDateStr = beginDateStr.replace("-", "");
+beginDateStr = beginDateStr.replace("-", "");
+endDateStr = endDateStr.replace("-", "");
+endDateStr = endDateStr.replace("-", "");
 
 //let sprintList = $("#$sprints").html();
 
-
 (function () {
-
-
-  console.log(beginDateStr)
+  console.log(beginDateStr);
   $.ajax({
     url: "getProjectSprints",
     type: "GET",
-    data: {"projectId": 2},
+    data: { projectId: 2 },
   }).done(function (obj) {
     let sprints = obj;
-  })
+  });
   /*
    * Display calendar from current system time
    */
@@ -101,11 +97,43 @@ endDateStr = endDateStr.replace('-','');
   /**
    * chech it is during project date or not
    */
-   function isDuringDate(dateCheckStr) {
+  function isDuringDate(dateCheckStr) {
     if (dateCheckStr >= beginDateStr && endDateStr >= dateCheckStr) {
       return true;
     }
     return false;
+  }
+
+  /**
+   * chech it is date type: today, projectDay, sprintDay
+   */
+  function dateType(
+    dateCheckStr,
+    sprintStartIndex,
+    sprintEndIndex,
+    sprintColorList
+  ) {
+    if (_thisDayStr == getDateStr(new Date())) {
+      // current day
+      _tds[i].className = "currentDay_project";
+    }
+    if (isDuringDate(_thisDayStr)) {
+      if (_thisDayStr == getDateStr(new Date())) {
+        // current day + project date
+        _tds[i].className = "currentDay_project";
+      } else {
+        _tds[i].className = "project-bgcolor"; // project date
+      }
+    } else {
+      if (_thisDayStr == getDateStr(new Date())) {
+        // current day + no project date
+        _tds[i].className = "currentDay_no_project";
+      } else {
+        _tds[i].className = "no-project-bgcolor"; // not project date
+      }
+    }
+
+    return className;
   }
 
   /**
@@ -121,17 +149,16 @@ endDateStr = endDateStr.replace('-','');
     let titleStr = _dateStr.substr(0, 4) + " - " + _dateStr.substr(4, 2);
 
     console.log("print the sprints information");
-    for(let sprint in sprintList){
+    for (let sprint in sprintList) {
       let sprint_name = sprint.name;
       let sprint_desctiption = sprint.desctiption;
       let sprint_end_date = sprint.endDate;
-      let sprint_stat_date = sprint.startDate
+      let sprint_stat_date = sprint.startDate;
       console.log(sprint_name);
       console.log(sprint_desctiption);
       console.log(sprint_end_date);
       console.log(sprint_stat_date);
     }
-   
 
     calendarTitle.innerText = titleStr;
 
@@ -142,7 +169,7 @@ endDateStr = endDateStr.replace('-','');
     for (let i = 0; i < _tds.length; i++) {
       let _thisDay = new Date(_year, _month - 1, i + 1 - _firstDay.getDay());
       let _thisDayStr = getDateStr(_thisDay);
-   
+
       _tds[i].innerText = _thisDay.getDate();
       //_tds[i].data = _thisDayStr;
       _tds[i].setAttribute("data", _thisDayStr);
@@ -157,7 +184,6 @@ endDateStr = endDateStr.replace('-','');
         } else {
           _tds[i].className = "project-bgcolor"; // project date
         }
-
       } else {
         if (_thisDayStr == getDateStr(new Date())) {
           // current day + no project date
@@ -166,10 +192,8 @@ endDateStr = endDateStr.replace('-','');
           _tds[i].className = "no-project-bgcolor"; // not project date
         }
       }
-
     }
   }
-
 
   /**
    * Bind previous month to next month events

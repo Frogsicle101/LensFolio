@@ -78,6 +78,15 @@
   background-color: rgb(255, 255, 255);
 }
 
+/* current day and sprint day */
+.currentDay_sprint {
+  color: red;
+  background-color: rgb(255, 255, 255);
+  border-bottom-style: solid;
+  border-width: 5px;
+  border-color: rgb(11, 201, 138);
+}
+
 /* current day and no project day */
 .currentDay_no_project {
   color: red;
@@ -88,6 +97,15 @@
 .project-bgcolor {
   color: rgb(27, 27, 27);
   background-color: rgb(255, 255, 255);
+}
+
+/* sprint day background color */
+.sprint-bgcolor {
+  color: rgb(27, 27, 27);
+  background-color: rgb(255, 255, 255);
+  border-bottom-style: solid;
+  border-width: 5px;
+  border-color: rgb(11, 201, 138);
 }
 
 /* without project day background color */
