@@ -7,6 +7,8 @@ import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -37,6 +39,7 @@ public class UserAccountsClientService {
      * @return response - The servers response to the request, which follows the UserResponse message format.
      */
     public UserResponse getUserAccountById(GetUserByIdRequest request) {
+        logger.info("SERVICE - send getUserAccountById request to server");
         return userAccountStub.getUserAccountById(request);
     }
 
@@ -47,6 +50,7 @@ public class UserAccountsClientService {
      * @return response - A UserRegisterResponse with the information returned regarding the registration attempt.
      */
     public UserRegisterResponse register(UserRegisterRequest request) {
+        logger.info("SERVICE - send register request to server");
         return userAccountStub.register(request);
     }
 
@@ -57,6 +61,7 @@ public class UserAccountsClientService {
      * @return response - A EditUserResponse with the information returned regarding the detail editing attempt.
      */
     public EditUserResponse editUser(EditUserRequest request) {
+        logger.info("SERVICE - send editUser request to server");
         return userAccountStub.editUser(request);
     }
 
@@ -67,6 +72,7 @@ public class UserAccountsClientService {
      * @return response - A ChangePasswordResponse with the information returned regarding the changing of passwords.
      */
     public ChangePasswordResponse changeUserPassword(ChangePasswordRequest request) {
+        logger.info("SERVICE - send changeUserPassword request to server");
         return userAccountStub.changeUserPassword(request);
     }
 

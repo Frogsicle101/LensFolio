@@ -10,38 +10,50 @@
 <section class="accountBody">
     <div class="accountInfo">
         <form th:action="@{/edit/details}" th:object="${editDetailsForm}" method="post">
+
+            <!--Below are the divs that handle error messages
+            If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
+            they will be displayed below-->
+            <div th:insert="fragments/general.html :: errorBox"> </div>
+            <div th:insert="fragments/general.html :: successBox"> </div>
+            <div th:insert="fragments/general.html :: infoBox"> </div>
+
+
             <h1>Personal Information</h1>
+
 
             <div class="row mb-3">
                 <div class="col">
                     <label for="FirstName" class="form-label">First name</label>
-                    <input type="text" class="form-control canDisable" name="firstname" id="FirstName" th:value="${user.firstName}" required disabled>
+                    <input type="text" class="form-control canDisable" name="firstname" id="FirstName" th:value="${firstName}" maxlength="50" required disabled>
                 </div>
                 <div class="col">
                     <label for="MiddleName" class="form-label">Middle name</label>
-                    <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${user.middleName}" disabled required>
+                    <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${middleName}" maxlength="50" disabled required>
                 </div>
                 <div class="col">
                     <label for="LastName" class="form-label">Last name</label>
-                    <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${user.lastName}" disabled  required>
+                    <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${lastName}" maxlength="50" disabled  required>
                 </div>
             </div>
             <div class="mb-3">
                 <label for="nickname" class="form-label">Nickname</label>
-                <input type="text" class="form-control canDisable" name="nickname" id="nickname" th:value="${user.nickname}" maxlength="100" disabled required>
+                <input type="text" class="form-control canDisable" name="nickname" id="nickname" th:value="${nickname}" maxlength="100" disabled required>
             </div>
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" th:value="${user.username}" maxlength="100" disabled required>
+                <input type="text" class="form-control" id="username" name="username" th:value="${username}" maxlength="50" disabled required>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <input type="email" class="form-control canDisable" id="email" name="email" th:value="${user.email}" maxlength="100" disabled required>
+                <input type="email" class="form-control canDisable" id="email" name="email" th:value="${email}" maxlength="100" disabled required>
             </div>
             <div class="mb-3">
                 <div class="mb-3">
                     <label for="bio" class="form-label">User Bio</label>
-                    <textarea  class="form-control canDisable" id="bio" name="bio" th:text="${user.bio}" maxlength="300" disabled required></textarea>
+                    <!-- The max length for fields in our database is, by default, somewhere just past 250
+                    So going beyond 250 characters, even for a bio, runs the risk of errors -->
+                    <textarea  class="form-control canDisable" id="bio" name="bio" th:text="${userBio}" maxlength="250" disabled required></textarea>
                 </div>
 
             </div>
@@ -53,32 +65,37 @@
                 </div>
                 <div class="col">
                     <label for="personalPronouns" class="form-label">Pronouns</label>
-                    <input type="text" class="form-control canDisable" id="personalPronouns" name="personalPronouns" th:value="${user.personalPronouns}" maxlength="100" disabled>
+                    <input type="text" class="form-control canDisable" id="personalPronouns" name="personalPronouns" th:value="${pronouns}" maxlength="100" disabled>
                 </div>
             </div>
             <div class="mb-3">
                 <p class="membersince" th:text="'Member since: ' + ${membersince}"></p>
             </div>
             <button type="submit" class="btn btn-primary canDisable" disabled>Submit</button>
-            <button type="button" class="btn btn-secondary editUserButton" >Edit</button>
+            <button type="button" class="btn btn-secondary editUserButton" >Edit Account</button>
 
         </form>
         <hr class="mt-3 mb-3">
+
         <form method="post" th:action="@{/edit/password}" th:object="${editPasswordForm}">
             <h1>Change Password</h1>
             <div class="mb-3">
                 <label for="OldPassword" class="form-label">Old password</label>
-                <input type="password" class="form-control canDisable" name="old password" id="OldPassword" th:field="*{oldPassword}" maxlength="100" required disabled>
+                <input type="password" class="form-control canDisablePassword" name="old password" id="OldPassword"
+                       th:field="*{oldPassword}" maxlength="100" required disabled>
             </div>
             <div class="mb-3">
                 <label for="NewPassword" class="form-label">New password</label>
-                <input class="form-control canDisable" type="password" name="new password" id="NewPassword" th:field="*{newPassword}" required disabled>
+                <input class="form-control canDisablePassword" type="password" name="new password" id="NewPassword"
+                       th:field="*{newPassword}"  maxlength="100" minlength="5" required disabled>
             </div>
             <div class="mb-3">
                 <label for="ConfirmPassword" class="form-label">Confirm password</label>
-                <input class="form-control canDisable"  type="password" name="new password" id="ConfirmPassword" th:field="*{confirmPassword}" required disabled>
+                <input class="form-control canDisablePassword"  type="password" name="new password" id="ConfirmPassword"
+                       th:field="*{confirmPassword}"  maxlength="100" minlength="5" required disabled>
             </div>
-            <button type="submit" class="btn btn-primary canDisable canDisable" disabled>Change</button>
+            <button type="submit" class="btn btn-primary canDisablePassword" disabled>Change</button>
+            <button type="button" class="btn btn-secondary editPasswordButton" >Edit Password</button>
         </form>
         <hr class="mt-3 mb-3">
         <div>

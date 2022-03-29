@@ -10,6 +10,8 @@ import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.U
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Autowired
     private UserRepository repository;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * getUserAccountByID follows the gRPC contract and provides the server side service for retrieving
@@ -39,9 +42,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void getUserAccountById(GetUserByIdRequest request, StreamObserver<UserResponse> responseObserver) {
+        logger.info("SERVICE - Getting user details by Id: " + request.getId());
         UserResponse.Builder reply = UserResponse.newBuilder();
         User user = repository.findById(request.getId());
-
+        logger.info("Sending user details for " + user.getUsername());
         //Build UserResponse (proto) from User
         reply.setUsername(user.getUsername())
                 .setFirstName(user.getFirstName())
@@ -62,8 +66,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             reply.addRoles(role);
         }
 
-//                .
-
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
@@ -76,6 +78,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void register(UserRegisterRequest request, StreamObserver<UserRegisterResponse> responseObserver) {
+        logger.info("SERVICE - Registering new user with username " + request.getUsername());
         UserRegisterResponse.Builder reply = UserRegisterResponse.newBuilder();
         // Untested
 
@@ -94,18 +97,23 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     TimeService.getTimeStamp());
 
 
-                if (repository.findByUsername(user.getUsername()) == null) {
+            if (repository.findByUsername(user.getUsername()) == null) {
+                logger.info("Registration Success - for new user " + request.getUsername());
                 repository.save(user);
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())
-                        .setMessage("Your account has successfully been registered");
+                        .setMessage("Account has successfully been registered");
             } else {
-                reply.setIsSuccess(false);
-                reply.setMessage("Username already in use");
+                    logger.info("Registration Failure - username " + request.getUsername() + " already in use");
+                    reply.setIsSuccess(false);
+                    reply.setMessage("Username already in use");
             }
 
         } catch (io.grpc.StatusRuntimeException e) {
-            e.printStackTrace();
+            reply.setIsSuccess(false);
+            reply.setMessage("An error occurred registering user from request");
+            logger.error("An error occurred registering user from request: " + request + "\n see stack trace below \n");
+            logger.error(e.getMessage());
         }
 
         responseObserver.onNext(reply.build());
@@ -126,11 +134,13 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Transactional
     @Override
     public void editUser(EditUserRequest request, StreamObserver<EditUserResponse> responseObserver) {
+        logger.info("SERVICE - Editing details for user with id " + request.getUserId());
         EditUserResponse.Builder response = EditUserResponse.newBuilder();
         // Try to find user by ID
         User userToEdit = repository.findById(request.getUserId());
         if (userToEdit != null) {
             try {
+                logger.info("User Edit Success - updated user details for user " + request.getUserId());
                 userToEdit.setFirstName(request.getFirstName());
                 userToEdit.setMiddleName(request.getMiddleName());
                 userToEdit.setLastName(request.getLastName());
@@ -142,9 +152,13 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 response.setIsSuccess(true)
                         .setMessage("Successfully updated details for " + userToEdit.getUsername());
             } catch (StatusRuntimeException e) {
-                e.printStackTrace();
+                logger.error("An error occurred editing user from request: " + request + "\n See stack trace below \n");
+                logger.error(e.getMessage());
+                response.setIsSuccess(false)
+                        .setMessage("Incorrect current password provided");
             }
         } else {
+            logger.info("User Edit Failure - could not find user with id " + request.getUserId());
             response.setIsSuccess(false)
                     .setMessage("Could not find user to edit");
         }
@@ -169,6 +183,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Transactional
     @Override
     public void changeUserPassword(ChangePasswordRequest request, StreamObserver<ChangePasswordResponse> responseObserver) {
+        logger.info("SERVICE - Changing password for user with id" + request.getUserId());
         ChangePasswordResponse.Builder response = ChangePasswordResponse.newBuilder();
 
         User userToUpdate = repository.findById(request.getUserId());
@@ -181,20 +196,25 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 // Check encrypted password against pw hash
                 if (userToUpdate.getPwhash().equals(inputPWHash)) {
                     // If password hash matches, update
+                    logger.info("Password Change Success - password updated for user " + request.getUserId());
                     userToUpdate.setPwhash(request.getNewPassword());
                     repository.save(userToUpdate);
                     response.setIsSuccess(true)
                             .setMessage("Successfully updated details for " + userToUpdate.getUsername());
                 } else {
+                    logger.info("Password Change Failure - incorrect old password for " + request.getUserId());
                     // Password hash doesn't match so don't update
                     response.setIsSuccess(false)
                             .setMessage("Incorrect current password provided");
                 }
             } catch (StatusRuntimeException e) {
+                logger.error("An error occurred changing user password from request: " + request + "\n See stack trace below \n");
+                logger.error(e.getMessage());
                 response.setIsSuccess(false)
                         .setMessage("An error has occurred while connecting to the database");
             }
         } else {
+            logger.info("Password Change Failure - could not find user with id " + request.getUserId());
             response.setIsSuccess(false)
                     .setMessage("Could not find user");
         }

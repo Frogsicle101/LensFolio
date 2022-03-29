@@ -1,9 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.DTO;
 
-/**
- * A basic login entity that we create and populate in the controller
- * in order to log in
- */
+import java.time.LocalDate;
+
+
 public class ProjectRequest {
     private String projectId;
     private String projectName;

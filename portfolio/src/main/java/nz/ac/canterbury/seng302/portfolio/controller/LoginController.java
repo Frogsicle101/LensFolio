@@ -6,6 +6,8 @@ import nz.ac.canterbury.seng302.portfolio.authentication.AuthenticationException
 import nz.ac.canterbury.seng302.portfolio.authentication.CookieUtil;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +23,8 @@ public class LoginController {
     @Autowired
     public AuthenticateClientService authenticateClientService;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     /**
      * Shows the login page to anyone who wants to see it.
      * @return The Thymeleaf login html template.
@@ -30,9 +34,7 @@ public class LoginController {
                             Model model) {
 
         String ipAddr = request.getLocalAddr();
-
         String path = "http://" + ipAddr + ":9001/profile/profile.jpg";
-
         model.addAttribute("path", path);
         return "login";
     }
@@ -60,19 +62,23 @@ public class LoginController {
             @ModelAttribute(name="loginForm") UserRequest userRequest,
             Model model
     ) {
-
+        logger.info("POST REQUEST /login - attempt to log in user");
         AuthenticateResponse loginReply;
         //This try/catch block is the login attempt
         try {
             loginReply = attemptLogin(userRequest, request, response, authenticateClientService);
         } catch (AuthenticationException e){
-            model.addAttribute("errorMessage", "Error connecting to Identity Provider...");
+            // Note this is logged when the error is thrown
+            model.addAttribute("errorMessage", "Error connecting to Identity Provider... " +
+                    "Try again later.");
             return new ModelAndView("login");
         }
         // If login was successful redirect to account, otherwise add failure message
         if (loginReply.getSuccess()) {
+            logger.info("Login Successful - redirect to account page for username " + loginReply.getUsername());
             return new ModelAndView("redirect:/account");
         } else {
+            // Logged in attempt login method
             model.addAttribute("errorMessage", loginReply.getMessage());
             return new ModelAndView("login");
         }
@@ -97,10 +103,12 @@ public class LoginController {
         try {
             authenticateResponse = authenticateClientService.authenticate(userRequest.getUsername(), userRequest.getPassword());
         } catch (StatusRuntimeException e){
+            logger.error("Error connecting to Identity Provider");
             throw new AuthenticationException("failed to connect to the Identity Provider");
         }
         //If the login was successful, create a cookie!
         if (authenticateResponse.getSuccess()) {
+            logger.info("Login successful - Added cookie to username " + authenticateResponse.getUsername());
             var domain = request.getHeader("host");
             CookieUtil.create(
                     response,
@@ -110,6 +118,8 @@ public class LoginController {
                     5 * 60 * 60, // Expires in 5 hours
                     domain.startsWith("localhost") ? null : domain
             );
+        } else {
+            logger.info(authenticateResponse.getMessage());
         }
         return authenticateResponse;
     }
