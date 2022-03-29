@@ -39,37 +39,24 @@
         <div class="sprintsBox">
           <!--sprints info display-->
           <div class="sprintsInfo">
-            <div
-              th:each=" sprint: ${sprints}"
-              class="sprint"
-              style="background-color: solid 1rem"
-              th:attrappend="style=${' ' + sprint.colour}"
-            >
-              <p
-                class="sprintColour"
-                style="display: none"
-                th:text="${sprint.colour}"
-              ></p>
-
-              <p
-                class="sprintId"
-                style="display: none"
-                th:text="${sprint.id}"
-              ></p>
-
-              <p
-                class="sprintLabel"
-                th:text="'Sprint ' + ${sprintStat.index + 1}"
-              ></p>
-
+            <div th:each=" sprint: ${sprints}" class="sprint" style="" th:attrappend="style=${'border-left: solid 0.3rem ' + sprint.getColour() + ' ;border-right: solid 0.3rem ' + sprint.getColour()}" >
+              <p class="sprintColour" style="display: none" th:text="${sprint.colour}"></p>
+              <p class="sprintId" style="display: none" th:text="${sprint.id}"></p>
+              <p class="sprintLabel" th:text="'Sprint ' + ${sprintStat.index + 1}"></p>
               <div class="row">
                 <div class="col">
-                  <h2 th:text="${sprint.name}" th:style="${sprint.colour}"></h2>
+                  <h6>Start</h6>
+                  <h6 th:text="${sprint.getStartDateFormatted()}"></h6>
+                </div>
+                <div class="col">
+                  <h6>End</h6>
+                  <h6 th:text="${sprint.getEndDateFormatted()}"></h6>
                 </div>
               </div>
               <div class="mb-3">
                 <p th:text="${sprint.description}"></p>
               </div>
+
             </div>
           </div>
         </div>
@@ -77,17 +64,9 @@
         <div class="calendarBox">
           <!--monthly calendar display-->
 
-          <p
-            id="projectStartDate"
-            th:text="${project.getStartDate()}"
-            style="display: none"
-          ></p>
+          <p id="projectStartDate" th:text="${project.getStartDate()}" style="display: none"></p>
 
-          <p
-            id="projectEndDate"
-            th:text="${project.getEndDate()}"
-            style="display: none"
-          ></p>
+          <p id="projectEndDate" th:text="${project.getEndDate()}" style="display: none"></p>
 
 <!--          <script>-->
 <!--            var startList = new Array();-->
@@ -101,19 +80,11 @@
 <!--          </script>-->
           
           
-          <p
-            id="sprints"
-            th:val="${sprints}"
-            style="display: none"
-          ></p>
+          <p id="sprints" th:val="${sprints}" style="display: none"></p>
 
           <!-- <p id="sprints" th:text="${sprints}"></p> should it be 'text' or not ?-->
           <div class="calendar" id="calendar"></div>
-          <script
-            type="application/javascript"
-            th:src="@{js/calendar.js}"
-          >
-          </script>
+          <script type="application/javascript" th:src="@{js/calendar.js}"></script>
         </div>
       </div>
     </section>
