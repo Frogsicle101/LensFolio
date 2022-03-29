@@ -1,44 +1,42 @@
 package nz.ac.canterbury.seng302.portfolio.projects;
 
 import com.google.type.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Entity // Maps Project object to a table in the database called "Project"
 public class Project {
 
     private @Id @GeneratedValue long id; // @Id lets JPA know it's the objects ID
-    private long planner_id;
     private String name;
-    private String start_date;
-    private String end_date;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String description;
-    private DateTime time_deactivated;
+    private DateTime timeDeactivated;
 
     protected Project() {}
 
     /**
      * Constructor for Project.
      *
-     * @param planner_id  The planner on which the project was created.
      * @param name        Name of project.
-     * @param start_date  Start date of project.
-     * @param end_date    End date of project.
+     * @param startDate  Start date of project.
+     * @param endDate    End date of project.
      * @param description description of project.
      */
-    public Project(long planner_id, String name, String start_date, String end_date, String description) {
-        this.planner_id = planner_id;
+    public Project( String name, LocalDate startDate, LocalDate endDate, String description) {
+
         this.name = name;
-        this.start_date = start_date;
-        this.end_date = end_date;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.description = description;
-        this.time_deactivated = null;
+        this.timeDeactivated = null;
     }
 
     /**
@@ -46,15 +44,40 @@ public class Project {
      *
      * @param name Name of the Project.
      */
-    public Project(long planner_id, String name) {
+    public Project(String name) {
         LocalDate localDate = LocalDate.now();
-        this.planner_id = planner_id;
         this.name = name;
-        this.start_date = localDate.toString();
-        this.end_date = localDate.plusMonths(8).toString();
+        this.startDate = localDate;
+        this.endDate = localDate.plusMonths(8);
         this.description = "No description";
-        this.time_deactivated = null;
+        this.timeDeactivated = null;
     }
+
+    /**
+     * Converts from projects LocalDate start date to LocalDateTime
+     * @return LocalDateTime version of start date.
+     */
+    public LocalDateTime getStartDateAsLocalDateTime() {
+        return startDate.atStartOfDay();
+    }
+
+    /**
+     * Converts from projects LocalDate end date to LocalDateTime
+     * @return LocalDateTime version of end date.
+     */
+    public LocalDateTime getEndDateAsLocalDateTime() {
+        return endDate.atStartOfDay();
+    }
+
+    /**
+     * Gets the minimum start date for a project which is now minus a year.
+     * @return LocalDate set a year in the past.
+     */
+    public LocalDate getMinStartDateAsLocalDateTime() {
+        return LocalDate.now().minusYears(1);
+    }
+
+
 
     /**
      * Getter for ID.
@@ -74,23 +97,7 @@ public class Project {
         this.id = id;
     }
 
-    /**
-     * Getter for Planner ID.
-     *
-     * @return long planner_id.
-     */
-    public long getPlannerId() {
-        return planner_id;
-    }
 
-    /**
-     * Setter for Planner ID.
-     *
-     * @param planner_id planner ID.
-     */
-    public void setPlannerId(long planner_id) {
-        this.planner_id = planner_id;
-    }
 
     /**
      * Getter for Name.
@@ -115,17 +122,21 @@ public class Project {
      *
      * @return Project start date.
      */
-    public String getStartDate() {
-        return start_date;
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public String getStartDateFormatted(){
+        return startDate.format(DateTimeFormat.dayDateMonthYear());
     }
 
     /**
      * Setter for Start Date.
      *
-     * @param start_date Project start date.
+     * @param startDate Project start date.
      */
-    public void setStartDate(String start_date) {
-        this.start_date = start_date;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
     /**
@@ -133,17 +144,21 @@ public class Project {
      *
      * @return End Date
      */
-    public String getEndDate() {
-        return end_date;
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public String getEndDateFormatted(){
+        return endDate.format(DateTimeFormat.dayDateMonthYear());
     }
 
     /**
      * Setter for End Date.
      *
-     * @param end_date End Date.
+     * @param endDate End Date.
      */
-    public void setEndDate(String end_date) {
-        this.end_date = end_date;
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     /**
@@ -170,16 +185,16 @@ public class Project {
      * @return DateTime planner deactivation date and time.
      */
     public DateTime getTimeDeactivated() {
-        return time_deactivated;
+        return timeDeactivated;
     }
 
     /**
      * Setter for time deactivated.
      *
-     * @param time_deactivated the time of project deactivation.
+     * @param timeDeactivated the time of project deactivation.
      */
-    public void setTimeDeactivated(DateTime time_deactivated) {
-        this.time_deactivated = time_deactivated;
+    public void setTimeDeactivated(DateTime timeDeactivated) {
+        this.timeDeactivated = timeDeactivated;
     }
 
 
