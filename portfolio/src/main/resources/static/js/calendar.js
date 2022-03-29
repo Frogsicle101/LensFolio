@@ -1,8 +1,11 @@
 let beginDateStr = $("#projectStartDate").html().toString();
 let endDateStr = $("#projectEndDate").html().toString();
 
-let sprintList = $("#sprints").val();
-console.log(sprintList);
+let startList = $("#startList").html();
+let endList = $("#endList").html();
+let sprintColour = $("#sprintColour").html();
+
+let sprintIndex = 0;
 
 beginDateStr = beginDateStr.replace("-", "");
 beginDateStr = beginDateStr.replace("-", "");
@@ -12,7 +15,6 @@ endDateStr = endDateStr.replace("-", "");
 //let sprintList = $("#$sprints").html();
 
 (function () {
-  console.log(beginDateStr);
   $.ajax({
     url: "getProjectSprints",
     type: "GET",
@@ -107,33 +109,36 @@ endDateStr = endDateStr.replace("-", "");
   /**
    * chech it is date type: today, projectDay, sprintDay
    */
-  function dateType(
-    dateCheckStr,
-    sprintStartIndex,
-    sprintEndIndex,
-    sprintColorList
-  ) {
-    if (_thisDayStr == getDateStr(new Date())) {
-      // current day
-      _tds[i].className = "currentDay_project";
-    }
-    if (isDuringDate(_thisDayStr)) {
-      if (_thisDayStr == getDateStr(new Date())) {
-        // current day + project date
-        _tds[i].className = "currentDay_project";
+  function dateType(dateCheckStr) {
+    let result = "";
+    if (isDuringDate(dateCheckStr)) {
+      // is project date, and keep going to check is a sprint day or not
+      if (sprintIndex == startList.length) {
+        //all sprint done, it is a project day, not sprint day
+        result += "project-day";
+      } else if (
+        dateCheckStr >= startList[sprintIndex] &&
+        dateCheckStr <= endList[sprintIndex]
+      ) {
+        // is sprint date
+        result += "sprint-day";
+      } else if (dateCheckStr > endList[sprintIndex]) {
+        // current sprint done, next time check next sprint, it is project day not sprint day
+        sprintIndex += 1;
+        result += "project-day";
       } else {
-        _tds[i].className = "project-bgcolor"; // project date
+        // earlier than the sprint date to be viewed, it is a project day not a sprint day
+        result += "project-day";
       }
     } else {
-      if (_thisDayStr == getDateStr(new Date())) {
-        // current day + no project date
-        _tds[i].className = "currentDay_no_project";
-      } else {
-        _tds[i].className = "no-project-bgcolor"; // not project date
-      }
+      // is not a project day
+      result += "not-project-day";
     }
-
-    return className;
+    if (dateCheckStr == getDateStr(new Date())) {
+      // is today
+      result += "-today";
+    }
+    return result;
   }
 
   /**
@@ -147,19 +152,6 @@ endDateStr = endDateStr.replace("-", "");
     // setting calendar title information
     let calendarTitle = document.getElementById("calendarTitle");
     let titleStr = _dateStr.substr(0, 4) + " - " + _dateStr.substr(4, 2);
-
-    console.log("print the sprints information");
-    for (let sprint in sprintList) {
-      let sprint_name = sprint.name;
-      let sprint_desctiption = sprint.desctiption;
-      let sprint_end_date = sprint.endDate;
-      let sprint_stat_date = sprint.startDate;
-      console.log(sprint_name);
-      console.log(sprint_desctiption);
-      console.log(sprint_end_date);
-      console.log(sprint_stat_date);
-    }
-
     calendarTitle.innerText = titleStr;
 
     // setting numbers in body table
@@ -173,24 +165,16 @@ endDateStr = endDateStr.replace("-", "");
       _tds[i].innerText = _thisDay.getDate();
       //_tds[i].data = _thisDayStr;
       _tds[i].setAttribute("data", _thisDayStr);
-      if (_thisDayStr == getDateStr(new Date())) {
-        // current day
-        _tds[i].className = "currentDay_project";
-      }
-      if (isDuringDate(_thisDayStr)) {
-        if (_thisDayStr == getDateStr(new Date())) {
-          // current day + project date
-          _tds[i].className = "currentDay_project";
-        } else {
-          _tds[i].className = "project-bgcolor"; // project date
-        }
+
+      // check day type
+      let dayClass = dateType(_thisDayStr);
+      if (dayClass.startsWith("s")) {
+        //sprint day, should think about sprint line color
+        let color = sprintColour[sprintIndex];
+        _tds[i].className = dayClass;
       } else {
-        if (_thisDayStr == getDateStr(new Date())) {
-          // current day + no project date
-          _tds[i].className = "currentDay_no_project";
-        } else {
-          _tds[i].className = "no-project-bgcolor"; // not project date
-        }
+        // not sprint day
+        _tds[i].className = dayClass;
       }
     }
   }

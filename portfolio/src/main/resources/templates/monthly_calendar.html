@@ -20,8 +20,8 @@
 
       <script>
         var sprints = "[[${sprints}]]";
-        console.log(sprints)
-    </script>
+        console.log(sprints);
+      </script>
 
       <div class="wrapper">
         <div class="projectBox">
@@ -99,26 +99,18 @@
             var endList = new Array();
             var sprintColour = new Array();
             for( "sprint: ${sprints}") {
-              startList.push("${sprint.startDate}");
-              endList.push("${sprint.endDate}");
+              startList.push("${sprint.startDate}".toString().replace('-','').replace('-',''));
+              endList.push("${sprint.endDate}".toString().replace('-','').replace('-',''));
               sprintColour.push("${sprint.colour}");
             }
           </script>
-          
-          
-          <p
-            id="sprints"
-            th:val="${sprints}"
-            style="display: none"
-          ></p>
 
           <!-- <p id="sprints" th:text="${sprints}"></p> should it be 'text' or not ?-->
           <div class="calendar" id="calendar"></div>
           <script
             type="application/javascript"
             th:src="@{js/calendar.js}"
-          >
-          </script>
+          ></script>
         </div>
       </div>
     </section>
