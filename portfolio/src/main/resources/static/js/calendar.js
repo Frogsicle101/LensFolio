@@ -68,7 +68,7 @@ endDateStr = endDateStr.replace("-", "");
         let element = $(this)
         let date = $(this).attr("date")
         let calendarDate = new Date(date)
-
+        let today = new Date()
         let projectStartDate = new Date(obj[0].project.startDate)
         let projectEndDate = new Date(obj[0].project.endDate)
 
@@ -78,16 +78,15 @@ endDateStr = endDateStr.replace("-", "");
         } else {
           element.css("background-color", "grey")
         }
+        if(calendarDate.getDate() === today.getDate() && calendarDate.getMonth() === today.getMonth() && calendarDate.getFullYear() === today.getFullYear()) {
+          element.css("border", "solid 3px red")
+        } else {
+          element.css("border", "solid 1px black")
+        }
 
         obj.every(function(sprint) {
-
           let startDate = new Date(sprint.startDate)
           let endDate = new Date(sprint.endDate)
-
-
-          //console.log(calendarDate)
-          //console.log("start Date " + startDate)
-          //console.log("date object " + date)
           if (calendarDate >= startDate.setHours(0) && calendarDate <= endDate){
             element.css("background-color", sprint.colour)
             return false
@@ -95,6 +94,8 @@ endDateStr = endDateStr.replace("-", "");
 
           return true
         })
+
+
 
 
 
