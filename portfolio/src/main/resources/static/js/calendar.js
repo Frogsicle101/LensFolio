@@ -64,22 +64,36 @@ endDateStr = endDateStr.replace("-", "");
       type: "GET",
       data: { projectId: 1 },
     }).done(function (obj) {
-      $(".project-bgcolor").each(function(){
+      $("td").each(function(){
         let element = $(this)
         let date = $(this).attr("date")
+        let calendarDate = new Date(date)
+        let projectStartDate = new Date(obj[0].project.startDate)
+        let projectEndDate = new Date(obj[0].project.endDate)
 
-        obj.forEach(function(sprint) {
-          let calendarDate = new Date(date)
+
+        if (calendarDate >= projectStartDate && calendarDate <= projectEndDate){
+          element.css("background-color", "white")
+        } else {
+          element.css("background-color", "grey")
+        }
+
+        obj.every(function(sprint) {
+
           let startDate = new Date(sprint.startDate)
           let endDate = new Date(sprint.endDate)
+
+          //console.log(calendarDate)
           //console.log("start Date " + startDate)
           //console.log("date object " + date)
           if (calendarDate >= startDate && calendarDate <= endDate){
-            element.css("border", "solid 1px " + sprint.colour)
-
+            element.css("background-color", sprint.colour)
+            return false
           }
 
+          return true
         })
+
 
 
 
