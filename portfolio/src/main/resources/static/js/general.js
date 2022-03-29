@@ -2,13 +2,13 @@
 $(document).ready(function() {
     // Checks to see if there is an error message to be displayed
     if (!$(".errorMessage").is(':empty'))  {
-        $(".errorMessageParent").show();
+        $(".errorMessageParent").slideDown();
     }
     if (!$(".successMessage").is(':empty'))  {
-        $(".successMessageParent").show();
+        $(".successMessageParent").slideDown().delay(1000).slideUp();
     }
     if (!$(".infoMessage").is(':empty'))  {
-        $(".infoMessageParent").show();
+        $(".infoMessageParent").slideDown().delay(1000).slideUp();
     }
 
 
@@ -23,6 +23,12 @@ $(document).ready(function() {
     })
     $(".editPasswordButton").click(() => {
         $(".canDisablePassword").prop("disabled",!$(".canDisablePassword").prop("disabled"));
+    })
+
+
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
     })
 });
 

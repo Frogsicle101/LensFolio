@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.sprints;
 
+import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -17,7 +18,12 @@ public interface SprintRepository extends CrudRepository<Sprint, UUID> {
     @Query
     Sprint getSprintById(UUID id);
 
+    @Query
+    List<Sprint> getAllByProjectOrderByEndDateDesc(Project project);
 
+
+    @Query
+    List<Sprint> getAllByProjectOrderByStartDateAsc(Project project);
 
 
 

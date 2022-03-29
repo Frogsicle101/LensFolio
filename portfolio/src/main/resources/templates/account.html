@@ -25,15 +25,15 @@
             <div class="row mb-3">
                 <div class="col">
                     <label for="FirstName" class="form-label">First name</label>
-                    <input type="text" class="form-control canDisable" name="firstname" id="FirstName" th:value="${firstName}" required disabled>
+                    <input type="text" class="form-control canDisable" name="firstname" id="FirstName" th:value="${firstName}" maxlength="50" required disabled>
                 </div>
                 <div class="col">
                     <label for="MiddleName" class="form-label">Middle name</label>
-                    <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${middleName}" disabled required>
+                    <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${middleName}" maxlength="50" disabled required>
                 </div>
                 <div class="col">
                     <label for="LastName" class="form-label">Last name</label>
-                    <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${lastName}" disabled  required>
+                    <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${lastName}" maxlength="50" disabled  required>
                 </div>
             </div>
             <div class="mb-3">
@@ -51,7 +51,9 @@
             <div class="mb-3">
                 <div class="mb-3">
                     <label for="bio" class="form-label">User Bio</label>
-                    <textarea  class="form-control canDisable" id="bio" name="bio" th:text="${userBio}" maxlength="300" disabled required></textarea>
+                    <!-- The max length for fields in our database is, by default, somewhere just past 250
+                    So going beyond 250 characters, even for a bio, runs the risk of errors -->
+                    <textarea  class="form-control canDisable" id="bio" name="bio" th:text="${userBio}" maxlength="250" disabled required></textarea>
                 </div>
 
             </div>
@@ -79,15 +81,18 @@
             <h1>Change Password</h1>
             <div class="mb-3">
                 <label for="OldPassword" class="form-label">Old password</label>
-                <input type="password" class="form-control canDisablePassword" name="old password" id="OldPassword" th:field="*{oldPassword}" maxlength="100" required disabled>
+                <input type="password" class="form-control canDisablePassword" name="old password" id="OldPassword"
+                       th:field="*{oldPassword}" maxlength="100" required disabled>
             </div>
             <div class="mb-3">
                 <label for="NewPassword" class="form-label">New password</label>
-                <input class="form-control canDisablePassword" type="password" name="new password" id="NewPassword" th:field="*{newPassword}"  maxlength="100" required disabled>
+                <input class="form-control canDisablePassword" type="password" name="new password" id="NewPassword"
+                       th:field="*{newPassword}"  maxlength="100" minlength="5" required disabled>
             </div>
             <div class="mb-3">
                 <label for="ConfirmPassword" class="form-label">Confirm password</label>
-                <input class="form-control canDisablePassword"  type="password" name="new password" id="ConfirmPassword" th:field="*{confirmPassword}"  maxlength="100" required disabled>
+                <input class="form-control canDisablePassword"  type="password" name="new password" id="ConfirmPassword"
+                       th:field="*{confirmPassword}"  maxlength="100" minlength="5" required disabled>
             </div>
             <button type="submit" class="btn btn-primary canDisablePassword" disabled>Change</button>
             <button type="button" class="btn btn-secondary editPasswordButton" >Edit Password</button>

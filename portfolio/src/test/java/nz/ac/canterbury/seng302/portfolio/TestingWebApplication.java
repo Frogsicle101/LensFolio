@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
+
 class TestingWebApplication {
 
     @Autowired
@@ -22,7 +23,7 @@ class TestingWebApplication {
 
     @Test
     void testGetProject() throws Exception {
-        this.mockMvc.perform(get("/getProject").param("projectId", "1")).andDo(print()).andExpect(status().isOk());
+        this.mockMvc.perform(get("/login")).andDo(print()).andExpect(status().isOk());
     }
 
     @Test

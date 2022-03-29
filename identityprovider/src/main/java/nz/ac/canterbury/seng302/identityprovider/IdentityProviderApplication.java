@@ -36,6 +36,21 @@ public class IdentityProviderApplication {
         );
         testUser.addRole(UserRole.TEACHER);
         repository.save(testUser);
+        logger.info("Initialising test user steve");
+        User testUser1 = new User(
+                "student",
+                "password",
+                "Steve",
+                "McSteve",
+                "Steveson",
+                "Stev",
+                "kdsflkdjf",
+                "Steve/Steve",
+                "steve@example.com",
+                TimeService.getTimeStamp()
+        );
+        testUser.addRole(UserRole.STUDENT);
+        repository.save(testUser1);
 
     }
 

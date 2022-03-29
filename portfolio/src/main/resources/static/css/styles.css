@@ -19,7 +19,10 @@ section{
 :root {
     --main-border-colour: #d7d6d6;
     --secondary-text-colour: #c4c3c3;
-    --secondary-text-colour-darker: #696969;;
+    --secondary-text-colour-darker: #696969;
+    --select-green: #95fd97;
+    --select-red: #ff0000;
+    --border-radius: 0.4rem;
 
 }
 
@@ -55,7 +58,7 @@ section{
     min-width: 10rem;
 
     margin: 0.1rem;
-    border-radius: .25rem;
+    border-radius: var(--border-radius);
 
 }
 
@@ -159,6 +162,7 @@ section{
 .projectDetails{
     border-bottom: solid 1px var(--main-border-colour);
     padding: 2rem;
+    position: relative;
 }
 
 .projectDetails h1{
@@ -169,21 +173,169 @@ section{
     color: var(--secondary-text-colour-darker);
 }
 
+.projectContainer{
+    display: flex;
+    flex-direction: row;
+    min-height: 80vh;
+    width: 100%;
+
+}
+
+
+/*Portfolio Project*/
+
+.addSprint{
+    position: absolute;
+    bottom: -25px;
+    left: 20rem;
+
+}
+
+.addSprint:hover{
+
+}
+
+.addSprintSvg{
+    color: #09d70c;
+    transition: all 0.3s ease-out;
+}
+
+.addSprintSvg:hover{
+    transform: scale(110%) rotate(90deg);
+}
+
+
+
+/*Porfolio - Events*/
+
+.eventContainer{
+    display: flex;
+    flex-direction: column;
+    min-width: 40rem;
+    border-right: solid 1px var(--main-border-colour);
+    padding-left: 1rem;
+    padding-top: 1rem;
+    padding-right: 1rem;
+    transition: all 1s ease-out;
+}
+
+
+.eventNameAndAddButton{
+    display: flex;
+    flex-direction: row;
+}
+.eventName{
+    padding-left: 0.5rem;
+    font-weight: bolder;
+    text-decoration-line: underline;
+}
+.eventTitleDiv{
+    display: flex;
+    flex-direction: row;
+}
+.eventIcon{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border: solid 1px var(--secondary-text-colour);
+    border-radius: var(--border-radius);
+    padding: 0.2rem;
+    width: 2rem;
+    height: 2rem;
+}
+
+.eventEditButton{
+    position: absolute;
+    top: 1rem;
+    right: 2.5rem;
+}
+
+.eventEditButton:hover{
+    color: var(--select-green);
+}
+
+.eventDeleteButton{
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+.eventDeleteButton:hover{
+    color: var(--select-red);
+}
+.event{
+    position: relative;
+    margin-bottom: 1rem;
+    border: solid 1px var(--secondary-text-colour);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.addEventSvg{
+    vertical-align: baseline;
+    transition: transform 200ms;
+}
+
+
+.rotated{
+    transform: rotate(45deg);
+    color: #ff0000;
+}
+
+
+.event p{
+    margin: 0;
+}
+.eventDateDiv{
+    display: flex;
+    flex-direction: column;
+}
+.eventDateDiv p{
+    margin: 0 0 0 0;
+}
+
+.eventInSprint{
+    display: flex;
+    flex-direction: row;
+}
+
+.eventInSprint p {
+    padding: 0.1rem;
+    opacity: 70%;
+    margin: 0 0 0 0;
+}
+
+.bold{
+    font-weight: bolder;
+}
+
 
 /*Portfolio - Sprints*/
 .sprintsContainer{
     display: flex;
+    width: 100%;
     flex-direction: column;
     align-items: center;
+    background-color: #ececec;
 }
 
 .sprint{
     position: relative;
-    width: 50rem;
+    width: 60rem;
     padding: 2rem;
     border: solid 1px var(--main-border-colour);
-    border-radius: 1rem;
+    background-color: #ffffff;
+    border-radius: var(--border-radius);
     margin-top: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+    transition: all 0.3s ease-out;
+    will-change: transform;
+}
+
+.sprint:hover{
+    transform: scale(101%);
 }
 
 .sprint h6{
@@ -217,7 +369,7 @@ section{
 }
 
 .editSprint:hover{
-    color: #95fd97;
+    color: var(--select-green);
 }
 
 
@@ -238,4 +390,16 @@ section{
 }
 
 
+
+/*Edit Sprints - editProject*/
+
+.editSprintContainer, .editProjectContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.sprintEditForm, .projectEditForm{
+    margin-top: 5rem;
+    width: 50rem;
+}
 
