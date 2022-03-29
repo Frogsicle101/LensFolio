@@ -244,7 +244,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void addRoleToUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
-//        super.addRoleToUser(request, responseObserver);
+        logger.info("Service - Adding role " + request.getRole() + " to user " + request.getUserId());
         UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
 
         User userToUpdate = repository.findById(request.getUserId());
@@ -283,32 +283,22 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Override
     public void removeRoleFromUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
         logger.info("Service - Removing role " + request.getRole() +  " from user " + request.getUserId());
-        super.removeRoleFromUser(request, responseObserver);
         UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
 
         User userToUpdate = repository.findById(request.getUserId());
         if (userToUpdate != null) {
             //We've found the user!
-            if (userToUpdate.getRoles().contains(request.getRole())) {
-                //The user has the role - so delete it
-                try {
-                    userToUpdate.deleteRole(request.getRole());
-                    repository.save(userToUpdate);
-                    logger.info("Role Removal Success - removed " + request.getRole()
-                            +  " from user " + request.getUserId());
-                    response.setIsSuccess(true)
-                            .setMessage(true);
-                } catch (IllegalStateException e) {
-                    //The user has only one role - we can't delete it!
-                    logger.info("Role Removal Failure - user " + request.getUserId()
-                            + " has 1 role. Users cannot have 0 roles");
-                    response.setIsSuccess(false)
-                            .setMessage(false);
-                }
-            } else {
-                //The user doesn't have the role, so don't bother deleting it
+            try {
+                userToUpdate.deleteRole(request.getRole());
+                repository.save(userToUpdate);
+                logger.info("Role Removal Success - removed " + request.getRole()
+                        + " from user " + request.getUserId());
+                response.setIsSuccess(true)
+                        .setMessage(true);
+            } catch (IllegalStateException e) {
+                //The user has only one role - we can't delete it!
                 logger.info("Role Removal Failure - user " + request.getUserId()
-                        + " does not have role " + request.getRole());
+                        + " has 1 role. Users cannot have 0 roles");
                 response.setIsSuccess(false)
                         .setMessage(false);
             }
@@ -367,8 +357,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setBio(user.getBio())
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime()
-                );
+                .setCreated(user.getAccountCreatedTime())
+                .setId(user.getId());
 
         // To add all the users roles to the response
         ArrayList<UserRole> roles = user.getRoles();

@@ -243,3 +243,11 @@ section{
     flex-direction: row;
 }
 
+.roleAddingDropdown {
+    display: flex;
+    flex-direction: row;
+}
+
+.roleToAddButton {
+   font-size: 0.75em;
+}

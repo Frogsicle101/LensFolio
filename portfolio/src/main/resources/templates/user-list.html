@@ -13,15 +13,9 @@
         <script type="application/javascript" th:src="@{js/user-list-script.js}"></script>
     </head>
     <body>
-    <header th:insert="fragments/general.html :: header"> </header>
+        <header th:insert="fragments/general.html :: header"> </header>
         <h1>Users</h1>
-        <div id="edit-roles-button">
-            <button class="btn btn-primary edit-roles-button authenticated-user" id="table-edit-roles-button" onclick="toggleEditRoles('edit-roles-button', 'edit-roles-form', 'save-roles-button')">Edit Roles</button>
-        </div>
-        <div id="save-roles-button">
-            <button class="btn btn-primary save-roles-button authenticated-user" id="table-save-roles-button" onclick="toggleEditRoles('save-roles-button', 'edit-roles-form', 'edit-roles-button')">Save Roles</button>
-        </div>
-        <div id="user-list">
+        <div id="user-list" class="m-3">
             <table class="table table-bordered table-responsive-sm">
                 <thead>
                     <tr>
@@ -29,12 +23,11 @@
                         <th>Username</th>
                         <th>Aliases</th>
                         <th>Roles</th>
-                        <th>Role Editor</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="user : ${user_list}" class="userRoleRow">
-<!--                        <td class="userId" th:text="${user.username}" style="display: none"></td>-->
+                        <td class="userId" th:text="${user.id}" style="display: none"></td>
                         <td th:text="${user.firstName} +  ' ' + ${user.middleName} + ' ' + ${user.lastName}">Name</td>
                         <td class="username" th:text="${user.username}">Username</td>
                         <td th:text="${user.nickname}">Nickname</td>
@@ -42,19 +35,17 @@
                             <div th:each="activeRole : ${user.rolesList}" class="badge border d-inline-flex align-items-center">
                                 <div class="tagDiv">
                                     <div class=" text-black roleType" th:text="${activeRole}"></div>
-                                    <button class="btn-close roleTagDivButton" style="font-size: 0.75em;">x</button>
+                                    <button class="btn-close roleDeleteButton" style="font-size: 0.75em;">x</button>
                                 </div>
                             </div>
-                            <button id="tag-menu-button" class="btn badge border text-light bg-primary tagDelete">+</button>
+                            <div >
+                                <button class="btn badge border text-light bg-primary addRolePopUpButton dropdown-toggle"
+                                        aria-expanded="true">+</button>
+                                <ul class="dropdown-menu collapse" data-popper-placement="bottom-start">
+                                    <button class="dropdown-item roleToAddButton" th:each="role : ${possibleRoles}" th:if="${!user.rolesList.contains(role)}" th:text="${role}"></button>
+                                </ul>
+                            </div>
 
-                        </td>
-<!--                        <td th:each="${#strings.listJoin(user.rolesList, ', ')}">Roles</td>-->
-                        <td class="parent">
-                            <button th:each="role : ${possibleRoles}" th:text="${role}"></button>
-                            <select class="form-select roleWithButton" multiple aria-label="user-role-selection roleSelector" id="user-role-selection"> // th:if="${userCanEdit == true}
-                                <option th:selected="${user.rolesList.contains(role)}" th:each="role : ${possibleRoles}" th:text="${role}" ></option>
-                            </select>
-                            <button class="btn btn-primary editRoleSaveButton">Save</button>
                         </td>
                     </tr>
                 </tbody>

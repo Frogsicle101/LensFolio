@@ -14,18 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Predicate;
 
 @Controller
 public class UserListController {
@@ -41,6 +36,7 @@ public class UserListController {
     private int totalPages = 1;
     private ArrayList<Integer> footerNumberSequence = new ArrayList<>();
     private List<UserResponse> userResponseList;
+    HashMap<String, UserRole> stringToRole;
 
     /**
      * Used to create the list of users, 50 per page, by default sorted by users names. Adds all these values on
@@ -76,6 +72,9 @@ public class UserListController {
             response = getPaginatedUsersFromServer();
         }
 
+        UserRole[] possibleRoles = UserRole.values();
+        possibleRoles = Arrays.stream(possibleRoles).filter(role -> role != UserRole.UNRECOGNIZED).toArray(UserRole[]::new);
+
         createFooterNumberSequence();
         userResponseList = response.getUsersList();
 
@@ -84,47 +83,62 @@ public class UserListController {
         model.addAttribute("totalItems", numUsers);
         model.addAttribute("user_list", userResponseList);
         model.addAttribute("footerNumberSequence", footerNumberSequence);
-        model.addAttribute("possibleRoles", UserRole.values());
+        model.addAttribute("possibleRoles", possibleRoles);
         return new ModelAndView("user-list");
     }
 
 
-    @PostMapping("/editUserRole")
-    public ResponseEntity<String> editUserRoles(
+    @DeleteMapping("/editUserRole")
+    public ResponseEntity<String> deleteUserRole(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam(value = "username") String username,
-            @RequestParam(value = "newUserRoles") String newUserRoles) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal); //TODO change this because the user to be changed is not necessarily the user editing the table
+            @RequestParam(value = "userId") String userId,
+            @RequestParam(value = "role") String roleString) {
+        int adminstrator = PrincipalAttributes.getIdFromPrincipal(principal); //TODO use this for authenticating (teacher or admin)
+        logger.info("Deleting user role " + roleString + " from user " + userId);
+        ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
+        UserRoleChangeResponse response = userAccountsClientService.removeRoleFromUser(request);
 
-        logger.info("username: " + username + "\nnewUserRoles: " + newUserRoles);
-        HashMap<String, UserRole> stringToRole = new HashMap<>();
-        stringToRole.put("STUDENT", UserRole.STUDENT);
-        stringToRole.put("TEACHER", UserRole.TEACHER);
-        stringToRole.put("COURSE_ADMINISTRATOR", UserRole.COURSE_ADMINISTRATOR);
-        stringToRole.put("UNRECOGNIZED", UserRole.UNRECOGNIZED);
-        boolean validChange = true;
-        for (String role : stringToRole.keySet()) {
-            UserRoleChangeResponse response;
-            if (newUserRoles.contains(role)) {
-                ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
-                        .setRole(stringToRole.get(role))
-                        .setUserId(Integer.parseInt(String.valueOf(userId)))
-                        .build();
-                response = userAccountsClientService.addRoleToUser(request);
-            } else {
-                ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
-                        .setRole(stringToRole.get(role))
-                        .setUserId(Integer.parseInt(String.valueOf(userId)))
-                        .build();
-                response = userAccountsClientService.removeRoleFromUser(request);
-            }
-            if (! response.getIsSuccess()) {
-                validChange = false;
-            }
-        }
-
-        return new ResponseEntity<>(validChange ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PostMapping("/editUserRole")
+    public ResponseEntity<String> addUserRole(
+            @AuthenticationPrincipal AuthState principal,
+            @ModelAttribute(value = "userId") String userId,
+            @RequestParam(value = "role") String roleString) {
+        int adminstrator = PrincipalAttributes.getIdFromPrincipal(principal); //TODO use this for authenticating (teacher or admin)
+        // ToDo if the user is not authenticated as a teacher or admin they can't change the role so return 401
+        logger.info("Adding user role " + roleString + " to user " + userId);
+        ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
+        UserRoleChangeResponse response = userAccountsClientService.addRoleToUser(request);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    /**
+     * Helper method for adding and deleting user roles end points. This method extracts the common request formation
+     * as both adding and deleting requests use the same message format.
+     * <br>
+     * @param userId - The userId of the user whose roles are being edited
+     * @param roleString - A string representation of the role of the user to be added. converted with a dict to a UserRole
+     * @return request - the ModifyRoleOfUserRequest that will be sent over grpc
+     */
+    private ModifyRoleOfUserRequest formUserRoleChangeRequest(String userId, String roleString) {
+        if (stringToRole == null) {
+            populateRolesDict();
+        }
+        // ToDo convert the username retrieved from the html to the userId
+        ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
+                .setRole(stringToRole.get(roleString))
+                .setUserId(Integer.parseInt(userId))
+                .build();
+
+        return request;
+    }
+
+
+
     /**
      * A helper function to get the values of the offset and users per page limit and send a request to the client
      * service, which then gets a response from the server service
@@ -183,4 +197,12 @@ public class UserListController {
      * @return an ArrayList of numbers used for the navigation
      */
     public ArrayList<Integer> getFooterSequence() { return this.footerNumberSequence; }
+
+    private void populateRolesDict() {
+        stringToRole = new HashMap<>();
+        stringToRole.put("STUDENT", UserRole.STUDENT);
+        stringToRole.put("TEACHER", UserRole.TEACHER);
+        stringToRole.put("COURSE_ADMINISTRATOR", UserRole.COURSE_ADMINISTRATOR);
+        stringToRole.put("UNRECOGNIZED", UserRole.UNRECOGNIZED);
+    }
 }
