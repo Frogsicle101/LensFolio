@@ -50,7 +50,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         return userOneRoles.toString().compareTo(userTwoRoles.toString());
     };
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * getUserAccountByID follows the gRPC contract and provides the server side service for retrieving
