@@ -22,16 +22,20 @@ $(document).ready(function() {
     })
 
     $(".roleToAddButton").click(function () {
+
         let role = $(this).text();
         let userId = $(this).closest(".roleButtonsContainer").siblings(".userId").text();
-        $.ajax("/editUserRole"), {
+        $.ajax({
+            url: "/editUserRole",
             type: "POST",
             data: {
                 "userId": userId,
                 "role": role
             }
-        }
+        })
     });
+
+
 
 
     // // Be gone soon
