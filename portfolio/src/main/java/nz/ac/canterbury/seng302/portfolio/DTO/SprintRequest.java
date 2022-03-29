@@ -1,8 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.DTO;
 
-import org.apache.tomcat.jni.Local;
-
-import java.time.LocalDate;
 import java.util.UUID;
 
 public class SprintRequest {

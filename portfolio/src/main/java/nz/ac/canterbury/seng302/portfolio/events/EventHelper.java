@@ -3,7 +3,6 @@ package nz.ac.canterbury.seng302.portfolio.events;
 import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
 
-
 import java.time.LocalDate;
 import java.util.List;
 

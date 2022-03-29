@@ -24,11 +24,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
 
 
 @RestController
@@ -47,7 +47,7 @@ public class PortfolioController {
     private static final String successMessage = "successMessage";
 
     //below is for testing purposes
-    private Project defaultProject;
+    private final Project defaultProject;
 
 
 
@@ -103,14 +103,15 @@ public class PortfolioController {
 
     /**
      * Get mapping for /Portfolio
-     * @param principal
+     * @param principal - The AuthState of the user making the request, for authentication
      * @param projectId Id of the project to display
      * @return returns the portfolio view, or error-page
      */
     @GetMapping("/portfolio")
     public ModelAndView getPortfolio(
                                   @AuthenticationPrincipal AuthState principal,
-                                  @RequestParam(value = "projectId") long projectId
+                                  @RequestParam(value = "projectId") long projectId,
+                                  HttpServletRequest request
     ) {
         try {
             // Get user from server
@@ -156,6 +157,11 @@ public class PortfolioController {
             //to have each user select what project they want to go to from the navbar.
             modelAndView.addObject("projectId", projectId);
 
+            // For setting the profile image
+            String ip = request.getLocalAddr();
+            String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
+            modelAndView.addObject("profileImageUrl", url);
+
 
             return modelAndView;
 
@@ -170,14 +176,15 @@ public class PortfolioController {
 
     /**
      * Request mapping for /editProject
-     * @param principal
+     * @param principal - The AuthState of the user making the request, for authentication
      * @param projectId The project to edit
      * @return Returns the project edit page or the error page
      */
     @RequestMapping("/editProject")
     public ModelAndView edit(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam (value = "projectId") Long projectId
+            @RequestParam (value = "projectId") Long projectId,
+            HttpServletRequest request
     ) {
         try{
             // Get user from server
@@ -197,7 +204,10 @@ public class PortfolioController {
             // Adds the username to the view for use.
             modelAndView.addObject("username", user.getUsername());
 
-
+            // For setting the profile image
+            String ip = request.getLocalAddr();
+            String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
+            modelAndView.addObject("profileImageUrl", url);
 
             return modelAndView;
 
@@ -269,7 +279,7 @@ public class PortfolioController {
 
 
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
-                    "Project with id " + projectId.toString() + " was not found"
+                    "Project with id " + projectId + " was not found"
             ));
 
             // Initially startDate is set to the projects start date.

@@ -8,9 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.*;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 
 /**
@@ -43,7 +40,7 @@ public class User {
     private String salt;
     @Column(length = 100000)
     private Timestamp accountCreatedTime;
-    private ArrayList<UserRole> roles = new ArrayList<>();
+    private final ArrayList<UserRole> roles = new ArrayList<>();
 
 
     /**

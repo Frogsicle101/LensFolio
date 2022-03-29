@@ -2,10 +2,7 @@
 $(document).ready(function() {
     // Checks to see if there is an error message to be displayed
     if (!$(".errorMessage").is(':empty'))  {
-        $(".errorMessageParent").slideDown();
-    }
-    if (!$(".successMessage").is(':empty'))  {
-        $(".successMessageParent").slideDown().delay(1000).slideUp();
+        $(".alert").show();
     }
     if (!$(".infoMessage").is(':empty'))  {
         $(".infoMessageParent").slideDown().delay(1000).slideUp();
@@ -34,7 +31,7 @@ $(document).ready(function() {
                 location.reload()
             }
         })
-    })
+    });
 
     $(".editPasswordButton").click(() => {
         $(".canDisablePassword").prop("disabled",!$(".canDisablePassword").prop("disabled"));

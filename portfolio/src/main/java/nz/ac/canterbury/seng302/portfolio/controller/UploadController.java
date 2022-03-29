@@ -1,16 +1,11 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import com.google.rpc.context.AttributeContext;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import nz.ac.canterbury.seng302.shared.identityprovider.DeleteUserProfilePhotoRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,10 +18,10 @@ import java.io.IOException;
 @Controller
 public class UploadController {
 
-    Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    UserAccountsClientService userAccountsClientService;
+    private UserAccountsClientService userAccountsClientService;
 
     /**
      * Shows the form to upload a profile image if the user is logged in
@@ -58,19 +53,5 @@ public class UploadController {
         userAccountsClientService.uploadProfilePhoto(file.getInputStream(), id, "jpg");
         return "upload-image";
     }
-
-    @DeleteMapping("/deleteProfileImg")
-    public ResponseEntity<String> delete(
-            @AuthenticationPrincipal AuthState principal
-    ) {
-        logger.info("Endpoint reached: DELETE /deleteProfileImg");
-        int id = PrincipalAttributes.getId(principal);
-
-        DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
-
-        userAccountsClientService.deleteUserProfilePhoto(deleteRequest);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
 
 }

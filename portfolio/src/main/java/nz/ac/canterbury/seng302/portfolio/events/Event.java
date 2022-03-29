@@ -24,7 +24,7 @@ public class Event {
 
     @Column(length=50)
     private String name;
-    private static int nameLengthRestriction = 50;
+    private static final int nameLengthRestriction = 50;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private String startDateColour;

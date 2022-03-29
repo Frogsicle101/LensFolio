@@ -59,7 +59,7 @@ public class EventController {
             LocalDateTime eventEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
 
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
-                    "Project with id " + projectId.toString() + " was not found"
+                    "Project with id " + projectId + " was not found"
             ));
 
             Event event = new Event(project, name, eventStart, eventEnd, typeOfEvent);

@@ -99,10 +99,7 @@ async function sendImagePostRequest() {
         method: "POST",
         body: formData
     });
-
-
-
-
+    location.href = "/account";
 }
 
 // source: https://stackoverflow.com/a/18650828

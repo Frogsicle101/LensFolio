@@ -10,19 +10,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
 
 
 /**
@@ -82,16 +79,14 @@ public class AccountController {
         /*
         These addAttribute methods inject variables that we can use in our html file
          */
+        UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
+                                                                                .setId(userId)
+                                                                                .build());
 
-        GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
-        request.setId(userId);
-        UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
+        // For setting the profile image
         String ip = request.getLocalAddr();
         String url = "http://" + ip + ":9001/" + userResponse.getProfileImagePath();
-
-
         model.addAttribute("profileImageUrl", url);
-
 
         model.addAttribute("username", userResponse.getUsername());
         model.addAttribute("email", userResponse.getEmail());
@@ -111,8 +106,24 @@ public class AccountController {
                 ReadableTimeService.getReadableDate(userResponse.getCreated())
                         + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
         model.addAttribute("membersince", memberSince);
+    }
 
 
+    @DeleteMapping("/deleteProfileImg")
+    public ResponseEntity<String> deleteProfilePhoto(
+            @AuthenticationPrincipal AuthState principal
+    ) {
+        logger.info("Endpoint reached: DELETE /deleteProfileImg");
+        int id = PrincipalAttributes.getId(principal);
+
+        DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
+
+        DeleteUserProfilePhotoResponse response = userAccountsClientService.deleteUserProfilePhoto(deleteRequest);
+        if (response.getIsSuccess())
+            logger.info("Profile photo deleted - " + response.getMessage());
+        else
+            logger.info("Didn't delete profile photo - " + response.getMessage());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 

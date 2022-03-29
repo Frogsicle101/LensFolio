@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class ProjectService {
 
     @Autowired
-    ProjectRepository repo;
+    private ProjectRepository repo;
 
     public void updateTimeDeactivated( Long id, DateTime timeDeactivated) {
         repo.deactivateProject(id, timeDeactivated);

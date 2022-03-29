@@ -1,7 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.DTO;
 
-import java.time.LocalDate;
-
 
 public class ProjectRequest {
     private String projectId;
