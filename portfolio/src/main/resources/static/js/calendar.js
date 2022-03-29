@@ -2,7 +2,7 @@ let beginDateStr = $("#projectStartDate").html().toString();
 let endDateStr = $("#projectEndDate").html().toString();
 
 let sprintList = $("#sprints").val();
-console.log(sprintList);
+//console.log(sprintList);
 
 beginDateStr = beginDateStr.replace("-", "");
 beginDateStr = beginDateStr.replace("-", "");
@@ -11,15 +11,25 @@ endDateStr = endDateStr.replace("-", "");
 
 //let sprintList = $("#$sprints").html();
 
+
+
+
+
+
 (function () {
-  console.log(beginDateStr);
-  $.ajax({
-    url: "getProjectSprints",
-    type: "GET",
-    data: { projectId: 2 },
-  }).done(function (obj) {
-    let sprints = obj;
-  });
+
+
+  //console.log(beginDateStr);
+
+
+
+
+
+
+
+
+
+
   /*
    * Display calendar from current system time
    */
@@ -41,6 +51,43 @@ endDateStr = endDateStr.replace("-", "");
   showCalendarData();
   // display sprint and project
   bindEvent();
+
+  checkIfSprint()
+
+
+
+
+
+  function checkIfSprint(){
+    let sprints = $.ajax({
+      url: "getProjectSprints",
+      type: "GET",
+      data: { projectId: 1 },
+    }).done(function (obj) {
+      $(".project-bgcolor").each(function(){
+        let element = $(this)
+        let date = $(this).attr("date")
+
+        obj.forEach(function(sprint) {
+          let calendarDate = new Date(date)
+          let startDate = new Date(sprint.startDate)
+          let endDate = new Date(sprint.endDate)
+          //console.log("start Date " + startDate)
+          //console.log("date object " + date)
+          if (calendarDate >= startDate && calendarDate <= endDate){
+            element.css("border", "solid 1px " + sprint.colour)
+
+          }
+
+        })
+
+
+
+      })
+
+    });
+
+  }
 
   /**
    * setting calendar div in html
@@ -148,17 +195,17 @@ endDateStr = endDateStr.replace("-", "");
     let calendarTitle = document.getElementById("calendarTitle");
     let titleStr = _dateStr.substr(0, 4) + " - " + _dateStr.substr(4, 2);
 
-    console.log("print the sprints information");
-    for (let sprint in sprintList) {
-      let sprint_name = sprint.name;
-      let sprint_desctiption = sprint.desctiption;
-      let sprint_end_date = sprint.endDate;
-      let sprint_stat_date = sprint.startDate;
-      console.log(sprint_name);
-      console.log(sprint_desctiption);
-      console.log(sprint_end_date);
-      console.log(sprint_stat_date);
-    }
+    // console.log("print the sprints information");
+    // for (let sprint in sprintList) {
+    //   let sprint_name = sprint.name;
+    //   let sprint_desctiption = sprint.desctiption;
+    //   let sprint_end_date = sprint.endDate;
+    //   let sprint_stat_date = sprint.startDate;
+    //   console.log(sprint_name);
+    //   console.log(sprint_desctiption);
+    //   console.log(sprint_end_date);
+    //   console.log(sprint_stat_date);
+    // }
 
     calendarTitle.innerText = titleStr;
 
@@ -172,7 +219,8 @@ endDateStr = endDateStr.replace("-", "");
 
       _tds[i].innerText = _thisDay.getDate();
       //_tds[i].data = _thisDayStr;
-      _tds[i].setAttribute("data", _thisDayStr);
+      _tds[i].setAttribute("date", _thisDay.toString());
+
       if (_thisDayStr == getDateStr(new Date())) {
         // current day
         _tds[i].className = "currentDay_project";
@@ -194,6 +242,9 @@ endDateStr = endDateStr.replace("-", "");
       }
     }
   }
+
+
+
 
   /**
    * Bind previous month to next month events
@@ -234,6 +285,8 @@ endDateStr = endDateStr.replace("-", "");
     let date = dateObj.getDate();
     dateObj.setDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
     showCalendarData();
+    checkIfSprint()
+
   }
 
   /**
@@ -243,6 +296,7 @@ endDateStr = endDateStr.replace("-", "");
     let date = dateObj.getDate();
     dateObj.setDate(new Date(date.getFullYear(), date.getMonth() + 1, 1));
     showCalendarData();
+    checkIfSprint()
   }
 
   /**

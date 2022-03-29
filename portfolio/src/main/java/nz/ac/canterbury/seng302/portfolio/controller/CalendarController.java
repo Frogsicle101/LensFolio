@@ -4,6 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +27,7 @@ public class CalendarController {
     @GetMapping("/calendar")
     public ModelAndView getCalendar() {
         ModelAndView model = new ModelAndView("monthly_calendar");
-        Project project = projectRepository.getProjectByName("Project Bravo");
+        Project project = projectRepository.getProjectById(1L);
         model.addObject("project", project);
         model.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
 
@@ -35,9 +36,9 @@ public class CalendarController {
 
 
     @GetMapping("/getProjectSprints")
-    public List<Sprint> getProjectSprints(@RequestParam(value = "projectId") Long projectId){
+    public ResponseEntity<Object> getProjectSprints(@RequestParam(value = "projectId") Long projectId){
         List<Sprint> sprints = sprintRepository.findAllByProjectId(projectId);
-        return sprints;
+        return new ResponseEntity<>(sprints, HttpStatus.OK);
     }
 }
 

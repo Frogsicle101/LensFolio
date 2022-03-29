@@ -18,11 +18,6 @@
       <div th:insert="fragments/general.html :: successBox"></div>
       <div th:insert="fragments/general.html :: infoBox"></div>
 
-      <script>
-        var sprints = "[[${sprints}]]";
-        console.log(sprints)
-    </script>
-
       <div class="wrapper">
         <div class="projectBox">
           <!--project info display-->
@@ -94,16 +89,16 @@
             style="display: none"
           ></p>
 
-          <script>
-            var startList = new Array();
-            var endList = new Array();
-            var sprintColour = new Array();
-            for( "sprint: ${sprints}") {
-              startList.push("${sprint.startDate}");
-              endList.push("${sprint.endDate}");
-              sprintColour.push("${sprint.colour}");
-            }
-          </script>
+<!--          <script>-->
+<!--            var startList = new Array();-->
+<!--            var endList = new Array();-->
+<!--            var sprintColour = new Array();-->
+<!--            for( "sprint": ${sprints}") {-->
+<!--              startList.push("${sprint.startDate}");-->
+<!--              endList.push("${sprint.endDate}");-->
+<!--              sprintColour.push("${sprint.colour}");-->
+<!--            }-->
+<!--          </script>-->
           
           
           <p
