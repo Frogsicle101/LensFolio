@@ -68,6 +68,7 @@ endDateStr = endDateStr.replace("-", "");
         let element = $(this)
         let date = $(this).attr("date")
         let calendarDate = new Date(date)
+
         let projectStartDate = new Date(obj[0].project.startDate)
         let projectEndDate = new Date(obj[0].project.endDate)
 
@@ -83,10 +84,11 @@ endDateStr = endDateStr.replace("-", "");
           let startDate = new Date(sprint.startDate)
           let endDate = new Date(sprint.endDate)
 
+
           //console.log(calendarDate)
           //console.log("start Date " + startDate)
           //console.log("date object " + date)
-          if (calendarDate >= startDate && calendarDate <= endDate){
+          if (calendarDate >= startDate.setHours(0) && calendarDate <= endDate){
             element.css("background-color", sprint.colour)
             return false
           }
