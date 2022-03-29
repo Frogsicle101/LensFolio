@@ -14,6 +14,21 @@ $(document).ready(function() {
     $(".editUserButton").click(() => {
         $(".canDisable").prop("disabled",!$(".canDisable").prop("disabled"));
     })
+
+    $(".uploadPhotoButton").click(() => {
+        location.href = "/uploadImage";
+    });
+
+    $(".deleteProfilePhotoButton").click(() => {
+        $.ajax({
+            url: "/deleteProfileImg",
+            type: "DELETE",
+        }).done(
+            location.reload()
+        )
+    })
+
+
 });
 
 

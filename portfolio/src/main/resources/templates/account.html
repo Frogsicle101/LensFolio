@@ -15,7 +15,7 @@
             <div class="row mb-3">
                 <div class="col">
                     <label for="FirstName" class="form-label">First name</label>
-                    <input type="text" class="form-control canDisable"name="firstname" id="FirstName" th:value="${user.firstName}" required disabled>
+                    <input type="text" class="form-control canDisable" name="firstname" id="FirstName" th:value="${user.firstName}" required disabled>
                 </div>
                 <div class="col">
                     <label for="MiddleName" class="form-label">Middle name</label>
@@ -80,6 +80,11 @@
             </div>
             <button type="submit" class="btn btn-primary canDisable canDisable" disabled>Change</button>
         </form>
+        <hr class="mt-3 mb-3">
+        <div>
+            <button class="btn btn-primary border uploadPhotoButton">Upload Profile Photo</button>
+            <button class="btn btn-secondary border deleteProfilePhotoButton">Delete Profile Photo</button>
+        </div>
 
     </div>
 </section>
