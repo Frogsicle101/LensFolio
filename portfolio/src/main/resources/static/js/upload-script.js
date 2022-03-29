@@ -24,29 +24,33 @@ async function processImage() {
     // Get elements from HTML page
     const previewImage = document.getElementById('profileImagePreview');
     const fileUploadInput = document.getElementById('profileImageInput');
+    const loadingText = document.getElementById('loadingText');
+
+    loadingText.style.display = "inline"; // Make loading gif visible
 
     // Create canvas and context objects
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
 
     // Set constants
+    const MAX_FILE_SIZE = 5000000; // 5MB
+    const MAX_CANVAS_DIMENSION = 8000; // Max canvas size for google chrome
+
+    // Initialize Variables
     const uploadImageDataURL = URL.createObjectURL(fileUploadInput.files[0]);
     const uploadImageObject = await loadImage(uploadImageDataURL);
     const originalWidth = uploadImageObject.width;
     const originalHeight = uploadImageObject.height;
-    const maxFileSize = 5000000; // 5MB
-
-    // Initialize Variables
     let newHeight;
     let newWidth;
     let imageSize = fileUploadInput.files[0].size;
     let quality;
 
     // Calculate quality value needed
-    if (imageSize <= maxFileSize) {
+    if (imageSize <= MAX_FILE_SIZE) {
         quality = 0.9;
     } else {
-        quality = maxFileSize/imageSize;
+        quality = MAX_FILE_SIZE/imageSize;
     }
 
     // Find smaller dimension of image for making square
@@ -62,12 +66,11 @@ async function processImage() {
     const cropOffsetX = 0;
     const cropOffsetY = 0;
 
-    canvas.width = newWidth;
-    canvas.height = newHeight;
+    canvas.width = Math.min(newWidth, MAX_CANVAS_DIMENSION);
+    canvas.height = Math.min(newHeight, MAX_CANVAS_DIMENSION);
 
     // Image with new parameters is drawn using canvas object
     context.drawImage(uploadImageObject, cropOffsetX, cropOffsetY, newWidth, newHeight, 0, 0, newWidth, newHeight);
-
     // Compressing the image and converting to jpeg using a blob object
     canvas.toBlob(
         (blob) => {
@@ -75,7 +78,11 @@ async function processImage() {
                 // showing the compressed image
                 previewImage.src = URL.createObjectURL(blob);
                 document.querySelector("#size").innerHTML = bytesToSize(blob.size); // Sends image size to upload form
+            } else {
+                alert("Error compressing image - try a smaller file");
             }
+            loadingText.style.display = "none"; // Make loading gif invisible
+
         },
         "image/jpeg",
         quality
@@ -84,6 +91,7 @@ async function processImage() {
 
 async function sendImagePostRequest() {
     const url = document.getElementById('profileImagePreview').getAttribute('src');
+    document.getElementById('profile').setAttribute('src', url);
     const formData = new FormData();
     formData.append("image", await fetch(url).then(r => r.blob()));
 
@@ -91,7 +99,7 @@ async function sendImagePostRequest() {
         method: "POST",
         body: formData
     });
-    location.reload();
+
 
 
 
