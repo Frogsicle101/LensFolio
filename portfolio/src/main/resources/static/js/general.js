@@ -23,11 +23,11 @@ $(document).ready(function() {
         $.ajax({
             url: "/deleteProfileImg",
             type: "DELETE",
-        }).done(
-            location.reload()
-        )
+            success: function () {
+                location.reload()
+            }
+        })
     })
-
 
 });
 
