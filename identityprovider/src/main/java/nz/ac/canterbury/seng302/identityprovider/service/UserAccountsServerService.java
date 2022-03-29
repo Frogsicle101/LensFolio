@@ -241,9 +241,17 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     }
 
     public void deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request, StreamObserver<DeleteUserProfilePhotoResponse> responseObserver) {
-        int id = request.getUserId();
-        File image = new File("src/main/resources/profile-photos/" + id + ".jpg");
-        image.delete();
+        DeleteUserProfilePhotoResponse.Builder response = DeleteUserProfilePhotoResponse.newBuilder();
+        try {
+            int id = request.getUserId();
+            File image = new File("src/main/resources/profile-photos/" + id + ".jpg");
+            boolean deleteSuccess = image.delete();
+            response.setIsSuccess(deleteSuccess);
+        } catch (Exception exception) {
+            response.setIsSuccess(false);
+        }
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
     }
 
 }

@@ -119,10 +119,11 @@ public class AccountController {
         DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
 
         DeleteUserProfilePhotoResponse response = userAccountsClientService.deleteUserProfilePhoto(deleteRequest);
-        if (response.getIsSuccess())
+        if (response.getIsSuccess()) {
             logger.info("Profile photo deleted - " + response.getMessage());
-        else
+        } else {
             logger.info("Didn't delete profile photo - " + response.getMessage());
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
