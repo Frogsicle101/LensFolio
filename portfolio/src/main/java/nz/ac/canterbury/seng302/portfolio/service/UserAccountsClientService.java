@@ -111,4 +111,9 @@ public class UserAccountsClientService {
         responseObserver.sendImage(requestChunks);
 
     }
+
+    public DeleteUserProfilePhotoResponse deleteUserProfilePhoto (DeleteUserProfilePhotoRequest request) {
+        return userAccountStub.deleteUserProfilePhoto(request);
+    }
+
 }

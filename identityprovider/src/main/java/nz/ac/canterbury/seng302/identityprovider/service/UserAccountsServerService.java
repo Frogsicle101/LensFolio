@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -219,6 +220,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Override
     public StreamObserver<UploadUserProfilePhotoRequest> uploadUserProfilePhoto(StreamObserver<FileUploadStatusResponse> responseObserver) {
         return new ImageRequestStreamObserver(responseObserver);
+    }
+
+    public void deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request, StreamObserver<DeleteUserProfilePhotoResponse> responseObserver) {
+        int id = request.getUserId();
+        File image = new File("src/main/resources/profile-photos/" + id + ".jpg");
+        image.delete();
     }
 
 }

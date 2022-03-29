@@ -3,6 +3,8 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import com.google.rpc.context.AttributeContext;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
+import nz.ac.canterbury.seng302.shared.identityprovider.DeleteUserProfilePhotoRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -47,5 +49,17 @@ public class UploadController {
         userAccountsClientService.uploadProfilePhoto(file.getInputStream(), id, "jpg");
         return "upload-image";
     }
+
+    @DeleteMapping("/deleteProfileImg")
+    public void delete(
+            @AuthenticationPrincipal AuthState principal
+    ) {
+        int id = PrincipalAttributes.getId(principal);
+
+        DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
+
+        userAccountsClientService.deleteUserProfilePhoto(deleteRequest);
+    }
+
 
 }
