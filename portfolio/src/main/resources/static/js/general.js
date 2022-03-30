@@ -2,10 +2,14 @@
 $(document).ready(function() {
     // Checks to see if there is an error message to be displayed
     if (!$(".errorMessage").is(':empty'))  {
-        $(".alert").show();
+        $(".errorMessageParent").show();
     }
     if (!$(".infoMessage").is(':empty'))  {
         $(".infoMessageParent").slideDown().delay(1000).slideUp();
+    }
+
+    if (!$(".successMessage").is(':empty'))  {
+        $(".successMessageParent").slideDown().delay(1000).slideUp();
     }
 
 

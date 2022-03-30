@@ -323,10 +323,6 @@ public class PortfolioController {
 
 
 
-
-
-
-
         } catch(EntityNotFoundException err) {
             logger.error("GET REQUEST /portfolio/addSprint", err);
             attributes.addFlashAttribute(errorMessage, err.getMessage());
