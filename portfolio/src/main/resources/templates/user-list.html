@@ -52,10 +52,10 @@
                             <div th:each="activeRole : ${user.rolesList}" class="badge border d-inline-flex align-items-center">
                                 <div class="tagDiv">
                                     <div class=" text-black roleType" th:text="${activeRole}"></div>
-                                    <button class="btn-close roleDeleteButton" style="font-size: 0.75em;">x</button>
+                                    <button th:if="${userCanEdit}" class="btn-close roleDeleteButton" style="font-size: 0.75em;">x</button>
                                 </div>
                             </div>
-                            <div>
+                            <div th:if="${userCanEdit}">
                                 <button class="btn badge border text-light bg-primary addRolePopUpButton dropdown-toggle"
                                         aria-expanded="true">+</button>
                                 <ul class="dropdown-menu collapse" data-popper-placement="bottom-start">

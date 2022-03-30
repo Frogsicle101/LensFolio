@@ -46,7 +46,7 @@ public class CalendarController {
         String ip = request.getLocalAddr();
         String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
         model.addObject("profileImageUrl", url);
-
+        model.addObject("username", user.getUsername());
         return model;
     }
 
