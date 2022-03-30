@@ -42,11 +42,14 @@ public class UploadController {
         return "upload-image";
     }
 
+    /**
+     * Endpoint that sends the given file to the identity provider
+     * @param file The file sent in the body of the post request
+     */
     @PostMapping("/upload")
     public String upload(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam("image") MultipartFile file,
-            Model model
+            @RequestParam("image") MultipartFile file
     ) throws IOException {
         logger.info("Endpoint reached: POST /upload");
         int id = PrincipalAttributes.getIdFromPrincipal(principal);
