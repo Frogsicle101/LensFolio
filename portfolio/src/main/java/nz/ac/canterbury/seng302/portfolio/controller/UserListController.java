@@ -41,6 +41,7 @@ public class UserListController {
     private List<UserResponse> userResponseList;
     HashMap<String, UserRole> stringToRole;
 
+
     /**
      * Used to create the list of users, 50 per page, by default sorted by users names. Adds all these values on
      * the webpage to be displayed. Also used for the other pages in the user list. Passes through users as well as
@@ -85,6 +86,12 @@ public class UserListController {
         return new ModelAndView("user-list");
     }
 
+
+    /**
+     * Adds to the model the attributes required to display, format, and interact with the user list table.
+     *
+     * @param model the model to which the attributes will be added.
+     */
     private void addAttributesToModel(Model model) {
         UserRole[] possibleRoles = UserRole.values();
         possibleRoles = Arrays.stream(possibleRoles).filter(role -> role != UserRole.UNRECOGNIZED).toArray(UserRole[]::new);
@@ -99,7 +106,16 @@ public class UserListController {
     }
 
 
-
+    /**
+     * Deletes a selected user role from a requested user, using a ModifyRoleOfUserRequest to communicate the user ID
+     * and role of the user to be changed. Only authenticated users with teacher/course administrator permissions can
+     * perform role deletions.
+     *
+     * @param principal Allows the user ID of the user making the request to be retrieved.
+     * @param userId The user ID of the user being edited.
+     * @param roleString The role being deleted from the user, in a string format.
+     * @return The success status of the deletion.
+     */
     @DeleteMapping("/editUserRole")
     public ResponseEntity<String> deleteUserRole(
             @AuthenticationPrincipal AuthState principal,
@@ -113,6 +129,17 @@ public class UserListController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
+    /**
+     * Adds a selected user role to a requested user, using a ModifyRoleOfUserRequest to communicate the user ID
+     * and role of the user to be changed. Only authenticated users with teacher/course administrator permissions can
+     * perform role additions.
+     *
+     * @param principal Allows the user ID of the user making the request to be retrieved.
+     * @param userId The user ID of the user being edited.
+     * @param roleString The role being added to the user, in a string format.
+     * @return The success status of the addition.
+     */
     @PutMapping("/editUserRole")
     public ResponseEntity<String> addUserRole(
             @AuthenticationPrincipal AuthState principal,
@@ -220,5 +247,4 @@ public class UserListController {
         stringToRole.put("COURSE_ADMINISTRATOR", UserRole.COURSE_ADMINISTRATOR);
         stringToRole.put("UNRECOGNIZED", UserRole.UNRECOGNIZED);
     }
-
 }
