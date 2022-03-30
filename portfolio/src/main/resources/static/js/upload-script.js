@@ -1,3 +1,10 @@
+$(document).ready(()=>{
+    $(".backButton").click(function(){
+        location.href = "/account"
+    })
+})
+
+
 /**
  * Creates a new Image object and waits for it to load before continuing
  * @param imageUrl src url of new image object ot be created
@@ -98,8 +105,16 @@ async function sendImagePostRequest() {
     await fetch("http://localhost:9000/upload", {
         method: "POST",
         body: formData
+    }).then(function(){
+        $(".successBox").append(`
+                            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                 Your profile image is being uploaded, you can click <a href="/account">here</a> to go back to account's page.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
     });
-    location.href = "/account";
+
+
+
 }
 
 // source: https://stackoverflow.com/a/18650828

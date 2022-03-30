@@ -204,6 +204,8 @@ public class PortfolioController {
                     "Event with id " + projectId + "was not found"
             ));
 
+
+
             // The view we are going to return.
             ModelAndView modelAndView = new ModelAndView("projectEdit");
 
@@ -241,7 +243,7 @@ public class PortfolioController {
     public ModelAndView editDetails(
             @ModelAttribute(name="editProjectForm") ProjectRequest editInfo,
             RedirectAttributes attributes
-    ) {
+        ) {
         try {
 
             logger.info("POST REQUEST /projectEdit");
@@ -253,6 +255,23 @@ public class PortfolioController {
                     "Project with id " + editInfo.getProjectId() + "was not found"
             ));
 
+            List<Sprint> sprintListEndDates = sprintRepository.getAllByProjectOrderByEndDateDesc(project);
+            List<Sprint> sprintListStartDates = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
+            if (!sprintListEndDates.isEmpty()) {
+                Sprint sprint = sprintListEndDates.get(0);
+                if (sprint.getEndDate().isAfter(projectEnd)) {
+                    attributes.addFlashAttribute(errorMessage, "Could not change project dates.  New project end date of" + projectEnd.toString() + " is before the sprint: " + sprint.getName() + " ends: " + sprint.getEndDate().toString());
+                    return new ModelAndView("redirect:/portfolio?projectId=" + editInfo.getProjectId());
+                }
+                sprint = sprintListStartDates.get(0);
+                if (sprint.getStartDate().isBefore(projectStart)){
+                    attributes.addFlashAttribute(errorMessage, "Could not change project dates. New project start date of: " + projectStart.toString() + " is after the sprint: " + sprint.getName() + " starts: " + sprint.getStartDate().toString());
+                    return new ModelAndView("redirect:/portfolio?projectId=" + editInfo.getProjectId());
+                }
+            }
+
+
+
             //Updates the project's details
             project.setName(editInfo.getProjectName());
             project.setStartDate(projectStart);
@@ -263,16 +282,16 @@ public class PortfolioController {
             // Adds success message that is shown on the frontend after redirect
             attributes.addFlashAttribute(successMessage, "Project Updated!");
 
-        } catch(EntityNotFoundException err) {
+
+        } catch (EntityNotFoundException err) {
             logger.error("POST REQUEST /projectEdit", err);
             attributes.addFlashAttribute(errorMessage, err.getMessage());
-        }catch(Exception err) {
+        } catch (Exception err) {
             logger.error("POST REQUEST /projectEdit", err);
-           return new ModelAndView("errorPage").addObject(errorMessage, err);
+            return new ModelAndView("errorPage").addObject(errorMessage, err);
         }
         return new ModelAndView("redirect:/portfolio?projectId=" + editInfo.getProjectId());
     }
-
 
     /**
      * Get mapping for portfolio/addSprint
