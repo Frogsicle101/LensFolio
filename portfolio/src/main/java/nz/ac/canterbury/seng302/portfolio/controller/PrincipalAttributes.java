@@ -60,7 +60,8 @@ public class PrincipalAttributes {
         // Get user from server
         int user_id = getIdFromPrincipal(principal);
         GetUserByIdRequest userRequest = GetUserByIdRequest.newBuilder().setId(user_id).build();
-        return userAccountsClientService.getUserAccountById(userRequest);
+        UserResponse user = userAccountsClientService.getUserAccountById(userRequest);
+        return user;
     }
 
 }

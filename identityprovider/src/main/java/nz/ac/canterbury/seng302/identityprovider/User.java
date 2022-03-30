@@ -193,14 +193,34 @@ public class User {
         return accountCreatedTime;
     }
 
+    public void setRoles(ArrayList<UserRole> roles) {
+        for (UserRole role : roles) {
+            addRole(role);
+        }
+        for (UserRole role : getRoles()) {
+            if (!roles.contains(role)) {
+                deleteRole(role);
+            }
+        }
+    }
     public void addRole(UserRole role) {
         if (! roles.contains(role)) {
             roles.add(role);
         }
     }
 
-    public void deleteRole(UserRole role) {
-        roles.remove(role);
+    /**
+     * Deletes the given role from the user
+     * @param role The role you want to delete from the user
+     * @throws IllegalStateException If the user has 1 or less roles, we cannot delete their role(s). This is because
+     * a user should never have 0 roles - therefore we're in an illegal state.
+     */
+    public void deleteRole(UserRole role) throws IllegalStateException {
+        if (roles.size() <= 1) {
+            throw new IllegalStateException("You can't have a user with 0 Roles!");
+        } else {
+            roles.remove(role);
+        }
     }
 
     public String getProfileImagePath() {

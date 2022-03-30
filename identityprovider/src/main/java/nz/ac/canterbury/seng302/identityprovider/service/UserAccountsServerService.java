@@ -7,7 +7,6 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
-import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -30,6 +32,25 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     private UserRepository repository;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    /** Name Comparator */
+    Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
+
+    /** Username Comparator */
+    Comparator<User> compareByUsername = Comparator.comparing(User::getUsername);
+
+    /** alias Comparator */
+    Comparator<User> compareByAlias = Comparator.comparing(User::getNickname);
+
+    /** role Comparator */
+    Comparator<User> compareByRole = (userOne, userTwo) -> {
+        ArrayList<UserRole> userOneRoles = userOne.getRoles();
+        ArrayList<UserRole> userTwoRoles = userTwo.getRoles();
+        Collections.sort(userOneRoles);
+        Collections.sort(userTwoRoles);
+        return userOneRoles.toString().compareTo(userTwoRoles.toString());
+    };
+
 
     /**
      * getUserAccountByID follows the gRPC contract and provides the server side service for retrieving
@@ -254,4 +275,155 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+    /**
+     * Follows the gRPC contract for editing users, this method attempts to add a role to a User.
+     * <br>
+     * This service first attempts to find the user by their id so that they can have their role changed <br>
+     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *  - Otherwise the role to be added is checked against the user's current roles to prevent duplication, then the
+     *  role is added if it's unique for the user.
+     *
+     * @param request - The gRPC ModifyRoleOfUserRequest passed from the client
+     * @param responseObserver - Used to return the response to the client side.
+     */
+    @Override
+    public void addRoleToUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
+        logger.info("Service - Adding role " + request.getRole() + " to user " + request.getUserId());
+        UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
+
+        User userToUpdate = repository.findById(request.getUserId());
+        if (userToUpdate != null) {
+            if (!userToUpdate.getRoles().contains(request.getRole())) {
+                userToUpdate.addRole(request.getRole());
+                repository.save(userToUpdate);
+                response.setIsSuccess(true)
+                        .setMessage(true);
+            } else {
+                response.setIsSuccess(false)
+                        .setMessage(false);
+            }
+        } else {
+            response.setIsSuccess(false)
+                    .setMessage(false);
+        }
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * Follows the gRPC contract for editing users, this method attempts to remove a role from a User.
+     * <br>
+     * This service first attempts to find the user by their id so that they can have their role changed <br>
+     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *  - Otherwise the role to be removed is checked against the user's current roles to prevent deleting a role
+     *  that doesn't exist. <br>
+     *  - Finally, we attempt to delete the role. If the user has 1 - or somehow no roles (which should not happen) -
+     *  then an exception gets thrown, because a user should always have at least 1 role. We catch this exception
+     *  and send a failure message.
+     *
+     * @param request - The gRPC ModifyRoleOfUserRequest passed from the client
+     * @param responseObserver - Used to return the response to the client side.
+     */
+    @Override
+    public void removeRoleFromUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
+        logger.info("Service - Removing role " + request.getRole() +  " from user " + request.getUserId());
+        UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
+
+        User userToUpdate = repository.findById(request.getUserId());
+        if (userToUpdate != null) {
+            //We've found the user!
+            try {
+                userToUpdate.deleteRole(request.getRole());
+                repository.save(userToUpdate);
+                logger.info("Role Removal Success - removed " + request.getRole()
+                        + " from user " + request.getUserId());
+                response.setIsSuccess(true)
+                        .setMessage(true);
+            } catch (IllegalStateException e) {
+                //The user has only one role - we can't delete it!
+                logger.info("Role Removal Failure - user " + request.getUserId()
+                        + " has 1 role. Users cannot have 0 roles");
+                response.setIsSuccess(false)
+                        .setMessage(false);
+            }
+        } else {
+            //Here, we couldn't find the user, so we do not succeed.
+            logger.info("Role Removal Failure - could not find user " + request.getUserId());
+            response.setIsSuccess(false)
+                    .setMessage(false);
+        }
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
+    /**
+     * Follows the gRPC contract for retrieving the paginated users. Does this by sorting a list of all the users based
+     * on what was requested and then looping through to add the specific page of users to the response
+     *
+     * @param request the GetPaginatedUsersRequest passed through from the client service
+     * @param responseObserver Used to return the response to the client side.
+     */
+    @Override
+    public void getPaginatedUsers(GetPaginatedUsersRequest request, StreamObserver<PaginatedUsersResponse> responseObserver) {
+        PaginatedUsersResponse.Builder reply = PaginatedUsersResponse.newBuilder();
+        List<User> allUsers = (List<User>) repository.findAll();
+        String sortMethod = request.getOrderBy();
+
+        switch (sortMethod) {
+            case "roles-increasing" -> allUsers.sort(compareByRole);
+            case "roles-decreasing" -> {
+                allUsers.sort(compareByRole);
+                Collections.reverse(allUsers);
+            }
+            case "username-increasing" -> allUsers.sort(compareByUsername);
+            case "username-decreasing" -> {
+                allUsers.sort(compareByUsername);
+                Collections.reverse(allUsers);
+            }
+            case "aliases-increasing" -> allUsers.sort(compareByAlias);
+            case "aliases-decreasing" -> {
+                allUsers.sort(compareByAlias);
+                Collections.reverse(allUsers);
+            }
+            case "name-decreasing" -> {
+                allUsers.sort(compareByName);
+                Collections.reverse(allUsers);
+            }
+            default -> allUsers.sort(compareByName);
+        }
+        //for each user up to the limit or until all the users have been looped through, add to the response
+        for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
+            reply.addUsers(retrieveUser(allUsers.get(i)));
+        }
+        reply.setResultSetSize(allUsers.size());
+        responseObserver.onNext(reply.build());
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * Helper function to grab all the info from a specific user and add it to a UserResponse
+     *
+     * @param user User passed through from the getPaginatedUsers method
+     * @return UserResponse - a response with all the info about the user passed through
+     */
+    private UserResponse retrieveUser(User user) {
+        UserResponse.Builder response = UserResponse.newBuilder();
+        response.setUsername(user.getUsername())
+                .setFirstName(user.getFirstName())
+                .setMiddleName(user.getMiddleName())
+                .setLastName(user.getLastName())
+                .setNickname(user.getNickname())
+                .setBio(user.getBio())
+                .setPersonalPronouns(user.getPronouns())
+                .setEmail(user.getEmail())
+                .setCreated(user.getAccountCreatedTime())
+                .setId(user.getId());
+
+        // To add all the users roles to the response
+        ArrayList<UserRole> roles = user.getRoles();
+        for (UserRole role : roles) {
+            response.addRoles(role);
+        }
+
+        return response.build();
+    }
 }

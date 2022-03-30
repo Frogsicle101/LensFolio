@@ -19,10 +19,12 @@ section{
 :root {
     --main-border-colour: #d7d6d6;
     --secondary-text-colour: #c4c3c3;
+    --main-text-color: #1f1f1f;
     --secondary-text-colour-darker: #696969;
     --select-green: #95fd97;
     --select-red: #ff0000;
     --border-radius: 0.4rem;
+    --navbar-colour: #2a2a2a;
 
 }
 
@@ -389,6 +391,21 @@ section{
 
 }
 
+/*edit roles page*/
+.tagDiv {
+    display: flex;
+    flex-direction: row;
+}
+
+.roleAddingDropdown {
+    display: flex;
+    flex-direction: row;
+}
+
+.roleToAddButton {
+    font-size: 0.75em;
+}
+
 #profileImagePreview{
     width: 10rem;
     height: 10rem;
@@ -410,3 +427,64 @@ section{
     width: 50rem;
 }
 
+/*User-list*/
+
+.listTable, .listTableFooter{
+    width: 70rem;
+}
+
+.listTableDiv{
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.listTableFooter{
+    align-self: center;
+}
+
+
+.listTable a{
+    text-decoration: none;
+    color: var(--main-text-color);
+}
+
+.roleButtonsContainer{
+    display: flex;
+    flex-direction: row;
+}
+
+.tableStyled{
+    border-collapse: collapse;
+    font-size: 1rem;
+    min-width: 60rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.tableStyled th, .tableStyled td{
+    padding: 1rem
+}
+
+.tableStyled thead tr{
+    border-radius: var(--border-radius);
+    background-color: var(--navbar-colour);
+    text-align: left;
+}
+.tableStyled thead tr a{
+    color: #f9f9f9;
+}
+
+
+.tableStyled tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.tableStyled tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.tableStyled tbody tr:last-of-type {
+    border-bottom: 2px solid #000000;
+}

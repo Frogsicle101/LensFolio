@@ -67,7 +67,9 @@ message UserResponse {
    .google.protobuf.Timestamp Created = 9;
    string ProfileImagePath = 10;
    repeated UserRole Roles = 11;
+   int32 Id = 12;
 }
+
 enum UserRole {
    STUDENT = 0;
    TEACHER = 1;
@@ -96,7 +98,7 @@ message DeleteUserProfilePhotoRequest {
 
 message DeleteUserProfilePhotoResponse {
    bool IsSuccess = 1;
-   bool Message = 2;
+   bool Message = 2; // I think this should be a string - SAM
 }
 
 message GetPaginatedUsersRequest {
@@ -110,12 +112,12 @@ message PaginatedUsersResponse {
 }
 
 message ModifyRoleOfUserRequest {
-   int32 UserId = 1;
+   int32 UserId = 1; // Does this need to be userName because we cannot get the userID with paginated users - SAM
    UserRole Role = 2;
 }
 message UserRoleChangeResponse {
    bool IsSuccess = 1;
-   bool Message = 2;
+   bool Message = 2; // I think this should be a string - SAM
 }
 
 

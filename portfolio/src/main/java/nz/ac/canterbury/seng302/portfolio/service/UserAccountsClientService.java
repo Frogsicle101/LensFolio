@@ -73,6 +73,27 @@ public class UserAccountsClientService {
         return userAccountStub.changeUserPassword(request);
     }
 
+    public UserRoleChangeResponse addRoleToUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
+        return userAccountStub.addRoleToUser(modifyRoleOfUserRequest);
+    }
+
+    public UserRoleChangeResponse removeRoleFromUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
+        return userAccountStub.removeRoleFromUser(modifyRoleOfUserRequest);
+    }
+
+
+    /**
+     * Sends a request to the userAccountServerService to get a specific page for the users list, through a
+     * GetPaginatedUsersRequest
+     *
+     * @param request the GetPaginatedUsersRequest passed through from the controller, with the page, size of the list
+     *                and the sort order
+     * @return response - a PaginatedUsersResponse, a response with a list of users and the total amount of users
+     */
+    public PaginatedUsersResponse getPaginatedUsers(GetPaginatedUsersRequest request) {
+        return userAccountStub.getPaginatedUsers(request);
+    }
+
     /**
      * This function is the server side of a bidirctional stream for sending the photos over gRPC. It calls a function
      * in UserAccountServerService which returns a StreamObserver, that is then used to send the file data.
