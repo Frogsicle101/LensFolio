@@ -164,7 +164,6 @@
 }
 
 .calendarBox{
-  border: solid 1px red;
 }
 
 
@@ -177,7 +176,8 @@
 }
 
 .sprint {
-  width: 20rem;
+  min-width: 30rem;
+  max-width: 45rem;
   padding: 2rem;
   margin: 1rem;
 }
