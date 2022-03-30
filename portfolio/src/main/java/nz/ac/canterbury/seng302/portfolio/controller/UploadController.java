@@ -49,7 +49,7 @@ public class UploadController {
             Model model
     ) throws IOException {
         logger.info("Endpoint reached: POST /upload");
-        int id = PrincipalAttributes.getId(principal);
+        int id = PrincipalAttributes.getIdFromPrincipal(principal);
         userAccountsClientService.uploadProfilePhoto(file.getInputStream(), id, "jpg");
         return "upload-image";
     }

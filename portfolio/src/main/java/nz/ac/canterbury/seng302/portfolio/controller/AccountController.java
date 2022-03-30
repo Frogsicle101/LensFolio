@@ -114,7 +114,7 @@ public class AccountController {
             @AuthenticationPrincipal AuthState principal
     ) {
         logger.info("Endpoint reached: DELETE /deleteProfileImg");
-        int id = PrincipalAttributes.getId(principal);
+        int id = PrincipalAttributes.getIdFromPrincipal(principal);
 
         DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
 

@@ -19,9 +19,6 @@ import org.slf4j.LoggerFactory;
 public class PrincipalAttributes {
 
     private static final Logger logger = LoggerFactory.getLogger(PrincipalAttributes.class);
-    public static int getId(AuthState principal) {
-        return Integer.parseInt(getClaim(principal, "nameid"));
-    }
 
     /**
      * Used to get the claims attributes of a AuthState gRPC message. Note the primary use of this is getting userID
