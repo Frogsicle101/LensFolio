@@ -90,6 +90,12 @@ public class UserListController {
         return new ModelAndView("user-list");
     }
 
+    /**
+     * Adds to the model the attributes required to display, format, and interact with the user list table.
+     *
+     * @param model the model to which the attributes will be added.
+     */
+
     private void addAttributesToModel(AuthState principal, HttpServletRequest request, Model model) {
         UserRole[] possibleRoles = UserRole.values();
         possibleRoles = Arrays.stream(possibleRoles).filter(role -> role != UserRole.UNRECOGNIZED).toArray(UserRole[]::new);
@@ -118,6 +124,15 @@ public class UserListController {
     }
 
 
+    /**
+     * Deletes a selected user role from a requested user, using a ModifyRoleOfUserRequest to communicate the user ID
+     * and role of the user to be changed. Only authenticated users with teacher/course administrator permissions can
+     * perform role deletions.
+     *
+     * @param userId The user ID of the user being edited.
+     * @param roleString The role being deleted from the user, in a string format.
+     * @return The success status of the deletion.
+     */
 
     @DeleteMapping("/editUserRole")
     public ResponseEntity<String> deleteUserRole(
@@ -131,6 +146,18 @@ public class UserListController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
+    /**
+     * Adds a selected user role to a requested user, using a ModifyRoleOfUserRequest to communicate the user ID
+     * and role of the user to be changed. Only authenticated users with teacher/course administrator permissions can
+     * perform role additions.
+     *
+     * @param principal Allows the user ID of the user making the request to be retrieved.
+     * @param userId The user ID of the user being edited.
+     * @param roleString The role being added to the user, in a string format.
+     * @return The success status of the addition.
+     */
 
     @PutMapping("/editUserRole")
     public ResponseEntity<String> addUserRole(
