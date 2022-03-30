@@ -111,24 +111,23 @@ public class UserListController {
      * and role of the user to be changed. Only authenticated users with teacher/course administrator permissions can
      * perform role deletions.
      *
-     * @param principal Allows the user ID of the user making the request to be retrieved.
      * @param userId The user ID of the user being edited.
      * @param roleString The role being deleted from the user, in a string format.
      * @return The success status of the deletion.
      */
     @DeleteMapping("/editUserRole")
     public ResponseEntity<String> deleteUserRole(
-            @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "userId") String userId,
             @RequestParam(value = "role") String roleString) {
-        int adminstrator = PrincipalAttributes.getIdFromPrincipal(principal); //TODO use this for authenticating (teacher or admin)
-        logger.info("Deleting user role " + roleString + " from user " + userId);
         ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
         UserRoleChangeResponse response = userAccountsClientService.removeRoleFromUser(request);
-        if (response.getIsSuccess())
+        if (response.getIsSuccess()) {
+            logger.info("Deleting user role " + roleString + " from user " + userId);
             return new ResponseEntity<>(HttpStatus.OK);
-        else
-            return new ResponseEntity<String>("A user cannot have no roles", HttpStatus.FORBIDDEN);
+        } else {
+            logger.info("Failed to delete user role " + roleString + " from user " + userId);
+            return new ResponseEntity<>("A user cannot have no roles", HttpStatus.FORBIDDEN);
+        }
     }
 
 
