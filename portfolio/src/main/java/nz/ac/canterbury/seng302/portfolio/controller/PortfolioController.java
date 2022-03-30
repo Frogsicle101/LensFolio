@@ -15,6 +15,8 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +51,7 @@ public class PortfolioController {
     //below is for testing purposes
     private final Project defaultProject;
 
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     /**
@@ -114,6 +116,9 @@ public class PortfolioController {
                                   HttpServletRequest request
     ) {
         try {
+
+            logger.info("GET REQUEST /portfolio");
+
             // Get user from server
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
@@ -166,9 +171,11 @@ public class PortfolioController {
             return modelAndView;
 
         } catch(EntityNotFoundException err) {
+            logger.error("GET REQUEST /portfolio", err);
             return new ModelAndView("errorPage").addObject(errorMessage, err.getMessage());
         }
         catch(Exception err) {
+            logger.error("GET REQUEST /portfolio", err);
             return new ModelAndView("errorPage").addObject(errorMessage, err);
         }
 
@@ -187,6 +194,8 @@ public class PortfolioController {
             HttpServletRequest request
     ) {
         try{
+            logger.info("GET REQUEST /editProject");
+
             // Get user from server
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
@@ -212,8 +221,10 @@ public class PortfolioController {
             return modelAndView;
 
         }catch(EntityNotFoundException err) {
+            logger.error("GET REQUEST /editProject", err);
             return new ModelAndView("errorPage").addObject(errorMessage, err);
         } catch(Exception err) {
+            logger.error("GET REQUEST /editProject", err);
             return new ModelAndView("errorPage");
         }
 
@@ -233,6 +244,7 @@ public class PortfolioController {
     ) {
         try {
 
+            logger.info("POST REQUEST /projectEdit");
             LocalDate projectStart = LocalDate.parse(editInfo.getProjectStartDate());
             LocalDate projectEnd = LocalDate.parse(editInfo.getProjectEndDate());
 
@@ -252,8 +264,10 @@ public class PortfolioController {
             attributes.addFlashAttribute(successMessage, "Project Updated!");
 
         } catch(EntityNotFoundException err) {
+            logger.error("POST REQUEST /projectEdit", err);
             attributes.addFlashAttribute(errorMessage, err.getMessage());
         }catch(Exception err) {
+            logger.error("POST REQUEST /projectEdit", err);
            return new ModelAndView("errorPage").addObject(errorMessage, err);
         }
         return new ModelAndView("redirect:/portfolio?projectId=" + editInfo.getProjectId());
@@ -272,7 +286,7 @@ public class PortfolioController {
             @RequestParam (value = "projectId") Long projectId,
             RedirectAttributes attributes)  {
         try {
-
+            logger.info("GET REQUEST /portfolio/addSprint");
             // Gets the amount of sprints belonging to the project
             int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
             String sprintName = "Sprint " + amountOfSprints;
@@ -314,9 +328,11 @@ public class PortfolioController {
 
 
         } catch(EntityNotFoundException err) {
+            logger.error("GET REQUEST /portfolio/addSprint", err);
             attributes.addFlashAttribute(errorMessage, err.getMessage());
             return new ModelAndView("error");
         }catch(Exception err) {
+            logger.error("GET REQUEST /portfolio/addSprint", err);
             attributes.addFlashAttribute(errorMessage, err);
             return new ModelAndView("error");
         }
@@ -341,6 +357,8 @@ public class PortfolioController {
 
 
         try {
+
+            logger.info("GET REQUEST /sprintEdit");
             ModelAndView modelAndView = new ModelAndView("sprintEdit");
 
             // Get user from server
@@ -386,11 +404,6 @@ public class PortfolioController {
                 modelAndView.addObject("nextSprintStart", project.getEndDate());
             }
 
-
-
-
-
-
             // Adds the username to the view for use.
             modelAndView.addObject("username", user.getUsername());
 
@@ -400,6 +413,7 @@ public class PortfolioController {
 
             return modelAndView;
         } catch(Exception err) {
+            logger.error("GET REQUEST /sprintEdit", err);
             attributes.addFlashAttribute(errorMessage, err);
             return new ModelAndView("redirect:/portfolio?projectId=" + projectId);
         }
@@ -419,7 +433,7 @@ public class PortfolioController {
             @ModelAttribute(name="sprintEditForm") SprintRequest sprintInfo) {
 
         try {
-
+            logger.info("POST REQUEST /sprintSubmit");
             Project project = sprintRepository.getSprintById(sprintInfo.getSprintId()).getProject();
 
             LocalDate sprintStart = LocalDate.parse(sprintInfo.getSprintStartDate());
@@ -440,7 +454,7 @@ public class PortfolioController {
             return new ModelAndView("redirect:/sprintEdit?sprintId=" + sprintInfo.getSprintId());
 
         } catch(Exception err) {
-
+            logger.error("POST REQUEST /sprintSubmit", err);
             attributes.addFlashAttribute(errorMessage, err);
             return new ModelAndView("redirect:/sprintEdit?sprintId=" + sprintInfo.getSprintId());
         }
@@ -455,6 +469,7 @@ public class PortfolioController {
      */
    @DeleteMapping("deleteSprint")
     public ResponseEntity<String> deleteSprint(@RequestParam (value = "sprintId")UUID id) {
+       logger.info("DELETE REQUEST /deleteSprint");
         sprintRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
    }
