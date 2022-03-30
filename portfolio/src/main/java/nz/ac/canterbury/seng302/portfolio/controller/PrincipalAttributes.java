@@ -58,7 +58,7 @@ public class PrincipalAttributes {
      */
     public static UserResponse getUserFromPrincipal(AuthState principal, UserAccountsClientService userAccountsClientService) {
         // Get user from server
-        int user_id = Integer.parseInt(PrincipalAttributes.getClaim(principal, "nameid"));
+        int user_id = getIdFromPrincipal(principal);
         GetUserByIdRequest userRequest = GetUserByIdRequest.newBuilder().setId(user_id).build();
         return userAccountsClientService.getUserAccountById(userRequest);
     }
