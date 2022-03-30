@@ -125,8 +125,10 @@ public class UserListController {
         logger.info("Deleting user role " + roleString + " from user " + userId);
         ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
         UserRoleChangeResponse response = userAccountsClientService.removeRoleFromUser(request);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (response.getIsSuccess())
+            return new ResponseEntity<>(HttpStatus.OK);
+        else
+            return new ResponseEntity<String>("A user cannot have no roles", HttpStatus.FORBIDDEN);
     }
 
 
