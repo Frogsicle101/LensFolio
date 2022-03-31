@@ -1,4 +1,4 @@
-# Seng302 Team 12 Project
+# Seng302 Team 600 Project
 
 Project using `gradle`, `Spring Boot`, `Thymeleaf` and `Gitlab CI`. Implements stories about users (Urobilin)
 
@@ -91,7 +91,15 @@ By default, the Portfolio will run on local port 9000 (`http://localhost:9000`)
 - Aidan Campbell (aca170)
 - Sam Clark (scl113)
 - Oliver Johnson (ojo26)
+- April Clarke (abc56)
+- Dongjin Zhou (dzh80)
+- Daniel Pallesen (dpa107)
+- Harrison Martin (hma112)
 - SENG302 teaching team
+
+## LICENSE
+
+[GNU GENERAL PUBLIC LICENSE](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 ## References
 
