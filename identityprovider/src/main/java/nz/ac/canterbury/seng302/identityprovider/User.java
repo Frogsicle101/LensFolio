@@ -8,6 +8,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -41,6 +44,8 @@ public class User {
     @Column(length = 100000)
     private Timestamp accountCreatedTime;
     private final ArrayList<UserRole> roles = new ArrayList<>();
+
+    private URL imagePath;
 
 
     /**
@@ -223,7 +228,22 @@ public class User {
         }
     }
 
-    public String getProfileImagePath() {
-        return "profile/" + id + ".jpg";
+    public URL getProfileImagePath() {
+        return imagePath;
+    }
+
+    public boolean deleteProfileImage() {
+        File image = new File("src/main/resources/profile-photos/" + id + ".jpg");
+        try {
+            imagePath = new URL("http", "localhost", 9001, "profile/default.png");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Couldn't create image path: " + e.getMessage());
+        }
+
+        return image.delete();
+    }
+
+    public void setProfileImagePath(URL path) {
+        imagePath = path;
     }
 }

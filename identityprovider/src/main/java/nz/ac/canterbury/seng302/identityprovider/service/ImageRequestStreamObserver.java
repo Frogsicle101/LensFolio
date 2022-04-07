@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Defines the StreamObserver<UploadUserProfilePhotoRequest> implementation used by the UserAccountsServerService for
@@ -132,9 +133,14 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
      */
     private void saveImageToGallery() throws IOException {
         try {
+
             FileOutputStream out = new FileOutputStream(
                     "src/main/resources/profile-photos/" + userId + "." + fileType
             );
+
+            ProfilePhotoService profilePhotoService = new ProfilePhotoService();
+            profilePhotoService.updateProfileImage(userId, new URL("http", "localhost", 9001, "/profile/" + userId + "." + fileType));
+
             bytes.writeTo(out);
             out.close();
         } catch (IOException e) {
