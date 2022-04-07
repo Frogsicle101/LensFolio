@@ -7,6 +7,8 @@ import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -24,6 +27,7 @@ public class CalendarController {
 
     private final ProjectRepository projectRepository;
     private final SprintRepository sprintRepository;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
@@ -53,8 +57,33 @@ public class CalendarController {
 
     @GetMapping("/getProjectSprints")
     public ResponseEntity<Object> getProjectSprints(@RequestParam(value = "projectId") Long projectId){
-        List<Sprint> sprints = sprintRepository.findAllByProjectId(projectId);
-        return new ResponseEntity<>(sprints, HttpStatus.OK);
+        try{
+            logger.info("GET REQUEST /getProjectSprints");
+            List<Sprint> sprints = sprintRepository.findAllByProjectId(projectId);
+            return new ResponseEntity<>(sprints, HttpStatus.OK);
+        } catch (Exception err){
+            logger.error("GET REQUEST /getProjectSprints", err);
+            return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+
+    @GetMapping("/getProjectDetails")
+    public ResponseEntity<Object> getProject(
+            @RequestParam(value="projectId") long projectId) {
+        try {
+            logger.info("GET REQUEST /getProject");
+
+            // Gets the project that the request is referring to.
+            Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
+                    "Event with id " + projectId + "was not found"
+            ));
+            return new ResponseEntity<>(project, HttpStatus.OK);
+        } catch (EntityNotFoundException err) {
+            logger.error("GET REQUEST /getProject", err);
+            return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+        }
     }
 }
 
