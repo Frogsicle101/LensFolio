@@ -61,7 +61,8 @@ public class UserListController {
     {
         if (order != null) {
             sortOrder = order;
-        }
+            // Save the sort order for the user
+        } // If they have a saved sort order, use it
         if (page != null) {
             pageNum = page;
         }
@@ -88,6 +89,15 @@ public class UserListController {
         addAttributesToModel(principal, request, model);
 
         return new ModelAndView("user-list");
+    }
+
+    private void selectSortOrder(AuthState principal, String order) {
+        if (order != null) {
+            sortOrder = order;
+            // Save the sort order for the user
+            int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+
+        } // If they have a saved sort order, use it
     }
 
     /**
