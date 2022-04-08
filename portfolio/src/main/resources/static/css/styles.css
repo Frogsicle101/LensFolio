@@ -14,6 +14,13 @@ section{
     margin-top: 4rem;
 }
 
+.center{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 /*Colours*/
 
 :root {
@@ -488,3 +495,13 @@ section{
 .tableStyled tbody tr:last-of-type {
     border-bottom: 2px solid #000000;
 }
+
+
+
+/*Calendar*/
+
+.calendar{
+    width: 60em;
+}
+
+

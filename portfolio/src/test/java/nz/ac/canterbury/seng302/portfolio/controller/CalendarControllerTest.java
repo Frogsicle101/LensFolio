@@ -43,6 +43,14 @@ class CalendarControllerTest {
     
     private Project project;
 
+    private String joinParameters(HashMap<String, String> parameters) {
+        String searchParams = "?";
+        for (String key : parameters.keySet()) {
+            searchParams += key + "=" + parameters.get(key) + "&";
+        }
+        return searchParams.substring(0, searchParams.length() - 1);
+    }
+
     @Test
     void testGetCalendar() throws Exception {
         this.mockMvc.perform(get("/calendar")).andDo(print()).andExpect(status().isOk());

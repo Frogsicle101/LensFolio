@@ -1,28 +1,41 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
+    <link th:href="@{js/fullCalendar/lib/main.css}" rel='stylesheet' />
+    <script th:src="@{js/fullCalendar/lib/main.js}"></script>
     <!--Make sure to change the below title    -->
     <title>Thymeleaf Fragments: home</title>
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
             </th:block> /*/-->
-    <link rel="stylesheet" th:href="@{css/calendar.css}" />
-    <link th:href="@{js/fullCalendar/lib/main.css}" rel='stylesheet' />
-    <script th:src="@{js/fullCalendar/lib/main.js}"></script>
+
     <script th:src="@{js/calendar.js}"></script>
 
-
-    <script>
-
-
-
-    </script>
 
   </head>
   <body>
     <!--The below section <header> pulls the fragment from fragments/general-->
     <header th:insert="fragments/general.html :: header"></header>
-    <section>
-      <div id='calendar'></div>
+    <section class="center">
+      <div class="projectDetails">
+        <div id="project-details">
+          <h1 id="projectId" th:text="${project.getId()}" style="display: none"></h1>
+          <div class="mb3">
+            <h1 id="projectName" th:text="${project.getName()}"></h1>
+          </div>
+          <div class="row">
+            <div class="col-2">
+              <h6>Start</h6>
+              <h6 id="project-start-date" th:text="${project.getStartDateFormatted()}"></h6>
+            </div>
+            <div class="col-2">
+              <h6>End</h6>
+              <h6 id="project-end-date" th:text="${project.getEndDateFormatted()}"></h6>
+            </div>
+          </div>
+
+
+        </div>
+      <div id='calendar' class="calendar"></div>
 <!--      &lt;!&ndash;Below are the divs that handle error messages-->
 <!--            If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,-->
 <!--            they will be displayed below&ndash;&gt;-->
