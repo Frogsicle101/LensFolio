@@ -166,9 +166,7 @@ public class PortfolioController {
             modelAndView.addObject("projectId", projectId);
 
             // For setting the profile image
-            String ip = request.getLocalAddr();
-            String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-            modelAndView.addObject("profileImageUrl", url);
+            modelAndView.addObject("profileImageUrl", user.getProfileImagePath());
 
 
             return modelAndView;
@@ -219,9 +217,7 @@ public class PortfolioController {
             modelAndView.addObject("username", user.getUsername());
 
             // For setting the profile image
-            String ip = request.getLocalAddr();
-            String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-            modelAndView.addObject("profileImageUrl", url);
+            modelAndView.addObject("profileImageUrl", user.getProfileImagePath());
 
             return modelAndView;
 

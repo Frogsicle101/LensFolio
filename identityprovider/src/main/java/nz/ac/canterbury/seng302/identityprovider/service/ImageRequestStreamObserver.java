@@ -3,12 +3,15 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import nz.ac.canterbury.seng302.identityprovider.User;
+import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetadata;
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatus;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,16 +25,18 @@ import java.net.URL;
  */
 public class ImageRequestStreamObserver implements StreamObserver<UploadUserProfilePhotoRequest> {
 
-
     Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     private int userId;
     private String fileType;
     private ByteString bytes;
     private final StreamObserver<FileUploadStatusResponse> responseObserver;
+    private final UserRepository userRepository;
 
-    public ImageRequestStreamObserver (StreamObserver<FileUploadStatusResponse> responseObserver) {
+    public ImageRequestStreamObserver (StreamObserver<FileUploadStatusResponse> responseObserver, UserRepository userRepository) {
         this.responseObserver = responseObserver;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -109,37 +114,29 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
     @Override
     public void onCompleted() {
         FileUploadStatusResponse.Builder response = FileUploadStatusResponse.newBuilder();
-        try {
-            saveImageToGallery();
-            response.setStatus(FileUploadStatus.SUCCESS)
-                    .setMessage("COMPLETE: Successfully transferred bytes");
-        } catch (IOException exception) {
-            response.setStatus(FileUploadStatus.FAILED)
-                    .setMessage("FAILURE: Failed to save image.");
-        }
+        saveImageToGallery();
+        response.setStatus(FileUploadStatus.SUCCESS)
+                .setMessage("COMPLETE: Successfully transferred bytes");
 
 
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
-
-
     }
 
     /**
      * Called on a successful image transfer in onComplete method. This method takes the imageContents and saves it to
      * a file in the user's directory with an image type of that sent in metadata.
-     *
-     * @throws IOException -  Throws an IO Exception if either the writeTo method fails or the close method
      */
-    private void saveImageToGallery() throws IOException {
+    private void saveImageToGallery() {
         try {
-
             FileOutputStream out = new FileOutputStream(
                     "src/main/resources/profile-photos/" + userId + "." + fileType
             );
 
-            ProfilePhotoService profilePhotoService = new ProfilePhotoService();
-            profilePhotoService.updateProfileImage(userId, new URL("http", "localhost", 9001, "/profile/" + userId + "." + fileType));
+            String path = "/profile/" + userId + "." + fileType;
+            User user = userRepository.findById(userId);
+            user.setProfileImagePath(path);
+            userRepository.save(user);
 
             bytes.writeTo(out);
             out.close();

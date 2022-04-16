@@ -43,9 +43,7 @@ public class CalendarController {
         model.addObject("project", project);
         model.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
-        String ip = request.getLocalAddr();
-        String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-        model.addObject("profileImageUrl", url);
+        model.addObject("profileImageUrl", user.getProfileImagePath());
         model.addObject("username", user.getUsername());
         return model;
     }

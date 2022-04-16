@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.identityprovider;
 import com.google.protobuf.Timestamp;
 import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -45,13 +46,15 @@ public class User {
     private Timestamp accountCreatedTime;
     private final ArrayList<UserRole> roles = new ArrayList<>();
 
-    private URL imagePath;
+    private String imagePath;
+
 
 
     /**
      * Generic constructor used by JPA
      */
     protected User () {}
+
 
     /**
      * Constructs a new user object. Calculates and stores a hash of the given password with unique salt.
@@ -81,8 +84,9 @@ public class User {
 
         this.salt = encryptor.getNewSalt();
         this.pwhash = encryptor.getHash(password, salt);
-
+        this.imagePath = "/profile/default.png";
     }
+
 
     /**
      * Constructor to explicitly set all properties of the new object. Unlike the other constructor, accepts a value for
@@ -107,96 +111,115 @@ public class User {
     }
 
 
-
-
     @Override
     public String toString() {
         return "User [" + username + " (" + firstName + " " + lastName + ")]";
     }
 
+
     public int getId() {
         return id;
     }
+
 
     public String getUsername() {
         return username;
     }
 
+
     public String getPwhash() {
         return pwhash;
     }
+
 
     public String getFirstName() {
         return firstName;
     }
 
+
     public String getMiddleName() {
         return middleName;
     }
+
 
     public String getLastName() {
         return lastName;
     }
 
+
     public String getNickname() {
         return nickname;
     }
+
 
     public String getBio() {
         return bio;
     }
 
+
     public String getPronouns() {
         return pronouns;
     }
+
 
     public String getEmail() {
         return email;
     }
 
+
     public String getSalt() {
         return salt;
     }
 
+
     public ArrayList<UserRole> getRoles() { return roles; }
+
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
+
     public void setMiddleName(String middleName) {
         this.middleName = middleName;
     }
+
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
+
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
+
 
     public void setBio(String bio) {
         this.bio = bio;
     }
 
+
     public void setPronouns(String pronouns) {
         this.pronouns = pronouns;
     }
+
 
     public void setEmail(String email) {
         this.email = email;
     }
 
+
     public void setPwhash(String password) {
         LoginService encryptor = new LoginService();
-
         this.pwhash = encryptor.getHash(password, salt);
     }
+
 
     public Timestamp getAccountCreatedTime() {
         return accountCreatedTime;
     }
+
 
     public void setRoles(ArrayList<UserRole> roles) {
         for (UserRole role : roles) {
@@ -208,6 +231,8 @@ public class User {
             }
         }
     }
+
+
     public void addRole(UserRole role) {
         if (! roles.contains(role)) {
             roles.add(role);
@@ -229,21 +254,24 @@ public class User {
     }
 
     public URL getProfileImagePath() {
-        return imagePath;
+        try {
+            return new URL("http",
+                        "localhost",
+                        9001,
+                        imagePath);
+        } catch (MalformedURLException exception) {
+            // This shouldn't happen as we make the URL
+        }
+        return null;
     }
 
     public boolean deleteProfileImage() {
         File image = new File("src/main/resources/profile-photos/" + id + ".jpg");
-        try {
-            imagePath = new URL("http", "localhost", 9001, "profile/default.png");
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Couldn't create image path: " + e.getMessage());
-        }
-
+        imagePath = "profile/default.png";
         return image.delete();
     }
 
-    public void setProfileImagePath(URL path) {
+    public void setProfileImagePath(String path) {
         imagePath = path;
     }
 }

@@ -84,9 +84,7 @@ public class AccountController {
                                                                                 .build());
 
         // For setting the profile image
-        String ip = request.getLocalAddr();
-        String url = "http://" + ip + ":9001/" + userResponse.getProfileImagePath();
-        model.addAttribute("profileImageUrl", url);
+        model.addAttribute("profileImageUrl", userResponse.getProfileImagePath());
 
         model.addAttribute("username", userResponse.getUsername());
         model.addAttribute("email", userResponse.getEmail());

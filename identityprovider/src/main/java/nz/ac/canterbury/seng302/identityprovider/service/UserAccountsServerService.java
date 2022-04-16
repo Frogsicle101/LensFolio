@@ -259,7 +259,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public StreamObserver<UploadUserProfilePhotoRequest> uploadUserProfilePhoto(StreamObserver<FileUploadStatusResponse> responseObserver) {
-        return new ImageRequestStreamObserver(responseObserver);
+        return new ImageRequestStreamObserver(responseObserver, repository);
     }
 
     @Override

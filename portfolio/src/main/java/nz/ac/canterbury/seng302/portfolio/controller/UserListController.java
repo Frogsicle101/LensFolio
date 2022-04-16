@@ -109,9 +109,7 @@ public class UserListController {
             model.addAttribute("userCanEdit", false);
         }
 
-        String ip = request.getLocalAddr();
-        String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-        model.addAttribute("profileImageUrl", url);
+        model.addAttribute("profileImageUrl", user.getProfileImagePath());
         model.addAttribute("username", user.getUsername());
 
         model.addAttribute("totalPages", totalPages);

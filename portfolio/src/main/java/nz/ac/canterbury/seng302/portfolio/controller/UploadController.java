@@ -36,9 +36,7 @@ public class UploadController {
         logger.info("Endpoint reached: GET /uploadImage");
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
-        String ip = request.getLocalAddr();
-        String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-        model.addAttribute("profileImageUrl", url);
+        model.addAttribute("profileImageUrl", user.getProfileImagePath());
         return "upload-image";
     }
 
