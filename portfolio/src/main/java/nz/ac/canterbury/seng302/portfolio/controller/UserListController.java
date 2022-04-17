@@ -99,18 +99,17 @@ public class UserListController {
     private void addAttributesToModel(AuthState principal, HttpServletRequest request, Model model) {
         UserRole[] possibleRoles = UserRole.values();
         possibleRoles = Arrays.stream(possibleRoles).filter(role -> role != UserRole.UNRECOGNIZED).toArray(UserRole[]::new);
-        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
         // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
-        List<UserRole> roles = user.getRolesList();
+        List<UserRole> roles = userResponse.getRolesList();
         if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
             model.addAttribute("userCanEdit", true);
         } else {
             model.addAttribute("userCanEdit", false);
         }
 
-        model.addAttribute("profileImageUrl", user.getProfileImagePath());
-        model.addAttribute("username", user.getUsername());
+        model.addAttribute("user", userResponse);
 
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("currentPage", pageNum);

@@ -35,16 +35,14 @@ public class CalendarController {
 
     @GetMapping("/calendar")
     public ModelAndView getCalendar(
-            @AuthenticationPrincipal AuthState principal,
-            HttpServletRequest request
+            @AuthenticationPrincipal AuthState principal
             ) {
         ModelAndView model = new ModelAndView("monthly_calendar");
         Project project = projectRepository.getProjectById(1L);
         model.addObject("project", project);
         model.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
-        model.addObject("profileImageUrl", user.getProfileImagePath());
-        model.addObject("username", user.getUsername());
+        model.addObject("user", user);
         return model;
     }
 

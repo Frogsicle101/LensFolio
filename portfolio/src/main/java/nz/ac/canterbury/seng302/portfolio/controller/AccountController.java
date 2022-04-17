@@ -18,6 +18,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,24 +43,23 @@ public class AccountController {
      * <br>
      * Once a user class is created, we will want to supply this page with the specific user that is viewing it
      * <br>
-     * @param model Parameters sent to thymeleaf template to be rendered into HTML
+     * ToDo finish this javadoc with the params
      * @return the Thymeleaf template
      */
     @RequestMapping("/account")
-    public String account(
+    public ModelAndView account(
             @AuthenticationPrincipal AuthState principal,
-            ModelMap model,
-            HttpServletRequest request,
             @ModelAttribute(name = "editDetailsForm") UserRequest editInfo,
             @ModelAttribute(name = "editPasswordForm") PasswordRequest passInfo,
             @ModelAttribute(name = "detailChangeMessage") String detailChangeMessage,
             @ModelAttribute(name = "passwordChangeMessage") String passwordChangeMessage
     ) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("REQUEST /account - retrieving account details for user " + userId);
-        addModelAttributes(userId, request, model);
+        logger.info("GET REQUEST /account - retrieving account details for user " + userId);
+        ModelAndView model = new ModelAndView("account");
+        addModelAttributes(userId, model);
         logger.info("Account details populated for " + userId);
-        return "account";
+        return model;
     }
 
     /**
@@ -73,37 +73,19 @@ public class AccountController {
      */
     private void addModelAttributes(
             int userId,
-            HttpServletRequest request,
-            ModelMap model) {
+            ModelAndView model) {
         // NOTE: no logger as this is a helper function and calling function logs the input
-        /*
-        These addAttribute methods inject variables that we can use in our html file
-         */
+
         UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
                                                                                 .setId(userId)
                                                                                 .build());
 
-        // For setting the profile image
-        model.addAttribute("profileImageUrl", userResponse.getProfileImagePath());
-
-        model.addAttribute("username", userResponse.getUsername());
-        model.addAttribute("email", userResponse.getEmail());
-        model.addAttribute("firstName", userResponse.getFirstName());
-        model.addAttribute("middleName", userResponse.getMiddleName());
-        model.addAttribute("lastName", userResponse.getLastName());
-        model.addAttribute("nickname", userResponse.getNickname());
-        model.addAttribute("pronouns", userResponse.getPersonalPronouns());
-        model.addAttribute("userBio", userResponse.getBio());
-        String rolesList = "";
-        for (int i = 0; i < userResponse.getRolesCount(); i++) {
-            rolesList += userResponse.getRoles(i) + "  ";
-        }
-        model.addAttribute("roles", rolesList);
+        model.addObject("user", userResponse);
 
         String memberSince =
                 ReadableTimeService.getReadableDate(userResponse.getCreated())
                         + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
-        model.addAttribute("membersince", memberSince);
+        model.addObject("membersince", memberSince);
     }
 
 
@@ -111,7 +93,7 @@ public class AccountController {
     public ResponseEntity<String> deleteProfilePhoto(
             @AuthenticationPrincipal AuthState principal
     ) {
-        logger.info("Endpoint reached: DELETE /deleteProfileImg");
+        logger.info("DELETE REQUEST /deleteProfileImg");
         int id = PrincipalAttributes.getIdFromPrincipal(principal);
 
         DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();

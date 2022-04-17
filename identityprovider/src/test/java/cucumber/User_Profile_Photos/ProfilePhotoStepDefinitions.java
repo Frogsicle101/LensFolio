@@ -11,7 +11,6 @@ import nz.ac.canterbury.seng302.identityprovider.service.ImageRequestStreamObser
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetadata;
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.*;

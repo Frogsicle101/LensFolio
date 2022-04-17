@@ -87,14 +87,7 @@ public class EditController {
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
         request.setId(userId);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
-        model.addAttribute("username", "Username:" + userResponse.getUsername());
-        model.addAttribute("email", userResponse.getEmail());
-        model.addAttribute("firstname", userResponse.getFirstName());
-        model.addAttribute("middlename", userResponse.getMiddleName());
-        model.addAttribute("lastname", userResponse.getLastName());
-        model.addAttribute("nickname", userResponse.getNickname());
-        model.addAttribute("pronouns", userResponse.getPersonalPronouns());
-        model.addAttribute("userBio", userResponse.getBio());
+        model.addAttribute("user", userResponse);
 
     }
 
@@ -105,8 +98,6 @@ public class EditController {
      * Note: this injects an attribute called "detailchangemessage" into the template it redirects to
      * <br>
      * @param attributes extra attributes that are being given along with the redirect
-     * @param request the HTTP request
-     * @param response the HTTP response
      * @param principal The authentication state
      * @param editInfo The thymeleaf-created form object
      * @param model The thymeleaf model
@@ -115,11 +106,8 @@ public class EditController {
     @PostMapping("/edit/details")
     public ModelAndView editDetails(
             RedirectAttributes attributes,
-            HttpServletRequest request,
-            HttpServletResponse response,
             @AuthenticationPrincipal AuthState principal,
-            @ModelAttribute(name="editDetailsForm") UserRequest editInfo,
-            ModelMap model
+            @ModelAttribute(name="editDetailsForm") UserRequest editInfo
     ) {
         EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
@@ -150,21 +138,15 @@ public class EditController {
      * This also handle the logic for changing the password
      * Note: this injects an attribute called "passwordchangemessage" into the template it redirects to
      * @param attributes extra attributes that are being given along with the redirect
-     * @param request the HTTP request
-     * @param response the HTTP response
      * @param principal The authentication state
      * @param editInfo the thymeleaf-created form object
-     * @param model the thymeleaf model
      * @return a redirect to the main /edit endpoint
      */
     @PostMapping("/edit/password")
     public ModelAndView editPassword(
             RedirectAttributes attributes,
-            HttpServletRequest request,
-            HttpServletResponse response,
             @AuthenticationPrincipal AuthState principal,
-            @ModelAttribute(name="editPasswordForm") PasswordRequest editInfo,
-            ModelMap model
+            @ModelAttribute(name="editPasswordForm") PasswordRequest editInfo
     ){
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         logger.info("POST REQUEST /edit/password - update password for user " + userId);
