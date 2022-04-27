@@ -1,8 +1,17 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     id 'org.springframework.boot' version '2.6.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'se.thinkcode.cucumber-runner' version '0.0.8'
     id 'java'
 }
+
+ext {
+    junitVersion = '5.8.2'
+    cucumberVersion = '6.10.4'
+}
+
 
 group = 'nz.ac.canterbury.seng302'
 version = '0.0.1-SNAPSHOT'
@@ -46,8 +55,52 @@ dependencies {
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2'
 
+    testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
+
+    testImplementation "io.cucumber:cucumber-junit:${cucumberVersion}"
+    testImplementation "org.junit.vintage:junit-vintage-engine:${junitVersion}"
+
+
 }
+
+task cucumberCli() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = [
+                    '--plugin', 'pretty',
+                    '--plugin', 'html:target/cucumber-report.html',
+                    '--glue', 'nz.ac.canterbury.seng302.portfolio.cucumber',
+                    'src/test/resources']
+        }
+    }
+}
+
+cucumber {
+    main = 'io.cucumber.core.cli.Main'
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+test {
+    useJUnitPlatform()
+
+    testLogging {
+        events TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED
+    }
+
+    systemProperties(project.gradle.startParameter.systemPropertiesArgs)
+}
+
 
 tasks.named('test') {
     useJUnitPlatform()
+
+
 }
