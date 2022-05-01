@@ -1,10 +1,16 @@
 
-
+/**
+ * $(document).ready fires off a function when the document has finished loading.
+ * https://learn.jquery.com/using-jquery-core/document-ready/
+ */
 $(document).ready(function() {
   let projectId = $("#projectId").html();
-
-
   let calendarEl = document.getElementById('calendar');
+
+
+  /**
+   * Calendar functionality
+   */
   let calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     themeSystem: 'bootstrap5',
@@ -16,27 +22,28 @@ $(document).ready(function() {
           projectId: projectId.toString()
         },
         failure: function () {
-          //TODO add a failure thing.
+          $(".errorMessage").text("Error: Project not found")
+          $(".errorMessageParent").show();
         },
-        success: function (rawEvent) {
-          //Check if event already exists
-          let projectEvent = calendar.getEventById(rawEvent.id)
+        success: function (eventDataFromServer) {
 
-          if (projectEvent === null) {
-            //Event doesn't exist
+          let calendarEvent = calendar.getEventById(eventDataFromServer.id) //Check if event already exists in the calendar.
+
+          if (calendarEvent === null) { //Event doesn't exist, creates event.
+
             calendar.addEvent({
-              title: rawEvent.name,
-              start: rawEvent.startDate,
-              end: rawEvent.endDate,
-              id: rawEvent.id,
-              display: 'background',
-              backgroundColor: '#dadada'
+              title: eventDataFromServer.name,
+              start: eventDataFromServer.startDate,
+              end: eventDataFromServer.endDate,
+              id: eventDataFromServer.id,
+              display: 'inverse-background',
+              backgroundColor: '#858585'
             })
-          } else {
-            projectEvent.title = rawEvent.name;
-            projectEvent.id = rawEvent.id;
-            projectEvent.start = rawEvent.startDate;
-            projectEvent.end = rawEvent.endDate;
+          } else { // Event does already exist, updates it.
+            calendarEvent.title = eventDataFromServer.name;
+            calendarEvent.id = eventDataFromServer.id;
+            calendarEvent.start = eventDataFromServer.startDate;
+            calendarEvent.end = eventDataFromServer.endDate;
           }
         }
       },
@@ -46,7 +53,8 @@ $(document).ready(function() {
           projectId: projectId.toString()
         },
         failure: function () {
-          //TODO add a failure thing.
+          $(".errorMessage").text("Error: Sprints not found")
+          $(".errorMessageParent").show();
         },
         success: function (rawEvent) {
           rawEvent.forEach(function (currentSprint) {
