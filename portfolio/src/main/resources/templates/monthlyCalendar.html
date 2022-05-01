@@ -21,7 +21,7 @@
         <div th:insert="fragments/general.html :: errorBox"> </div>
         <div th:insert="fragments/general.html :: successBox"> </div>
         <div th:insert="fragments/general.html :: infoBox"> </div>
-        <div id="project-details">
+        <div id="projectDetails">
           <h1 id="projectId" th:text="${project.getId()}" style="display: none"></h1>
           <div class="mb3">
             <h1 id="projectName" th:text="${project.getName()}"></h1>
@@ -29,11 +29,11 @@
           <div class="row">
             <div class="col">
               <h6>Start</h6>
-              <h6 id="project-start-date" th:text="${project.getStartDateFormatted()}"></h6>
+              <h6 id="projectStartDate" th:text="${project.getStartDateFormatted()}"></h6>
             </div>
             <div class="col">
               <h6>End</h6>
-              <h6 id="project-end-date" th:text="${project.getEndDateFormatted()}"></h6>
+              <h6 id="projectEndDate" th:text="${project.getEndDateFormatted()}"></h6>
             </div>
           </div>
 
