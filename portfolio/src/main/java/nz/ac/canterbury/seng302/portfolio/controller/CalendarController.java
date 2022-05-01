@@ -42,18 +42,31 @@ public class CalendarController {
     @GetMapping("/calendar")
     public ModelAndView getCalendar(
             @AuthenticationPrincipal AuthState principal,
+            @RequestParam(value = "projectId") Long projectId,
             HttpServletRequest request
             ) {
-        ModelAndView model = new ModelAndView("monthly_calendar");
-        Project project = projectRepository.getProjectById(1L);
-        model.addObject("project", project);
-        model.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
-        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
-        String ip = request.getLocalAddr();
-        String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-        model.addObject("profileImageUrl", url);
-        model.addObject("username", user.getUsername());
-        return model;
+        try{
+            // Gets the project that the request is referring to.
+            Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
+                    "Event with id " + projectId + " was not found"
+            ));
+
+            ModelAndView model = new ModelAndView("monthly_calendar");
+            model.addObject("project", project);
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+            String ip = request.getLocalAddr();
+            String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
+            model.addObject("profileImageUrl", url);
+            model.addObject("username", user.getUsername());
+            return model;
+
+        } catch (EntityNotFoundException err){
+            logger.error("GET REQUEST /calendar", err);
+            return new ModelAndView("errorPage").addObject("errorMessage", err.getMessage());
+        }
+
+
+
     }
 
 
