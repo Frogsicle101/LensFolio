@@ -63,7 +63,7 @@ public class AccountController {
     }
 
     /**
-     *
+     * Returns the template for the register page
      * @return Thymeleaf template for the register screen
      */
     @GetMapping("/register")
@@ -86,52 +86,12 @@ public class AccountController {
         logger.info("POST REQUEST /register - attempt to register new user");
         try{
 
-            String firstname = userRequest.getFirstname();
-            String middlename = userRequest.getMiddlename();
-            String lastname = userRequest.getLastname();
-            String username = userRequest.getUsername();
-            String password = userRequest.getPassword();
-            String email = userRequest.getEmail();
-            String nickname = userRequest.getNickname();
-            String pronouns = userRequest.getPersonalPronouns();
-            String bio = userRequest.getBio();
 
-
-            if (firstname == null // Checks that all necessary information is there.
-                    || lastname == null
-                    || username == null
-                    || password == null
-                    || email == null) {
-                logger.warn("Registration Failed: Registration missing fields");
-                return new ResponseEntity<>("Registration missing fields", HttpStatus.NOT_ACCEPTABLE);
-
+            ResponseEntity<Object> checkUserRequest = checkUserRequest(userRequest); // Checks that the userRequest object passes all checks
+            if (checkUserRequest.getStatusCode() == HttpStatus.NOT_ACCEPTABLE) {
+                logger.warn("Registration Failed: " + checkUserRequest.getBody());
+                return checkUserRequest;
             }
-
-
-            String alphaSpacesRegex = "([a-zA-Z]+\s?)+"; // TODO pass this to the frontend, so we only need to change one set of REGEX expressions to effect both front-end/backend
-            String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
-            String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
-            String bioRegex = "([a-zA-Z0-9.,'\"]+\\s?)+"; //TODO need to add bio regex into html, can't insert it directly as an attribute into the html tag so must do it with Jquery in the background.
-            String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)"; // TODO, can someone review this, unsure about being able to check password, should it be hashed at this point?
-            String pronounRegex = "([a-zA-Z/]+\\s?)+";
-
-            //TODO should we break up the if statement below and have it check each thing individually so we can give individual feedback if something doesn't pass?
-
-            // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
-            if (!firstname.matches(alphaSpacesRegex)
-                    || !lastname.matches(alphaSpacesRegex)
-                    || !username.matches(userNameRegex)
-                    || !email.matches(emailRegex)
-                    || !password.matches(passwordRegex)
-                    // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
-                    || nickname != null && !nickname.matches(alphaSpacesRegex)
-                    || middlename != null && !middlename.matches(alphaSpacesRegex)
-                    || pronouns != null && !pronouns.matches(pronounRegex)
-                    || bio != null && !bio.matches(bioRegex)) {
-                logger.warn("Registration Failed: Registration field(s) not matching patterns");
-                return new ResponseEntity<>("Registration field(s) not matching patterns",HttpStatus.NOT_ACCEPTABLE);
-            }
-
 
             // Make UserRegisterRequest and send to Server
             UserRegisterResponse registerReply = userAccountsClientService.register(createUserRegisterRequest(userRequest));
@@ -152,98 +112,61 @@ public class AccountController {
 
     }
 
-
-
     /**
-     * Takes a UserRequest object populated from a registration form and returns a UserRegisterRequest to send to the server
-     *
-     * @param userRequest - A UserRequest object populated from a accountRegister.html form
-     * @return userRegisterRequest - a populated userRegisterRequest from the user_accounts.proto format
+     * Checks that the UserRequest follows the required patterns and contains everything needed
+     * @param userRequest the UserRequest
+     * @return ResponseEntity, either an accept, or a not accept with message as to what went wrong
      */
-    private UserRegisterRequest createUserRegisterRequest(UserRequest userRequest) {
-        logger.info("Creating user register request from UserRequest");
-        UserRegisterRequest.Builder userRegisterRequest = UserRegisterRequest.newBuilder();
-        userRegisterRequest.setUsername(userRequest.getUsername())
-                .setPassword(userRequest.getPassword())
-                .setFirstName(userRequest.getFirstname())
-                .setMiddleName(userRequest.getMiddlename())
-                .setLastName(userRequest.getLastname())
-                .setEmail(userRequest.getEmail())
-                .setBio(userRequest.getBio())
-                .setPersonalPronouns(userRequest.getPersonalPronouns())
-                .setNickname(userRequest.getNickname());
-        return userRegisterRequest.build();
+    private ResponseEntity<Object> checkUserRequest(UserRequest userRequest) {
+        String firstname = userRequest.getFirstname();
+        String middlename = userRequest.getMiddlename();
+        String lastname = userRequest.getLastname();
+        String username = userRequest.getUsername();
+        String password = userRequest.getPassword();
+        String email = userRequest.getEmail();
+        String nickname = userRequest.getNickname();
+        String pronouns = userRequest.getPersonalPronouns();
+        String bio = userRequest.getBio();
+
+
+        if (firstname == null // Checks that all necessary information is there.
+                || lastname == null
+                || username == null
+                || password == null
+                || email == null) {
+            return new ResponseEntity<>("Missing fields", HttpStatus.NOT_ACCEPTABLE);
+
+        }
+
+
+        String alphaSpacesRegex = "([a-zA-Z]+\s?)+"; // TODO pass this to the frontend, so we only need to change one set of REGEX expressions to effect both front-end/backend
+        String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
+        String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
+        String bioRegex = "([a-zA-Z0-9.,'\"]+\\s?)+"; //TODO need to add bio regex into html, can't insert it directly as an attribute into the html tag so must do it with Jquery in the background.
+        String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)"; // TODO, can someone review this, unsure about being able to check password, should it be hashed at this point?
+        String pronounRegex = "([a-zA-Z/]+\\s?)+";
+
+        //TODO should we break up the if statement below and have it check each thing individually so we can give individual feedback if something doesn't pass?
+
+        // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
+        if (!firstname.matches(alphaSpacesRegex)
+                || !lastname.matches(alphaSpacesRegex)
+                || !username.matches(userNameRegex)
+                || !email.matches(emailRegex)
+                || !password.matches(passwordRegex)
+                // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
+                || nickname != null && !nickname.matches(alphaSpacesRegex)
+                || middlename != null && !middlename.matches(alphaSpacesRegex)
+                || pronouns != null && !pronouns.matches(pronounRegex)
+                || bio != null && !bio.matches(bioRegex)) {
+
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
-    public void setUserAccountsClientService(UserAccountsClientService service) {
-        this.userAccountsClientService = service;
-    }
 
-    /**
-     * The main/entry endpoint into the edit page
-     * I'm not entirely sure why this method in particular needs to have the form-objects created
-     * But the page won't run without it
-     * My best guess is it's something to do with the endpoints being different
-     *
-     * @param principal The authentication state
-     * @param editInfo A thymeleaf-created object
-     * @param passInfo A thymeleaf-created object
-     * @param detailChangeMessage This is actually an injected thymeleaf attribute from editDetails. It is a message
-     *                            detailing the success/errors of the detail change attempt
-     * @param passwordChangeMessage This is an injected thymeleaf attribute from editPassword. It is a message
-     *                              detailing the success/errors of the password change attempt.
-     * @param model The thymeleaf model
-     * @return The thymeleaf template
-     */
-    @RequestMapping("/edit")
-    public String edit(
-            @AuthenticationPrincipal AuthState principal,
-            @ModelAttribute(name="editDetailsForm") UserRequest editInfo,
-            @ModelAttribute(name="editPasswordForm") PasswordRequest passInfo,
-            @ModelAttribute(name="detailChangeMessage") String detailChangeMessage,
-            @ModelAttribute(name="passwordChangeMessage") String passwordChangeMessage,
-            ModelMap model
-    ) {
-        /*
-        We want to fill in the form details with what the user already has
-        so let's grab all those details and put them in the model
-         */
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("REQUEST /edit - retrieving account details for user " + userId);
-        addModelAttributes(userId, model);
-        logger.info("Edit account details populated for " + userId);
-        return "accountEdit";
-    }
-
-    /**
-     * Helper function to add attributes to the model
-     * Given a Thymeleaf model, adds a bunch of attributes into it
-     *
-     * This is really just to make the code a bit nicer to look at
-     * @param userId The user id of the account being edited
-     * @param model The model you're adding attributes to
-     */
-    private void addModelAttributes(
-            int userId,
-            ModelMap model) {
-        /*
-        These addAttribute methods inject variables that we can use in our html file
-        Their values have been hard-coded for now, but they can be the result of functions!
-        ideally, these would be functions like getUsername and so forth
-         */
-        GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
-        request.setId(userId);
-        UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
-        model.addAttribute("username", "Username:" + userResponse.getUsername());
-        model.addAttribute("email", userResponse.getEmail());
-        model.addAttribute("firstname", userResponse.getFirstName());
-        model.addAttribute("middlename", userResponse.getMiddleName());
-        model.addAttribute("lastname", userResponse.getLastName());
-        model.addAttribute("nickname", userResponse.getNickname());
-        model.addAttribute("pronouns", userResponse.getPersonalPronouns());
-        model.addAttribute("userBio", userResponse.getBio());
-
-    }
 
     /**
      * Entry point for editing account details
@@ -254,11 +177,17 @@ public class AccountController {
      * @return a redirect to the main /edit endpoint
      */
     @PostMapping("/edit/details")
-    public ModelAndView editDetails(
+    public ResponseEntity<Object> editDetails(
             RedirectAttributes attributes,
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editDetailsForm") UserRequest editInfo
     ) {
+        ResponseEntity<Object> checkUserRequest = checkUserRequest(editInfo); // Checks that the userRequest object passes all checks
+        if (checkUserRequest.getStatusCode() == HttpStatus.NOT_ACCEPTABLE) {
+            logger.warn("Editing Failed: " + checkUserRequest.getBody());
+            return checkUserRequest;
+        }
+
         EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         logger.info(" POST REQUEST /edit/details - update account details for user " + userId);
@@ -276,12 +205,12 @@ public class AccountController {
             logger.info("Successfully updated details for user " + userId);
         } else {
             logger.error("Failed to update details for user " + userId);
+            return new ResponseEntity<>(reply.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        //Add in the message for changing details
-        attributes.addFlashAttribute("detailChangeMessage", reply.getMessage());
-        //Since they're at a different endpoint, redirect back to the main edit endpoint
-        return new ModelAndView("redirect:/account");
+
+        return new ResponseEntity<>(reply.getMessage() ,HttpStatus.OK);
     }
+
 
     /**
      * Entry point for editing the password
@@ -332,6 +261,53 @@ public class AccountController {
 
 
 
+
+
+
+    @DeleteMapping("/deleteProfileImg")
+    public ResponseEntity<String> deleteProfilePhoto(
+            @AuthenticationPrincipal AuthState principal
+    ) {
+        logger.info("Endpoint reached: DELETE /deleteProfileImg");
+        int id = PrincipalAttributes.getIdFromPrincipal(principal);
+
+        DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
+
+        DeleteUserProfilePhotoResponse response = userAccountsClientService.deleteUserProfilePhoto(deleteRequest);
+        if (response.getIsSuccess()) {
+            logger.info("Profile photo deleted - " + response.getMessage());
+        } else {
+            logger.info("Didn't delete profile photo - " + response.getMessage());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /**
+     * Takes a UserRequest object populated from a registration form and returns a UserRegisterRequest to send to the server
+     *
+     * @param userRequest - A UserRequest object populated from a accountRegister.html form
+     * @return userRegisterRequest - a populated userRegisterRequest from the user_accounts.proto format
+     */
+    private UserRegisterRequest createUserRegisterRequest(UserRequest userRequest) {
+        logger.info("Creating user register request from UserRequest");
+        UserRegisterRequest.Builder userRegisterRequest = UserRegisterRequest.newBuilder();
+        userRegisterRequest.setUsername(userRequest.getUsername())
+                .setPassword(userRequest.getPassword())
+                .setFirstName(userRequest.getFirstname())
+                .setMiddleName(userRequest.getMiddlename())
+                .setLastName(userRequest.getLastname())
+                .setEmail(userRequest.getEmail())
+                .setBio(userRequest.getBio())
+                .setPersonalPronouns(userRequest.getPersonalPronouns())
+                .setNickname(userRequest.getNickname());
+        return userRegisterRequest.build();
+    }
+
+    public void setUserAccountsClientService(UserAccountsClientService service) {
+        this.userAccountsClientService = service;
+    }
+
+
     /**
      * Helper function to add attributes to the model
      * Given a Thymeleaf model, adds a bunch of attributes into it
@@ -350,8 +326,8 @@ public class AccountController {
         These addAttribute methods inject variables that we can use in our html file
          */
         UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
-                                                                                .setId(userId)
-                                                                                .build());
+                .setId(userId)
+                .build());
 
         // For setting the profile image
         String ip = request.getLocalAddr();
@@ -376,25 +352,6 @@ public class AccountController {
                 ReadableTimeService.getReadableDate(userResponse.getCreated())
                         + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
         model.addAttribute("membersince", memberSince);
-    }
-
-
-    @DeleteMapping("/deleteProfileImg")
-    public ResponseEntity<String> deleteProfilePhoto(
-            @AuthenticationPrincipal AuthState principal
-    ) {
-        logger.info("Endpoint reached: DELETE /deleteProfileImg");
-        int id = PrincipalAttributes.getIdFromPrincipal(principal);
-
-        DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
-
-        DeleteUserProfilePhotoResponse response = userAccountsClientService.deleteUserProfilePhoto(deleteRequest);
-        if (response.getIsSuccess()) {
-            logger.info("Profile photo deleted - " + response.getMessage());
-        } else {
-            logger.info("Didn't delete profile photo - " + response.getMessage());
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 
