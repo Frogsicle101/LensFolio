@@ -34,6 +34,12 @@ public class AccountController {
     private UserAccountsClientService userAccountsClientService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final String alphaSpacesRegex = "([a-zA-Z]+\s?)+"; // TODO pass this to the frontend?, so we only need to change one set of REGEX expressions to effect both front-end/backend
+    private static final String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
+    private static final String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
+    private static final String bioRegex = "([a-zA-Z0-9.,'\"]+\\s?)+"; //TODO need to add bio regex into html, can't insert it directly as an attribute into the html tag so must do it with Jquery in the background.
+    private static final String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)"; // TODO, can someone review this, unsure about being able to check password, should it be hashed at this point?
+    private static final String pronounRegex = "([a-zA-Z/]+\\s?)+";
 
     /**
      * This method is responsible for populating the account page template
@@ -139,12 +145,7 @@ public class AccountController {
         }
 
 
-        String alphaSpacesRegex = "([a-zA-Z]+\s?)+"; // TODO pass this to the frontend, so we only need to change one set of REGEX expressions to effect both front-end/backend
-        String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
-        String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
-        String bioRegex = "([a-zA-Z0-9.,'\"]+\\s?)+"; //TODO need to add bio regex into html, can't insert it directly as an attribute into the html tag so must do it with Jquery in the background.
-        String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)"; // TODO, can someone review this, unsure about being able to check password, should it be hashed at this point?
-        String pronounRegex = "([a-zA-Z/]+\\s?)+";
+
 
         //TODO should we break up the if statement below and have it check each thing individually so we can give individual feedback if something doesn't pass?
 
@@ -189,11 +190,6 @@ public class AccountController {
         }
 
 
-        String alphaSpacesRegex = "([a-zA-Z]+\s?)+"; // TODO pass this to the frontend, so we only need to change one set of REGEX expressions to effect both front-end/backend
-        String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
-        String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
-        String bioRegex = "([a-zA-Z0-9.,'\"]+\\s?)+"; //TODO need to add bio regex into html, can't insert it directly as an attribute into the html tag so must do it with Jquery in the background.
-        String pronounRegex = "([a-zA-Z/]+\\s?)+";
 
         //TODO should we break up the if statement below and have it check each thing individually so we can give individual feedback if something doesn't pass?
 
@@ -218,44 +214,48 @@ public class AccountController {
     /**
      * Entry point for editing account details
      * This also handle the logic for changing the account details\
-     * @param attributes extra attributes that are being given along with the redirect
      * @param principal The authentication state
      * @param editInfo The thymeleaf-created form object
      * @return a redirect to the main /edit endpoint
      */
     @PostMapping("/edit/details")
     public ResponseEntity<Object> editDetails(
-            RedirectAttributes attributes,
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editDetailsForm") UserRequest editInfo
     ) {
-        ResponseEntity<Object> checkUserRequest = checkUserRequestNoPasswordOrUser(editInfo); // Checks that the userRequest object passes all checks
-        if (checkUserRequest.getStatusCode() == HttpStatus.NOT_ACCEPTABLE) {
-            logger.warn("Editing Failed: {}",checkUserRequest.getBody());
-            return checkUserRequest;
+        try{
+            ResponseEntity<Object> checkUserRequest = checkUserRequestNoPasswordOrUser(editInfo); // Checks that the userRequest object passes all checks
+            if (checkUserRequest.getStatusCode() == HttpStatus.NOT_ACCEPTABLE) {
+                logger.warn("Editing Failed: {}",checkUserRequest.getBody());
+                return checkUserRequest;
+            }
+
+            EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
+            int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+            logger.info(" POST REQUEST /edit/details - update account details for user {}",userId);
+
+            editRequest.setUserId(userId)
+                    .setFirstName(editInfo.getFirstname())
+                    .setMiddleName(editInfo.getMiddlename())
+                    .setLastName(editInfo.getLastname())
+                    .setNickname(editInfo.getNickname())
+                    .setBio(editInfo.getBio())
+                    .setPersonalPronouns(editInfo.getPersonalPronouns())
+                    .setEmail(editInfo.getEmail());
+            EditUserResponse reply = userAccountsClientService.editUser(editRequest.build());
+            if (reply.getIsSuccess()) {
+                logger.info("Successfully updated details for user {}", userId);
+            } else {
+                logger.error("Failed to update details for user {}", userId);
+                return new ResponseEntity<>(reply.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            return new ResponseEntity<>(reply.getMessage() ,HttpStatus.OK);
+        } catch (Exception err){
+            logger.error("/edit/details ERROR: {}", err.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info(" POST REQUEST /edit/details - update account details for user {}",userId);
-
-        editRequest.setUserId(userId)
-                .setFirstName(editInfo.getFirstname())
-                .setMiddleName(editInfo.getMiddlename())
-                .setLastName(editInfo.getLastname())
-                .setNickname(editInfo.getNickname())
-                .setBio(editInfo.getBio())
-                .setPersonalPronouns(editInfo.getPersonalPronouns())
-                .setEmail(editInfo.getEmail());
-        EditUserResponse reply = userAccountsClientService.editUser(editRequest.build());
-        if (reply.getIsSuccess()) {
-            logger.info("Successfully updated details for user {}", userId);
-        } else {
-            logger.error("Failed to update details for user {}", userId);
-            return new ResponseEntity<>(reply.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        return new ResponseEntity<>(reply.getMessage() ,HttpStatus.OK);
     }
 
 
