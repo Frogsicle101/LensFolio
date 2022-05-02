@@ -68,6 +68,7 @@ $(document).ready(() => {
             "eventEnd": $("#eventEnd").val(),
             "typeOfEvent": $(".typeOfEvent").val()
         }
+
         console.log(eventData.typeOfEvent)
         if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
             $(this).closest(".eventForm").append(`
@@ -192,7 +193,7 @@ $(document).ready(() => {
                                 <strong>Oh no!</strong> You probably should enter an event name!
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
-            } else if (eventData.eventEndDateTime < eventData.eventStart) {
+            } else if (eventData.eventEnd < eventData.eventStart) {
                 $(this).closest(".existingEventForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> Your event end date shouldn't be before your event start date!

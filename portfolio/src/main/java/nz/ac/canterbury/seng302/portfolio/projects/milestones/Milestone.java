@@ -48,7 +48,7 @@ public abstract class Milestone {
      * @throws InvalidNameException If the milestone name is null or has length greater than fifty characters.
      */
     public Milestone(Project project, String name, LocalDate endDate, int type) throws InvalidNameException {
-        if (name == null || name.length() > 50) {
+        if (name == null || name.length() > 50) { //only useful for testing as project.js handles validation.
             throw new InvalidNameException();
         }
         this.project = project;
