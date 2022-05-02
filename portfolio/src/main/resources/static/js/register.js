@@ -24,13 +24,10 @@ $(document).ready(() => {
     let personalPronouns = $("#personalPronouns")
     let email = $("#email")
 
-    if (!username.val().trim.length){
-        errorMessage(username, "Username required", username)
-    }
+
 
     $("#registerForm").submit(function(event) {
         event.preventDefault();
-
         let registerData = {
             "username": username.val(),
             "password": password.val(),
