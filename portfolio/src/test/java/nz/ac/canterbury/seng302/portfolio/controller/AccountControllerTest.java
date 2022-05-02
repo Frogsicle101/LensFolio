@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-class RegisterControllerTest {
+class AccountControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -40,7 +40,7 @@ class RegisterControllerTest {
     private SprintRepository sprintRepository;
 
 
-    private final RegisterController registerController = new RegisterController();
+    private final AccountController accountController = new AccountController();
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
     private static final PrincipalAttributes mockPrincipal = mock(PrincipalAttributes.class);
     private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
@@ -79,7 +79,7 @@ class RegisterControllerTest {
         when(mockPrincipal.getUserFromPrincipal(principal, mockClientService)).thenReturn(user);
         GetUserByIdRequest userByIdRequest = GetUserByIdRequest.newBuilder().setId(1).build();
         when(mockClientService.getUserAccountById(userByIdRequest)).thenReturn(user);
-        registerController.setUserAccountsClientService(mockClientService);
+        accountController.setUserAccountsClientService(mockClientService);
         project = new Project("test");
         when(projectRepository.findById(1L)).thenReturn(Optional.ofNullable(project));
 
@@ -104,14 +104,14 @@ class RegisterControllerTest {
 
     @Test
     void testGetCalendar() {
-        String model = registerController.register();
+        String model = accountController.register();
         Assertions.assertEquals("accountRegister", model);
     }
 
     @Test
     void testAttemptRegistrationNotAcceptable() {
         UserRequest userRequest = new UserRequest("TestCase", "Password");
-        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
 
@@ -128,7 +128,7 @@ class RegisterControllerTest {
         userRequest.setMiddlename(null);
 
 
-        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
 
@@ -145,7 +145,7 @@ class RegisterControllerTest {
         userRequest.setMiddlename(null);
 
 
-        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
     @Test
@@ -161,7 +161,7 @@ class RegisterControllerTest {
         userRequest.setMiddlename("Mcgregor gregorich!");
 
 
-        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
 
@@ -178,7 +178,7 @@ class RegisterControllerTest {
         userRequest.setMiddlename(null);
 
 
-        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
 
@@ -195,7 +195,7 @@ class RegisterControllerTest {
         userRequest.setMiddlename(null);
 
 
-        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
 
@@ -212,7 +212,7 @@ class RegisterControllerTest {
         userRequest.setMiddlename(null);
 
 
-        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
 
@@ -229,7 +229,7 @@ class RegisterControllerTest {
         userRequest.setMiddlename(null);
 
 
-        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
 
@@ -246,7 +246,7 @@ class RegisterControllerTest {
         userRequest.setMiddlename(null);
 
 
-        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
 
@@ -263,7 +263,7 @@ class RegisterControllerTest {
         userRequest.setMiddlename(null);
 
 
-        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
 
