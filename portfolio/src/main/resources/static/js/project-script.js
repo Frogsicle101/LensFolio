@@ -49,8 +49,8 @@ function getProject(){
     }).done(function(results) {
         projectId = results.id;
         $("#projectName").html(results.name)
-        $("#project-start-date").html("Start: " + results.startDate)
-        $("#project-end-date").html("End " + results.endDate)
+        $("#projectStartDate").html("Start: " + results.startDate)
+        $("#projectEndDate").html("End " + results.endDate)
         $("#projectDescription").html(results.description)
         $("#edit-project-form").append('<form class="p-3">\n' +
             '                    <div class = "row mb-3">\n' +

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <link th:href="@{js/fullCalendar/lib/main.css}" rel='stylesheet' />
+    <script th:src="@{js/fullCalendar/lib/main.js}"></script>
+    <!--Make sure to change the below title    -->
+    <title>Calender</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
+
+    <script th:src="@{js/calendar.js}"></script>
+
+
+  </head>
+  <body>
+    <!--The below section <header> pulls the fragment from fragments/general-->
+    <header th:insert="fragments/general.html :: header"></header>
+
+    <section class="center">
+      <div class="calendarDetails">
+        <div th:insert="fragments/general.html :: errorBox"> </div>
+        <div th:insert="fragments/general.html :: successBox"> </div>
+        <div th:insert="fragments/general.html :: infoBox"> </div>
+        <div id="projectDetails">
+          <h1 id="projectId" th:text="${project.getId()}" style="display: none"></h1>
+          <div class="mb3">
+            <h1 id="projectName" th:text="${project.getName()}"></h1>
+          </div>
+          <div class="row">
+            <div class="col">
+              <h6>Start</h6>
+              <h6 id="projectStartDate" th:text="${project.getStartDateFormatted()}"></h6>
+            </div>
+            <div class="col">
+              <h6>End</h6>
+              <h6 id="projectEndDate" th:text="${project.getEndDateFormatted()}"></h6>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+      <div id='calendar' class="calendar">
+
+      </div>
+
+    </section>
+  </body>
+</html>
