@@ -116,21 +116,175 @@ class RegisterControllerTest {
     }
 
     @Test
-    void testAttemptRegistration() {
+    void testAttemptRegistrationIncorrectPatternEmail() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+
+        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternFirstname() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test!");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+
+        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+    }
+    @Test
+    void testAttemptRegistrationIncorrectPatternMiddlename() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         userRequest.setEmail("test@test.com");
         userRequest.setFirstname("Test");
         userRequest.setLastname("Testing");
-        userRequest.setBio("");
-        userRequest.setNickname("");
-        userRequest.setPersonalPronouns("");
-        userRequest.setMiddlename("");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename("Mcgregor gregorich!");
 
 
         ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
     }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternLastname() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing@");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+
+        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternUsername() {
+
+        UserRequest userRequest = new UserRequest("TestCase CaseTest", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+
+        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternPassword() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password Not Correct");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+
+        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternBio() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio("!!!@#! @!@# ASD");
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+
+        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternNickname() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname("Mr Jeeves!");
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+
+        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternPronouns() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns("He/Him Them!");
+        userRequest.setMiddlename(null);
+
+
+        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+    }
+
+
+    //TODO Finish testing for below, can't mock it correctly.
+//    @Test
+//    void testAttemptRegistration() {
+//
+//        UserRequest userRequest = new UserRequest("TestCase", "Password");
+//        userRequest.setEmail("test@test.com");
+//        userRequest.setFirstname("Test");
+//        userRequest.setLastname("Testing");
+//        userRequest.setBio("");
+//        userRequest.setNickname("");
+//        userRequest.setPersonalPronouns("");
+//        userRequest.setMiddlename("");
+//
+//
+//        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
+//        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+//    }
 
 
 
