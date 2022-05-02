@@ -23,8 +23,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.RegEx;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.regex.Pattern;
 
 
 /**
@@ -44,11 +46,10 @@ public class RegisterController {
 
     /**
      *
-     * @param model Parameters sent to thymeleaf template to be rendered into HTML
      * @return Thymeleaf template for the register screen
      */
     @GetMapping("/register")
-    public String register(Model model) {
+    public String register() {
         logger.info("GET REQUEST /register - get register page");
         return "accountRegister";
     }
@@ -57,46 +58,44 @@ public class RegisterController {
      * Called when a user attempts to register a new account, if the registration is successful forwards a user to
      * their account page, otherwise informs the user why their attempt was unsuccessful.
      *
-     * @param request - used to add a authentication cookie to successfully registered accounts
-     * @param response - used to add a authentication cookie to successfully registered accounts
      * @param userRequest - A UserRequest object used to retrieve user input from the html.
-     * @param model - Used to add attributes to the html page if needed.
      * @return view - the html page redirected to, either account details on successful registration or register on failure.
      */
     @PostMapping("/register")
     public ResponseEntity<Object> attemptRegistration(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            @ModelAttribute(name="registerForm") UserRequest userRequest,
-            ModelMap model
+            @ModelAttribute(name="registerForm") UserRequest userRequest
     ) {
         logger.info("POST REQUEST /register - attempt to register new user");
-        // Make UserRegisterRequest and send to Server
-        UserRegisterResponse registerReply = userAccountsClientService.register(createUserRegisterRequest(userRequest));
+        try{
+            String wordsSeperatedBySpaces = "([a-zA-Z]+\s?)+";
+            if (userRequest.getFirstname() == null
+                    || userRequest.getLastname() == null
+                    || userRequest.getUsername() == null
+                    || userRequest.getPassword() == null
+                    || userRequest.getEmail() == null) {
+                logger.warn("Registration missing fields");
+                return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 
-        // Attempt to login new user
-        if (registerReply.getIsSuccess()) {
-            logger.info("Registration Success: " + registerReply.getMessage());
-            logger.info("Log in new user");
-            try {
-                // NOTE: Successful login and cookie adding logged in LoginController
-                AuthenticateResponse authenticateResponse = new LoginController()
-                    .attemptLogin(userRequest,
-                                request,
-                                response,
-                                authenticateClientService);
-            } catch (AuthenticationException exception) {
-                //Note: error logged when thrown
-//                model.addAttribute("errorMessage", exception.getMessage());
-//                return new ModelAndView("accountRegister");
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
-//            return new ModelAndView("redirect:/account");
-            return new ResponseEntity<>(HttpStatus.OK);
+
+
+            // Make UserRegisterRequest and send to Server
+            UserRegisterResponse registerReply = userAccountsClientService.register(createUserRegisterRequest(userRequest));
+            // Attempt to login new user
+            if (registerReply.getIsSuccess()) {
+                logger.info("Registration Success: {}", registerReply.getMessage());
+                logger.info("Log in new user");
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                logger.info("Registration Failed: {}", registerReply.getMessage());
+                return new ResponseEntity<>(registerReply.getMessage(), HttpStatus.FORBIDDEN);
+            }
+        } catch (Exception err) {
+            logger.error("Registration Failed: {}",err.toString());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        logger.info("Registration Failed: " + registerReply.getMessage());
-//        model.addAttribute("errorMessage", registerReply.getMessage());
-        return new ResponseEntity<>(registerReply.getMessage(), HttpStatus.FORBIDDEN);
+
+
     }
 
 
@@ -120,5 +119,9 @@ public class RegisterController {
                 .setPersonalPronouns(userRequest.getPersonalPronouns())
                 .setNickname(userRequest.getNickname());
         return userRegisterRequest.build();
+    }
+
+    public void setUserAccountsClientService(UserAccountsClientService service) {
+        this.userAccountsClientService = service;
     }
 }
