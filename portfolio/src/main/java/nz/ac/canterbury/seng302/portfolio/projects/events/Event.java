@@ -46,14 +46,6 @@ public class Event extends Deadline {
         this.startDate = startDate;
     }
 
-    public void validateDate(Project project, LocalDate endDate, LocalDateTime startDate) throws DateTimeException {
-        super.validateDate(project, endDate);
-        if (startDate.toLocalDate().isAfter(project.getEndDate()) || startDate.toLocalDate().isBefore(project.getStartDate())) {
-            throw new DateTimeException("Start date must occur within project");
-        }
-    }
-
-
     public String getStartDateFormatted() { return getStartDate().format(DateTimeFormat.timeDateMonthYear()); }
 
     public LocalDateTime getStartDate() { return startDate; }

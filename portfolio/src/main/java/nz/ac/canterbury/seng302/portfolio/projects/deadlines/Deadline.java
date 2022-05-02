@@ -80,7 +80,6 @@ public class Deadline extends Milestone {
         this.endTime = endTime;
     }
 
-
     public LocalDateTime getDateTime() {
         return this.dateTime;
     }
