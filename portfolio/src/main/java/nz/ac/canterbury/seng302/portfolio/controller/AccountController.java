@@ -54,38 +54,15 @@ public class AccountController {
             @ModelAttribute(name = "detailChangeMessage") String detailChangeMessage,
             @ModelAttribute(name = "passwordChangeMessage") String passwordChangeMessage
     ) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("GET REQUEST /account - retrieving account details for user " + userId);
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        logger.info("GET REQUEST /account - retrieving account details for user " + user.getUsername());
         ModelAndView model = new ModelAndView("account");
-        addModelAttributes(userId, model);
-        logger.info("Account details populated for " + userId);
-        return model;
-    }
-
-    /**
-     * Helper function to add attributes to the model
-     * Given a Thymeleaf model, adds a bunch of attributes into it
-     * <p>
-     * This is really just to make the code a bit nicer to look at
-     * <br>
-     * @param userId - the userId of the account whose details are being retrieved
-     * @param model - The model you're adding attributes to
-     */
-    private void addModelAttributes(
-            int userId,
-            ModelAndView model) {
-        // NOTE: no logger as this is a helper function and calling function logs the input
-
-        UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
-                                                                                .setId(userId)
-                                                                                .build());
-
-        model.addObject("user", userResponse);
-
-        String memberSince =
-                ReadableTimeService.getReadableDate(userResponse.getCreated())
-                        + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
+        model.addObject("user", user);
+        String memberSince = ReadableTimeService.getReadableDate(user.getCreated())
+                        + " (" + ReadableTimeService.getReadableTimeSince(user.getCreated()) + ")";
         model.addObject("membersince", memberSince);
+        logger.info("Account details populated for " + user.getUsername());
+        return model;
     }
 
 

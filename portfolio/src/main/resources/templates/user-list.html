@@ -43,13 +43,13 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="user : ${user_list}" class="userRoleRow">
-                        <td class="userId" th:text="${user.id}" style="display: none"></td>
-                        <td th:text="${user.firstName} +  ' ' + ${user.middleName} + ' ' + ${user.lastName}">Name</td>
-                        <td class="username" th:text="${user.username}">Username</td>
-                        <td th:text="${user.nickname}">Nickname</td>
+                    <tr th:each="paginatedUser : ${user_list}" class="userRoleRow">
+                        <td class="userId" th:text="${paginatedUser.id}" style="display: none"></td>
+                        <td th:text="${paginatedUser.firstName} +  ' ' + ${paginatedUser.middleName} + ' ' + ${paginatedUser.lastName}">Name</td>
+                        <td class="username" th:text="${paginatedUser.username}">Username</td>
+                        <td th:text="${paginatedUser.nickname}">Nickname</td>
                         <td class="roleButtonsContainer">
-                            <div th:each="activeRole : ${user.rolesList}" class="badge border d-inline-flex align-items-center">
+                            <div th:each="activeRole : ${paginatedUser.rolesList}" class="badge border d-inline-flex align-items-center">
                                 <div class="tagDiv">
                                     <div class=" text-black roleType" th:text="${activeRole}"></div>
                                     <button th:if="${userCanEdit}" class="btn-close roleDeleteButton" style="font-size: 0.75em;">x</button>
@@ -59,7 +59,7 @@
                                 <button class="btn badge border text-light bg-primary addRolePopUpButton dropdown-toggle"
                                         aria-expanded="true">+</button>
                                 <ul class="dropdown-menu collapse" data-popper-placement="bottom-start">
-                                    <button class="dropdown-item roleToAddButton" th:each="role : ${possibleRoles}" th:if="${!user.rolesList.contains(role)}" th:text="${role}"></button>
+                                    <button class="dropdown-item roleToAddButton" th:each="role : ${possibleRoles}" th:if="${!paginatedUser.rolesList.contains(role)}" th:text="${role}"></button>
                                 </ul>
                             </div>
 

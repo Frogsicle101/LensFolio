@@ -57,38 +57,13 @@ public class EditController {
             @ModelAttribute(name="passwordChangeMessage") String passwordChangeMessage,
             ModelMap model
     ) {
-        /*
-        We want to fill in the form details with what the user already has
-        so let's grab all those details and put them in the model
-         */
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         logger.info("REQUEST /edit - retrieving account details for user " + userId);
-        addModelAttributes(userId, model);
-        logger.info("Edit account details populated for " + userId);
-        return "accountEdit";
-    }
-
-    /**
-     * Helper function to add attributes to the model
-     * Given a Thymeleaf model, adds a bunch of attributes into it
-     *
-     * This is really just to make the code a bit nicer to look at
-     * @param userId The user id of the account being edited
-     * @param model The model you're adding attributes to
-     */
-    private void addModelAttributes(
-            int userId,
-            ModelMap model) {
-        /*
-        These addAttribute methods inject variables that we can use in our html file
-        Their values have been hard-coded for now, but they can be the result of functions!
-        ideally, these would be functions like getUsername and so forth
-         */
-        GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
-        request.setId(userId);
+        GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder().setId(userId);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(request.build());
         model.addAttribute("user", userResponse);
-
+        logger.info("Edit account details populated for " + userId);
+        return "account";
     }
 
     /**
@@ -100,7 +75,6 @@ public class EditController {
      * @param attributes extra attributes that are being given along with the redirect
      * @param principal The authentication state
      * @param editInfo The thymeleaf-created form object
-     * @param model The thymeleaf model
      * @return a redirect to the main /edit endpoint
      */
     @PostMapping("/edit/details")
