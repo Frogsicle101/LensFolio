@@ -49,6 +49,7 @@ $(document).ready(() => {
                 location.href = "/account"
             },
             error: function(data){
+                //TODO Add in error handling here
                 if (data.status === 403){
                     if (!$(".errorMessageParent").length) {
                         // Checks to see if an error message is already on the page, will reuse the div if it is,

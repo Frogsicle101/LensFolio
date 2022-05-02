@@ -56,9 +56,9 @@ public class AccountController {
             @ModelAttribute(name = "passwordChangeMessage") String passwordChangeMessage
     ) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("REQUEST /account - retrieving account details for user " + userId);
+        logger.info("REQUEST /account - retrieving account details for user {}",userId);
         addModelAttributes(userId, request, model);
-        logger.info("Account details populated for " + userId);
+        logger.info("Account details populated for {}", userId);
         return "account";
     }
 
@@ -89,7 +89,7 @@ public class AccountController {
 
             ResponseEntity<Object> checkUserRequest = checkUserRequest(userRequest); // Checks that the userRequest object passes all checks
             if (checkUserRequest.getStatusCode() == HttpStatus.NOT_ACCEPTABLE) {
-                logger.warn("Registration Failed: " + checkUserRequest.getBody());
+                logger.warn("Registration Failed: {}", checkUserRequest.getBody());
                 return checkUserRequest;
             }
 
@@ -231,13 +231,13 @@ public class AccountController {
     ) {
         ResponseEntity<Object> checkUserRequest = checkUserRequestNoPasswordOrUser(editInfo); // Checks that the userRequest object passes all checks
         if (checkUserRequest.getStatusCode() == HttpStatus.NOT_ACCEPTABLE) {
-            logger.warn("Editing Failed: " + checkUserRequest.getBody());
+            logger.warn("Editing Failed: {}",checkUserRequest.getBody());
             return checkUserRequest;
         }
 
         EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info(" POST REQUEST /edit/details - update account details for user " + userId);
+        logger.info(" POST REQUEST /edit/details - update account details for user {}",userId);
 
         editRequest.setUserId(userId)
                 .setFirstName(editInfo.getFirstname())
@@ -249,9 +249,9 @@ public class AccountController {
                 .setEmail(editInfo.getEmail());
         EditUserResponse reply = userAccountsClientService.editUser(editRequest.build());
         if (reply.getIsSuccess()) {
-            logger.info("Successfully updated details for user " + userId);
+            logger.info("Successfully updated details for user {}", userId);
         } else {
-            logger.error("Failed to update details for user " + userId);
+            logger.error("Failed to update details for user {}", userId);
             return new ResponseEntity<>(reply.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -269,41 +269,45 @@ public class AccountController {
      * @return a redirect to the main /edit endpoint
      */
     @PostMapping("/edit/password")
-    public ModelAndView editPassword(
+    public ResponseEntity<Object> editPassword(
             RedirectAttributes attributes,
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editPasswordForm") PasswordRequest editInfo
     ){
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("POST REQUEST /edit/password - update password for user " + userId);
-        ChangePasswordRequest.Builder changePasswordRequest = ChangePasswordRequest.newBuilder();
+        try {
+            int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+            logger.info("POST REQUEST /edit/password - update password for user {}", userId);
+            ChangePasswordRequest.Builder changePasswordRequest = ChangePasswordRequest.newBuilder();
 
-        ChangePasswordResponse changePasswordResponse;
-        if (editInfo.getNewPassword().equals(editInfo.getConfirmPassword())) {
-            logger.info("New password and confirm password match, requesting change password service (" + userId + ")");
-            //Create request
-            changePasswordRequest.setUserId(userId)
-                    .setCurrentPassword(editInfo.getOldPassword())
-                    .setNewPassword(editInfo.getNewPassword());
-            changePasswordResponse = userAccountsClientService.changeUserPassword(changePasswordRequest.build());
-            if (changePasswordResponse.getIsSuccess()) {
-                logger.info("Password change success: " + changePasswordResponse.getMessage());
+            ChangePasswordResponse changePasswordResponse;
+            if (editInfo.getNewPassword().equals(editInfo.getConfirmPassword())) {
+                logger.info("New password and confirm password match, requesting change password service ({})",userId);
+                //Create request
+                changePasswordRequest.setUserId(userId)
+                        .setCurrentPassword(editInfo.getOldPassword())
+                        .setNewPassword(editInfo.getNewPassword());
+                changePasswordResponse = userAccountsClientService.changeUserPassword(changePasswordRequest.build());
+                if (changePasswordResponse.getIsSuccess()) {
+                    logger.info("Password change success: {}",changePasswordResponse.getMessage());
+                } else {
+                    logger.warn("Password change failed: {}",changePasswordResponse.getMessage());
+                    return new ResponseEntity<>(changePasswordResponse.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+                }
+
+
             } else {
-                logger.info("Password change failed: " + changePasswordResponse.getMessage());
+                logger.info("Confirm password does not match new password. Cancelling password change for {}",userId);
+                // Tell the user to confirm their passwords match
+                return new ResponseEntity<>("Confirm password does not match new password.", HttpStatus.NOT_ACCEPTABLE);
             }
             //Give the user the response from the IDP
-            //Flash attributes aren't visible in the URL, which is why this is a flash attribute
-            attributes.addFlashAttribute("successMessage",
-                    changePasswordResponse.getMessage());
+            return new ResponseEntity<>(changePasswordResponse.getMessage(), HttpStatus.OK);
 
-        } else {
-            logger.info("Confirm password does not match new password. Cancelling password change for " + userId);
-            // Tell the user to confirm their passwords match
-            attributes.addFlashAttribute("errorMessage",
-                    "Confirm password does not match new password.");
+        } catch (Exception err) {
+            logger.error("/edit/password Error {}", err.getMessage());
+            return new ResponseEntity<>(err.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        //Since they're at a different endpoint, redirect back to the main edit endpoint
-        return new ModelAndView("redirect:/account");
+
     }
 
 
@@ -322,9 +326,9 @@ public class AccountController {
 
         DeleteUserProfilePhotoResponse response = userAccountsClientService.deleteUserProfilePhoto(deleteRequest);
         if (response.getIsSuccess()) {
-            logger.info("Profile photo deleted - " + response.getMessage());
+            logger.info("Profile photo deleted - {}", response.getMessage());
         } else {
-            logger.info("Didn't delete profile photo - " + response.getMessage());
+            logger.warn("Didn't delete profile photo - {}", response.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }

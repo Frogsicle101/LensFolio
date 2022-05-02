@@ -67,11 +67,40 @@ $(document).ready(() => {
             success: function () {
                 location.href = "/account"
             },
-            error: function(data){
-                console.log(data)
+            error: function(error){
+                console.log(error.responseText)
+                //TODO Add in error handling here
             }
         })
     })
+
+    $("#passwordChangeForm").submit(function(event) {
+        event.preventDefault()
+        //Todo, not sure if this is the best way to handle passwords, they can be seen?
+
+        let data = {
+            "oldPassword": $("#OldPassword").val(),
+            "newPassword" : $("#NewPassword").val(),
+            "confirmPassword" : $("#ConfirmPassword").val()
+        }
+        console.log(data)
+
+        $.ajax({
+            type: "post",
+            data: data,
+            url: "/edit/password",
+            success: function(){
+                location.href = "/account"
+            },
+            error: function(error){
+                console.log(error.responseText)
+                //TODO error handling
+
+            }
+
+        })
+    })
+
 
 
 
