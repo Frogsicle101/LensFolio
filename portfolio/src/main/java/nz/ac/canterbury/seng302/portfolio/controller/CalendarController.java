@@ -20,8 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -51,7 +49,7 @@ public class CalendarController {
                     "Event with id " + projectId + " was not found"
             ));
 
-            ModelAndView model = new ModelAndView("monthly_calendar");
+            ModelAndView model = new ModelAndView("monthlyCalendar");
             model.addObject("project", project);
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
             String ip = request.getLocalAddr();
