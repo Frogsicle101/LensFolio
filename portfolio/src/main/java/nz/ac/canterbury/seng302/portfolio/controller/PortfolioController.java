@@ -73,9 +73,12 @@ public class PortfolioController {
     }
 
 
-
-
-
+    /**
+     * Creates events for a given project.
+     *
+     * @param project The project in which the events will be stored.
+     * @throws InvalidNameException If the event name is null or longer than 50 characters.
+     */
     public void createDefaultEvents(Project project) throws InvalidNameException {
         LocalDateTime date = LocalDateTime.now();
 
@@ -89,6 +92,11 @@ public class PortfolioController {
         eventRepository.save(event4);
     }
 
+
+    /**
+     * Created sprints for a given project.
+     * @param project The project in which the sprints will be stored.
+     */
     public void createDefaultSprints(Project project) {
         LocalDate date = LocalDate.now();
         Sprint sprint1 = new Sprint(project, "Sprint 1", LocalDate.parse("2022-02-28"), LocalDate.parse("2022-03-09"), "Sprint 1", "#0066cc");
@@ -131,8 +139,6 @@ public class PortfolioController {
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Event with id " + projectId + " was not found"
             ));
-
-
 
 
             //View that we are going to return.
@@ -210,7 +216,6 @@ public class PortfolioController {
             ));
 
 
-
             // The view we are going to return.
             ModelAndView modelAndView = new ModelAndView("projectEdit");
 
@@ -274,7 +279,6 @@ public class PortfolioController {
                     return new ModelAndView("redirect:/portfolio?projectId=" + editInfo.getProjectId());
                 }
             }
-
 
 
             //Updates the project's details
@@ -344,9 +348,6 @@ public class PortfolioController {
                 }
                 attributes.addFlashAttribute(successMessage, "Sprint added!");
             }
-
-
-
         } catch(EntityNotFoundException err) {
             logger.error("GET REQUEST /portfolio/addSprint", err);
             attributes.addFlashAttribute(errorMessage, err.getMessage());
@@ -375,8 +376,6 @@ public class PortfolioController {
             @RequestParam (value = "projectId") Long projectId,
             RedirectAttributes attributes
     ) {
-
-
         try {
 
             logger.info("GET REQUEST /sprintEdit");
@@ -391,8 +390,6 @@ public class PortfolioController {
             Sprint sprint = sprintRepository.findById(uuidSprintId).orElseThrow(() -> new EntityNotFoundException(
                     "Sprint with id " + projectId.toString() + " was not found"
             ));
-
-
 
             Project project = projectRepository.getProjectById(projectId);
 
@@ -438,8 +435,6 @@ public class PortfolioController {
             attributes.addFlashAttribute(errorMessage, err);
             return new ModelAndView("redirect:/portfolio?projectId=" + projectId);
         }
-
-
     }
 
 
@@ -483,7 +478,6 @@ public class PortfolioController {
     }
 
 
-
     /**
      * Mapping for PUT request "deleteSprint"
      * @param id UUID of sprint to delete
@@ -495,9 +489,4 @@ public class PortfolioController {
         sprintRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
    }
-
-
-
-
-
 }
