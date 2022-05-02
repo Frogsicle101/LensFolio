@@ -6,11 +6,13 @@ import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 
 import javax.persistence.Entity;
+import javax.persistence.Inheritance;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
+@Inheritance
 public class Event extends Deadline {
 
     private LocalDateTime startDate;

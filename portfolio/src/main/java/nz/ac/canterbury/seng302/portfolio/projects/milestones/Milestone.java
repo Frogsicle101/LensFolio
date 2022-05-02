@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.projects.milestones;
 
+import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.UUID;
 
 @Entity
+@Inheritance
 public abstract class Milestone {
 
     private @Id
@@ -42,11 +44,24 @@ public abstract class Milestone {
         return this.id;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) { this.name = name; }
 
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 
     public void setEndDateColour(String colour) { this.endDateColour = colour; }
 
+    public String getEndDateColour() {
+        return endDateColour;
+    }
+
     public LocalDate getEndDate() { return this.endDate; }
+
+    public String getEndDateFormatted() {
+        return getEndDate().format(DateTimeFormat.dayDateMonthYear());
+    }
+
 }

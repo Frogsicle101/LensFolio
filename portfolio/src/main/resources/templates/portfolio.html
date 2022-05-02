@@ -160,8 +160,8 @@
                             <p th:if="${event.startDate.toLocalDate().isAfter(sprint.startDate.minusDays(1)) && event.startDate.toLocalDate().isBefore(sprint.endDate.plusDays(1))}" th:text="${event.getStartDateFormatted()}" th:style="'color: ' + ${event.startDateColour}" class="bold" data-bs-toggle="tooltip" data-bs-placement="top" title="Event will start this sprint"></p>
                             <p th:unless="${event.startDate.toLocalDate().isAfter(sprint.startDate.minusDays(1)) && event.startDate.toLocalDate().isBefore(sprint.endDate.plusDays(1))}" th:text="${event.getStartDateFormatted()}" th:style="'color: ' + ${event.startDateColour}"></p>
                             <p>-</p>
-                            <p th:if="${event.endDate.toLocalDate().isAfter(sprint.startDate.minusDays(1)) && event.endDate.toLocalDate().isBefore(sprint.endDate.plusDays(1))}" th:text="${event.getEndDateFormatted()}" th:style="'color: ' + ${event.endDateColour}" class="bold" data-bs-toggle="tooltip" data-bs-placement="top" title="Event will end this sprint"></p>
-                            <p th:unless="${event.endDate.toLocalDate().isAfter(sprint.startDate.minusDays(1)) && event.endDate.toLocalDate().isBefore(sprint.endDate.plusDays(1))}" th:text="${event.getEndDateFormatted()}" th:style="'color: ' + ${event.endDateColour}" ></p>
+                            <p th:if="${event.endDate.isAfter(sprint.startDate.minusDays(1)) && event.endDate.isBefore(sprint.endDate.plusDays(1))}" th:text="${event.getEndDateFormatted()}" th:style="'color: ' + ${event.endDateColour}" class="bold" data-bs-toggle="tooltip" data-bs-placement="top" title="Event will end this sprint"></p>
+                            <p th:unless="${event.endDate.isAfter(sprint.startDate.minusDays(1)) && event.endDate.isBefore(sprint.endDate.plusDays(1))}" th:text="${event.getEndDateFormatted()}" th:style="'color: ' + ${event.endDateColour}" ></p>
 
                         </div>
 
