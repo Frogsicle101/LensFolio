@@ -360,6 +360,7 @@ public class PortfolioController {
         return new ModelAndView("redirect:/portfolio?projectId=" + projectId);
     }
 
+
     /**
      * Mapping for /sprintEdit. Looks for a sprint that matches the id
      * and then populates the form.
@@ -440,6 +441,7 @@ public class PortfolioController {
 
 
     }
+
 
     /**
      * Takes the request to update the sprint.

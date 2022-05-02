@@ -22,7 +22,6 @@ public class Event extends Deadline {
 
     private LocalDateTime startDate;
     private String startDateColour;
-    private int typeOfEvent;
 
     /**
      * Default JPA event constructor.
@@ -38,14 +37,13 @@ public class Event extends Deadline {
      * @param startDate The start date and time of the event
      * @param endDate The end date of the event.
      * @param endTime The end time of the event.
-     * @param typeOfEvent The type of the event. Determines the icon associated with the event.
+     * @param type The type of the event.
      * @throws DateTimeException If the event's date does not occur between the project's start and end dates.
      * @throws InvalidNameException If the event's name is null or has length greater than fifty characters.
      */
-    public Event(Project project, String name, LocalDateTime startDate, LocalDate endDate, LocalTime endTime, int typeOfEvent) throws DateTimeException, InvalidNameException {
-        super(project, name, endDate, endTime);
+    public Event(Project project, String name, LocalDateTime startDate, LocalDate endDate, LocalTime endTime, int type) throws DateTimeException, InvalidNameException {
+        super(project, name, endDate, endTime, type);
         this.startDate = startDate;
-        this.typeOfEvent = typeOfEvent;
     }
 
     public void validateDate(Project project, LocalDate endDate, LocalDateTime startDate) throws DateTimeException {
@@ -55,13 +53,7 @@ public class Event extends Deadline {
         }
     }
 
-    public int getTypeOfEvent() {
-        return typeOfEvent;
-    }
 
-    public void setTypeOfEvent(int typeOfEvent) {
-        this.typeOfEvent = typeOfEvent;
-    }
 
     public String getStartDateFormatted() { return getStartDate().format(DateTimeFormat.timeDateMonthYear()); }
 

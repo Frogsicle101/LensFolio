@@ -127,7 +127,7 @@ public class EventController {
             event.setName(name);
             event.setStartDate(eventStart);
             event.setEndDate(eventEnd.toLocalDate());
-            event.setTypeOfEvent(typeOfEvent);
+            event.setType(typeOfEvent);
             eventRepository.save(event);
             
             return new ResponseEntity<>(HttpStatus.OK);

@@ -33,7 +33,7 @@ public class DeadlineFeature {
         }
         try {
             LocalDateTime parsedDate = LocalDateTime.parse(deadlineDate);
-            deadline = new Deadline(project, deadlineName, parsedDate.toLocalDate(), parsedDate.toLocalTime());
+            deadline = new Deadline(project, deadlineName, parsedDate.toLocalDate(), parsedDate.toLocalTime(), 1);
         } catch (DateTimeException | NullPointerException e) {
             deadline = null;
         } catch (InvalidNameException e) {

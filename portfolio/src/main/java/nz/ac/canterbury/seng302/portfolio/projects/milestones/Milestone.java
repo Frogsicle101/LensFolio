@@ -28,6 +28,7 @@ public abstract class Milestone {
     @NotNull
     private LocalDate endDate;
     private String endDateColour;
+    private int type;
     private static final int nameLengthRestriction = 50;
 
 
@@ -42,16 +43,18 @@ public abstract class Milestone {
      *
      * @param project The project in which the milestone occurs.
      * @param name The name of the milestone.
-     * @param endDate The end date of the milesone.
+     * @param endDate The end date of the milestone.
+     * @param type The type of the milestone.
      * @throws InvalidNameException If the milestone name is null or has length greater than fifty characters.
      */
-    public Milestone(Project project, String name, LocalDate endDate) throws InvalidNameException {
+    public Milestone(Project project, String name, LocalDate endDate, int type) throws InvalidNameException {
         if (name == null || name.length() > 50) {
             throw new InvalidNameException();
         }
         this.project = project;
         this.name = name;
         this.endDate = endDate;
+        this.type = type;
     }
 
     public static int getNameLengthRestriction() {
@@ -81,5 +84,14 @@ public abstract class Milestone {
     public String getEndDateFormatted() {
         return getEndDate().format(DateTimeFormat.dayDateMonthYear());
     }
+
+    public int type() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
 
 }
