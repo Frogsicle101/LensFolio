@@ -166,6 +166,53 @@ public class AccountController {
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
+    /**
+     * Checks that the UserRequest follows the required patterns and contains everything needed
+     * @param userRequest the UserRequest without password
+     * @return ResponseEntity, either an accept, or a not accept with message as to what went wrong
+     */
+    private ResponseEntity<Object> checkUserRequestNoPasswordOrUser(UserRequest userRequest) {
+        String firstname = userRequest.getFirstname();
+        String middlename = userRequest.getMiddlename();
+        String lastname = userRequest.getLastname();
+        String email = userRequest.getEmail();
+        String nickname = userRequest.getNickname();
+        String pronouns = userRequest.getPersonalPronouns();
+        String bio = userRequest.getBio();
+
+
+        if (firstname == null // Checks that all necessary information is there.
+                || lastname == null
+                || email == null) {
+            return new ResponseEntity<>("Missing fields", HttpStatus.NOT_ACCEPTABLE);
+
+        }
+
+
+        String alphaSpacesRegex = "([a-zA-Z]+\s?)+"; // TODO pass this to the frontend, so we only need to change one set of REGEX expressions to effect both front-end/backend
+        String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
+        String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
+        String bioRegex = "([a-zA-Z0-9.,'\"]+\\s?)+"; //TODO need to add bio regex into html, can't insert it directly as an attribute into the html tag so must do it with Jquery in the background.
+        String pronounRegex = "([a-zA-Z/]+\\s?)+";
+
+        //TODO should we break up the if statement below and have it check each thing individually so we can give individual feedback if something doesn't pass?
+
+        // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
+        if (!firstname.matches(alphaSpacesRegex)
+                || !lastname.matches(alphaSpacesRegex)
+                || !email.matches(emailRegex)
+                // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
+                || nickname != null && !nickname.matches(alphaSpacesRegex)
+                || middlename != null && !middlename.matches(alphaSpacesRegex)
+                || pronouns != null && !pronouns.matches(pronounRegex)
+                || bio != null && !bio.matches(bioRegex)) {
+
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
 
 
     /**
@@ -182,7 +229,7 @@ public class AccountController {
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editDetailsForm") UserRequest editInfo
     ) {
-        ResponseEntity<Object> checkUserRequest = checkUserRequest(editInfo); // Checks that the userRequest object passes all checks
+        ResponseEntity<Object> checkUserRequest = checkUserRequestNoPasswordOrUser(editInfo); // Checks that the userRequest object passes all checks
         if (checkUserRequest.getStatusCode() == HttpStatus.NOT_ACCEPTABLE) {
             logger.warn("Editing Failed: " + checkUserRequest.getBody());
             return checkUserRequest;
