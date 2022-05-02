@@ -34,12 +34,13 @@ public class AccountController {
     private UserAccountsClientService userAccountsClientService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String alphaSpacesRegex = "([a-zA-Z]+\s?)+"; // TODO pass this to the frontend?, so we only need to change one set of REGEX expressions to effect both front-end/backend
+    private static final String alphaSpacesRegex = "([a-zA-Z]+\s?)+";
+    private static final String alphaSpacesRegexCanBeEmpty = "([a-zA-Z]*\s?)+";
     private static final String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
     private static final String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
-    private static final String bioRegex = "([a-zA-Z0-9.,'\"]+\\s?)+"; //TODO need to add bio regex into html, can't insert it directly as an attribute into the html tag so must do it with Jquery in the background.
+    private static final String bioRegex = "([a-zA-Z0-9.,'\"]*\\s?)+"; //TODO need to add bio regex into html, can't insert it directly as an attribute into the html tag so must do it with Jquery in the background.
     private static final String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)"; // TODO, can someone review this, unsure about being able to check password, should it be hashed at this point?
-    private static final String pronounRegex = "([a-zA-Z/]+\\s?)+";
+    private static final String pronounRegex = "([a-zA-Z/]*\\s?)+";
 
     /**
      * This method is responsible for populating the account page template
@@ -64,6 +65,13 @@ public class AccountController {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         logger.info("REQUEST /account - retrieving account details for user {}",userId);
         addModelAttributes(userId, request, model);
+        model.addAttribute("usernameRegex", userNameRegex);
+        model.addAttribute("alphaSpacesRegex", alphaSpacesRegex);
+        model.addAttribute("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
+        model.addAttribute("emailRegex", emailRegex);
+        model.addAttribute("bioRegex", bioRegex);
+        model.addAttribute("passwordRegex", passwordRegex);
+        model.addAttribute("pronounRegex", pronounRegex);
         logger.info("Account details populated for {}", userId);
         return "account";
     }
@@ -156,8 +164,8 @@ public class AccountController {
                 || !email.matches(emailRegex)
                 || !password.matches(passwordRegex)
                 // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
-                || nickname != null && !nickname.matches(alphaSpacesRegex)
-                || middlename != null && !middlename.matches(alphaSpacesRegex)
+                || nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)
+                || middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)
                 || pronouns != null && !pronouns.matches(pronounRegex)
                 || bio != null && !bio.matches(bioRegex)) {
 
@@ -198,8 +206,8 @@ public class AccountController {
                 || !lastname.matches(alphaSpacesRegex)
                 || !email.matches(emailRegex)
                 // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
-                || nickname != null && !nickname.matches(alphaSpacesRegex)
-                || middlename != null && !middlename.matches(alphaSpacesRegex)
+                || nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)
+                || middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)
                 || pronouns != null && !pronouns.matches(pronounRegex)
                 || bio != null && !bio.matches(bioRegex)) {
 

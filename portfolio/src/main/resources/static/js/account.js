@@ -1,8 +1,6 @@
 $(document).ready(() => {
 
     let editUserButton = $(".editUserButton")
-    let username = $("#username")
-    let password = $("#password")
     let firstname = $("#firstname")
     let middlename = $("#middlename")
     let lastname = $("#lastname")
@@ -10,6 +8,15 @@ $(document).ready(() => {
     let bio = $("#bio")
     let personalPronouns = $("#personalPronouns")
     let email = $("#email")
+
+
+    let errorMessageParent = $(".errorMessageParent")
+    let errorMessage = $(".errorMessage")
+
+
+
+
+
 
     //On Edit Account button click
     editUserButton.click(function() {
@@ -50,7 +57,6 @@ $(document).ready(() => {
     $("#accountForm").submit(function(event){
         event.preventDefault();
         let accountData = {
-            "password": password.val(),
             "firstname": firstname.val(),
             "middlename": middlename.val(),
             "lastname": lastname.val(),
@@ -69,10 +75,15 @@ $(document).ready(() => {
             },
             error: function(error){
                 console.log(error.responseText)
-                //TODO Add in error handling here
+                errorMessage.text(error.responseText)
+                errorMessageParent.slideDown()
+
             }
         })
     })
+
+
+
 
     $("#passwordChangeForm").submit(function(event) {
         event.preventDefault()
