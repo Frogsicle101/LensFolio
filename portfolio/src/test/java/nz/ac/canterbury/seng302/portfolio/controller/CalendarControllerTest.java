@@ -1,21 +1,15 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
-import nz.ac.canterbury.seng302.portfolio.events.Event;
-import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
-import org.aspectj.apache.bcel.classfile.ExceptionTable;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +17,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.*;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.*;
@@ -36,30 +25,30 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class CalendarControllerTest {
 
 
-    private ProjectRepository projectRepository = mock(ProjectRepository.class);
+    @Autowired
+    private MockMvc mockMvc;
+
+    private final ProjectRepository projectRepository = mock(ProjectRepository.class);
 
     @Autowired
     private SprintRepository sprintRepository;
 
 
-    private CalendarController calendarController = new CalendarController(projectRepository, sprintRepository);
-    private static UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
-    private static PrincipalAttributes mockPrincipal = mock(PrincipalAttributes.class);
-    private ArrayList<UserResponse> expectedUsersList = new ArrayList<>();
-    private AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
-    private HttpServletRequest httpServletRequest = initialiseHttpServlet();
+    private final CalendarController calendarController = new CalendarController(projectRepository, sprintRepository);
+    private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
+    private static final PrincipalAttributes mockPrincipal = mock(PrincipalAttributes.class);
+    private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
+    private final HttpServletRequest httpServletRequest = initialiseHttpServlet();
 
 
 
@@ -77,7 +66,6 @@ class CalendarControllerTest {
 
     @BeforeEach
     public void beforeAll() {
-        expectedUsersList.clear();
         UserResponse.Builder userBuilder = UserResponse.newBuilder()
                 .setUsername("steve")
                 .setFirstName("Steve")
@@ -103,9 +91,48 @@ class CalendarControllerTest {
     @Test
     void testGetCalendar() throws Exception {
         ModelAndView model = calendarController.getCalendar(principal, 1L, httpServletRequest);
+        Assertions.assertEquals("monthlyCalendar", model.getViewName());
+
+    }
+
+    @Test
+    void testGetCalendarWrongProjectId() throws Exception {
+        ModelAndView model = calendarController.getCalendar(principal, 2L, httpServletRequest);
+        Assertions.assertEquals("errorPage", model.getViewName());
+    }
 
 
+    @Test
+    void testGetProjectSprints() throws Exception {
+        ResultActions result = this.mockMvc.perform(get("/getProjectSprints").param("projectId", "1"));
+        result.andExpect(status().isOk());
 
+    }
+
+    @Test
+    void testGetProjectSprintsBadParam() throws Exception {
+        ResultActions result = this.mockMvc.perform(get("/getProjectSprints").param("projectId", "f"));
+        result.andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    void testGetProjectSprintsNoSprintsExist() throws Exception {
+        ResultActions result = this.mockMvc.perform(get("/getProjectSprints").param("projectId", "100"));
+        result.andExpect(status().isOk());
+        result.andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    void testGetProjectDetails() throws Exception {
+        ResultActions result = this.mockMvc.perform(get("/getProjectDetails").param("projectId", "1"));
+        result.andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetProjectDetailsProjectDoesNotExist() throws Exception {
+        ResultActions result = this.mockMvc.perform(get("/getProjectDetails").param("projectId", "100"));
+        result.andExpect(status().isNotFound());
     }
 
 

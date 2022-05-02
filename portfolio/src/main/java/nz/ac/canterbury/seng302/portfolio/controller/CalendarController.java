@@ -90,7 +90,7 @@ public class CalendarController {
 
             // Gets the project that the request is referring to.
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
-                    "Event with id " + projectId + "was not found"
+                    "Event with id " + projectId + " was not found"
             ));
             return new ResponseEntity<>(project, HttpStatus.OK);
         } catch (EntityNotFoundException err) {
