@@ -126,7 +126,7 @@ public class EventController {
 
             event.setName(name);
             event.setStartDate(eventStart);
-            event.setEndDate(eventEnd.toLocalDate());
+            event.setDateTime(eventEnd);
             event.setType(typeOfEvent);
             eventRepository.save(event);
             

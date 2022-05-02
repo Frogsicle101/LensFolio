@@ -110,7 +110,7 @@
             <div th:each="event: ${events}" class="event" >
                 <p th:text="${event.id}" class="eventId" style="display: none"></p>
                 <p th:text="${event.startDate}" class="eventStartDateNilFormat" style="display: none"></p>
-                <p th:text="${event.endDate}" class="eventEndDateNilFormat" style="display: none"></p>
+                <p th:text="${event.dateTime}" class="eventEndDateNilFormat" style="display: none"></p>
                 <p th:text="${event.type}" class="typeOfEvent" style="display: none"></p>
                 <div class="mb-2 eventTitleDiv">
                     <div th:switch="${event.type}" class="eventIcon">

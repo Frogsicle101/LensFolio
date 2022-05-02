@@ -22,12 +22,15 @@ public class Deadline extends Milestone {
 
     @Column(nullable = false)
     private LocalTime endTime;
+    private LocalDateTime dateTime;
+
 
     /**
      * Default JPA deadline constructor.
      */
     public Deadline() {
     }
+
 
     /**
      * Constructs an instance of the deadline object.
@@ -44,8 +47,9 @@ public class Deadline extends Milestone {
         super(project, name, endDate, type);
         validateDate(project, endDate);
         this.endTime = endTime;
-        assert(this.endTime != null);
+        this.dateTime = LocalDateTime.of(endDate, endTime);
     }
+
 
     /**
      * Checks that the end date occurs between the project's start and end dates.
@@ -68,6 +72,22 @@ public class Deadline extends Milestone {
      */
     @Override
     public String getEndDateFormatted() {
-        return LocalDateTime.of(getEndDate(), this.endTime).format(DateTimeFormat.timeDateMonthYear());
+        return LocalDateTime.of(this.getEndDate(), this.endTime).format(DateTimeFormat.timeDateMonthYear());
+    }
+
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+
+    public LocalDateTime getDateTime() {
+        return this.dateTime;
+    }
+
+    public void setDateTime(LocalDateTime eventEnd) {
+        this.dateTime = eventEnd;
+        setEndTime(eventEnd.toLocalTime());
+        setEndDate(eventEnd.toLocalDate());
     }
 }

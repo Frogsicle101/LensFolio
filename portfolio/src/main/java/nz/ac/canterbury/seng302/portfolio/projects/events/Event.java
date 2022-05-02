@@ -54,12 +54,9 @@ public class Event extends Deadline {
     }
 
 
-
     public String getStartDateFormatted() { return getStartDate().format(DateTimeFormat.timeDateMonthYear()); }
 
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
+    public LocalDateTime getStartDate() { return startDate; }
 
     public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
