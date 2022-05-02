@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.naming.InvalidNameException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,7 +34,7 @@ class EventTest {
 
 
     @Test
-    void testWhenFindById_ThenReturnEvent(){
+    void testWhenFindById_ThenReturnEvent() throws InvalidNameException {
         // Given
         Project project = projectRepository.getProjectByName("Project Default");
         Event event = new Event(project, "TestEvent", LocalDateTime.now(),  LocalDate.now().plusDays(1), LocalTime.now(), 1);
@@ -52,7 +53,7 @@ class EventTest {
     }
 
     @Test
-    void testWhenDeleteById_ThenReturnListOfEventsWithoutDeletedEvent(){
+    void testWhenDeleteById_ThenReturnListOfEventsWithoutDeletedEvent() throws InvalidNameException {
         // Given
         Project project = projectRepository.getProjectByName("Project Default");
         Event event = new Event(project, "TestEvent", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalTime.now(), 1);

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -60,7 +61,7 @@ public class PortfolioController {
      * @param sprintRepository repository
      * @param projectRepository repository
      */
-    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository) {
+    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository) throws InvalidNameException {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
@@ -75,7 +76,7 @@ public class PortfolioController {
 
 
 
-    public void createDefaultEvents(Project project) {
+    public void createDefaultEvents(Project project) throws InvalidNameException {
         LocalDateTime date = LocalDateTime.now();
 
         Event event1 = new Event(project, "Term Break", LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:00:00"), 1);
