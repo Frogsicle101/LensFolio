@@ -12,12 +12,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,7 +64,7 @@ public class RegisterController {
      * @return view - the html page redirected to, either account details on successful registration or register on failure.
      */
     @PostMapping("/register")
-    public ModelAndView attemptRegistration(
+    public ResponseEntity<Object> attemptRegistration(
             HttpServletRequest request,
             HttpServletResponse response,
             @ModelAttribute(name="registerForm") UserRequest userRequest,
@@ -84,15 +87,19 @@ public class RegisterController {
                                 authenticateClientService);
             } catch (AuthenticationException exception) {
                 //Note: error logged when thrown
-                model.addAttribute("errorMessage", exception.getMessage());
-                return new ModelAndView("accountRegister");
+//                model.addAttribute("errorMessage", exception.getMessage());
+//                return new ModelAndView("accountRegister");
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            return new ModelAndView("redirect:/account");
+//            return new ModelAndView("redirect:/account");
+            return new ResponseEntity<>(HttpStatus.OK);
         }
         logger.info("Registration Failed: " + registerReply.getMessage());
-        model.addAttribute("errorMessage", registerReply.getMessage());
-        return new ModelAndView("accountRegister");
+//        model.addAttribute("errorMessage", registerReply.getMessage());
+        return new ResponseEntity<>(registerReply.getMessage(), HttpStatus.FORBIDDEN);
     }
+
+
 
     /**
      * Takes a UserRequest object populated from a registration form and returns a UserRegisterRequest to send to the server
