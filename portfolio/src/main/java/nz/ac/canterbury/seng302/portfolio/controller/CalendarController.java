@@ -99,12 +99,9 @@ public class CalendarController {
         }
     }
 
-
-
-
-
-
-
+    public void setUserAccountsClientService(UserAccountsClientService service) {
+        this.userAccountsClientService = service;
+    }
 
 }
 
