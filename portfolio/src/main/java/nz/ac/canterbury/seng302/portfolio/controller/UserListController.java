@@ -1,6 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
+import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefs;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.PaginatedUsersResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -25,11 +27,14 @@ import java.util.*;
 import java.util.List;
 import java.util.ArrayList;
 
+
 @Controller
 public class UserListController {
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
+
+    private final UserPrefRepository prefRepository;
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private int pageNum = 1;
@@ -41,6 +46,11 @@ public class UserListController {
     private final ArrayList<Integer> footerNumberSequence = new ArrayList<>();
     private List<UserResponse> userResponseList;
     HashMap<String, UserRole> stringToRole;
+
+    public UserListController(UserPrefRepository prefRepository) {
+        this.prefRepository = prefRepository;
+    }
+
 
     /**
      * Used to create the list of users, 50 per page, by default sorted by users names. Adds all these values on
@@ -91,13 +101,21 @@ public class UserListController {
         return new ModelAndView("user-list");
     }
 
-    private void selectSortOrder(AuthState principal, String order) {
+    public void selectSortOrder(int userId, String order) {
         if (order != null) {
             sortOrder = order;
-            // Save the sort order for the user
-            int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-
-        } // If they have a saved sort order, use it
+            prefRepository.changeSortPref(userId, order);
+        } else {
+            //The request doesn't come with a sort order (it's null), so use the one saved
+            UserPrefs user = prefRepository.findByUserId(userId);
+            if (user != null) {
+                sortOrder = user.getListSortPref();
+            } else {
+                //We couldn't find the user! For now, we'll save their ID in the repo with the default sort pref
+                user = new UserPrefs(userId, sortOrder);
+                prefRepository.save(user);
+            }
+        }
     }
 
     /**
