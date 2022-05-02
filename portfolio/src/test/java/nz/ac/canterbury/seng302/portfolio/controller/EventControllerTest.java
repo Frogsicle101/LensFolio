@@ -1,27 +1,23 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.events.Event;
-import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import org.aspectj.apache.bcel.classfile.ExceptionTable;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.*;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -114,7 +110,7 @@ class EventControllerTest {
     @Test
     void testDeleteEvent() throws Exception {
         project = projectRepository.getProjectByName("Project Default");
-        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalTime.now(), 1));
 
         String eventId = event.getId().toString();
         ResultActions result = this.mockMvc.perform(delete("/deleteEvent").param("eventId", eventId));
@@ -149,7 +145,7 @@ class EventControllerTest {
     @Test
     void testEditEvent() throws Exception {
         project = projectRepository.getProjectByName("Project Default");
-        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(),  LocalDate.now().plusDays(1), LocalTime.now(), 1));
 
         HashMap<String, String> params = new HashMap<>();
         params.put("eventId", event.getId().toString());
@@ -165,7 +161,7 @@ class EventControllerTest {
     @Test
     void testEditEventWithNoParams() throws Exception {
         project = projectRepository.getProjectByName("Project Default");
-        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(),  LocalDate.now().plusDays(1), LocalTime.now(), 1));
 
         HashMap<String, String> params = new HashMap<>();
         params.put("eventId", event.getId().toString());
@@ -181,8 +177,8 @@ class EventControllerTest {
     @Test
     void testEditEventWithWrongEventId() throws Exception {
         project = projectRepository.getProjectByName("Project Default");
-        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
-        Event event2 = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(),  LocalDate.now().plusDays(1), LocalTime.now(), 1));
+        Event event2 = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(),  LocalDate.now().plusDays(1), LocalTime.now(), 1));
 
 
         HashMap<String, String> params = new HashMap<>();

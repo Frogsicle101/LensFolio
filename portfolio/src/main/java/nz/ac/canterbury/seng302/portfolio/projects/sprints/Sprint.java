@@ -1,6 +1,6 @@
-package nz.ac.canterbury.seng302.portfolio.sprints;
+package nz.ac.canterbury.seng302.portfolio.projects.sprints;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
-import nz.ac.canterbury.seng302.portfolio.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 
 import javax.persistence.*;

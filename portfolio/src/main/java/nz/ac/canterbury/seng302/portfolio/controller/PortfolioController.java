@@ -2,14 +2,14 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
-import nz.ac.canterbury.seng302.portfolio.events.Event;
-import nz.ac.canterbury.seng302.portfolio.events.EventHelper;
-import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 
 
@@ -29,6 +29,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,10 +78,10 @@ public class PortfolioController {
     public void createDefaultEvents(Project project) {
         LocalDateTime date = LocalDateTime.now();
 
-        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDateTime.parse("2022-05-01T08:00:00"), 1);
-        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDateTime.parse("2022-04-10T19:00:00"), 5);
-        Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDateTime.parse("2022-05-18T17:00:00"), 4);
-        Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDateTime.parse("2022-09-30T17:00:00"), 6);
+        Event event1 = new Event(project, "Term Break", LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:00:00"), 1);
+        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.parse("19:00:00"), 5);
+        Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDate.parse("2022-05-18"), LocalTime.parse("17:00:00"), 4);
+        Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDate.parse("2022-09-30"), LocalTime.parse("17:00:00"), 6);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);

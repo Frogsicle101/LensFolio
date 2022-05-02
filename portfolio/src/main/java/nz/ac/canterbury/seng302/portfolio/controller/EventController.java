@@ -1,7 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.events.Event;
-import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import org.springframework.http.HttpStatus;
@@ -62,7 +62,7 @@ public class EventController {
                     "Project with id " + projectId + " was not found"
             ));
 
-            Event event = new Event(project, name, eventStart, eventEnd, typeOfEvent);
+            Event event = new Event(project, name, eventStart, eventEnd.toLocalDate(), eventEnd.toLocalTime(), typeOfEvent);
             eventRepository.save(event);
             return new ResponseEntity<>(HttpStatus.OK);
 
@@ -126,7 +126,7 @@ public class EventController {
 
             event.setName(name);
             event.setStartDate(eventStart);
-            event.setEndDate(eventEnd);
+            event.setEndDate(eventEnd.toLocalDate());
             event.setTypeOfEvent(typeOfEvent);
             eventRepository.save(event);
             
