@@ -27,29 +27,29 @@
             <div class="row mb-3">
                 <div class="col">
                     <label for="FirstName" class="form-label">First name*</label>
-                    <input type="text" class="form-control canDisable" name="firstname" id="firstname" th:value="${firstName}" pattern="([a-zA-Z]+\s?)+" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50" required disabled>
+                    <input type="text" class="form-control canDisable" name="firstname" id="firstname" th:value="${firstName}" th:pattern="${alphaSpacesRegex}" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50" required disabled>
                 </div>
                 <div class="col">
                     <label for="MiddleName" class="form-label">Middle name</label>
-                    <input type="text" class="form-control canDisable" name="middlename" id="middlename" th:value="${middleName}" pattern="([a-zA-Z]+\s?)+" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50" disabled>
+                    <input type="text" class="form-control canDisable" name="middlename" id="middlename" th:value="${middleName}" th:pattern="${alphaSpacesRegexCanBeEmpty}" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50" disabled>
                 </div>
                 <div class="col">
                     <label for="LastName" class="form-label">Last name*</label>
-                    <input type="text" class="form-control canDisable" name="lastname" id="lastname" th:value="${lastName}" pattern="([a-zA-Z]+\s?)+" title="Only letters A-Z upper or lowercase, names must be seperated by a space" maxlength="50" disabled  required>
+                    <input type="text" class="form-control canDisable" name="lastname" id="lastname" th:value="${lastName}" th:pattern="${alphaSpacesRegex}" title="Only letters A-Z upper or lowercase, names must be seperated by a space" maxlength="50" disabled  required>
                 </div>
             </div>
             <div class="mb-3">
                 <label for="nickname" class="form-label">Nickname</label>
-                <input type="text" class="form-control canDisable" name="nickname" id="nickname" th:value="${nickname}" pattern="([a-zA-Z]+\s?)+" title="Only letters A-Z upper or lowercase, with words seperated by a space" maxlength="50" disabled >
+                <input type="text" class="form-control canDisable" name="nickname" id="nickname" th:value="${nickname}" th:pattern="${alphaSpacesRegexCanBeEmpty}" title="Only letters A-Z upper or lowercase, with words seperated by a space" maxlength="50" disabled >
             </div>
             <div class="mb-3">
                 <label for="username" class="form-label">Username*</label>
-                <input type="text" class="form-control" id="username" name="username" th:value="${username}" pattern="([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)" title="Cannot contain spaces or special characters other than !#$%&'*+-/=?^_`{|}~" maxlength="50" disabled required>
+                <input type="text" class="form-control" id="username" name="username" th:value="${username}" th:pattern="${usernameRegex}" title="Cannot contain spaces or special characters other than !#$%&'*+-/=?^_`{|}~" maxlength="50" disabled required>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email address*</label>
                 <input type="email" class="form-control canDisable" id="email" name="email" th:value="${email}" maxlength="100"
-                       pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"
+                       th:pattern="${emailRegex}"
                        title="Cannot contain spaces, must match email conventions like 'name@something.something'" disabled required>
             </div>
             <div class="mb-3">
@@ -68,7 +68,7 @@
                 </div>
                 <div class="col">
                     <label for="personalPronouns" class="form-label">Pronouns</label>
-                    <input type="text" class="form-control canDisable" id="personalPronouns" name="personalPronouns" th:value="${pronouns}" pattern="([a-zA-Z/]+\s?)+" title="Only letters A-Z upper or lowercase, pronouns must be seperated by a space" maxlength="50" disabled>
+                    <input type="text" class="form-control canDisable" id="personalPronouns" name="personalPronouns" th:value="${pronouns}" th:pattern="${pronounRegex}" title="Only letters A-Z upper or lowercase, pronouns must be seperated by a space" maxlength="50" disabled>
                 </div>
             </div>
             <div class="mb-3">
@@ -83,6 +83,11 @@
 
             <form method="post" id="passwordChangeForm" th:object="${editPasswordForm}">
                 <h1>Change Password</h1>
+
+                <div class="errorMessageParentPassword alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+                    <p class="errorMessagePassword"></p>
+                </div>
+
                 <div class="mb-3">
                     <label for="OldPassword" class="form-label">Old password</label>
                     <input type="password" class="form-control" name="old password" id="OldPassword"
