@@ -5,14 +5,17 @@ $(document).ready(function(){
     let projectEnd = $("#projectEndDate")
     let projectId = $("#projectId")
     let projectDescription = $("#projectDescription")
+    let dateAlert = $(".dateAlert")
 
 
-    $("#projectStartDate").on("change", function () {
+    // The following two chunks of code are related to the date inputs
+    // They check that the projectStart or projectEnd are not the wrong way (start after end etc)
+    projectStart.on("change", function () {
         let projectStart = $(this).val()
         let projectEnd = $("#projectEndDate").val()
         if (projectStart >= projectEnd) {
-            $(".dateAlert").slideUp()
-            $(".dateAlert").slideDown()
+            dateAlert.slideUp()
+            dateAlert.slideDown()
             $(".canDisable").attr("disabled", true)
             $(this).attr("disabled", false)
             $(this).addClass("is-invalid")
@@ -24,12 +27,12 @@ $(document).ready(function(){
         }
     })
 
-    $("#projectEndDate").on("change", function () {
+    projectEnd.on("change", function () {
         let projectStart = $("#projectStartDate").val()
         let projectEnd = $(this).val()
         if (projectStart >= projectEnd) {
-            $(".dateAlert").slideUp()
-            $(".dateAlert").slideDown()
+            dateAlert.slideUp()
+            dateAlert.slideDown()
             $(".canDisable").attr("disabled", true)
             $(this).attr("disabled", false)
             $(this).addClass("is-invalid")
@@ -42,20 +45,9 @@ $(document).ready(function(){
         }
     })
 
-    $("#projectName").keyup(function() {
-        let projectName = $("#projectName").val()
 
-        if (projectName.length === 0 || projectName.trim().length === 0) {
-            $(this).addClass("is-invalid")
-            $(".canDisable").attr("disabled", true)
-            $(this).attr("disabled", false)
-        } else {
-            $(this).removeClass("is-invalid")
-            $(".canDisable").attr("disabled", false)
-        }
 
-    })
-
+    //When the submit button is clicked on the form.
     $(".projectEditForm").submit(function(event){
         event.preventDefault()
 

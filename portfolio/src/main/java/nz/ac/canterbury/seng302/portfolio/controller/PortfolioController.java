@@ -315,6 +315,11 @@ public class PortfolioController {
     }
 
 
+    /**
+     * Checks that the project request is valid, contains all the right things, and dates are correct and in order.
+     * @param projectRequest the project request DTO
+     * @return Response Entity that is either Ok, or not with issues attached.
+     */
     private ResponseEntity<Object> checkProjectRequest(ProjectRequest projectRequest){
         try{
             int projectId = Integer.parseInt(projectRequest.getProjectId());
@@ -358,15 +363,14 @@ public class PortfolioController {
      * Get mapping for portfolio/addSprint
      * This is called when user wants to add a sprint.
      * @param projectId Project to add the sprint to.
-     * @param attributes Attributes we can use to return errors/info.
-     * @return Either the portfolio page, or the error page.
+     * @return a repsponse entity response
      */
     @GetMapping("/portfolio/addSprint")
-    public ModelAndView addSprint(
-            @RequestParam (value = "projectId") Long projectId,
-            RedirectAttributes attributes)  {
+    public ResponseEntity<Object> addSprint(
+            @RequestParam (value = "projectId") Long projectId)  {
         try {
             logger.info("GET REQUEST /portfolio/addSprint");
+
             // Gets the amount of sprints belonging to the project
             int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
             String sprintName = "Sprint " + amountOfSprints;
@@ -387,7 +391,8 @@ public class PortfolioController {
             //If start date of sprint is after the project end date then send a message to the user informing them
             //that no more sprints can be added.
             if (startDate.isAfter(project.getEndDate())) {
-                attributes.addFlashAttribute(errorMessage, "No more room to add sprints within project dates!");
+                logger.warn("Could not add anymore sprints, no more room for sprints within project dates");
+                return new ResponseEntity<>("No more room to add sprints within project dates!", HttpStatus.BAD_REQUEST);
             } else {
                 // Check that if the end date (startDate.plus(3)weeks) is after project end date, then set the end date
                 // to be the project end date.
@@ -398,22 +403,22 @@ public class PortfolioController {
                     //Save the new sprint
                     sprintRepository.save(new Sprint(project, sprintName, startDate));
                 }
-                attributes.addFlashAttribute(successMessage, "Sprint added!");
+
             }
 
+            return new ResponseEntity<>(HttpStatus.OK);
 
 
         } catch(EntityNotFoundException err) {
             logger.error("GET REQUEST /portfolio/addSprint", err);
-            attributes.addFlashAttribute(errorMessage, err.getMessage());
-            return new ModelAndView("error");
+
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }catch(Exception err) {
             logger.error("GET REQUEST /portfolio/addSprint", err);
-            attributes.addFlashAttribute(errorMessage, err);
-            return new ModelAndView("error");
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new ModelAndView("redirect:/portfolio?projectId=" + projectId);
+
     }
 
     /**
