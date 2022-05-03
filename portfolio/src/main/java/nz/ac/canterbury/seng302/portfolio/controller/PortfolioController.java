@@ -57,7 +57,7 @@ public class PortfolioController {
     //below is for testing purposes
     private final Project defaultProject;
 
-    private Pattern projectNameRegex = Pattern.compile("^[a-zA-Z0-9_ ]*$");
+    private Pattern projectNameRegex = Pattern.compile("([a-zA-Z0-9_]+\\s?)+");
     private Pattern projectIdRegex = Pattern.compile("[0-9]+");
     private Pattern descriptionRegex = Pattern.compile("([a-zA-Z0-9.,'\"]*\s?)+");
     private Pattern hexRegex = Pattern.compile("#[0-9A-Fa-f]{1,6}");

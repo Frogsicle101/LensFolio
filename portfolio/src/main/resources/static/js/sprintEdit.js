@@ -8,6 +8,7 @@
      let sprintColour = $("#sprintColour")
      let dateAlert = $(".dateAlert")
 
+     // Checks when the start date changes that its not past the end date.
     $("#sprintStartDate").on("change", function () {
         let sprintStart = $(this).val()
         let sprintEnd = $("#sprintEndDate").val()
@@ -25,6 +26,7 @@
         }
     })
 
+     // Checks when the sprint end date changes that its not before the start date.
     $("#sprintEndDate").on("change", function () {
         let sprintStart = $("#sprintStartDate").val()
         let sprintEnd = $(this).val()
@@ -42,21 +44,7 @@
         }
     })
 
-    $("#sprintName").keyup(function() {
-        let sprintName = $("#sprintName").val()
-
-        if (sprintName.length === 0 || sprintName.trim().length === 0) {
-            $(this).addClass("is-invalid")
-            $(".canDisable").attr("disabled", true)
-            $(this).attr("disabled", false)
-        } else {
-            $(this).removeClass("is-invalid")
-            $(".canDisable").attr("disabled", false)
-        }
-
-    })
-
-
+     // When submit button is clicked on sprint edit form
     $(".sprintEditForm").submit(function(event){
         event.preventDefault()
 
