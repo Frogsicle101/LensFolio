@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.*;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,24 +43,7 @@ class AccountControllerTest {
 
     private final AccountController accountController = new AccountController();
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
-    private static final PrincipalAttributes mockPrincipal = mock(PrincipalAttributes.class);
     private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
-    private final HttpServletRequest httpServletRequest = initialiseHttpServlet();
-
-
-
-
-
-    private Project project;
-
-    private String joinParameters(HashMap<String, String> parameters) {
-        String searchParams = "?";
-        for (String key : parameters.keySet()) {
-            searchParams += key + "=" + parameters.get(key) + "&";
-        }
-        return searchParams.substring(0, searchParams.length() - 1);
-    }
-
 
     @BeforeEach
     public void beforeAll() {
@@ -76,34 +60,21 @@ class AccountControllerTest {
         userBuilder.addRoles(UserRole.STUDENT);
         UserResponse user = userBuilder.build();
 
-        when(mockPrincipal.getUserFromPrincipal(principal, mockClientService)).thenReturn(user);
+        when(PrincipalAttributes.getUserFromPrincipal(principal, mockClientService)).thenReturn(user);
         GetUserByIdRequest userByIdRequest = GetUserByIdRequest.newBuilder().setId(1).build();
         when(mockClientService.getUserAccountById(userByIdRequest)).thenReturn(user);
-        accountController.setUserAccountsClientService(mockClientService);
-        project = new Project("test");
-        when(projectRepository.findById(1L)).thenReturn(Optional.ofNullable(project));
-
 
         UserRegisterResponse userRegisterResponse = UserRegisterResponse.newBuilder().setIsSuccess(true).build();
-        UserRegisterRequest userRegisterRequest = UserRegisterRequest.newBuilder()
-                .setFirstName("Dave")
-                .setEmail("test@test.com")
-                .setFirstName("Test")
-                .setLastName("Testing")
-                .setBio("")
-                .setNickname("")
-                .setPersonalPronouns("")
-                .setMiddleName("").build();
+        when(mockClientService.register(any(UserRegisterRequest.class))).thenReturn(userRegisterResponse);
 
-
-        when(mockClientService.register(userRegisterRequest)).thenReturn(userRegisterResponse);
-
-
+        accountController.setUserAccountsClientService(mockClientService);
+        Project project = new Project("test");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
     }
 
     @Test
-    void testGetCalendar() {
+    void testGetRegister() {
         String model = accountController.register();
         Assertions.assertEquals("accountRegister", model);
     }
@@ -269,372 +240,20 @@ class AccountControllerTest {
 
 
     //TODO Finish testing for below, can't mock it correctly.
-//    @Test
-//    void testAttemptRegistration() {
-//
-//        UserRequest userRequest = new UserRequest("TestCase", "Password");
-//        userRequest.setEmail("test@test.com");
-//        userRequest.setFirstname("Test");
-//        userRequest.setLastname("Testing");
-//        userRequest.setBio("");
-//        userRequest.setNickname("");
-//        userRequest.setPersonalPronouns("");
-//        userRequest.setMiddlename("");
-//
-//
-//        ResponseEntity<Object> response = registerController.attemptRegistration(userRequest);
-//        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-//    }
-
-
-
-
-    private HttpServletRequest initialiseHttpServlet() {
-        return new HttpServletRequest() {
-            @Override
-            public String getAuthType() {
-                return null;
-            }
-
-            @Override
-            public Cookie[] getCookies() {
-                return new Cookie[0];
-            }
-
-            @Override
-            public long getDateHeader(String name) {
-                return 0;
-            }
-
-            @Override
-            public String getHeader(String name) {
-                return null;
-            }
-
-            @Override
-            public Enumeration<String> getHeaders(String name) {
-                return null;
-            }
-
-            @Override
-            public Enumeration<String> getHeaderNames() {
-                return null;
-            }
-
-            @Override
-            public int getIntHeader(String name) {
-                return 0;
-            }
-
-            @Override
-            public String getMethod() {
-                return null;
-            }
-
-            @Override
-            public String getPathInfo() {
-                return null;
-            }
-
-            @Override
-            public String getPathTranslated() {
-                return null;
-            }
-
-            @Override
-            public String getContextPath() {
-                return null;
-            }
-
-            @Override
-            public String getQueryString() {
-                return null;
-            }
-
-            @Override
-            public String getRemoteUser() {
-                return null;
-            }
-
-            @Override
-            public boolean isUserInRole(String role) {
-                return false;
-            }
-
-            @Override
-            public Principal getUserPrincipal() {
-                return null;
-            }
-
-            @Override
-            public String getRequestedSessionId() {
-                return null;
-            }
-
-            @Override
-            public String getRequestURI() {
-                return null;
-            }
-
-            @Override
-            public StringBuffer getRequestURL() {
-                return null;
-            }
-
-            @Override
-            public String getServletPath() {
-                return null;
-            }
-
-            @Override
-            public HttpSession getSession(boolean create) {
-                return null;
-            }
-
-            @Override
-            public HttpSession getSession() {
-                return null;
-            }
-
-            @Override
-            public String changeSessionId() {
-                return null;
-            }
-
-            @Override
-            public boolean isRequestedSessionIdValid() {
-                return false;
-            }
-
-            @Override
-            public boolean isRequestedSessionIdFromCookie() {
-                return false;
-            }
-
-            @Override
-            public boolean isRequestedSessionIdFromURL() {
-                return false;
-            }
-
-            @Override
-            public boolean isRequestedSessionIdFromUrl() {
-                return false;
-            }
-
-            @Override
-            public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
-                return false;
-            }
-
-            @Override
-            public void login(String username, String password) throws ServletException {
-
-            }
-
-            @Override
-            public void logout() throws ServletException {
-
-            }
-
-            @Override
-            public Collection<Part> getParts() throws IOException, ServletException {
-                return null;
-            }
-
-            @Override
-            public Part getPart(String name) throws IOException, ServletException {
-                return null;
-            }
-
-            @Override
-            public <T extends HttpUpgradeHandler> T upgrade(Class<T> httpUpgradeHandlerClass) throws IOException, ServletException {
-                return null;
-            }
-
-            @Override
-            public Object getAttribute(String name) {
-                return null;
-            }
-
-            @Override
-            public Enumeration<String> getAttributeNames() {
-                return null;
-            }
-
-            @Override
-            public String getCharacterEncoding() {
-                return null;
-            }
-
-            @Override
-            public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
-
-            }
-
-            @Override
-            public int getContentLength() {
-                return 0;
-            }
-
-            @Override
-            public long getContentLengthLong() {
-                return 0;
-            }
-
-            @Override
-            public String getContentType() {
-                return null;
-            }
-
-            @Override
-            public ServletInputStream getInputStream() throws IOException {
-                return null;
-            }
-
-            @Override
-            public String getParameter(String name) {
-                return null;
-            }
-
-            @Override
-            public Enumeration<String> getParameterNames() {
-                return null;
-            }
-
-            @Override
-            public String[] getParameterValues(String name) {
-                return new String[0];
-            }
-
-            @Override
-            public Map<String, String[]> getParameterMap() {
-                return null;
-            }
-
-            @Override
-            public String getProtocol() {
-                return null;
-            }
-
-            @Override
-            public String getScheme() {
-                return null;
-            }
-
-            @Override
-            public String getServerName() {
-                return null;
-            }
-
-            @Override
-            public int getServerPort() {
-                return 0;
-            }
-
-            @Override
-            public BufferedReader getReader() throws IOException {
-                return null;
-            }
-
-            @Override
-            public String getRemoteAddr() {
-                return null;
-            }
-
-            @Override
-            public String getRemoteHost() {
-                return null;
-            }
-
-            @Override
-            public void setAttribute(String name, Object o) {
-
-            }
-
-            @Override
-            public void removeAttribute(String name) {
-
-            }
-
-            @Override
-            public Locale getLocale() {
-                return null;
-            }
-
-            @Override
-            public Enumeration<Locale> getLocales() {
-                return null;
-            }
-
-            @Override
-            public boolean isSecure() {
-                return false;
-            }
-
-            @Override
-            public RequestDispatcher getRequestDispatcher(String path) {
-                return null;
-            }
-
-            @Override
-            public String getRealPath(String path) {
-                return null;
-            }
-
-            @Override
-            public int getRemotePort() {
-                return 0;
-            }
-
-            @Override
-            public String getLocalName() {
-                return null;
-            }
-
-            @Override
-            public String getLocalAddr() {
-                return "a";
-            }
-
-            @Override
-            public int getLocalPort() {
-                return 0;
-            }
-
-            @Override
-            public ServletContext getServletContext() {
-                return null;
-            }
-
-            @Override
-            public AsyncContext startAsync() throws IllegalStateException {
-                return null;
-            }
-
-            @Override
-            public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
-                return null;
-            }
-
-            @Override
-            public boolean isAsyncStarted() {
-                return false;
-            }
-
-            @Override
-            public boolean isAsyncSupported() {
-                return false;
-            }
-
-            @Override
-            public AsyncContext getAsyncContext() {
-                return null;
-            }
-
-            @Override
-            public DispatcherType getDispatcherType() {
-                return null;
-            }
-        };
+    @Test
+    void testAttemptRegistration() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio("");
+        userRequest.setNickname("");
+        userRequest.setPersonalPronouns("");
+        userRequest.setMiddlename("");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
+
 }
