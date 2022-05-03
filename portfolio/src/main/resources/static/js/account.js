@@ -12,6 +12,8 @@ $(document).ready(() => {
 
     let errorMessageParent = $(".errorMessageParent")
     let errorMessage = $(".errorMessage")
+    let errorMessageParentPassword  = $(".errorMessageParentPassword")
+    let errorMessagePassword = $(".errorMessagePassword")
 
 
 
@@ -74,8 +76,8 @@ $(document).ready(() => {
                 location.href = "/account"
             },
             error: function(error){
-                console.log(error.responseText)
                 errorMessage.text(error.responseText)
+                errorMessageParent.slideUp()
                 errorMessageParent.slideDown()
 
             }
@@ -94,7 +96,6 @@ $(document).ready(() => {
             "newPassword" : $("#NewPassword").val(),
             "confirmPassword" : $("#ConfirmPassword").val()
         }
-        console.log(data)
 
         $.ajax({
             type: "post",
@@ -104,8 +105,11 @@ $(document).ready(() => {
                 location.href = "/account"
             },
             error: function(error){
-                console.log(error.responseText)
-                //TODO error handling
+                errorMessagePassword.text(error.responseText)
+                errorMessageParentPassword.slideUp()
+                errorMessageParentPassword.slideDown()
+
+
 
             }
 

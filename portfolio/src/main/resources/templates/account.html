@@ -83,6 +83,11 @@
 
             <form method="post" id="passwordChangeForm" th:object="${editPasswordForm}">
                 <h1>Change Password</h1>
+
+                <div class="errorMessageParentPassword alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+                    <p class="errorMessagePassword"></p>
+                </div>
+
                 <div class="mb-3">
                     <label for="OldPassword" class="form-label">Old password</label>
                     <input type="password" class="form-control" name="old password" id="OldPassword"
