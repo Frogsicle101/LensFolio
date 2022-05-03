@@ -83,7 +83,7 @@ class AccountControllerTest {
     void testAttemptRegistrationNotAcceptable() {
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -100,7 +100,7 @@ class AccountControllerTest {
 
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -117,7 +117,7 @@ class AccountControllerTest {
 
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
     @Test
     void testAttemptRegistrationIncorrectPatternMiddlename() {
@@ -133,7 +133,7 @@ class AccountControllerTest {
 
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -150,7 +150,7 @@ class AccountControllerTest {
 
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -167,7 +167,7 @@ class AccountControllerTest {
 
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -184,7 +184,7 @@ class AccountControllerTest {
 
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -201,7 +201,7 @@ class AccountControllerTest {
 
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -218,7 +218,7 @@ class AccountControllerTest {
 
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -235,25 +235,51 @@ class AccountControllerTest {
 
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
-
-    //TODO Finish testing for below, can't mock it correctly.
     @Test
-    void testAttemptRegistration() {
+    void testAttemptRegistrationMissingFields() {
+
+        UserRequest userRequest = new UserRequest("", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+    @Test
+    void testAttemptRegistrationRequiredNullFields() {
+
+        UserRequest userRequest = new UserRequest(null, "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationNullFieldsOtherThanRequired() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         userRequest.setEmail("test@test.com");
         userRequest.setFirstname("Test");
         userRequest.setLastname("Testing");
-        userRequest.setBio("");
-        userRequest.setNickname("");
-        userRequest.setPersonalPronouns("");
-        userRequest.setMiddlename("");
+        userRequest.setMiddlename(null);
+        userRequest.setNickname(null);
+        userRequest.setBio(null);
+        userRequest.setPersonalPronouns(null);
+
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
+
+
 
 }

@@ -95,7 +95,7 @@ public class AccountController {
 
 
             ResponseEntity<Object> checkUserRequest = checkUserRequest(userRequest); // Checks that the userRequest object passes all checks
-            if (checkUserRequest.getStatusCode() == HttpStatus.NOT_ACCEPTABLE) {
+            if (checkUserRequest.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 logger.warn("Registration Failed: {}", checkUserRequest.getBody());
                 return checkUserRequest;
             }
@@ -141,8 +141,21 @@ public class AccountController {
                 || username == null
                 || password == null
                 || email == null) {
-            return new ResponseEntity<>("Missing fields", HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>("Missing fields", HttpStatus.BAD_REQUEST);
 
+        }
+
+        if(middlename == null){
+            userRequest.setMiddlename("");
+        }
+        if (nickname == null) {
+            userRequest.setNickname("");
+        }
+        if (bio == null) {
+            userRequest.setBio("");
+        }
+        if (pronouns == null){
+            userRequest.setPersonalPronouns("");
         }
 
 
@@ -158,7 +171,7 @@ public class AccountController {
                 || pronouns != null && !pronouns.matches(pronounRegex)
                 || bio != null && !bio.matches(bioRegex)) {
 
-            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -182,8 +195,21 @@ public class AccountController {
         if (firstname == null // Checks that all necessary information is there.
                 || lastname == null
                 || email == null) {
-            return new ResponseEntity<>("Missing fields", HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>("Missing fields", HttpStatus.BAD_REQUEST);
 
+        }
+
+        if(middlename == null){
+            userRequest.setMiddlename("");
+        }
+        if (nickname == null) {
+            userRequest.setNickname("");
+        }
+        if (bio == null) {
+            userRequest.setBio("");
+        }
+        if (pronouns == null){
+            userRequest.setPersonalPronouns("");
         }
 
 
@@ -197,7 +223,7 @@ public class AccountController {
                 || pronouns != null && !pronouns.matches(pronounRegex)
                 || bio != null && !bio.matches(bioRegex)) {
 
-            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
