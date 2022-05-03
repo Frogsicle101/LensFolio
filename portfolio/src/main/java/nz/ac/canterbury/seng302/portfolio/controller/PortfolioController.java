@@ -170,17 +170,11 @@ public class PortfolioController {
             modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
 
             //Add the user object to the view to be accessed on the front end.
-            modelAndView.addObject("username", user.getUsername());
+            modelAndView.addObject("user", user);
 
             //TESTING PURPOSES. Passes the projectId to the front end. This will be removed when there is a way
             //to have each user select what project they want to go to from the navbar.
             modelAndView.addObject("projectId", projectId);
-
-            // For setting the profile image
-            String ip = request.getLocalAddr();
-            String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-            modelAndView.addObject("profileImageUrl", url);
-
 
             return modelAndView;
 
@@ -226,13 +220,8 @@ public class PortfolioController {
             // Adds the project object to the view for use.
             modelAndView.addObject("project", project);
 
-            // Adds the username to the view for use.
-            modelAndView.addObject("username", user.getUsername());
-
-            // For setting the profile image
-            String ip = request.getLocalAddr();
-            String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-            modelAndView.addObject("profileImageUrl", url);
+            // Adds the username and profile photo to the view for use.
+            modelAndView.addObject("user", user);
 
             return modelAndView;
 

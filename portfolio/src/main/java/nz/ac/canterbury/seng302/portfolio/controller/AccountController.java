@@ -18,6 +18,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -49,19 +50,26 @@ public class AccountController {
      * <br>
      * Once a user class is created, we will want to supply this page with the specific user that is viewing it
      * <br>
-     * @param model Parameters sent to thymeleaf template to be rendered into HTML
+     * ToDo finish this javadoc with the params
      * @return the Thymeleaf template
      */
     @RequestMapping("/account")
-    public String account(
+    public ModelAndView account(
             @AuthenticationPrincipal AuthState principal,
-            ModelMap model,
-            HttpServletRequest request,
             @ModelAttribute(name = "editDetailsForm") UserRequest editInfo,
             @ModelAttribute(name = "editPasswordForm") PasswordRequest passInfo,
             @ModelAttribute(name = "detailChangeMessage") String detailChangeMessage,
             @ModelAttribute(name = "passwordChangeMessage") String passwordChangeMessage
     ) {
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        logger.info("GET REQUEST /account - retrieving account details for user " + user.getUsername());
+        ModelAndView model = new ModelAndView("account");
+        model.addObject("user", user);
+        String memberSince = ReadableTimeService.getReadableDate(user.getCreated())
+                        + " (" + ReadableTimeService.getReadableTimeSince(user.getCreated()) + ")";
+        model.addObject("membersince", memberSince);
+        logger.info("Account details populated for " + user.getUsername());
+        return model;
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         logger.info("REQUEST /account - retrieving account details for user {}",userId);
         addModelAttributes(userId, request, model);
@@ -433,6 +441,25 @@ public class AccountController {
                 ReadableTimeService.getReadableDate(userResponse.getCreated())
                         + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
         model.addAttribute("membersince", memberSince);
+    }
+
+
+    @DeleteMapping("/deleteProfileImg")
+    public ResponseEntity<String> deleteProfilePhoto(
+            @AuthenticationPrincipal AuthState principal
+    ) {
+        logger.info("DELETE REQUEST /deleteProfileImg");
+        int id = PrincipalAttributes.getIdFromPrincipal(principal);
+
+        DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
+
+        DeleteUserProfilePhotoResponse response = userAccountsClientService.deleteUserProfilePhoto(deleteRequest);
+        if (response.getIsSuccess()) {
+            logger.info("Profile photo deleted - " + response.getMessage());
+        } else {
+            logger.info("Didn't delete profile photo - " + response.getMessage());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 
