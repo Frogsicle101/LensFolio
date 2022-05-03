@@ -10,8 +10,11 @@
 <!--The below section <header> pulls the fragment from fragments/general-->
 <header th:insert="fragments/general.html :: header"> </header>
 <section class="editProjectContainer">
-    <form th:action="@{/projectEdit}" th:object="${editProjectForm}" method="post" class="projectEditForm">
+    <form  method="post" class="projectEditForm">
         <h1>Project</h1>
+        <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+            <p class="errorMessage"></p>
+        </div>
         <input type="text" name="projectId" style="display: none" id="projectId" th:value="${project.getId()}">
         <div class="mb-3">
             <label for="projectName" class="form-label">Project Name</label>
@@ -21,11 +24,18 @@
             <div class="col">
                 <label for="projectStartDate" class="form-label">Project Start</label>
                 <input type="date" class="form-control canDisable" th:min="${project.getMinStartDateAsLocalDateTime()}" name="projectStartDate" id="projectStartDate" th:value="${project.getStartDate()}" required>
-
             </div>
+
             <div class="col">
                 <label for="projectEndDate" class="form-label">Project End</label>
                 <input type="date" class="form-control canDisable" name="projectEndDate" th:min="${project.getStartDate()}" id="projectEndDate" th:value="${project.getEndDate()}" required>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="dateAlert alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+                    <strong>Oh no!</strong> You should probably make the start date be before the end date
+                </div>
             </div>
         </div>
         <div class="mb-3">

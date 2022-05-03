@@ -15,6 +15,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
+import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,12 @@ import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 
 @RestController
@@ -50,6 +55,10 @@ public class PortfolioController {
 
     //below is for testing purposes
     private final Project defaultProject;
+
+    private Pattern projectNameRegex = Pattern.compile("^[a-zA-Z0-9_ ]*$");
+    private Pattern projectIdRegex = Pattern.compile("[0-9]+");
+    private Pattern descriptionRegex = Pattern.compile("([a-zA-Z0-9.,'\"]*\s?)+");
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -239,17 +248,24 @@ public class PortfolioController {
     /**
      * Postmapping for /projectEdit, this is called when user submits there project changes.
      * @param editInfo A DTO of project from the inputs on the edit page.
-     * @param attributes attributes that we can add stuff to display errors/info on view that it returns.
      * @return Returns to the portfolio page.
      */
     @PostMapping("/projectEdit")
-    public ModelAndView editDetails(
-            @ModelAttribute(name="editProjectForm") ProjectRequest editInfo,
-            RedirectAttributes attributes
+    public ResponseEntity<Object> editDetails(
+            @ModelAttribute(name="editProjectForm") ProjectRequest editInfo
         ) {
         try {
 
+
             logger.info("POST REQUEST /projectEdit");
+
+
+            ResponseEntity<Object> parsedProjectRequest = checkProjectRequest(editInfo);
+            if (parsedProjectRequest.getStatusCode() != HttpStatus.OK) {
+                logger.error("/projectEdit error: {}",parsedProjectRequest.getBody());
+                return parsedProjectRequest;
+            }
+
             LocalDate projectStart = LocalDate.parse(editInfo.getProjectStartDate());
             LocalDate projectEnd = LocalDate.parse(editInfo.getProjectEndDate());
 
@@ -258,18 +274,22 @@ public class PortfolioController {
                     "Project with id " + editInfo.getProjectId() + "was not found"
             ));
 
+            if (projectStart.isBefore(project.getStartDate().minusYears(1))) {
+                return new ResponseEntity<>("Project cannot start more than a year before its original date", HttpStatus.BAD_REQUEST);
+            }
+
             List<Sprint> sprintListEndDates = sprintRepository.getAllByProjectOrderByEndDateDesc(project);
             List<Sprint> sprintListStartDates = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
             if (!sprintListEndDates.isEmpty()) {
                 Sprint sprint = sprintListEndDates.get(0);
                 if (sprint.getEndDate().isAfter(projectEnd)) {
-                    attributes.addFlashAttribute(errorMessage, "Could not change project dates.  New project end date of" + projectEnd.toString() + " is before the sprint: " + sprint.getName() + " ends: " + sprint.getEndDate().toString());
-                    return new ModelAndView("redirect:/portfolio?projectId=" + editInfo.getProjectId());
+                    String errorMessage = "Could not change project dates.  New project end date of " + projectEnd.toString() + " is before the sprint: " + sprint.getName() + " ends: " + sprint.getEndDate().toString();
+                    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
                 }
                 sprint = sprintListStartDates.get(0);
                 if (sprint.getStartDate().isBefore(projectStart)){
-                    attributes.addFlashAttribute(errorMessage, "Could not change project dates. New project start date of: " + projectStart.toString() + " is after the sprint: " + sprint.getName() + " starts: " + sprint.getStartDate().toString());
-                    return new ModelAndView("redirect:/portfolio?projectId=" + editInfo.getProjectId());
+                    String errorMessage = "Could not change project dates. New project start date of: " + projectStart.toString() + " is after the sprint: " + sprint.getName() + " starts: " + sprint.getStartDate().toString();
+                    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
                 }
             }
 
@@ -282,18 +302,56 @@ public class PortfolioController {
             project.setDescription(editInfo.getProjectDescription());
             projectRepository.save(project);
 
-            // Adds success message that is shown on the frontend after redirect
-            attributes.addFlashAttribute(successMessage, "Project Updated!");
 
+            return new ResponseEntity<>(HttpStatus.OK);
 
         } catch (EntityNotFoundException err) {
             logger.error("POST REQUEST /projectEdit", err);
-            attributes.addFlashAttribute(errorMessage, err.getMessage());
+            return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /projectEdit", err);
-            return new ModelAndView("errorPage").addObject(errorMessage, err);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ModelAndView("redirect:/portfolio?projectId=" + editInfo.getProjectId());
+    }
+
+
+    private ResponseEntity<Object> checkProjectRequest(ProjectRequest projectRequest){
+        try{
+            int projectId = Integer.parseInt(projectRequest.getProjectId());
+            String projectName = projectRequest.getProjectName();
+            LocalDate projectStartDate = LocalDate.parse(projectRequest.getProjectStartDate());
+            LocalDate projectEndDate = LocalDate.parse(projectRequest.getProjectEndDate());
+            String projectDescription = projectRequest.getProjectDescription();
+
+
+            if(!projectNameRegex.matcher(projectName).matches()) {
+                return new ResponseEntity<>("Project Name contains characters outside of a-z 0-9", HttpStatus.BAD_REQUEST);
+            }
+            if(!descriptionRegex.matcher(projectDescription).matches()) {
+                return new ResponseEntity<>("Project description contains illegal characters", HttpStatus.BAD_REQUEST);
+            }
+
+            if (projectId < 0) {
+                return new ResponseEntity<>("Project id cannot be less than zero", HttpStatus.BAD_REQUEST);
+            }
+
+            if (projectEndDate.isBefore(projectStartDate)){
+                return new ResponseEntity<>("End date cannot be before start date", HttpStatus.BAD_REQUEST);
+            }
+
+
+
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        } catch (NumberFormatException err) {
+            return new ResponseEntity<>("Project id is not a parsable integer", HttpStatus.BAD_REQUEST);
+        } catch (DateTimeParseException err) {
+            return new ResponseEntity<>("Project date(s) are not valid dates", HttpStatus.BAD_REQUEST);
+
+        } catch(Exception err){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     /**
