@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -59,6 +60,7 @@ public class PortfolioController {
     private Pattern projectNameRegex = Pattern.compile("^[a-zA-Z0-9_ ]*$");
     private Pattern projectIdRegex = Pattern.compile("[0-9]+");
     private Pattern descriptionRegex = Pattern.compile("([a-zA-Z0-9.,'\"]*\s?)+");
+    private Pattern hexRegex = Pattern.compile("#[0-9A-Fa-f]{1,6}");
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -455,35 +457,29 @@ public class PortfolioController {
 
 
             Project project = projectRepository.getProjectById(projectId);
+            HashMap<String, LocalDate> neighbouringDates = checkNeighbourDatesForSprint(project, sprint);
 
-            // Gets a list of all sprints that belong to the project and orders them by start date: earliest to latest
-            List<Sprint> sprintList = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
+            String textForPreviousSprint;
+            String textForNextSprint;
 
-            int indexOfPrevSprint = sprintList.indexOf(sprint);
-            int indexOfNextSprint = sprintList.indexOf(sprint);
-
-            // Checks if the selected sprint is not the first on the list
-            if (indexOfPrevSprint > 0) {
-                indexOfPrevSprint = indexOfPrevSprint - 1;
-                // Adds an object to the view that limits the calendar to dates past the previous sprints end.
-                modelAndView.addObject("previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate().plusDays(1));
-                String textForPreviousSprint = "Previous sprint ends on " + sprintList.get(indexOfPrevSprint).getEndDateFormatted();
-                modelAndView.addObject("textForPrevSprint", textForPreviousSprint);
+            modelAndView.addObject("previousSprintEnd", neighbouringDates.get("previousSprintEnd"));
+            if (neighbouringDates.get("previousSprintEnd").equals(project.getStartDate())){
+                textForPreviousSprint = "No previous sprints, Project starts on " + neighbouringDates.get("previousSprintEnd");
             } else {
-                // Else adds an object to the view that limits the calendar to project start .
-                modelAndView.addObject("previousSprintEnd", project.getStartDate());
+                textForPreviousSprint = "Previous sprint ends on " + neighbouringDates.get("previousSprintEnd");
             }
-            // Checks if the selected sprint is not the last on the list
-            if (indexOfNextSprint < sprintList.size() - 1) {
-                indexOfNextSprint = indexOfNextSprint + 1;
-                // Adds an object to the view that limits the calendar to dates before the next sprints starts.
-                modelAndView.addObject("nextSprintStart", sprintList.get(indexOfNextSprint).getStartDate().minusDays(1));
-                String textForNextSprint = "Next sprint starts on " + sprintList.get(indexOfNextSprint).getStartDateFormatted();
-                modelAndView.addObject("textForNextSprint", textForNextSprint);
+            modelAndView.addObject("textForPrevSprint", textForPreviousSprint);
+
+
+
+            modelAndView.addObject("nextSprintStart", neighbouringDates.get("nextSprintStart"));
+            if (neighbouringDates.get("nextSprintStart").equals(project.getEndDate())) {
+                textForNextSprint = "No next sprint, project ends on  " + neighbouringDates.get("nextSprintStart");
             } else {
-                // Else adds an object to the view that limits the calendar to be before the project end.
-                modelAndView.addObject("nextSprintStart", project.getEndDate());
+                textForNextSprint = "Next sprint starts on " + neighbouringDates.get("nextSprintStart");
             }
+            modelAndView.addObject("textForNextSprint", textForNextSprint);
+
 
             // Adds the username to the view for use.
             modelAndView.addObject("username", user.getUsername());
@@ -503,42 +499,137 @@ public class PortfolioController {
     }
 
     /**
+     * Helper function that gets the dates that neighbour the sprint that it is given
+     * @param project the project the sprint is in
+     * @param sprint the sprint
+     * @return a HashMap that contains keys "previousSprintEnd" and "nextSprintStart"
+     */
+    private HashMap<String, LocalDate> checkNeighbourDatesForSprint(Project project, Sprint sprint){
+        // Gets a list of all sprints that belong to the project and orders them by start date: earliest to latest
+        List<Sprint> sprintList = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
+
+        HashMap<String, LocalDate> neighbouringSprintDates = new HashMap<>();
+
+        int indexOfPrevSprint = sprintList.indexOf(sprint);
+        int indexOfNextSprint = sprintList.indexOf(sprint);
+        // Checks if the selected sprint is not the first on the list
+        if (indexOfPrevSprint > 0) {
+            indexOfPrevSprint = indexOfPrevSprint - 1;
+            // Adds an object to the view that limits the calendar to dates past the previous sprints end.
+            neighbouringSprintDates.put("previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate().plusDays(1));
+
+
+
+        } else {
+            // Else adds an object to the view that limits the calendar to project start .
+            neighbouringSprintDates.put("previousSprintEnd", project.getStartDate());
+        }
+        // Checks if the selected sprint is not the last on the list
+        if (indexOfNextSprint < sprintList.size() - 1) {
+            indexOfNextSprint = indexOfNextSprint + 1;
+            // Adds an object to the view that limits the calendar to dates before the next sprints starts.
+
+            neighbouringSprintDates.put("nextSprintStart", sprintList.get(indexOfNextSprint).getStartDate().minusDays(1));
+
+        } else {
+            // Else adds an object to the view that limits the calendar to be before the project end.
+            neighbouringSprintDates.put("nextSprintStart", project.getEndDate());
+        }
+
+        return neighbouringSprintDates;
+    }
+
+
+    /**
      * Takes the request to update the sprint.
      * Tries to update the sprint then redirects user.
      * @param sprintInfo the thymeleaf-created form object
      * @return redirect to portfolio
      */
     @PostMapping("/sprintSubmit")
-    public ModelAndView updateSprint(
-            RedirectAttributes attributes,
+    public ResponseEntity<Object> updateSprint(
             @ModelAttribute(name="sprintEditForm") SprintRequest sprintInfo) {
 
         try {
             logger.info("POST REQUEST /sprintSubmit");
-            Project project = sprintRepository.getSprintById(sprintInfo.getSprintId()).getProject();
 
-            LocalDate sprintStart = LocalDate.parse(sprintInfo.getSprintStartDate());
-            LocalDate sprintEnd = LocalDate.parse(sprintInfo.getSprintEndDate());
-            if (sprintStart.isAfter(sprintEnd)) {
-                String dateErrorMessage = "Start date needs to be before end date";
-                attributes.addFlashAttribute(errorMessage, dateErrorMessage);
-            } else {
-                Sprint sprint = sprintRepository.getSprintById(sprintInfo.getSprintId());
-                sprint.setName(sprintInfo.getSprintName());
-                sprint.setStartDate(sprintStart);
-                sprint.setEndDate(sprintEnd);
-                sprint.setDescription(sprintInfo.getSprintDescription());
-                sprint.setColour(sprintInfo.getSprintColour());
-                sprintRepository.save(sprint);
-                return new ModelAndView("redirect:/portfolio?projectId=" + project.getId());
+            // Checks that the sprint request is acceptable
+            ResponseEntity<Object> checkSprintRequest = checkSprintRequest(sprintInfo);
+            if (checkSprintRequest.getStatusCode() != HttpStatus.OK){
+                logger.warn("/sprintSubmit issue with SprintRequest: {}", checkSprintRequest.getBody());
+                return checkSprintRequest;
             }
-            return new ModelAndView("redirect:/sprintEdit?sprintId=" + sprintInfo.getSprintId());
+
+            LocalDate startDate = LocalDate.parse(sprintInfo.getSprintStartDate());
+            LocalDate endDate = LocalDate.parse(sprintInfo.getSprintEndDate());
+
+
+
+            Sprint sprint = sprintRepository.getSprintById(sprintInfo.getSprintId());
+            Project project = sprint.getProject();
+
+            HashMap<String, LocalDate> checkSprintDates = checkNeighbourDatesForSprint(project, sprint);
+            LocalDate previousDateLimit = checkSprintDates.get("previousSprintEnd");
+            LocalDate nextDateLimit = checkSprintDates.get("nextSprintStart");
+
+            if (startDate.isBefore(previousDateLimit)){
+                return new ResponseEntity<>("Start date is before previous sprints end date / project start date", HttpStatus.BAD_REQUEST);
+            }
+            if (endDate.isAfter(nextDateLimit)) {
+                return new ResponseEntity<>("End date is after next sprints start date / project end date", HttpStatus.BAD_REQUEST);
+            }
+
+            sprint.setName(sprintInfo.getSprintName());
+            sprint.setStartDate(startDate);
+            sprint.setEndDate(endDate);
+            sprint.setDescription(sprintInfo.getSprintDescription());
+            sprint.setColour(sprintInfo.getSprintColour());
+            sprintRepository.save(sprint);
+
+            return new ResponseEntity<>(HttpStatus.OK);
 
         } catch(Exception err) {
             logger.error("POST REQUEST /sprintSubmit", err);
-            attributes.addFlashAttribute(errorMessage, err);
-            return new ModelAndView("redirect:/sprintEdit?sprintId=" + sprintInfo.getSprintId());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
+    }
+
+    /**
+     * Checks the SprintRequest DTO is all good and correct
+     * @param sprintRequest the SprintRequest to check
+     * @return ResponseEntity which is either okay, or not with message.
+     */
+    private ResponseEntity<Object> checkSprintRequest(SprintRequest sprintRequest) {
+        try {
+            String sprintName = sprintRequest.getSprintName();
+            LocalDate sprintStartDate = LocalDate.parse(sprintRequest.getSprintStartDate());
+            LocalDate sprintEndDate = LocalDate.parse(sprintRequest.getSprintEndDate());
+            String sprintDescription = sprintRequest.getSprintDescription();
+            String sprintColour = sprintRequest.getSprintColour();
+
+            if (!projectNameRegex.matcher(sprintName).matches()) {
+                return new ResponseEntity<>("Sprint Name not in correct format", HttpStatus.BAD_REQUEST);
+            }
+
+            if (!descriptionRegex.matcher(sprintDescription).matches()) {
+                return new ResponseEntity<>("Sprint Description not in correct format", HttpStatus.BAD_REQUEST);
+            }
+
+            if (!hexRegex.matcher(sprintColour).matches()) {
+                return new ResponseEntity<>("Sprint Colour not in correct hex format", HttpStatus.BAD_REQUEST);
+            }
+
+            if(sprintEndDate.isBefore(sprintStartDate)){
+                return new ResponseEntity<>("Sprint end date is before sprint start date", HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (DateTimeParseException err) {
+            return new ResponseEntity<>("Date(s) is in incorrect format", HttpStatus.BAD_REQUEST);
+
+        }
+
     }
 
 

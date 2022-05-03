@@ -63,7 +63,7 @@ $(document).ready(function(){
             data: dataToSend,
             type: "post",
             success: function() {
-
+                location.href = "/portfolio?projectId=" + projectId.val()
             },
             error: function(error) {
                 console.log(error.responseText)
