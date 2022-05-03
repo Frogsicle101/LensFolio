@@ -66,6 +66,15 @@ public class AccountController {
         logger.info("REQUEST /account - retrieving account details for user {}",userId);
         addModelAttributes(userId, request, model);
         logger.info("Account details populated for {}", userId);
+
+        model.addAttribute("alphaSpacesRegex", alphaSpacesRegex);
+        model.addAttribute("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
+        model.addAttribute("userNameRegex", userNameRegex);
+        model.addAttribute("emailRegex", emailRegex);
+        model.addAttribute("bioRegex", bioRegex);
+        model.addAttribute("passwordRegex", passwordRegex);
+        model.addAttribute("pronounRegex", pronounRegex);
+
         return "account";
     }
 
@@ -106,6 +115,7 @@ public class AccountController {
             if (registerReply.getIsSuccess()) {
                 logger.info("Registration Success: {}", registerReply.getMessage());
                 logger.info("Log in new user");
+
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
                 logger.info("Registration Failed: {}", registerReply.getMessage());
@@ -245,7 +255,7 @@ public class AccountController {
     ) {
         try{
             ResponseEntity<Object> checkUserRequest = checkUserRequestNoPasswordOrUser(editInfo); // Checks that the userRequest object passes all checks
-            if (checkUserRequest.getStatusCode() == HttpStatus.NOT_ACCEPTABLE) {
+            if (checkUserRequest.getStatusCode() != HttpStatus.ACCEPTED) {
                 logger.warn("Editing Failed: {}",checkUserRequest.getBody());
                 return checkUserRequest;
             }

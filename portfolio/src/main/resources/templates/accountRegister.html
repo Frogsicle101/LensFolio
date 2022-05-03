@@ -9,6 +9,9 @@
 
     <h1>Register account</h1>
     <p>Mandatory fields are marked with *</p>
+    <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+        <p class="errorMessage"></p>
+    </div>
     <form method="post" th:action="@{/register}" th:object="${registerForm}" id="registerForm">
 
         <div class="row mb-3">
