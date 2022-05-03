@@ -14,7 +14,7 @@ import java.util.UUID;
  */
 @Entity
 @Inheritance
-public abstract class Milestone {
+public class Milestone {
 
     private @Id
     @GeneratedValue
@@ -48,7 +48,7 @@ public abstract class Milestone {
      * @throws InvalidNameException If the milestone name is null or has length greater than fifty characters.
      */
     public Milestone(Project project, String name, LocalDate endDate, int type) throws InvalidNameException {
-        if (name == null || name.length() > 50) { //useful for creating default milestones, but project.js includes validations for frontend editing
+        if (name == null || name.length() > 50) { //useful for creating default milestones, but project.js includes validations for frontend milestone editing
             throw new InvalidNameException();
         }
         this.project = project;

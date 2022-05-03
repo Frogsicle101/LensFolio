@@ -28,6 +28,7 @@ $(document).ready(() => {
         location.href = "/sprintEdit?sprintId=" + sprintId +"&projectId=" + projectId;
     })
 
+
     /**
      * When sprint delete button is clicked.
      * Sends ajax delete request.
@@ -50,9 +51,6 @@ $(document).ready(() => {
     $(".addEventButton").click(function() {
         $(".addEventSvg").toggleClass('rotated');
         $(".eventForm").slideToggle();
-
-
-
     })
 
 
