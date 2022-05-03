@@ -1,5 +1,7 @@
 $(document).ready(() => {
 
+
+    //Jquery selectors to remove duplicity
     let editUserButton = $(".editUserButton")
     let firstname = $("#firstname")
     let middlename = $("#middlename")
@@ -8,8 +10,6 @@ $(document).ready(() => {
     let bio = $("#bio")
     let personalPronouns = $("#personalPronouns")
     let email = $("#email")
-
-
     let errorMessageParent = $(".errorMessageParent")
     let errorMessage = $(".errorMessage")
     let errorMessageParentPassword  = $(".errorMessageParentPassword")
@@ -34,10 +34,9 @@ $(document).ready(() => {
     })
 
 
-
-
+    //On upload photo button click
     $(".uploadPhotoButton").click(() => {
-        location.href = "/uploadImage";
+        location.href = "/uploadImage"; // change location
     });
 
     $(".deleteProfilePhotoButton").click(() => {
@@ -50,14 +49,11 @@ $(document).ready(() => {
         })
     });
 
-    $(".editPasswordButton").click(() => {
-        $(".canDisablePassword").prop("disabled",!$(".canDisablePassword").prop("disabled"));
-    })
 
 
     // On account form submit
     $("#accountForm").submit(function(event){
-        event.preventDefault();
+        event.preventDefault(); // Prevents submit
         let accountData = {
             "firstname": firstname.val(),
             "middlename": middlename.val(),
@@ -67,18 +63,19 @@ $(document).ready(() => {
             "personalPronouns": personalPronouns.val(),
             "email": email.val()
         }
-        console.log(accountData)
+
         $.ajax({
             url: "/edit/details",
             type: "post",
             data: accountData,
             success: function () {
-                location.href = "/account"
+                location.href = "/account" // On success reloads page
             },
-            error: function(error){
+            error: function(error){//Displays error in box on failure
                 errorMessage.text(error.responseText)
                 errorMessageParent.slideUp()
                 errorMessageParent.slideDown()
+
 
             }
         })
@@ -86,10 +83,9 @@ $(document).ready(() => {
 
 
 
-
+    // On password change form submit
     $("#passwordChangeForm").submit(function(event) {
         event.preventDefault()
-        //Todo, not sure if this is the best way to handle passwords, they can be seen?
 
         let data = {
             "oldPassword": $("#OldPassword").val(),
@@ -102,9 +98,9 @@ $(document).ready(() => {
             data: data,
             url: "/edit/password",
             success: function(){
-                location.href = "/account"
+                location.href = "/account" // Reload page on success
             },
-            error: function(error){
+            error: function(error){ // Display errors in box on failure
                 errorMessagePassword.text(error.responseText)
                 errorMessageParentPassword.slideUp()
                 errorMessageParentPassword.slideDown()

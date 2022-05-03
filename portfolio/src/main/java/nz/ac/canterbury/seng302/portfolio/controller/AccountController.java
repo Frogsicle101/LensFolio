@@ -39,7 +39,7 @@ public class AccountController {
     private static final String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
     private static final String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
     private static final String bioRegex = "([a-zA-Z0-9.,'\"]*\\s?)+";
-    private static final String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)"; // TODO, can someone review this, unsure about being able to check password, should it be hashed at this point?
+    private static final String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
     private static final String pronounRegex = "([a-zA-Z/]*\\s?)+";
 
     /**
