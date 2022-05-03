@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 
 import org.junit.jupiter.api.Assertions;
@@ -9,6 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.ui.Model;
 
@@ -23,7 +27,8 @@ import java.util.*;
 @SpringBootTest
 public class UserListControllerTest {
 
-    //TODO Mock the preference repo for this test
+    @Autowired
+    private static UserPrefRepository prefRepository;
     private static UserListController userListController = new UserListController(prefRepository);
     private static UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
     private static PrincipalAttributes mockPrincipal = mock(PrincipalAttributes.class);

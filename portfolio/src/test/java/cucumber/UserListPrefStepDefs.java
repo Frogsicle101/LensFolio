@@ -1,27 +1,17 @@
 package cucumber;
 
-import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.controller.UserListController;
 import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
 import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefs;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 public class UserListPrefStepDefs {
-
-    private static AuthState mockedAuthState = mock(AuthState.class);
-    private static PrincipalAttributes mockedPrincipalAttributes = mock(PrincipalAttributes.class);
 
     private int testId;
 
@@ -38,8 +28,8 @@ public class UserListPrefStepDefs {
     }
 
     @When("I sort the list by {String}")
-    public void iSortTheListByCategory(String sortOrder) {
-        controller.selectSortOrder(testId, sortOrder);
+    public void iSortTheListByCategory(String category) {
+        controller.selectSortOrder(testId, category);
     }
 
     @Then("My sorting preference is {String}")
@@ -49,9 +39,11 @@ public class UserListPrefStepDefs {
     }
 
     @And("Someone else sorts their list by {String}")
-    public void someoneElseSortsTheirListByOtherCategory() {
-        // Some predefined user sorts
+    public void someoneElseSortsTheirListByOtherCategory(String sortOrder) {
+        int someOtherId = testId + 8;
+        UserPrefs otherUser = new UserPrefs(someOtherId, "name-increasing");
+        repository.save(otherUser);
+        controller.selectSortOrder(someOtherId, sortOrder);
     }
-
 
 }

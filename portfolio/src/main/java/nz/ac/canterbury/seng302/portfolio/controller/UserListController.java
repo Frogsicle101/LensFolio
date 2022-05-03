@@ -34,6 +34,7 @@ public class UserListController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
+    @Autowired
     private final UserPrefRepository prefRepository;
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -69,10 +70,10 @@ public class UserListController {
           @RequestParam(name = "page", required = false) Integer page,
           @RequestParam(name = "sortField", required = false) String order)
     {
+        //selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal), Objects.requireNonNullElse(order, ""));
         if (order != null) {
             sortOrder = order;
-            // Save the sort order for the user
-        } // If they have a saved sort order, use it
+        }
         if (page != null) {
             pageNum = page;
         }
@@ -102,16 +103,21 @@ public class UserListController {
     }
 
     public void selectSortOrder(int userId, String order) {
-        if (order != null) {
+        if (!Objects.equals(order, "")) {
             sortOrder = order;
             prefRepository.changeSortPref(userId, order);
         } else {
             //The request doesn't come with a sort order (it's null), so use the one saved
+
             UserPrefs user = prefRepository.findByUserId(userId);
             if (user != null) {
                 sortOrder = user.getListSortPref();
             } else {
-                //We couldn't find the user! For now, we'll save their ID in the repo with the default sort pref
+                /*We couldn't find the user! For now, we'll save their ID in the repo with the default sort pref
+                This is because the userPref repository starts empty, with no users in it
+                so if a user isn't in here, odds are it's because this is the first time they've
+                been to the view user page
+                 */
                 user = new UserPrefs(userId, sortOrder);
                 prefRepository.save(user);
             }
