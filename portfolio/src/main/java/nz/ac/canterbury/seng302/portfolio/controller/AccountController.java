@@ -34,12 +34,12 @@ public class AccountController {
     private UserAccountsClientService userAccountsClientService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String alphaSpacesRegex = "([a-zA-Z]+\s?)+"; // TODO pass this to the frontend?, so we only need to change one set of REGEX expressions to effect both front-end/backend
+    private static final String alphaSpacesRegex = "([a-zA-Z]+\s?)*"; // TODO pass this to the frontend?, so we only need to change one set of REGEX expressions to effect both front-end/backend
     private static final String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
     private static final String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
-    private static final String bioRegex = "([a-zA-Z0-9.,'\"]+\\s?)+"; //TODO need to add bio regex into html, can't insert it directly as an attribute into the html tag so must do it with Jquery in the background.
+    private static final String bioRegex = "([a-zA-Z0-9.,'\"]+\\s?)*"; //TODO need to add bio regex into html, can't insert it directly as an attribute into the html tag so must do it with Jquery in the background.
     private static final String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)"; // TODO, can someone review this, unsure about being able to check password, should it be hashed at this point?
-    private static final String pronounRegex = "([a-zA-Z/]+\\s?)+";
+    private static final String pronounRegex = "([a-zA-Z/]+\\s?)*";
 
     /**
      * This method is responsible for populating the account page template
@@ -90,7 +90,7 @@ public class AccountController {
             @ModelAttribute(name="registerForm") UserRequest userRequest
     ) {
         logger.info("POST REQUEST /register - attempt to register new user");
-        try{
+//        try{
 
 
             ResponseEntity<Object> checkUserRequest = checkUserRequest(userRequest); // Checks that the userRequest object passes all checks
@@ -110,10 +110,10 @@ public class AccountController {
                 logger.info("Registration Failed: {}", registerReply.getMessage());
                 return new ResponseEntity<>(registerReply.getMessage(), HttpStatus.NOT_ACCEPTABLE);
             }
-        } catch (Exception err) {
-            logger.error("Registration Failed: {}",err.toString());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+//        } catch (Exception err) {
+//            logger.error("Registration Failed: {}",err.toString());
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
 
 
     }
@@ -143,8 +143,6 @@ public class AccountController {
             return new ResponseEntity<>("Missing fields", HttpStatus.NOT_ACCEPTABLE);
 
         }
-
-
 
 
         //TODO should we break up the if statement below and have it check each thing individually so we can give individual feedback if something doesn't pass?
