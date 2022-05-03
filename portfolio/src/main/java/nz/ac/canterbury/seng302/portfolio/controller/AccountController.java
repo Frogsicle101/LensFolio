@@ -69,21 +69,16 @@ public class AccountController {
                         + " (" + ReadableTimeService.getReadableTimeSince(user.getCreated()) + ")";
         model.addObject("membersince", memberSince);
         logger.info("Account details populated for " + user.getUsername());
+
+        model.addObject("alphaSpacesRegex", alphaSpacesRegex);
+        model.addObject("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
+        model.addObject("userNameRegex", userNameRegex);
+        model.addObject("emailRegex", emailRegex);
+        model.addObject("bioRegex", bioRegex);
+        model.addObject("passwordRegex", passwordRegex);
+        model.addObject("pronounRegex", pronounRegex);
+
         return model;
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("REQUEST /account - retrieving account details for user {}",userId);
-        addModelAttributes(userId, request, model);
-        logger.info("Account details populated for {}", userId);
-
-        model.addAttribute("alphaSpacesRegex", alphaSpacesRegex);
-        model.addAttribute("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
-        model.addAttribute("userNameRegex", userNameRegex);
-        model.addAttribute("emailRegex", emailRegex);
-        model.addAttribute("bioRegex", bioRegex);
-        model.addAttribute("passwordRegex", passwordRegex);
-        model.addAttribute("pronounRegex", pronounRegex);
-
-        return "account";
     }
 
     /**
@@ -353,23 +348,7 @@ public class AccountController {
 
 
 
-    @DeleteMapping("/deleteProfileImg")
-    public ResponseEntity<String> deleteProfilePhoto(
-            @AuthenticationPrincipal AuthState principal
-    ) {
-        logger.info("Endpoint reached: DELETE /deleteProfileImg");
-        int id = PrincipalAttributes.getIdFromPrincipal(principal);
 
-        DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
-
-        DeleteUserProfilePhotoResponse response = userAccountsClientService.deleteUserProfilePhoto(deleteRequest);
-        if (response.getIsSuccess()) {
-            logger.info("Profile photo deleted - {}", response.getMessage());
-        } else {
-            logger.warn("Didn't delete profile photo - {}", response.getMessage());
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
     /**
      * Takes a UserRequest object populated from a registration form and returns a UserRegisterRequest to send to the server
@@ -448,16 +427,16 @@ public class AccountController {
     public ResponseEntity<String> deleteProfilePhoto(
             @AuthenticationPrincipal AuthState principal
     ) {
-        logger.info("DELETE REQUEST /deleteProfileImg");
+        logger.info("Endpoint reached: DELETE /deleteProfileImg");
         int id = PrincipalAttributes.getIdFromPrincipal(principal);
 
         DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
 
         DeleteUserProfilePhotoResponse response = userAccountsClientService.deleteUserProfilePhoto(deleteRequest);
         if (response.getIsSuccess()) {
-            logger.info("Profile photo deleted - " + response.getMessage());
+            logger.info("Profile photo deleted - {}", response.getMessage());
         } else {
-            logger.info("Didn't delete profile photo - " + response.getMessage());
+            logger.warn("Didn't delete profile photo - {}", response.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
