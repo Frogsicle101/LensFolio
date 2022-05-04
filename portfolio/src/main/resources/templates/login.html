@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Lensfolio | Login</title>
-    <!--/*/ <th:block th:include="/fragments/general.html :: headerfiles"></th:block> /*/-->
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles"></th:block> /*/-->
 
 </head>
 <body>
@@ -11,7 +11,7 @@
             <h1 class="logo">Lensfolio</h1>
         </div>
         <div class="loginBox">
-            <div th:insert="/fragments/general.html :: errorBox"></div>
+            <div th:replace="fragments/general.html :: errorBox"></div>
             <form th:action="@{/login}" th:object="${loginForm}" method="post">
                 <h1 class="signIn">Sign In</h1>
 
