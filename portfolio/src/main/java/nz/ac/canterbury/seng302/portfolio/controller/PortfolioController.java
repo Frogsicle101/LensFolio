@@ -57,10 +57,10 @@ public class PortfolioController {
     //below is for testing purposes
     private final Project defaultProject;
 
-    private Pattern projectNameRegex = Pattern.compile("([a-zA-Z0-9_]+\\s?)+");
-    private Pattern projectIdRegex = Pattern.compile("[0-9]+");
-    private Pattern descriptionRegex = Pattern.compile("([a-zA-Z0-9.,'\"]*\s?)+");
-    private Pattern hexRegex = Pattern.compile("#[0-9A-Fa-f]{1,6}");
+    private final Pattern projectNameRegex = Pattern.compile("([a-zA-Z0-9_]+\\s?)+");
+    private final Pattern projectIdRegex = Pattern.compile("[0-9]+");
+    private final Pattern descriptionRegex = Pattern.compile("([a-zA-Z0-9.,'\"]*\s?)+");
+    private final Pattern hexRegex = Pattern.compile("#[0-9A-Fa-f]{1,6}");
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -198,8 +198,7 @@ public class PortfolioController {
     @RequestMapping("/editProject")
     public ModelAndView edit(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam (value = "projectId") Long projectId,
-            HttpServletRequest request
+            @RequestParam (value = "projectId") Long projectId
     ) {
         try{
             logger.info("GET REQUEST /editProject");
@@ -274,12 +273,12 @@ public class PortfolioController {
             if (!sprintListEndDates.isEmpty()) {
                 Sprint sprint = sprintListEndDates.get(0);
                 if (sprint.getEndDate().isAfter(projectEnd)) {
-                    String errorMessage = "Could not change project dates.  New project end date of " + projectEnd.toString() + " is before the sprint: " + sprint.getName() + " ends: " + sprint.getEndDate().toString();
+                    String errorMessage = "Could not change project dates.  New project end date of " + projectEnd + " is before the sprint: " + sprint.getName() + " ends: " + sprint.getEndDate().toString();
                     return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
                 }
                 sprint = sprintListStartDates.get(0);
                 if (sprint.getStartDate().isBefore(projectStart)){
-                    String errorMessage = "Could not change project dates. New project start date of: " + projectStart.toString() + " is after the sprint: " + sprint.getName() + " starts: " + sprint.getStartDate().toString();
+                    String errorMessage = "Could not change project dates. New project start date of: " + projectStart + " is after the sprint: " + sprint.getName() + " starts: " + sprint.getStartDate().toString();
                     return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
                 }
             }
@@ -400,12 +399,9 @@ public class PortfolioController {
             return new ResponseEntity<>(HttpStatus.OK);
 
 
-        } catch(EntityNotFoundException err) {
+        } catch(Exception err) {
             logger.error("GET REQUEST /portfolio/addSprint", err);
 
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }catch(Exception err) {
-            logger.error("GET REQUEST /portfolio/addSprint", err);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

@@ -4,7 +4,7 @@
     <link th:href="@{js/fullCalendar/lib/main.css}" rel='stylesheet' />
     <script th:src="@{js/fullCalendar/lib/main.js}"></script>
     <!--Make sure to change the below title    -->
-    <title>Calender</title>
+    <title>Lensfolio | Calendar</title>
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
             </th:block> /*/-->
 
@@ -21,9 +21,9 @@
         <div th:insert="fragments/general.html :: errorBox"> </div>
         <div th:insert="fragments/general.html :: successBox"> </div>
         <div th:insert="fragments/general.html :: infoBox"> </div>
-        <div id="projectDetails">
+        <div id="projectDetails" class="mt-3">
           <h1 id="projectId" th:text="${project.getId()}" style="display: none"></h1>
-          <div class="mb3">
+          <div class="mb-3">
             <h1 id="projectName" th:text="${project.getName()}"></h1>
           </div>
           <div class="row">
