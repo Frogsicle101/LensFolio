@@ -15,9 +15,24 @@ $(document).ready(() => {
      * Redirect page.
      */
     $("#projectAddSprint").click(function () {
-        location.href = "/portfolio/addSprint?projectId=" + projectId;
+        $.ajax({
+            url: "/portfolio/addSprint?projectId=" + projectId,
+            success: function (){
+                location.reload()
+            },
+            error: function(error){
+                console.log(error.responseText)
+                $(".sprintAddErrorMessage").text(error.responseText)
+                $(".sprintAddAlert").slideUp()
+                $(".sprintAddAlert").slideDown()
+            }
+        })
+
     })
 
+    $(".collapseAlert").click(function(){
+        $(this).parent().slideUp();
+    })
 
     /**
      * When edit sprint button is clicked.

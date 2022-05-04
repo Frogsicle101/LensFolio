@@ -2,22 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Lensfolio | Login</title>
-    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
-            </th:block> /*/-->
+    <!--/*/ <th:block th:include="/fragments/general.html :: headerfiles"></th:block> /*/-->
 
 </head>
 <body>
-<header >
-</header>
-
-<div class="loginSection">
-    <div class="logoBox">
-        <h1 class="logo">Lensfolio</h1>
-    </div>
-    <div class="loginBox">
-        <div th:insert="fragments/general.html :: errorBox"> </div>
-        <form th:action="@{~/login}" th:object="${loginForm}"  method="post">
-            <h1 class="signIn">Sign In</h1>
+    <div class="loginSection">
+        <div class="logoBox">
+            <h1 class="logo">Lensfolio</h1>
+        </div>
+        <div class="loginBox">
+            <div th:insert="/fragments/general.html :: errorBox"></div>
+            <form th:action="@{~/login}" th:object="${loginForm}" method="post">
+                <h1 class="signIn">Sign In</h1>
 
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
