@@ -92,8 +92,6 @@ public class PortfolioController {
      * @throws InvalidNameException If the event name is null or longer than 50 characters.
      */
     public void createDefaultEvents(Project project) throws InvalidNameException {
-        LocalDateTime date = LocalDateTime.now();
-
         Event event1 = new Event(project, "Term Break", LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:00:00"), 1);
         Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.parse("19:00:00"), 5);
         Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDate.parse("2022-05-18"), LocalTime.parse("17:00:00"), 4);
