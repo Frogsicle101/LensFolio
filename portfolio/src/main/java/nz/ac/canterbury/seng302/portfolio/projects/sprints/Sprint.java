@@ -1,7 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.projects.sprints;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -23,6 +25,10 @@ public class Sprint {
     private String colour;
     @OneToMany
     private List<Event> eventList;
+    @OneToMany
+    private List<Deadline> deadlineList;
+    @OneToMany
+    private List<Milestone> milestoneList;
 
     protected Sprint() {
     }
@@ -80,6 +86,9 @@ public class Sprint {
         eventList.add(event);
     }
 
+    public void addDeadline(Deadline deadline) { deadlineList.add(deadline); }
+
+    public void addMilestone(Milestone milestone) { milestoneList.add(milestone); }
 
     public List<Event> getEventList() {
         return eventList;
@@ -88,6 +97,14 @@ public class Sprint {
     public void setEventList(List<Event> eventList) {
         this.eventList = eventList;
     }
+
+    public List<Deadline> getDeadlineList() { return deadlineList; }
+
+    public void setDeadlineList(List<Deadline> deadlineList) { this.deadlineList = deadlineList; }
+
+    public List<Milestone> getMilestoneList() { return milestoneList; }
+
+    public void setMilestoneList(List<Milestone> milestoneList) { this.milestoneList = milestoneList; }
 
 
     public LocalDate getStartDate() {
@@ -153,5 +170,7 @@ public class Sprint {
     public void setColour(String colour) {
         this.colour = colour;
     }
+
+
 }
 

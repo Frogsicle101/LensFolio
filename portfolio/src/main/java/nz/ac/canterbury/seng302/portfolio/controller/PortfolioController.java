@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
@@ -10,6 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
@@ -78,6 +80,7 @@ public class PortfolioController {
         this.defaultProject = projectRepository.save(new Project("Project Seng302", LocalDate.parse("2022-02-25"), LocalDate.parse("2022-09-30"), "SENG302 is all about putting all that you have learnt in other courses into a systematic development process to create software as a team."));
         createDefaultEvents(defaultProject);
         createDefaultSprints(defaultProject);
+        createDefaultMilestones(defaultProject);
     }
 
 
@@ -104,7 +107,7 @@ public class PortfolioController {
         Deadline deadline1 = new Deadline(project, "SENG 101 Assignment due", LocalDate.parse("2022-05-01"), LocalTime.parse("23:59:00"), 1);
         Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate Entries Close", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
         Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-10-14"), LocalTime.parse("09:30:00"), 3);
-        Deadline deadline4 = new Deadline(project, "NZ On Air Scripted GA Apps close", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
+        Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences Applics close", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
         deadlineRepository.save(deadline1);
         deadlineRepository.save(deadline2);
         deadlineRepository.save(deadline3);
@@ -183,6 +186,8 @@ public class PortfolioController {
             }
             //Creates the list of events for the front end.
             List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
+            List<Milestone> milestoneList = MilestoneHelper.setMilestoneColours(project.getId(), milestoneRepository, sprintRepository);
+            List<Deadline> deadlineList = DeadlineHelper.setDeadlineColours(project.getId(), deadlineRepository, sprintRepository);
 
             //Add the project object to the view to be accessed on the frontend.
             modelAndView.addObject("project", project);
@@ -193,8 +198,14 @@ public class PortfolioController {
             //Add a list of event objects to the view to be accessed on the frontend.
             modelAndView.addObject("events", eventList);
 
+            //Add a list of milestone objects to the view to be accessed on the frontend.
+            modelAndView.addObject("milestones", milestoneList);
+
+            //Add a list of deadline objects to the view to be accessed on the frontend.
+            modelAndView.addObject("deadlines", deadlineList);
+
             //Add an object that lets us access the event name restriction length on the frontend.
-            modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
+            modelAndView.addObject("occasionNameLengthRestriction", Event.getNameLengthRestriction());
 
             //Add the user object to the view to be accessed on the front end.
             modelAndView.addObject("username", user.getUsername());

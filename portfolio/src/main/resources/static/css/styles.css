@@ -222,20 +222,20 @@ section{
 }
 
 
-.eventNameAndAddButton{
+.occasionNameAndAddButton{
     display: flex;
     flex-direction: row;
 }
-.eventName{
+.occasionName{
     padding-left: 0.5rem;
     font-weight: bolder;
     text-decoration-line: underline;
 }
-.eventTitleDiv{
+.occasionTitleDiv{
     display: flex;
     flex-direction: row;
 }
-.eventIcon{
+.occasionIcon{
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -247,25 +247,25 @@ section{
     height: 2rem;
 }
 
-.eventEditButton{
+.occasionEditButton{
     position: absolute;
     top: 1rem;
     right: 2.5rem;
 }
 
-.eventEditButton:hover{
+.occasionEditButton:hover{
     color: var(--select-green);
 }
 
-.eventDeleteButton{
+.occasionDeleteButton{
     position: absolute;
     top: 1rem;
     right: 1rem;
 }
-.eventDeleteButton:hover{
+.occasionDeleteButton:hover{
     color: var(--select-red);
 }
-.event{
+.occasion{
     position: relative;
     margin-bottom: 1rem;
     border: solid 1px var(--secondary-text-colour);

@@ -92,6 +92,4 @@ public class Milestone {
     public void setType(int type) {
         this.type = type;
     }
-
-
 }

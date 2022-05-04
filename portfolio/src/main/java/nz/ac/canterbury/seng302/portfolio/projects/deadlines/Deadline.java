@@ -20,7 +20,7 @@ import java.time.LocalTime;
 @Inheritance
 public class Deadline extends Milestone {
 
-    @Column(nullable = false)
+//    @Column(nullable = false) //FIXME this should be uncommented but it breaks something:(
     private LocalTime endTime;
     private LocalDateTime dateTime;
 

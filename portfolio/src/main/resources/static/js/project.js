@@ -48,9 +48,40 @@ $(document).ready(() => {
     /**
      * Slide toggle for when add event button is clicked.
      */
-    $(".addEventButton").click(function() {
+    $(".addOccasionButton").click(function() {
         $(".addEventSvg").toggleClass('rotated');
         $(".eventForm").slideToggle();
+    })
+
+    /**
+     * When milestone is submitted.
+     */
+    $("#milestoneSubmit").click(function(event) {
+        event.preventDefault();
+        let milestoneData = {
+            "projectId": projectId,
+            "eventName": $("#milestoneName").val(),
+            "eventEnd": $("#milestoneEnd").val(),
+            "typeOfEvent": $(".typeOfOccasion").val()
+        }
+
+        console.log(milestoneData.typeOfEvent)
+        if (milestoneData.eventName.toString().length === 0 || milestoneData.eventName.toString().trim().length === 0){
+            $(this).closest(".milestoneForm").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Oh no!</strong> You probably should enter a milestone name!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
+        } else {
+            $.ajax({
+                url: "/addMilestone",
+                type: "put",
+                data: milestoneData,
+                success: function(response) {
+                    location.href = "/portfolio?projectId=" + projectId
+                }
+            })
+        }
     })
 
 
@@ -90,7 +121,6 @@ $(document).ready(() => {
                 }
             })
         }
-
     })
 
     $(".form-control").each(countCharacters)
@@ -121,16 +151,17 @@ $(document).ready(() => {
     }
 
 
+
     $(".eventEditButton").click(function() {
-        let eventId = $(this).closest(".event").find(".eventId").text();
-        let eventName = $(this).closest(".event").find(".eventName").text();
-        let eventStart = $(this).closest(".event").find(".eventStartDateNilFormat").text().slice(0,16);
-        let eventEnd = $(this).closest(".event").find(".eventEndDateNilFormat").text().slice(0,16);
-        let typeOfEvent = $(this).closest(".event").find(".typeOfEvent").text()
+        let eventId = $(this).closest(".occasion").find(".eventId").text();
+        let eventName = $(this).closest(".occasion").find(".eventName").text();
+        let eventStart = $(this).closest(".occasion").find(".eventStartDateNilFormat").text().slice(0,16);
+        let eventEnd = $(this).closest(".occasion").find(".eventEndDateNilFormat").text().slice(0,16);
+        let typeOfEvent = $(this).closest(".occasion").find(".typeOfEvent").text()
 
 
 
-        $(this).closest(".event").append(`
+        $(this).closest(".occasion").append(`
                 <form class="existingEventForm">
                         <div class="mb-1">
                         <label for="eventName" class="form-label">Event name</label>
@@ -167,14 +198,14 @@ $(document).ready(() => {
 
 
         $(".existingEventCancel").click(function() {
-            $(this).closest(".event").find(".eventEditButton").show();
-            $(this).closest(".event").find(".existingEventForm").remove();
+            $(this).closest(".occasion").find(".occasionEditButton").show();
+            $(this).closest(".occasion").find(".existingEventForm").remove();
 
         })
         $(".form-control").each(countCharacters)
         $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
-        $(this).closest(".event").find(".eventEditButton").hide();
-        $(this).closest(".event").find(".existingEventForm").find(".typeOfEvent").val(typeOfEvent)
+        $(this).closest(".occasion").find(".occasionEditButton").hide();
+        $(this).closest(".occasion").find(".existingEventForm").find(".typeOfEvent").val(typeOfEvent)
 
         $(".existingEventSubmit").click(function() {
             let eventData = {
@@ -211,8 +242,8 @@ $(document).ready(() => {
 
     })
 
-    $(".eventDeleteButton").click(function(){
-        let eventData = {"eventId": $(this).closest(".event").find(".eventId").text()}
+    $(".occasionDeleteButton").click(function(){
+        let eventData = {"eventId": $(this).closest(".occasion").find(".eventId").text()}
         $.ajax({
             url: "/deleteEvent",
             type: "DELETE",
@@ -222,16 +253,6 @@ $(document).ready(() => {
             }
         })
     })
-
-
-
-
-
-
-
-
-
-
 })
 
 
