@@ -21,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,24 +76,6 @@ public class CalendarController {
     }
 
 
-    /**
-     * Gets the project sprints and returns them in a response entity
-     * @param projectId id of the project that the sprints are contained in.
-     * @return Response entity with sprints in them, or the error.
-     */
-    @GetMapping("/getProjectSprints")
-    public ResponseEntity<Object> getProjectSprints(@RequestParam(value = "projectId") Long projectId){
-        try{
-            logger.info("GET REQUEST /getProjectSprints");
-            List<Sprint> sprints = sprintRepository.findAllByProjectId(projectId);
-            return new ResponseEntity<>(sprints, HttpStatus.OK);
-        } catch (Exception err){
-            logger.error("getProjectSprints error: {}", err.getMessage());
-            return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
-        }
-
-    }
-
 
     /**
      * Returns the sprints as in a json format, only finds the sprints that are within the start and end dates
@@ -109,10 +92,14 @@ public class CalendarController {
         try{
             logger.info("GET REQUEST /getProjectSprintsWithDatesAsFeed");
 
-            startDate = startDate.substring(0, startDate.length()-6);
-            endDate = endDate.substring(0, endDate.length()-6);
-            LocalDate sprintStartDate = LocalDate.from(LocalDateTime.parse(startDate));
-            LocalDate sprintEndDate = LocalDate.from(LocalDateTime.parse(endDate));
+
+            // It receives the startDate and endDate in a ZonedDateTime format.
+            ZonedDateTime startDateLocalDateTime = ZonedDateTime.parse(startDate);
+            ZonedDateTime endDateDateLocalDateTime = ZonedDateTime.parse(endDate);
+
+            // To check against the sprints we need to convert from ZonedDateTime to LocalDate
+            LocalDate sprintStartDate = LocalDate.from(startDateLocalDateTime);
+            LocalDate sprintEndDate = LocalDate.from(endDateDateLocalDateTime);
 
 
             List<Sprint> sprints = sprintRepository.findAllByProjectId(projectId);
@@ -126,8 +113,8 @@ public class CalendarController {
                         || sprint.getStartDate().isBefore(sprintStartDate) && sprint.getEndDate().isAfter(sprintEndDate)) {
                     HashMap<String, String> jsonedSprint = new HashMap<>();
                     jsonedSprint.put("title", sprint.getName());
-                    jsonedSprint.put("start", (LocalDateTime.from(sprint.getStartDate().atStartOfDay())).toString());
-                    jsonedSprint.put("end", (LocalDateTime.from(sprint.getEndDate().atStartOfDay())).toString());
+                    jsonedSprint.put("start", (LocalDateTime.from(sprint.getStartDate().atStartOfDay().plusHours(12))).toString());
+                    jsonedSprint.put("end", (LocalDateTime.from(sprint.getEndDate().atStartOfDay().plusHours(12))).toString());
                     jsonedSprint.put("backgroundColor", sprint.getColour());
                     sprintsToSend.add(jsonedSprint);
                 }
@@ -139,7 +126,7 @@ public class CalendarController {
             return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
         } catch (Exception err){
             logger.error("GET REQUEST /getProjectSprintsWithDatesAsFeed", err);
-            return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -147,15 +134,11 @@ public class CalendarController {
     /**
      * Gets project in a json feed format
      * @param projectId project to get
-     * @param startDate start date to look for
-     * @param endDate end date to look for
      * @return ResponseEntity with status, and List of hashmaps.
      */
     @GetMapping("/getProjectAsFeed")
-    public ResponseEntity<Object> getProjectWithDates(
-            @RequestParam(value = "projectId") Long projectId,
-            @RequestParam(value = "start") String startDate,
-            @RequestParam(value = "end") String endDate){
+    public ResponseEntity<Object> getProject(
+            @RequestParam(value = "projectId") Long projectId){
         try{
             logger.info("GET REQUEST /getProjectAsFeed");
 
@@ -176,15 +159,13 @@ public class CalendarController {
             projectToSend.add(jsonedProject);
 
             return new ResponseEntity<>(projectToSend, HttpStatus.OK);
-        } catch(DateTimeParseException err) {
-            logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
-            return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+
         } catch(EntityNotFoundException err) {
             logger.warn(err.getMessage());
-            return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(err.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception err){
             logger.error("GET REQUEST /getProjectAsFeed", err);
-            return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
