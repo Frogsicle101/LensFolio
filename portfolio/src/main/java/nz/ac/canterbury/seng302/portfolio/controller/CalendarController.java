@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -42,14 +41,12 @@ public class CalendarController {
      * Get mapping for /calendar. Returns the calendar view.
      * @param principal principal
      * @param projectId id of the project that the calendar will display
-     * @param request request
      * @return the calendar view
      */
     @GetMapping("/calendar")
     public ModelAndView getCalendar(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam(value = "projectId") Long projectId,
-            HttpServletRequest request
+            @RequestParam(value = "projectId") Long projectId
             ) {
         try{
             // Gets the project that the request is referring to.
@@ -60,10 +57,7 @@ public class CalendarController {
             ModelAndView model = new ModelAndView("monthlyCalendar");
             model.addObject("project", project);
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
-            String ip = request.getLocalAddr();
-            String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-            model.addObject("profileImageUrl", url);
-            model.addObject("username", user.getUsername());
+            model.addObject("user", user);
             return model;
 
         } catch (EntityNotFoundException err){
