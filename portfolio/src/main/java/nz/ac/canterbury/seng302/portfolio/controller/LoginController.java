@@ -30,9 +30,8 @@ public class LoginController {
      * @return The Thymeleaf login html template.
      */
     @GetMapping("/login")
-    public String showLogin(HttpServletRequest request,
-                            Model model) {
-        return "login";
+    public String showLogin() {
+        return "/login";
     }
 
     /**

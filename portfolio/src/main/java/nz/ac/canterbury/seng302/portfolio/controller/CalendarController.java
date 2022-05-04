@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -47,7 +46,6 @@ public class CalendarController {
      * Get mapping for /calendar. Returns the calendar view.
      * @param principal principal
      * @param projectId id of the project that the calendar will display
-     * @param request request
      * @return the calendar view
      */
     @GetMapping("/calendar")
