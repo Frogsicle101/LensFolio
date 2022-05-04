@@ -145,6 +145,19 @@ $(document).ready(() => {
         let typeOfEvent = $(this).closest(".event").find(".typeOfEvent").text()
 
 
+        $.ajax({
+            url: "/userEditingEvent",
+            type: "post",
+            data: {"eventId": eventId},
+            success: function (response){
+                console.log(response.statusText)
+            },
+            error: function (response){
+                console.log(response.statusText)
+            }
+        })
+
+
 
         $(this).closest(".event").append(`
                 <form class="existingEventForm">
@@ -241,6 +254,20 @@ $(document).ready(() => {
 
 
 
+    // Sends request to the server every 10 seconds
+    setInterval(function(){
+        $.ajax({
+            url: '/checkEventChanges',
+            type: 'get',
+            data: {"projectId": projectId},
+            success: function (response) {
+                console.log(response.statusText)
+            },
+            error: function(response){
+                console.log(response.statusText)
+            }
+        })
+        }, 10000);
 
 
 
