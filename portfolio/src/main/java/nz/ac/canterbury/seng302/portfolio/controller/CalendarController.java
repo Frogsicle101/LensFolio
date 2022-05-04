@@ -19,6 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -41,6 +47,7 @@ public class CalendarController {
      * Get mapping for /calendar. Returns the calendar view.
      * @param principal principal
      * @param projectId id of the project that the calendar will display
+     * @param request request
      * @return the calendar view
      */
     @GetMapping("/calendar")
@@ -82,7 +89,7 @@ public class CalendarController {
             List<Sprint> sprints = sprintRepository.findAllByProjectId(projectId);
             return new ResponseEntity<>(sprints, HttpStatus.OK);
         } catch (Exception err){
-            logger.error("GET REQUEST /getProjectSprints", err);
+            logger.error("getProjectSprints error: {}", err.getMessage());
             return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
         }
 
@@ -90,7 +97,103 @@ public class CalendarController {
 
 
     /**
-     * Gets the project detils
+     * Returns the sprints as in a json format, only finds the sprints that are within the start and end dates
+     * @param projectId the project to look for the sprints in
+     * @param startDate start date to look for
+     * @param endDate end date to look for
+     * @return ResponseEntity with status, and List of hashmaps.
+     */
+    @GetMapping("/getProjectSprintsWithDatesAsFeed")
+    public ResponseEntity<Object> getProjectSprintsWithDates(
+            @RequestParam(value = "projectId") Long projectId,
+            @RequestParam(value = "start") String startDate,
+            @RequestParam(value = "end") String endDate){
+        try{
+            logger.info("GET REQUEST /getProjectSprintsWithDatesAsFeed");
+
+            startDate = startDate.substring(0, startDate.length()-6);
+            endDate = endDate.substring(0, endDate.length()-6);
+            LocalDate sprintStartDate = LocalDate.from(LocalDateTime.parse(startDate));
+            LocalDate sprintEndDate = LocalDate.from(LocalDateTime.parse(endDate));
+
+
+            List<Sprint> sprints = sprintRepository.findAllByProjectId(projectId);
+            List<HashMap<String, String>> sprintsToSend = new ArrayList<>();
+
+            for (Sprint sprint:sprints)  {
+                if(sprint.getStartDate().equals(sprintStartDate)
+                        || sprint.getStartDate().isAfter(sprintStartDate) && sprint.getStartDate().isBefore(sprintEndDate)
+                        || sprint.getEndDate().equals(sprintEndDate)
+                        || sprint.getEndDate().isBefore(sprintEndDate)
+                        || sprint.getStartDate().isBefore(sprintStartDate) && sprint.getEndDate().isAfter(sprintEndDate)) {
+                    HashMap<String, String> jsonedSprint = new HashMap<>();
+                    jsonedSprint.put("title", sprint.getName());
+                    jsonedSprint.put("start", (LocalDateTime.from(sprint.getStartDate().atStartOfDay())).toString());
+                    jsonedSprint.put("end", (LocalDateTime.from(sprint.getEndDate().atStartOfDay())).toString());
+                    jsonedSprint.put("backgroundColor", sprint.getColour());
+                    sprintsToSend.add(jsonedSprint);
+                }
+            }
+
+            return new ResponseEntity<>(sprintsToSend, HttpStatus.OK);
+        } catch(DateTimeParseException err) {
+            logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
+            return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+        } catch (Exception err){
+            logger.error("GET REQUEST /getProjectSprintsWithDatesAsFeed", err);
+            return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+    /**
+     * Gets project in a json feed format
+     * @param projectId project to get
+     * @param startDate start date to look for
+     * @param endDate end date to look for
+     * @return ResponseEntity with status, and List of hashmaps.
+     */
+    @GetMapping("/getProjectAsFeed")
+    public ResponseEntity<Object> getProjectWithDates(
+            @RequestParam(value = "projectId") Long projectId,
+            @RequestParam(value = "start") String startDate,
+            @RequestParam(value = "end") String endDate){
+        try{
+            logger.info("GET REQUEST /getProjectAsFeed");
+
+
+            // Gets the project that the request is referring to.
+            Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
+                    "Project with id " + projectId + " was not found"
+            ));
+
+            List<HashMap<String, String>> projectToSend = new ArrayList<>();
+
+            HashMap<String, String> jsonedProject = new HashMap<>();
+            jsonedProject.put("title", project.getName());
+            jsonedProject.put("start", project.getStartDate().toString());
+            jsonedProject.put("end", project.getEndDate().toString());
+            jsonedProject.put("backgroundColor", "grey");
+
+            projectToSend.add(jsonedProject);
+
+            return new ResponseEntity<>(projectToSend, HttpStatus.OK);
+        } catch(DateTimeParseException err) {
+            logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
+            return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+        } catch(EntityNotFoundException err) {
+            logger.warn(err.getMessage());
+            return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception err){
+            logger.error("GET REQUEST /getProjectAsFeed", err);
+            return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+
+    /**
+     * Gets the project details
      * @param projectId project to get
      * @return response entity with project, or error message
      */
@@ -98,18 +201,20 @@ public class CalendarController {
     public ResponseEntity<Object> getProject(
             @RequestParam(value="projectId") long projectId) {
         try {
-            logger.info("GET REQUEST /getProject");
+            logger.info("GET REQUEST /getProjectDetails");
 
             // Gets the project that the request is referring to.
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
-                    "Event with id " + projectId + " was not found"
+                    "Project with id " + projectId + " was not found"
             ));
             return new ResponseEntity<>(project, HttpStatus.OK);
         } catch (EntityNotFoundException err) {
-            logger.error("GET REQUEST /getProject", err);
+            logger.error("GET REQUEST /getProjectDetails", err);
             return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
         }
     }
+
+
 
     /**
      * For testing
