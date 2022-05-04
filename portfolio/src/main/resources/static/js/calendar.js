@@ -10,12 +10,13 @@ $(document).ready(function() {
 
   /**
    * Calendar functionality
+   * https://fullcalendar.io/docs
    */
   let calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     themeSystem: 'bootstrap5',
-    eventSources: [{
-      url: '/getProjectSprintsWithDatesAsFeed',
+    eventSources: [{ //The sources to grab the events from.
+      url: '/getProjectSprintsWithDatesAsFeed', //Project sprints
       method: "get",
       extraParams: {
                 projectId: projectId.toString()
@@ -25,7 +26,7 @@ $(document).ready(function() {
       }
     },
       {
-        url: '/getProjectAsFeed',
+        url: '/getProjectAsFeed', // Project itself
         method: "get",
         display: "inverse-background",
         extraParams: {

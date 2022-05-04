@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -23,7 +22,6 @@ import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,7 +93,7 @@ public class CalendarController {
             List<Sprint> sprints = sprintRepository.findAllByProjectId(projectId);
             return new ResponseEntity<>(sprints, HttpStatus.OK);
         } catch (Exception err){
-            logger.error("GET REQUEST /getProjectSprints", err);
+            logger.error("getProjectSprints error: {}", err.getMessage());
             return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
         }
 
@@ -119,7 +117,6 @@ public class CalendarController {
 
             startDate = startDate.substring(0, startDate.length()-6);
             endDate = endDate.substring(0, endDate.length()-6);
-            //TODO figure out this timezone stuff, at the moment its being removed and then a constant of 12 is being added
             LocalDate sprintStartDate = LocalDate.from(LocalDateTime.parse(startDate));
             LocalDate sprintEndDate = LocalDate.from(LocalDateTime.parse(endDate));
 
@@ -147,7 +144,7 @@ public class CalendarController {
             logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
             return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
         } catch (Exception err){
-            logger.error("GET REQUEST /getProjectSprints", err);
+            logger.error("GET REQUEST /getProjectSprintsWithDatesAsFeed", err);
             return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
         }
 
@@ -192,7 +189,7 @@ public class CalendarController {
             logger.warn(err.getMessage());
             return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception err){
-            logger.error("GET REQUEST /getProjectSprints", err);
+            logger.error("GET REQUEST /getProjectAsFeed", err);
             return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
         }
 
@@ -203,7 +200,7 @@ public class CalendarController {
 
 
     /**
-     * Gets the project detils
+     * Gets the project details
      * @param projectId project to get
      * @return response entity with project, or error message
      */
@@ -211,7 +208,7 @@ public class CalendarController {
     public ResponseEntity<Object> getProject(
             @RequestParam(value="projectId") long projectId) {
         try {
-            logger.info("GET REQUEST /getProject");
+            logger.info("GET REQUEST /getProjectDetails");
 
             // Gets the project that the request is referring to.
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
@@ -219,10 +216,12 @@ public class CalendarController {
             ));
             return new ResponseEntity<>(project, HttpStatus.OK);
         } catch (EntityNotFoundException err) {
-            logger.error("GET REQUEST /getProject", err);
+            logger.error("GET REQUEST /getProjectDetails", err);
             return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
         }
     }
+
+
 
     /**
      * For testing
