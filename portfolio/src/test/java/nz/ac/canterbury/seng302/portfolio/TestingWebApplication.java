@@ -1,9 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -27,13 +25,8 @@ class TestingWebApplication {
     }
 
     @Test
-    void testGetAllSprints() throws Exception {
-        this.mockMvc.perform(get("/getAllSprints").param("projectId", "1")).andDo(print()).andExpect(status().isOk());
-    }
-
-    @Test
     void testAddSprint() throws Exception {
-        this.mockMvc.perform(post("/addSprint").param("name", "Test").param("projectId", "1")).andDo(print()).andExpect(status().isOk());
+        this.mockMvc.perform(post("/portfolio/addSprint").param("projectId", "1")).andDo(print()).andExpect(status().isOk());
     }
 
 
