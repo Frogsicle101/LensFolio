@@ -17,7 +17,6 @@ import java.time.LocalTime;
  * Represents a Deadline entity.
  */
 @Entity
-@Inheritance
 public class Deadline extends Milestone {
 
 //    @Column(nullable = false) //FIXME this should be uncommented but it breaks something:(

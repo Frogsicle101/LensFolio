@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface DeadlineRepository extends CrudRepository<Deadline, UUID> {
-    @Query
+    @Query("select d from #{#entityName} as d where d.startDate IS NULL and d.project.id = ?1")
     List<Deadline> findAllByProjectId(Long projectId);
 }

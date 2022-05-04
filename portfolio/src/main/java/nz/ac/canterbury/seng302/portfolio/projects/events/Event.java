@@ -17,7 +17,6 @@ import java.time.LocalTime;
  * Represents an Event entity.
  */
 @Entity
-@Inheritance
 public class Event extends Deadline {
 
     private LocalDateTime startDate;

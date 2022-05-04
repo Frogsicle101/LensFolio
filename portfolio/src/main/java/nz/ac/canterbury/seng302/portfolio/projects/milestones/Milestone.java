@@ -13,7 +13,6 @@ import java.util.UUID;
  * Represents a Milestone entity.
  */
 @Entity
-@Inheritance
 public class Milestone {
 
     private @Id
