@@ -48,9 +48,17 @@ $(document).ready(() => {
     /**
      * Slide toggle for when add event button is clicked.
      */
-    $(".addOccasionButton").click(function() {
+    $(".addEventButton").click(function() {
         $(".addEventSvg").toggleClass('rotated');
         $(".eventForm").slideToggle();
+    })
+
+ /**
+     * Slide toggle for when add milestone button is clicked.
+     */
+    $(".addMilestoneButton").click(function() {
+        $(".addEventSvg").toggleClass('rotated');
+        $(".milestoneForm").slideToggle();
     })
 
     /**
