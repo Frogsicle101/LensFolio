@@ -52,6 +52,7 @@ public class EventController {
             @RequestParam(value = "eventEnd") String end,
             @RequestParam(defaultValue = "1",value = "typeOfEvent") int typeOfEvent
     ) {
+
         try {
             // eventStart and eventEnd return a string in the format "1986-01-28T11:38:00.01"
             // DateTimeFormatter.ISO_DATE_TIME helps parse that string by declaring its format.

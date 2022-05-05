@@ -113,7 +113,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label">Type of event</label>
-                                <select class="form-select typeOfEvent" id="exampleFormControlInput1">
+                                <select class="form-select typeOfOccasion" id="exampleFormControlInput1">
                                     <option value="1" selected>Event</option>
                                     <option value="2">Test</option>
                                     <option value="3">Meeting</option>
@@ -151,7 +151,7 @@
                         <p th:text="${event.id}" class="eventId" style="display: none"></p>
                         <p th:text="${event.startDate}" class="eventStartDateNilFormat" style="display: none"></p>
                         <p th:text="${event.dateTime}" class="eventEndDateNilFormat" style="display: none"></p>
-                        <p th:text="${event.type}" class="typeOfEvent" style="display: none"></p>
+                        <p th:text="${event.type}" class="typeOfOccasion" style="display: none"></p>
                         <div class="mb-2 occasionTitleDiv">
                             <div th:switch="${event.type}" class="occasionIcon">
                                 <svg data-bs-toggle="tooltip" data-bs-placement="top" th:title="Event" th:case="'1'"
@@ -239,7 +239,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="exampleFormControlInput3" class="form-label">Type of deadline</label>
-                                <select class="form-select typeOfEvent" id="exampleFormControlInput3">
+                                <select class="form-select typeOfOccasion" id="exampleFormControlInput3">
                                     <option value="1" selected>Event</option>
                                     <option value="2">Test</option>
                                     <option value="3">Meeting</option>
@@ -268,7 +268,7 @@
                     <div th:each="deadline: ${deadlines}" class="occasion">
                         <p th:text="${deadline.id}" class="deadlineId" style="display: none"></p>
                         <p th:text="${deadline.dateTime}" class="deadlineEndDateNilFormat" style="display: none"></p>
-                        <p th:text="${deadline.type}" class="typeOfEvent" style="display: none"></p>
+                        <p th:text="${deadline.type}" class="typeOfOccasion" style="display: none"></p>
                         <div class="mb-2 occasionTitleDiv">
                             <div th:switch="${deadline.type}" class="occasionIcon">
                                 <svg data-bs-toggle="tooltip" data-bs-placement="top" th:title="Event" th:case="'1'"
@@ -355,7 +355,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="exampleFormControlInput2" class="form-label">Type of milestone</label>
-                                <select class="form-select typeOfEvent" id="exampleFormControlInput2">
+                                <select class="form-select typeOfOccasion" id="exampleFormControlInput2">
                                     <option value="1" selected>Event</option>
                                     <option value="2">Test</option>
                                     <option value="3">Meeting</option>
@@ -369,9 +369,9 @@
                                     <label for="milestoneEnd" class="form-label">End</label>
                                     <input type="date"
                                            class="form-control form-control-sm milestoneInputEndDate"
-                                           th:value="${project.getStartDateAsLocalDateTime()}"
-                                           th:min="${project.getStartDateAsLocalDateTime()}"
-                                           th:max="${project.getEndDateAsLocalDateTime()}" name="milestoneEnd"
+                                           th:value="${project.getStartDateAsLocalDateTime().toLocalDate()}"
+                                           th:min="${project.getStartDateAsLocalDateTime().toLocalDate()}"
+                                           th:max="${project.getEndDateAsLocalDateTime().toLocalDate()}" name="milestoneEnd"
                                            id="milestoneEnd"
                                            required>
                                 </div>
@@ -384,7 +384,7 @@
                     <div th:each="milestone: ${milestones}" class="occasion">
                         <p th:text="${milestone.id}" class="milestoneId" style="display: none"></p>
                         <p th:text="${milestone.endDate}" class="milestoneEndDateNilFormat" style="display: none"></p>
-                        <p th:text="${milestone.type}" class="typeOfEvent" style="display: none"></p>
+                        <p th:text="${milestone.type}" class="typeOfOccasion" style="display: none"></p>
                         <div class="mb-2 occasionTitleDiv">
                             <div th:switch="${milestone.type}" class="occasionIcon">
                                 <svg data-bs-toggle="tooltip" data-bs-placement="top" th:title="Event" th:case="'1'"

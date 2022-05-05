@@ -68,13 +68,12 @@ $(document).ready(() => {
         event.preventDefault();
         let milestoneData = {
             "projectId": projectId,
-            "eventName": $("#milestoneName").val(),
-            "eventEnd": $("#milestoneEnd").val(),
-            "typeOfEvent": $(".typeOfOccasion").val()
+            "milestoneName": $("#milestoneName").val(),
+            "milestoneEnd": $("#milestoneEnd").val(),
+            "typeOfOccasion": $(".typeOfOccasion").val()
         }
 
-        console.log(milestoneData.typeOfEvent)
-        if (milestoneData.eventName.toString().length === 0 || milestoneData.eventName.toString().trim().length === 0){
+        if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0){
             $(this).closest(".milestoneForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You probably should enter a milestone name!
@@ -86,6 +85,7 @@ $(document).ready(() => {
                 type: "put",
                 data: milestoneData,
                 success: function(response) {
+                    console.log("yup")
                     location.href = "/portfolio?projectId=" + projectId
                 }
             })
