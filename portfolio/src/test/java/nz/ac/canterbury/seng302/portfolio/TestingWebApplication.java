@@ -33,7 +33,7 @@ class TestingWebApplication {
 
     @Test
     void testAddSprint() throws Exception {
-        this.mockMvc.perform(post("/addSprint").param("name", "Test").param("projectId", "1")).andDo(print()).andExpect(status().isOk());
+        this.mockMvc.perform(get("/portfolio/addSprint").param("name", "Test").param("projectId", "1")).andDo(print()).andExpect(status().isOk());
     }
 
 

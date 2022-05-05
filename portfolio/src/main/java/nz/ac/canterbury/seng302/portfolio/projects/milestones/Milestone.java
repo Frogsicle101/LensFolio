@@ -6,6 +6,7 @@ import nz.ac.canterbury.seng302.portfolio.projects.Project;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.*;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -50,10 +51,27 @@ public class Milestone {
         if (name == null || name.length() > 50) { //useful for creating default milestones, but project.js includes validations for frontend milestone editing
             throw new InvalidNameException();
         }
+        validateDate(project, endDate);
+
         this.project = project;
         this.name = name;
         this.endDate = endDate;
         this.type = type;
+    }
+
+
+    /**
+     * Checks that the end date occurs between the project's start and end dates.
+     *
+     * @param project The project defining the earliest and latest dates the end date can be.
+     * @param endDate The end date being validated.
+     * @throws DateTimeException If the end date is before the project start or after the project end.
+     */
+    public void validateDate(Project project, LocalDate endDate) throws DateTimeException {
+
+        if (endDate.isAfter(project.getEndDate()) || endDate.isBefore(project.getStartDate())) {
+            throw new DateTimeException("End date must occur during project");
+        }
     }
 
     public static int getNameLengthRestriction() {
