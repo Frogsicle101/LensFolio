@@ -36,10 +36,8 @@ public class OccasionFeature {
         try {
             LocalDateTime parsedDate = LocalDateTime.parse(deadlineDate);
             deadline = new Deadline(project, deadlineName, parsedDate.toLocalDate(), parsedDate.toLocalTime(), 1);
-        } catch (DateTimeException | NullPointerException e) {
+        } catch (DateTimeException | NullPointerException | InvalidNameException e) {
             deadline = null;
-        } catch (InvalidNameException e) {
-            e.printStackTrace();
         }
     }
 
@@ -55,10 +53,8 @@ public class OccasionFeature {
         try {
             LocalDate parsedDate = LocalDate.parse(milestoneDate);
             milestone = new Milestone(project, milestoneName, parsedDate, type);
-        } catch (DateTimeException | NullPointerException e) {
+        } catch (DateTimeException | NullPointerException | InvalidNameException e) {
             milestone = null;
-        } catch (InvalidNameException e) {
-            e.printStackTrace();
         }
     }
 
