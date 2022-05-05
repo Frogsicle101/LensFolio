@@ -106,7 +106,7 @@
                             <div class="mb-1">
                                 <label for="eventName" class="form-label">Event name</label>
                                 <input type="text" class="form-control form-control-sm"
-                                       th:maxlength="${occasionNameLengthRestriction}" name="occasionName"
+                                       th:maxlength="${occasionNameLengthRestriction}" name="eventName"
                                        id="eventName"
                                        required>
                                 <small class="form-text text-muted countChar">0 characters remaining</small>
@@ -189,10 +189,10 @@
                                     <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995z"/>
                                 </svg>
                             </div>
-                            <p th:text="${event.name}" class="occasionName"></p>
+                            <p th:text="${event.name}" class="eventName"></p>
                         </div>
 
-                        <button class="occasionEditButton noStyleButton" th:if="${userCanEdit == true}"
+                        <button class="eventEditButton noStyleButton" th:if="${userCanEdit == true}"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Event">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                  class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
@@ -200,7 +200,7 @@
                                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
                             </svg>
                         </button>
-                        <button type="button" class="occasionDeleteButton noStyleButton" th:if="${userCanEdit == true}"
+                        <button type="button" class="eventDeleteButton noStyleButton" th:if="${userCanEdit == true}"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Event">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                  class="bi bi-x-circle" viewBox="0 0 16 16">
@@ -308,7 +308,7 @@
                             </div>
                             <p th:text="${deadline.name}" class="occasionName"></p>
                         </div>
-                        <button class="occasionEditButton noStyleButton" th:if="${userCanEdit == true}"
+                        <button class="deadlineEditButton noStyleButton" th:if="${userCanEdit == true}"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top" title="Edit Deadline">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
@@ -317,7 +317,7 @@
                                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
                             </svg>
                         </button>
-                        <button type="button" class="occasionDeleteButton noStyleButton" th:if="${userCanEdit == true}"
+                        <button type="button" class="deadlineDeleteButton noStyleButton" th:if="${userCanEdit == true}"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Deadline">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                  class="bi bi-x-circle" viewBox="0 0 16 16">
@@ -422,9 +422,9 @@
                                     <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995z"/>
                                 </svg>
                             </div>
-                            <p th:text="${milestone.name}" class="occasionName"></p>
+                            <p th:text="${milestone.name}" class="milestoneName"></p>
                         </div>
-                        <button class="occasionEditButton noStyleButton" th:if="${userCanEdit == true}"
+                        <button class="milestoneEditButton noStyleButton" th:if="${userCanEdit == true}"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top" title="Edit Milestone">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
@@ -433,7 +433,7 @@
                                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
                             </svg>
                         </button>
-                        <button type="button" class="occasionDeleteButton noStyleButton" th:if="${userCanEdit == true}"
+                        <button type="button" class="milestoneDeleteButton noStyleButton" th:if="${userCanEdit == true}"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Milestone">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                  class="bi bi-x-circle" viewBox="0 0 16 16">

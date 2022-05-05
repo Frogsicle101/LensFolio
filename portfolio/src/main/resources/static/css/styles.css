@@ -221,7 +221,6 @@ section{
     transition: all 1s ease-out;
 }
 
-
 .occasionNameAndAddButton{
     display: flex;
     flex-direction: row;
@@ -247,24 +246,44 @@ section{
     height: 2rem;
 }
 
-.occasionEditButton{
+.eventEditButton{
     position: absolute;
     top: 1rem;
     right: 2.5rem;
 }
 
-.occasionEditButton:hover{
+.eventEditButton:hover{
     color: var(--select-green);
 }
 
-.occasionDeleteButton{
+.eventDeleteButton{
     position: absolute;
     top: 1rem;
     right: 1rem;
 }
-.occasionDeleteButton:hover{
+.eventDeleteButton:hover{
     color: var(--select-red);
 }
+
+.milestoneEditButton{
+    position: absolute;
+    top: 1rem;
+    right: 2.5rem;
+}
+
+.milestoneEditButton:hover{
+    color: var(--select-green);
+}
+
+.milestoneDeleteButton{
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+.milestoneDeleteButton:hover{
+    color: var(--select-red);
+}
+
 .occasion{
     position: relative;
     margin-bottom: 1rem;
