@@ -68,6 +68,9 @@
     <div class="projectContainer">
         <div class="eventContainer" id="eventContainer">
 
+
+
+
             <div class="mb-2 eventNameAndAddButton">
                 <h4>Events</h4>
                 <button type="button" class="addEventButton noStyleButton" th:if="${userCanEdit == true}" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Event" >
@@ -79,7 +82,7 @@
             </div>
 
             <div class="eventForm" style="display: none" th:if="${userCanEdit == true}" >
-                <form id="addEventForm">
+                <form>
                     <div class="mb-1">
                         <label for="eventName" class="form-label">Event name</label>
                         <input type="text" class="form-control form-control-sm" th:maxlength="${eventNameLengthRestriction}" name="eventName" id="eventName" required>
