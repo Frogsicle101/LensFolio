@@ -6,10 +6,14 @@ public class EditEvent {
 
     private int UserId;
     private UUID eventId;
+    private String usersName;
 
 
     public int getUserId() {
         return UserId;
+    }
+    public void setUserName(String userName){
+        this.usersName = userName;
     }
 
     public void setUserId(int userId) {
@@ -22,5 +26,9 @@ public class EditEvent {
 
     public void setEventId(UUID eventId) {
         this.eventId = eventId;
+    }
+
+    public String getUsersName(){
+        return this.usersName;
     }
 }

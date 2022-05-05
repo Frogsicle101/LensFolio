@@ -5,9 +5,13 @@ import nz.ac.canterbury.seng302.portfolio.events.Event;
 import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
+import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,9 @@ public class EventController {
 
     private final ProjectRepository projectRepository;
     private final EventRepository eventRepository;
+
+    @Autowired
+    private UserAccountsClientService userAccountsClientService;
 
     private List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
@@ -205,11 +212,15 @@ public class EventController {
     public void sendEventToClients(@AuthenticationPrincipal AuthState editor,
                                    @RequestParam UUID eventId) {
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Event id " + eventId + " is being edited by user: " + eventEditorID);
+        UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
+                .setId(eventEditorID)
+                .build());
+        logger.info("Event id " + eventId + " is being edited by user: " + eventEditorID + " " + userResponse.getFirstName() + " " + userResponse.getLastName());
         for (SseEmitter emitter : emitters) {
             EditEvent editEvent = new EditEvent();
             editEvent.setEventId(eventId);
             editEvent.setUserId(eventEditorID);
+            editEvent.setUserName(userResponse.getFirstName() + " " + userResponse.getLastName());
 
             try {
                 emitter.send(SseEmitter.event().name("editEvent")

@@ -27,12 +27,13 @@ $(document).ready(function() {
 
 
 
-    var eventSource = new EventSource("http://localhost:9000/notifications");
+    let eventSource = new EventSource("http://localhost:9000/notifications");
 
     eventSource.addEventListener("editEvent", function (event) {
         const data = JSON.parse(event.data);
         console.log("A user is editing event: " + data.eventId);
-        let infoString = data.eventEditorID + " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
+        console.log(data)
+        let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
         $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice`+data.eventId+`"> ` + infoString + `</p>`)
         $("#" + data.eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
         $("#infoEventContainer").slideDown() // Show the notice.
@@ -43,42 +44,16 @@ $(document).ready(function() {
         const data = JSON.parse(event.data);
         console.log("A user is no longer editing event: " + data.eventId);
         $("#eventNotice" + data.eventId).remove()
+        $("#" + data.eventId).removeClass("eventBeingEdited")
+
+        if (isEmpty($("#infoEventContainer"))) {
+            $("#infoEventContainer").slideUp() // Hide the notice.
+        }
 
     })
 
 })
 
-
-function checkEventChanges(projectId){
-    $.ajax({
-        url: '/checkEventChanges',
-        type: 'get',
-        data: {"projectId": projectId},
-        success: function (response) {
-
-            if (response) {  // If Response contains data of events
-                $("#infoEventContainer").empty() //Make sure notice is empty
-
-                for (let eventId in response){
-                    console.log(eventId)
-                    let infoString = response[eventId] + " is editing: " + $("#" + eventId).find(".eventName").text() // Find the name of the event from its id
-                    $("#infoEventContainer").append(`<p class="infoMessage"> ` + infoString + `</p>`)
-                    $("#" + eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
-                }
-
-                $("#infoEventContainer").slideDown() // Show the notice.
-            } else { // Response contains no data, no events being edited
-                $("#infoEventContainer").slideUp()
-                $("#infoEventContainer").empty()
-            }
-
-        },
-        error: function(response){
-            console.log("error")
-            console.log(response)
-        }
-    })
-}
 
 
 $(document).on("click", ".eventDeleteButton", function(){
@@ -98,8 +73,9 @@ $(document).on("click", ".eventDeleteButton", function(){
 /**
  * When event is submitted.
  */
-$(document).on('submit', "#eventSubmit", function (event) {
+$(document).on('submit', "#editEventForm", function (event) {
     event.preventDefault();
+    const projectId = $("#projectId").html()
     let eventData = {
         "projectId": projectId,
         "eventName": $("#eventName").val(),
@@ -107,28 +83,16 @@ $(document).on('submit', "#eventSubmit", function (event) {
         "eventEnd": $("#eventEnd").val(),
         "typeOfEvent": $(".typeOfEvent").val()
     }
-    if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
-        $(this).closest(".eventForm").append(`
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>Oh no!</strong> You probably should enter an event name!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`)
-    } else if (eventData.eventEnd < eventData.eventStart) {
-        $(this).closest(".eventForm").append(`
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>Oh no!</strong> Your event end date shouldn't be before your event start date!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`)
-    } else {
-        $.ajax({
-            url: "/addEvent",
-            type: "put",
-            data: eventData,
-            success: function(response) {
-                location.href = "/portfolio?projectId=" + projectId
-            }
-        })
-    }
+    console.log(eventData)
+    $.ajax({
+        url: "/addEvent",
+        type: "put",
+        data: eventData,
+        success: function(response) {
+            const projectId = $("#projectId").html()
+            refreshEvents(projectId)
+        }
+    })
 
 })
 
@@ -137,12 +101,10 @@ $(document).on('submit', "#eventSubmit", function (event) {
 $(document).on("click", ".eventEditButton", function() {
 
     let eventId = $(this).closest(".event").find(".eventId").text();
-    console.log(eventId)
     let eventName = $(this).closest(".event").find(".eventName").text();
     let eventStart = $(this).closest(".event").find(".eventStartDateNilFormat").text().slice(0,16);
     let eventEnd = $(this).closest(".event").find(".eventEndDateNilFormat").text().slice(0,16);
     let typeOfEvent = $(this).closest(".event").find(".typeOfEvent").text()
-
 
     $.ajax({
         url: "/eventEdit",
@@ -150,11 +112,8 @@ $(document).on("click", ".eventEditButton", function() {
         data: {"eventId" :eventId}
     })
 
-
-
-
     $(this).closest(".event").append(`
-                <form class="existingEventForm">
+                <form class="existingEventForm" id="editEventForm">
                         <div class="mb-1">
                         <label for="eventName" class="form-label">Event name</label>
                         <input type="text" class="form-control form-control-sm eventName" value="`+ eventName +`" maxlength="`+eventNameLengthRestriction+`" name="eventName" required>
@@ -182,69 +141,78 @@ $(document).on("click", ".eventEditButton", function() {
                         </div>
                     </div>
                     <div class="mb-1">
-                        <button type="button" class="btn btn-primary existingEventSubmit">Save</button>
+                        <button type="submit" class="btn btn-primary existingEventSubmit">Save</button>
                         <button type="button" class="btn btn-secondary existingEventCancel" >Cancel</button>
                     </div>
                 </form>`)
 
 
 
-    $(".existingEventCancel").click(function() {
-        cancelEventBeingEdited(eventId) // Let the server know the event is no longer being edited
-        $(this).closest(".event").find(".eventEditButton").show();
-        $(this).closest(".event").find(".existingEventForm").remove();
 
-    })
     $(".form-control").each(countCharacters)
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $(this).closest(".event").find(".eventEditButton").hide();
     $(this).closest(".event").find(".existingEventForm").find(".typeOfEvent").val(typeOfEvent)
 
-    $(".existingEventSubmit").click(function() {
 
-        let eventData = {
-            "projectId": projectId,
-            "eventId" : eventId,
-            "eventName": $(this).closest(".existingEventForm").find(".eventName").val(),
-            "eventStart": $(this).closest(".existingEventForm").find(".eventStart").val(),
-            "eventEnd": $(this).closest(".existingEventForm").find(".eventEnd").val(),
-            "typeOfEvent": $(this).closest(".existingEventForm").find(".typeOfEvent").val()
-        }
-        if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
-            $(this).closest(".existingEventForm").append(`
+})
+
+$(document).on("submit", ".existingEventSubmit", function(event){
+    event.preventDefault()
+    const projectId = $("#projectId").html()
+    console.log(projectId)
+    let eventData = {
+
+        "projectId": projectId,
+        "eventId" : $(this).closest(".event").find(".eventId").text(),
+        "eventName": $(this).closest(".existingEventForm").find(".eventName").val(),
+        "eventStart": $(this).closest(".existingEventForm").find(".eventStart").val(),
+        "eventEnd": $(this).closest(".existingEventForm").find(".eventEnd").val(),
+        "typeOfEvent": $(this).closest(".existingEventForm").find(".typeOfEvent").val()
+    }
+    if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
+        $(this).closest(".existingEventForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You probably should enter an event name!
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
-        } else if (eventData.eventEnd < eventData.eventStart) {
-            $(this).closest(".existingEventForm").append(`
+    } else if (eventData.eventEnd < eventData.eventStart) {
+        $(this).closest(".existingEventForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> Your event end date shouldn't be before your event start date!
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
-        } else {
-            $.ajax({
-                url: "/editEvent",
-                type: "POST",
-                data: eventData,
-                success: function(response) {
-                    cancelEventBeingEdited(eventId) // Let the server know the event is no longer being edited
-                    location.reload()
-                }
-            })
-        }
-    })
+    } else {
+        $.ajax({
+            url: "/editEvent",
+            type: "POST",
+            data: eventData,
+            success: function(response) {
+                console.log("edit event submit: " + eventId)
+                cancelEventBeingEdited(eventId) // Let the server know the event is no longer being edited
+                // location.reload()
+            }
+        })
+    }
+})
+
+
+
+$(document).on("click", ".existingEventCancel",function() {
+    let eventId = $(this).closest(".event").find(".eventId").text();
+    cancelEventBeingEdited(eventId) // Let the server know the event is no longer being edited
+    $(this).closest(".event").find(".eventEditButton").show();
+    $(this).closest(".event").find(".existingEventForm").remove();
+
 })
 
 
 function cancelEventBeingEdited(eventId) {
+    console.log("cancel event edit: " + eventId )
     $.ajax({
         url: "/userFinishedEditing",
         type: "post",
         data: {"eventId": eventId},
-        success: function () {
-            $("#" + eventId).removeClass("eventBeingEdited")
-        }
     })
 }
 
@@ -309,6 +277,9 @@ function createEventDiv(eventObject) {
 
 
 function refreshEvents(projectId){
+    $("#eventContainer").empty() //
+    $("#eventContainer").append(`<div id="infoEventContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
+            </div>`) //
     $.ajax({
         url: '/getEventsList',
         type: 'get',
@@ -325,6 +296,7 @@ function refreshEvents(projectId){
                     "endFormatted" : response[event].endFormatted,
                     "typeOfEvent" : response[event].typeOfEvent,
                 }
+
                 $("#eventContainer").append(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
                 //TODO format them so they appear on page in order of dates
             }
@@ -351,5 +323,9 @@ function countCharacters() {
     } else {
         helper.text(counter + " character remaining")
     }
+}
 
+
+function isEmpty( el ){
+    return !$.trim(el.html())
 }
