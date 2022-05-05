@@ -490,6 +490,7 @@ function reloadEvent(eventId){
  * Removes specific event
  * @param eventId id of event to remove
  */
+
 function removeEvent(eventId) {
     $("#eventContainer").find("#" + eventId).slideUp() // Finds all event divs are removes them
     $("#eventContainer").find("#" + eventId).remove()

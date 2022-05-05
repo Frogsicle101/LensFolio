@@ -6,10 +6,12 @@ import nz.ac.canterbury.seng302.portfolio.events.Event;
 import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.service.RoleBasedIntercepter;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.persistence.EntityNotFoundException;
@@ -47,7 +50,12 @@ public class EventController {
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
     }
-    //TODO logging
+
+
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new RoleBasedIntercepter());
+    }
+
 
     /**
      * Mapping for a put request to add event.
@@ -232,6 +240,7 @@ public class EventController {
         return emitter;
     }
 
+    @Before()
     @PostMapping("/eventEdit")
     public void sendEventToClients(@AuthenticationPrincipal AuthState editor,
                                    @RequestParam UUID eventId) {
@@ -239,7 +248,7 @@ public class EventController {
         UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
                 .setId(eventEditorID)
                 .build());
-        logger.info("Event id " + eventId + " is being edited by user: " + eventEditorID + " " + userResponse.getFirstName() + " " + userResponse.getLastName());
+        logger.info("Event id " + eventId + " is being edited by user: " + eventEditorID);
         for (SseEmitter emitter : emitters) {
             EditEvent editEvent = new EditEvent();
             editEvent.setEventId(eventId);
