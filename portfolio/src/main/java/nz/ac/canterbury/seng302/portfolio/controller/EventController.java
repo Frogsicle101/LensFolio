@@ -1,52 +1,43 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.EditEvent;
 import nz.ac.canterbury.seng302.portfolio.events.Event;
 import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 public class EventController {
 
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
-
-    @Autowired
     private final ProjectRepository projectRepository;
-
-    @Autowired
     private final EventRepository eventRepository;
 
+    private List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     public EventController(ProjectRepository projectRepository, EventRepository eventRepository) {
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
     }
-
-    //TODO add logging.
 
 
     /**
@@ -97,34 +88,6 @@ public class EventController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-    }
-
-    @GetMapping("/getEventsList")
-    public ResponseEntity<Object> getEventsList(
-            @RequestParam(value="projectId") Long projectId,
-            @AuthenticationPrincipal AuthState principal
-    ){
-        try {
-            logger.info("GET /getEventsList");
-            List<Event> eventList = eventRepository.findAllByProjectId(projectId);
-            HashMap<String, HashMap<String, String>> responseMap = new HashMap<>();
-
-            for (Event event : eventList) {
-                HashMap<String, String> eventDetails = new HashMap<>();
-                eventDetails.put("id", event.getId().toString());
-                eventDetails.put("name", event.getName());
-                eventDetails.put("start", event.getStartDate().toString());
-                eventDetails.put("end", event.getEndDate().toString());
-                eventDetails.put("startFormatted", event.getEndDateFormatted());
-                eventDetails.put("endFormatted", event.getEndDateFormatted());
-                eventDetails.put("typeOfEvent", String.valueOf(event.getTypeOfEvent()));
-                responseMap.put(event.getId().toString(), eventDetails);
-            }
-            return new ResponseEntity<>(responseMap, HttpStatus.OK);
-        } catch(Exception err){
-            logger.error("GET /getEventsList");
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     /**
@@ -190,118 +153,37 @@ public class EventController {
         }
     }
 
-    @GetMapping("/checkEventChanges")
-    public ResponseEntity<Object> checkEventChanges(
-            @AuthenticationPrincipal AuthState principal,
-            @RequestParam(value="projectId") Long projectId) {
+    @CrossOrigin
+    @GetMapping(value = "/notifications", consumes = MediaType.ALL_VALUE)
+    public SseEmitter subscribeToNotifications(@AuthenticationPrincipal AuthState principal) {
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         try {
-            logger.info("GET /checkEventChanges");
-
-            //TODO should an event timeout, as in if a user starts editing an event, then closes the page, the event editing should timeout after a certain period to prevent events retaining their "being edited status".
-            int id = PrincipalAttributes.getIdFromPrincipal(principal);
-            UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
-                    .setId(id)
-                    .build());
-            List<UserRole> userRoles = userResponse.getRolesList();
-
-            if(userRoles.contains(UserRole.TEACHER) || userRoles.contains(UserRole.COURSE_ADMINISTRATOR)) { // Checks that the user is allowed to access this.
-                HashMap<String, String> results = new HashMap<>();
-
-
-                List<Event> eventList = eventRepository.findAllByProjectId(projectId);
-                for (Event event: eventList) {
-
-                    if (event.isItBeingEdited()) {
-                        results.put(event.getId().toString(),event.getUserNameThatIsEditing());
-
-                    }
-                }
-                logger.info("/CheckEventChanges - Sent response");
-                if (results.isEmpty()) {
-                    return new ResponseEntity<>(HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<>(results,HttpStatus.OK);
-                }
-
-            } else {
-                logger.warn("Post /userEditingEvent: User Unauthorized");
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-
-        } catch (Exception err){
-            logger.error("GET /checkEventChanges: {}", err.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-
+            logger.info("Subscribing user: " + userId);
+            emitter.send(SseEmitter.event().name("INIT"));
+        } catch (IOException e) {
+            logger.warn("Not subscribing users");
         }
-
-
+        emitter.onCompletion(() -> emitters.remove(emitter));
+        emitters.add(emitter);
+        return emitter;
     }
 
-
-    @PostMapping("/userEditingEvent")
-    public ResponseEntity<Object> userEditingEvent(
-            @RequestParam(value="eventId") UUID eventId,
-            @AuthenticationPrincipal AuthState principal) {
-        try{
-            logger.info("POST /userEditingEvent");
-
-            int id = PrincipalAttributes.getIdFromPrincipal(principal);
-            UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
-                    .setId(id)
-                    .build());
-            List<UserRole> userRoles = userResponse.getRolesList();
-            if(userRoles.contains(UserRole.TEACHER) || userRoles.contains(UserRole.COURSE_ADMINISTRATOR)) { // Checks that the user is allowed to access this.
-                Event event = eventRepository.getById(eventId);
-                event.setUserEditing(userResponse.getFirstName() + " " + userResponse.getLastName());
-                event.setCurrentlyBeingEdited(true);
-                eventRepository.save(event);
-                return new ResponseEntity<>(HttpStatus.OK);
-            } else {
-                logger.warn("Post /userEditingEvent: User Unauthorized");
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    @PostMapping("/eventEdit")
+    public void sendEventToClients(@AuthenticationPrincipal AuthState editor,
+                                   @RequestParam UUID eventId) {
+        int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
+        logger.info("Event id " + eventId + " is being edited by user: " + eventEditorID);
+        for (SseEmitter emitter : emitters) {
+            EditEvent editEvent = new EditEvent();
+            editEvent.setEventId(eventId);
+            editEvent.setUserId(eventEditorID);
+            try {
+                emitter.send(SseEmitter.event().name("editEvent")
+                        .data(editEvent));
+            } catch (IOException e) {
+                emitters.remove(emitter);
             }
-
-
-        } catch (Exception err) {
-            logger.error("Post /userEditingEvent: {}", err.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-
-
-    }
-
-    @PostMapping("/userFinishedEditing")
-    public ResponseEntity<Object> userFinishedEditing(
-            @RequestParam(value="eventId") UUID eventId,
-            @AuthenticationPrincipal AuthState principal
-    ) {
-        try{
-            logger.info("POST /userFinishedEditing");
-
-            int id = PrincipalAttributes.getIdFromPrincipal(principal);
-            UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
-                    .setId(id)
-                    .build());
-            List<UserRole> userRoles = userResponse.getRolesList();
-            if(userRoles.contains(UserRole.TEACHER) || userRoles.contains(UserRole.COURSE_ADMINISTRATOR)) { // Checks that the user is allowed to access this.
-                Event event = eventRepository.getById(eventId);
-                event.setUserEditing(null);
-                event.setCurrentlyBeingEdited(false);
-                eventRepository.save(event);
-                return new ResponseEntity<>(HttpStatus.OK);
-            } else {
-                logger.warn("Post /userFinishedEditing: User Unauthorized");
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-
-
-        } catch (Exception err) {
-            logger.error("Post /userFinishedEditing: {}", err.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
-
 }
