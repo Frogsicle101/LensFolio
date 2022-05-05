@@ -2,7 +2,6 @@ $(document).ready(() => {
     //Gets the project Id
     const projectId = $("#projectId").html()
 
-
     /**
      * When project edit button is clicked.
      * Redirect page.
@@ -239,14 +238,21 @@ $(document).ready(() => {
         })
     })
 
+    var eventSource = new EventSource("http://localhost:9000/notifications");
 
+    eventSource.addEventListener("editEvent", function (event) {
+        const data = JSON.parse(event.data);
+        console.log("A user is editing event: " + data.eventId);
+    })
 
-
-
-
-
-
-
+    $(".eventEditButton").click(function(){
+        let eventId = {"eventId": $(this).closest(".event").find(".eventId").text()};
+        $.ajax({
+            url: "/eventEdit",
+            type: "POST",
+            data: eventId
+        })
+    })
 
 })
 
