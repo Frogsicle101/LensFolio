@@ -1,18 +1,12 @@
-
+let thisUserIsEditing = false;
 
 
 
 $(document).ready(function() {
 
     refreshEvents(projectId)
+    console.log(userRoles)
 
-    /**
-     * Slide toggle for when add event button is clicked.
-     */
-    $(".addEventButton").on('click').click(function() {
-        $(".addEventSvg").toggleClass('rotated');
-        $(".eventForm").slideToggle();
-    })
 
     $(".form-control").each(countCharacters)
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
@@ -20,24 +14,82 @@ $(document).ready(function() {
     let eventSource = new EventSource("http://localhost:9000/notifications");
 
     if (checkPrivilege()) {
+        /**
+         * This event listener listens for a notification that an event is being edited
+         * It then appends a message to the notice alert showing that the event is being edited and by who.
+         * It then adds a class to the event being edited which puts a border around it
+         * Then it hides the edit and delete button for that event to prevent the user from editing/deleting it too.
+         */
         eventSource.addEventListener("editEvent", function (event) {
             const data = JSON.parse(event.data);
             let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
             $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice`+data.eventId+`"> ` + infoString + `</p>`)
             $("#" + data.eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
+            if ($(".event").hasClass("eventBeingEdited")) {
+                $(".eventBeingEdited").find(".eventEditButton").hide()
+                $(".eventBeingEdited").find(".eventDeleteButton").hide()
+            }
             $("#infoEventContainer").slideDown() // Show the notice.
 
         })
 
-        eventSource.addEventListener("editEventFinished", function (event) {
+        /**
+         * This event listener listens for a notification that an event is no longer being edited
+         * It removes the class that shows the border
+         * Then it checks if this current user is editing another event, and avoids showing the edit buttons
+         * If the user isn't currently editing an event then it redisplays the edit and delete button.
+         */
+        eventSource.addEventListener("userNotEditingEvent", function (event) {
             const data = JSON.parse(event.data);
+            $("#eventNotice" + data.eventId).remove()
+            $("#" + data.eventId).removeClass("eventBeingEdited")
+            if (!thisUserIsEditing) {
+                $("#" + data.eventId).find(".eventEditButton").show();
+                $("#" + data.eventId).find(".eventDeleteButton").show();
+            }
+            if ($(".event").hasClass("eventBeingEdited")) {
+                $(".eventBeingEdited").find(".eventEditButton").hide()
+                $(".eventBeingEdited").find(".eventDeleteButton").hide()
+            }
+
+            if (isEmpty($("#infoEventContainer"))) {
+                $("#infoEventContainer").slideUp() // Hide the notice.
+            }
+
+            //refreshEvents() // Refreshes all the events
+
+        })
+
+        /**
+         * This event listener listens for a notification that an event should be reloaded.
+         * This happens if another user has changed an event.
+         * It removes the class that shows the border and then calls ReloadEvent()
+         */
+        eventSource.addEventListener("reloadSpecificEvent", function (event) {
+
+            const data = JSON.parse(event.data);
+            console.log("refresh event: " + data.eventId)
             $("#eventNotice" + data.eventId).remove()
             $("#" + data.eventId).removeClass("eventBeingEdited")
 
             if (isEmpty($("#infoEventContainer"))) {
                 $("#infoEventContainer").slideUp() // Hide the notice.
             }
-            refreshEvents() // Refreshes all the events
+            reloadEvent(data.eventId) // reloads specific event
+
+        })
+
+        eventSource.addEventListener("notifyRemoveEvent", function (event) {
+
+            const data = JSON.parse(event.data);
+            removeEvent(data.eventId) // reloads specific event
+
+        })
+
+        eventSource.addEventListener("notifyNewEvent", function (event) {
+
+            const data = JSON.parse(event.data);
+            addEvent(data.eventId) // reloads specific event
 
         })
     }
@@ -50,6 +102,15 @@ $(document).ready(function() {
 
 // <--------------------------- Listener Functions --------------------------->
 
+/**
+ * Slide toggle for when add event button is clicked.
+ */
+$(document).on('click', '.addEventButton', function() {
+
+    $(".addEventSvg").toggleClass('rotated');
+    $(".eventForm").slideToggle();
+})
+
 
 /**
  * Listens for a click on the event delete button
@@ -61,7 +122,7 @@ $(document).on("click", ".eventDeleteButton", function(){
         type: "DELETE",
         data: eventData,
         success: function(response) {
-            notifyOfCompletetion(eventData.eventId)
+            notifyToDelete(eventData.eventId)
         }
     })
 })
@@ -88,7 +149,7 @@ $(document).on('submit', "#addEventForm", function (event) {
 
             $(".eventForm").slideUp();
             $(".addEventSvg").toggleClass('rotated');
-            notifyOfCompletetion(response)
+            notifyNewEvent(response)
         }
     })
 
@@ -128,7 +189,7 @@ $(document).on("submit", "#editEventForm", function(event){
             type: "POST",
             data: eventData,
             success: function(response) {
-                notifyOfCompletetion(eventId) // Let the server know the event is no longer being edited
+                notifyToReload(eventId) // Let the server know the event is no longer being edited
             }
         })
     }
@@ -140,11 +201,13 @@ $(document).on("submit", "#editEventForm", function(event){
  * Listens for a click on the edit event button
  */
 $(document).on("click", ".eventEditButton", function() {
+    thisUserIsEditing = true;
+    $(".addEventButton").hide()
+    $(".eventEditButton").hide()
+    $(".eventDeleteButton").hide()
     let element = $(this).parent()
     console.log($("#editEventForm").length)
     appendForm(element)
-    $(".eventEditButton").hide()
-    $(".eventDeleteButton").hide()
 
 })
 
@@ -154,8 +217,11 @@ $(document).on("click", ".eventEditButton", function() {
  */
 $(document).on("click", ".existingEventCancel",function() {
     let eventId = $(this).closest(".event").find(".eventId").text();
-    notifyOfCompletetion(eventId) // Let the server know the event is no longer being edited
-    $(this).closest(".event").find(".eventEditButton").show();
+    thisUserIsEditing = false;
+    $(".addEventButton").show()
+    $(".eventEditButton").show()
+    $(".eventDeleteButton").show()
+    notifyNotEditing(eventId) // Let the server know the event is no longer being edited
     $(this).closest(".event").find(".existingEventForm").slideUp(400, function () {
         $(this).closest(".event").find(".existingEventForm").remove();
     })
@@ -169,17 +235,43 @@ $(document).on("click", ".existingEventCancel",function() {
 // <--------------------------- General Functions --------------------------->
 
 function checkPrivilege(){
-    return userRoles.includes('ADMIN') || userRoles.includes('TEACHER');
+    return userRoles.includes('COURSE_ADMINISTRATOR') || userRoles.includes('TEACHER');
 }
 
 
-function notifyOfCompletetion(eventId) {
+function notifyNotEditing(eventId) {
     $.ajax({
-        url: "/userFinishedEditing",
+        url: "/userNotEditingEvent",
         type: "post",
         data: {"eventId": eventId},
     })
 }
+
+function notifyToReload(eventId) {
+    $.ajax({
+        url: "/reloadSpecificEvent",
+        type: "post",
+        data: {"eventId": eventId},
+    })
+}
+function notifyToDelete(eventId) {
+    $.ajax({
+        url: "/notifyRemoveEvent",
+        type: "post",
+        data: {"eventId": eventId},
+    })
+}
+
+function notifyNewEvent(eventId) {
+    $.ajax({
+        url: "/notifyNewEvent",
+        type: "post",
+        data: {"eventId": eventId},
+    })
+}
+
+
+
 
 
 
@@ -277,7 +369,7 @@ function createEventDiv(eventObject) {
     }
 
     return `
-            <div class="event" id="` + eventObject.id + `">
+            <div class="event" id="${eventObject.id}">
                 <p class="eventId" style="display: none">` + eventObject.id + ` </p>
                 <p class="eventStartDateNilFormat" style="display: none">${eventObject.start}</p>
                 <p class="eventEndDateNilFormat" style="display: none">${eventObject.end}</p>
@@ -342,6 +434,69 @@ function refreshEvents(){
     })
 }
 
+function reloadEvent(eventId){
+    $("#eventContainer").find("#" + eventId).slideUp() // Finds the event divs and hides them
+
+
+    $.ajax({
+        url: '/getEvent',
+        type: 'get',
+        data: {'eventId': eventId},
+        success: function(response) {
+            console.log(response)
+            let eventObject = {
+                "id" : response.id,
+                "name" : response.name,
+                "start" : response.startDate,
+                "end" : response.endDate,
+                "startFormatted" : response.startDateFormatted,
+                "endFormatted" : response.endDateFormatted,
+                "typeOfEvent" : response.typeOfEvent,
+            }
+
+            $("#" + eventId).replaceWith(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
+            $("#" + eventId).slideDown()
+            $(".eventEditButton").show()
+            $(".eventDeleteButton").show()
+
+        },
+        error: function() {
+            location.href = "/error" // Moves the user to the error page
+        }
+    })
+}
+
+
+function removeEvent(eventId) {
+    $("#eventContainer").find("#" + eventId).slideUp() // Finds all event divs are removes them
+    $("#eventContainer").find("#" + eventId).remove()
+}
+
+function addEvent(eventId) {
+    $.ajax({
+        url: '/getEvent',
+        type: 'get',
+        data: {'eventId': eventId},
+        success: function(response) {
+            console.log(response)
+            let eventObject = {
+                "id" : response.id,
+                "name" : response.name,
+                "start" : response.startDate,
+                "end" : response.endDate,
+                "startFormatted" : response.startDateFormatted,
+                "endFormatted" : response.endDateFormatted,
+                "typeOfEvent" : response.typeOfEvent,
+            }
+
+            $("#eventContainer").append(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
+
+        },
+        error: function() {
+            location.href = "/error" // Moves the user to the error page
+        }
+    })
+}
 /**
  * Function that gets the maxlength of an input and lets the user know how many characters they have left.
  */
