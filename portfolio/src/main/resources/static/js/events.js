@@ -32,11 +32,18 @@ $(document).ready(function() {
     eventSource.addEventListener("editEvent", function (event) {
         const data = JSON.parse(event.data);
         console.log("A user is editing event: " + data.eventId);
+        let infoString = data.eventEditorID + " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
+        $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice`+data.eventId+`"> ` + infoString + `</p>`)
+        $("#" + data.eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
+        $("#infoEventContainer").slideDown() // Show the notice.
+
     })
 
     eventSource.addEventListener("editEventFinished", function (event) {
         const data = JSON.parse(event.data);
         console.log("A user is no longer editing event: " + data.eventId);
+        $("#eventNotice" + data.eventId).remove()
+
     })
 
 })

@@ -210,6 +210,7 @@ public class EventController {
             EditEvent editEvent = new EditEvent();
             editEvent.setEventId(eventId);
             editEvent.setUserId(eventEditorID);
+
             try {
                 emitter.send(SseEmitter.event().name("editEvent")
                         .data(editEvent));
