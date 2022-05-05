@@ -8,14 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.UUID;
 
 @RestController
 public class MilestoneController {
@@ -31,9 +32,9 @@ public class MilestoneController {
 
 
     /**
-     * Mapping for a put request to add milestone.
-     * The method first parses a date string that is passed as request parameters.in a format called ISO_DATE_TIME.
-     * The parsers converts them it that to the standard LocalDateTime format that we use.
+     * Mapping for a put request to add a milestone.
+     * The method first parses a date string that is passed as a request parameter.
+     * The parser converts it to the standard LocalDate format.
      * <p>
      * The project is then grabbed from the repository by its ID.
      * If the project can't be found, it throws an EntityNotFoundException
@@ -72,4 +73,50 @@ public class MilestoneController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    /**
+     * Mapping for a post request to edit a milestone.
+     * The method first gets the milestone from the repository. If the milestone cannot be retrieved, it throws an EntityNotFound exception.
+     * <p>
+     * The method then parses a date string that is passed as a request parameter.
+     * The parser converts it to the standard LocalDateTime format.
+     * <p>
+     * The Milestone is then edited with the parameters passed, and saved to the milestone repository.
+     * If all went successful, it returns OK, otherwise one of the errors is returned.
+     *
+     * @param milestoneId the ID of the milestone being edited.
+     * @param name the new name of the milestone.
+     * @param date the new date of the milestone.
+     * @param typeOfOccasion the new type of the milestone.
+     * @return A response indicating either success, or an error-code as to why it failed.
+     */
+    @PostMapping("/editMilestone")
+    public ResponseEntity editMilestone(
+            @RequestParam(value = "milestoneId") UUID milestoneId,
+            @RequestParam(value = "milestoneName") String name,
+            @RequestParam(value = "milestoneDate") String date,
+            @RequestParam(defaultValue = "1", value = "typeOfMilestone") int typeOfOccasion
+    ) {
+        try {
+            Milestone milestone = milestoneRepository.findById(milestoneId).orElseThrow(() -> new EntityNotFoundException(
+                    "Milestone with id " + milestoneId + " was not found"
+            ));
+
+            LocalDate milestoneDate = LocalDate.parse(date);
+
+            milestone.setName(name);
+            milestone.setEndDate(milestoneDate);
+            milestone.setType(typeOfOccasion);
+            milestoneRepository.save(milestone);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (EntityNotFoundException err) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception err) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+        }
+    }
+
 }

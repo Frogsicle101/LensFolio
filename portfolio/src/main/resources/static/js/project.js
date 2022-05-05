@@ -69,8 +69,8 @@ $(document).ready(() => {
         let milestoneData = {
             "projectId": projectId,
             "milestoneName": $("#milestoneName").val(),
-            "milestoneEnd": $("#milestoneEnd").val(),
-            "typeOfOccasion": $(".typeOfOccasion").val()
+            "milestoneDate": $("#milestoneEnd").val(),
+            "typeOfMilestone": $(".typeOfMilestone").val()
         }
 
         if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0){
@@ -211,7 +211,7 @@ $(document).ready(() => {
         $(".form-control").each(countCharacters)
         $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
         $(this).closest(".occasion").find(".eventEditButton").hide();
-        $(this).closest(".occasion").find(".existingEventForm").find(".typeOfOccasion").val(typeOfEvent)
+        $(this).closest(".occasion").find(".existingEventForm").find(".typeOfEvent").val(typeOfEvent)
 
         $(".existingEventSubmit").click(function() {
             let eventData = {
@@ -264,7 +264,7 @@ $(document).ready(() => {
         let milestoneId = $(this).closest(".occasion").find(".milestoneId").text();
         let milestoneName = $(this).closest(".occasion").find(".milestoneName").text();
         let milestoneEnd = $(this).closest(".occasion").find(".milestoneEndDateNilFormat").text();
-        let typeOfMilestone = $(this).closest(".occasion").find(".typeOfOccasion").text()
+        let typeOfMilestone = $(this).closest(".occasion").find(".typeOfMilestone").text()
         console.log(milestoneEnd);
 
 
@@ -272,11 +272,11 @@ $(document).ready(() => {
                 <form class="existingMilestoneForm">
                         <div class="mb-1">
                         <label for="milestoneName" class="form-label">Milestone name</label>
-                        <input type="text" class="form-control form-control-sm eventName" value="`+ milestoneName +`" maxlength="`+eventNameLengthRestriction+`" name="milestoneName" required>
+                        <input type="text" class="form-control form-control-sm milestoneName" value="`+ milestoneName +`" maxlength="`+eventNameLengthRestriction+`" name="milestoneName" required>
                         <small class="form-text text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
-                        <label for="exampleFormControlInput2" class="form-label">Type of event</label>
+                        <label for="exampleFormControlInput2" class="form-label">Type of milestone</label>
                         <select class="form-select typeOfMilestone" id="exampleFormControlInput2">
                             <option value="1">Event</option>
                             <option value="2">Test</option>
@@ -307,16 +307,17 @@ $(document).ready(() => {
         $(".form-control").each(countCharacters)
         $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
         $(this).closest(".occasion").find(".milestoneEditButton").hide();
-        $(this).closest(".occasion").find(".existingMilestoneForm").find(".typeOfOccasion").val(typeOfMilestone)
+        $(this).closest(".occasion").find(".existingMilestoneForm").find(".typeOfMilestone").val(typeOfMilestone)
 
         $(".existingMilestoneSubmit").click(function() {
             let milestoneData = {
                 "projectId": projectId,
                 "milestoneId" : milestoneId,
                 "milestoneName": $(this).closest(".existingMilestoneForm").find(".milestoneName").val(),
-                "milestoneEnd": $(this).closest(".existingMilestoneForm").find(".milestoneEndDateNilFormat").val(),
-                "typeOfMilestone": $(this).closest(".existingMilestoneForm").find(".typeOfOccasion").val()
+                "milestoneDate": $(this).closest(".existingMilestoneForm").find(".milestoneEnd").val(),
+                "typeOfMilestone": $(this).closest(".existingMilestoneForm").find(".typeOfMilestone").val()
             }
+            console.log(typeOfMilestone)
             if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0){
                 $(this).closest(".existingMilestoneForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">

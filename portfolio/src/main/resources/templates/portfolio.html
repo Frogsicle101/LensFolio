@@ -113,7 +113,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label">Type of event</label>
-                                <select class="form-select typeOfOccasion" id="exampleFormControlInput1">
+                                <select class="form-select typeOfEvent" id="exampleFormControlInput1">
                                     <option value="1" selected>Event</option>
                                     <option value="2">Test</option>
                                     <option value="3">Meeting</option>
@@ -151,7 +151,7 @@
                         <p th:text="${event.id}" class="eventId" style="display: none"></p>
                         <p th:text="${event.startDate}" class="eventStartDateNilFormat" style="display: none"></p>
                         <p th:text="${event.dateTime}" class="eventEndDateNilFormat" style="display: none"></p>
-                        <p th:text="${event.type}" class="typeOfOccasion" style="display: none"></p>
+                        <p th:text="${event.type}" class="typeOfEvent" style="display: none"></p>
                         <div class="mb-2 occasionTitleDiv">
                             <div th:switch="${event.type}" class="occasionIcon">
                                 <svg data-bs-toggle="tooltip" data-bs-placement="top" th:title="Event" th:case="'1'"
@@ -239,7 +239,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="exampleFormControlInput3" class="form-label">Type of deadline</label>
-                                <select class="form-select typeOfOccasion" id="exampleFormControlInput3">
+                                <select class="form-select typeOfDeadline" id="exampleFormControlInput3">
                                     <option value="1" selected>Event</option>
                                     <option value="2">Test</option>
                                     <option value="3">Meeting</option>
@@ -268,7 +268,7 @@
                     <div th:each="deadline: ${deadlines}" class="occasion">
                         <p th:text="${deadline.id}" class="deadlineId" style="display: none"></p>
                         <p th:text="${deadline.dateTime}" class="deadlineEndDateNilFormat" style="display: none"></p>
-                        <p th:text="${deadline.type}" class="typeOfOccasion" style="display: none"></p>
+                        <p th:text="${deadline.type}" class="typeOfDeadline" style="display: none"></p>
                         <div class="mb-2 occasionTitleDiv">
                             <div th:switch="${deadline.type}" class="occasionIcon">
                                 <svg data-bs-toggle="tooltip" data-bs-placement="top" th:title="Event" th:case="'1'"
@@ -294,7 +294,7 @@
                                      class="bi bi-bookmark" viewBox="0 0 16 16">
                                     <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
                                 </svg>
-                                <svg data-bs-toggle="tooltip" data-bs-placement="top" th:title="Special Event"
+                                <svg data-bs-toggle="tooltip" data-bs-placement="top" th:title="'Special Event'"
                                      th:case="'5'"
                                      xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                      class="bi bi-bell" viewBox="0 0 16 16">
@@ -355,7 +355,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="exampleFormControlInput2" class="form-label">Type of milestone</label>
-                                <select class="form-select typeOfOccasion" id="exampleFormControlInput2">
+                                <select class="form-select typeOfMilestone" id="exampleFormControlInput2">
                                     <option value="1" selected>Event</option>
                                     <option value="2">Test</option>
                                     <option value="3">Meeting</option>
@@ -371,7 +371,8 @@
                                            class="form-control form-control-sm milestoneInputEndDate"
                                            th:value="${project.getStartDateAsLocalDateTime().toLocalDate()}"
                                            th:min="${project.getStartDateAsLocalDateTime().toLocalDate()}"
-                                           th:max="${project.getEndDateAsLocalDateTime().toLocalDate()}" name="milestoneEnd"
+                                           th:max="${project.getEndDateAsLocalDateTime().toLocalDate()}"
+                                           name="milestoneEnd"
                                            id="milestoneEnd"
                                            required>
                                 </div>
@@ -384,7 +385,7 @@
                     <div th:each="milestone: ${milestones}" class="occasion">
                         <p th:text="${milestone.id}" class="milestoneId" style="display: none"></p>
                         <p th:text="${milestone.endDate}" class="milestoneEndDateNilFormat" style="display: none"></p>
-                        <p th:text="${milestone.type}" class="typeOfOccasion" style="display: none"></p>
+                        <p th:text="${milestone.type}" class="typeOfMilestone" style="display: none"></p>
                         <div class="mb-2 occasionTitleDiv">
                             <div th:switch="${milestone.type}" class="occasionIcon">
                                 <svg data-bs-toggle="tooltip" data-bs-placement="top" th:title="Event" th:case="'1'"
@@ -410,7 +411,7 @@
                                      class="bi bi-bookmark" viewBox="0 0 16 16">
                                     <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
                                 </svg>
-                                <svg data-bs-toggle="tooltip" data-bs-placement="top" th:title="Special Event"
+                                <svg data-bs-toggle="tooltip" data-bs-placement="top" th:title="'Special Event'"
                                      th:case="'5'"
                                      xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                      class="bi bi-bell" viewBox="0 0 16 16">
