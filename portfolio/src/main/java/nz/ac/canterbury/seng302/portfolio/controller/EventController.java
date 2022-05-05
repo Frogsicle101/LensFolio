@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -90,6 +91,37 @@ public class EventController {
 
     }
 
+
+    @GetMapping("/getEventsList")
+    public ResponseEntity<Object> getEventsList(
+            @RequestParam(value="projectId") Long projectId,
+            @AuthenticationPrincipal AuthState principal
+    ){
+        try {
+            logger.info("GET /getEventsList");
+            List<Event> eventList = eventRepository.findAllByProjectId(projectId);
+            HashMap<String, HashMap<String, String>> responseMap = new HashMap<>();
+
+            for (Event event : eventList) {
+                HashMap<String, String> eventDetails = new HashMap<>();
+                eventDetails.put("id", event.getId().toString());
+                eventDetails.put("name", event.getName());
+                eventDetails.put("start", event.getStartDateFormatted());
+                eventDetails.put("end", event.getEndDateFormatted());
+                eventDetails.put("start", event.getStartDate().toString());
+                eventDetails.put("end", event.getEndDate().toString());
+                eventDetails.put("startFormatted", event.getEndDateFormatted());
+                eventDetails.put("endFormatted", event.getEndDateFormatted());
+                eventDetails.put("typeOfEvent", String.valueOf(event.getTypeOfEvent()));
+                responseMap.put(event.getId().toString(), eventDetails);
+            }
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
+        } catch(Exception err){
+            logger.error("GET /getEventsList");
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Mapping for a delete request for event.
      * Trys to find the event with the Id given.
@@ -119,7 +151,7 @@ public class EventController {
 
 
     @PostMapping("/editEvent")
-    public ResponseEntity editEvent(
+    public ResponseEntity<Object> editEvent(
             @RequestParam(value = "eventId") UUID eventId,
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart")  String start,
@@ -180,6 +212,27 @@ public class EventController {
             editEvent.setUserId(eventEditorID);
             try {
                 emitter.send(SseEmitter.event().name("editEvent")
+                        .data(editEvent));
+            } catch (IOException e) {
+                emitters.remove(emitter);
+            }
+        }
+    }
+
+
+    @PostMapping("/userFinishedEditing")
+    public void userFinishedEditing(
+            @RequestParam(value="eventId") UUID eventId,
+            @AuthenticationPrincipal AuthState editor
+    ) {
+        int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
+        logger.info("Event id " + eventId + " is no longer being edited by user: " + eventEditorID);
+        for (SseEmitter emitter : emitters) {
+            EditEvent editEvent = new EditEvent();
+            editEvent.setEventId(eventId);
+            editEvent.setUserId(eventEditorID);
+            try {
+                emitter.send(SseEmitter.event().name("editEventFinished")
                         .data(editEvent));
             } catch (IOException e) {
                 emitters.remove(emitter);

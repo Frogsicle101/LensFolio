@@ -70,12 +70,7 @@ $(document).ready(() => {
     }
 
 
-    var eventSource = new EventSource("http://localhost:9000/notifications");
 
-    eventSource.addEventListener("editEvent", function (event) {
-        const data = JSON.parse(event.data);
-        console.log("A user is editing event: " + data.eventId);
-    })
 
 
 })

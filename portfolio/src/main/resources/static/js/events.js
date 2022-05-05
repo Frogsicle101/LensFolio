@@ -24,13 +24,20 @@ $(document).ready(function() {
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
 
 
-// Sends request to the server every 5 seconds
-    setInterval(function(){
-        checkEventChanges(projectId)
-    }, 5000)
 
 
 
+    var eventSource = new EventSource("http://localhost:9000/notifications");
+
+    eventSource.addEventListener("editEvent", function (event) {
+        const data = JSON.parse(event.data);
+        console.log("A user is editing event: " + data.eventId);
+    })
+
+    eventSource.addEventListener("editEventFinished", function (event) {
+        const data = JSON.parse(event.data);
+        console.log("A user is no longer editing event: " + data.eventId);
+    })
 
 })
 
@@ -123,6 +130,7 @@ $(document).on('submit', "#eventSubmit", function (event) {
 $(document).on("click", ".eventEditButton", function() {
 
     let eventId = $(this).closest(".event").find(".eventId").text();
+    console.log(eventId)
     let eventName = $(this).closest(".event").find(".eventName").text();
     let eventStart = $(this).closest(".event").find(".eventStartDateNilFormat").text().slice(0,16);
     let eventEnd = $(this).closest(".event").find(".eventEndDateNilFormat").text().slice(0,16);
@@ -130,16 +138,11 @@ $(document).on("click", ".eventEditButton", function() {
 
 
     $.ajax({
-        url: "/userEditingEvent",
-        type: "post",
-        data: {"eventId": eventId},
-        success: function (response){
-
-        },
-        error: function (response){
-
-        }
+        url: "/eventEdit",
+        type: "POST",
+        data: {"eventId" :eventId}
     })
+
 
 
 
