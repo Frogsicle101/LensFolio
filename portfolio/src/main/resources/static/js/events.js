@@ -20,55 +20,51 @@ $(document).ready(function() {
 
 
 
-
-
     $(".form-control").each(countCharacters)
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
 
 
-
-
-
-
-
-
-
-
 // Sends request to the server every 5 seconds
     setInterval(function(){
-        $.ajax({
-            url: '/checkEventChanges',
-            type: 'get',
-            data: {"projectId": projectId},
-            success: function (response) {
-
-                if (response) {  // If Response contains data of events
-                    $("#infoEventContainer").empty() //Make sure notice is empty
-
-                    for (let eventId in response){
-                        let infoString = response[eventId] + " is editing: " + $("#" + eventId).find(".eventName").text() // Find the name of the event from its id
-                        $("#infoEventContainer").append(`<p class="infoMessage"> ` + infoString + `</p>`)
-                        $("#" + eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
-                    }
-
-                    $("#infoEventContainer").slideDown() // Show the notice.
-                } else { // Response contains no data, no events being edited
-                    $("#infoEventContainer").slideUp()
-                    $("#infoEventContainer").empty()
-                }
-
-            },
-            error: function(response){
-                console.log("error")
-                console.log(response)
-            }
-        })
-    }, 5000);
+        checkEventChanges(projectId)
+    }, 5000)
 
 
 
 
 })
+
+
+function checkEventChanges(projectId){
+    $.ajax({
+        url: '/checkEventChanges',
+        type: 'get',
+        data: {"projectId": projectId},
+        success: function (response) {
+
+            if (response) {  // If Response contains data of events
+                $("#infoEventContainer").empty() //Make sure notice is empty
+
+                for (let eventId in response){
+                    console.log(eventId)
+                    let infoString = response[eventId] + " is editing: " + $("#" + eventId).find(".eventName").text() // Find the name of the event from its id
+                    $("#infoEventContainer").append(`<p class="infoMessage"> ` + infoString + `</p>`)
+                    $("#" + eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
+                }
+
+                $("#infoEventContainer").slideDown() // Show the notice.
+            } else { // Response contains no data, no events being edited
+                $("#infoEventContainer").slideUp()
+                $("#infoEventContainer").empty()
+            }
+
+        },
+        error: function(response){
+            console.log("error")
+            console.log(response)
+        }
+    })
+}
 
 
 $(document).on("click", ".eventDeleteButton", function(){
@@ -97,7 +93,6 @@ $(document).on('submit', "#eventSubmit", function (event) {
         "eventEnd": $("#eventEnd").val(),
         "typeOfEvent": $(".typeOfEvent").val()
     }
-    console.log(eventData.typeOfEvent)
     if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
         $(this).closest(".eventForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -139,10 +134,10 @@ $(document).on("click", ".eventEditButton", function() {
         type: "post",
         data: {"eventId": eventId},
         success: function (response){
-            console.log(response.statusText)
+
         },
         error: function (response){
-            console.log(response.statusText)
+
         }
     })
 
