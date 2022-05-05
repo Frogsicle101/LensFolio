@@ -22,20 +22,34 @@
             <h1>Personal Information</h1>
 
 
-            <div class="row mb-3">
-                <div class="col">
-                    <label for="FirstName" class="form-label">First name</label>
-                    <input type="text" class="form-control canDisable" name="firstname" id="FirstName" th:value="${firstName}" maxlength="50" required disabled>
+            <div class="row">
+
+                <div class="col-sm order-sm-last">
+                    <img th:src="${profileImageUrl}" alt="Your profile photo!" class="profilePic" id="accountPageImage">
                 </div>
-                <div class="col">
-                    <label for="MiddleName" class="form-label">Middle name</label>
-                    <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${middleName}" maxlength="50" disabled required>
+
+                <div class="col-sm order-sm-first">
+                    <div class="mb-3">
+                        <label for="FirstName" class="form-label">First name</label>
+                        <input type="text" class="form-control canDisable" name="firstname" id="FirstName" th:value="${firstName}" maxlength="50" required disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="MiddleName" class="form-label">Middle name</label>
+                        <input type="text" class="form-control canDisable" name="middlename" id="MiddleName" th:value="${middleName}" maxlength="50" disabled required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="LastName" class="form-label">Last name</label>
+                        <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${lastName}" maxlength="50" disabled  required>
+                    </div>
+
                 </div>
-                <div class="col">
-                    <label for="LastName" class="form-label">Last name</label>
-                    <input type="text" class="form-control canDisable" name="lastname" id="LastName" th:value="${lastName}" maxlength="50" disabled  required>
-                </div>
+
+
             </div>
+
+
             <div class="mb-3">
                 <label for="nickname" class="form-label">Nickname</label>
                 <input type="text" class="form-control canDisable" name="nickname" id="nickname" th:value="${nickname}" maxlength="100" disabled required>
