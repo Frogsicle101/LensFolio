@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.EditEvent;
+import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.events.Event;
 import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
@@ -24,9 +25,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
@@ -34,6 +33,8 @@ public class EventController {
 
     private final ProjectRepository projectRepository;
     private final EventRepository eventRepository;
+
+    private final RegexPatterns regexPatterns = new RegexPatterns();
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
@@ -46,7 +47,7 @@ public class EventController {
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
     }
-
+    //TODO logging
 
     /**
      * Mapping for a put request to add event.
@@ -72,11 +73,22 @@ public class EventController {
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart")  String start,
             @RequestParam(value = "eventEnd") String end,
-            @RequestParam(defaultValue = "1",value = "typeOfEvent") int typeOfEvent
+            @RequestParam (defaultValue = "1",value = "typeOfEvent")int typeOfEvent
     ) {
         try {
-            // eventStart and eventEnd return a string in the format "1986-01-28T11:38:00.01"
-            // DateTimeFormatter.ISO_DATE_TIME helps parse that string by declaring its format.
+            logger.info("PUT /addEvent");
+            if (!regexPatterns.getTitleRegex().matcher(name).matches()) {
+                String warning = "Event Name not in correct format";
+                logger.warn("PUT /addEvent: {}", warning);
+                return new ResponseEntity<>(warning, HttpStatus.BAD_REQUEST);
+            }
+            if (typeOfEvent < 0 || typeOfEvent > 5) {
+                String warning = "Type of Event needs to be between 0 and 5 inclusive";
+                logger.warn("PUT /addEvent: {}", warning);
+                return new ResponseEntity<>(warning, HttpStatus.BAD_REQUEST);
+            }
+
+
             LocalDateTime eventStart = LocalDateTime.parse(start, DateTimeFormatter.ISO_DATE_TIME);
             LocalDateTime eventEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
 
@@ -86,13 +98,17 @@ public class EventController {
 
             Event event = new Event(project, name, eventStart, eventEnd, typeOfEvent);
             eventRepository.save(event);
-            return new ResponseEntity<Object>(event.getId(),HttpStatus.OK);
+            return new ResponseEntity<>(event.getId(),HttpStatus.OK);
 
         } catch(EntityNotFoundException err) {
+            logger.warn("WARN /addEvent {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch(DateTimeParseException err) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.warn("WARN /addEvent {}", err.getMessage());
+            String warning = "Event Date(s) not in correct format";
+            return new ResponseEntity<>(warning, HttpStatus.BAD_REQUEST);
         } catch(Exception err) {
+            logger.info("ERROR /addEvent {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -108,27 +124,12 @@ public class EventController {
             @RequestParam(value="projectId") Long projectId
     ){
         try {
-            //TODO return event list in order of dates
             logger.info("GET /getEventsList");
-            List<Event> eventList = eventRepository.findAllByProjectId(projectId);
-            HashMap<String, HashMap<String, String>> responseMap = new HashMap<>();
-
-            for (Event event : eventList) {
-                HashMap<String, String> eventDetails = new HashMap<>();
-                eventDetails.put("id", event.getId().toString());
-                eventDetails.put("name", event.getName());
-                eventDetails.put("start", event.getStartDateFormatted());
-                eventDetails.put("end", event.getEndDateFormatted());
-                eventDetails.put("start", event.getStartDate().toString());
-                eventDetails.put("end", event.getEndDate().toString());
-                eventDetails.put("startFormatted", event.getEndDateFormatted());
-                eventDetails.put("endFormatted", event.getEndDateFormatted());
-                eventDetails.put("typeOfEvent", String.valueOf(event.getTypeOfEvent()));
-                responseMap.put(event.getId().toString(), eventDetails);
-            }
-            return new ResponseEntity<>(responseMap, HttpStatus.OK);
+            List<Event> eventList = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
+            eventList.sort(Comparator.comparing(Event::getStartDate));
+            return new ResponseEntity<>(eventList, HttpStatus.OK);
         } catch(Exception err){
-            logger.error("GET /getEventsList");
+            logger.error("GET /getEventsList: {}", err.getMessage() );
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -146,6 +147,7 @@ public class EventController {
             @RequestParam(value = "eventId") UUID eventId
     ) {
         try{
+            logger.info("DELETE /deleteEvent");
             Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(
                     "Event with id " + eventId + " was not found"
             ));
@@ -153,8 +155,10 @@ public class EventController {
             return new ResponseEntity<>(HttpStatus.OK);
 
         } catch(EntityNotFoundException err) {
+            logger.warn("ERROR /deleteEvent {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch(Exception err){
+            logger.error("ERROR /deleteEvent {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -171,6 +175,7 @@ public class EventController {
     )
     {
         try{
+            logger.info("POST /editEvent");
             Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(
                     "Event with id " + eventId + " was not found"
             ));
@@ -189,10 +194,11 @@ public class EventController {
             
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(EntityNotFoundException err) {
+            logger.warn("ERROR /editEvent {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }catch(Exception err){
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+            logger.error("ERROR /editEvent {}", err.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
         }
     }
 

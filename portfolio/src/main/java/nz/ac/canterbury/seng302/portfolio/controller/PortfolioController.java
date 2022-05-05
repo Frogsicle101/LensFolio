@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
+import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.events.Event;
 import nz.ac.canterbury.seng302.portfolio.events.EventHelper;
 import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
@@ -61,11 +62,8 @@ public class PortfolioController {
     private static final String successMessage = "successMessage";
 
 
-    private final Pattern projectNameRegex = Pattern.compile("([a-zA-Z0-9_]+\\s?)+");
-    private final Pattern projectIdRegex = Pattern.compile("[0-9]+");
-    private final Pattern descriptionRegex = Pattern.compile("([a-zA-Z0-9.,'\"]*\s?)+");
-    private final Pattern hexRegex = Pattern.compile("#[0-9A-Fa-f]{1,6}");
 
+    RegexPatterns regexPatterns = new RegexPatterns();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // For testing
@@ -122,10 +120,6 @@ public class PortfolioController {
                     "Project with id " + projectId + " was not found"
             ));
 
-
-
-
-            //View that we are going to return.
             ModelAndView modelAndView = new ModelAndView("portfolio");
 
             // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
@@ -135,27 +129,17 @@ public class PortfolioController {
             } else {
                 modelAndView.addObject("userCanEdit", false);
             }
-            //Creates the list of events for the front end.
+
             List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
 
-            //Add the project object to the view to be accessed on the frontend.
             modelAndView.addObject("project", project);
-
-            //Add a list of sprint objects to the view to be accessed on the frontend.
             modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
-
-            //Add a list of event objects to the view to be accessed on the frontend.
             modelAndView.addObject("events", eventList);
-
-            //Add an object that lets us access the event name restriction length on the frontend.
             modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
-
-            //Add the user object to the view to be accessed on the front end.
             modelAndView.addObject("user", user);
-
-            //TESTING PURPOSES. Passes the projectId to the front end. This will be removed when there is a way
-            //to have each user select what project they want to go to from the navbar.
             modelAndView.addObject("projectId", projectId);
+            modelAndView.addObject("titleRegex", regexPatterns.getTitleRegex().toString());
+            modelAndView.addObject("descriptionRegex", regexPatterns.getDescriptionRegex().toString());
 
             return modelAndView;
 
@@ -300,10 +284,11 @@ public class PortfolioController {
             String projectDescription = projectRequest.getProjectDescription();
 
 
-            if(!projectNameRegex.matcher(projectName).matches()) {
+
+            if(!regexPatterns.getTitleRegex().matcher(projectName).matches()) {
                 return new ResponseEntity<>("Project Name contains characters outside of a-z 0-9", HttpStatus.BAD_REQUEST);
             }
-            if(!descriptionRegex.matcher(projectDescription).matches()) {
+            if(!regexPatterns.getDescriptionRegex().matcher(projectDescription).matches()) {
                 return new ResponseEntity<>("Project description contains illegal characters", HttpStatus.BAD_REQUEST);
             }
 
@@ -574,15 +559,15 @@ public class PortfolioController {
             String sprintDescription = sprintRequest.getSprintDescription();
             String sprintColour = sprintRequest.getSprintColour();
 
-            if (!projectNameRegex.matcher(sprintName).matches()) {
+            if (!regexPatterns.getTitleRegex().matcher(sprintName).matches()) {
                 return new ResponseEntity<>("Sprint Name not in correct format", HttpStatus.BAD_REQUEST);
             }
 
-            if (!descriptionRegex.matcher(sprintDescription).matches()) {
+            if (!regexPatterns.getDescriptionRegex().matcher(sprintDescription).matches()) {
                 return new ResponseEntity<>("Sprint Description not in correct format", HttpStatus.BAD_REQUEST);
             }
 
-            if (!hexRegex.matcher(sprintColour).matches()) {
+            if (!regexPatterns.getHexRegex().matcher(sprintColour).matches()) {
                 return new ResponseEntity<>("Sprint Colour not in correct hex format", HttpStatus.BAD_REQUEST);
             }
 
