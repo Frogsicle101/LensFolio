@@ -24,8 +24,6 @@ $(document).ready(function() {
 
     eventSource.addEventListener("editEvent", function (event) {
         const data = JSON.parse(event.data);
-        console.log("A user is editing event: " + data.eventId);
-        console.log(data)
         let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
         $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice`+data.eventId+`"> ` + infoString + `</p>`)
         $("#" + data.eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
@@ -35,13 +33,14 @@ $(document).ready(function() {
 
     eventSource.addEventListener("editEventFinished", function (event) {
         const data = JSON.parse(event.data);
-        console.log("A user is no longer editing event: " + data.eventId);
         $("#eventNotice" + data.eventId).remove()
         $("#" + data.eventId).removeClass("eventBeingEdited")
 
         if (isEmpty($("#infoEventContainer"))) {
             $("#infoEventContainer").slideUp() // Hide the notice.
         }
+
+        refreshEvents(projectId) // Refreshes all the events
 
     })
 
@@ -63,7 +62,7 @@ $(document).on("click", ".eventDeleteButton", function(){
         type: "DELETE",
         data: eventData,
         success: function(response) {
-            location.reload()
+            notifyOfCompletetion(eventData.eventId)
         }
     })
 })
@@ -83,7 +82,6 @@ $(document).on('submit', "#addEventForm", function (event) {
         "eventEnd": $("#eventEnd").val(),
         "typeOfEvent": $(".typeOfEvent").val()
     }
-    console.log(eventData)
     $.ajax({
         url: "/addEvent",
         type: "put",
@@ -92,7 +90,7 @@ $(document).on('submit', "#addEventForm", function (event) {
             const projectId = $("#projectId").html()
             $(".eventForm").slideUp();
             $(".addEventSvg").toggleClass('rotated');
-            refreshEvents(projectId)
+            notifyOfCompletetion(response)
         }
     })
 
@@ -105,15 +103,14 @@ $(document).on('submit', "#addEventForm", function (event) {
 $(document).on("submit", "#editEventForm", function(event){
     event.preventDefault()
     const projectId = $("#projectId").html()
-    console.log(projectId)
+    let eventId = $(this).parent().find(".eventId").text()
     let eventData = {
-
         "projectId": projectId,
-        "eventId" : $(this).closest(".event").find(".eventId").text(),
-        "eventName": $(this).closest(".existingEventForm").find(".eventName").val(),
-        "eventStart": $(this).closest(".existingEventForm").find(".eventStart").val(),
-        "eventEnd": $(this).closest(".existingEventForm").find(".eventEnd").val(),
-        "typeOfEvent": $(this).closest(".existingEventForm").find(".typeOfEvent").val()
+        "eventId" : eventId,
+        "eventName": $(this).find(".eventName").val(),
+        "eventStart": $(this).find(".eventStart").val(),
+        "eventEnd": $(this).find(".eventEnd").val(),
+        "typeOfEvent": $(this).find(".typeOfEvent").val()
     }
     if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
         $(this).closest(".existingEventForm").append(`
@@ -133,9 +130,7 @@ $(document).on("submit", "#editEventForm", function(event){
             type: "POST",
             data: eventData,
             success: function(response) {
-                console.log("edit event submit: " + eventId)
-                cancelEventBeingEdited(eventId) // Let the server know the event is no longer being edited
-                // location.reload()
+                notifyOfCompletetion(eventId) // Let the server know the event is no longer being edited
             }
         })
     }
@@ -152,7 +147,7 @@ $(document).on("click", ".eventEditButton", function() {
     if (!$("#editEventForm").length == 0) { // Checks if an edit event form is already open
 
         $("#editEventForm").slideUp('400', function(){ // if it is, slide it up
-            cancelEventBeingEdited($(this).parent().attr('id')) // make a call back to the server letting it know that its no longer being edited (the event)
+            notifyOfCompletetion($(this).parent().attr('id')) // make a call back to the server letting it know that its no longer being edited (the event)
             $("#editEventForm").remove() // then remove it
             $(".eventEditButton").show()
             appendForm(element); // Then append the form to the new event that we want to edit
@@ -174,7 +169,7 @@ $(document).on("click", ".eventEditButton", function() {
  */
 $(document).on("click", ".existingEventCancel",function() {
     let eventId = $(this).closest(".event").find(".eventId").text();
-    cancelEventBeingEdited(eventId) // Let the server know the event is no longer being edited
+    notifyOfCompletetion(eventId) // Let the server know the event is no longer being edited
     $(this).closest(".event").find(".eventEditButton").show();
     $(this).closest(".event").find(".existingEventForm").slideUp(400, function () {
         $(this).closest(".event").find(".existingEventForm").remove();
@@ -189,7 +184,7 @@ $(document).on("click", ".existingEventCancel",function() {
 // <--------------------------- General Functions --------------------------->
 
 
-function cancelEventBeingEdited(eventId) {
+function notifyOfCompletetion(eventId) {
     $.ajax({
         url: "/userFinishedEditing",
         type: "post",

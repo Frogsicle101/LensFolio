@@ -67,7 +67,7 @@ public class EventController {
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PutMapping("/addEvent")
-    public ResponseEntity<String> addEvent(
+    public ResponseEntity<Object> addEvent(
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart")  String start,
@@ -86,7 +86,7 @@ public class EventController {
 
             Event event = new Event(project, name, eventStart, eventEnd, typeOfEvent);
             eventRepository.save(event);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<Object>(event.getId(),HttpStatus.OK);
 
         } catch(EntityNotFoundException err) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -98,11 +98,14 @@ public class EventController {
 
     }
 
-
+    /**
+     * Gets the list of events in a project and returns it.
+     * @param projectId The projectId to get the events from this project
+     * @return A ResponseEntity with the events or an error
+     */
     @GetMapping("/getEventsList")
     public ResponseEntity<Object> getEventsList(
-            @RequestParam(value="projectId") Long projectId,
-            @AuthenticationPrincipal AuthState principal
+            @RequestParam(value="projectId") Long projectId
     ){
         try {
             //TODO return event list in order of dates
