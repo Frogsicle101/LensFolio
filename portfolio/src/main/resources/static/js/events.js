@@ -265,7 +265,7 @@ function createEventDiv(eventObject) {
     }
 
     return `
-            <div class="event" id=" ` + eventObject.id + ` ">
+            <div class="event" id="` + eventObject.id + `">
                 <p class="eventId" style="display: none">` + eventObject.id + ` </p>
                 <p class="eventStartDateNilFormat" style="display: none">` + eventObject.start + ` </p>
                 <p class="eventEndDateNilFormat" style="display: none">` + eventObject.end + `</p>
