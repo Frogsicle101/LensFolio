@@ -31,7 +31,7 @@ public class Event {
     private String endDateColour;
     private int typeOfEvent;
     private Boolean currentlyBeingEdited = false;
-    private int userIdOfEditing;
+    private String userNameThatIsEditing;
 
 
     public Event() {
@@ -56,12 +56,12 @@ public class Event {
         this.currentlyBeingEdited = isBeingEdited;
     }
 
-    public void setUserEditing(int userId) {
-        this.userIdOfEditing = userId;
+    public void setUserEditing(String userNameThatIsEditing) {
+        this.userNameThatIsEditing = userNameThatIsEditing;
     }
 
-    public int getUserIdOfEditing() {
-        return this.userIdOfEditing;
+    public String getUserNameThatIsEditing() {
+        return this.userNameThatIsEditing;
     }
 
     public Boolean isItBeingEdited() {

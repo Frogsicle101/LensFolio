@@ -99,6 +99,32 @@ public class EventController {
 
     }
 
+    @GetMapping("/getEventsList")
+    public ResponseEntity<Object> getEventsList(
+            @RequestParam(value="projectId") Long projectId,
+            @AuthenticationPrincipal AuthState principal
+    ){
+        try {
+            logger.info("GET /getEventsList");
+            List<Event> eventList = eventRepository.findAllByProjectId(projectId);
+            HashMap<String, HashMap<String, String>> responseMap = new HashMap<>();
+
+            for (Event event : eventList) {
+                HashMap<String, String> eventDetails = new HashMap<>();
+                eventDetails.put("id", event.getId().toString());
+                eventDetails.put("name", event.getName());
+                eventDetails.put("start", event.getStartDateFormatted());
+                eventDetails.put("end", event.getEndDateFormatted());
+                eventDetails.put("typeOfEvent", String.valueOf(event.getTypeOfEvent()));
+                responseMap.put(event.getId().toString(), eventDetails);
+            }
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
+        } catch(Exception err){
+            logger.error("GET /getEventsList");
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Mapping for a delete request for event.
      * Trys to find the event with the Id given.
@@ -177,25 +203,24 @@ public class EventController {
             List<UserRole> userRoles = userResponse.getRolesList();
 
             if(userRoles.contains(UserRole.TEACHER) || userRoles.contains(UserRole.COURSE_ADMINISTRATOR)) { // Checks that the user is allowed to access this.
-                HashMap<String, HashMap<String, String>> results = new HashMap<>();
+                HashMap<String, String> results = new HashMap<>();
+
 
                 List<Event> eventList = eventRepository.findAllByProjectId(projectId);
                 for (Event event: eventList) {
 
                     if (event.isItBeingEdited()) {
-                        // Get user from server
-                        int userEditingId = event.getUserIdOfEditing();
-                        UserResponse getUser = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
-                                .setId(userEditingId)
-                                .build());
-                        HashMap<String, String> eventEditDetails = new HashMap<>();
-                        eventEditDetails.put("userEditingName", getUser.getFirstName() + " " + getUser.getLastName());
-                        results.put(event.getId().toString(),eventEditDetails);
+                        results.put(event.getId().toString(),event.getUserNameThatIsEditing());
 
                     }
                 }
                 logger.info("/CheckEventChanges - Sent response");
-                return new ResponseEntity<>(results,HttpStatus.OK);
+                if (results.isEmpty()) {
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(results,HttpStatus.OK);
+                }
+
             } else {
                 logger.warn("Post /userEditingEvent: User Unauthorized");
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -225,7 +250,7 @@ public class EventController {
             List<UserRole> userRoles = userResponse.getRolesList();
             if(userRoles.contains(UserRole.TEACHER) || userRoles.contains(UserRole.COURSE_ADMINISTRATOR)) { // Checks that the user is allowed to access this.
                 Event event = eventRepository.getById(eventId);
-                event.setUserEditing(userResponse.getId());
+                event.setUserEditing(userResponse.getFirstName() + " " + userResponse.getLastName());
                 event.setCurrentlyBeingEdited(true);
                 eventRepository.save(event);
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -242,7 +267,37 @@ public class EventController {
 
 
 
+    }
 
+    @PostMapping("/userFinishedEditing")
+    public ResponseEntity<Object> userFinishedEditing(
+            @RequestParam(value="eventId") UUID eventId,
+            @AuthenticationPrincipal AuthState principal
+    ) {
+        try{
+            logger.info("POST /userFinishedEditing");
+
+            int id = PrincipalAttributes.getIdFromPrincipal(principal);
+            UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
+                    .setId(id)
+                    .build());
+            List<UserRole> userRoles = userResponse.getRolesList();
+            if(userRoles.contains(UserRole.TEACHER) || userRoles.contains(UserRole.COURSE_ADMINISTRATOR)) { // Checks that the user is allowed to access this.
+                Event event = eventRepository.getById(eventId);
+                event.setUserEditing(null);
+                event.setCurrentlyBeingEdited(false);
+                eventRepository.save(event);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                logger.warn("Post /userFinishedEditing: User Unauthorized");
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+
+
+        } catch (Exception err) {
+            logger.error("Post /userFinishedEditing: {}", err.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 

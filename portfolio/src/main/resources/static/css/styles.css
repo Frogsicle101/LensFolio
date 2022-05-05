@@ -321,6 +321,10 @@ section{
 }
 
 
+.eventBeingEdited{
+    border: solid 1px blue;
+}
+
 /*Portfolio - Sprints*/
 .sprintsContainer{
     display: flex;

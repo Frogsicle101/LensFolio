@@ -66,7 +66,15 @@
 
     </div>
     <div class="projectContainer">
-        <div class="eventContainer">
+        <div class="eventContainer" id="eventContainer">
+
+
+            <div id="infoEventContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
+                <p class="infoMessage"></p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+
             <div class="mb-2 eventNameAndAddButton">
                 <h4>Events</h4>
                 <button type="button" class="addEventButton noStyleButton" th:if="${userCanEdit == true}" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Event" >
@@ -110,7 +118,8 @@
                     </div>
                 </form>
             </div>
-            <div th:each="event: ${events}" class="event" >
+
+            <div th:each="event: ${events}" class="event" th:id="${event.id}">
                 <p th:text="${event.id}" class="eventId" style="display: none"></p>
                 <p th:text="${event.startDate}" class="eventStartDateNilFormat" style="display: none"></p>
                 <p th:text="${event.endDate}" class="eventEndDateNilFormat" style="display: none"></p>
@@ -214,4 +223,5 @@
 </section>
 </body>
 <script type="application/javascript" th:src="@{js/project.js}"></script>
+<script type="application/javascript" th:src="@{js/events.js}"></script>
 </html>

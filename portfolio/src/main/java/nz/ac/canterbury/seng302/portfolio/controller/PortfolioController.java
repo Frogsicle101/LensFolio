@@ -69,7 +69,7 @@ public class PortfolioController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // For testing
-    private final boolean includeTestValues = false;
+    private final boolean includeTestValues = true;
 
 
     /**
