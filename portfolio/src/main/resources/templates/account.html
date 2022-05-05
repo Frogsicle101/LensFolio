@@ -24,18 +24,28 @@
             <p class="mandatoryMessage">Mandatory fields are marked with *</p>
 
 
-            <div class="row mb-3">
-                <div class="col">
-                    <label for="FirstName" class="form-label">First name*</label>
-                    <input type="text" class="form-control canDisable" name="firstname" id="firstname" th:value="${user.getFirstName()}" th:pattern="${alphaSpacesRegex}" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50" required disabled>
+            <div class="row">
+
+                <div class="col-sm order-sm-last">
+                    <img th:src="${profileImageUrl}" alt="Your profile photo!" class="profilePic" id="accountPageImage">
                 </div>
-                <div class="col">
-                    <label for="MiddleName" class="form-label">Middle name</label>
-                    <input type="text" class="form-control canDisable" name="middlename" id="middlename" th:value="${user.getMiddleName()}" th:pattern="${alphaSpacesRegexCanBeEmpty}" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50" disabled>
-                </div>
-                <div class="col">
-                    <label for="LastName" class="form-label">Last name*</label>
-                    <input type="text" class="form-control canDisable" name="lastname" id="lastname" th:value="${user.getLastName()}" th:pattern="${alphaSpacesRegex}" title="Only letters A-Z upper or lowercase, names must be seperated by a space" maxlength="50" disabled  required>
+
+                <div class="col-sm order-sm-first">
+                    <div class="mb-3">
+                        <label for="FirstName" class="form-label">First name</label>
+                        <input type="text" class="form-control canDisable" name="firstname" id="firstname" th:value="${user.getFirstName()}" th:pattern="${alphaSpacesRegex}" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50" required disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="MiddleName" class="form-label">Middle name</label>
+                        <input type="text" class="form-control canDisable" name="middlename" id="middlename" th:value="${user.getMiddleName()}" th:pattern="${alphaSpacesRegexCanBeEmpty}" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50" disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="LastName" class="form-label">Last name</label>
+                        <input type="text" class="form-control canDisable" name="lastname" id="lastname" th:value="${user.getLastName()}" th:pattern="${alphaSpacesRegex}" title="Only letters A-Z upper or lowercase, names must be seperated by a space" maxlength="50" disabled  required>
+                    </div>
+
                 </div>
             </div>
             <div class="mb-3">
