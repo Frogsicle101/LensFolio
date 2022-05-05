@@ -5,94 +5,83 @@ let thisUserIsEditing = false;
 $(document).ready(function() {
 
     refreshEvents(projectId)
-    console.log(userRoles)
 
+    removeElementIfNotAuthorized()
 
     $(".form-control").each(countCharacters)
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
 
     let eventSource = new EventSource("http://localhost:9000/notifications");
 
-    if (checkPrivilege()) {
-        /**
-         * This event listener listens for a notification that an event is being edited
-         * It then appends a message to the notice alert showing that the event is being edited and by who.
-         * It then adds a class to the event being edited which puts a border around it
-         * Then it hides the edit and delete button for that event to prevent the user from editing/deleting it too.
-         */
-        eventSource.addEventListener("editEvent", function (event) {
-            const data = JSON.parse(event.data);
-            let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
-            $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice`+data.eventId+`"> ` + infoString + `</p>`)
-            $("#" + data.eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
-            if ($(".event").hasClass("eventBeingEdited")) {
-                $(".eventBeingEdited").find(".eventEditButton").hide()
-                $(".eventBeingEdited").find(".eventDeleteButton").hide()
-            }
-            $("#infoEventContainer").slideDown() // Show the notice.
 
-        })
+    /**
+     * This event listener listens for a notification that an event is being edited
+     * It then appends a message to the notice alert showing that the event is being edited and by who.
+     * It then adds a class to the event being edited which puts a border around it
+     * Then it hides the edit and delete button for that event to prevent the user from editing/deleting it too.
+     */
+    eventSource.addEventListener("editEvent", function (event) {
+        const data = JSON.parse(event.data);
+        let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
+        $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice`+data.eventId+`"> ` + infoString + `</p>`)
+        $("#" + data.eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
+        if ($(".event").hasClass("eventBeingEdited")) {
+            $(".eventBeingEdited").find(".eventEditButton").hide()
+            $(".eventBeingEdited").find(".eventDeleteButton").hide()
+        }
+        $("#infoEventContainer").slideDown() // Show the notice.
+    })
+    /**
+     * This event listener listens for a notification that an event is no longer being edited
+     * It removes the class that shows the border
+     * Then it checks if this current user is editing another event, and avoids showing the edit buttons
+     * If the user isn't currently editing an event then it redisplays the edit and delete button.
+     */
+    eventSource.addEventListener("userNotEditingEvent", function (event) {
+        const data = JSON.parse(event.data);
+        $("#eventNotice" + data.eventId).remove()
+        $("#" + data.eventId).removeClass("eventBeingEdited")
+        if (!thisUserIsEditing) {
+            $("#" + data.eventId).find(".eventEditButton").show();
+            $("#" + data.eventId).find(".eventDeleteButton").show();
+        }
+        if ($(".event").hasClass("eventBeingEdited")) {
+            $(".eventBeingEdited").find(".eventEditButton").hide()
+            $(".eventBeingEdited").find(".eventDeleteButton").hide()
+        }
+        if (isEmpty($("#infoEventContainer"))) {
+            $("#infoEventContainer").slideUp() // Hide the notice.
+        }
+    })
+    /**
+     * This event listener listens for a notification that an event should be reloaded.
+     * This happens if another user has changed an event.
+     * It removes the class that shows the border and then calls ReloadEvent()
+     */
+    eventSource.addEventListener("reloadSpecificEvent", function (event) {
+        const data = JSON.parse(event.data);
+        $("#eventNotice" + data.eventId).remove()
+        $("#" + data.eventId).removeClass("eventBeingEdited")
+        if (isEmpty($("#infoEventContainer"))) {
+            $("#infoEventContainer").slideUp() // Hide the notice.
+        }
+        reloadEvent(data.eventId) // reloads specific event
+    })
+    /**
+     * Listens for a notification to remove an event (happens if another client deletes an event)
+     */
+    eventSource.addEventListener("notifyRemoveEvent", function (event) {
+        const data = JSON.parse(event.data);
+        removeEvent(data.eventId) // reloads specific event
+    })
+    /**
+     * Listens for a notification to add a new event that another client has created
+     */
+    eventSource.addEventListener("notifyNewEvent", function (event) {
+        const data = JSON.parse(event.data);
+        addEvent(data.eventId) // reloads specific event
+    })
 
-        /**
-         * This event listener listens for a notification that an event is no longer being edited
-         * It removes the class that shows the border
-         * Then it checks if this current user is editing another event, and avoids showing the edit buttons
-         * If the user isn't currently editing an event then it redisplays the edit and delete button.
-         */
-        eventSource.addEventListener("userNotEditingEvent", function (event) {
-            const data = JSON.parse(event.data);
-            $("#eventNotice" + data.eventId).remove()
-            $("#" + data.eventId).removeClass("eventBeingEdited")
-            if (!thisUserIsEditing) {
-                $("#" + data.eventId).find(".eventEditButton").show();
-                $("#" + data.eventId).find(".eventDeleteButton").show();
-            }
-            if ($(".event").hasClass("eventBeingEdited")) {
-                $(".eventBeingEdited").find(".eventEditButton").hide()
-                $(".eventBeingEdited").find(".eventDeleteButton").hide()
-            }
-
-            if (isEmpty($("#infoEventContainer"))) {
-                $("#infoEventContainer").slideUp() // Hide the notice.
-            }
-
-            //refreshEvents() // Refreshes all the events
-
-        })
-
-        /**
-         * This event listener listens for a notification that an event should be reloaded.
-         * This happens if another user has changed an event.
-         * It removes the class that shows the border and then calls ReloadEvent()
-         */
-        eventSource.addEventListener("reloadSpecificEvent", function (event) {
-
-            const data = JSON.parse(event.data);
-            console.log("refresh event: " + data.eventId)
-            $("#eventNotice" + data.eventId).remove()
-            $("#" + data.eventId).removeClass("eventBeingEdited")
-
-            if (isEmpty($("#infoEventContainer"))) {
-                $("#infoEventContainer").slideUp() // Hide the notice.
-            }
-            reloadEvent(data.eventId) // reloads specific event
-
-        })
-
-        eventSource.addEventListener("notifyRemoveEvent", function (event) {
-
-            const data = JSON.parse(event.data);
-            removeEvent(data.eventId) // reloads specific event
-
-        })
-
-        eventSource.addEventListener("notifyNewEvent", function (event) {
-
-            const data = JSON.parse(event.data);
-            addEvent(data.eventId) // reloads specific event
-
-        })
-    }
 
 
 })
@@ -103,7 +92,7 @@ $(document).ready(function() {
 // <--------------------------- Listener Functions --------------------------->
 
 /**
- * Slide toggle for when add event button is clicked.
+ * Listens for when add event button is clicked.
  */
 $(document).on('click', '.addEventButton', function() {
 
@@ -206,7 +195,6 @@ $(document).on("click", ".eventEditButton", function() {
     $(".eventEditButton").hide()
     $(".eventDeleteButton").hide()
     let element = $(this).parent()
-    console.log($("#editEventForm").length)
     appendForm(element)
 
 })
@@ -234,11 +222,24 @@ $(document).on("click", ".existingEventCancel",function() {
 
 // <--------------------------- General Functions --------------------------->
 
+
+function removeElementIfNotAuthorized() {
+    if (!checkPrivilege()) {
+        $(".hasTeacherOrAbove").remove()
+    }
+}
+/**
+ * Checks if a user has a role above student.
+ * @returns {boolean} returns true if userRole is above student.
+ */
 function checkPrivilege(){
     return userRoles.includes('COURSE_ADMINISTRATOR') || userRoles.includes('TEACHER');
 }
 
-
+/**
+ * Sends notification to server to notify other clients that this user is no longer editing an event.
+ * @param eventId the id of the event
+ */
 function notifyNotEditing(eventId) {
     $.ajax({
         url: "/userNotEditingEvent",
@@ -247,6 +248,10 @@ function notifyNotEditing(eventId) {
     })
 }
 
+/**
+ * Sends notification to server to notify other clients to reload a specific event.
+ * @param eventId the id of the event
+ */
 function notifyToReload(eventId) {
     $.ajax({
         url: "/reloadSpecificEvent",
@@ -254,6 +259,10 @@ function notifyToReload(eventId) {
         data: {"eventId": eventId},
     })
 }
+/**
+ * Sends notification to server to notify other clients to delete a specific event
+ * @param eventId the id of the event
+ */
 function notifyToDelete(eventId) {
     $.ajax({
         url: "/notifyRemoveEvent",
@@ -262,6 +271,10 @@ function notifyToDelete(eventId) {
     })
 }
 
+/**
+ * Sends notification to server to notify other clients that this user has added an event.
+ * @param eventId the id of the event
+ */
 function notifyNewEvent(eventId) {
     $.ajax({
         url: "/notifyNewEvent",
@@ -425,6 +438,7 @@ function refreshEvents(){
                 }
 
                 $("#eventContainer").append(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
+                removeElementIfNotAuthorized()
             }
 
         },
@@ -432,6 +446,8 @@ function refreshEvents(){
             location.href = "/error" // Moves the user to the error page
         }
     })
+
+
 }
 
 function reloadEvent(eventId){
@@ -443,7 +459,7 @@ function reloadEvent(eventId){
         type: 'get',
         data: {'eventId': eventId},
         success: function(response) {
-            console.log(response)
+
             let eventObject = {
                 "id" : response.id,
                 "name" : response.name,
@@ -458,27 +474,37 @@ function reloadEvent(eventId){
             $("#" + eventId).slideDown()
             $(".eventEditButton").show()
             $(".eventDeleteButton").show()
+            removeElementIfNotAuthorized()
 
         },
         error: function() {
             location.href = "/error" // Moves the user to the error page
         }
     })
+
+
 }
 
 
+/**
+ * Removes specific event
+ * @param eventId id of event to remove
+ */
 function removeEvent(eventId) {
     $("#eventContainer").find("#" + eventId).slideUp() // Finds all event divs are removes them
     $("#eventContainer").find("#" + eventId).remove()
 }
 
+/**
+ * Gets the details of the event and adds it to the page.
+ * @param eventId the event to add.
+ */
 function addEvent(eventId) {
     $.ajax({
         url: '/getEvent',
         type: 'get',
         data: {'eventId': eventId},
         success: function(response) {
-            console.log(response)
             let eventObject = {
                 "id" : response.id,
                 "name" : response.name,
@@ -490,6 +516,7 @@ function addEvent(eventId) {
             }
 
             $("#eventContainer").append(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
+            removeElementIfNotAuthorized()
 
         },
         error: function() {
@@ -514,7 +541,11 @@ function countCharacters() {
     }
 }
 
-
+/**
+ * Checks if element is empty
+ * @param el the element to check
+ * @returns {boolean} true if empty, false if not
+ */
 function isEmpty( el ){
     return !$.trim(el.html())
 }
