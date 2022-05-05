@@ -113,8 +113,10 @@ public class EventController {
                 HashMap<String, String> eventDetails = new HashMap<>();
                 eventDetails.put("id", event.getId().toString());
                 eventDetails.put("name", event.getName());
-                eventDetails.put("start", event.getStartDateFormatted());
-                eventDetails.put("end", event.getEndDateFormatted());
+                eventDetails.put("start", event.getStartDate().toString());
+                eventDetails.put("end", event.getEndDate().toString());
+                eventDetails.put("startFormatted", event.getEndDateFormatted());
+                eventDetails.put("endFormatted", event.getEndDateFormatted());
                 eventDetails.put("typeOfEvent", String.valueOf(event.getTypeOfEvent()));
                 responseMap.put(event.getId().toString(), eventDetails);
             }
