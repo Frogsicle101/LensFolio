@@ -1,9 +1,6 @@
 $(document).ready(function() {
-
     //Gets the project Id
     const projectId = $("#projectId").html()
-
-
 
     refreshEvents(projectId)
 
@@ -19,15 +16,11 @@ $(document).ready(function() {
     })
 
 
-
     $(".form-control").each(countCharacters)
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
 
-
-
-
-
     let eventSource = new EventSource("http://localhost:9000/notifications");
+
 
     eventSource.addEventListener("editEvent", function (event) {
         const data = JSON.parse(event.data);
@@ -56,6 +49,13 @@ $(document).ready(function() {
 
 
 
+
+// <--------------------------- Listener Functions --------------------------->
+
+
+/**
+ * Listens for a click on the event delete button
+ */
 $(document).on("click", ".eventDeleteButton", function(){
     let eventData = {"eventId": $(this).closest(".event").find(".eventId").text()}
     $.ajax({
@@ -71,9 +71,9 @@ $(document).on("click", ".eventDeleteButton", function(){
 
 
 /**
- * When event is submitted.
+ * When new event is submitted.
  */
-$(document).on('submit', "#editEventForm", function (event) {
+$(document).on('submit', "#addEventForm", function (event) {
     event.preventDefault();
     const projectId = $("#projectId").html()
     let eventData = {
@@ -90,6 +90,8 @@ $(document).on('submit', "#editEventForm", function (event) {
         data: eventData,
         success: function(response) {
             const projectId = $("#projectId").html()
+            $(".eventForm").slideUp();
+            $(".addEventSvg").toggleClass('rotated');
             refreshEvents(projectId)
         }
     })
@@ -97,67 +99,10 @@ $(document).on('submit', "#editEventForm", function (event) {
 })
 
 
-
-$(document).on("click", ".eventEditButton", function() {
-
-    let eventId = $(this).closest(".event").find(".eventId").text();
-    let eventName = $(this).closest(".event").find(".eventName").text();
-    let eventStart = $(this).closest(".event").find(".eventStartDateNilFormat").text().slice(0,16);
-    let eventEnd = $(this).closest(".event").find(".eventEndDateNilFormat").text().slice(0,16);
-    let typeOfEvent = $(this).closest(".event").find(".typeOfEvent").text()
-
-    $.ajax({
-        url: "/eventEdit",
-        type: "POST",
-        data: {"eventId" :eventId}
-    })
-
-    $(this).closest(".event").append(`
-                <form class="existingEventForm" id="editEventForm">
-                        <div class="mb-1">
-                        <label for="eventName" class="form-label">Event name</label>
-                        <input type="text" class="form-control form-control-sm eventName" value="`+ eventName +`" maxlength="`+eventNameLengthRestriction+`" name="eventName" required>
-                        <small class="form-text text-muted countChar">0 characters remaining</small>
-                    </div>
-                    <div class="mb-3">
-                        <label for="exampleFormControlInput1" class="form-label">Type of event</label>
-                        <select class="form-select typeOfEvent" id="exampleFormControlInput1">
-                            <option value="1">Event</option>
-                            <option value="2">Test</option>
-                            <option value="3">Meeting</option>
-                            <option value="4">Workshop</option>
-                            <option value="5">Special Event</option>
-                            <option value="6">Attention Required</option>
-                        </select>
-                    </div>
-                    <div class="row mb-1">
-                        <div class="col">
-                            <label for="eventStart" class="form-label">Start</label>
-                            <input type="datetime-local" class="form-control form-control-sm eventInputStartDate eventStart" value="`+eventStart+`" min="`+projectStart+`" max="`+projectEnd+`" name="eventStart" required>
-                        </div>
-                        <div class="col">
-                            <label for="eventEnd" class="form-label">End</label>
-                            <input type="datetime-local" class="form-control form-control-sm eventInputEndDate eventEnd" value="`+eventEnd+`" min="`+projectStart+`" max="`+projectEnd+`" name="eventEnd" required>
-                        </div>
-                    </div>
-                    <div class="mb-1">
-                        <button type="submit" class="btn btn-primary existingEventSubmit">Save</button>
-                        <button type="button" class="btn btn-secondary existingEventCancel" >Cancel</button>
-                    </div>
-                </form>`)
-
-
-
-
-    $(".form-control").each(countCharacters)
-    $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
-    $(this).closest(".event").find(".eventEditButton").hide();
-    $(this).closest(".event").find(".existingEventForm").find(".typeOfEvent").val(typeOfEvent)
-
-
-})
-
-$(document).on("submit", ".existingEventSubmit", function(event){
+/**
+ * When existing event is edited and submitted
+ */
+$(document).on("submit", "#editEventForm", function(event){
     event.preventDefault()
     const projectId = $("#projectId").html()
     console.log(projectId)
@@ -198,17 +143,53 @@ $(document).on("submit", ".existingEventSubmit", function(event){
 
 
 
-$(document).on("click", ".existingEventCancel",function() {
-    let eventId = $(this).closest(".event").find(".eventId").text();
-    cancelEventBeingEdited(eventId) // Let the server know the event is no longer being edited
-    $(this).closest(".event").find(".eventEditButton").show();
-    $(this).closest(".event").find(".existingEventForm").remove();
+/**
+ * Listens for a click on the edit event button
+ */
+$(document).on("click", ".eventEditButton", function() {
+    let element = $(this)
+
+    if (!$("#editEventForm").length == 0) { // Checks if an edit event form is already open
+
+        $("#editEventForm").slideUp('400', function(){ // if it is, slide it up
+            cancelEventBeingEdited($(this).parent().attr('id')) // make a call back to the server letting it know that its no longer being edited (the event)
+            $("#editEventForm").remove() // then remove it
+            $(".eventEditButton").show()
+            appendForm(element); // Then append the form to the new event that we want to edit
+
+        })
+    } else {
+        appendForm(element) // Else there is no form open so just remove it.
+    }
+
+
+
+
 
 })
 
 
+/**
+ * Listens for a click on the event form cancel button
+ */
+$(document).on("click", ".existingEventCancel",function() {
+    let eventId = $(this).closest(".event").find(".eventId").text();
+    cancelEventBeingEdited(eventId) // Let the server know the event is no longer being edited
+    $(this).closest(".event").find(".eventEditButton").show();
+    $(this).closest(".event").find(".existingEventForm").slideUp(400, function () {
+        $(this).closest(".event").find(".existingEventForm").remove();
+    })
+
+
+})
+
+
+
+
+// <--------------------------- General Functions --------------------------->
+
+
 function cancelEventBeingEdited(eventId) {
-    console.log("cancel event edit: " + eventId )
     $.ajax({
         url: "/userFinishedEditing",
         type: "post",
@@ -217,6 +198,75 @@ function cancelEventBeingEdited(eventId) {
 }
 
 
+
+/**
+ * Appends form to the element that is passed to it.
+ * Also gets data from that element.
+ * @param element the element to append the form too.
+ */
+function appendForm(element){
+    let eventId = $(element).closest(".event").find(".eventId").text();
+    let eventName = $(element).closest(".event").find(".eventName").text();
+    let eventStart = $(element).closest(".event").find(".eventStartDateNilFormat").text().slice(0,16);
+    let eventEnd = $(element).closest(".event").find(".eventEndDateNilFormat").text().slice(0,16);
+    let typeOfEvent = $(element).closest(".event").find(".typeOfEvent").text()
+
+    $.ajax({
+        url: "/eventEdit",
+        type: "POST",
+        data: {"eventId" :eventId}
+    })
+
+    $(element).closest(".event").append(`
+                <form class="existingEventForm" id="editEventForm" style="display: none">
+                        <div class="mb-1">
+                        <label for="eventName" class="form-label">Event name</label>
+                        <input type="text" class="form-control form-control-sm eventName" value="`+ eventName +`" maxlength="`+eventNameLengthRestriction+`" name="eventName" required>
+                        <small class="form-text text-muted countChar">0 characters remaining</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput1" class="form-label">Type of event</label>
+                        <select class="form-select typeOfEvent" id="exampleFormControlInput1">
+                            <option value="1">Event</option>
+                            <option value="2">Test</option>
+                            <option value="3">Meeting</option>
+                            <option value="4">Workshop</option>
+                            <option value="5">Special Event</option>
+                            <option value="6">Attention Required</option>
+                        </select>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col">
+                            <label for="eventStart" class="form-label">Start</label>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputStartDate eventStart" value="`+eventStart+`" min="`+projectStart+`" max="`+projectEnd+`" name="eventStart" required>
+                        </div>
+                        <div class="col">
+                            <label for="eventEnd" class="form-label">End</label>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputEndDate eventEnd" value="`+eventEnd+`" min="`+projectStart+`" max="`+projectEnd+`" name="eventEnd" required>
+                        </div>
+                    </div>
+                    <div class="mb-1">
+                        <button type="submit" class="btn btn-primary existingEventSubmit">Save</button>
+                        <button type="button" class="btn btn-secondary existingEventCancel" >Cancel</button>
+                    </div>
+                </form>`)
+
+
+
+
+    $(".form-control").each(countCharacters)
+    $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    $(element).closest(".event").find("#editEventForm").slideDown();
+    $(element).closest(".event").find(".eventEditButton").hide();
+    $(element).closest(".event").find(".existingEventForm").find(".typeOfEvent").val(typeOfEvent)
+}
+
+
+/**
+ * Creates the event divs from the eventObject
+ * @param eventObject A Json object with event details
+ * @returns {string} A div
+ */
 function createEventDiv(eventObject) {
     // TODO make it different if user can edit
     let iconElement;
@@ -274,12 +324,14 @@ function createEventDiv(eventObject) {
 }
 
 
-
-
+/**
+ * Refreshes the event div section of the page
+ * @param projectId
+ */
 function refreshEvents(projectId){
-    $("#eventContainer").empty() //
+    $("#eventContainer").find(".event").remove() // Finds all event divs are removes them
     $("#eventContainer").append(`<div id="infoEventContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
-            </div>`) //
+            </div>`) // Adds an info box to the page
     $.ajax({
         url: '/getEventsList',
         type: 'get',
@@ -298,12 +350,11 @@ function refreshEvents(projectId){
                 }
 
                 $("#eventContainer").append(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
-                //TODO format them so they appear on page in order of dates
             }
 
         },
         error: function() {
-            //TODO handle error
+            location.href = "/error" // Moves the user to the error page
         }
     })
 }

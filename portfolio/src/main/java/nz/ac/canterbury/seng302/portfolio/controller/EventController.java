@@ -105,6 +105,7 @@ public class EventController {
             @AuthenticationPrincipal AuthState principal
     ){
         try {
+            //TODO return event list in order of dates
             logger.info("GET /getEventsList");
             List<Event> eventList = eventRepository.findAllByProjectId(projectId);
             HashMap<String, HashMap<String, String>> responseMap = new HashMap<>();
