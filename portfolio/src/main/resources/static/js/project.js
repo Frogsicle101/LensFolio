@@ -8,7 +8,7 @@ $(document).ready(() => {
      * Redirect page.
      */
     $("#projectEditSprint").click(() => {
-        location.href = "/editProject?projectId=" + projectId ;
+        location.href = "/editProject?projectId=" + projectId;
     })
     /**
      * When project add sprint button is pressed.
@@ -25,7 +25,7 @@ $(document).ready(() => {
      */
     $(".editSprint").click(function () {
         let sprintId = $(this).closest(".sprint").find(".sprintId").text();
-        location.href = "/sprintEdit?sprintId=" + sprintId +"&projectId=" + projectId;
+        location.href = "/sprintEdit?sprintId=" + sprintId + "&projectId=" + projectId;
     })
 
 
@@ -34,7 +34,7 @@ $(document).ready(() => {
      * Sends ajax delete request.
      * Then reloads page.
      */
-    $(".deleteSprint").click(function() {
+    $(".deleteSprint").click(function () {
         let sprintId = $(this).closest(".sprint").find(".sprintId").text();
         $.ajax({
             url: "deleteSprint",
@@ -48,15 +48,15 @@ $(document).ready(() => {
     /**
      * Slide toggle for when add event button is clicked.
      */
-    $(".addEventButton").click(function() {
+    $(".addEventButton").click(function () {
         $(".addEventSvg").toggleClass('rotated');
         $(".eventForm").slideToggle();
     })
 
- /**
+    /**
      * Slide toggle for when add milestone button is clicked.
      */
-    $(".addMilestoneButton").click(function() {
+    $(".addMilestoneButton").click(function () {
         $(".addMilestoneSvg").toggleClass('rotated');
         $(".milestoneForm").slideToggle();
     })
@@ -64,7 +64,7 @@ $(document).ready(() => {
     /**
      * When milestone is submitted.
      */
-    $("#milestoneSubmit").click(function(event) {
+    $("#milestoneSubmit").click(function (event) {
         event.preventDefault();
         let milestoneData = {
             "projectId": projectId,
@@ -73,7 +73,12 @@ $(document).ready(() => {
             "typeOfMilestone": $(".typeOfMilestone").val()
         }
 
-        if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0){
+        console.log(projectId)
+        console.log(milestoneData.milestoneName)
+        console.log(milestoneData.milestoneDate)
+        console.log(milestoneData.typeOfMilestone)
+
+        if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0) {
             $(this).closest(".milestoneForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You probably should enter a milestone name!
@@ -84,8 +89,7 @@ $(document).ready(() => {
                 url: "/addMilestone",
                 type: "put",
                 data: milestoneData,
-                success: function(response) {
-                    console.log("yup")
+                success: function (response) {
                     location.href = "/portfolio?projectId=" + projectId
                 }
             })
@@ -96,7 +100,7 @@ $(document).ready(() => {
     /**
      * When event is submitted.
      */
-    $("#eventSubmit").click(function(event) {
+    $("#eventSubmit").click(function (event) {
         event.preventDefault();
         let eventData = {
             "projectId": projectId,
@@ -107,7 +111,7 @@ $(document).ready(() => {
         }
 
         console.log(eventData.typeOfEvent)
-        if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
+        if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0) {
             $(this).closest(".eventForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You probably should enter an event name!
@@ -124,7 +128,7 @@ $(document).ready(() => {
                 url: "/addEvent",
                 type: "put",
                 data: eventData,
-                success: function(response) {
+                success: function (response) {
                     location.href = "/portfolio?projectId=" + projectId
                 }
             })
@@ -153,26 +157,25 @@ $(document).ready(() => {
     }
 
     setAddSprintButtonPlacement()
+
     function setAddSprintButtonPlacement() {
         $(".addSprint").css("left", $(".eventContainer").width() + "px")
-        $(".addSprint").css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
+        $(".addSprint").css("bottom", 0 - $(".addSprintSvg").height() / 2 + "px")
     }
 
 
-
-    $(".eventEditButton").click(function() {
+    $(".eventEditButton").click(function () {
         let eventId = $(this).closest(".occasion").find(".eventId").text();
         let eventName = $(this).closest(".occasion").find(".eventName").text();
-        let eventStart = $(this).closest(".occasion").find(".eventStartDateNilFormat").text().slice(0,16);
-        let eventEnd = $(this).closest(".occasion").find(".eventEndDateNilFormat").text().slice(0,16);
+        let eventStart = $(this).closest(".occasion").find(".eventStartDateNilFormat").text().slice(0, 16);
+        let eventEnd = $(this).closest(".occasion").find(".eventEndDateNilFormat").text().slice(0, 16);
         let typeOfEvent = $(this).closest(".occasion").find(".typeOfEvent").text()
-        console.log(eventEnd);
 
         $(this).closest(".occasion").append(`
                 <form class="existingEventForm">
                         <div class="mb-1">
                         <label for="eventName" class="form-label">Event name</label>
-                        <input type="text" class="form-control form-control-sm eventName" value="`+ eventName +`" maxLength="`+occasionNameLengthRestriction+`" name="eventName" required>
+                        <input type="text" class="form-control form-control-sm eventName" value="` + eventName + `" maxLength="` + occasionNameLengthRestriction + `" name="eventName" required>
                         <small class="form-text text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
@@ -189,11 +192,11 @@ $(document).ready(() => {
                     <div class="row mb-1">
                         <div class="col">
                             <label for="eventStart" class="form-label">Start</label>
-                            <input type="datetime-local" class="form-control form-control-sm eventInputStartDate eventStart" value="`+eventStart+`" min="`+projectStart+`" max="`+projectEnd+`" name="eventStart" required>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputStartDate eventStart" value="` + eventStart + `" min="` + projectStart + `" max="` + projectEnd + `" name="eventStart" required>
                         </div>
                         <div class="col">
                             <label for="eventEnd" class="form-label">End</label>
-                            <input type="datetime-local" class="form-control form-control-sm eventInputEndDate eventEnd" value="`+eventEnd+`" min="`+projectStart+`" max="`+projectEnd+`" name="eventEnd" required>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputEndDate eventEnd" value="` + eventEnd + `" min="` + projectStart + `" max="` + projectEnd + `" name="eventEnd" required>
                         </div>
                     </div>
                     <div class="mb-1">
@@ -203,7 +206,7 @@ $(document).ready(() => {
                 </form>`)
 
 
-        $(".existingEventCancel").click(function() {
+        $(".existingEventCancel").click(function () {
             $(this).closest(".occasion").find(".eventEditButton").show();
             $(this).closest(".occasion").find(".existingEventForm").remove();
 
@@ -213,16 +216,16 @@ $(document).ready(() => {
         $(this).closest(".occasion").find(".eventEditButton").hide();
         $(this).closest(".occasion").find(".existingEventForm").find(".typeOfEvent").val(typeOfEvent)
 
-        $(".existingEventSubmit").click(function() {
+        $(".existingEventSubmit").click(function () {
             let eventData = {
                 "projectId": projectId,
-                "eventId" : eventId,
+                "eventId": eventId,
                 "eventName": $(this).closest(".existingEventForm").find(".eventName").val(),
                 "eventStart": $(this).closest(".existingEventForm").find(".eventStart").val(),
                 "eventEnd": $(this).closest(".existingEventForm").find(".eventEnd").val(),
                 "typeOfEvent": $(this).closest(".existingEventForm").find(".typeOfEvent").val()
             }
-            if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
+            if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0) {
                 $(this).closest(".existingEventForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You probably should enter an event name!
@@ -239,7 +242,7 @@ $(document).ready(() => {
                     url: "/editEvent",
                     type: "POST",
                     data: eventData,
-                    success: function(response) {
+                    success: function (response) {
                         location.reload()
                     }
                 })
@@ -247,20 +250,20 @@ $(document).ready(() => {
         })
     })
 
-    $(".eventDeleteButton").click(function(){
+    $(".eventDeleteButton").click(function () {
         let eventData = {"eventId": $(this).closest(".occasion").find(".eventId").text()}
         $.ajax({
             url: "/deleteEvent",
             type: "DELETE",
             data: eventData,
-            success: function(response) {
+            success: function (response) {
                 location.reload()
             }
         })
     })
 
 //////////////////////////////// milestones ///////////////////////////////
-    $(".milestoneEditButton").click(function() {
+    $(".milestoneEditButton").click(function () {
         let milestoneId = $(this).closest(".occasion").find(".milestoneId").text();
         let milestoneName = $(this).closest(".occasion").find(".milestoneName").text();
         let milestoneEnd = $(this).closest(".occasion").find(".milestoneEndDateNilFormat").text();
@@ -272,7 +275,7 @@ $(document).ready(() => {
                 <form class="existingMilestoneForm">
                         <div class="mb-1">
                         <label for="milestoneName" class="form-label">Milestone name</label>
-                        <input type="text" class="form-control form-control-sm milestoneName" value="`+ milestoneName +`" maxlength="`+occasionNameLengthRestriction+`" name="milestoneName" required>
+                        <input type="text" class="form-control form-control-sm milestoneName" value="` + milestoneName + `" maxlength="` + occasionNameLengthRestriction + `" name="milestoneName" required>
                         <small class="form-text text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
@@ -289,7 +292,7 @@ $(document).ready(() => {
                     <div class="row mb-1">
                         <div class="col">
                             <label for="milestoneEnd" class="form-label">End</label>
-                            <input type="date" class="form-control form-control-sm milestoneInputEndDate milestoneEnd" value="`+milestoneEnd+`" min="`+projectStart+`" max="`+projectEnd+`" name="milestoneEnd" required>
+                            <input type="date" class="form-control form-control-sm milestoneInputEndDate milestoneEnd" value="` + milestoneEnd + `" min="` + projectStart + `" max="` + projectEnd + `" name="milestoneEnd" required>
                         </div>
                     </div>
                     <div class="mb-1">
@@ -299,7 +302,7 @@ $(document).ready(() => {
                 </form>`)
 
 
-        $(".existingMilestoneCancel").click(function() {
+        $(".existingMilestoneCancel").click(function () {
             $(this).closest(".occasion").find(".milestoneEditButton").show();
             $(this).closest(".occasion").find(".existingMilestoneForm").remove();
 
@@ -309,16 +312,16 @@ $(document).ready(() => {
         $(this).closest(".occasion").find(".milestoneEditButton").hide();
         $(this).closest(".occasion").find(".existingMilestoneForm").find(".typeOfMilestone").val(typeOfMilestone)
 
-        $(".existingMilestoneSubmit").click(function() {
+        $(".existingMilestoneSubmit").click(function () {
             let milestoneData = {
                 "projectId": projectId,
-                "milestoneId" : milestoneId,
+                "milestoneId": milestoneId,
                 "milestoneName": $(this).closest(".existingMilestoneForm").find(".milestoneName").val(),
                 "milestoneDate": $(this).closest(".existingMilestoneForm").find(".milestoneEnd").val(),
                 "typeOfMilestone": $(this).closest(".existingMilestoneForm").find(".typeOfMilestone").val()
             }
             console.log(typeOfMilestone)
-            if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0){
+            if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0) {
                 $(this).closest(".existingMilestoneForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You probably should enter a milestone name!
@@ -329,7 +332,7 @@ $(document).ready(() => {
                     url: "/editMilestone",
                     type: "POST",
                     data: milestoneData,
-                    success: function(response) {
+                    success: function (response) {
                         location.reload()
                     }
                 })
@@ -338,13 +341,13 @@ $(document).ready(() => {
 
     })
 
-    $(".milestoneDeleteButton").click(function(){
+    $(".milestoneDeleteButton").click(function () {
         let milestoneData = {"milestoneId": $(this).closest(".occasion").find(".milestoneId").text()}
         $.ajax({
             url: "/deleteMilestone",
             type: "DELETE",
             data: milestoneData,
-            success: function(response) {
+            success: function (response) {
                 location.reload()
             }
         })

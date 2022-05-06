@@ -9,4 +9,7 @@ import java.util.UUID;
 public interface MilestoneRepository extends CrudRepository<Milestone, UUID> {
     @Query("select m from #{#entityName} as m where m.startDate IS NULL and m.dateTime IS NULL and m.project.id = ?1 order by m.endDate")
     List<Milestone> findAllByProjectIdOrderByEndDate(Long projectId);
+
+    @Query("select count(m) from #{#entityName} as m where m.startDate IS NULL and m.dateTime IS NULL and m.project.id = ?1")
+    Long countMilestoneByProjectId(Long projectId);
 }

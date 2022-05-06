@@ -195,7 +195,7 @@ public class PortfolioController {
             } else {
                 modelAndView.addObject("userCanEdit", false);
             }
-            //Creates the list of events for the front end.
+            //Creates the lists of events, deadlines, and milestones for the front end.
             List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
             List<Milestone> milestoneList = MilestoneHelper.setMilestoneColours(project.getId(), milestoneRepository, sprintRepository);
             List<Deadline> deadlineList = DeadlineHelper.setDeadlineColours(project.getId(), deadlineRepository, sprintRepository);
@@ -217,6 +217,13 @@ public class PortfolioController {
 
             //Add an object that lets us access the event name restriction length on the frontend.
             modelAndView.addObject("occasionNameLengthRestriction", Milestone.getNameLengthRestriction());
+
+            // generate and add next milestone and event names for add milestone form
+            String nextMilestoneName = "Milestone " + milestoneRepository.countMilestoneByProjectId(projectId).toString();
+            String nextEventName = "Event " + eventRepository.countEventByProjectId(projectId).toString();
+
+            modelAndView.addObject("nextMilestoneName", nextMilestoneName);
+            modelAndView.addObject("nextEventName", nextEventName);
 
             //Add the user object to the view to be accessed on the front end.
             modelAndView.addObject("username", user.getUsername());

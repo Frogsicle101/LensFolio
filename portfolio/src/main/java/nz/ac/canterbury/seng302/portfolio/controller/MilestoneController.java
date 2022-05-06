@@ -4,8 +4,6 @@ import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +21,6 @@ public class MilestoneController {
 
     private final ProjectRepository projectRepository;
     private final MilestoneRepository milestoneRepository;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public MilestoneController(ProjectRepository projectRepository, MilestoneRepository milestoneRepository) {
         this.projectRepository = projectRepository;
@@ -44,24 +41,24 @@ public class MilestoneController {
      *
      * @param projectId id of project to add milestone to.
      * @param name      Name of milestone.
-     * @param end       date of the end of the milestone.
+     * @param date      date of the end of the milestone.
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PutMapping("/addMilestone")
     public ResponseEntity<String> addMilestone(
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "milestoneName") String name,
-            @RequestParam(value = "milestoneEnd") String end,
-            @RequestParam(defaultValue = "1", value = "typeOfOccasion") int typeOfOccasion
+            @RequestParam(value = "milestoneDate") String date,
+            @RequestParam(defaultValue = "1", value = "typeOfMilestone") int typeOfOccasion
     ) {
         try {
-            LocalDate milestoneEnd = LocalDate.parse(end);
+            LocalDate milestoneDate = LocalDate.parse(date);
 
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Project with id " + projectId + " was not found"
             ));
 
-            Milestone milestone = new Milestone(project, name, milestoneEnd, typeOfOccasion);
+            Milestone milestone = new Milestone(project, name, milestoneDate, typeOfOccasion);
             milestoneRepository.save(milestone);
 
             return new ResponseEntity<>(HttpStatus.OK);
@@ -85,9 +82,9 @@ public class MilestoneController {
      * The Milestone is then edited with the parameters passed, and saved to the milestone repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
-     * @param milestoneId the ID of the milestone being edited.
-     * @param name the new name of the milestone.
-     * @param date the new date of the milestone.
+     * @param milestoneId    the ID of the milestone being edited.
+     * @param name           the new name of the milestone.
+     * @param date           the new date of the milestone.
      * @param typeOfOccasion the new type of the milestone.
      * @return A response indicating either success, or an error-code as to why it failed.
      */
