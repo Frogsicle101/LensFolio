@@ -76,7 +76,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
                 .setCreated(user.getAccountCreatedTime())
-                .setProfileImagePath(user.getProfileImagePath()
+                .setProfileImagePath(user.getProfileImagePath().toString()
         );
 
 
@@ -259,7 +259,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public StreamObserver<UploadUserProfilePhotoRequest> uploadUserProfilePhoto(StreamObserver<FileUploadStatusResponse> responseObserver) {
-        return new ImageRequestStreamObserver(responseObserver);
+        return new ImageRequestStreamObserver(responseObserver, repository);
     }
 
     @Override
@@ -267,8 +267,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         DeleteUserProfilePhotoResponse.Builder response = DeleteUserProfilePhotoResponse.newBuilder();
         try {
             int id = request.getUserId();
-            File image = new File("src/main/resources/profile-photos/" + id + ".jpg");
-            boolean deleteSuccess = image.delete();
+            User user = repository.findById(id);
+            boolean deleteSuccess = user.deleteProfileImage();
             response.setIsSuccess(deleteSuccess);
         } catch (Exception exception) {
             response.setIsSuccess(false);

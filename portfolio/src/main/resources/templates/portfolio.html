@@ -148,6 +148,10 @@
         </div>
 
         <div class="sprintsContainer">
+            <div class="sprintAddAlert alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+                <p class="sprintAddErrorMessage"></p>
+                <button type="button" class="collapseAlert btn-close"  aria-label="Close"></button>
+            </div>
             <div th:each=" sprint: ${sprints}" class="sprint" style="" th:attrappend="style=${'border-left: solid 0.3rem ' + sprint.getColour() + ' ;border-right: solid 0.3rem ' + sprint.getColour()}" >
                 <p class="sprintColour" style="display: none" th:text="${sprint.colour}"></p>
                 <p class="sprintId" style="display: none" th:text="${sprint.id}"></p>

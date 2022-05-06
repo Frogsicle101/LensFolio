@@ -30,15 +30,12 @@ public class UploadController {
     @GetMapping("/uploadImage")
     public String showUpload(
             @AuthenticationPrincipal AuthState principal,
-            HttpServletRequest request,
             Model model
     ) {
         logger.info("Endpoint reached: GET /uploadImage");
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
-        String ip = request.getLocalAddr();
-        String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-        model.addAttribute("profileImageUrl", url);
+        model.addAttribute("user", user);
         return "upload-image";
     }
 
