@@ -65,61 +65,76 @@ public class UserListController {
     @GetMapping("/user-list")
     public ModelAndView getUserList(
             @AuthenticationPrincipal AuthState principal,
-            HttpServletRequest servletRequest,
+            HttpServletRequest request,
             Model model,
           @RequestParam(name = "page", required = false) Integer page,
           @RequestParam(name = "sortField", required = false) String order)
     {
-        logger.info("REQUEST /user-list - retrieving paginated users");
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("1");
-        if (order != null) {
-            UserPrefs userPrefs = new UserPrefs(userId, order);
-            prefRepository.save(userPrefs);
-        }
-
-        // Set and Check the page number
+        selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal), Objects.requireNonNullElse(order, ""));
         if (page != null) {
             pageNum = page;
         }
+
         if (pageNum <= 1) { //to ensure no negative page numbers
             pageNum = 1;
-        } else if (pageNum > totalPages) { //to ensure that the last page will be shown if the page number is too large
-            pageNum = totalPages;
         }
         offset = (pageNum - 1) * usersPerPageLimit;
 
-        UserPrefs prefs = prefRepository.findByUserId(userId);
-        if (prefs == null) {
-            sortOrder = "name-increasing";
-        } else {
-            sortOrder = prefs.getListSortPref();
-            if (sortOrder == null) {
-                sortOrder = "name-increasing";
-            }
-        }
-        logger.info("4");
-
-        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
-                                                                    .setOffset(offset)
-                                                                    .setLimit(usersPerPageLimit)
-                                                                    .setOrderBy(sortOrder)
-                                                                    .build();
-        PaginatedUsersResponse response = userAccountsClientService.getPaginatedUsers(request);
-        logger.info("5");
-
+        PaginatedUsersResponse response = getPaginatedUsersFromServer();
         numUsers = response.getResultSetSize();
-        totalPages = numUsers / usersPerPageLimit + (((numUsers % usersPerPageLimit) == 0) ? 0 : 1);
-        logger.info("6");
-
+        totalPages = numUsers / usersPerPageLimit;
+        if ((numUsers % usersPerPageLimit) != 0) {
+            totalPages++;
+        }
+        if(pageNum > totalPages) { //to ensure that the last page will be shown if the page number is too large
+            pageNum = totalPages;
+            offset = (pageNum - 1) * usersPerPageLimit;
+            response = getPaginatedUsersFromServer();
+        }
+        
         createFooterNumberSequence();
         userResponseList = response.getUsersList();
-        addAttributesToModel(principal, servletRequest, model);
-        logger.info("7");
+        addAttributesToModel(principal, request, model);
 
         return new ModelAndView("user-list");
     }
 
+    /**
+     * A helper method to select the user's sort order for the user list
+     * @param userId The userId that you're selecting the sort order for
+     * @param order The order that the user send with the request. If they didn't send one, this should be ""
+     *              This can be done easily with the line Objects.requireNonNullElse(order, "")
+     */
+    private void selectSortOrder(int userId, String order) {
+        logger.info("VIEWING USERS - ID: " + userId + " : Beginning sort order selection");
+        if (!Objects.equals(order, "")) {
+            logger.info("VIEWING USERS - ID: " + userId + " : order provided, saving preferences");
+            sortOrder = order;
+            UserPrefs user = prefRepository.getUserPrefsByUserId(userId);
+            user.setListSortPref(order);
+            prefRepository.save(user);
+            logger.info("VIEWING USERS - ID: " + userId + " : preferences saved successfully");
+        } else {
+            //The request doesn't come with a sort order (it's null), so use the one saved
+            logger.info("VIEWING USERS - ID: " + userId + " : no order provided, checking database for user");
+            UserPrefs user;
+            user = prefRepository.getUserPrefsByUserId(userId);
+            if (user != null) {
+                logger.info("VIEWING USERS - ID: " + userId + " : user found, fetching preferences...");
+                sortOrder = user.getListSortPref();
+            } else {
+                logger.warn("VIEWING USERS - ID: " + userId + " : The user is null, saving them to the database");
+                /*We couldn't find the user! For now, we'll save their ID in the repo with the default sort pref
+                This is because the userPref repository starts empty, with no users in it
+                so if a user isn't in here, odds are it's because this is the first time they've
+                been to the view user page
+                 */
+                sortOrder = "name-increasing";
+                user = new UserPrefs(userId, sortOrder);
+                prefRepository.save(user);
+            }
+        }
+    }
 
     /**
      * Adds to the model the attributes required to display, format, and interact with the user list table.
@@ -130,17 +145,20 @@ public class UserListController {
     private void addAttributesToModel(AuthState principal, HttpServletRequest request, Model model) {
         UserRole[] possibleRoles = UserRole.values();
         possibleRoles = Arrays.stream(possibleRoles).filter(role -> role != UserRole.UNRECOGNIZED).toArray(UserRole[]::new);
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
         // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
-        List<UserRole> roles = userResponse.getRolesList();
+        List<UserRole> roles = user.getRolesList();
         if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
             model.addAttribute("userCanEdit", true);
         } else {
             model.addAttribute("userCanEdit", false);
         }
 
-        model.addAttribute("user", userResponse);
+        String ip = request.getLocalAddr();
+        String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
+        model.addAttribute("profileImageUrl", url);
+        model.addAttribute("username", user.getUsername());
 
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("currentPage", pageNum);
@@ -172,10 +190,7 @@ public class UserListController {
         ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
         UserRoleChangeResponse response = userAccountsClientService.removeRoleFromUser(request);
 
-        if (response.getIsSuccess())
-            return new ResponseEntity<>(HttpStatus.OK);
-        else
-            return new ResponseEntity<>("A user cannot have no roles", HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
