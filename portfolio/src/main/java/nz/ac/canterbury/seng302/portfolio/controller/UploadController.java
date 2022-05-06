@@ -12,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Controller
@@ -34,7 +33,6 @@ public class UploadController {
     ) {
         logger.info("Endpoint reached: GET /uploadImage");
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
-
         model.addAttribute("user", user);
         return "upload-image";
     }
