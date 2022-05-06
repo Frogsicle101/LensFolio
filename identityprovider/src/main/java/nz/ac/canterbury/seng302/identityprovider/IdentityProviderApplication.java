@@ -85,12 +85,11 @@ public class IdentityProviderApplication {
             );
             repository.save(lemming);
         }
-
     }
+
 
     public static void main(String[] args) {
         SpringApplication.run(IdentityProviderApplication.class, args);
     }
-
 
 }

@@ -1,4 +1,4 @@
-package nz.ac.canterbury.seng302.portfolio.sprints;
+package nz.ac.canterbury.seng302.portfolio.projects.sprints;
 
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import org.springframework.data.jpa.repository.Query;
