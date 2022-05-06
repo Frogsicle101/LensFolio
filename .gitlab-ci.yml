@@ -57,6 +57,8 @@ deploy-staging-identityprovider:
     - rm -rf /home/gitlab-runner/staging-identityprovider/ || true
     - mkdir /home/gitlab-runner/staging-identityprovider/
     - cp -r ./build/libs /home/gitlab-runner/staging-identityprovider
+    - mkdir /home/gitlab-runner/staging-identityprovider/photos
+    - cp ./src/main/resources/profile-photos/default.png /home/gitlab-runner/staging-identityprovider/photos
     - cp ../runner/staging-identityprovider.sh /home/gitlab-runner/staging-identityprovider.sh
     - chmod u+x /home/gitlab-runner/staging-identityprovider.sh
     - sudo systemctl restart staging-identityprovider

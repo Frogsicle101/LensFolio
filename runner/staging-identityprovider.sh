@@ -6,5 +6,6 @@ java -jar staging-identityprovider/libs/identityprovider-0.0.1-SNAPSHOT.jar \
   --server.port=9500 \
   --protocol=https \
   --hostName=csse-s302g6.canterbury.ac.nz \
-  --port=443
-  --rootPath=/test/identityprovider
+  --port=443 \
+  --rootPath=/test/identity \
+  --photoLocation=photos/

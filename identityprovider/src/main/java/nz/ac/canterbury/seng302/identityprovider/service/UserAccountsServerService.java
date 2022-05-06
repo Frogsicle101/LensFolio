@@ -11,6 +11,7 @@ import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
@@ -34,6 +35,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     @Autowired
     private UrlService urlService;
+
+    @Autowired
+    private Environment env;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -262,7 +266,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public StreamObserver<UploadUserProfilePhotoRequest> uploadUserProfilePhoto(StreamObserver<FileUploadStatusResponse> responseObserver) {
-        return new ImageRequestStreamObserver(responseObserver, repository);
+        return new ImageRequestStreamObserver(responseObserver, repository, env);
     }
 
     @Override
