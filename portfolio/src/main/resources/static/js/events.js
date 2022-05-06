@@ -25,7 +25,7 @@ $(document).ready(function() {
         let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
         $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice`+data.eventId+`"> ` + infoString + `</p>`)
         $("#" + data.eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
-        if ($(".event").hasClass("eventBeingEdited")) {
+        if ($(".occasion").hasClass("eventBeingEdited")) {
             $(".eventBeingEdited").find(".eventEditButton").hide()
             $(".eventBeingEdited").find(".eventDeleteButton").hide()
         }
@@ -45,7 +45,7 @@ $(document).ready(function() {
             $("#" + data.eventId).find(".eventEditButton").show();
             $("#" + data.eventId).find(".eventDeleteButton").show();
         }
-        if ($(".event").hasClass("eventBeingEdited")) {
+        if ($(".occasion").hasClass("eventBeingEdited")) {
             $(".eventBeingEdited").find(".eventEditButton").hide()
             $(".eventBeingEdited").find(".eventDeleteButton").hide()
         }
@@ -105,7 +105,7 @@ $(document).on('click', '.addEventButton', function() {
  * Listens for a click on the event delete button
  */
 $(document).on("click", ".eventDeleteButton", function(){
-    let eventData = {"eventId": $(this).closest(".event").find(".eventId").text()}
+    let eventData = {"eventId": $(this).closest(".occasion").find(".eventId").text()}
     $.ajax({
         url: "/deleteEvent",
         type: "DELETE",
@@ -160,6 +160,7 @@ $(document).on("submit", "#editEventForm", function(event){
         "eventEnd": $(this).find(".eventEnd").val(),
         "typeOfEvent": $(this).find(".typeOfEvent").val()
     }
+
     if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
         $(this).closest(".existingEventForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -204,14 +205,14 @@ $(document).on("click", ".eventEditButton", function() {
  * Listens for a click on the event form cancel button
  */
 $(document).on("click", ".existingEventCancel",function() {
-    let eventId = $(this).closest(".event").find(".eventId").text();
+    let eventId = $(this).closest(".occasion").find(".eventId").text();
     thisUserIsEditing = false;
     $(".addEventButton").show()
     $(".eventEditButton").show()
     $(".eventDeleteButton").show()
     notifyNotEditing(eventId) // Let the server know the event is no longer being edited
-    $(this).closest(".event").find(".existingEventForm").slideUp(400, function () {
-        $(this).closest(".event").find(".existingEventForm").remove();
+    $(this).closest(".occasion").find(".existingEventForm").slideUp(400, function () {
+        $(this).closest(".occasion").find(".existingEventForm").remove();
     })
 
 
@@ -346,8 +347,8 @@ function appendForm(element){
     $(".form-control").each(countCharacters)
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#editEventForm").slideDown();
-    $(element).closest(".event").find(".eventEditButton").hide();
-    $(element).closest(".event").find(".existingEventForm").find(".typeOfEvent").val(typeOfEvent)
+    $(element).closest(".occasion").find(".eventEditButton").hide();
+    $(element).closest(".occasion").find(".existingEventForm").find(".typeOfEvent").val(typeOfEvent)
 }
 
 
@@ -382,13 +383,13 @@ function createEventDiv(eventObject) {
     }
 
     return `
-            <div class="event" id="${eventObject.id}">
+            <div class="occasion" id="${eventObject.id}">
                 <p class="eventId" style="display: none">` + eventObject.id + ` </p>
                 <p class="eventStartDateNilFormat" style="display: none">${eventObject.start}</p>
                 <p class="eventEndDateNilFormat" style="display: none">${eventObject.end}</p>
                 <p class="typeOfEvent" style="display: none">${eventObject.typeOfEvent}</p>
-                <div class="mb-2 eventTitleDiv">
-                    <div class="eventIcon">
+                <div class="mb-2 occasionTitleDiv">
+                    <div class="occasionIcon">
                         ${iconElement}
                     </div>
                     <p class="eventName" >${eventObject.name}</p>
@@ -418,23 +419,25 @@ function createEventDiv(eventObject) {
  * @param projectId
  */
 function refreshEvents(){
-    $("#eventContainer").find(".event").remove() // Finds all event divs are removes them
+    $("#eventContainer").find(".occasion").remove() // Finds all event divs are removes them
     $("#eventContainer").append(`<div id="infoEventContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
             </div>`) // Adds an info box to the page
     $.ajax({
         url: '/getEventsList',
         type: 'get',
         data: {'projectId': projectId},
+
         success: function(response) {
+
             for(let event in response){ // Goes through all the data from the server and creates an eventObject
                 let eventObject = {
                     "id" : response[event].id,
                     "name" : response[event].name,
                     "start" : response[event].startDate,
-                    "end" : response[event].endDate,
+                    "end" : response[event].dateTime,
                     "startFormatted" : response[event].startDateFormatted,
                     "endFormatted" : response[event].endDateFormatted,
-                    "typeOfEvent" : response[event].typeOfEvent,
+                    "typeOfEvent" : response[event].type,
                 }
 
                 $("#eventContainer").append(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
@@ -442,8 +445,9 @@ function refreshEvents(){
             }
 
         },
-        error: function() {
-            location.href = "/error" // Moves the user to the error page
+        error: function(error) {
+            console.log(error)
+            // location.href = "/error" // Moves the user to the error page
         }
     })
 
@@ -464,10 +468,10 @@ function reloadEvent(eventId){
                 "id" : response.id,
                 "name" : response.name,
                 "start" : response.startDate,
-                "end" : response.endDate,
+                "end" : response.dateTime,
                 "startFormatted" : response.startDateFormatted,
                 "endFormatted" : response.endDateFormatted,
-                "typeOfEvent" : response.typeOfEvent,
+                "typeOfEvent" : response.type,
             }
 
             $("#" + eventId).replaceWith(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
@@ -550,3 +554,152 @@ function countCharacters() {
 function isEmpty( el ){
     return !$.trim(el.html())
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Slide toggle for when add milestone button is clicked.
+ */
+$(".addMilestoneButton").click(function() {
+    $(".addMilestoneSvg").toggleClass('rotated');
+    $(".milestoneForm").slideToggle();
+})
+
+/**
+ * When milestone is submitted.
+ */
+$("#milestoneSubmit").click(function(event) {
+    event.preventDefault();
+    let milestoneData = {
+        "projectId": projectId,
+        "milestoneName": $("#milestoneName").val(),
+        "milestoneDate": $("#milestoneEnd").val(),
+        "typeOfMilestone": $(".typeOfMilestone").val()
+    }
+
+    if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0){
+        $(this).closest(".milestoneForm").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Oh no!</strong> You probably should enter a milestone name!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
+    } else {
+        $.ajax({
+            url: "/addMilestone",
+            type: "put",
+            data: milestoneData,
+            success: function(response) {
+                console.log("yup")
+                location.href = "/portfolio?projectId=" + projectId
+            }
+        })
+    }
+})
+
+//////////////////////////////// milestones ///////////////////////////////
+$(".milestoneEditButton").click(function() {
+    let milestoneId = $(this).closest(".occasion").find(".milestoneId").text();
+    let milestoneName = $(this).closest(".occasion").find(".milestoneName").text();
+    let milestoneEnd = $(this).closest(".occasion").find(".milestoneEndDateNilFormat").text();
+    let typeOfMilestone = $(this).closest(".occasion").find(".typeOfMilestone").text()
+    console.log(milestoneEnd);
+
+
+    $(this).closest(".occasion").append(`
+                <form class="existingMilestoneForm">
+                        <div class="mb-1">
+                        <label for="milestoneName" class="form-label">Milestone name</label>
+                        <input type="text" class="form-control form-control-sm milestoneName" value="`+ milestoneName +`" maxlength="`+occasionNameLengthRestriction+`" name="milestoneName" required>
+                        <small class="form-text text-muted countChar">0 characters remaining</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleFormControlInput2" class="form-label">Type of milestone</label>
+                        <select class="form-select typeOfMilestone" id="exampleFormControlInput2">
+                            <option value="1">Event</option>
+                            <option value="2">Test</option>
+                            <option value="3">Meeting</option>
+                            <option value="4">Workshop</option>
+                            <option value="5">Special Event</option>
+                            <option value="6">Attention Required</option>
+                        </select>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col">
+                            <label for="milestoneEnd" class="form-label">End</label>
+                            <input type="date" class="form-control form-control-sm milestoneInputEndDate milestoneEnd" value="`+milestoneEnd+`" min="`+projectStart+`" max="`+projectEnd+`" name="milestoneEnd" required>
+                        </div>
+                    </div>
+                    <div class="mb-1">
+                        <button type="button" class="btn btn-primary existingMilestoneSubmit">Save</button>
+                        <button type="button" class="btn btn-secondary existingMilestoneCancel" >Cancel</button>
+                    </div>
+                </form>`)
+
+
+    $(".existingMilestoneCancel").click(function() {
+        $(this).closest(".occasion").find(".milestoneEditButton").show();
+        $(this).closest(".occasion").find(".existingMilestoneForm").remove();
+
+    })
+    $(".form-control").each(countCharacters)
+    $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    $(this).closest(".occasion").find(".milestoneEditButton").hide();
+    $(this).closest(".occasion").find(".existingMilestoneForm").find(".typeOfMilestone").val(typeOfMilestone)
+
+    $(".existingMilestoneSubmit").click(function() {
+        let milestoneData = {
+            "projectId": projectId,
+            "milestoneId" : milestoneId,
+            "milestoneName": $(this).closest(".existingMilestoneForm").find(".milestoneName").val(),
+            "milestoneDate": $(this).closest(".existingMilestoneForm").find(".milestoneEnd").val(),
+            "typeOfMilestone": $(this).closest(".existingMilestoneForm").find(".typeOfMilestone").val()
+        }
+        console.log(typeOfMilestone)
+        if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0){
+            $(this).closest(".existingMilestoneForm").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Oh no!</strong> You probably should enter a milestone name!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
+        } else {
+            $.ajax({
+                url: "/editMilestone",
+                type: "POST",
+                data: milestoneData,
+                success: function(response) {
+                    location.reload()
+                }
+            })
+        }
+    })
+
+})
+
+$(document).on('click', ".milestoneDeleteButton", function() {
+    $(".milestoneDeleteButton").click(function(){
+        let milestoneData = {"milestoneId": $(this).closest(".occasion").find(".milestoneId").text()}
+        $.ajax({
+            url: "/deleteMilestone",
+            type: "DELETE",
+            data: milestoneData,
+            success: function(response) {
+                location.reload()
+            }
+        })
+    })
+})

@@ -102,7 +102,7 @@ public class Milestone {
         return getEndDate().format(DateTimeFormat.dayDateMonthYear());
     }
 
-    public int type() {
+    public int getType() {
         return type;
     }
 
