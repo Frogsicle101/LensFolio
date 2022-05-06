@@ -32,6 +32,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Autowired
     private UserRepository repository;
 
+    @Autowired
+    private UrlService urlService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** Name Comparator */
@@ -76,7 +79,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
                 .setCreated(user.getAccountCreatedTime())
-                .setProfileImagePath(user.getProfileImagePath().toString()
+                .setProfileImagePath(urlService.getProfileURL(user).toString()
         );
 
 

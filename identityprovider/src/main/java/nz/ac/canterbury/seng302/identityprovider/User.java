@@ -253,16 +253,8 @@ public class User {
         }
     }
 
-    public URL getProfileImagePath() {
-        try {
-            return new URL("http",
-                        "localhost",
-                        9001,
-                        imagePath);
-        } catch (MalformedURLException exception) {
-            // This shouldn't happen as we make the URL
-        }
-        return null;
+    public String getProfileImagePath() {
+        return imagePath;
     }
 
     public boolean deleteProfileImage() {
