@@ -2,8 +2,9 @@ fuser -k 9500/tcp || true
 fuser -k 9502/tcp || true
 java -jar staging-identityprovider/libs/identityprovider-0.0.1-SNAPSHOT.jar \
   --spring.application.name=identity-provider \
-  --grpc.server.port=9500 \
-  --server.port=9502 \
+  --grpc.server.port=9502 \
+  --server.port=9501 \
   --protocol=https \
   --hostName=csse-s302g6.canterbury.ac.nz \
-  --rootPath=test/identityprovider
+  --port=443
+  --rootPath=/test/identityprovider

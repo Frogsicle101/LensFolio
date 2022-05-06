@@ -20,7 +20,7 @@ public class UrlService {
 
         String protocol = env.getProperty("protocol", "http");
         String hostName = env.getProperty("hostName", "localhost");
-        int port = Integer.parseInt(env.getProperty("server.port", "9001"));
+        int port = Integer.parseInt(env.getProperty("port", "9001"));
         String rootPath = env.getProperty("rootPath", "");
 
         try {
