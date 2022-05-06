@@ -2,20 +2,20 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -116,6 +116,22 @@ public class MilestoneController {
         } catch (Exception err) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+        }
+    }
+
+
+    @GetMapping("/getMilestoneList")
+    public ResponseEntity<Object> getMilestoneList(
+            @RequestParam(value="projectId") Long projectId
+    ){
+        try {
+            logger.info("GET /getMilestoneList");
+            List<Milestone> milestoneList = milestoneRepository.findAllByProjectIdOrderByEndDate(projectId);
+            milestoneList.sort(Comparator.comparing(Milestone::getEndDate));
+            return new ResponseEntity<>(milestoneList, HttpStatus.OK);
+        } catch(Exception err){
+            logger.error("GET /getMilestoneList: {}", err.getMessage() );
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -9,6 +9,8 @@ import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -18,14 +20,12 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
-import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -33,16 +33,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 
 @Controller
@@ -59,6 +56,10 @@ public class PortfolioController {
 
     @Autowired
     private final EventRepository eventRepository;
+
+
+    @Autowired
+    private final MilestoneRepository milestoneRepository;
 
     //Selectors for the error/info/success boxes.
     private static final String errorMessage = "errorMessage";
@@ -78,11 +79,13 @@ public class PortfolioController {
      * Constructor for PortfolioController
      * @param sprintRepository repository
      * @param projectRepository repository
+     * @param milestoneRepository
      */
-    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository) throws InvalidNameException {
+    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository, MilestoneRepository milestoneRepository) throws InvalidNameException {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
+        this.milestoneRepository = milestoneRepository;
 
         //Below are only for testing purposes.
         if (includeTestValues) {
@@ -94,6 +97,7 @@ public class PortfolioController {
                                                             " create software as a team."));
             createDefaultEvents(defaultProject);
             createDefaultSprints(defaultProject);
+            createDefaultMilestones(defaultProject);
         } else {
             projectRepository.save(new Project("Default Project"));
         }
@@ -617,6 +621,16 @@ public class PortfolioController {
         eventRepository.save(event2);
         eventRepository.save(event3);
         eventRepository.save(event4);
+    }
+
+    public void createDefaultMilestones(Project project) throws InvalidNameException {
+        Milestone milestone1 = new Milestone(project, "Finished the project!", LocalDate.parse("2022-05-01"), 1);
+        Milestone milestone2 = new Milestone(project, "Lost all the money", LocalDate.parse("2022-06-01"), 2);
+        Milestone milestone3 = new Milestone(project, "Wow look at that flying dog", LocalDate.parse("2022-07-01"), 3);
+
+        milestoneRepository.save(milestone1);
+        milestoneRepository.save(milestone2);
+        milestoneRepository.save(milestone3);
     }
 
     public void createDefaultSprints(Project project) {
