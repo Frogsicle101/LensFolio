@@ -36,16 +36,16 @@ $(document).ready(function() {
 
     eventSource.addEventListener("editMilestone", function (milestone) {
         const data = JSON.parse(milestone.data);
-        let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
+        let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".milestoneName").text() // Find the name of the event from its id
 
-        $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice + ${data.eventId}">${infoString}</p>`)
+        $("#infoMilestoneContainer").append(`<p class="infoMessage" id="milestoneNotice${data.eventId}" >${infoString}</p>`)
 
         $("#" + data.eventId).addClass("milestoneBeingEdited") // Add class that shows which event is being edited
         if ($(".occasion").hasClass("milestoneBeingEdited")) {
             $(".milestoneBeingEdited").find(".milestoneEditButton").hide()
             $(".milestoneBeingEdited").find(".milestoneDeleteButton").hide()
         }
-        $("#infoEventContainer").slideDown() // Show the notice.
+        $("#infoMilestoneContainer").slideDown() // Show the notice.
     })
 
 
@@ -80,6 +80,29 @@ $(document).ready(function() {
             $("#infoEventContainer").slideUp() // Hide the notice.
         }
     })
+
+    eventSource.addEventListener("userNotEditingMilestone", function (milestone) {
+
+        const data = JSON.parse(milestone.data);
+        $("#milestoneNotice" + data.eventId).remove()
+        $("#" + data.eventId).removeClass("milestoneBeingEdited")
+        if (!thisUserIsEditing) {
+            $("#" + data.eventId).find(".milestoneEditButton").show();
+            $("#" + data.eventId).find(".milestoneDeleteButton").show();
+        }
+        if ($(".occasion").hasClass("milestoneBeingEdited")) {
+            $(".milestoneBeingEdited").find(".milestoneEditButton").hide()
+            $(".milestoneBeingEdited").find(".milestoneDeleteButton").hide()
+        }
+        if (isEmpty($("#infoMilestoneContainer"))) {
+            $("#infoMilestoneContainer").slideUp() // Hide the notice.
+        }
+    })
+
+
+
+
+
     /**
      * This event listener listens for a notification that an event should be reloaded.
      * This happens if another user has changed an event.
@@ -279,6 +302,17 @@ function notifyNotEditing(eventId) {
     })
 }
 
+
+function notifyNotEditingMilestone(milestoneId) {
+    $.ajax({
+        url: "/userNotEditingMilestone",
+        type: "post",
+        data: {"milestoneId": milestoneId},
+    })
+}
+
+
+
 /**
  * Sends notification to server to notify other clients to reload a specific event.
  * @param eventId the id of the event
@@ -325,7 +359,7 @@ function notifyEditEvent(eventId) {
 
 function notifyEditMilestone(milestoneId) {
     $.ajax({
-        url: "/eventEdit",
+        url: "/milestoneBeingEdited",
         type: "POST",
         data: {"milestoneId" :milestoneId}
     })
@@ -785,12 +819,8 @@ function appendMilestoneForm(element){
     let milestoneEnd = $(element).find(".milestoneEnd").text().slice(0,16);
     let typeOfEvent = $(element).find(".typeOfMilestone").text()
 
-    //TODO fix this. This is the call that is made to the server to alert other clients that someone is editing a milestone
-    // $.ajax({
-    //     url: "/milestoneEdit",
-    //     type: "POST",
-    //     data: {"eventId" :eventId}
-    // })
+    notifyEditMilestone(milestoneId)
+
     $(element).append(`
                 <form class="existingMilestoneForm" id="milestoneEditForm" style="display: none">
                         <div class="mb-1">
@@ -828,6 +858,19 @@ function appendMilestoneForm(element){
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#milestoneEditForm").slideDown();
 }
+
+
+$(document).on("click", '.existingMilestoneCancel', function(){
+    let milestoneId = $(this).closest(".occasion").find(".milestoneId").text();
+    //TODO thisUserIsEditing = false;
+    // TODO $(".addEventButton").show()
+    $(".milestoneEditButton").show()
+    $(".milestoneDeleteButton").show()
+    notifyNotEditingMilestone(milestoneId) // Let the server know the event is no longer being edited
+    $(this).closest(".occasion").find(".existingMilestoneForm").slideUp(400, function () {
+        $(this).closest(".occasion").find(".existingMilestoneForm").remove();
+    })
+})
 
 
 
