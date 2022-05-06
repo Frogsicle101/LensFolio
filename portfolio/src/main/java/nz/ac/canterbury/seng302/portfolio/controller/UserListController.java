@@ -70,10 +70,7 @@ public class UserListController {
           @RequestParam(name = "page", required = false) Integer page,
           @RequestParam(name = "sortField", required = false) String order)
     {
-        //selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal), Objects.requireNonNullElse(order, ""));
-        if (order != null) {
-            sortOrder = order;
-        }
+        selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal), Objects.requireNonNullElse(order, ""));
         if (page != null) {
             pageNum = page;
         }
@@ -102,22 +99,31 @@ public class UserListController {
         return new ModelAndView("user-list");
     }
 
-    public void selectSortOrder(int userId, String order) {
+    private void selectSortOrder(int userId, String order) {
+        logger.info("VIEWING USERS - ID: " + userId + " : Beginning sort order selection");
         if (!Objects.equals(order, "")) {
+            logger.info("VIEWING USERS - ID: " + userId + " : order provided, saving preferences");
             sortOrder = order;
-            prefRepository.changeSortPref(userId, order);
+            UserPrefs user = prefRepository.getUserPrefsByUserId(userId);
+            user.setListSortPref(order);
+            prefRepository.save(user);
+            logger.info("VIEWING USERS - ID: " + userId + " : preferences saved successfully");
         } else {
             //The request doesn't come with a sort order (it's null), so use the one saved
-
-            UserPrefs user = prefRepository.findByUserId(userId);
+            logger.info("VIEWING USERS - ID: " + userId + " : no order provided, checking database for user");
+            UserPrefs user;
+            user = prefRepository.getUserPrefsByUserId(userId);
             if (user != null) {
+                logger.info("VIEWING USERS - ID: " + userId + " : user found, fetching preferences...");
                 sortOrder = user.getListSortPref();
             } else {
+                logger.warn("VIEWING USERS - ID: " + userId + " : The user is null, saving them to the database");
                 /*We couldn't find the user! For now, we'll save their ID in the repo with the default sort pref
                 This is because the userPref repository starts empty, with no users in it
                 so if a user isn't in here, odds are it's because this is the first time they've
                 been to the view user page
                  */
+                sortOrder = "name-increasing";
                 user = new UserPrefs(userId, sortOrder);
                 prefRepository.save(user);
             }

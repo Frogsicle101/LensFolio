@@ -39,7 +39,7 @@ public class UserPrefs {
     }
 
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 
