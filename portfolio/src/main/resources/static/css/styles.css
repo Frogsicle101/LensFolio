@@ -265,7 +265,7 @@ section {
     padding: 1rem;
 }
 
-.addEventSvg {
+.addEventSvg, .addMilestoneSvg {
     vertical-align: baseline;
     transition: transform 200ms;
 }

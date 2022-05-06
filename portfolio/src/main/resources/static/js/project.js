@@ -57,7 +57,7 @@ $(document).ready(() => {
      * Slide toggle for when add milestone button is clicked.
      */
     $(".addMilestoneButton").click(function() {
-        $(".addEventSvg").toggleClass('rotated');
+        $(".addMilestoneSvg").toggleClass('rotated');
         $(".milestoneForm").slideToggle();
     })
 
