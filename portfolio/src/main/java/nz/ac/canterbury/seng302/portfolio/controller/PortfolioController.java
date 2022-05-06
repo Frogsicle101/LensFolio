@@ -216,7 +216,7 @@ public class PortfolioController {
             modelAndView.addObject("deadlines", deadlineList);
 
             //Add an object that lets us access the event name restriction length on the frontend.
-            modelAndView.addObject("occasionNameLengthRestriction", Event.getNameLengthRestriction());
+            modelAndView.addObject("occasionNameLengthRestriction", Milestone.getNameLengthRestriction());
 
             //Add the user object to the view to be accessed on the front end.
             modelAndView.addObject("username", user.getUsername());

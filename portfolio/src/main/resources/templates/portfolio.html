@@ -17,7 +17,7 @@
 
         let projectStart = /*[[${project.getStartDateAsLocalDateTime()}]]*/ 'default';
         let projectEnd = /*[[${project.getEndDateAsLocalDateTime()}]]*/ 'default';
-        let eventNameLengthRestriction = /*[[${eventNameLengthRestriction}]]*/ 'default';
+        let occasionNameLengthRestriction = /*[[${occasionNameLengthRestriction}]]*/ 'default';
 
         /*]]>*/
     </script>
@@ -106,7 +106,7 @@
                             <div class="mb-1">
                                 <label for="eventName" class="form-label">Event name</label>
                                 <input type="text" class="form-control form-control-sm"
-                                       th:maxlength="${occasionNameLengthRestriction}" name="eventName"
+                                       th:maxLength="${occasionNameLengthRestriction}" name="eventName"
                                        id="eventName"
                                        required>
                                 <small class="form-text text-muted countChar">0 characters remaining</small>

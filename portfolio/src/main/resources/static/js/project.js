@@ -172,7 +172,7 @@ $(document).ready(() => {
                 <form class="existingEventForm">
                         <div class="mb-1">
                         <label for="eventName" class="form-label">Event name</label>
-                        <input type="text" class="form-control form-control-sm eventName" value="`+ eventName +`" maxlength="`+eventNameLengthRestriction+`" name="eventName" required>
+                        <input type="text" class="form-control form-control-sm eventName" value="`+ eventName +`" maxLength="`+occasionNameLengthRestriction+`" name="eventName" required>
                         <small class="form-text text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
@@ -272,7 +272,7 @@ $(document).ready(() => {
                 <form class="existingMilestoneForm">
                         <div class="mb-1">
                         <label for="milestoneName" class="form-label">Milestone name</label>
-                        <input type="text" class="form-control form-control-sm milestoneName" value="`+ milestoneName +`" maxlength="`+eventNameLengthRestriction+`" name="milestoneName" required>
+                        <input type="text" class="form-control form-control-sm milestoneName" value="`+ milestoneName +`" maxlength="`+occasionNameLengthRestriction+`" name="milestoneName" required>
                         <small class="form-text text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
