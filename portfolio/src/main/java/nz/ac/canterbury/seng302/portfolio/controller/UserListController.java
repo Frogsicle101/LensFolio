@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 import java.util.List;
@@ -35,22 +34,18 @@ public class UserListController {
     private UserAccountsClientService userAccountsClientService;
 
     @Autowired
-    private final UserPrefRepository prefRepository;
+    private UserPrefRepository prefRepository;
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     private int pageNum = 1;
     private final int usersPerPageLimit = 50;
     private int offset = 0;
-    private int numUsers= 0;
+    private int numUsers = 0;
     private int totalPages = 1;
     private String sortOrder = "name-increasing";
     private final ArrayList<Integer> footerNumberSequence = new ArrayList<>();
     private List<UserResponse> userResponseList;
     HashMap<String, UserRole> stringToRole;
-
-    public UserListController(UserPrefRepository prefRepository) {
-        this.prefRepository = prefRepository;
-    }
 
 
     /**
@@ -153,11 +148,8 @@ public class UserListController {
             model.addAttribute("userCanEdit", false);
         }
 
-        String ip = request.getLocalAddr();
-        String url = "http://" + ip + ":9001/" + user.getProfileImagePath();
-        model.addAttribute("profileImageUrl", url);
-        model.addAttribute("username", user.getUsername());
 
+        model.addAttribute("user", user);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("currentPage", pageNum);
         model.addAttribute("totalItems", numUsers);
