@@ -126,8 +126,8 @@ public class PortfolioController {
      */
     public void createDefaultMilestones(Project project) throws InvalidNameException {
         Milestone milestone1 = new Milestone(project, "Last date to withdraw from SENG 302", LocalDate.parse("2022-05-15"), 4);
-        Milestone milestone2 = new Milestone(project, "Vic Uni applications close", LocalDate.parse("2022-06-20"), 4);
-        Milestone milestone3 = new Milestone(project, "100 days of SENG 302", LocalDate.parse("2022-06-04"), 4);
+        Milestone milestone2 = new Milestone(project, "Vic Uni applications close", LocalDate.parse("2022-06-20"), 6);
+        Milestone milestone3 = new Milestone(project, "100 days of SENG 302", LocalDate.parse("2022-06-04"), 5);
         Milestone milestone4 = new Milestone(project, "100 days to go SENG 302", LocalDate.parse("2022-07-06"), 4);
         milestoneRepository.save(milestone1);
         milestoneRepository.save(milestone2);
