@@ -65,7 +65,6 @@ public class UserListController {
     @GetMapping("/user-list")
     public ModelAndView getUserList(
             @AuthenticationPrincipal AuthState principal,
-            HttpServletRequest request,
             Model model,
           @RequestParam(name = "page", required = false) Integer page,
           @RequestParam(name = "sortField", required = false) String order)
@@ -94,7 +93,7 @@ public class UserListController {
         
         createFooterNumberSequence();
         userResponseList = response.getUsersList();
-        addAttributesToModel(principal, request, model);
+        addAttributesToModel(principal, model);
 
         return new ModelAndView("user-list");
     }
@@ -141,8 +140,7 @@ public class UserListController {
      *
      * @param model the model to which the attributes will be added.
      */
-
-    private void addAttributesToModel(AuthState principal, HttpServletRequest request, Model model) {
+    private void addAttributesToModel(AuthState principal, Model model) {
         UserRole[] possibleRoles = UserRole.values();
         possibleRoles = Arrays.stream(possibleRoles).filter(role -> role != UserRole.UNRECOGNIZED).toArray(UserRole[]::new);
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);

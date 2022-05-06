@@ -71,7 +71,7 @@ public class LoginController {
         // If login was successful redirect to account, otherwise add failure message
         if (loginReply.getSuccess()) {
             logger.info("Login Successful - redirect to account page for username " + loginReply.getUsername());
-            return new ModelAndView("redirect:/account");
+            return new ModelAndView("redirect:account");
         } else {
             // Logged in attempt login method
             model.addAttribute("errorMessage", loginReply.getMessage());
