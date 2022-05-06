@@ -1,6 +1,8 @@
 package nz.ac.canterbury.seng302.identityprovider.controller;
 
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,13 +18,15 @@ import java.io.InputStream;
 @Controller
 public class ImageController {
 
-    @RequestMapping("/profile/{name}.jpg")
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @RequestMapping("/profile/{name}")
     public void image(@PathVariable("name") String name, HttpServletResponse response) throws IOException {
-
-
-        File image = new File("src/main/resources/profile-photos/" + name + ".jpg");
+        logger.info("Retrieving profile image: " + name);
+        File image = new File("src/main/resources/profile-photos/" + name);
 
         if (!image.exists()) {
+            logger.info("profile image does not exist using default image");
             image = new File("src/main/resources/profile-photos/default.png");
         }
 

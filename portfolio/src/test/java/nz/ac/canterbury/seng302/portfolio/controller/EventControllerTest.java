@@ -48,31 +48,6 @@ class EventControllerTest {
     void testAddEventNoReqParams() throws Exception {
         this.mockMvc.perform(put("/addEvent")).andExpect(status().isBadRequest());
     }
-    @Test
-    void testAddEventWithAllParams() throws Exception {
-        project = projectRepository.getProjectByName("Project Default");
-        HashMap<String, String> params = new HashMap<>();
-        params.put("projectId", project.getId().toString());
-        params.put("eventName", "TestEvent");
-        params.put("eventStart", "2022-01-28T11:38:00.01");
-        params.put("eventEnd", "2022-01-29T11:38:00.01");
-
-
-        this.mockMvc.perform(put("/addEvent" + joinParameters(params))).andExpect(status().isOk());
-    }
-
-    @Test
-    void testAddEventWithBadEventDateParams() throws Exception {
-        project = projectRepository.getProjectByName("Project Default");
-        HashMap<String, String> params = new HashMap<>();
-        params.put("projectId", project.getId().toString());
-        params.put("eventName", "TestEvent");
-        params.put("eventStart", "Hi, Im words.");
-        params.put("eventEnd", "Im more words");
-
-
-        this.mockMvc.perform(put("/addEvent" + joinParameters(params))).andExpect(status().isBadRequest());
-    }
 
 
     @Test
@@ -89,23 +64,6 @@ class EventControllerTest {
         result.andExpect(status().isBadRequest());
     }
 
-
-
-    @Test
-    void testAddEventWithNonExistingProject() throws Exception {
-        project = projectRepository.getProjectByName("Project Default");
-        Long projectId = 1 + project.getId();
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("projectId", String.valueOf(projectId));
-        params.put("eventName", "TestEvent");
-        params.put("eventStart", "2022-01-28T11:38:00.01");
-        params.put("eventEnd", "2022-01-29T11:38:00.01");
-
-        ResultActions result = this.mockMvc.perform(put("/addEvent" + joinParameters(params)));
-
-        result.andExpect(status().isNotFound());
-    }
 
     @Test
     void testDeleteEvent() throws Exception {

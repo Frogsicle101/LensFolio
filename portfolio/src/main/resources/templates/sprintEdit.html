@@ -9,14 +9,14 @@
 <!--The below section <header> pulls the fragment from fragments/general-->
 <header th:insert="fragments/general.html :: header"> </header>
 <section class="editSprintContainer">
-    <form th:action="@{/sprintSubmit}" th:object="${sprintEditForm}" method="post" class="sprintEditForm">
+    <form th:action="@{/sprintSubmit}" method="post" class="sprintEditForm">
         <!--Below are the divs that handle error messages
             If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
             they will be displayed below-->
-        <div th:insert="fragments/general.html :: errorBox"> </div>
-        <div th:insert="fragments/general.html :: successBox"> </div>
-        <div th:insert="fragments/general.html :: infoBox"> </div>
         <h1>Edit Sprint</h1>
+        <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+            <p class="errorMessage"></p>
+        </div>
         <input type="text" name="sprintId" style="display: none" id="sprintId" th:value="${sprint.getId()}">
         <div class="row">
             <div class="col">
@@ -39,6 +39,13 @@
                 <label for="sprintEndDate" class="form-label">Sprint End</label>
                 <input type="date" class="form-control canDisable" name="sprintEndDate" id="sprintEndDate" th:min="${previousSprintEnd}" th:max="${nextSprintStart}" th:value="${sprint.getEndDate()}" required>
                 <small class="form-text text-muted" th:text="${textForNextSprint}"></small>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="dateAlert alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+                    <strong>Oh no!</strong> You should probably make the start date be before the end date
+                </div>
             </div>
         </div>
         <div class="mb-3">

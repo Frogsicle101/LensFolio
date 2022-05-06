@@ -5,45 +5,17 @@ $(document).ready(function() {
         $(".errorMessageParent").show();
     }
     if (!$(".infoMessage").is(':empty'))  {
-        $(".infoMessageParent").slideDown().delay(1000).slideUp();
+        $(".infoMessageParent").show();
     }
 
     if (!$(".successMessage").is(':empty'))  {
-        $(".successMessageParent").slideDown().delay(1000).slideUp();
+        $(".successMessageParent").show();
     }
 
 
 
-    /**
-     * Binds an event handler to the "click".
-     * https://api.jquery.com/click/
-     * The handler looks for all props on any of the tags like <input> where there is a disabled prop.
-     */
-    $(".editUserButton").click(() => {
-        $(".canDisable").prop("disabled",!$(".canDisable").prop("disabled"));
-    })
-
-    $(".uploadPhotoButton").click(() => {
-        location.href = "/uploadImage";
-    });
-
-    $(".deleteProfilePhotoButton").click(() => {
-        $.ajax({
-            url: "/deleteProfileImg",
-            type: "DELETE",
-            success: function () {
-                location.reload()
-            }
-        })
-    });
-
-    $(".editPasswordButton").click(() => {
-        $(".canDisablePassword").prop("disabled",!$(".canDisablePassword").prop("disabled"));
-    })
-
-
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
 });
