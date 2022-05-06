@@ -65,64 +65,61 @@ public class UserListController {
     @GetMapping("/user-list")
     public ModelAndView getUserList(
             @AuthenticationPrincipal AuthState principal,
-            HttpServletRequest request,
+            HttpServletRequest servletRequest,
             Model model,
           @RequestParam(name = "page", required = false) Integer page,
           @RequestParam(name = "sortField", required = false) String order)
     {
-        //selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal), Objects.requireNonNullElse(order, ""));
+        logger.info("REQUEST /user-list - retrieving paginated users");
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        logger.info("1");
         if (order != null) {
-            sortOrder = order;
+            UserPrefs userPrefs = new UserPrefs(userId, order);
+            prefRepository.save(userPrefs);
         }
+
+        // Set and Check the page number
         if (page != null) {
             pageNum = page;
         }
-
         if (pageNum <= 1) { //to ensure no negative page numbers
             pageNum = 1;
+        } else if (pageNum > totalPages) { //to ensure that the last page will be shown if the page number is too large
+            pageNum = totalPages;
         }
         offset = (pageNum - 1) * usersPerPageLimit;
 
-        PaginatedUsersResponse response = getPaginatedUsersFromServer();
+        UserPrefs prefs = prefRepository.findByUserId(userId);
+        if (prefs == null) {
+            sortOrder = "name-increasing";
+        } else {
+            sortOrder = prefs.getListSortPref();
+            if (sortOrder == null) {
+                sortOrder = "name-increasing";
+            }
+        }
+        logger.info("4");
+
+        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+                                                                    .setOffset(offset)
+                                                                    .setLimit(usersPerPageLimit)
+                                                                    .setOrderBy(sortOrder)
+                                                                    .build();
+        PaginatedUsersResponse response = userAccountsClientService.getPaginatedUsers(request);
+        logger.info("5");
+
         numUsers = response.getResultSetSize();
-        totalPages = numUsers / usersPerPageLimit;
-        if ((numUsers % usersPerPageLimit) != 0) {
-            totalPages++;
-        }
-        if(pageNum > totalPages) { //to ensure that the last page will be shown if the page number is too large
-            pageNum = totalPages;
-            offset = (pageNum - 1) * usersPerPageLimit;
-            response = getPaginatedUsersFromServer();
-        }
-        
+        totalPages = numUsers / usersPerPageLimit + (((numUsers % usersPerPageLimit) == 0) ? 0 : 1);
+        logger.info("6");
+
         createFooterNumberSequence();
         userResponseList = response.getUsersList();
-        addAttributesToModel(principal, request, model);
+        addAttributesToModel(principal, servletRequest, model);
+        logger.info("7");
 
         return new ModelAndView("user-list");
     }
 
-    public void selectSortOrder(int userId, String order) {
-        if (!Objects.equals(order, "")) {
-            sortOrder = order;
-            prefRepository.changeSortPref(userId, order);
-        } else {
-            //The request doesn't come with a sort order (it's null), so use the one saved
-
-            UserPrefs user = prefRepository.findByUserId(userId);
-            if (user != null) {
-                sortOrder = user.getListSortPref();
-            } else {
-                /*We couldn't find the user! For now, we'll save their ID in the repo with the default sort pref
-                This is because the userPref repository starts empty, with no users in it
-                so if a user isn't in here, odds are it's because this is the first time they've
-                been to the view user page
-                 */
-                user = new UserPrefs(userId, sortOrder);
-                prefRepository.save(user);
-            }
-        }
-    }
 
     /**
      * Adds to the model the attributes required to display, format, and interact with the user list table.

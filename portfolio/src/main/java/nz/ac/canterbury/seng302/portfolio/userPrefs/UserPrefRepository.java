@@ -16,7 +16,7 @@ public interface UserPrefRepository extends CrudRepository<UserPrefs, Integer> {
      * Gets a user's preference 'object' from the database using the id of said user
      * @return The user's preferences, in the form of a UserPrefs object
      */
-    UserPrefs findByUserId(long userId);
+    UserPrefs findByUserId(int userId);
 
     /**
      * Changes a user's sorting preferences to the preference given.
