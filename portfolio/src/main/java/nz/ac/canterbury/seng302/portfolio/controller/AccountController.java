@@ -63,13 +63,8 @@ public class AccountController {
     ) {
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         logger.info("GET REQUEST /account - retrieving account details for user " + user.getUsername());
-        ModelAndView model = new ModelAndView("account");
-        model.addObject("user", user);
-        String memberSince = ReadableTimeService.getReadableDate(user.getCreated())
-                        + " (" + ReadableTimeService.getReadableTimeSince(user.getCreated()) + ")";
-        model.addObject("membersince", memberSince);
-        logger.info("Account details populated for " + user.getUsername());
 
+        ModelAndView model = new ModelAndView("account");
         model.addObject("alphaSpacesRegex", alphaSpacesRegex);
         model.addObject("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
         model.addObject("userNameRegex", userNameRegex);
@@ -77,7 +72,11 @@ public class AccountController {
         model.addObject("bioRegex", bioRegex);
         model.addObject("passwordRegex", passwordRegex);
         model.addObject("pronounRegex", pronounRegex);
-
+        model.addObject("user", user);
+        String memberSince = ReadableTimeService.getReadableDate(user.getCreated())
+                + " (" + ReadableTimeService.getReadableTimeSince(user.getCreated()) + ")";
+        model.addObject("membersince", memberSince);
+        logger.info("Account details populated for " + user.getUsername());
         return model;
     }
 
