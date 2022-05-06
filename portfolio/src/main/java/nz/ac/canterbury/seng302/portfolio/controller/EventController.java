@@ -2,8 +2,6 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.EditEvent;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
-import nz.ac.canterbury.seng302.portfolio.events.Event;
-import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
@@ -30,7 +28,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
@@ -110,14 +110,10 @@ public class EventController {
             eventRepository.save(event);
             return new ResponseEntity<>(event.getId(),HttpStatus.OK);
 
-        } catch (EntityNotFoundException err) {
         } catch(EntityNotFoundException err) {
             logger.warn("WARN /addEvent {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (DateTimeParseException err) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (Exception err) {
-        } catch(DateTimeParseException err) {
+        }  catch(DateTimeParseException err) {
             logger.warn("WARN /addEvent {}", err.getMessage());
             String warning = "Event Date(s) not in correct format";
             return new ResponseEntity<>(warning, HttpStatus.BAD_REQUEST);
@@ -262,7 +258,7 @@ public class EventController {
         return emitter;
     }
 
-    @Before()
+    @Before
     @PostMapping("/eventEdit")
     public void sendEventToClients(@AuthenticationPrincipal AuthState editor,
                                    @RequestParam UUID eventId) {

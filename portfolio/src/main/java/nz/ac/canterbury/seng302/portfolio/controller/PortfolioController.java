@@ -3,9 +3,6 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
-import nz.ac.canterbury.seng302.portfolio.events.Event;
-import nz.ac.canterbury.seng302.portfolio.events.EventHelper;
-import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
@@ -20,21 +17,15 @@ import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepositor
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-
-
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
-import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -42,16 +33,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 
 @Controller
@@ -102,7 +90,7 @@ public class PortfolioController {
         if (includeTestValues) {
             Project defaultProject = projectRepository.save(new Project("Project Seng302",
                                                             LocalDate.parse("2022-02-25"),
-                                                            LocalDate.parse("2022-09-30"),
+                                                            LocalDate.parse("2022-10-30"),
                                                     "SENG302 is all about putting all that you have learnt in" +
                                                             " other courses into a systematic development process to" +
                                                             " create software as a team."));
@@ -113,81 +101,9 @@ public class PortfolioController {
         } else {
             projectRepository.save(new Project("Default Project"));
         }
-
-
-    /**
-     * Creates default events for a given project.
-     *
-     * @param project The project in which the events will be stored.
-     * @throws InvalidNameException If the event name is null or longer than 50 characters.
-     */
-    public void createDefaultEvents(Project project) throws InvalidNameException {
-        Event event1 = new Event(project, "Term Break", LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:00:00"), 1);
-        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.parse("19:00:00"), 5);
-        Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDate.parse("2022-05-18"), LocalTime.parse("17:00:00"), 4);
-        Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDate.parse("2022-09-30"), LocalTime.parse("17:00:00"), 6);
-        eventRepository.save(event1);
-        eventRepository.save(event2);
-        eventRepository.save(event3);
-        eventRepository.save(event4);
-    }
-
-    /**
-     * Creates default deadlines for a given project.
-     *
-     * @param project The project in which the deadlines will be stored.
-     * @throws InvalidNameException If the deadline name is null or longer than 50 characters.
-     */
-    public void createDefaultDeadlines(Project project) throws InvalidNameException {
-        Deadline deadline1 = new Deadline(project, "SENG 101 Assignment due", LocalDate.parse("2022-05-01"), LocalTime.parse("23:59:00"), 1);
-        Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate Entries Close", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
-        Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-10-14"), LocalTime.parse("09:30:00"), 3);
-        Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences Applics close", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
-        deadlineRepository.save(deadline1);
-        deadlineRepository.save(deadline2);
-        deadlineRepository.save(deadline3);
-        deadlineRepository.save(deadline4);
-    }
-
-    /**
-     * Creates default milestones for a given project.
-     *
-     * @param project The project in which the milestones will be stored.
-     * @throws InvalidNameException If the milestone name is null or longer than 50 characters.
-     */
-    public void createDefaultMilestones(Project project) throws InvalidNameException {
-        Milestone milestone1 = new Milestone(project, "Last date to withdraw from SENG 302", LocalDate.parse("2022-05-15"), 4);
-        Milestone milestone2 = new Milestone(project, "Vic Uni applications close", LocalDate.parse("2022-06-20"), 6);
-        Milestone milestone3 = new Milestone(project, "100 days of SENG 302", LocalDate.parse("2022-06-04"), 5);
-        Milestone milestone4 = new Milestone(project, "100 days to go SENG 302", LocalDate.parse("2022-07-06"), 4);
-        milestoneRepository.save(milestone1);
-        milestoneRepository.save(milestone2);
-        milestoneRepository.save(milestone3);
-        milestoneRepository.save(milestone4);
     }
 
 
-    /**
-     * Creates sprints for a given project.
-     *
-     * @param project The project in which the sprints will be stored.
-     */
-    public void createDefaultSprints(Project project) {
-        Sprint sprint1 = new Sprint(project, "Sprint 1", LocalDate.parse("2022-02-28"), LocalDate.parse("2022-03-09"), "Sprint 1", "#0066cc");
-        Sprint sprint2 = new Sprint(project, "Sprint 2", LocalDate.parse("2022-03-14"), LocalDate.parse("2022-03-30"), "Sprint 2", "#ffcc00");
-        Sprint sprint3 = new Sprint(project, "Sprint 3", LocalDate.parse("2022-04-04"), LocalDate.parse("2022-05-11"), "Sprint 3", "#f48c06");
-        Sprint sprint4 = new Sprint(project, "Sprint 4", LocalDate.parse("2022-05-16"), LocalDate.parse("2022-07-20"), "Sprint 4", "#118ab2");
-        Sprint sprint5 = new Sprint(project, "Sprint 5", LocalDate.parse("2022-07-25"), LocalDate.parse("2022-08-10"), "Sprint 5", "#219ebc");
-        Sprint sprint6 = new Sprint(project, "Sprint 6", LocalDate.parse("2022-08-15"), LocalDate.parse("2022-09-14"), "Sprint 6", "#f48c06");
-        Sprint sprint7 = new Sprint(project, "Sprint 7", LocalDate.parse("2022-09-19"), LocalDate.parse("2022-09-30"), "Sprint 7", "#f48c06");
-        sprintRepository.save(sprint1);
-        sprintRepository.save(sprint2);
-        sprintRepository.save(sprint3);
-        sprintRepository.save(sprint4);
-        sprintRepository.save(sprint5);
-        sprintRepository.save(sprint6);
-        sprintRepository.save(sprint7);
-    }
 
 
     /**
@@ -274,7 +190,6 @@ public class PortfolioController {
     @RequestMapping("/editProject")
     public ModelAndView edit(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam(value = "projectId") Long projectId,
             @RequestParam (value = "projectId") Long projectId
     ) {
         try {
@@ -654,6 +569,11 @@ public class PortfolioController {
         }
     }
 
+
+
+
+
+
     /**
      * Checks the SprintRequest DTO is all good and correct
      *
@@ -689,7 +609,6 @@ public class PortfolioController {
             return new ResponseEntity<>("Date(s) is in incorrect format", HttpStatus.BAD_REQUEST);
 
         }
-
     }
 
 
@@ -705,28 +624,33 @@ public class PortfolioController {
         sprintRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
-   }
-
-
 
 
    /////////////////////////////////////////////// Test Values  ////////////////////////////////////////////////////////
 
-    public void createDefaultEvents(Project project) {
-        LocalDateTime date = LocalDateTime.now();
-
-        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDateTime.parse("2022-05-01T08:00:00"), 1);
-        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDateTime.parse("2022-04-10T19:00:00"), 5);
-        Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDateTime.parse("2022-05-18T17:00:00"), 4);
-        Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDateTime.parse("2022-09-30T17:00:00"), 6);
+    /**
+     * Creates default events for a given project.
+     *
+     * @param project The project in which the events will be stored.
+     * @throws InvalidNameException If the event name is null or longer than 50 characters.
+     */
+    public void createDefaultEvents(Project project) throws InvalidNameException {
+        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:00:00"), 1);
+        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.parse("19:00:00"), 5);
+        Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDate.parse("2022-05-18"), LocalTime.parse("17:00:00"), 4);
+        Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDate.parse("2022-09-30"), LocalTime.parse("17:00:00"), 6);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
         eventRepository.save(event4);
     }
 
+    /**
+     * Creates sprints for a given project.
+     *
+     * @param project The project in which the sprints will be stored.
+     */
     public void createDefaultSprints(Project project) {
-        LocalDate date = LocalDate.now();
         Sprint sprint1 = new Sprint(project, "Sprint 1", LocalDate.parse("2022-02-28"), LocalDate.parse("2022-03-09"), "Sprint 1", "#0066cc");
         Sprint sprint2 = new Sprint(project, "Sprint 2", LocalDate.parse("2022-03-14"), LocalDate.parse("2022-03-30"), "Sprint 2", "#ffcc00");
         Sprint sprint3 = new Sprint(project, "Sprint 3", LocalDate.parse("2022-04-04"), LocalDate.parse("2022-05-11"), "Sprint 3", "#f48c06");
@@ -743,6 +667,37 @@ public class PortfolioController {
         sprintRepository.save(sprint7);
     }
 
+    /**
+     * Creates default deadlines for a given project.
+     *
+     * @param project The project in which the deadlines will be stored.
+     * @throws InvalidNameException If the deadline name is null or longer than 50 characters.
+     */
+    public void createDefaultDeadlines(Project project) throws InvalidNameException {
+        Deadline deadline1 = new Deadline(project, "SENG 101 Assignment due", LocalDate.parse("2022-05-01"), LocalTime.parse("23:59:00"), 1);
+        Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate Entries Close", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
+        Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-10-14"), LocalTime.parse("09:30:00"), 3);
+        Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences Applics close", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
+        deadlineRepository.save(deadline1);
+        deadlineRepository.save(deadline2);
+        deadlineRepository.save(deadline3);
+        deadlineRepository.save(deadline4);
+    }
 
-
+    /**
+     * Creates default milestones for a given project.
+     *
+     * @param project The project in which the milestones will be stored.
+     * @throws InvalidNameException If the milestone name is null or longer than 50 characters.
+     */
+    public void createDefaultMilestones(Project project) throws InvalidNameException {
+        Milestone milestone1 = new Milestone(project, "Last date to withdraw from SENG 302", LocalDate.parse("2022-05-15"), 4);
+        Milestone milestone2 = new Milestone(project, "Vic Uni applications close", LocalDate.parse("2022-06-20"), 6);
+        Milestone milestone3 = new Milestone(project, "100 days of SENG 302", LocalDate.parse("2022-06-04"), 5);
+        Milestone milestone4 = new Milestone(project, "100 days to go SENG 302", LocalDate.parse("2022-07-06"), 4);
+        milestoneRepository.save(milestone1);
+        milestoneRepository.save(milestone2);
+        milestoneRepository.save(milestone3);
+        milestoneRepository.save(milestone4);
+    }
 }
