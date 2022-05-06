@@ -78,4 +78,55 @@ public class DeadlineController {
         }
     }
 
+    /**
+     * Mapping for a post request to edit a deadline.
+     * The method first gets the deadline from the repository. If the deadline cannot be retrieved, it throws an EntityNotFound exception.
+     * <p>
+     * The method then parses a date string and a time string that is passed as a request parameter.
+     * The parser converts it to the standard LocalDate format.
+     * <p>
+     * The deadline is then edited with the parameters passed, and saved to the deadline repository.
+     * If all went successful, it returns OK, otherwise one of the errors is returned.
+     *
+     * @param deadlineId the ID of the deadline being edited.
+     * @param name the new name of the deadline.
+     * @param dateEnd the new date of the deadline.
+     * @param timeEnd the new time of the deadline
+     * @param typeOfOccasion the new type of the deadline.
+     * @return A response indicating either success, or an error-code as to why it failed.
+     */
+    @PostMapping("/editDeadline")
+    public ResponseEntity editDeadline(
+            @RequestParam(value = "deadlineId") UUID deadlineId,
+            @RequestParam(value = "deadlineName") String name,
+            @RequestParam(value = "deadlineDate") String dateEnd,
+            @RequestParam(value = "deadlineTime") String timeEnd,
+            @RequestParam(defaultValue = "1", value = "typeOfMilestone") int typeOfOccasion
+    ) {
+        try {
+            Deadline deadline = deadlineRepository.findById(deadlineId).orElseThrow(() -> new EntityNotFoundException(
+                    "Deadline with id " + deadlineId + " was not found"
+            ));
+
+            LocalDate deadlineEndDate = LocalDate.parse(dateEnd);
+            LocalTime deadlineEndTime = LocalTime.parse(timeEnd);
+
+            deadline.setName(name);
+            deadline.setEndDate(deadlineEndDate);
+            deadline.setEndTime(deadlineEndTime);
+            deadline.setType(typeOfOccasion);
+            deadlineRepository.save(deadline);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (EntityNotFoundException err) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (DateTimeParseException err) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception err) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+        }
+    }
+
+
 }
