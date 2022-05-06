@@ -315,7 +315,7 @@ section {
 }
 
 
-.eventBeingEdited{
+.eventBeingEdited .milestoneBeingEdited .deadlineBeingEdited{
     border: solid 1px blue;
 }
 

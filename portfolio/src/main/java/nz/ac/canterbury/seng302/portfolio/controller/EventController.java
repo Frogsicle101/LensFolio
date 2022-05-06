@@ -42,13 +42,8 @@ public class EventController {
 
 
     private final RegexPatterns regexPatterns = new RegexPatterns();
-
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
-
-    private List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
 
     public EventController(ProjectRepository projectRepository, EventRepository eventRepository) {
@@ -224,126 +219,7 @@ public class EventController {
 
 
 
-    @CrossOrigin
-    @GetMapping(value = "/notifications", consumes = MediaType.ALL_VALUE)
-    public SseEmitter subscribeToNotifications(@AuthenticationPrincipal AuthState principal) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        try {
-            logger.info("Subscribing user: " + userId);
-            emitter.send(SseEmitter.event().name("INIT"));
-        } catch (IOException e) {
-            logger.warn("Not subscribing users");
-        }
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        emitters.add(emitter);
-        return emitter;
-    }
 
-
-    @PostMapping("/eventEdit")
-    public void sendEventToClients(@AuthenticationPrincipal AuthState editor,
-                                   @RequestParam UUID eventId) {
-        int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
-                .setId(eventEditorID)
-                .build());
-        logger.info("Event id " + eventId + " is being edited by user: " + eventEditorID);
-        for (SseEmitter emitter : emitters) {
-            EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(eventId);
-            editEvent.setUserId(eventEditorID);
-            editEvent.setUserName(userResponse.getFirstName() + " " + userResponse.getLastName());
-
-            try {
-                emitter.send(SseEmitter.event().name("editEvent")
-                        .data(editEvent));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
-
-
-    @PostMapping("/userNotEditingEvent")
-    public void userCanceledEdit(
-            @RequestParam(value="eventId") UUID eventId,
-            @AuthenticationPrincipal AuthState editor
-    ) {
-        int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Event id " + eventId + " is no longer being edited by user: " + eventEditorID);
-        for (SseEmitter emitter : emitters) {
-            EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(eventId);
-            editEvent.setUserId(eventEditorID);
-            try {
-                emitter.send(SseEmitter.event().name("userNotEditingEvent")
-                        .data(editEvent));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
-
-    @PostMapping("/reloadSpecificEvent")
-    public void reloadSpecificEvent(
-            @RequestParam(value="eventId") UUID eventId,
-            @AuthenticationPrincipal AuthState editor
-    ) {
-        int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Event id " + eventId + " needs to be reloaded");
-        for (SseEmitter emitter : emitters) {
-            EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(eventId);
-            editEvent.setUserId(eventEditorID);
-            try {
-                emitter.send(SseEmitter.event().name("reloadSpecificEvent")
-                        .data(editEvent));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
-
-    @PostMapping("/notifyRemoveEvent")
-    public void notifyRemoveEvent(
-            @RequestParam(value="eventId") UUID eventId,
-            @AuthenticationPrincipal AuthState editor
-    ) {
-        int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Event id " + eventId + " needs to be removed");
-        for (SseEmitter emitter : emitters) {
-            EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(eventId);
-            editEvent.setUserId(eventEditorID);
-            try {
-                emitter.send(SseEmitter.event().name("notifyRemoveEvent")
-                        .data(editEvent));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
-
-    @PostMapping("/notifyNewEvent")
-    public void notifyNewEvent(
-            @RequestParam(value="eventId") UUID eventId,
-            @AuthenticationPrincipal AuthState editor
-    ) {
-        int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Event id " + eventId + " needs to be added");
-        for (SseEmitter emitter : emitters) {
-            EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(eventId);
-            editEvent.setUserId(eventEditorID);
-            try {
-                emitter.send(SseEmitter.event().name("notifyNewEvent")
-                        .data(editEvent));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
 
 
 

@@ -32,6 +32,32 @@ $(document).ready(function() {
         }
         $("#infoEventContainer").slideDown() // Show the notice.
     })
+
+
+    eventSource.addEventListener("editMilestone", function (milestone) {
+        const data = JSON.parse(milestone.data);
+        let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
+
+        $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice + ${data.eventId}">${infoString}</p>`)
+
+        $("#" + data.eventId).addClass("milestoneBeingEdited") // Add class that shows which event is being edited
+        if ($(".occasion").hasClass("milestoneBeingEdited")) {
+            $(".milestoneBeingEdited").find(".milestoneEditButton").hide()
+            $(".milestoneBeingEdited").find(".milestoneDeleteButton").hide()
+        }
+        $("#infoEventContainer").slideDown() // Show the notice.
+    })
+
+
+
+
+
+
+
+
+
+
+
     /**
      * This event listener listens for a notification that an event is no longer being edited
      * It removes the class that shows the border
@@ -82,6 +108,9 @@ $(document).ready(function() {
         const data = JSON.parse(event.data);
         addEvent(data.eventId) // reloads specific event
     })
+
+
+
 
 
 
@@ -180,7 +209,7 @@ $(document).on("submit", "#editEventForm", function(event){
             type: "POST",
             data: eventData,
             success: function(response) {
-                notifyToReload(eventId) // Let the server know the event is no longer being edited
+                notifyToReloadEvent(eventId) // Let the server know the event is no longer being edited
             }
         })
     }
@@ -254,7 +283,7 @@ function notifyNotEditing(eventId) {
  * Sends notification to server to notify other clients to reload a specific event.
  * @param eventId the id of the event
  */
-function notifyToReload(eventId) {
+function notifyToReloadEvent(eventId) {
     $.ajax({
         url: "/reloadSpecificEvent",
         type: "post",
@@ -286,6 +315,21 @@ function notifyNewEvent(eventId) {
 }
 
 
+function notifyEditEvent(eventId) {
+    $.ajax({
+        url: "/eventEdit",
+        type: "POST",
+        data: {"eventId" :eventId}
+    })
+}
+
+function notifyEditMilestone(milestoneId) {
+    $.ajax({
+        url: "/eventEdit",
+        type: "POST",
+        data: {"milestoneId" :milestoneId}
+    })
+}
 
 
 
@@ -302,11 +346,7 @@ function appendEventForm(element){
     let eventEnd = $(element).find(".eventEndDateNilFormat").text().slice(0,16);
     let typeOfEvent = $(element).find(".typeOfEvent").text()
 
-    $.ajax({
-        url: "/eventEdit",
-        type: "POST",
-        data: {"eventId" :eventId}
-    })
+    notifyEditEvent(eventId)
 
     $(element).append(`
                 <form class="existingEventForm" id="editEventForm" style="display: none">
@@ -587,19 +627,23 @@ $(".addMilestoneButton").click(function() {
     $(".milestoneForm").slideToggle();
 })
 
+
 /**
- * When milestone is submitted.
+ * When edited milestone is submitted
  */
-$("#milestoneSubmit").click(function(event) {
+$(document).on("submit", "#milestoneEditForm", function(event){
     event.preventDefault();
+
+    let milestoneId = $(this).parent().find(".milestoneId").text()
     let milestoneData = {
         "projectId": projectId,
+        "milestoneId": milestoneId,
         "milestoneName": $("#milestoneName").val(),
         "milestoneDate": $("#milestoneEnd").val(),
         "typeOfMilestone": $(".typeOfMilestone").val()
     }
 
-    if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0){
+    if (milestoneData.milestoneName.toString().length === 0 || milestoneData.milestoneName.toString().trim().length === 0) {
         $(this).closest(".milestoneForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You probably should enter a milestone name!
@@ -607,16 +651,17 @@ $("#milestoneSubmit").click(function(event) {
                             </div>`)
     } else {
         $.ajax({
-            url: "/addMilestone",
-            type: "put",
+            url: "/editMilestone",
+            type: "POST",
             data: milestoneData,
             success: function(response) {
-                console.log("yup")
-                location.href = "/portfolio?projectId=" + projectId
+                // TODO notify to reload milestone
             }
         })
     }
+
 })
+
 
 
 
@@ -740,18 +785,17 @@ function appendMilestoneForm(element){
     let milestoneEnd = $(element).find(".milestoneEnd").text().slice(0,16);
     let typeOfEvent = $(element).find(".typeOfMilestone").text()
 
-    //TODO fix this
+    //TODO fix this. This is the call that is made to the server to alert other clients that someone is editing a milestone
     // $.ajax({
     //     url: "/milestoneEdit",
     //     type: "POST",
     //     data: {"eventId" :eventId}
     // })
-
     $(element).append(`
                 <form class="existingMilestoneForm" id="milestoneEditForm" style="display: none">
                         <div class="mb-1">
                         <label for="milestoneName" class="form-label">Milestone name</label>
-                        <input type="text" class="form-control form-control-sm milestoneName" value="${milestoneName}" maxlength="${occasionNameLengthRestriction}" name="milestoneName" required>
+                        <input type="text" class="form-control form-control-sm milestoneName" value="${milestoneName}" maxlength="${eventNameLengthRestriction}" name="milestoneName" required>
                         <small class="form-text text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
@@ -772,7 +816,7 @@ function appendMilestoneForm(element){
                         </div>
                     </div>
                     <div class="mb-1">
-                        <button type="button" class="btn btn-primary existingMilestoneSubmit">Save</button>
+                        <button type="submit" class="btn btn-primary existingMilestoneSubmit">Save</button>
                         <button type="button" class="btn btn-secondary existingMilestoneCancel" >Cancel</button>
                     </div>
                 </form>`)
@@ -807,7 +851,7 @@ $(document).on('click', ".milestoneDeleteButton", function() {
             type: "DELETE",
             data: milestoneData,
             success: function(response) {
-                location.reload()
+                location.reload() // TODO dynamically do this
             }
         })
     })

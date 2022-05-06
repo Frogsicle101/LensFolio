@@ -1,29 +1,49 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.EditEvent;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
+import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
+import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 public class MilestoneController {
 
     private final ProjectRepository projectRepository;
     private final MilestoneRepository milestoneRepository;
+
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+    private List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+
+    @Autowired
+    private UserAccountsClientService userAccountsClientService;
 
     public MilestoneController(ProjectRepository projectRepository, MilestoneRepository milestoneRepository) {
         this.projectRepository = projectRepository;
@@ -134,5 +154,25 @@ public class MilestoneController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    @GetMapping("/getMilestone")
+    public ResponseEntity<Object> getMilestone(
+            @RequestParam(value="eventId") UUID milestoneId
+    ){
+        try {
+            logger.info("GET /getMilestone");
+            Milestone milestone = milestoneRepository.findById(milestoneId).orElseThrow();
+            return new ResponseEntity<>(milestone, HttpStatus.OK);
+        } catch(NoSuchElementException err) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch(Exception err){
+            logger.error("GET /getMilestone: {}", err.getMessage() );
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
 
 }
