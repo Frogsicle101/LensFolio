@@ -1,8 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
-import nz.ac.canterbury.seng302.portfolio.controller.UserListController;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 
 import org.junit.jupiter.api.Assertions;
@@ -11,16 +10,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
 import java.util.*;
 
 @SpringBootTest
@@ -30,6 +23,9 @@ public class UserListControllerTest {
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
     private final ArrayList<UserResponse> expectedUsersList = new ArrayList<>();
     private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
+
+    @Autowired
+    private UserPrefRepository userPrefRepository;
 
     /** Name Comparator */
     Comparator<UserResponse> compareByName = Comparator.comparing((UserResponse user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
@@ -47,69 +43,7 @@ public class UserListControllerTest {
         return userOneRoles.compareTo(userTwoRoles);
     };
 
-    private static Model model = new Model() {
-
-        Object totalPages;
-        Object currentPage;
-        Object totalItems;
-        Object user_list;
-        Object possibleRoles;
-
-        @Override
-        public Model addAttribute(String attributeName, Object attributeValue) {
-            switch (attributeName) {
-                case "totalPages" -> totalPages = attributeValue;
-                case "currentPage" -> currentPage = attributeValue;
-                case "totalItems" -> totalItems = attributeValue;
-                case "user_list" -> user_list = attributeValue;
-                case "possibleRoles" -> possibleRoles = attributeValue;
-            }
-            return null;
-        }
-
-        @Override
-        public Model addAttribute(Object attributeValue) {
-            return null;
-        }
-
-        @Override
-        public Model addAllAttributes(Collection<?> attributeValues) {
-            return null;
-        }
-
-        @Override
-        public Model addAllAttributes(Map<String, ?> attributes) {
-            return null;
-        }
-
-        @Override
-        public Model mergeAttributes(Map<String, ?> attributes) {
-            return null;
-        }
-
-        @Override
-        public boolean containsAttribute(String attributeName) {
-            return false;
-        }
-
-        @Override
-        public Object getAttribute(String attributeName) {
-            Object toReturn = null;
-            switch (attributeName) {
-                case "totalPages" -> toReturn = totalPages;
-                case "currentPage" -> toReturn = currentPage;
-                case "totalItems" -> toReturn = totalItems;
-                case "user_list" -> toReturn = user_list;
-                case "possibleRoles" -> toReturn = possibleRoles;
-            }
-            return toReturn;
-        }
-
-        @Override
-        public Map<String, Object> asMap() {
-            return null;
-        }
-    };
+    private static Model model = setMockModel();
 
     @BeforeEach
     public void beforeAll() {
@@ -129,7 +63,9 @@ public class UserListControllerTest {
 
         when(PrincipalAttributes.getUserFromPrincipal(principal, mockClientService)).thenReturn(user.build());
         addUsersToExpectedList(0,201);
+        userListController.setPrefRepository(userPrefRepository);
     }
+
 
     /**
      * adds dummy users from a lower bound to an upper bound in order to test with multiple pages
@@ -505,4 +441,91 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+    @Test
+    public void sortOrderDefaultToNameIncreasing() {
+        createMockResponse(0, "name-increasing");
+        String expectedDefaultSortOrder = "name-increasing";
+        userListController.getUserList(principal, model, 1,null);
+        String sortOrder = userListController.getSortOrder();
+
+        Assertions.assertEquals(expectedDefaultSortOrder, sortOrder);
+    }
+
+    @Test
+    public void sortOrderPersistence() {
+        String expectedPersistedSortOrder = "role-increasing";
+        createMockResponse(0, expectedPersistedSortOrder);
+        userListController.getUserList(principal, model, 1,expectedPersistedSortOrder);
+        String sortOrder = userListController.getSortOrder();
+        userListController.getUserList(principal, model, 1, null);
+
+        Assertions.assertEquals(expectedPersistedSortOrder, sortOrder);
+    }
+
+    @SuppressWarnings("NullableProblems")
+    private static Model setMockModel() {
+        return new Model() {
+
+            Object totalPages;
+            Object currentPage;
+            Object totalItems;
+            Object user_list;
+            Object possibleRoles;
+
+            @Override
+            public Model addAttribute(String attributeName, Object attributeValue) {
+                switch (attributeName) {
+                    case "totalPages" -> totalPages = attributeValue;
+                    case "currentPage" -> currentPage = attributeValue;
+                    case "totalItems" -> totalItems = attributeValue;
+                    case "user_list" -> user_list = attributeValue;
+                    case "possibleRoles" -> possibleRoles = attributeValue;
+                }
+                return null;
+            }
+
+            @Override
+            public Model addAttribute(Object attributeValue) {
+                return null;
+            }
+
+            @Override
+            public Model addAllAttributes(Collection<?> attributeValues) {
+                return null;
+            }
+
+            @Override
+            public Model addAllAttributes(Map<String, ?> attributes) {
+                return null;
+            }
+
+            @Override
+            public Model mergeAttributes(Map<String, ?> attributes) {
+                return null;
+            }
+
+            @Override
+            public boolean containsAttribute(String attributeName) {
+                return false;
+            }
+
+            @Override
+            public Object getAttribute(String attributeName) {
+                Object toReturn = null;
+                switch (attributeName) {
+                    case "totalPages" -> toReturn = totalPages;
+                    case "currentPage" -> toReturn = currentPage;
+                    case "totalItems" -> toReturn = totalItems;
+                    case "user_list" -> toReturn = user_list;
+                    case "possibleRoles" -> toReturn = possibleRoles;
+                }
+                return toReturn;
+            }
+
+            @Override
+            public Map<String, Object> asMap() {
+                return null;
+            }
+        };
+    }
 }
