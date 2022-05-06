@@ -99,6 +99,12 @@ public class UserListController {
         return new ModelAndView("user-list");
     }
 
+    /**
+     * A helper method to select the user's sort order for the user list
+     * @param userId The userId that you're selecting the sort order for
+     * @param order The order that the user send with the request. If they didn't send one, this should be ""
+     *              This can be done easily with the line Objects.requireNonNullElse(order, "")
+     */
     private void selectSortOrder(int userId, String order) {
         logger.info("VIEWING USERS - ID: " + userId + " : Beginning sort order selection");
         if (!Objects.equals(order, "")) {
