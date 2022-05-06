@@ -128,5 +128,30 @@ public class DeadlineController {
         }
     }
 
+    /**
+     * Mapping for deleting an existing deadline.
+     * The method attempts to get the deadline from the repository and if it cannot it will throw an EntityNotFoundException
+     *
+     * Otherwise it will delete the deadline from the repository
+     *
+     * @param deadlineId The UUID of the deadline to be deleted
+     * @return A response indicating either success, or an error-code as to why it failed.
+     */
+    @PostMapping("/deleteDeadline")
+    public ResponseEntity editDeadline( @RequestParam(value = "deadlineId") UUID deadlineId) {
+        try {
+            Deadline deadline = deadlineRepository.findById(deadlineId).orElseThrow(() -> new EntityNotFoundException(
+                    "Deadline with id " + deadlineId + " was not found"
+            ));
+            deadlineRepository.delete(deadline);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (EntityNotFoundException err) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception err) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+        }
+    }
 
 }
