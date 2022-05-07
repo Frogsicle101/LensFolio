@@ -1,159 +1,414 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.events.Event;
-import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import org.aspectj.apache.bcel.classfile.ExceptionTable;
 
-import org.junit.jupiter.api.BeforeAll;
+import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.*;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
+import javax.naming.InvalidNameException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static reactor.core.publisher.Mono.when;
 
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
 class EventControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
 
-    @Autowired
-    private ProjectRepository projectRepository;
+
+    private final ProjectRepository mockProjectRepository = mock(ProjectRepository.class);
+    private final EventRepository mockEventRepository = mock(EventRepository.class);
+
     @Autowired
     private EventRepository eventRepository;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
+    private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
+
+
+
+    private  EventController eventController = new EventController(mockProjectRepository, mockEventRepository);
+
     private Project project;
 
-    private String joinParameters(HashMap<String, String> parameters) {
-        String searchParams = "?";
-        for (String key : parameters.keySet()) {
-            searchParams += key + "=" + parameters.get(key) + "&";
+    @BeforeEach
+    public void beforeEach() {
+
+        UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setUsername("steve")
+                .setFirstName("Steve")
+                .setMiddleName("McSteve")
+                .setLastName("Steveson")
+                .setNickname("Stev")
+                .setBio("kdsflkdjf")
+                .setPersonalPronouns("Steve/Steve")
+                .setEmail("steve@example.com")
+                .setProfileImagePath("a");
+        userBuilder.addRoles(UserRole.TEACHER);
+        UserResponse user = userBuilder.build();
+
+
+        Mockito.when(PrincipalAttributes.getUserFromPrincipal(principal, mockClientService)).thenReturn(user);
+        GetUserByIdRequest userByIdRequest = GetUserByIdRequest.newBuilder().setId(1).build();
+        Mockito.when(mockClientService.getUserAccountById(userByIdRequest)).thenReturn(user);
+        project = new Project("test");
+        Mockito.when(mockProjectRepository.findById(project.getId())).thenReturn(Optional.of(project));
+
+    }
+
+    @Test
+    void testAddEvent() {
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now().plusDays(1);
+
+        ResponseEntity<String> response = eventController.addEvent(project.getId(), "testEvent", start.toString(), end.toString(), 1);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNull(response.getBody());
+
+    }
+
+    @Test
+    void testAddEventBadDates() {
+
+        ResponseEntity<String> response = eventController.addEvent(project.getId(), "testEvent", "not a date", "neither", 1);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+    }
+
+
+    @Test
+    void testAddEventBadName() {
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now().plusDays(1);
+
+        ResponseEntity<String> response = eventController.addEvent(project.getId(), "test@Event", start.toString(), end.toString(), 1);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Name does not match required pattern", response.getBody());
+
+    }
+
+    @Test
+    void testAddEventEmptyName() {
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now().plusDays(1);
+
+        ResponseEntity<String> response = eventController.addEvent(project.getId(), "", start.toString(), end.toString(), 1);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Name does not match required pattern", response.getBody());
+
+    }
+
+
+    @Test
+    void testAddEventNoProject() {
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now().plusDays(1);
+
+        ResponseEntity<String> response = eventController.addEvent(50L, "testEvent", start.toString(), end.toString(), 1);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+    }
+
+
+    @Test
+    void testAddEventDatesOutsideOfProject() {
+        LocalDateTime start = LocalDateTime.now().minusMonths(1);
+        LocalDateTime end = LocalDateTime.now().plusMonths(1);
+
+        ResponseEntity<String> response = eventController.addEvent(project.getId(), "testEvent", start.toString(), end.toString(), 1);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Date(s) exist outside of project dates", response.getBody());
+
+    }
+
+
+    @Test
+    void testAddEventThrowsException() {
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now().plusDays(1);
+        Mockito.when(mockEventRepository.save(Mockito.any())).thenThrow(new RuntimeException());
+        ResponseEntity<String> response = eventController.addEvent(project.getId(), "testEvent", start.toString(), end.toString(), 1);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        Assertions.assertNull(response.getBody());
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    @Test
+    void testDeleteEvent() throws InvalidNameException {
+
+        Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
+
+        Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
+        ResponseEntity<String> response = eventController.deleteEvent(event.getId());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testDeleteEventNoEvent() throws InvalidNameException {
+
+        Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
+        ResponseEntity<String> response = eventController.deleteEvent(event.getId());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Test
+    void testEditEvent() throws InvalidNameException {
+        Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
+
+        Optional<Event> eventNow = mockEventRepository.findById(event.getId());
+        if (eventNow.isPresent()) {
+            Event eventReturned = eventNow.get();
+            Assertions.assertEquals("testEvent", eventReturned.getName());
+            Assertions.assertEquals(1, eventReturned.getType());
         }
-        return searchParams.substring(0, searchParams.length() - 1);
+
+        Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
+        ResponseEntity<String> response = eventController.editEvent(event.getId(),"changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        Optional<Event> changedEvent = mockEventRepository.findById(event.getId());
+        if (changedEvent.isPresent()) {
+            Event eventReturned = changedEvent.get();
+            Assertions.assertEquals("changedName", eventReturned.getName());
+            Assertions.assertEquals(2, eventReturned.getType());
+        }
+
     }
 
 
     @Test
-    void testAddEventNoReqParams() throws Exception {
-        this.mockMvc.perform(put("/addEvent")).andExpect(status().isBadRequest());
+    void testEditEventBadDates() throws InvalidNameException {
+        Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
+
+        Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
+        ResponseEntity<String> response = eventController.editEvent(event.getId(),"changedName", "Cheese", LocalDateTime.now().toString(), 2);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Could not parse date(s)", response.getBody());
+
     }
 
 
     @Test
-    void testAddEventWithBadProjectIdParams() throws Exception {
-        project = projectRepository.getProjectByName("Project Default");
-        HashMap<String, String> params = new HashMap<>();
-        params.put("projectId", "notCorrect");
-        params.put("eventName", "TestEvent");
-        params.put("eventStart", "2022-01-28T11:38:00.01");
-        params.put("eventEnd", "2022-01-29T11:38:00.01");
+    void testEditEventDatesOutsideProject() throws InvalidNameException {
+        Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
 
-        ResultActions result = this.mockMvc.perform(put("/addEvent" + joinParameters(params)));
+        Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
+        ResponseEntity<String> response = eventController.editEvent(event.getId(),"changedName", LocalDateTime.now().minusYears(1).toString(), LocalDateTime.now().toString(), 2);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Date(s) exist outside of project dates", response.getBody());
 
-        result.andExpect(status().isBadRequest());
     }
 
 
     @Test
-    void testDeleteEvent() throws Exception {
-        project = projectRepository.getProjectByName("Project Default");
-        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+    void testEditEventBadName() throws InvalidNameException {
+        Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
 
-        String eventId = event.getId().toString();
-        ResultActions result = this.mockMvc.perform(delete("/deleteEvent").param("eventId", eventId));
-        result.andExpect(status().isOk());
-
+        Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
+        ResponseEntity<String> response = eventController.editEvent(event.getId(),"changed@Name", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Name does not match required pattern", response.getBody());
 
     }
+
 
     @Test
-    void testDeleteEventWhereEventDoesNotExist() throws Exception {
-        project = projectRepository.getProjectByName("Project Default");
-        UUID uuid = new UUID(2,5);
-        ResultActions result = this.mockMvc.perform(delete("/deleteEvent").param("eventId", String.valueOf(uuid)));
-        result.andExpect(status().isNotFound());
+    void testEditEventEventDoesNotExist() throws InvalidNameException {
+        Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
 
+        Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
+        ResponseEntity<String> response = eventController.editEvent(UUID.randomUUID(),"changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
     }
+
 
     @Test
-    void testDeleteEventWithBadParams() throws Exception {
-        project = projectRepository.getProjectByName("Project Default");
+    void testEditEventThrowsException() throws InvalidNameException {
+        Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
 
-        ResultActions result = this.mockMvc.perform(delete("/deleteEvent").param("eventId", "1"));
-        result.andExpect(status().isBadRequest());
-
-        ResultActions result1 = this.mockMvc.perform(delete("/deleteEvent").param("toothHurty", "1"));
-        result1.andExpect(status().isBadRequest());
-
+        Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
+        Mockito.when(mockEventRepository.save(Mockito.any())).thenThrow(new RuntimeException());
+        ResponseEntity<String> response = eventController.editEvent(event.getId(),"changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Test
-    void testEditEvent() throws Exception {
-        project = projectRepository.getProjectByName("Project Default");
-        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+    void testGetEventsList() throws InvalidNameException {
+        ResponseEntity<Object> response = eventController.getEventsList(project.getId());
+        List<Event> eventList = (List<Event>) response.getBody();
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(0, eventList.size());
 
-        HashMap<String, String> params = new HashMap<>();
-        params.put("eventId", event.getId().toString());
-        params.put("eventName", "ChangedName");
-        params.put("eventStart", "2022-03-28T11:38:00.01");
-        params.put("eventEnd", "2022-04-29T11:38:00.01");
 
-        String eventId = event.getId().toString();
-        ResultActions result = this.mockMvc.perform(post("/editEvent"+ joinParameters(params)));
-        result.andExpect(status().isOk());
+        Event event1 = new Event(project, "testEvent1", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalTime.now(), 1);
+        Event event2 = new Event(project, "testEvent2", LocalDateTime.now().plusDays(1), LocalDate.now().plusDays(1), LocalTime.now(), 1);
+        Event event3 = new Event(project, "testEvent3", LocalDateTime.now().minusDays(3), LocalDate.now().plusDays(1), LocalTime.now(), 1);
+        eventController.addEvent(project.getId(),"testEvent1", LocalDateTime.now().toString(), LocalDate.now().plusDays(1).toString(), 1);
+        eventController.addEvent(project.getId(),"testEvent2", LocalDateTime.now().plusDays(1).toString(), LocalDate.now().plusDays(1).toString(), 1);
+        List<Event> returnList = new ArrayList<>();
+        returnList.add(event1);
+        returnList.add(event2);
+        returnList.add(event3);
+
+        Mockito.when(mockEventRepository.findAllByProjectIdOrderByStartDate(Mockito.anyLong())).thenReturn(returnList);
+
+        response = eventController.getEventsList(project.getId());
+        List<Event> eventList2 = (List<Event>) response.getBody();
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(3, eventList2.size());
+
+        Assertions.assertEquals(eventList2.get(0).getStartDate(), event3.getStartDate());
+
     }
+
 
     @Test
-    void testEditEventWithNoParams() throws Exception {
-        project = projectRepository.getProjectByName("Project Default");
-        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+    void testGetEventsListThrowsException() throws InvalidNameException {
+        Mockito.when(mockEventRepository.findAllByProjectIdOrderByStartDate(Mockito.anyLong())).thenThrow(new RuntimeException());
+        ResponseEntity<Object> response = eventController.getEventsList(project.getId());
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 
-        HashMap<String, String> params = new HashMap<>();
-        params.put("eventId", event.getId().toString());
-        params.put("eventName", "ChangedName");
-        params.put("eventStart", "2022-03-28T11:38:00.01");
-        params.put("eventEnd", "2022-04-29T11:38:00.01");
-
-        String eventId = event.getId().toString();
-        ResultActions result = this.mockMvc.perform(post("/editEvent"));
-        result.andExpect(status().isBadRequest());
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Test
-    void testEditEventWithWrongEventId() throws Exception {
-        project = projectRepository.getProjectByName("Project Default");
-        Event event = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
-        Event event2 = eventRepository.save(new Event(project,"TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1)));
+    void testGetEvent() throws InvalidNameException {
+        Event event1 = new Event(project, "testEvent1", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalTime.now(), 1);
+        Mockito.when(mockEventRepository.findById(Mockito.any())).thenReturn(Optional.of(event1));
+        ResponseEntity<Object> response = eventController.getEvent(event1.getId());
 
 
-        HashMap<String, String> params = new HashMap<>();
-        params.put("eventId", event2.getId().toString());
-        params.put("eventName", "ChangedName");
-        params.put("eventStart", "2022-03-28T11:38:00.01");
-        params.put("eventEnd", "2022-04-29T11:38:00.01");
+        Event returnEvent = (Event) response.getBody();
 
-        eventRepository.delete(event2);
-        String eventId = event.getId().toString();
-        ResultActions result = this.mockMvc.perform(post("/editEvent"+ joinParameters(params)));
-        result.andExpect(status().isNotFound());
+
+
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(event1, returnEvent);
     }
+
+
+    @Test
+    void testGetEventDoesNotExist() throws InvalidNameException {
+        Event event1 = new Event(project, "testEvent1", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalTime.now(), 1);
+        Mockito.when(mockEventRepository.findById(Mockito.any())).thenThrow(new NoSuchElementException());
+        ResponseEntity<Object> response = eventController.getEvent(event1.getId());
+
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -4,13 +4,13 @@
     box-sizing: border-box;
 }
 
-html,body{
-    margin:0;
-    padding:0;
+html, body {
+    margin: 0;
+    padding: 0;
     font-family: 'Roboto', sans-serif;
 }
 
-section{
+section {
     margin-top: 4rem;
 }
 
@@ -20,6 +20,9 @@ section{
     justify-content: center;
     align-items: center;
 }
+
+
+
 
 /*Colours*/
 
@@ -32,15 +35,13 @@ section{
     --select-red: #ff0000;
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
-
 }
-
 
 
 /*CSS relating to Header*/
 
 .headerBar {
-    top:0;
+    top: 0;
     z-index: 4;
     position: fixed;
     display: flex;
@@ -56,8 +57,6 @@ section{
 }
 
 
-
-
 /* properties of the dropdown 'zone' */
 .profileDropdown {
     display: flex;
@@ -68,7 +67,6 @@ section{
 
     margin: 0.1rem;
     border-radius: var(--border-radius);
-
 }
 
 .profileDropdown:hover {
@@ -76,14 +74,11 @@ section{
     background-color: #17181a;
 }
 
-
-
-.profileDropdown p{
+.profileDropdown p {
     font-size: 1.25rem;
     height: 1rem;
     font-weight: normal;
     padding: 0 .5rem;
-
 }
 
 .profileDropdown img {
@@ -91,7 +86,7 @@ section{
 }
 
 
-.username{
+.username {
     font-weight: bold;
 }
 
@@ -104,21 +99,18 @@ section{
     z-index: 1;
     background-color: #17181a;
     width: 10rem;
-
 }
 
-.dropdown-content a{
+.dropdown-content a {
     text-decoration: none;
     width: 100%;
     text-align: center;
     color: #f9f9f9;
     padding: 0.25rem;
-
 }
 
-.dropdown-content a:hover{
+.dropdown-content a:hover {
     background-color: #626262;
-
 }
 
 
@@ -130,13 +122,14 @@ section{
     flex-direction: column;
     align-items: center;
 }
-.accountInfo{
+
+.accountInfo {
     padding: 5rem;
     width: 100%;
     max-width: 50rem;
 }
 
-.accountInfoHeader{
+.accountInfoHeader {
     display: flex;
     flex-direction: row;
     padding-top: 100px;
@@ -153,45 +146,45 @@ section{
 
 
 /*Login*/
-.loginSection{
+.loginSection {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.loginBox{
+.loginBox {
     align-items: center;
-    width:50rem;
+    width: 50rem;
     padding: 2rem;
 }
 
-.logo{
+.logo {
     font-family: 'Lobster Two', cursive;
     font-weight: bold;
 }
 
-.logoBox{
+.logoBox {
     align-self: flex-start;
     padding: 2rem;
 }
 
 
 /*Portfolio*/
-.projectDetails{
+.projectDetails {
     border-bottom: solid 1px var(--main-border-colour);
     padding: 2rem;
     position: relative;
 }
 
-.projectDetails h1{
+.projectDetails h1 {
     font-weight: bold;
 }
 
-.projectDetails h6{
+.projectDetails h6 {
     color: var(--secondary-text-colour-darker);
 }
 
-.projectContainer{
+.projectContainer {
     display: flex;
     flex-direction: row;
     min-height: 80vh;
@@ -202,23 +195,19 @@ section{
 
 /*Portfolio Project*/
 
-.addSprint{
+.addSprint {
     position: absolute;
     bottom: -25px;
     left: 20rem;
 
 }
 
-.addSprint:hover{
-
-}
-
-.addSprintSvg{
+.addSprintSvg {
     color: #09d70c;
     transition: all 0.3s ease-out;
 }
 
-.addSprintSvg:hover{
+.addSprintSvg:hover {
     transform: scale(110%) rotate(90deg);
 }
 
@@ -226,7 +215,7 @@ section{
 
 /*Porfolio - Events*/
 
-.eventContainer{
+.eventContainer {
     display: flex;
     flex-direction: column;
     min-width: 40rem;
@@ -237,21 +226,24 @@ section{
     transition: all 1s ease-out;
 }
 
-
-.eventNameAndAddButton{
+.occasionAddButton {
+    padding-top: 0.7rem;
     display: flex;
     flex-direction: row;
 }
-.eventName{
+
+.eventName, .milestoneName {
     padding-left: 0.5rem;
     font-weight: bolder;
     text-decoration-line: underline;
 }
-.eventTitleDiv{
+
+.occasionTitleDiv {
     display: flex;
     flex-direction: row;
 }
-.eventIcon{
+
+.occasionIcon {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -263,25 +255,27 @@ section{
     height: 2rem;
 }
 
-.eventEditButton{
+.eventEditButton, .milestoneEditButton {
     position: absolute;
     top: 1rem;
     right: 2.5rem;
 }
 
-.eventEditButton:hover{
+.eventEditButton:hover, .milestoneEditButton:hover {
     color: var(--select-green);
 }
 
-.eventDeleteButton{
+.eventDeleteButton, .milestoneDeleteButton {
     position: absolute;
     top: 1rem;
     right: 1rem;
 }
-.eventDeleteButton:hover{
+
+.eventDeleteButton:hover, .milestoneDeleteButton:hover {
     color: var(--select-red);
 }
-.event{
+
+.occasion {
     position: relative;
     margin-bottom: 1rem;
     border: solid 1px var(--secondary-text-colour);
@@ -291,30 +285,31 @@ section{
     padding: 1rem;
 }
 
-.addEventSvg{
+.addEventSvg, .addMilestoneSvg {
     vertical-align: baseline;
     transition: transform 200ms;
 }
 
-
-.rotated{
+.rotated {
     transform: rotate(45deg);
     color: #ff0000;
 }
 
 
-.event p{
+.event p {
     margin: 0;
 }
-.eventDateDiv{
+
+.eventDateDiv {
     display: flex;
     flex-direction: column;
 }
-.eventDateDiv p{
+
+.eventDateDiv p {
     margin: 0 0 0 0;
 }
 
-.eventInSprint{
+.eventInSprint {
     display: flex;
     flex-direction: row;
 }
@@ -325,13 +320,17 @@ section{
     margin: 0 0 0 0;
 }
 
-.bold{
+.bold {
     font-weight: bolder;
 }
 
 
+.eventBeingEdited, .milestoneBeingEdited, .deadlineBeingEdited{
+    border: solid 1px blue;
+}
+
 /*Portfolio - Sprints*/
-.sprintsContainer{
+.sprintsContainer {
     display: flex;
     width: 100%;
     flex-direction: column;
@@ -339,7 +338,7 @@ section{
     background-color: #ececec;
 }
 
-.sprint{
+.sprint {
     position: relative;
     width: 60rem;
     padding: 2rem;
@@ -352,11 +351,11 @@ section{
     will-change: transform;
 }
 
-.sprint:hover{
+.sprint:hover {
     transform: scale(101%);
 }
 
-.sprint h6{
+.sprint h6 {
     color: var(--secondary-text-colour-darker);
 }
 
@@ -369,40 +368,40 @@ section{
 
 }
 
-.deleteSprint{
+.deleteSprint {
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
 }
 
-.deleteSprint:hover{
+.deleteSprint:hover {
     color: #ff5959;
 
 }
 
-.editSprint{
+.editSprint {
     position: absolute;
     top: 0.5rem;
     right: 2rem;
 }
 
-.editSprint:hover{
+.editSprint:hover {
     color: var(--select-green);
 }
 
 
-.noStyleButton{
+.noStyleButton {
     background: none;
     border: none;
     color: inherit;
 }
 
-.sprintButton{
+.sprintButton {
     color: var(--secondary-text-colour-darker);
     transition: transform 200ms;
 }
 
-.sprintButton:hover{
+.sprintButton:hover {
     transform: scale(120%);
 
 }
@@ -422,34 +421,35 @@ section{
     font-size: 0.75em;
 }
 
-#profileImagePreview{
+#profileImagePreview {
     width: 10rem;
     height: 10rem;
 }
 
-#loadingText{
+#loadingText {
     display: none;
 }
 
 /*Edit Sprints - editProject*/
 
-.editSprintContainer, .editProjectContainer{
+.editSprintContainer, .editProjectContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-.sprintEditForm, .projectEditForm{
+
+.sprintEditForm, .projectEditForm {
     margin-top: 5rem;
     width: 50rem;
 }
 
 /*User-list*/
 
-.listTable, .listTableFooter{
+.listTable, .listTableFooter {
     width: 70rem;
 }
 
-.listTableDiv{
+.listTableDiv {
     display: flex;
     width: 100%;
     flex-direction: column;
@@ -457,38 +457,39 @@ section{
 }
 
 
-.listTableFooter{
+.listTableFooter {
     align-self: center;
 }
 
 
-.listTable a{
+.listTable a {
     text-decoration: none;
     color: var(--main-text-color);
 }
 
-.roleButtonsContainer{
+.roleButtonsContainer {
     display: flex;
     flex-direction: row;
 }
 
-.tableStyled{
+.tableStyled {
     border-collapse: collapse;
     font-size: 1rem;
     min-width: 60rem;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
-.tableStyled th, .tableStyled td{
+.tableStyled th, .tableStyled td {
     padding: 1rem
 }
 
-.tableStyled thead tr{
+.tableStyled thead tr {
     border-radius: var(--border-radius);
     background-color: var(--navbar-colour);
     text-align: left;
 }
-.tableStyled thead tr a{
+
+.tableStyled thead tr a {
     color: #f9f9f9;
 }
 

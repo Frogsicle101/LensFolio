@@ -2,6 +2,8 @@ package nz.ac.canterbury.seng302.portfolio.events;
 
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +11,13 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.naming.InvalidNameException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -31,10 +34,10 @@ class EventTest {
 
 
     @Test
-    void testWhenFindById_ThenReturnEvent(){
+    void testWhenFindById_ThenReturnEvent() throws InvalidNameException {
         // Given
         Project project = projectRepository.getProjectByName("Project Default");
-        Event event = new Event(project, "TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        Event event = new Event(project, "TestEvent", LocalDateTime.now(),  LocalDate.now().plusDays(1), LocalTime.now(), 1);
 
         entityManager.persist(event);
         entityManager.flush();
@@ -50,12 +53,12 @@ class EventTest {
     }
 
     @Test
-    void testWhenDeleteById_ThenReturnListOfEventsWithoutDeletedEvent(){
+    void testWhenDeleteById_ThenReturnListOfEventsWithoutDeletedEvent() throws InvalidNameException {
         // Given
         Project project = projectRepository.getProjectByName("Project Default");
-        Event event = new Event(project, "TestEvent", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
-        Event event2 = new Event(project, "TestEvent2", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
-        Event event3 = new Event(project, "TestEvent3", LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        Event event = new Event(project, "TestEvent", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalTime.now(), 1);
+        Event event2 = new Event(project, "TestEvent2", LocalDateTime.now(),  LocalDate.now().plusDays(1), LocalTime.now(), 1);
+        Event event3 = new Event(project, "TestEvent3", LocalDateTime.now(),  LocalDate.now().plusDays(1), LocalTime.now(), 1);
         entityManager.persist(event);
         entityManager.persist(event2);
         entityManager.persist(event3);

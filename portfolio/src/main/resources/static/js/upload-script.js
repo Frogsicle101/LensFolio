@@ -122,7 +122,7 @@ function bytesToSize(bytes) {
     const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
 
     if (bytes === 0) {
-        return "0 Byte";
+        return "0 bytes";
     }
 
     const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));

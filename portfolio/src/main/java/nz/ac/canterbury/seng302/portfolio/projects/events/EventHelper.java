@@ -1,7 +1,7 @@
-package nz.ac.canterbury.seng302.portfolio.events;
+package nz.ac.canterbury.seng302.portfolio.projects.events;
 
-import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 
 import java.time.LocalDate;
 import java.util.List;
