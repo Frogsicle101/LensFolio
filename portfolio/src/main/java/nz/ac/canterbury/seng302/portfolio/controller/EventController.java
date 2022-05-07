@@ -1,37 +1,27 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 
-import nz.ac.canterbury.seng302.portfolio.DTO.EditEvent;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
-import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
+
 
 @RestController
 public class EventController {
@@ -80,6 +70,8 @@ public class EventController {
     ) {
 
         try {
+
+
             // eventStart and eventEnd return a string in the format "1986-01-28T11:38:00.01"
             // DateTimeFormatter.ISO_DATE_TIME helps parse that string by declaring its format.
             LocalDateTime eventStart = LocalDateTime.parse(start, DateTimeFormatter.ISO_DATE_TIME);
@@ -89,6 +81,15 @@ public class EventController {
                     "Project with id " + projectId + " was not found"
             ));
 
+            if (!regexPatterns.getTitleRegex().matcher(name).matches()) {
+                String returnMessage = "Name does not match required pattern";
+                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
+            }
+
+            if (project.getStartDate().isAfter(LocalDate.from(eventStart)) || project.getEndDate().isBefore(LocalDate.from(eventEnd))) {
+                return new ResponseEntity<>("Date(s) exist outside of project dates", HttpStatus.BAD_REQUEST);
+            }
+
             Event event = new Event(project, name, eventStart, eventEnd.toLocalDate(), eventEnd.toLocalTime(), typeOfEvent);
             eventRepository.save(event);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -96,7 +97,7 @@ public class EventController {
         } catch (EntityNotFoundException err) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (DateTimeParseException err) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -149,7 +150,7 @@ public class EventController {
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PostMapping("/editEvent")
-    public ResponseEntity editEvent(
+    public ResponseEntity<String> editEvent(
             @RequestParam(value = "eventId") UUID eventId,
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart") String start,
@@ -167,6 +168,16 @@ public class EventController {
             LocalDateTime eventEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
 
 
+            if (!regexPatterns.getTitleRegex().matcher(name).matches()) {
+                String returnMessage = "Name does not match required pattern";
+                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
+            }
+
+            Project project = event.getProject();
+            if (project.getStartDate().isAfter(LocalDate.from(eventStart)) || project.getEndDate().isBefore(LocalDate.from(eventEnd))) {
+                return new ResponseEntity<>("Date(s) exist outside of project dates", HttpStatus.BAD_REQUEST);
+            }
+
             event.setName(name);
             event.setStartDate(eventStart);
             event.setDateTime(eventEnd);
@@ -176,9 +187,11 @@ public class EventController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException err) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception err) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+        } catch (DateTimeParseException err) {
+            return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
+        } catch(Exception err) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
     }
 
@@ -203,19 +216,29 @@ public class EventController {
         }
     }
 
+
+    /**
+     * Returns a single event from the id that was given
+     * @param eventId the event id
+     * @return a single event
+     */
     @GetMapping("/getEvent")
     public ResponseEntity<Object> getEvent(
             @RequestParam(value="eventId") UUID eventId
     ){
         try {
             logger.info("GET /getEventsList");
-            Event event = eventRepository.getById(eventId);
+            Event event = eventRepository.findById(eventId).orElseThrow();
             return new ResponseEntity<>(event, HttpStatus.OK);
+        } catch(NoSuchElementException err){
+          return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch(Exception err){
             logger.error("GET /getEventsList: {}", err.getMessage() );
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
 
 
