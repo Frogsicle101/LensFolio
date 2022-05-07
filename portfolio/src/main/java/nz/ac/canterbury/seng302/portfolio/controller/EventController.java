@@ -1,24 +1,38 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.EditEvent;
 import nz.ac.canterbury.seng302.portfolio.events.Event;
 import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 public class EventController {
 
     private final ProjectRepository projectRepository;
     private final EventRepository eventRepository;
+
+    private List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public EventController(ProjectRepository projectRepository, EventRepository eventRepository) {
         this.projectRepository = projectRepository;
@@ -139,6 +153,37 @@ public class EventController {
         }
     }
 
+    @CrossOrigin
+    @GetMapping(value = "/notifications", consumes = MediaType.ALL_VALUE)
+    public SseEmitter subscribeToNotifications(@AuthenticationPrincipal AuthState principal) {
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        try {
+            logger.info("Subscribing user: " + userId);
+            emitter.send(SseEmitter.event().name("INIT"));
+        } catch (IOException e) {
+            logger.warn("Not subscribing users");
+        }
+        emitter.onCompletion(() -> emitters.remove(emitter));
+        emitters.add(emitter);
+        return emitter;
+    }
 
-
+    @PostMapping("/eventEdit")
+    public void sendEventToClients(@AuthenticationPrincipal AuthState editor,
+                                   @RequestParam UUID eventId) {
+        int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
+        logger.info("Event id " + eventId + " is being edited by user: " + eventEditorID);
+        for (SseEmitter emitter : emitters) {
+            EditEvent editEvent = new EditEvent();
+            editEvent.setEventId(eventId);
+            editEvent.setUserId(eventEditorID);
+            try {
+                emitter.send(SseEmitter.event().name("editEvent")
+                        .data(editEvent));
+            } catch (IOException e) {
+                emitters.remove(emitter);
+            }
+        }
+    }
 }
