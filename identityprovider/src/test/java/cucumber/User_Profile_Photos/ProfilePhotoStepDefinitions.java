@@ -1,6 +1,7 @@
 package cucumber.User_Profile_Photos;
 
 import com.google.protobuf.ByteString;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -9,6 +10,7 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.service.ImageRequestStreamObserver;
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
+import nz.ac.canterbury.seng302.identityprovider.service.UrlService;
 import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetadata;
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -32,6 +34,8 @@ public class ProfilePhotoStepDefinitions {
 
     private MockImageResponseStreamObserver mockImageResponseStreamObserver = new MockImageResponseStreamObserver();
 
+    private UrlService urlService;
+
     private User user;
 
     private int userId;
@@ -39,6 +43,11 @@ public class ProfilePhotoStepDefinitions {
     private URL receivedImagePath;
 
     private URL expectedImagePath;
+
+    @Before
+    public void setup() {
+        urlService = new UrlService();
+    }
 
     @Given("I am logged in as user id {int}")
     public void i_am_logged_in_as_user_id(int userId) {
@@ -67,7 +76,7 @@ public class ProfilePhotoStepDefinitions {
 
     @When("I request my profile photo Image")
     public void i_request_my_profile_photo_image() {
-        receivedImagePath = user.getProfileImagePath();
+        receivedImagePath = urlService.getProfileURL(user);
     }
 
 
@@ -100,7 +109,7 @@ public class ProfilePhotoStepDefinitions {
 
     @Then("I receive the profile photo for id {int}")
     public void i_receive_the_profile_photo_for_id(int userId) {
-        receivedImagePath = repository.findById(userId).getProfileImagePath();
+        receivedImagePath = urlService.getProfileURL(repository.findById(userId));
         assertEquals(expectedImagePath, receivedImagePath);
     }
 

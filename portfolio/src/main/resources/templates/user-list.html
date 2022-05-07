@@ -73,21 +73,21 @@
                     Total Items [[${totalItems}]] : Page [[${currentPage}]] of [[${totalPages}]]
                     &nbsp; &nbsp; - &nbsp;
 
-                    <a th:if="${currentPage > 1}" th:href="@{/user-list}">First</a>
+                    <a th:if="${currentPage > 1}" th:href="@{user-list}">First</a>
                     <span th:unless="${currentPage > 1}">First</span>
                     &nbsp;&nbsp;
-                    <a th:if="${currentPage > 1}" th:href="@{'/user-list?page=' + ${currentPage - 1}}">Previous</a>
+                    <a th:if="${currentPage > 1}" th:href="@{'user-list?page=' + ${currentPage - 1}}">Previous</a>
                     <span th:unless="${currentPage > 1}">Previous</span>
                     &nbsp;&nbsp;
                     <span th:each="i: ${footerNumberSequence}">
-                    <a th:if="${i != currentPage}" th:href="@{'/user-list?page=' + ${i}}">[[${i}]]</a>
+                    <a th:if="${i != currentPage}" th:href="@{'user-list?page=' + ${i}}">[[${i}]]</a>
                     <span th:unless="${i != currentPage}">[[${i}]]</span>
                     &nbsp; &nbsp;
                 </span>
-                    <a th:if="${currentPage < totalPages}" th:href="@{'/user-list?page=' + ${currentPage + 1}}">Next</a>
+                    <a th:if="${currentPage < totalPages}" th:href="@{'user-list?page=' + ${currentPage + 1}}">Next</a>
                     <span th:unless="${currentPage < totalPages}">Next</span>
                     &nbsp;&nbsp;
-                    <a th:if="${currentPage < totalPages}" th:href="@{'/user-list?page=' + ${totalPages}}">Last</a>
+                    <a th:if="${currentPage < totalPages}" th:href="@{'user-list?page=' + ${totalPages}}">Last</a>
                     <span th:unless="${currentPage < totalPages}">Last</span>
                 </nav>
             </div>

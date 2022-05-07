@@ -82,7 +82,6 @@ section {
 }
 
 .profileDropdown img {
-    border-radius: 100%;
     height: 2.5rem;
 }
 
@@ -126,6 +125,8 @@ section {
 
 .accountInfo {
     padding: 5rem;
+    width: 100%;
+    max-width: 50rem;
 }
 
 .accountInfoHeader {
@@ -133,6 +134,14 @@ section {
     flex-direction: row;
     padding-top: 100px;
 
+}
+
+.profilePic {
+    border-radius: 100%;
+}
+
+#accountPageImage {
+    height: 15rem;
 }
 
 
@@ -203,7 +212,8 @@ section {
 }
 
 
-/*Porfolio - Occasions*/
+
+/*Porfolio - Events*/
 
 .eventContainer {
     display: flex;

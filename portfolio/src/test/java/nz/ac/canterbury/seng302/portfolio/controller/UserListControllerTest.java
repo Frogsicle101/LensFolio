@@ -1,8 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
-import nz.ac.canterbury.seng302.portfolio.controller.UserListController;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 
 import org.junit.jupiter.api.Assertions;
@@ -11,27 +10,22 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
 import java.util.*;
 
 @SpringBootTest
 public class UserListControllerTest {
 
-    private static UserListController userListController = new UserListController();
-    private static UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
-    private static PrincipalAttributes mockPrincipal = mock(PrincipalAttributes.class);
-    private ArrayList<UserResponse> expectedUsersList = new ArrayList<>();
-    private AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
-    private HttpServletRequest httpServletRequest = initialiseHttpServlet();
+    private static final UserListController userListController = new UserListController();
+    private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
+    private final ArrayList<UserResponse> expectedUsersList = new ArrayList<>();
+    private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
+
+    @Autowired
+    private UserPrefRepository userPrefRepository;
 
     /** Name Comparator */
     Comparator<UserResponse> compareByName = Comparator.comparing((UserResponse user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
@@ -49,69 +43,7 @@ public class UserListControllerTest {
         return userOneRoles.compareTo(userTwoRoles);
     };
 
-    private static Model model = new Model() {
-
-        Object totalPages;
-        Object currentPage;
-        Object totalItems;
-        Object user_list;
-        Object possibleRoles;
-
-        @Override
-        public Model addAttribute(String attributeName, Object attributeValue) {
-            switch (attributeName) {
-                case "totalPages" -> totalPages = attributeValue;
-                case "currentPage" -> currentPage = attributeValue;
-                case "totalItems" -> totalItems = attributeValue;
-                case "user_list" -> user_list = attributeValue;
-                case "possibleRoles" -> possibleRoles = attributeValue;
-            }
-            return null;
-        }
-
-        @Override
-        public Model addAttribute(Object attributeValue) {
-            return null;
-        }
-
-        @Override
-        public Model addAllAttributes(Collection<?> attributeValues) {
-            return null;
-        }
-
-        @Override
-        public Model addAllAttributes(Map<String, ?> attributes) {
-            return null;
-        }
-
-        @Override
-        public Model mergeAttributes(Map<String, ?> attributes) {
-            return null;
-        }
-
-        @Override
-        public boolean containsAttribute(String attributeName) {
-            return false;
-        }
-
-        @Override
-        public Object getAttribute(String attributeName) {
-            Object toReturn = null;
-            switch (attributeName) {
-                case "totalPages" -> toReturn = totalPages;
-                case "currentPage" -> toReturn = currentPage;
-                case "totalItems" -> toReturn = totalItems;
-                case "user_list" -> toReturn = user_list;
-                case "possibleRoles" -> toReturn = possibleRoles;
-            }
-            return toReturn;
-        }
-
-        @Override
-        public Map<String, Object> asMap() {
-            return null;
-        }
-    };
+    private static Model model = setMockModel();
 
     @BeforeEach
     public void beforeAll() {
@@ -129,9 +61,12 @@ public class UserListControllerTest {
                 .setProfileImagePath("a");
         user.addRoles(UserRole.STUDENT);
 
-        when(mockPrincipal.getUserFromPrincipal(principal, mockClientService)).thenReturn(user.build());
+        when(PrincipalAttributes.getUserFromPrincipal(principal, mockClientService)).thenReturn(user.build());
         addUsersToExpectedList(0,201);
+        userPrefRepository.deleteAll();
+        userListController.setPrefRepository(userPrefRepository);
     }
+
 
     /**
      * adds dummy users from a lower bound to an upper bound in order to test with multiple pages
@@ -206,7 +141,7 @@ public class UserListControllerTest {
     @Test
     public void loadFirstPage() {
         createMockResponse(0, "name-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 1,"name-increasing");
+        userListController.getUserList(principal, model, 1,"name-increasing");
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
@@ -235,7 +170,7 @@ public class UserListControllerTest {
     @Test
     public void loadLastPage() {
         createMockResponse(150, "name-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 5,"name-increasing");
+        userListController.getUserList(principal, model, 5,"name-increasing");
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
@@ -264,7 +199,7 @@ public class UserListControllerTest {
     @Test
     public void loadThirdPage() {
         createMockResponse(100, "name-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 3,"name-increasing");
+        userListController.getUserList(principal, model, 3,"name-increasing");
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
@@ -294,7 +229,7 @@ public class UserListControllerTest {
     public void loadLastPagePlusOne() {
         createMockResponse(250, "name-increasing"); //needed so controller can see the total pages amount
         createMockResponse(200, "name-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 6,"name-increasing");
+        userListController.getUserList(principal, model, 6,"name-increasing");
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
@@ -323,7 +258,7 @@ public class UserListControllerTest {
     @Test
     public void loadZeroPageNumber() {
         createMockResponse(0, "name-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 0,"name-increasing");
+        userListController.getUserList(principal, model, 0,"name-increasing");
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
@@ -352,7 +287,7 @@ public class UserListControllerTest {
     @Test
     public void loadNegativePageNumber() {
         createMockResponse(0, "name-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, -1,"name-increasing");
+        userListController.getUserList(principal, model, -1,"name-increasing");
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
@@ -381,7 +316,7 @@ public class UserListControllerTest {
     @Test
     public void footerNumberSequenceLessThanElevenPages() {
         createMockResponse(0, "name-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 1,null);
+        userListController.getUserList(principal, model, 1,null);
         ArrayList<Integer> footerSequence = userListController.getFooterSequence();
         List<Integer> expectedFooterSequence = Arrays.asList(1,2,3,4,5);
 
@@ -392,7 +327,7 @@ public class UserListControllerTest {
     public void footerNumberSequencePage10GreaterThan16Pages() {
         addUsersToExpectedList(202,900);
         createMockResponse(450, "name-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 10,"name-increasing");
+        userListController.getUserList(principal, model, 10,"name-increasing");
         ArrayList<Integer> footerSequence = userListController.getFooterSequence();
         ArrayList<Integer> expectedFooterSequence = new ArrayList<>();
         for (int i = 5; i <= 15; i++) {
@@ -406,7 +341,7 @@ public class UserListControllerTest {
     public void footerNumberSequencePage10LessThan16Pages() {
         addUsersToExpectedList(202,650);
         createMockResponse(450, "name-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 10,"name-increasing");
+        userListController.getUserList(principal, model, 10,"name-increasing");
         ArrayList<Integer> footerSequence = userListController.getFooterSequence();
         ArrayList<Integer> expectedFooterSequence = new ArrayList<>();
         for (int i = 3; i <= 13; i++) {
@@ -419,7 +354,7 @@ public class UserListControllerTest {
     @Test
     public void sortByNameIncreasing() {
         createMockResponse(0, "name-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 1,"name-increasing");
+        userListController.getUserList(principal, model, 1,"name-increasing");
         List<UserResponse> user_list = userListController.getUserResponseList();
         expectedUsersList.sort(compareByName);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0,50);
@@ -430,7 +365,7 @@ public class UserListControllerTest {
     @Test
     public void sortByNameDecreasing() {
         createMockResponse(0, "name-decreasing");
-        userListController.getUserList(principal, httpServletRequest,model, 1,"name-decreasing");
+        userListController.getUserList(principal, model, 1,"name-decreasing");
         List<UserResponse> user_list = userListController.getUserResponseList();
         expectedUsersList.sort(compareByName);
         Collections.reverse(expectedUsersList);
@@ -442,7 +377,7 @@ public class UserListControllerTest {
     @Test
     public void sortByUsernameIncreasing() {
         createMockResponse(0, "username-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 1,"username-increasing");
+        userListController.getUserList(principal, model, 1,"username-increasing");
         List<UserResponse> user_list = userListController.getUserResponseList();
         expectedUsersList.sort(compareByUsername);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0,50);
@@ -453,7 +388,7 @@ public class UserListControllerTest {
     @Test
     public void sortByUsernameDecreasing() {
         createMockResponse(0, "username-decreasing");
-        userListController.getUserList(principal, httpServletRequest,model, 1,"username-decreasing");
+        userListController.getUserList(principal, model, 1,"username-decreasing");
         List<UserResponse> user_list = userListController.getUserResponseList();
         expectedUsersList.sort(compareByUsername);
         Collections.reverse(expectedUsersList);
@@ -465,7 +400,7 @@ public class UserListControllerTest {
     @Test
     public void sortByAliasesIncreasing() {
         createMockResponse(0, "aliases-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 1,"aliases-increasing");
+        userListController.getUserList(principal, model, 1,"aliases-increasing");
         List<UserResponse> user_list = userListController.getUserResponseList();
         expectedUsersList.sort(compareByAlias);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0,50);
@@ -476,7 +411,7 @@ public class UserListControllerTest {
     @Test
     public void sortByAliasesDecreasing() {
         createMockResponse(0, "aliases-decreasing");
-        userListController.getUserList(principal, httpServletRequest,model, 1,"aliases-decreasing");
+        userListController.getUserList(principal, model, 1,"aliases-decreasing");
         List<UserResponse> user_list = userListController.getUserResponseList();
         expectedUsersList.sort(compareByAlias);
         Collections.reverse(expectedUsersList);
@@ -488,7 +423,7 @@ public class UserListControllerTest {
     @Test
     public void sortByRolesIncreasing() {
         createMockResponse(0, "roles-increasing");
-        userListController.getUserList(principal, httpServletRequest,model, 1,"roles-increasing");
+        userListController.getUserList(principal, model, 1,"roles-increasing");
         List<UserResponse> user_list = userListController.getUserResponseList();
         expectedUsersList.sort(compareByRole);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0,50);
@@ -499,7 +434,7 @@ public class UserListControllerTest {
     @Test
     public void sortByRolesDecreasing() {
         createMockResponse(0, "roles-decreasing");
-        userListController.getUserList(principal, httpServletRequest,model, 1,"roles-decreasing");
+        userListController.getUserList(principal, model, 1,"roles-decreasing");
         List<UserResponse> user_list = userListController.getUserResponseList();
         expectedUsersList.sort(compareByRole);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0,50);
@@ -507,355 +442,91 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
-    private HttpServletRequest initialiseHttpServlet() {
-        return new HttpServletRequest() {
+    @Test
+    public void sortOrderDefaultToNameIncreasing() {
+        createMockResponse(0, "name-increasing");
+        String expectedDefaultSortOrder = "name-increasing";
+        userListController.getUserList(principal, model, 1,null);
+        String sortOrder = userListController.getSortOrder();
+
+        Assertions.assertEquals(expectedDefaultSortOrder, sortOrder);
+    }
+
+    @Test
+    public void sortOrderPersistence() {
+        String expectedPersistedSortOrder = "role-increasing";
+        createMockResponse(0, expectedPersistedSortOrder);
+        userListController.getUserList(principal, model, 1,expectedPersistedSortOrder);
+        String sortOrder = userListController.getSortOrder();
+        userListController.getUserList(principal, model, 1, null);
+
+        Assertions.assertEquals(expectedPersistedSortOrder, sortOrder);
+    }
+
+    @SuppressWarnings("NullableProblems")
+    private static Model setMockModel() {
+        return new Model() {
+
+            Object totalPages;
+            Object currentPage;
+            Object totalItems;
+            Object user_list;
+            Object possibleRoles;
+
             @Override
-            public String getAuthType() {
+            public Model addAttribute(String attributeName, Object attributeValue) {
+                switch (attributeName) {
+                    case "totalPages" -> totalPages = attributeValue;
+                    case "currentPage" -> currentPage = attributeValue;
+                    case "totalItems" -> totalItems = attributeValue;
+                    case "user_list" -> user_list = attributeValue;
+                    case "possibleRoles" -> possibleRoles = attributeValue;
+                }
                 return null;
             }
 
             @Override
-            public Cookie[] getCookies() {
-                return new Cookie[0];
-            }
-
-            @Override
-            public long getDateHeader(String name) {
-                return 0;
-            }
-
-            @Override
-            public String getHeader(String name) {
+            public Model addAttribute(Object attributeValue) {
                 return null;
             }
 
             @Override
-            public Enumeration<String> getHeaders(String name) {
+            public Model addAllAttributes(Collection<?> attributeValues) {
                 return null;
             }
 
             @Override
-            public Enumeration<String> getHeaderNames() {
+            public Model addAllAttributes(Map<String, ?> attributes) {
                 return null;
             }
 
             @Override
-            public int getIntHeader(String name) {
-                return 0;
-            }
-
-            @Override
-            public String getMethod() {
+            public Model mergeAttributes(Map<String, ?> attributes) {
                 return null;
             }
 
             @Override
-            public String getPathInfo() {
-                return null;
-            }
-
-            @Override
-            public String getPathTranslated() {
-                return null;
-            }
-
-            @Override
-            public String getContextPath() {
-                return null;
-            }
-
-            @Override
-            public String getQueryString() {
-                return null;
-            }
-
-            @Override
-            public String getRemoteUser() {
-                return null;
-            }
-
-            @Override
-            public boolean isUserInRole(String role) {
+            public boolean containsAttribute(String attributeName) {
                 return false;
             }
 
             @Override
-            public Principal getUserPrincipal() {
-                return null;
+            public Object getAttribute(String attributeName) {
+                Object toReturn = null;
+                switch (attributeName) {
+                    case "totalPages" -> toReturn = totalPages;
+                    case "currentPage" -> toReturn = currentPage;
+                    case "totalItems" -> toReturn = totalItems;
+                    case "user_list" -> toReturn = user_list;
+                    case "possibleRoles" -> toReturn = possibleRoles;
+                }
+                return toReturn;
             }
 
             @Override
-            public String getRequestedSessionId() {
-                return null;
-            }
-
-            @Override
-            public String getRequestURI() {
-                return null;
-            }
-
-            @Override
-            public StringBuffer getRequestURL() {
-                return null;
-            }
-
-            @Override
-            public String getServletPath() {
-                return null;
-            }
-
-            @Override
-            public HttpSession getSession(boolean create) {
-                return null;
-            }
-
-            @Override
-            public HttpSession getSession() {
-                return null;
-            }
-
-            @Override
-            public String changeSessionId() {
-                return null;
-            }
-
-            @Override
-            public boolean isRequestedSessionIdValid() {
-                return false;
-            }
-
-            @Override
-            public boolean isRequestedSessionIdFromCookie() {
-                return false;
-            }
-
-            @Override
-            public boolean isRequestedSessionIdFromURL() {
-                return false;
-            }
-
-            @Override
-            public boolean isRequestedSessionIdFromUrl() {
-                return false;
-            }
-
-            @Override
-            public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
-                return false;
-            }
-
-            @Override
-            public void login(String username, String password) throws ServletException {
-
-            }
-
-            @Override
-            public void logout() throws ServletException {
-
-            }
-
-            @Override
-            public Collection<Part> getParts() throws IOException, ServletException {
-                return null;
-            }
-
-            @Override
-            public Part getPart(String name) throws IOException, ServletException {
-                return null;
-            }
-
-            @Override
-            public <T extends HttpUpgradeHandler> T upgrade(Class<T> httpUpgradeHandlerClass) throws IOException, ServletException {
-                return null;
-            }
-
-            @Override
-            public Object getAttribute(String name) {
-                return null;
-            }
-
-            @Override
-            public Enumeration<String> getAttributeNames() {
-                return null;
-            }
-
-            @Override
-            public String getCharacterEncoding() {
-                return null;
-            }
-
-            @Override
-            public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
-
-            }
-
-            @Override
-            public int getContentLength() {
-                return 0;
-            }
-
-            @Override
-            public long getContentLengthLong() {
-                return 0;
-            }
-
-            @Override
-            public String getContentType() {
-                return null;
-            }
-
-            @Override
-            public ServletInputStream getInputStream() throws IOException {
-                return null;
-            }
-
-            @Override
-            public String getParameter(String name) {
-                return null;
-            }
-
-            @Override
-            public Enumeration<String> getParameterNames() {
-                return null;
-            }
-
-            @Override
-            public String[] getParameterValues(String name) {
-                return new String[0];
-            }
-
-            @Override
-            public Map<String, String[]> getParameterMap() {
-                return null;
-            }
-
-            @Override
-            public String getProtocol() {
-                return null;
-            }
-
-            @Override
-            public String getScheme() {
-                return null;
-            }
-
-            @Override
-            public String getServerName() {
-                return null;
-            }
-
-            @Override
-            public int getServerPort() {
-                return 0;
-            }
-
-            @Override
-            public BufferedReader getReader() throws IOException {
-                return null;
-            }
-
-            @Override
-            public String getRemoteAddr() {
-                return null;
-            }
-
-            @Override
-            public String getRemoteHost() {
-                return null;
-            }
-
-            @Override
-            public void setAttribute(String name, Object o) {
-
-            }
-
-            @Override
-            public void removeAttribute(String name) {
-
-            }
-
-            @Override
-            public Locale getLocale() {
-                return null;
-            }
-
-            @Override
-            public Enumeration<Locale> getLocales() {
-                return null;
-            }
-
-            @Override
-            public boolean isSecure() {
-                return false;
-            }
-
-            @Override
-            public RequestDispatcher getRequestDispatcher(String path) {
-                return null;
-            }
-
-            @Override
-            public String getRealPath(String path) {
-                return null;
-            }
-
-            @Override
-            public int getRemotePort() {
-                return 0;
-            }
-
-            @Override
-            public String getLocalName() {
-                return null;
-            }
-
-            @Override
-            public String getLocalAddr() {
-                return "a";
-            }
-
-            @Override
-            public int getLocalPort() {
-                return 0;
-            }
-
-            @Override
-            public ServletContext getServletContext() {
-                return null;
-            }
-
-            @Override
-            public AsyncContext startAsync() throws IllegalStateException {
-                return null;
-            }
-
-            @Override
-            public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
-                return null;
-            }
-
-            @Override
-            public boolean isAsyncStarted() {
-                return false;
-            }
-
-            @Override
-            public boolean isAsyncSupported() {
-                return false;
-            }
-
-            @Override
-            public AsyncContext getAsyncContext() {
-                return null;
-            }
-
-            @Override
-            public DispatcherType getDispatcherType() {
+            public Map<String, Object> asMap() {
                 return null;
             }
         };
     }
-
-
-
 }
