@@ -13,7 +13,10 @@ import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.identityprovider.service.UrlService;
 import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetadata;
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.env.Environment;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -34,6 +37,8 @@ public class ProfilePhotoStepDefinitions {
 
     private MockImageResponseStreamObserver mockImageResponseStreamObserver = new MockImageResponseStreamObserver();
 
+    private Environment mockEnv;
+
     private UrlService urlService;
 
     private User user;
@@ -47,6 +52,19 @@ public class ProfilePhotoStepDefinitions {
     @Before
     public void setup() {
         urlService = new UrlService();
+
+        ReflectionTestUtils.setField(urlService, "env", mockEnv);
+
+        mockEnv = mock(Environment.class);
+        when(mockEnv.getProperty("photoLocation", "src/main/resources/profile-photos/"))
+                .thenReturn("src/main/resources/profile-photos/");
+
+        when(mockEnv.getProperty("protocol", "http")).thenReturn("http");
+        when(mockEnv.getProperty("hostName", "localhost")).thenReturn("localhost");
+        when(mockEnv.getProperty("port", "9001")).thenReturn("9001");
+        when(mockEnv.getProperty("rootPath", "")).thenReturn("");
+
+        ReflectionTestUtils.setField(urlService, "env", mockEnv);
     }
 
     @Given("I am logged in as user id {int}")
@@ -143,7 +161,7 @@ public class ProfilePhotoStepDefinitions {
         }
         photo.close();
 
-        StreamObserver<UploadUserProfilePhotoRequest> requestObserver = new ImageRequestStreamObserver(mockImageResponseStreamObserver, repository);
+        StreamObserver<UploadUserProfilePhotoRequest> requestObserver = new ImageRequestStreamObserver(mockImageResponseStreamObserver, repository, mockEnv);
         mockImageResponseStreamObserver.initialise(requestObserver);
         mockImageResponseStreamObserver.sendImage(requestChunks);
     }

@@ -132,7 +132,7 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
      */
     private void saveImageToGallery() {
         try {
-            String photoLocation = env.getProperty("photoLocation", "/src/main/resources/profile-photos/");
+            String photoLocation = env.getProperty("photoLocation", "src/main/resources/profile-photos/");
             FileOutputStream out = new FileOutputStream(
                     photoLocation + userId + "." + fileType
             );
