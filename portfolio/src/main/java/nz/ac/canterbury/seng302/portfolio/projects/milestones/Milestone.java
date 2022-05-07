@@ -106,7 +106,12 @@ public class Milestone {
         return type;
     }
 
+    public Project getProject(){
+        return this.project;
+    }
+
     public void setType(int type) {
         this.type = type;
     }
 }
+
