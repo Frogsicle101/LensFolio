@@ -63,6 +63,7 @@ public class UserListControllerTest {
 
         when(PrincipalAttributes.getUserFromPrincipal(principal, mockClientService)).thenReturn(user.build());
         addUsersToExpectedList(0,201);
+        userPrefRepository.deleteAll();
         userListController.setPrefRepository(userPrefRepository);
     }
 
