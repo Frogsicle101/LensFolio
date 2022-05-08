@@ -24,14 +24,17 @@ $(document).ready(function() {
      */
     eventSource.addEventListener("editEvent", function (event) {
         const data = JSON.parse(event.data);
-        let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
-        $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice`+data.eventId+`"> ` + infoString + `</p>`)
-        $("#" + data.eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
-        if ($(".occasion").hasClass("eventBeingEdited")) {
-            $(".eventBeingEdited").find(".eventEditButton").hide()
-            $(".eventBeingEdited").find(".eventDeleteButton").hide()
+        if (checkPrivilege()) {
+            let infoString = data.usersName+ " is editing: " + $("#" + data.eventId).find(".eventName").text() // Find the name of the event from its id
+            $("#infoEventContainer").append(`<p class="infoMessage" id="eventNotice`+data.eventId+`"> ` + infoString + `</p>`)
+            $("#" + data.eventId).addClass("eventBeingEdited") // Add class that shows which event is being edited
+            if ($(".occasion").hasClass("eventBeingEdited")) {
+                $(".eventBeingEdited").find(".eventEditButton").hide()
+                $(".eventBeingEdited").find(".eventDeleteButton").hide()
+            }
+            $("#infoEventContainer").slideDown() // Show the notice.
         }
-        $("#infoEventContainer").slideDown() // Show the notice.
+
     })
 
 
@@ -67,19 +70,22 @@ $(document).ready(function() {
      */
     eventSource.addEventListener("userNotEditingEvent", function (event) {
         const data = JSON.parse(event.data);
-        $("#eventNotice" + data.eventId).remove()
-        $("#" + data.eventId).removeClass("eventBeingEdited")
-        if (!thisUserIsEditing) {
-            $("#" + data.eventId).find(".eventEditButton").show();
-            $("#" + data.eventId).find(".eventDeleteButton").show();
+        if (checkPrivilege()) {
+            $("#eventNotice" + data.eventId).remove()
+            $("#" + data.eventId).removeClass("eventBeingEdited")
+            if (!thisUserIsEditing) {
+                $("#" + data.eventId).find(".eventEditButton").show();
+                $("#" + data.eventId).find(".eventDeleteButton").show();
+            }
+            if ($(".occasion").hasClass("eventBeingEdited")) {
+                $(".eventBeingEdited").find(".eventEditButton").hide()
+                $(".eventBeingEdited").find(".eventDeleteButton").hide()
+            }
+            if (isEmpty($("#infoEventContainer"))) {
+                $("#infoEventContainer").slideUp() // Hide the notice.
+            }
         }
-        if ($(".occasion").hasClass("eventBeingEdited")) {
-            $(".eventBeingEdited").find(".eventEditButton").hide()
-            $(".eventBeingEdited").find(".eventDeleteButton").hide()
-        }
-        if (isEmpty($("#infoEventContainer"))) {
-            $("#infoEventContainer").slideUp() // Hide the notice.
-        }
+
     })
 
     eventSource.addEventListener("userNotEditingMilestone", function (milestone) {
@@ -648,6 +654,7 @@ function refreshEvents(){
 
 }
 
+
 function reloadEvent(eventId){
     $("#eventContainer").find("#" + eventId).slideUp() // Finds the event divs and hides them
 
@@ -676,9 +683,6 @@ function reloadEvent(eventId){
             sortElementsByDate("#eventContainer", ".occasion", ".eventStartDateNilFormat")
 
             removeElementIfNotAuthorized()
-
-
-
 
         },
         error: function() {
