@@ -108,7 +108,7 @@ async function sendImagePostRequest() {
     }).then(function(){
         $(".successBox").append(`
                             <div class="alert alert-info alert-dismissible fade show" role="alert">
-                                 Your profile image is being uploaded, you can click <a href="/account">here</a> to go back to account's page.
+                                 Your profile image is being uploaded, you can click <a href="account">here</a> to go back to account's page.
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
     });
