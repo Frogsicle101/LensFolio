@@ -441,7 +441,7 @@ public class PortfolioController {
 
 
             // Adds the username to the view for use.
-            modelAndView.addObject("username", user.getUsername());
+            modelAndView.addObject("user", user);
 
             // Add the sprint to the view for use.
             modelAndView.addObject("sprint", sprint);
@@ -455,6 +455,16 @@ public class PortfolioController {
         }
 
 
+    }
+
+
+
+    @GetMapping("/getSprintList")
+    public ResponseEntity<Object> getSprintList(
+            @RequestParam(value = "projectId") Long projectId
+    ) {
+        List<Sprint> sprintList = sprintRepository.findAllByProjectId(projectId);
+        return new ResponseEntity<>(sprintList, HttpStatus.OK);
     }
 
     /**

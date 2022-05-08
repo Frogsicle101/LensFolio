@@ -1,10 +1,10 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwt;
+import nz.ac.canterbury.seng302.portfolio.authentication.CookieUtil;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +15,18 @@ import reactor.netty.http.Cookies;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.ByteBuffer;
 import java.security.Principal;
 import java.util.Arrays;
-
-
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.logging.XMLFormatter;
+import java.util.regex.Pattern;
 
 
 public class RoleBasedIntercepter implements HandlerInterceptor {
+
+
 
     public AuthenticateClientService authenticateClientService;
 
@@ -34,6 +39,9 @@ public class RoleBasedIntercepter implements HandlerInterceptor {
             Object handler) throws Exception {
 
         logger.info("PreHandle");
+
+
+
 
 
 
