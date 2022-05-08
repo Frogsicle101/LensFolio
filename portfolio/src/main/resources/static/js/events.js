@@ -1085,7 +1085,7 @@ $(document).on('submit', "#addDeadlineForm", function (deadline) {
 
             $(".deadlineForm").slideUp();
             $(".addDeadlineSvg").toggleClass('rotated');
-            notifyNewDeadline(response)
+            notifyNewDeadline(response.id)
         }
     })
 
