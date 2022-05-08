@@ -31,11 +31,11 @@ $(document).ready(() => {
 
 
         $.ajax({
-            url: "/register",
+            url: "register",
             type: "post",
             data: registerData,
             success: function(){
-                location.href = "/account"
+                location.href = "account"
             },
             error: function(error){
                 //TODO Add in error handling here

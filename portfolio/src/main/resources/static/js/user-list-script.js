@@ -8,7 +8,7 @@ $(document).ready(function () {
     $(".roleDeleteButton").click(function () {
         let role = $(this).siblings().text();
         let userId = $(this).closest(".roleButtonsContainer").siblings(".userId").text(); // gets the user ID of the user being edited
-        $.ajax("/editUserRole", {
+        $.ajax("editUserRole", {
             type: "DELETE",
             data: {
                 "userId": userId,
@@ -39,7 +39,7 @@ $(document).ready(function () {
         let role = $(this).text();
         let userId = $(this).closest(".roleButtonsContainer").siblings(".userId").text();
         $.ajax({
-            url: "/editUserRole",
+            url: "editUserRole",
             type: "PUT",
             data: {
                 "userId": userId,

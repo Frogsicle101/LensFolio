@@ -10,7 +10,7 @@ $(document).ready(() => {
      * Redirect page.
      */
     $("#projectEditSprint").click(() => {
-        location.href = "/editProject?projectId=" + projectId ;
+        location.href = "editProject?projectId=" + projectId ;
     })
     /**
      * When project add sprint button is pressed.
@@ -18,7 +18,7 @@ $(document).ready(() => {
      */
     $("#projectAddSprint").click(function () {
         $.ajax({
-            url: "/portfolio/addSprint?projectId=" + projectId,
+            url: "portfolio/addSprint?projectId=" + projectId,
             success: function (){
                 location.reload()
             },
@@ -42,7 +42,7 @@ $(document).ready(() => {
      */
     $(".editSprint").click(function () {
         let sprintId = $(this).closest(".sprint").find(".sprintId").text();
-        location.href = "/sprintEdit?sprintId=" + sprintId +"&projectId=" + projectId;
+        location.href = "sprintEdit?sprintId=" + sprintId +"&projectId=" + projectId;
     })
 
     /**

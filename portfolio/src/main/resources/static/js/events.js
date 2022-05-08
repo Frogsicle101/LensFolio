@@ -160,7 +160,7 @@ $(document).on('click', '.addEventButton', function() {
 $(document).on("click", ".eventDeleteButton", function(){
     let eventData = {"eventId": $(this).closest(".occasion").find(".eventId").text()}
     $.ajax({
-        url: "/deleteEvent",
+        url: "deleteEvent",
         type: "DELETE",
         data: eventData,
         success: function(response) {
@@ -184,7 +184,7 @@ $(document).on('submit', "#addEventForm", function (event) {
         "typeOfEvent": $(".typeOfEvent").val()
     }
     $.ajax({
-        url: "/addEvent",
+        url: "addEvent",
         type: "put",
         data: eventData,
         success: function(response) {
@@ -228,7 +228,7 @@ $(document).on("submit", "#editEventForm", function(event){
                             </div>`)
     } else {
         $.ajax({
-            url: "/editEvent",
+            url: "editEvent",
             type: "POST",
             data: eventData,
             success: function(response) {
@@ -296,7 +296,7 @@ function checkPrivilege(){
  */
 function notifyNotEditing(eventId) {
     $.ajax({
-        url: "/userNotEditingEvent",
+        url: "userNotEditingEvent",
         type: "post",
         data: {"eventId": eventId},
     })
@@ -305,7 +305,7 @@ function notifyNotEditing(eventId) {
 
 function notifyNotEditingMilestone(milestoneId) {
     $.ajax({
-        url: "/userNotEditingMilestone",
+        url: "userNotEditingMilestone",
         type: "post",
         data: {"milestoneId": milestoneId},
     })
@@ -319,7 +319,7 @@ function notifyNotEditingMilestone(milestoneId) {
  */
 function notifyToReloadEvent(eventId) {
     $.ajax({
-        url: "/reloadSpecificEvent",
+        url: "reloadSpecificEvent",
         type: "post",
         data: {"eventId": eventId},
     })
@@ -330,7 +330,7 @@ function notifyToReloadEvent(eventId) {
  */
 function notifyToDelete(eventId) {
     $.ajax({
-        url: "/notifyRemoveEvent",
+        url: "notifyRemoveEvent",
         type: "post",
         data: {"eventId": eventId},
     })
@@ -342,7 +342,7 @@ function notifyToDelete(eventId) {
  */
 function notifyNewEvent(eventId) {
     $.ajax({
-        url: "/notifyNewEvent",
+        url: "notifyNewEvent",
         type: "post",
         data: {"eventId": eventId},
     })
@@ -351,7 +351,7 @@ function notifyNewEvent(eventId) {
 
 function notifyEditEvent(eventId) {
     $.ajax({
-        url: "/eventEdit",
+        url: "eventEdit",
         type: "POST",
         data: {"eventId" :eventId}
     })
@@ -359,7 +359,7 @@ function notifyEditEvent(eventId) {
 
 function notifyEditMilestone(milestoneId) {
     $.ajax({
-        url: "/milestoneBeingEdited",
+        url: "milestoneBeingEdited",
         type: "POST",
         data: {"milestoneId" :milestoneId}
     })
@@ -498,7 +498,7 @@ function refreshEvents(){
     $("#eventContainer").append(`<div id="infoEventContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
             </div>`) // Adds an info box to the page
     $.ajax({
-        url: '/getEventsList',
+        url: 'getEventsList',
         type: 'get',
         data: {'projectId': projectId},
 
@@ -534,7 +534,7 @@ function reloadEvent(eventId){
 
 
     $.ajax({
-        url: '/getEvent',
+        url: 'getEvent',
         type: 'get',
         data: {'eventId': eventId},
         success: function(response) {
@@ -581,7 +581,7 @@ function removeEvent(eventId) {
  */
 function addEvent(eventId) {
     $.ajax({
-        url: '/getEvent',
+        url: 'getEvent',
         type: 'get',
         data: {'eventId': eventId},
         success: function(response) {

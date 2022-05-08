@@ -102,7 +102,7 @@ async function sendImagePostRequest() {
     const formData = new FormData();
     formData.append("image", await fetch(url).then(r => r.blob()));
 
-    await fetch("/upload", {
+    await fetch("upload", {
         method: "POST",
         body: formData
     }).then(function(){

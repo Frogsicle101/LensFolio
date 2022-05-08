@@ -60,7 +60,7 @@
         }
 
         $.ajax({
-            url: "/sprintSubmit",
+            url: "sprintSubmit",
             type: "post",
             data: dataToSend,
             success: function(){
