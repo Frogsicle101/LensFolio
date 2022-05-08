@@ -88,7 +88,7 @@ public class ProfilePhotoStepDefinitions {
 
     @Given("I have no profile photo")
     public void i_have_no_profile_photo() {
-        user.deleteProfileImage();
+        user.deleteProfileImage(mockEnv);
     }
 
 

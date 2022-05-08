@@ -275,7 +275,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         try {
             int id = request.getUserId();
             User user = repository.findById(id);
-            boolean deleteSuccess = user.deleteProfileImage();
+            boolean deleteSuccess = user.deleteProfileImage(env);
             response.setIsSuccess(deleteSuccess);
         } catch (Exception exception) {
             response.setIsSuccess(false);
