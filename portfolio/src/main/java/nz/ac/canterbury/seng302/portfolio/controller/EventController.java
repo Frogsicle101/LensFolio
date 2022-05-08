@@ -61,7 +61,7 @@ public class EventController {
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PutMapping("/addEvent")
-    public ResponseEntity<String> addEvent(
+    public ResponseEntity<Object> addEvent(
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart") String start,
@@ -70,7 +70,7 @@ public class EventController {
     ) {
 
         try {
-
+            logger.info("PUT /addEvent");
 
             // eventStart and eventEnd return a string in the format "1986-01-28T11:38:00.01"
             // DateTimeFormatter.ISO_DATE_TIME helps parse that string by declaring its format.
@@ -82,23 +82,37 @@ public class EventController {
             ));
 
             if (!regexPatterns.getTitleRegex().matcher(name).matches()) {
+
                 String returnMessage = "Name does not match required pattern";
+                logger.warn("PUT /addEvent: {}", returnMessage);
                 return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
             }
 
             if (project.getStartDate().isAfter(LocalDate.from(eventStart)) || project.getEndDate().isBefore(LocalDate.from(eventEnd))) {
-                return new ResponseEntity<>("Date(s) exist outside of project dates", HttpStatus.BAD_REQUEST);
+                String returnMessage = "Date(s) exist outside of project dates";
+                logger.warn("PUT /addEvent: {}", returnMessage);
+                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
+            }
+
+            if (eventStart.isAfter(eventEnd)){
+                String returnMessage = "Start date cannot be before end date";
+                logger.warn("PUT /addEvent: {}", returnMessage);
+                return new ResponseEntity<>("Start date cannot be before end date", HttpStatus.BAD_REQUEST);
             }
 
             Event event = new Event(project, name, eventStart, eventEnd.toLocalDate(), eventEnd.toLocalTime(), typeOfEvent);
-            eventRepository.save(event);
-            return new ResponseEntity<>(HttpStatus.OK);
+            Event eventReturn = eventRepository.save(event);
+            logger.info("PUT /addEvent: Success");
+            return new ResponseEntity<>(eventReturn, HttpStatus.OK);
 
         } catch (EntityNotFoundException err) {
+            logger.warn("PUT /addEvent: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (DateTimeParseException err) {
+            logger.warn("PUT /addEvent: {}", err.getMessage());
             return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
+            logger.error("PUT /addEvent: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -117,15 +131,19 @@ public class EventController {
             @RequestParam(value = "eventId") UUID eventId
     ) {
         try{
+            logger.info("DELETE: /deleteEvent");
             Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(
                     "Event with id " + eventId + " was not found"
             ));
             eventRepository.delete(event);
+            logger.info("DELETE: /deleteEvent: Success");
             return new ResponseEntity<>(HttpStatus.OK);
 
         } catch(EntityNotFoundException err) {
+            logger.warn("DELETE: /deleteEvent: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch(Exception err){
+            logger.error("DELETE: /deleteEvent: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -158,6 +176,7 @@ public class EventController {
             @RequestParam(defaultValue = "1", value = "typeOfEvent") int typeOfEvent
     ) {
         try {
+            logger.info("POST /editEvent");
             Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(
                     "Event with id " + eventId + " was not found"
             ));
@@ -170,11 +189,14 @@ public class EventController {
 
             if (!regexPatterns.getTitleRegex().matcher(name).matches()) {
                 String returnMessage = "Name does not match required pattern";
+                logger.warn("POST /editEvent: {}", returnMessage);
                 return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
             }
 
             Project project = event.getProject();
             if (project.getStartDate().isAfter(LocalDate.from(eventStart)) || project.getEndDate().isBefore(LocalDate.from(eventEnd))) {
+                String returnMessage = "Date(s) exist outside of project dates";
+                logger.warn("POST /editEvent: {}", returnMessage);
                 return new ResponseEntity<>("Date(s) exist outside of project dates", HttpStatus.BAD_REQUEST);
             }
 
@@ -183,13 +205,16 @@ public class EventController {
             event.setDateTime(eventEnd);
             event.setType(typeOfEvent);
             eventRepository.save(event);
-
+            logger.info("POST /editEvent: Success");
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException err) {
+            logger.warn("POST /editEvent: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (DateTimeParseException err) {
+            logger.warn("POST /editEvent: {}", err.getMessage());
             return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
         } catch(Exception err) {
+            logger.error("POST /editEvent: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 
         }
@@ -209,6 +234,7 @@ public class EventController {
             logger.info("GET /getEventsList");
             List<Event> eventList = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
             eventList.sort(Comparator.comparing(Event::getStartDate));
+            logger.info("GET /getEventsList: Success");
             return new ResponseEntity<>(eventList, HttpStatus.OK);
         } catch(Exception err){
             logger.error("GET /getEventsList: {}", err.getMessage() );
@@ -229,8 +255,10 @@ public class EventController {
         try {
             logger.info("GET /getEventsList");
             Event event = eventRepository.findById(eventId).orElseThrow();
+            logger.info("GET /getEventsList: Success");
             return new ResponseEntity<>(event, HttpStatus.OK);
         } catch(NoSuchElementException err){
+            logger.warn("GET /getEventsList: {}", err.getMessage());
           return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch(Exception err){
             logger.error("GET /getEventsList: {}", err.getMessage() );

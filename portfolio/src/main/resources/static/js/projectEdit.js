@@ -1,4 +1,4 @@
-$(document).ready(function(){
+$(document).ready(() => {
 
     let projectName = $("#projectName")
     let projectStart = $("#projectStartDate")
@@ -26,6 +26,7 @@ $(document).ready(function(){
 
         }
     })
+
 
     projectEnd.on("change", function () {
         let projectStart = $("#projectStartDate").val()

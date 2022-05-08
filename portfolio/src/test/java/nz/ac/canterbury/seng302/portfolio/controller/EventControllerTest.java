@@ -5,11 +5,13 @@ import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +36,7 @@ class EventControllerTest {
 
     private final ProjectRepository mockProjectRepository = mock(ProjectRepository.class);
     private final EventRepository mockEventRepository = mock(EventRepository.class);
+    private final Event mockEvent = mock(Event.class);
 
     @Autowired
     private EventRepository eventRepository;
@@ -76,20 +79,22 @@ class EventControllerTest {
     }
 
     @Test
-    void testAddEvent() {
+    void testAddEvent() throws InvalidNameException {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusDays(1);
+        Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
 
-        ResponseEntity<String> response = eventController.addEvent(project.getId(), "testEvent", start.toString(), end.toString(), 1);
+        Mockito.when(mockEventRepository.save(Mockito.any())).thenReturn(event);
+        ResponseEntity<Object> response = eventController.addEvent(project.getId(), "testEvent", start.toString(), end.toString(), 1);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNull(response.getBody());
+
 
     }
 
     @Test
     void testAddEventBadDates() {
 
-        ResponseEntity<String> response = eventController.addEvent(project.getId(), "testEvent", "not a date", "neither", 1);
+        ResponseEntity<Object> response = eventController.addEvent(project.getId(), "testEvent", "not a date", "neither", 1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
     }
@@ -100,7 +105,7 @@ class EventControllerTest {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusDays(1);
 
-        ResponseEntity<String> response = eventController.addEvent(project.getId(), "test@Event", start.toString(), end.toString(), 1);
+        ResponseEntity<Object> response = eventController.addEvent(project.getId(), "test@Event", start.toString(), end.toString(), 1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals("Name does not match required pattern", response.getBody());
 
@@ -111,7 +116,7 @@ class EventControllerTest {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusDays(1);
 
-        ResponseEntity<String> response = eventController.addEvent(project.getId(), "", start.toString(), end.toString(), 1);
+        ResponseEntity<Object> response = eventController.addEvent(project.getId(), "", start.toString(), end.toString(), 1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals("Name does not match required pattern", response.getBody());
 
@@ -123,7 +128,7 @@ class EventControllerTest {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusDays(1);
 
-        ResponseEntity<String> response = eventController.addEvent(50L, "testEvent", start.toString(), end.toString(), 1);
+        ResponseEntity<Object> response = eventController.addEvent(50L, "testEvent", start.toString(), end.toString(), 1);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
     }
@@ -134,7 +139,7 @@ class EventControllerTest {
         LocalDateTime start = LocalDateTime.now().minusMonths(1);
         LocalDateTime end = LocalDateTime.now().plusMonths(1);
 
-        ResponseEntity<String> response = eventController.addEvent(project.getId(), "testEvent", start.toString(), end.toString(), 1);
+        ResponseEntity<Object> response = eventController.addEvent(project.getId(), "testEvent", start.toString(), end.toString(), 1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals("Date(s) exist outside of project dates", response.getBody());
 
@@ -146,7 +151,7 @@ class EventControllerTest {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusDays(1);
         Mockito.when(mockEventRepository.save(Mockito.any())).thenThrow(new RuntimeException());
-        ResponseEntity<String> response = eventController.addEvent(project.getId(), "testEvent", start.toString(), end.toString(), 1);
+        ResponseEntity<Object> response = eventController.addEvent(project.getId(), "testEvent", start.toString(), end.toString(), 1);
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         Assertions.assertNull(response.getBody());
 

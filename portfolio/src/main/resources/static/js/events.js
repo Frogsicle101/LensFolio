@@ -5,6 +5,7 @@ let thisUserIsEditing = false;
 $(document).ready(function() {
 
     refreshEvents(projectId)
+
     refreshMilestones(projectId)
 
     removeElementIfNotAuthorized()
@@ -115,14 +116,20 @@ $(document).ready(function() {
         if (isEmpty($("#infoEventContainer"))) {
             $("#infoEventContainer").slideUp() // Hide the notice.
         }
+
         reloadEvent(data.eventId) // reloads specific event
+
+
+
+
+
     })
     /**
      * Listens for a notification to remove an event (happens if another client deletes an event)
      */
     eventSource.addEventListener("notifyRemoveEvent", function (event) {
         const data = JSON.parse(event.data);
-        removeEvent(data.eventId) // reloads specific event
+        removeEvent(data.eventId) // removes specific event
     })
     /**
      * Listens for a notification to add a new event that another client has created
@@ -134,11 +141,21 @@ $(document).ready(function() {
 
 
 
-
-
-
 })
+function sortElementsByDate(div, childrenElement, dateElement) {
 
+    let result = $(div).children(childrenElement).sort(function (a, b) {
+
+        let contentA = Date.parse( $(a).find(dateElement).text());
+        let contentB = Date.parse( $(b).find(dateElement).text());
+        return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;
+    });
+
+    $(div).html(result);
+
+
+
+}
 
 
 
@@ -176,6 +193,8 @@ $(document).on("click", ".eventDeleteButton", function(){
  */
 $(document).on('submit', "#addEventForm", function (event) {
     event.preventDefault()
+
+
     let eventData = {
         "projectId": projectId,
         "eventName": $("#eventName").val(),
@@ -183,17 +202,31 @@ $(document).on('submit', "#addEventForm", function (event) {
         "eventEnd": $("#eventEnd").val(),
         "typeOfEvent": $(".typeOfEvent").val()
     }
-    $.ajax({
-        url: "addEvent",
-        type: "put",
-        data: eventData,
-        success: function(response) {
 
-            $(".eventForm").slideUp();
-            $(".addEventSvg").toggleClass('rotated');
-            notifyNewEvent(response)
-        }
-    })
+
+    if (eventData.eventEnd < eventData.eventStart) {
+        $(this).closest("#addEventForm").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Oh no!</strong> Your event end date shouldn't be before your event start date!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
+    } else {
+        $.ajax({
+            url: "addEvent",
+            type: "put",
+            data: eventData,
+            success: function(response) {
+
+                $(".eventForm").slideUp();
+                $(".addEventSvg").toggleClass('rotated');
+
+                notifyNewEvent(response.id)
+
+            }
+        })
+    }
+
+
 
 })
 
@@ -233,6 +266,7 @@ $(document).on("submit", "#editEventForm", function(event){
             data: eventData,
             success: function(response) {
                 notifyToReloadEvent(eventId) // Let the server know the event is no longer being edited
+                $(".addEventButton").show()
             }
         })
     }
@@ -275,6 +309,87 @@ $(document).on("click", ".existingEventCancel",function() {
 
 
 // <--------------------------- General Functions --------------------------->
+
+
+function addEventsToSprints(){
+    $.ajax({
+        url: 'getEventsList',
+        type: 'get',
+        data: {'projectId': projectId},
+
+        success: function(response) {
+
+            $(".eventInSprint").remove();
+
+            for(let index in response){
+                let event = response[index]
+
+                $(".sprint").each(function(index, element) {
+
+                    let eventStart = Date.parse(event.startDate)
+                    let eventEnd = Date.parse(event.endDate)
+                    let sprintStart = Date.parse($(element).find(".sprintStart").text())
+                    let sprintEnd = Date.parse($(element).find(".sprintEnd").text())
+                    if(eventStart >= sprintStart && eventStart <= sprintEnd) { // Event start right between sprint dates
+                        appendEventToSprint(element, event)
+                    } else if (eventEnd >= sprintStart && eventEnd <= sprintEnd) { //Event end falls within the sprint dates
+                        appendEventToSprint(element, event)
+                    }
+
+
+
+
+
+                })
+
+                $(".sprint").each(function(index, element) {
+
+                    let eventStart = Date.parse(event.startDate)
+                    let eventEnd = Date.parse(event.endDate)
+                    let sprintStart = Date.parse($(element).find(".sprintStart").text())
+                    let sprintEnd = Date.parse($(element).find(".sprintEnd").text())
+
+                    if(eventStart >= sprintStart && eventStart <= sprintEnd) {
+                        $(".eventInSprint" + event.id).find(".sprintEventStart").css("color", $(element).find(".sprintColour").text())
+                    }
+                    if ( sprintStart <= eventEnd && eventEnd <= sprintEnd) {
+                        $(".eventInSprint" + event.id).find(".sprintEventEnd").css("color", $(element).find(".sprintColour").text())
+                    }
+
+
+
+
+                })
+            }
+
+
+
+        },
+        error: function(error) {
+            console.log(error)
+            // location.href = "/error" // Moves the user to the error page
+        }
+    })
+}
+
+
+function appendEventToSprint(elementToAppendTo, event) {
+    let eventInSprint = `
+                <div class="row">
+                    <div class="col">
+                        <div class="eventInSprint eventInSprint${event.id}" >
+                            <p class="sprintEventName">${event.name} : </p>
+                            <p class="sprintEventStart">${event.startDateFormatted}</p>
+                            <p>-</p>
+                            <p class="sprintEventEnd">${event.endDateFormatted}</p>
+                        </div>
+                    </div>
+                </div>`
+    $(elementToAppendTo).append(eventInSprint)
+}
+
+
+
 
 
 function removeElementIfNotAuthorized() {
@@ -495,7 +610,7 @@ function createEventDiv(eventObject) {
  */
 function refreshEvents(){
     $("#eventContainer").find(".occasion").remove() // Finds all event divs are removes them
-    $("#eventContainer").append(`<div id="infoEventContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
+    $("#informationBar").append(`<div id="infoEventContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
             </div>`) // Adds an info box to the page
     $.ajax({
         url: 'getEventsList',
@@ -517,7 +632,9 @@ function refreshEvents(){
 
                 $("#eventContainer").append(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
                 removeElementIfNotAuthorized()
+
             }
+            addEventsToSprints()
 
         },
         error: function(error) {
@@ -525,6 +642,8 @@ function refreshEvents(){
             // location.href = "/error" // Moves the user to the error page
         }
     })
+
+
 
 
 }
@@ -553,13 +672,23 @@ function reloadEvent(eventId){
             $("#" + eventId).slideDown()
             $(".eventEditButton").show()
             $(".eventDeleteButton").show()
+            addEventsToSprints()
+            sortElementsByDate("#eventContainer", ".occasion", ".eventStartDateNilFormat")
+
             removeElementIfNotAuthorized()
+
+
+
 
         },
         error: function() {
             location.href = "/error" // Moves the user to the error page
         }
     })
+
+
+
+
 
 
 }
@@ -573,6 +702,7 @@ function reloadEvent(eventId){
 function removeEvent(eventId) {
     $("#eventContainer").find("#" + eventId).slideUp() // Finds all event divs are removes them
     $("#eventContainer").find("#" + eventId).remove()
+    addEventsToSprints()
 }
 
 /**
@@ -585,17 +715,20 @@ function addEvent(eventId) {
         type: 'get',
         data: {'eventId': eventId},
         success: function(response) {
+
             let eventObject = {
                 "id" : response.id,
                 "name" : response.name,
                 "start" : response.startDate,
-                "end" : response.endDate,
+                "end" : response.dateTime,
                 "startFormatted" : response.startDateFormatted,
                 "endFormatted" : response.endDateFormatted,
-                "typeOfEvent" : response.typeOfEvent,
+                "typeOfEvent" : response.type,
             }
 
             $("#eventContainer").append(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
+            sortElementsByDate("#eventContainer", ".occasion", ".eventStartDateNilFormat")
+            addEventsToSprints()
             removeElementIfNotAuthorized()
 
         },
@@ -718,7 +851,7 @@ function refreshMilestones(projectId){
         data: {'projectId': projectId},
 
         success: function(response) {
-            console.log(response)
+
             for(let milestone in response){ // Goes through all the data from the server and creates an eventObject
                 let milestoneObject = {
                     "id" : response[milestone].id,
