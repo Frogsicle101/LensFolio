@@ -902,6 +902,61 @@ $(document).on('click', ".milestoneDeleteButton", function() {
 
 
 //////////////////////////////// Deadlines ///////////////////////////////
+/*      DEADLINE GENERAL FUNCTIONS      */
+
+/**
+ * Sends notification to server to notify other clients that this user has added an event.
+ * @param deadlineId the id of the deadline
+ */
+function notifyNewDeadline(deadlineId) {
+    $.ajax({
+        url: "notifyNewDeadline",
+        type: "post",
+        data: {"deadlineId": deadlineId},
+    })
+}
+
+
+/**
+ * Sends notification to server to notify other clients that this user is no longer editing a deadline.
+ * @param deadlineId the id of the deadline
+ */
+function notifyNotEditingDeadline(deadlineId) {
+    $.ajax({
+        url: "userNotEditingDeadline",
+        type: "post",
+        data: {"deadlineId": deadlineId},
+    })
+}
+
+/*      DEADLINE EVENT/EVENTLISTENER FUNCTIONS        */
+
+/**
+ * When new deadline is submitted.
+ */
+$(document).on('submit', "#addDeadlineForm", function (deadline) {
+    deadline.preventDefault()
+    let deadlineData = {
+        "projectId": projectId,
+        "deadlineName": $("#deadlineName").val(),
+        "deadlineStart": $("#deadlineStart").val(),
+        "deadlineEnd": $("#deadlineEnd").val(),
+        "typeOfDeadline": $(".typeOfDeadline").val()
+    }
+    //Ajax call to store the deadline data
+    $.ajax({
+        url: "addDeadline",
+        type: "put",
+        data: deadlineData,
+        success: function(response) {
+
+            $(".deadlineForm").slideUp();
+            $(".addDeadlineSvg").toggleClass('rotated');
+            notifyNewDeadline(response)
+        }
+    })
+
+})
 
 /**
  * Slide toggle for when add deadline button is clicked.
@@ -910,6 +965,46 @@ $(".addDeadlineButton").click(function() {
     $(".addDeadlineSvg").toggleClass('rotated');
     $(".deadlineForm").slideToggle();
 })
+
+/*      DEADLINE REGULAR/MAIN/MAIN COURSE (SO TO SPEAK) FUNCTIONS        */
+
+/**
+ * Refreshes the deadline div section of the page
+ * @param projectId
+ */
+function refreshDeadline(projectId){
+    $("#deadlineContainer").find(".occasion").remove() // Finds all event divs are removes them
+    $("#deadlineContainer").append(`<div id="infoDeadlineContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
+            </div>`) // Adds an info box to the page
+    $.ajax({
+        url: '/getDeadlineList',
+        type: 'get',
+        data: {'projectId': projectId},
+
+        success: function(response) {
+            console.log(response)
+            for(let deadline in response){ // Goes through all the data from the server and creates an eventObject
+                let deadlineObject = {
+                    "id" : response[deadline].id,
+                    "name" : response[deadline].name,
+                    "end" : response[deadline].dateTime,
+                    "endFormatted" : response[deadline].endDateFormatted,
+                    "type" : response[deadline].type,
+                }
+
+                $("#deadlineContainer").append(createDeadlineDiv(deadlineObject)) // Passes the deadlineObject to the createDiv function
+                removeElementIfNotAuthorized()
+            }
+
+        },
+        error: function(error) {
+            console.log(error)
+            // location.href = "/error" // Moves the user to the error page
+        }
+    })
+
+
+}
 
 /**
  * Creates the Deadline divs from the deadlineObject

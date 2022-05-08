@@ -194,7 +194,7 @@
                             <div class="row mb-1">
                                 <div class="col">
                                     <label for="deadlineEnd" class="form-label">End</label>
-                                    <input type="date"
+                                    <input type="datetime-local"
                                            class="form-control form-control-sm deadlineInputEndDate"
                                            th:value="${project.getStartDateAsLocalDateTime()}"
                                            th:min="${project.getStartDateAsLocalDateTime()}"
