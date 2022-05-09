@@ -14,13 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -52,33 +48,35 @@ public class AccountController {
      * Once a user class is created, we will want to supply this page with the specific user that is viewing it
      * <br>
      * @param principal the principal
-     * @param editInfo editInfo DTO
-     * @param passInfo passInfo DTO
      * @return ModelAndView of accounts page
      */
     @RequestMapping("/account")
     public ModelAndView account(
-            @AuthenticationPrincipal AuthState principal,
-            @ModelAttribute(name = "editDetailsForm") UserRequest editInfo,
-            @ModelAttribute(name = "editPasswordForm") PasswordRequest passInfo
+            @AuthenticationPrincipal AuthState principal
     ) {
-        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
-        logger.info("GET REQUEST /account - retrieving account details for user " + user.getUsername());
+        try {
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+            logger.info("GET REQUEST /account - retrieving account details for user {}", user.getUsername());
 
-        ModelAndView model = new ModelAndView("account");
-        model.addObject("alphaSpacesRegex", alphaSpacesRegex);
-        model.addObject("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
-        model.addObject("userNameRegex", userNameRegex);
-        model.addObject("emailRegex", emailRegex);
-        model.addObject("bioRegex", bioRegex);
-        model.addObject("passwordRegex", passwordRegex);
-        model.addObject("pronounRegex", pronounRegex);
-        model.addObject("user", user);
-        String memberSince = ReadableTimeService.getReadableDate(user.getCreated())
-                + " (" + ReadableTimeService.getReadableTimeSince(user.getCreated()) + ")";
-        model.addObject("membersince", memberSince);
-        logger.info("Account details populated for " + user.getUsername());
-        return model;
+            ModelAndView model = new ModelAndView("account");
+            model.addObject("alphaSpacesRegex", alphaSpacesRegex);
+            model.addObject("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
+            model.addObject("userNameRegex", userNameRegex);
+            model.addObject("emailRegex", emailRegex);
+            model.addObject("bioRegex", bioRegex);
+            model.addObject("passwordRegex", passwordRegex);
+            model.addObject("pronounRegex", pronounRegex);
+            model.addObject("user", user);
+            String memberSince = ReadableTimeService.getReadableDate(user.getCreated())
+                    + " (" + ReadableTimeService.getReadableTimeSince(user.getCreated()) + ")";
+            model.addObject("membersince", memberSince);
+            logger.info("Account details populated for {}", user.getUsername());
+            return model;
+        } catch (Exception err) {
+            logger.error("GET /account: {}", err.getMessage());
+            return new ModelAndView("error");
+        }
+
     }
 
     /**
@@ -296,14 +294,12 @@ public class AccountController {
      * Entry point for editing the password
      * This also handle the logic for changing the password
      * Note: this injects an attribute called "passwordchangemessage" into the template it redirects to
-     * @param attributes extra attributes that are being given along with the redirect
      * @param principal The authentication state
      * @param editInfo the thymeleaf-created form object
      * @return a redirect to the main /edit endpoint
      */
     @PostMapping("/edit/password")
     public ResponseEntity<Object> editPassword(
-            RedirectAttributes attributes,
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editPasswordForm") PasswordRequest editInfo
     ){
