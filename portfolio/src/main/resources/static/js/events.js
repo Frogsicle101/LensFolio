@@ -408,13 +408,14 @@ function addEventsToSprints(){
         data: {'projectId': projectId},
 
         success: function(response) {
+            let sprint = $(".sprint")
 
             $(".eventInSprint").remove();
 
             for(let index in response){
                 let event = response[index]
 
-                $(".sprint").each(function(index, element) {
+                sprint.each(function(index, element) {
 
                     let eventStart = Date.parse(event.startDate)
                     let eventEnd = Date.parse(event.endDate)
@@ -424,23 +425,34 @@ function addEventsToSprints(){
                         appendEventToSprint(element, event)
                     } else if (eventEnd >= sprintStart && eventEnd <= sprintEnd) { //Event end falls within the sprint dates
                         appendEventToSprint(element, event)
+                    } else if (eventStart < sprintStart && eventEnd > sprintEnd) {
+                        appendEventToSprint(element, event) // Event is happening during a sprint
                     }
                 })
 
-                $(".sprint").each(function(index, element) {
+                sprint.each(function(index, element) {
 
                     let eventStart = Date.parse(event.startDate)
                     let eventEnd = Date.parse(event.endDate)
                     let sprintStart = Date.parse($(element).find(".sprintStart").text())
                     let sprintEnd = Date.parse($(element).find(".sprintEnd").text())
+                    let eventInSprint = $(".eventInSprint" + event.id);
+                    let sprintName = $(element).find(".sprintName").text()
 
                     if(eventStart >= sprintStart && eventStart <= sprintEnd) {
-                        $(".eventInSprint" + event.id).find(".sprintEventStart").css("color", $(element).find(".sprintColour").text())
+                        eventInSprint.find(".sprintEventStart").css("color", $(element).find(".sprintColour").text())
+                        eventInSprint.find(".sprintEventStart").attr("data-bs-toggle", "tooltip")
+                        eventInSprint.find(".sprintEventStart").attr("data-bs-placement", "top")
+                        eventInSprint.find(".sprintEventStart").attr("title", sprintName)
                     }
                     if ( sprintStart <= eventEnd && eventEnd <= sprintEnd) {
-                        $(".eventInSprint" + event.id).find(".sprintEventEnd").css("color", $(element).find(".sprintColour").text())
+                        eventInSprint.find(".sprintEventEnd").css("color", $(element).find(".sprintColour").text())
+                        eventInSprint.find(".sprintEventEnd").attr("data-bs-toggle", "tooltip")
+                        eventInSprint.find(".sprintEventEnd").attr("data-bs-placement", "top")
+                        eventInSprint.find(".sprintEventEnd").attr("title", sprintName)
                     }
                 })
+                enableToolTips()
             }
         },
         error: function(error) {
@@ -961,4 +973,12 @@ function countCharacters() {
  */
 function isEmpty( el ){
     return !$.trim(el.html())
+}
+
+
+function enableToolTips() {
+    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
 }
