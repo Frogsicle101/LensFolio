@@ -14,13 +14,16 @@ public class Config implements WebMvcConfigurer
 
     /**
      * This will intercept all the endpoints that we specify in the method and run them through RoleBasedInterceptor
-     * first
+     * first. The RoleBasedInterceptor only allows users to continue if they are a teacher or admin
      * @param registry Registry
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry)
     {
         List<String> pathsToIntercept = new ArrayList<>();
+
+        // User Roles
+        pathsToIntercept.add("/editUserRole");
 
         // Events
         pathsToIntercept.add("/addEvent");
@@ -39,8 +42,6 @@ public class Config implements WebMvcConfigurer
         pathsToIntercept.add("/editMilestone");
         pathsToIntercept.add("/deleteMilestone");
         pathsToIntercept.add("/addMilestone");
-
-
 
 
         registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToIntercept);
