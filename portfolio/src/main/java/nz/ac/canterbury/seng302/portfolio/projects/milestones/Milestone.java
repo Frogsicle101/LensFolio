@@ -78,6 +78,14 @@ public class Milestone {
         return nameLengthRestriction;
     }
 
+    /**
+     * This sets the ID
+     *
+     * SHOULD ONLY BE USED FOR TESTING PURPOSES
+     * @param id the UUID to be set
+     */
+    public void setUuid(UUID id) { this.id = id; }
+
     public UUID getId() {
         return this.id;
     }

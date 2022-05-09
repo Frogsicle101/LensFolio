@@ -42,6 +42,7 @@ public class DeadlineControllerTest {
         @Override
         public <S extends Deadline> S save(S entity) {
             if (!deadlines.contains(entity)){
+                entity.setUuid(UUID.randomUUID());
                 deadlines.add(entity);
             }
             return entity;
@@ -447,9 +448,6 @@ public class DeadlineControllerTest {
         when(mockProjectRepository.findById(project.getId())).thenReturn(java.util.Optional.ofNullable(project));
         Deadline deadline = null;
         try {
-            System.out.println(LocalDate.parse("2022-06-21"));
-            System.out.println(project.getStartDate());
-            System.out.println(project.getEndDate());
             deadline = new Deadline(project,"ToBeEdited",LocalDate.parse("2022-06-21"), LocalTime.MIN,1);
         } catch (InvalidNameException e) {
             e.printStackTrace();
