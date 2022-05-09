@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -48,17 +49,17 @@ public class NotificationController {
     }
 
 
-    @PostMapping("/eventEdit")
+    @PostMapping("/notifyEdit")
     public void sendEventToClients(@AuthenticationPrincipal AuthState editor,
-                                   @RequestParam UUID eventId) {
+                                   @RequestParam UUID id) {
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
                 .setId(eventEditorID)
                 .build());
-        logger.info("Event id " + eventId + " is being edited by user: " + eventEditorID);
+        logger.info(id + " is being edited by user: " + eventEditorID);
         for (SseEmitter emitter : emitters) {
             EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(eventId);
+            editEvent.setEventId(id);
             editEvent.setUserId(eventEditorID);
             editEvent.setUserName(userResponse.getFirstName() + " " + userResponse.getLastName());
 
@@ -72,19 +73,19 @@ public class NotificationController {
     }
 
 
-    @PostMapping("/userNotEditingEvent")
+    @PostMapping("/notifyNotEditing")
     public void userCanceledEdit(
-            @RequestParam(value="eventId") UUID eventId,
+            @RequestParam(value="id") UUID id,
             @AuthenticationPrincipal AuthState editor
     ) {
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Event id " + eventId + " is no longer being edited by user: " + eventEditorID);
+        logger.info(id + " is no longer being edited by user: " + eventEditorID);
         for (SseEmitter emitter : emitters) {
             EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(eventId);
+            editEvent.setEventId(id);
             editEvent.setUserId(eventEditorID);
             try {
-                emitter.send(SseEmitter.event().name("userNotEditingEvent")
+                emitter.send(SseEmitter.event().name("userNotEditing")
                         .data(editEvent));
             } catch (IOException e) {
                 emitters.remove(emitter);
@@ -92,19 +93,19 @@ public class NotificationController {
         }
     }
 
-    @PostMapping("/reloadSpecificEvent")
+    @PostMapping("/notifyReloadElement")
     public void reloadSpecificEvent(
-            @RequestParam(value="eventId") UUID eventId,
+            @RequestParam(value="id") UUID id,
             @AuthenticationPrincipal AuthState editor
     ) {
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Event id " + eventId + " needs to be reloaded");
+        logger.info(id + " needs to be reloaded");
         for (SseEmitter emitter : emitters) {
             EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(eventId);
+            editEvent.setEventId(id);
             editEvent.setUserId(eventEditorID);
             try {
-                emitter.send(SseEmitter.event().name("reloadSpecificEvent")
+                emitter.send(SseEmitter.event().name("reloadElement")
                         .data(editEvent));
             } catch (IOException e) {
                 emitters.remove(emitter);
@@ -112,16 +113,16 @@ public class NotificationController {
         }
     }
 
-    @PostMapping("/notifyRemoveEvent")
+    @PostMapping("/notifyRemoveElement")
     public void notifyRemoveEvent(
-            @RequestParam(value="eventId") UUID eventId,
+            @RequestParam(value="id") UUID id,
             @AuthenticationPrincipal AuthState editor
     ) {
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Event id " + eventId + " needs to be removed");
+        logger.info(id + " needs to be removed");
         for (SseEmitter emitter : emitters) {
             EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(eventId);
+            editEvent.setEventId(id);
             editEvent.setUserId(eventEditorID);
             try {
                 emitter.send(SseEmitter.event().name("notifyRemoveEvent")
@@ -132,19 +133,28 @@ public class NotificationController {
         }
     }
 
-    @PostMapping("/notifyNewEvent")
+    @PostMapping("/notifyNewElement")
     public void notifyNewEvent(
-            @RequestParam(value="eventId") UUID eventId,
+            @RequestParam(value="id") UUID id,
+            @RequestParam(value="typeOfEvent") String typeOfEvent,
             @AuthenticationPrincipal AuthState editor
     ) {
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Event id " + eventId + " needs to be added");
+        logger.info(id + " needs to be added");
+        logger.info(typeOfEvent);
         for (SseEmitter emitter : emitters) {
             EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(eventId);
+            editEvent.setEventId(id);
             editEvent.setUserId(eventEditorID);
+
+            if (Objects.equals(typeOfEvent, "event")) {
+                editEvent.setTypeOfEvent("event");
+            } else if ("milestone".equals(typeOfEvent)) {
+                editEvent.setTypeOfEvent("milestone");
+            } //TODO add deadlines here
+
             try {
-                emitter.send(SseEmitter.event().name("notifyNewEvent")
+                emitter.send(SseEmitter.event().name("notifyNewElement")
                         .data(editEvent));
             } catch (IOException e) {
                 emitters.remove(emitter);
@@ -153,115 +163,4 @@ public class NotificationController {
     }
 
 
-
-
-
-
-
-
-
-
-    @PostMapping("/milestoneBeingEdited")
-    public void sendMilestoneToClients(@AuthenticationPrincipal AuthState editor,
-                                       @RequestParam UUID milestoneId) {
-        int milestoneEditorId = PrincipalAttributes.getIdFromPrincipal(editor);
-        UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
-                .setId(milestoneEditorId)
-                .build());
-        logger.info("Milestone id " + milestoneId + " is being edited by user: " + milestoneEditorId);
-        for (SseEmitter emitter : emitters) {
-            EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(milestoneId);
-            editEvent.setUserId(milestoneEditorId);
-            editEvent.setUserName(userResponse.getFirstName() + " " + userResponse.getLastName());
-
-            try {
-                emitter.send(SseEmitter.event().name("editMilestone")
-                        .data(editEvent));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
-
-
-    @PostMapping("/userNotEditingMilestone")
-    public void userCanceledEditMilestone(
-            @RequestParam(value="milestoneId") UUID milestoneId,
-            @AuthenticationPrincipal AuthState editor
-    ) {
-        int EditorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Milestone id " + milestoneId + " is no longer being edited by user: " + EditorID);
-        for (SseEmitter emitter : emitters) {
-            EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(milestoneId);
-            editEvent.setUserId(EditorID);
-            try {
-                emitter.send(SseEmitter.event().name("userNotEditingMilestone")
-                        .data(editEvent));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
-
-    @PostMapping("/reloadSpecificMilestone")
-    public void reloadSpecificMilestone(
-            @RequestParam(value="milestoneId") UUID milestoneId,
-            @AuthenticationPrincipal AuthState editor
-    ) {
-        int editorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Milestone " + milestoneId + " needs to be reloaded");
-        for (SseEmitter emitter : emitters) {
-            EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(milestoneId);
-            editEvent.setUserId(editorID);
-            try {
-                emitter.send(SseEmitter.event().name("reloadSpecificMilestone")
-                        .data(editEvent));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
-
-    @PostMapping("/notifyRemoveMilestone")
-    public void notifyRemoveMilestone(
-            @RequestParam(value="milestoneId") UUID milestoneId,
-            @AuthenticationPrincipal AuthState editor
-    ) {
-        int editorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Milestone " + milestoneId + " needs to be removed");
-        for (SseEmitter emitter : emitters) {
-            EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(milestoneId);
-            editEvent.setUserId(editorID);
-            try {
-                emitter.send(SseEmitter.event().name("notifyRemoveMilestone")
-                        .data(editEvent));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
-
-    @PostMapping("/notifyNewMilestone")
-    public void notifyNewMilestone(
-            @RequestParam(value="milestoneId") UUID milestoneId,
-            @AuthenticationPrincipal AuthState editor
-    ) {
-        int editorID = PrincipalAttributes.getIdFromPrincipal(editor);
-        logger.info("Milestone " + milestoneId + " needs to be added");
-        for (SseEmitter emitter : emitters) {
-            EditEvent editEvent = new EditEvent();
-            editEvent.setEventId(milestoneId);
-            editEvent.setUserId(editorID);
-            try {
-                emitter.send(SseEmitter.event().name("notifyNewMilestone")
-                        .data(editEvent));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
 }
