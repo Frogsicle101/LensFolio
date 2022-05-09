@@ -113,9 +113,11 @@ public class CalendarController {
                         || sprint.getStartDate().isBefore(sprintStartDate) && sprint.getEndDate().isAfter(sprintEndDate)) {
                     HashMap<String, String> jsonedSprint = new HashMap<>();
                     jsonedSprint.put("title", sprint.getName());
+                    jsonedSprint.put("id", sprint.getId().toString());
                     jsonedSprint.put("start", (LocalDateTime.from(sprint.getStartDate().atStartOfDay().plusHours(12))).toString());
                     jsonedSprint.put("end", (LocalDateTime.from(sprint.getEndDate().atStartOfDay().plusHours(24))).toString());
                     jsonedSprint.put("backgroundColor", sprint.getColour());
+                    jsonedSprint.put("description", sprint.getDescription());
                     jsonedSprint.put("allDay", "true");
                     sprintsToSend.add(jsonedSprint);
                 }
