@@ -508,4 +508,9 @@ section{
     display: none;
 }
 
+.selected-event{
+    border-color: red;
+    border-width: medium;
+}
+
 

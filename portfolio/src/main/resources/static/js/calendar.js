@@ -1,4 +1,3 @@
-
 /**
  * Runs when a sprint is resized on the calendar
  * @param info
@@ -42,6 +41,15 @@ function eventResize (info) {
 }
 
 /**
+ * Runs when an event is clicked
+ * @param info
+ */
+function eventClick (info) {
+  info.event.eventBackgroundColor = '#aaa' ;
+  // info.el.classList.add('selected-event');
+}
+
+/**
  * $(document).ready fires off a function when the document has finished loading.
  * https://learn.jquery.com/using-jquery-core/document-ready/
  */
@@ -61,6 +69,9 @@ $(document).ready(function() {
     eventResizableFromStart: true,
     eventResize: function( info ) {
       eventResize( info )
+    },
+    eventClick: function( info ) {
+      eventClick( info )
     },
     themeSystem: 'bootstrap5',
     eventSources: [{ //The sources to grab the events from.
