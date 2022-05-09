@@ -140,7 +140,11 @@ public class MilestoneController {
         }
     }
 
-
+    /**
+     * Gets the list of milestones in a project and returns it.
+     * @param projectId The projectId to get the milestones from this project
+     * @return A ResponseEntity with the milestones or an error
+     */
     @GetMapping("/getMilestoneList")
     public ResponseEntity<Object> getMilestoneList(
             @RequestParam(value="projectId") Long projectId
@@ -156,7 +160,11 @@ public class MilestoneController {
         }
     }
 
-
+    /**
+     * Returns a single milestone from the id that was given
+     * @param milestoneId The milestone id
+     * @return a single milestone
+     */
     @GetMapping("/getMilestone")
     public ResponseEntity<Object> getMilestone(
             @RequestParam(value="milestoneId") UUID milestoneId
