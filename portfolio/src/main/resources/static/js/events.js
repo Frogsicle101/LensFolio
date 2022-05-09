@@ -1068,9 +1068,9 @@ function addMilestone(milestoneId) {
  * Function that gets the maxlength of an input and lets the user know how many characters they have left.
  */
 function countCharacters() {
-    let maxLength = $(this).attr("maxLength")
+    let maxlength = $(this).attr("maxLength")
     let lengthOfCurrentInput = $(this).val().length;
-    let counter = maxLength - lengthOfCurrentInput;
+    let counter = maxlength - lengthOfCurrentInput;
     let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
 
     //If one character remains, changes from "characters remaining" to "character remaining"

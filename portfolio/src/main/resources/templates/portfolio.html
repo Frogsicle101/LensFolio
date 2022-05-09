@@ -116,7 +116,7 @@
                             <div class="mb-1">
                                 <label for="eventName" class="form-label">Event name</label>
                                 <input type="text" class="form-control form-control-sm"
-                                       th:pattern="${titleRegex}" th:maxLength="${eventNameLengthRestriction}"
+                                       th:pattern="${titleRegex}" th:maxlength="${eventNameLengthRestriction}"
                                        name="eventName"
                                        id="eventName"
                                        required>
@@ -182,7 +182,7 @@
                             <div class="mb-1">
                                 <label for="deadlineName" class="form-label">Deadlines name</label>
                                 <input type="text" class="form-control form-control-sm"
-                                       th:maxlength="${occasionNameLengthRestriction}" name="occasionName"
+                                       th:maxlength="${eventNameLengthRestriction}" name="occasionName"
                                        id="deadlineName"
                                        required>
                                 <small class="form-text text-muted countChar">0 characters remaining</small>
@@ -299,7 +299,7 @@
                             <div class="mb-1">
                                 <label for="milestoneName" class="form-label">Milestone name</label>
                                 <input type="text" class="form-control form-control-sm"
-                                       th:maxLength="${occasionNameLengthRestriction}" name="milestoneName"
+                                       th:maxlength="${eventNameLengthRestriction}" name="milestoneName"
                                        th:placeholder="${nextMilestoneName}" th:value="${nextMilestoneName}"
                                        id="milestoneName"
                                        required>

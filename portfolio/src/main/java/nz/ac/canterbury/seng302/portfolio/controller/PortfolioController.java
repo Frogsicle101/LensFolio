@@ -153,7 +153,7 @@ public class PortfolioController {
             modelAndView.addObject("events", eventList);
             modelAndView.addObject("milestones", milestoneList);
             modelAndView.addObject("nextMilestoneName", nextMilestoneName);
-            modelAndView.addObject("occasionNameLengthRestriction", Event.getNameLengthRestriction());
+            modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
             modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
             modelAndView.addObject("user", user);
             modelAndView.addObject("projectId", projectId);
