@@ -142,9 +142,7 @@ function sortElementsByDate(div, childrenElement, dateElement) {
     $(div).html(result);
 
 
-
 }
-
 
 
 // <--------------------------- Listener Functions --------------------------->
@@ -800,7 +798,7 @@ function refreshMilestones(projectId) {
                 }
 
                 $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the milestoneObject  to the createDiv function
-                sortElementsByDate("#milestoneContainer", ".occasion", ".endDate")
+                sortElementsByDate("#milestoneContainer", ".occasion", ".milestoneEndDateNilFormat")
                 removeElementIfNotAuthorized()
             }
             addMilestonesToSprints()
@@ -851,18 +849,18 @@ function reloadElement(id) {
                 elementToReload.replaceWith(createMilestoneDiv(response))
                 elementToReload.slideDown()
                 addMilestonesToSprints()
+                sortElementsByDate("#milestoneContainer", ".occasion", ".milestoneEndDateNilFormat")
+
             }, error: function () {
                 location.href = "error" // Moves the user to the error page
             }
         })
     }
-
     $(".editButton").show()
     $(".deleteButton").show()
     removeElementIfNotAuthorized()
 
     //TODO add deadlines
-
 
 }
 
@@ -941,13 +939,14 @@ function addMilestone(milestoneId) {
             }
 
             $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the eventObject to the createDiv function
-            sortElementsByDate("#milestoneContainer", ".occasion", ".endDate")
             addMilestonesToSprints()
             removeElementIfNotAuthorized()
 
             nextMilestoneNumber++;
             document.getElementById("milestoneName").setAttribute("value", "Milestone " + nextMilestoneNumber)
             document.getElementById("milestoneName").setAttribute("placeholder", "Milestone " + nextMilestoneNumber)
+
+            sortElementsByDate("#milestoneContainer", ".occasion", ".milestoneEndDateNilFormat")
 
         }, error: function () {
             location.href = "error" // Moves the user to the error page
