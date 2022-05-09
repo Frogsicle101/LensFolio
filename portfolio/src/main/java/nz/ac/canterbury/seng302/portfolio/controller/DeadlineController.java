@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,11 +73,10 @@ public class DeadlineController {
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
-        if (!roles.contains(UserRole.TEACHER) || !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
+        if (!roles.contains(UserRole.TEACHER) && !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
-
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Project with id " + projectId + " was not found"
             ));
@@ -91,11 +90,19 @@ public class DeadlineController {
 
             LocalDate deadlineEndDate;
             LocalTime deadlineEndTime;
-            if (dateEnd == null) {  // if the date is empty then set it as the start of the project
-                deadlineEndDate = project.getEndDate();
+            if (dateEnd == null) {  // if the date is empty then set it as the start of the project or today's date
+                if (LocalDate.now().isAfter(project.getStartDate())) {
+                    deadlineEndDate = LocalDate.now();
+                } else {
+                    deadlineEndDate = project.getStartDate();
+                }
             } else {
                 deadlineEndDate = LocalDate.parse(dateEnd);
             }
+            if (deadlineEndDate.isAfter(project.getEndDate()) || deadlineEndDate.isBefore(project.getStartDate())){
+                throw new DateTimeException("The deadline date cannot be outside of the project");
+            }
+
             if (timeEnd == null){ // if the time is nothing then set it as midnight
                 deadlineEndTime = LocalTime.MIN;
             } else {
@@ -111,7 +118,7 @@ public class DeadlineController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException err) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (DateTimeParseException | InvalidNameException | IllegalArgumentException err) {
+        } catch (InvalidNameException | IllegalArgumentException | DateTimeException err) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -151,7 +158,7 @@ public class DeadlineController {
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
-        if (!roles.contains(UserRole.TEACHER) || !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
+        if (!roles.contains(UserRole.TEACHER) && !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
@@ -173,11 +180,19 @@ public class DeadlineController {
 
             LocalDate deadlineEndDate;
             LocalTime deadlineEndTime;
-            if (dateEnd == null) {  // if the date is empty then set it as the start of the project
-                deadlineEndDate = project.getEndDate();
+            if (dateEnd == null) {  // if the date is empty then set it as the start of the project or today's date
+                if (LocalDate.now().isAfter(project.getStartDate())) {
+                    deadlineEndDate = LocalDate.now();
+                } else {
+                    deadlineEndDate = project.getStartDate();
+                }
             } else {
                 deadlineEndDate = LocalDate.parse(dateEnd);
             }
+            if (deadlineEndDate.isAfter(project.getEndDate()) || deadlineEndDate.isBefore(project.getStartDate())){
+                throw new DateTimeException("The deadline date cannot be outside of the project");
+            }
+
             if (timeEnd == null){ // if the time is nothing then set it as midnight
                 deadlineEndTime = LocalTime.MIN;
             } else {
@@ -196,7 +211,7 @@ public class DeadlineController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException err) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (DateTimeParseException | InvalidNameException | IllegalArgumentException err) {
+        } catch (InvalidNameException | IllegalArgumentException | DateTimeException err) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -221,7 +236,7 @@ public class DeadlineController {
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
-        if (!roles.contains(UserRole.TEACHER) || !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
+        if (!roles.contains(UserRole.TEACHER) && !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
@@ -238,5 +253,11 @@ public class DeadlineController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
         }
     }
+
+    /**
+     * Used to set a userAccountClientService if not using the autowired one. Useful for testing and mocking
+     * @param service The userAccountClientService to be used
+     */
+    public void setUserAccountsClientService(UserAccountsClientService service) { this.userAccountsClientService = service;}
 
 }
