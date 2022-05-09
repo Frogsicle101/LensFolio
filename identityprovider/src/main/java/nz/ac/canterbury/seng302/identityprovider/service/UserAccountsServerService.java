@@ -11,6 +11,7 @@ import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
@@ -31,6 +32,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     /** The repository where Users details are stored */
     @Autowired
     private UserRepository repository;
+
+    @Autowired
+    private UrlService urlService;
+
+    @Autowired
+    private Environment env;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -76,7 +83,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
                 .setCreated(user.getAccountCreatedTime())
-                .setProfileImagePath(user.getProfileImagePath().toString()
+                .setProfileImagePath(urlService.getProfileURL(user).toString()
         );
 
 
@@ -259,7 +266,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public StreamObserver<UploadUserProfilePhotoRequest> uploadUserProfilePhoto(StreamObserver<FileUploadStatusResponse> responseObserver) {
-        return new ImageRequestStreamObserver(responseObserver, repository);
+        return new ImageRequestStreamObserver(responseObserver, repository, env);
     }
 
     @Override
@@ -268,7 +275,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         try {
             int id = request.getUserId();
             User user = repository.findById(id);
-            boolean deleteSuccess = user.deleteProfileImage();
+            boolean deleteSuccess = user.deleteProfileImage(env);
             response.setIsSuccess(deleteSuccess);
         } catch (Exception exception) {
             response.setIsSuccess(false);

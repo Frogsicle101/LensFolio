@@ -12,7 +12,7 @@
         </div>
         <div class="loginBox">
             <div th:replace="fragments/general.html :: errorBox"></div>
-            <form th:action="@{/login}" th:object="${loginForm}" method="post">
+            <form th:action="@{login}" th:object="${loginForm}" method="post">
                 <h1 class="signIn">Sign In</h1>
 
             <div class="mb-3">
@@ -28,7 +28,7 @@
 
         </form>
         <hr>
-        <p>Click <a th:href="@{/register}">here</a> to register a new user</p>
+        <p>Click <a th:href="@{register}">here</a> to register a new user</p>
     </div>
 
 </div>

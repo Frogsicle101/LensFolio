@@ -12,6 +12,7 @@ import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,10 +34,12 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
     private ByteString bytes;
     private final StreamObserver<FileUploadStatusResponse> responseObserver;
     private final UserRepository userRepository;
+    private Environment env;
 
-    public ImageRequestStreamObserver (StreamObserver<FileUploadStatusResponse> responseObserver, UserRepository userRepository) {
+    public ImageRequestStreamObserver (StreamObserver<FileUploadStatusResponse> responseObserver, UserRepository userRepository, Environment env) {
         this.responseObserver = responseObserver;
         this.userRepository = userRepository;
+        this.env = env;
     }
 
     /**
@@ -129,8 +132,9 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
      */
     private void saveImageToGallery() {
         try {
+            String photoLocation = env.getProperty("photoLocation", "src/main/resources/profile-photos/");
             FileOutputStream out = new FileOutputStream(
-                    "src/main/resources/profile-photos/" + userId + "." + fileType
+                    photoLocation + userId + "." + fileType
             );
 
             String path = "/profile/" + userId + "." + fileType;

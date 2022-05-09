@@ -1,6 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
+import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefs;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.PaginatedUsersResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -19,11 +21,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 import java.util.List;
 import java.util.ArrayList;
+
 
 @Controller
 public class UserListController {
@@ -31,16 +33,21 @@ public class UserListController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    private UserPrefRepository prefRepository;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private int pageNum = 1;
+    private int totalPages = 1;
     private final int usersPerPageLimit = 50;
     private int offset = 0;
-    private int numUsers= 0;
-    private int totalPages = 1;
+    private int totalNumUsers = 0;
     private String sortOrder = "name-increasing";
     private final ArrayList<Integer> footerNumberSequence = new ArrayList<>();
     private List<UserResponse> userResponseList;
-    HashMap<String, UserRole> stringToRole;
+    private final HashMap<String, UserRole> stringToRole = setUserRolesDict();
+
 
     /**
      * Used to create the list of users, 50 per page, by default sorted by users names. Adds all these values on
@@ -54,14 +61,12 @@ public class UserListController {
     @GetMapping("/user-list")
     public ModelAndView getUserList(
             @AuthenticationPrincipal AuthState principal,
-            HttpServletRequest request,
             Model model,
           @RequestParam(name = "page", required = false) Integer page,
           @RequestParam(name = "sortField", required = false) String order)
     {
-        if (order != null) {
-            sortOrder = order;
-        }
+        logger.info("GET REQUEST /user-list - retrieve paginated users for the user list");
+        selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal), Objects.requireNonNullElse(order, ""));
         if (page != null) {
             pageNum = page;
         }
@@ -72,9 +77,9 @@ public class UserListController {
         offset = (pageNum - 1) * usersPerPageLimit;
 
         PaginatedUsersResponse response = getPaginatedUsersFromServer();
-        numUsers = response.getResultSetSize();
-        totalPages = numUsers / usersPerPageLimit;
-        if ((numUsers % usersPerPageLimit) != 0) {
+        totalNumUsers = response.getResultSetSize();
+        totalPages = totalNumUsers / usersPerPageLimit;
+        if ((totalNumUsers % usersPerPageLimit) != 0) {
             totalPages++;
         }
         if(pageNum > totalPages) { //to ensure that the last page will be shown if the page number is too large
@@ -85,9 +90,40 @@ public class UserListController {
         
         createFooterNumberSequence();
         userResponseList = response.getUsersList();
-        addAttributesToModel(principal, request, model);
+        addAttributesToModel(principal, model);
 
+        logger.info("RESOLVED /user-list");
         return new ModelAndView("user-list");
+    }
+
+    /**
+     * A helper method to select the user's sort order for the user list
+     * @param userId The userId that you're selecting the sort order for
+     * @param order The order that the user send with the request. If they didn't send one, this should be ""
+     *              This can be done easily with the line Objects.requireNonNullElse(order, "")
+     */
+    private void selectSortOrder(int userId, String order) {
+        logger.info("VIEWING USERS - ID: " + userId + " : Beginning sort order selection");
+        if (!Objects.equals(order, "")) {
+            logger.info("VIEWING USERS - ID: " + userId + " : order provided, saving preferences");
+            sortOrder = order;
+            prefRepository.save(new UserPrefs(userId, order));
+            logger.info("VIEWING USERS - ID: " + userId + " : preferences saved successfully");
+        } else {
+            //The request doesn't come with a sort order (it's null), so use the one saved
+            logger.info("VIEWING USERS - ID: " + userId + " : no order provided, checking database for user");
+            UserPrefs user;
+            user = prefRepository.getUserPrefsByUserId(userId);
+            if (user != null) {
+                logger.info("VIEWING USERS - ID: " + userId + " : user found, fetching preferences...");
+                sortOrder = user.getListSortPref();
+            } else {
+                logger.warn("VIEWING USERS - ID: " + userId + " : The user is null, saving them to the database");
+                sortOrder = "name-increasing";
+                user = new UserPrefs(userId, sortOrder);
+                prefRepository.save(user);
+            }
+        }
     }
 
     /**
@@ -95,25 +131,24 @@ public class UserListController {
      *
      * @param model the model to which the attributes will be added.
      */
-
-    private void addAttributesToModel(AuthState principal, HttpServletRequest request, Model model) {
+    private void addAttributesToModel(AuthState principal, Model model) {
         UserRole[] possibleRoles = UserRole.values();
         possibleRoles = Arrays.stream(possibleRoles).filter(role -> role != UserRole.UNRECOGNIZED).toArray(UserRole[]::new);
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
         // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
-        List<UserRole> roles = userResponse.getRolesList();
+        List<UserRole> roles = user.getRolesList();
         if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
             model.addAttribute("userCanEdit", true);
         } else {
             model.addAttribute("userCanEdit", false);
         }
 
-        model.addAttribute("user", userResponse);
 
+        model.addAttribute("user", user);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("currentPage", pageNum);
-        model.addAttribute("totalItems", numUsers);
+        model.addAttribute("totalItems", totalNumUsers);
         model.addAttribute("user_list", userResponseList);
         model.addAttribute("footerNumberSequence", footerNumberSequence);
         model.addAttribute("possibleRoles", possibleRoles);
@@ -133,18 +168,13 @@ public class UserListController {
 
     @DeleteMapping("/editUserRole")
     public ResponseEntity<String> deleteUserRole(
-            @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "userId") String userId,
             @RequestParam(value = "role") String roleString) {
-        int adminstrator = PrincipalAttributes.getIdFromPrincipal(principal); //TODO use this for authenticating (teacher or admin)
-        logger.info("Deleting user role " + roleString + " from user " + userId);
+        logger.info("DELETE REQUEST /editUserRole - remove role from user " + userId);
         ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
         UserRoleChangeResponse response = userAccountsClientService.removeRoleFromUser(request);
-
-        if (response.getIsSuccess())
-            return new ResponseEntity<>(HttpStatus.OK);
-        else
-            return new ResponseEntity<>("A user cannot have no roles", HttpStatus.FORBIDDEN);
+        logger.info("RESOLVED /editUserRole");
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
@@ -153,7 +183,6 @@ public class UserListController {
      * and role of the user to be changed. Only authenticated users with teacher/course administrator permissions can
      * perform role additions.
      *
-     * @param principal Allows the user ID of the user making the request to be retrieved.
      * @param userId The user ID of the user being edited.
      * @param roleString The role being added to the user, in a string format.
      * @return The success status of the addition.
@@ -161,15 +190,12 @@ public class UserListController {
 
     @PutMapping("/editUserRole")
     public ResponseEntity<String> addUserRole(
-            @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(value = "userId") String userId,
             @RequestParam(value = "role") String roleString) {
-        int adminstrator = PrincipalAttributes.getIdFromPrincipal(principal); //TODO use this for authenticating (teacher or admin)
-        // ToDo if the user is not authenticated as a teacher or admin they can't change the role so return 401
-        logger.info("Adding user role " + roleString + " to user " + userId);
+        logger.info("PUT REQUEST /editUserRole - add role to user " + userId);
         ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
         UserRoleChangeResponse response = userAccountsClientService.addRoleToUser(request);
-
+        logger.info("RESOLVED /editUserRole");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -183,9 +209,6 @@ public class UserListController {
      * @return request - the ModifyRoleOfUserRequest that will be sent over grpc
      */
     private ModifyRoleOfUserRequest formUserRoleChangeRequest(String userId, String roleString) {
-        if (stringToRole == null) {
-            populateRolesDict();
-        }
         return ModifyRoleOfUserRequest.newBuilder()
                 .setRole(stringToRole.get(roleString))
                 .setUserId(Integer.parseInt(userId))
@@ -200,11 +223,12 @@ public class UserListController {
      * @return PaginatedUsersResponse, a type that contains all users for a specific page and the total number of users
      */
     private PaginatedUsersResponse getPaginatedUsersFromServer(){
-        GetPaginatedUsersRequest.Builder request = GetPaginatedUsersRequest.newBuilder();
-        request.setOffset(offset);
-        request.setLimit(usersPerPageLimit);
-        request.setOrderBy(sortOrder);
-        return userAccountsClientService.getPaginatedUsers(request.build());
+        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+                                                                   .setOffset(offset)
+                                                                   .setLimit(usersPerPageLimit)
+                                                                   .setOrderBy(sortOrder)
+                                                                   .build();
+        return userAccountsClientService.getPaginatedUsers(request);
     }
 
 
@@ -259,12 +283,26 @@ public class UserListController {
      */
     public String getSortOrder() { return this.sortOrder;}
 
-    private void populateRolesDict() {
-        stringToRole = new HashMap<>();
-        stringToRole.put("STUDENT", UserRole.STUDENT);
-        stringToRole.put("TEACHER", UserRole.TEACHER);
-        stringToRole.put("COURSE_ADMINISTRATOR", UserRole.COURSE_ADMINISTRATOR);
-        stringToRole.put("UNRECOGNIZED", UserRole.UNRECOGNIZED);
+    /**
+     * Defines the value roles a user can have, and maps them to their string representation.
+     * <br>
+     * @return A hashmap which maps string reprs to their UserRole enum element
+     */
+    private HashMap<String,UserRole> setUserRolesDict() {
+        HashMap<String,UserRole> rolesDictionary = new HashMap<>();
+        rolesDictionary.put("STUDENT", UserRole.STUDENT);
+        rolesDictionary.put("TEACHER", UserRole.TEACHER);
+        rolesDictionary.put("COURSE_ADMINISTRATOR", UserRole.COURSE_ADMINISTRATOR);
+        rolesDictionary.put("UNRECOGNIZED", UserRole.UNRECOGNIZED);
+        return rolesDictionary;
+    }
+
+    /**
+     * Used to set the UserPrefsRepository used in tests.
+     * @param repository - The UserPrefsRepository autowired in the test class.
+     */
+    public void setPrefRepository(UserPrefRepository repository) {
+        this.prefRepository = repository;
     }
 
 }

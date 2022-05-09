@@ -1,4 +1,4 @@
-$(document).ready(function(){
+$(document).ready(() => {
 
     let projectName = $("#projectName")
     let projectStart = $("#projectStartDate")
@@ -27,6 +27,7 @@ $(document).ready(function(){
         }
     })
 
+
     projectEnd.on("change", function () {
         let projectStart = $("#projectStartDate").val()
         let projectEnd = $(this).val()
@@ -46,7 +47,6 @@ $(document).ready(function(){
     })
 
 
-
     //When the submit button is clicked on the form.
     $(".projectEditForm").submit(function(event){
         event.preventDefault()
@@ -59,11 +59,11 @@ $(document).ready(function(){
             "projectDescription": projectDescription.val()
         }
         $.ajax({
-            url: "/projectEdit",
+            url: "projectEdit",
             data: dataToSend,
             type: "post",
             success: function() {
-                location.href = "/portfolio?projectId=" + projectId.val()
+                location.href = "portfolio?projectId=" + projectId.val()
             },
             error: function(error) {
                 console.log(error.responseText)
@@ -73,7 +73,4 @@ $(document).ready(function(){
             }
         })
     })
-
-
-
 })

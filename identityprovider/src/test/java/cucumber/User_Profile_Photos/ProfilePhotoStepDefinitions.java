@@ -1,6 +1,7 @@
 package cucumber.User_Profile_Photos;
 
 import com.google.protobuf.ByteString;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -9,9 +10,13 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.service.ImageRequestStreamObserver;
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
+import nz.ac.canterbury.seng302.identityprovider.service.UrlService;
 import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetadata;
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.env.Environment;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -32,6 +37,10 @@ public class ProfilePhotoStepDefinitions {
 
     private MockImageResponseStreamObserver mockImageResponseStreamObserver = new MockImageResponseStreamObserver();
 
+    private Environment mockEnv;
+
+    private UrlService urlService;
+
     private User user;
 
     private int userId;
@@ -39,6 +48,24 @@ public class ProfilePhotoStepDefinitions {
     private URL receivedImagePath;
 
     private URL expectedImagePath;
+
+    @Before
+    public void setup() {
+        urlService = new UrlService();
+
+        ReflectionTestUtils.setField(urlService, "env", mockEnv);
+
+        mockEnv = mock(Environment.class);
+        when(mockEnv.getProperty("photoLocation", "src/main/resources/profile-photos/"))
+                .thenReturn("src/main/resources/profile-photos/");
+
+        when(mockEnv.getProperty("protocol", "http")).thenReturn("http");
+        when(mockEnv.getProperty("hostName", "localhost")).thenReturn("localhost");
+        when(mockEnv.getProperty("port", "9001")).thenReturn("9001");
+        when(mockEnv.getProperty("rootPath", "")).thenReturn("");
+
+        ReflectionTestUtils.setField(urlService, "env", mockEnv);
+    }
 
     @Given("I am logged in as user id {int}")
     public void i_am_logged_in_as_user_id(int userId) {
@@ -61,13 +88,13 @@ public class ProfilePhotoStepDefinitions {
 
     @Given("I have no profile photo")
     public void i_have_no_profile_photo() {
-        user.deleteProfileImage();
+        user.deleteProfileImage(mockEnv);
     }
 
 
     @When("I request my profile photo Image")
     public void i_request_my_profile_photo_image() {
-        receivedImagePath = user.getProfileImagePath();
+        receivedImagePath = urlService.getProfileURL(user);
     }
 
 
@@ -100,7 +127,7 @@ public class ProfilePhotoStepDefinitions {
 
     @Then("I receive the profile photo for id {int}")
     public void i_receive_the_profile_photo_for_id(int userId) {
-        receivedImagePath = repository.findById(userId).getProfileImagePath();
+        receivedImagePath = urlService.getProfileURL(repository.findById(userId));
         assertEquals(expectedImagePath, receivedImagePath);
     }
 
@@ -134,7 +161,7 @@ public class ProfilePhotoStepDefinitions {
         }
         photo.close();
 
-        StreamObserver<UploadUserProfilePhotoRequest> requestObserver = new ImageRequestStreamObserver(mockImageResponseStreamObserver, repository);
+        StreamObserver<UploadUserProfilePhotoRequest> requestObserver = new ImageRequestStreamObserver(mockImageResponseStreamObserver, repository, mockEnv);
         mockImageResponseStreamObserver.initialise(requestObserver);
         mockImageResponseStreamObserver.sendImage(requestChunks);
     }

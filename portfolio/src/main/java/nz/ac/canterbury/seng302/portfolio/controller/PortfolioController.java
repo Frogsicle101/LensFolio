@@ -3,11 +3,9 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
+
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
-import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineHelper;
-import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
@@ -16,8 +14,12 @@ import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
+
+
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
@@ -56,7 +58,9 @@ public class PortfolioController {
 
     @Autowired
     private final EventRepository eventRepository;
-    private final DeadlineRepository deadlineRepository;
+
+
+    @Autowired
     private final MilestoneRepository milestoneRepository;
 
     //Selectors for the error/info/success boxes.
@@ -64,7 +68,7 @@ public class PortfolioController {
     private static final String infoMessage = "infoMessage";
     private static final String successMessage = "successMessage";
 
-
+    private final CheckDateService checkDateService = new CheckDateService();
 
     RegexPatterns regexPatterns = new RegexPatterns();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -75,40 +79,36 @@ public class PortfolioController {
 
     /**
      * Constructor for PortfolioController
-     *
-     * @param sprintRepository  repository
+     * @param sprintRepository repository
      * @param projectRepository repository
+     * @param milestoneRepository
      */
-    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository, DeadlineRepository deadlineRepository, MilestoneRepository milestoneRepository) throws InvalidNameException {
+    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository, MilestoneRepository milestoneRepository) throws InvalidNameException {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
-        this.deadlineRepository = deadlineRepository;
         this.milestoneRepository = milestoneRepository;
 
         //Below are only for testing purposes.
         if (includeTestValues) {
             Project defaultProject = projectRepository.save(new Project("Project Seng302",
                                                             LocalDate.parse("2022-02-25"),
-                                                            LocalDate.parse("2022-10-30"),
+                                                            LocalDate.parse("2022-09-30"),
                                                     "SENG302 is all about putting all that you have learnt in" +
                                                             " other courses into a systematic development process to" +
                                                             " create software as a team."));
             createDefaultEvents(defaultProject);
             createDefaultSprints(defaultProject);
             createDefaultMilestones(defaultProject);
-            createDefaultDeadlines(defaultProject);
         } else {
             projectRepository.save(new Project("Default Project"));
         }
+
     }
-
-
 
 
     /**
      * Get mapping for /Portfolio
-     *
      * @param principal - The AuthState of the user making the request, for authentication
      * @param projectId Id of the project to display
      * @return returns the portfolio view, or error-page
@@ -130,8 +130,6 @@ public class PortfolioController {
                     "Project with id " + projectId + " was not found"
             ));
 
-
-            //View that we are going to return.
             ModelAndView modelAndView = new ModelAndView("portfolio");
 
             // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
@@ -141,39 +139,34 @@ public class PortfolioController {
             } else {
                 modelAndView.addObject("userCanEdit", false);
             }
-            //Creates the lists of events, deadlines, and milestones for the front end.
 
             List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
             List<Milestone> milestoneList = MilestoneHelper.setMilestoneColours(project.getId(), milestoneRepository, sprintRepository);
-            List<Deadline> deadlineList = DeadlineHelper.setDeadlineColours(project.getId(), deadlineRepository, sprintRepository);
-            String nextMilestoneName = "Milestone " + milestoneRepository.countMilestoneByProjectId(projectId).toString();
-            String nextEventName = "Event " + eventRepository.countEventByProjectId(projectId).toString();
 
-
+            int nextMilestoneNumber = milestoneRepository.countMilestoneByProjectId(projectId).intValue() + 1;
+            LocalDate defaultOccasionDate = project.getStartDate(); // Today is in a sprint, the start of th project otherwise
+            if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
+                defaultOccasionDate = LocalDate.now();
+            }
             modelAndView.addObject("project", project);
             modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
             modelAndView.addObject("events", eventList);
-            modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
-            modelAndView.addObject("user", user);
             modelAndView.addObject("milestones", milestoneList);
-            modelAndView.addObject("deadlines", deadlineList);
-            modelAndView.addObject("occasionNameLengthRestriction", Milestone.getNameLengthRestriction());
-            modelAndView.addObject("nextMilestoneName", nextMilestoneName);
-            modelAndView.addObject("nextEventName", nextEventName);
-            modelAndView.addObject("username", user.getUsername());
-
-            //TESTING PURPOSES. Passes the projectId to the front end. This will be removed when there is a way
-            //to have each user select what project they want to go to from the navbar.
+            modelAndView.addObject("nextMilestoneNumber", nextMilestoneNumber);
+            modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
+            modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
+            modelAndView.addObject("user", user);
             modelAndView.addObject("projectId", projectId);
             modelAndView.addObject("titleRegex", regexPatterns.getTitleRegex().toString());
             modelAndView.addObject("descriptionRegex", regexPatterns.getDescriptionRegex().toString());
 
             return modelAndView;
 
-        } catch (EntityNotFoundException err) {
+        } catch(EntityNotFoundException err) {
             logger.error("GET REQUEST /portfolio", err);
             return new ModelAndView("errorPage").addObject(errorMessage, err.getMessage());
-        } catch (Exception err) {
+        }
+        catch(Exception err) {
             logger.error("GET REQUEST /portfolio", err);
             return new ModelAndView("errorPage").addObject(errorMessage, err);
         }
@@ -182,7 +175,6 @@ public class PortfolioController {
 
     /**
      * Request mapping for /editProject
-     *
      * @param principal - The AuthState of the user making the request, for authentication
      * @param projectId The project to edit
      * @return Returns the project edit page or the error page
@@ -192,7 +184,7 @@ public class PortfolioController {
             @AuthenticationPrincipal AuthState principal,
             @RequestParam (value = "projectId") Long projectId
     ) {
-        try {
+        try{
             logger.info("GET REQUEST /editProject");
 
             // Get user from server
@@ -202,6 +194,7 @@ public class PortfolioController {
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Event with id " + projectId + "was not found"
             ));
+
 
 
             // The view we are going to return.
@@ -215,10 +208,10 @@ public class PortfolioController {
 
             return modelAndView;
 
-        } catch (EntityNotFoundException err) {
+        }catch(EntityNotFoundException err) {
             logger.error("GET REQUEST /editProject", err);
             return new ModelAndView("errorPage").addObject(errorMessage, err);
-        } catch (Exception err) {
+        } catch(Exception err) {
             logger.error("GET REQUEST /editProject", err);
             return new ModelAndView("errorPage");
         }
@@ -228,8 +221,7 @@ public class PortfolioController {
 
     /**
      * Postmapping for /projectEdit, this is called when user submits there project changes.
-     *
-     * @param editInfo   A DTO of project from the inputs on the edit page.
+     * @param editInfo A DTO of project from the inputs on the edit page.
      * @return Returns to the portfolio page.
      */
     @PostMapping("/projectEdit")
@@ -237,6 +229,7 @@ public class PortfolioController {
             @ModelAttribute(name="editProjectForm") ProjectRequest editInfo
         ) {
         try {
+
 
             logger.info("POST REQUEST /projectEdit");
 
@@ -273,6 +266,7 @@ public class PortfolioController {
                     return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
                 }
             }
+
 
 
             //Updates the project's details
@@ -343,7 +337,6 @@ public class PortfolioController {
     /**
      * Get mapping for portfolio/addSprint
      * This is called when user wants to add a sprint.
-     *
      * @param projectId Project to add the sprint to.
      * @return a repsponse entity response
      */
@@ -378,10 +371,10 @@ public class PortfolioController {
             } else {
                 // Check that if the end date (startDate.plus(3)weeks) is after project end date, then set the end date
                 // to be the project end date.
-                if (startDate.plusWeeks(3).isAfter(project.getEndDate())) {
+                 if (startDate.plusWeeks(3).isAfter(project.getEndDate())) {
                     //Save the new sprint
                     sprintRepository.save(new Sprint(project, sprintName, startDate, project.getEndDate()));
-                } else {
+                }else {
                     //Save the new sprint
                     sprintRepository.save(new Sprint(project, sprintName, startDate));
                 }
@@ -396,24 +389,26 @@ public class PortfolioController {
 
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
 
+
+    }
 
     /**
      * Mapping for /sprintEdit. Looks for a sprint that matches the id
      * and then populates the form.
-     *
      * @param principal The authentication state
-     * @param sprintId  The sprint id
+     * @param sprintId The sprint id
      * @return Thymleaf template
      */
     @RequestMapping("/sprintEdit")
     public ModelAndView sprintEdit(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam(value = "sprintId") String sprintId,
-            @RequestParam(value = "projectId") Long projectId,
+            @RequestParam (value = "sprintId") String sprintId,
+            @RequestParam (value = "projectId") Long projectId,
             RedirectAttributes attributes
     ) {
+
+
         try {
 
             logger.info("GET REQUEST /sprintEdit");
@@ -428,6 +423,8 @@ public class PortfolioController {
             Sprint sprint = sprintRepository.findById(uuidSprintId).orElseThrow(() -> new EntityNotFoundException(
                     "Sprint with id " + projectId.toString() + " was not found"
             ));
+
+
 
             Project project = projectRepository.getProjectById(projectId);
             HashMap<String, LocalDate> neighbouringDates = checkNeighbourDatesForSprint(project, sprint);
@@ -455,7 +452,7 @@ public class PortfolioController {
 
 
             // Adds the username to the view for use.
-            modelAndView.addObject("username", user.getUsername());
+            modelAndView.addObject("user", user);
 
             // Add the sprint to the view for use.
             modelAndView.addObject("sprint", sprint);
@@ -469,6 +466,16 @@ public class PortfolioController {
         }
 
 
+    }
+
+
+
+    @GetMapping("/getSprintList")
+    public ResponseEntity<Object> getSprintList(
+            @RequestParam(value = "projectId") Long projectId
+    ) {
+        List<Sprint> sprintList = sprintRepository.findAllByProjectId(projectId);
+        return new ResponseEntity<>(sprintList, HttpStatus.OK);
     }
 
     /**
@@ -516,7 +523,6 @@ public class PortfolioController {
     /**
      * Takes the request to update the sprint.
      * Tries to update the sprint then redirects user.
-     *
      * @param sprintInfo the thymeleaf-created form object
      * @return redirect to portfolio
      */
@@ -562,21 +568,15 @@ public class PortfolioController {
 
             return new ResponseEntity<>(HttpStatus.OK);
 
-        } catch (Exception err) {
+        } catch(Exception err) {
             logger.error("POST REQUEST /sprintSubmit", err);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 
         }
     }
 
-
-
-
-
-
     /**
      * Checks the SprintRequest DTO is all good and correct
-     *
      * @param sprintRequest the SprintRequest to check
      * @return ResponseEntity which is either okay, or not with message.
      */
@@ -609,47 +609,50 @@ public class PortfolioController {
             return new ResponseEntity<>("Date(s) is in incorrect format", HttpStatus.BAD_REQUEST);
 
         }
+
     }
+
 
 
     /**
      * Mapping for PUT request "deleteSprint"
-     *
      * @param id UUID of sprint to delete
      * @return Confirmation of delete
      */
-    @DeleteMapping("deleteSprint")
-    public ResponseEntity<String> deleteSprint(@RequestParam(value = "sprintId") UUID id) {
-        logger.info("DELETE REQUEST /deleteSprint");
+   @DeleteMapping("deleteSprint")
+    public ResponseEntity<String> deleteSprint(@RequestParam (value = "sprintId")UUID id) {
+       logger.info("DELETE REQUEST /deleteSprint");
         sprintRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
-    }
+   }
+
+
 
 
    /////////////////////////////////////////////// Test Values  ////////////////////////////////////////////////////////
 
-    /**
-     * Creates default events for a given project.
-     *
-     * @param project The project in which the events will be stored.
-     * @throws InvalidNameException If the event name is null or longer than 50 characters.
-     */
     public void createDefaultEvents(Project project) throws InvalidNameException {
-        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:00:00"), 1);
-        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.parse("19:00:00"), 5);
-        Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDate.parse("2022-05-18"), LocalTime.parse("17:00:00"), 4);
-        Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDate.parse("2022-09-30"), LocalTime.parse("17:00:00"), 6);
+
+        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:30:00"), 1);
+        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.parse("20:30:00"), 5);
+        Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDate.parse("2022-05-18"), LocalTime.now(), 4);
+        Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDate.parse("2022-09-30"), LocalTime.now(), 6);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
         eventRepository.save(event4);
     }
 
-    /**
-     * Creates sprints for a given project.
-     *
-     * @param project The project in which the sprints will be stored.
-     */
+    public void createDefaultMilestones(Project project) throws InvalidNameException {
+        Milestone milestone1 = new Milestone(project, "Finished the project!", LocalDate.parse("2022-05-01"), 1);
+        Milestone milestone2 = new Milestone(project, "Lost all the money", LocalDate.parse("2022-06-01"), 2);
+        Milestone milestone3 = new Milestone(project, "Wow look at that flying dog", LocalDate.parse("2022-07-01"), 3);
+
+        milestoneRepository.save(milestone1);
+        milestoneRepository.save(milestone2);
+        milestoneRepository.save(milestone3);
+    }
+
     public void createDefaultSprints(Project project) {
         Sprint sprint1 = new Sprint(project, "Sprint 1", LocalDate.parse("2022-02-28"), LocalDate.parse("2022-03-09"), "Sprint 1", "#0066cc");
         Sprint sprint2 = new Sprint(project, "Sprint 2", LocalDate.parse("2022-03-14"), LocalDate.parse("2022-03-30"), "Sprint 2", "#ffcc00");
@@ -667,37 +670,6 @@ public class PortfolioController {
         sprintRepository.save(sprint7);
     }
 
-    /**
-     * Creates default deadlines for a given project.
-     *
-     * @param project The project in which the deadlines will be stored.
-     * @throws InvalidNameException If the deadline name is null or longer than 50 characters.
-     */
-    public void createDefaultDeadlines(Project project) throws InvalidNameException {
-        Deadline deadline1 = new Deadline(project, "SENG 101 Assignment due", LocalDate.parse("2022-05-01"), LocalTime.parse("23:59:00"), 1);
-        Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate Entries Close", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
-        Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-10-14"), LocalTime.parse("09:30:00"), 3);
-        Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences Applics close", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
-        deadlineRepository.save(deadline1);
-        deadlineRepository.save(deadline2);
-        deadlineRepository.save(deadline3);
-        deadlineRepository.save(deadline4);
-    }
 
-    /**
-     * Creates default milestones for a given project.
-     *
-     * @param project The project in which the milestones will be stored.
-     * @throws InvalidNameException If the milestone name is null or longer than 50 characters.
-     */
-    public void createDefaultMilestones(Project project) throws InvalidNameException {
-        Milestone milestone1 = new Milestone(project, "Last date to withdraw from SENG 302", LocalDate.parse("2022-05-15"), 4);
-        Milestone milestone2 = new Milestone(project, "Vic Uni applications close", LocalDate.parse("2022-06-20"), 6);
-        Milestone milestone3 = new Milestone(project, "100 days of SENG 302", LocalDate.parse("2022-06-04"), 5);
-        Milestone milestone4 = new Milestone(project, "100 days to go SENG 302", LocalDate.parse("2022-07-06"), 4);
-        milestoneRepository.save(milestone1);
-        milestoneRepository.save(milestone2);
-        milestoneRepository.save(milestone3);
-        milestoneRepository.save(milestone4);
-    }
+
 }
