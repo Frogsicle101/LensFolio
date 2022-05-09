@@ -88,6 +88,7 @@ $(document).ready(function() {
         }
 
         reloadElement(data.eventId) // reloads specific element
+
     })
 
 
