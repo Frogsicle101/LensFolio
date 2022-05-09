@@ -9,10 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -34,9 +37,12 @@ public class NotificationController {
 
     @CrossOrigin
     @GetMapping(value = "/notifications", consumes = MediaType.ALL_VALUE)
-    public SseEmitter subscribeToNotifications(@AuthenticationPrincipal AuthState principal) {
+    public SseEmitter subscribeToNotifications(@AuthenticationPrincipal AuthState principal,
+    HttpServletResponse response) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+
+
         try {
             logger.info("GET /notifications");
             logger.info("Subscribing user: " + userId);
@@ -50,7 +56,7 @@ public class NotificationController {
         return emitter;
     }
 
-
+    @Async
     @PostMapping("/notifyEdit")
     public void sendEventToClients(@AuthenticationPrincipal AuthState editor,
                                    @RequestParam UUID id) {
@@ -76,7 +82,7 @@ public class NotificationController {
         }
     }
 
-
+    @Async
     @PostMapping("/notifyNotEditing")
     public void userCanceledEdit(
             @RequestParam(value="id") UUID id,
@@ -98,7 +104,7 @@ public class NotificationController {
             }
         }
     }
-
+    @Async
     @PostMapping("/notifyReloadElement")
     public void reloadSpecificEvent(
             @RequestParam(value="id") UUID id,
@@ -120,7 +126,7 @@ public class NotificationController {
             }
         }
     }
-
+    @Async
     @PostMapping("/notifyRemoveElement")
     public void notifyRemoveEvent(
             @RequestParam(value="id") UUID id,
@@ -142,7 +148,7 @@ public class NotificationController {
             }
         }
     }
-
+    @Async
     @PostMapping("/notifyNewElement")
     public void notifyNewEvent(
             @RequestParam(value="id") UUID id,
