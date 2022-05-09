@@ -18,11 +18,9 @@ $(document).ready(function() {
     formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
 
 
+// -------------------------------------- Notification Source and listeners --------------------------------------------
 
-
-
-
-
+    /** The source of notifications used to provide updates to the user such as events being edited */
     let eventSource = new EventSource("notifications");
 
 
@@ -50,14 +48,13 @@ $(document).ready(function() {
     })
 
 
-
     /**
      * This event listener listens for a notification that an element is no longer being edited
      * It removes the class that shows the border
      * Then it checks if this current user is editing another element, and avoids showing the edit buttons
      * If the user isn't currently editing an element then it redisplays the edit and delete button.
      */
-    eventSource.addEventListener("userNotEditing", function (event) {
+    eventSource.addEventListener("notifyNotEditing", function (event) {
         const data = JSON.parse(event.data);
         let elementDiv = $("#" + data.eventId)
 
@@ -78,11 +75,6 @@ $(document).ready(function() {
     })
 
 
-
-
-
-
-
     /**
      * This event listener listens for a notification that an element should be reloaded.
      * This happens if another user has changed an element.
@@ -97,12 +89,9 @@ $(document).ready(function() {
         }
 
         reloadElement(data.eventId) // reloads specific element
-
-
-
-
-
     })
+
+
     /**
      * Listens for a notification to remove an element (happens if another client deletes an element)
      */
@@ -118,7 +107,7 @@ $(document).ready(function() {
     eventSource.addEventListener("notifyNewElement", function (event) {
         const data = JSON.parse(event.data);
         console.log(data)
-        if (data.typeOfEvent == "event"){
+        if (data.typeOfEvent == "event") {
             addEvent(data.eventId)
         } else if (data.typeOfEvent == "milestone") {
             addMilestone(data.eventId)
@@ -127,11 +116,21 @@ $(document).ready(function() {
 
     })
 
-
-
-
-
 })
+
+
+function notifyEdit(id, type, typeOfEvent = null) {
+
+    $.ajax({
+        url: "notifyEdit",
+        type: "POST",
+        data: {id, type, typeOfEvent}
+    })
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+
 
 
 function sortElementsByDate(div, childrenElement, dateElement) {
@@ -186,7 +185,7 @@ $(document).on('submit', "#addEventForm", function (event) {
                 $(".eventForm").slideUp();
                 $(".addEventSvg").toggleClass('rotated');
 
-                notifyNewElement(response.id, "event")
+                notifyEdit(response.id, "notifyNewElement", "event")
 
             }
         })
@@ -212,7 +211,7 @@ $(document).on("submit", ".milestoneForm", function(event){
         success: function(response) {
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
-            notifyNewElement(response.id, "milestone")
+            notifyEdit(response.id, "notifyNewElement", "milestone")
         }
     })
 
@@ -265,8 +264,7 @@ $(document).on("submit", "#editEventForm", function(event){
             type: "POST",
             data: eventData,
             success: function(response) {
-
-                notifyToReload(eventId) // Let the server know the event is no longer being edited
+                notifyEdit(eventId, "reloadElement") // Let the server know the event is no longer being edited
             }
         })
     }
@@ -296,7 +294,7 @@ $(document).on("submit", "#milestoneEditForm", function(event){
         type: "POST",
         data: milestoneData,
         success: function(response) {
-            notifyToReload(milestoneId)
+            notifyEdit(milestoneId, "reloadElement")
         }
     })
 
@@ -344,7 +342,7 @@ $(document).on("click", ".deleteButton", function(){
             type: "DELETE",
             data: eventData,
             success: function(response) {
-                notifyToDelete(eventData.eventId)
+                notifyEdit(eventData.eventId, "notifyRemoveEvent")
             }
         })
     } else if (parent.hasClass('milestone')) {
@@ -354,7 +352,7 @@ $(document).on("click", ".deleteButton", function(){
             type: "DELETE",
             data: milestoneData,
             success: function(response) {
-                notifyToDelete(milestoneData.milestoneId)
+                notifyEdit(milestoneData.milestoneId, "notifyRemoveEvent")
             }
         })
     }
@@ -371,7 +369,7 @@ $(document).on("click", ".editButton", function() {
     $(".deleteButton").hide()
     let parent = $(this).closest(".occasion")
     let id = parent.attr("id")
-    notifyEdit(id)
+    notifyEdit(id, "editEvent")
     if (parent.hasClass("event")) {
         appendEventForm(parent)
     } else if (parent.hasClass("milestone")) {
@@ -401,7 +399,7 @@ $(document).on("click", ".cancelEdit",function() {
     form.slideUp(400, function () {
         form.remove();
     })
-    notifyNotEditing(id) // Let the server know the event is no longer being edited
+    notifyEdit(id, "notifyNotEditing") // Let the server know the event is no longer being edited
 
 })
 
@@ -438,7 +436,6 @@ function addEventsToSprints(){
                     } else if (eventEnd >= sprintStart && eventEnd <= sprintEnd) { //Event end falls within the sprint dates
                         appendEventToSprint(element, event)
                     }
-
                 })
 
                 $(".sprint").each(function(index, element) {
@@ -454,15 +451,8 @@ function addEventsToSprints(){
                     if ( sprintStart <= eventEnd && eventEnd <= sprintEnd) {
                         $(".eventInSprint" + event.id).find(".sprintEventEnd").css("color", $(element).find(".sprintColour").text())
                     }
-
-
-
-
                 })
             }
-
-
-
         },
         error: function(error) {
             console.log(error)
@@ -492,14 +482,13 @@ function appendEventToSprint(elementToAppendTo, event) {
 }
 
 
-
-
-
 function removeElementIfNotAuthorized() {
     if (!checkPrivilege()) {
         $(".hasTeacherOrAbove").remove()
     }
 }
+
+
 /**
  * Checks if a user has a role above student.
  * @returns {boolean} returns true if userRole is above student.
@@ -507,73 +496,6 @@ function removeElementIfNotAuthorized() {
 function checkPrivilege(){
     return userRoles.includes('COURSE_ADMINISTRATOR') || userRoles.includes('TEACHER');
 }
-
-/**
- * Sends notification to server to notify other clients that this user is no longer editing an element.
- * @param id the id of the element
- */
-function notifyNotEditing(id) {
-    $.ajax({
-        url: "notifyNotEditing",
-        type: "post",
-        data: {"id": id},
-    })
-}
-
-
-
-
-
-/**
- * Sends notification to server to notify other clients to reload a specific event.
- * @param eventId the id of the event
- */
-function notifyToReload(id) {
-    $.ajax({
-        url: "notifyReloadElement",
-        type: "post",
-        data: {"id": id},
-    })
-}
-/**
- * Sends notification to server to notify other clients to delete a specific event
- * @param id the id of the event
- */
-function notifyToDelete(id) {
-    $.ajax({
-        url: "notifyRemoveElement",
-        type: "post",
-        data: {"id": id},
-    })
-}
-
-/**
- * Sends notification to server to notify other clients that this user has added an element.
- * @param id the id of the element
- * @param typeOfEvent the type of the element
- */
-function notifyNewElement(id, typeOfEvent) {
-    $.ajax({
-        url: "notifyNewElement",
-        type: "post",
-        data: {"id": id,
-            "typeOfEvent" : typeOfEvent},
-    })
-}
-
-
-function notifyEdit(id) {
-
-    $.ajax({
-        url: "notifyEdit",
-        type: "POST",
-        data: {"id" :id}
-    })
-}
-
-
-
-
 
 
 /**
