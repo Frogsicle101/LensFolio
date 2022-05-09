@@ -87,7 +87,6 @@ function getSprints() {
 function appendSprint(springObject, index) {
     index = parseInt(index) + 1
 
-    //TODO hide buttons if user cant edit
     let SprintElement = `
              <div class="sprint" style="border-left: solid 0.3rem ${springObject.colour}; border-right: solid 0.3rem ${springObject.colour};">
                 <p class="sprintColour" style="display: none">${springObject.colour}</p>
