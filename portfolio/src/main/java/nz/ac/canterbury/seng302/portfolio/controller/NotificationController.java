@@ -38,10 +38,10 @@ public class NotificationController {
     @CrossOrigin
     @GetMapping(value = "/notifications", consumes = MediaType.ALL_VALUE)
     public SseEmitter subscribeToNotifications(@AuthenticationPrincipal AuthState principal,
-    HttpServletResponse response) {
+                                               HttpServletResponse response) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-
+        response.addHeader("X-Accel-Buffering", "no");
 
         try {
             logger.info("GET /notifications");
@@ -56,7 +56,6 @@ public class NotificationController {
         return emitter;
     }
 
-    @Async
     @PostMapping("/notifyEdit")
     public void sendEventToClients(@AuthenticationPrincipal AuthState editor,
                                    @RequestParam UUID id) {
@@ -82,7 +81,6 @@ public class NotificationController {
         }
     }
 
-    @Async
     @PostMapping("/notifyNotEditing")
     public void userCanceledEdit(
             @RequestParam(value="id") UUID id,
@@ -104,7 +102,7 @@ public class NotificationController {
             }
         }
     }
-    @Async
+
     @PostMapping("/notifyReloadElement")
     public void reloadSpecificEvent(
             @RequestParam(value="id") UUID id,
@@ -126,7 +124,7 @@ public class NotificationController {
             }
         }
     }
-    @Async
+
     @PostMapping("/notifyRemoveElement")
     public void notifyRemoveEvent(
             @RequestParam(value="id") UUID id,
@@ -148,7 +146,7 @@ public class NotificationController {
             }
         }
     }
-    @Async
+
     @PostMapping("/notifyNewElement")
     public void notifyNewEvent(
             @RequestParam(value="id") UUID id,
