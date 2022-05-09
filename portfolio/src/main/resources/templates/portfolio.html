@@ -21,9 +21,8 @@
         let eventNameLengthRestriction = /*[[${eventNameLengthRestriction}]]*/ 'default';
         let titleRegex = /*[[${titleRegex}]]*/ 'default';
         let descriptionRegex = /*[[${descriptionRegex}]]*/ 'default';
+        let nextMilestoneName = /*[[${nextMilestoneName}]]*/ 'default';
 
-
-        let occasionNameLengthRestriction = /*[[${occasionNameLengthRestriction}]]*/ 'default';
 
         /*]]>*/
     </script>
@@ -295,7 +294,8 @@
                             <div class="mb-1">
                                 <label for="milestoneName" class="form-label">Milestone name</label>
                                 <input type="text" class="form-control form-control-sm"
-                                       th:maxlength="${occasionNameLengthRestriction}" name="occasionName"
+                                       th:maxLength="${occasionNameLengthRestriction}" name="milestoneName"
+                                       th:placeholder="${nextMilestoneName}" th:value="${nextMilestoneName}"
                                        id="milestoneName"
                                        required>
                                 <small class="form-text text-muted countChar">0 characters remaining</small>

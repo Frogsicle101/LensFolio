@@ -10,6 +10,7 @@ import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
@@ -139,11 +140,16 @@ public class PortfolioController {
             }
 
             List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
+            List<Milestone> milestoneList = MilestoneHelper.setMilestoneColours(project.getId(), milestoneRepository, sprintRepository);
+
+            String nextMilestoneName = "Milestone " + (milestoneRepository.countMilestoneByProjectId(projectId).intValue() + 1);
 
             modelAndView.addObject("project", project);
             modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
             modelAndView.addObject("events", eventList);
-            modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
+            modelAndView.addObject("milestones", milestoneList);
+            modelAndView.addObject("nextMilestoneName", nextMilestoneName);
+            modelAndView.addObject("occasionNameLengthRestriction", Event.getNameLengthRestriction());
             modelAndView.addObject("user", user);
             modelAndView.addObject("projectId", projectId);
             modelAndView.addObject("titleRegex", regexPatterns.getTitleRegex().toString());
