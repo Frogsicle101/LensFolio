@@ -35,6 +35,11 @@ public class Config implements WebMvcConfigurer
         pathsToIntercept.add("/sprintSubmit");
         pathsToIntercept.add("/deleteSprint");
 
+        //Milestone
+        pathsToIntercept.add("/editMilestone");
+        pathsToIntercept.add("/deleteMilestone");
+        pathsToIntercept.add("/addMilestone");
+
 
 
 
