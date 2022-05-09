@@ -1,10 +1,5 @@
 
 /**
- * $(document).ready fires off a function when the document has finished loading.
- * https://learn.jquery.com/using-jquery-core/document-ready/
- */
-
-/**
  * Function to check if two events are allowed to overlap each other
  * TODO Implement check
  * @returns {boolean}
@@ -12,6 +7,7 @@
 function overlapCheck(stillEvent, movingEvent) {
   return false;
 }
+
 
 function eventResize (info) {
   alert(info.event.title + " end is now " + info.event.end.toISOString());
@@ -21,10 +17,13 @@ function eventResize (info) {
   }
 }
 
+/**
+ * $(document).ready fires off a function when the document has finished loading.
+ * https://learn.jquery.com/using-jquery-core/document-ready/
+ */
 $(document).ready(function() {
   let projectId = $("#projectId").html();
   let calendarEl = document.getElementById('calendar');
-
 
   /**
    * Calendar functionality
@@ -60,8 +59,5 @@ $(document).ready(function() {
 
   });
 
-
   calendar.render();
-
-
 })

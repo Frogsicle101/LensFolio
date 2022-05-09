@@ -1,6 +1,6 @@
 $(document).ready(()=>{
     $(".backButton").click(function(){
-        location.href = "/account"
+        location.href = "account"
     })
 })
 

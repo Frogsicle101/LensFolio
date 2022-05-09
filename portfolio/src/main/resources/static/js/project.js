@@ -73,7 +73,7 @@ $(document).on("click", ".deleteSprint", function() {
         type: "DELETE",
         data: {"sprintId": sprintId},
     }).done(function () {
-        location.href = "/portfolio?projectId=" + projectId
+        location.href = "portfolio?projectId=" + projectId
     })
 })
 

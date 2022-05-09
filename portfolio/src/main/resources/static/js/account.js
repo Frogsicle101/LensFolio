@@ -1,6 +1,5 @@
 $(document).ready(() => {
 
-
     //Jquery selectors to remove duplicity
     let editUserButton = $(".editUserButton")
     let firstname = $("#firstname")
@@ -14,10 +13,6 @@ $(document).ready(() => {
     let errorMessage = $(".errorMessage")
     let errorMessageParentPassword  = $(".errorMessageParentPassword")
     let errorMessagePassword = $(".errorMessagePassword")
-
-
-
-
 
 
     //On Edit Account button click
@@ -39,6 +34,7 @@ $(document).ready(() => {
         location.href = "uploadImage"; // change location
     });
 
+
     $(".deleteProfilePhotoButton").click(() => {
         $.ajax({
             url: "deleteProfileImg",
@@ -48,7 +44,6 @@ $(document).ready(() => {
             }
         })
     });
-
 
 
     // On account form submit
@@ -75,12 +70,9 @@ $(document).ready(() => {
                 errorMessage.text(error.responseText)
                 errorMessageParent.slideUp()
                 errorMessageParent.slideDown()
-
-
             }
         })
     })
-
 
 
     // On password change form submit
@@ -104,15 +96,7 @@ $(document).ready(() => {
                 errorMessagePassword.text(error.responseText)
                 errorMessageParentPassword.slideUp()
                 errorMessageParentPassword.slideDown()
-
-
-
             }
-
         })
     })
-
-
-
-
 })

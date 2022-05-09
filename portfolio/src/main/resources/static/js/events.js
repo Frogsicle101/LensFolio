@@ -926,7 +926,7 @@ function reloadElement(id){
 
             },
             error: function() {
-                location.href = "/error" // Moves the user to the error page
+                location.href = "error" // Moves the user to the error page
             }
         })
     } else if (elementToReload.hasClass("milestone")) {
@@ -940,7 +940,7 @@ function reloadElement(id){
                 elementToReload.slideDown()
             },
             error: function() {
-                location.href = "/error" // Moves the user to the error page
+                location.href = "error" // Moves the user to the error page
             }
         })
     }
@@ -1006,7 +1006,7 @@ function addEvent(eventId) {
 
         },
         error: function() {
-            location.href = "/error" // Moves the user to the error page
+            location.href = "error" // Moves the user to the error page
         }
     })
 }
