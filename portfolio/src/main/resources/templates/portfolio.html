@@ -73,6 +73,8 @@
     </div>
     <div class="projectContainer">
         <div class="eventContainer">
+            <div id="informationBar" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
+            </div>
             <ul class="nav nav-tabs">
                 <li class="nav-item">
                     <button class="nav-link active" id="eventsTab" data-bs-toggle="tab" data-bs-target="#events"
@@ -97,7 +99,7 @@
                 <!---------------------------------------- Events tab  ------------------------------------------>
                 <div class="tab-pane fade show active" id="events" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button type="button" class="addEventButton noStyleButton" th:if="${userCanEdit == true}"
+                        <button type="button" class="addOccasionButton addEventButton noStyleButton" th:if="${userCanEdit == true}"
                                 data-bs-toggle="tooltip" data-bs-placement="right" title="Create Event">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                  class="bi bi-plus-circle addEventSvg" viewBox="0 0 16 16">
@@ -153,9 +155,7 @@
                             </div>
                         </form>
                     </div>
-                    <div id="informationBar">
 
-                    </div>
                     <div id="eventContainer">
 
 
@@ -219,7 +219,7 @@
                 <!--------------------------------------- Milestones tab  --------------------------------------->
                 <div class="tab-pane fade show" id="milestones" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button type="button" class="addMilestoneButton noStyleButton" th:if="${userCanEdit == true}"
+                        <button type="button" class="addOccasionButton addMilestoneButton noStyleButton" th:if="${userCanEdit == true}"
                                 data-bs-toggle="tooltip" data-bs-placement="right" title="Create Milestone">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                  class="bi bi-plus-circle addMilestoneSvg" viewBox="0 0 16 16">

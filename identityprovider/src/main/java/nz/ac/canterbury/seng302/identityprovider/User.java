@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * The object used to store Users in the database
@@ -175,6 +176,15 @@ public class User {
 
 
     public ArrayList<UserRole> getRoles() { return roles; }
+
+    public String getRolesCsv() {
+        ArrayList<String> rolesStrings = new ArrayList<>();
+        for (UserRole role : roles) {
+            rolesStrings.add(role.toString().toLowerCase(Locale.ROOT));
+        }
+
+        return String.join(",", rolesStrings);
+    }
 
 
     public void setFirstName(String firstName) {

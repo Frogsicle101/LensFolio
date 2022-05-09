@@ -255,23 +255,23 @@ section {
     height: 2rem;
 }
 
-.eventEditButton, .milestoneEditButton {
+.editButton {
     position: absolute;
     top: 1rem;
     right: 2.5rem;
 }
 
-.eventEditButton:hover, .milestoneEditButton:hover {
+.editButton:hover{
     color: var(--select-green);
 }
 
-.eventDeleteButton, .milestoneDeleteButton {
+.deleteButton{
     position: absolute;
     top: 1rem;
     right: 1rem;
 }
 
-.eventDeleteButton:hover, .milestoneDeleteButton:hover {
+.deleteButton:hover{
     color: var(--select-red);
 }
 
@@ -325,7 +325,7 @@ section {
 }
 
 
-.eventBeingEdited, .milestoneBeingEdited, .deadlineBeingEdited{
+.beingEdited{
     border: solid 1px blue;
 }
 

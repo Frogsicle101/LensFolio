@@ -82,7 +82,7 @@ $(document).on("click", ".deleteSprint", function() {
 
 function getSprints() {
     $.ajax({
-        url: '/getSprintList',
+        url: 'getSprintList',
         type: 'GET',
         data: {"projectId" : projectId},
         success: function (response) {
