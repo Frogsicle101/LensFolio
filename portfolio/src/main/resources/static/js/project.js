@@ -3,6 +3,7 @@ $(document).ready(() => {
     const projectId = $("#projectId").html()
     getSprints()
 
+
     /**
      * When project edit button is clicked.
      * Redirect page.
@@ -77,6 +78,7 @@ function getSprints() {
             for (let index in response){
                 $(".sprintsContainer").append(appendSprint(response[index], index));
             }
+            removeElementIfNotAuthorized()
         }
     })
 }
@@ -110,7 +112,7 @@ function appendSprint(springObject, index) {
                 <div class="mb-3">
                     <p>${springObject.description}</p>
                 </div>
-                <div class="mb3">
+                <div class="mb3 hasTeacherOrAbove">
                     <button type="button" class="deleteSprint noStyleButton sprintButton" data-bs-toggle="tooltip"
                             data-bs-placement="top" title="Delete Sprint">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
@@ -135,6 +137,10 @@ function appendSprint(springObject, index) {
 
 
 
-
+function removeElementIfNotAuthorized() {
+    if (!checkPrivilege()) {
+        $(".hasTeacherOrAbove").remove()
+    }
+}
 
 

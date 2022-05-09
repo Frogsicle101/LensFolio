@@ -351,9 +351,6 @@ section {
     will-change: transform;
 }
 
-.sprint:hover {
-    transform: scale(101%);
-}
 
 .sprint h6 {
     color: var(--secondary-text-colour-darker);
