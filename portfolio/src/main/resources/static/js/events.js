@@ -885,7 +885,7 @@ function refreshMilestones(projectId){
 
         success: function(response) {
             console.log(response)
-            for(let milestone in response){ // Goes through all the data from the server and creates an eventObject
+            for(let milestone in response){ // Goes through all the data from the server and creates a milestoneObject
                 let milestoneObject = {
                     "id" : response[milestone].id,
                     "name" : response[milestone].name,
@@ -894,7 +894,7 @@ function refreshMilestones(projectId){
                     "type" : response[milestone].type,
                 }
 
-                $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the eventObject to the createDiv function
+                $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the milestoneObject  to the createDiv function
                 sortElementsByDate("#milestoneContainer", ".occasion", ".endDate")
                 removeElementIfNotAuthorized()
 
@@ -969,15 +969,6 @@ function reloadElement(id){
 
     //TODO add milestones and deadlines
 
-
-
-
-
-
-
-
-
-
 }
 
 
@@ -1049,6 +1040,10 @@ function addMilestone(milestoneId) {
             sortElementsByDate("#milestoneContainer", ".occasion", ".endDate")
             // addMilestonesToSprints()
             removeElementIfNotAuthorized()
+
+            nextMilestoneNumber++;
+            document.getElementById("milestoneName").setAttribute("value", "Milestone " + nextMilestoneNumber)
+            document.getElementById("milestoneName").setAttribute("placeholder", "Milestone " + nextMilestoneNumber)
 
         },
         error: function() {
