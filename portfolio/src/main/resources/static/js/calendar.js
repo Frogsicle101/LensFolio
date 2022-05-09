@@ -34,10 +34,10 @@ $(document).ready(function() {
     initialView: 'dayGridMonth',
     eventDurationEditable: true,
     eventResizableFromStart: true,
-    eventResize: eventResize( info ),
+    eventResize,
     themeSystem: 'bootstrap5',
     eventSources: [{ //The sources to grab the events from.
-      url: '/getProjectSprintsWithDatesAsFeed', //Project sprints
+      url: 'getProjectSprintsWithDatesAsFeed', //Project sprints
       method: "get",
       extraParams: {
                 projectId: projectId.toString()
@@ -47,7 +47,7 @@ $(document).ready(function() {
       }
     },
       {
-        url: '/getProjectAsFeed', // Project itself
+        url: 'getProjectAsFeed', // Project itself
         method: "get",
         display: "inverse-background",
         extraParams: {
