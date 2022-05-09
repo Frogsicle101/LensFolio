@@ -294,7 +294,7 @@ $(document).on("submit", "#milestoneEditForm", function(event){
 
 
     $.ajax({
-        url: "/editMilestone",
+        url: "editMilestone",
         type: "POST",
         data: milestoneData,
         success: function(response) {
@@ -539,7 +539,7 @@ function notifyToReload(id) {
 }
 /**
  * Sends notification to server to notify other clients to delete a specific event
- * @param eventId the id of the event
+ * @param id the id of the event
  */
 function notifyToDelete(id) {
     $.ajax({
@@ -832,7 +832,6 @@ function createMilstoneDiv(milestoneObject) {
 
 /**
  * Refreshes the event div section of the page
- * @param projectId
  */
 function refreshEvents(){
     $("#eventContainer").find(".occasion").remove() // Finds all event divs are removes them
@@ -881,7 +880,7 @@ function refreshMilestones(projectId){
     milestoneContainer.append(`<div id="infoMilestoneContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
             </div>`) // Adds an info box to the page
     $.ajax({
-        url: '/getMilestoneList',
+        url: 'getMilestoneList',
         type: 'get',
         data: {'projectId': projectId},
 
