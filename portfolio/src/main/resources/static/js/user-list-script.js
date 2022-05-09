@@ -3,6 +3,7 @@
  */
 $(document).ready(function () {
 
+
     /* Uses a DELETE request to remove the selected role from a user.
     * If the user's role cannot be deleted, display an informative alert in the centre of the screen. */
     $(".roleDeleteButton").click(function () {
@@ -29,10 +30,12 @@ $(document).ready(function () {
         })
     })
 
+
     /* Toggles the list of roles that can be added. */
     $(".addRolePopUpButton").click(function () {
         $(this).siblings(".collapse").collapse('toggle');
     })
+
 
     /* Uses a PUT request to add roles to a user. */
     $(".roleToAddButton").click(function () {

@@ -40,7 +40,6 @@ $(document).ready(function() {
             eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
             if (eventDiv.hasClass("beingEdited")) {
                 eventDiv.find(".controlButtons").hide()
-
             }
             infoContainer.slideDown() // Show the notice.
         }
@@ -107,9 +106,9 @@ $(document).ready(function() {
      */
     eventSource.addEventListener("notifyNewElement", function (event) {
         const data = JSON.parse(event.data);
-        if (data.typeOfEvent == "event"){
+        if (data.typeOfEvent === "event"){
             addEvent(data.eventId)
-        } else if (data.typeOfEvent == "milestone") {
+        } else if (data.typeOfEvent === "milestone") {
             addMilestone(data.eventId)
         }
         //TODO add deadlines
@@ -962,16 +961,3 @@ function countCharacters() {
 function isEmpty( el ){
     return !$.trim(el.html())
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

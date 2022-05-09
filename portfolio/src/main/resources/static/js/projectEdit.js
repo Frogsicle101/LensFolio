@@ -47,7 +47,6 @@ $(document).ready(() => {
     })
 
 
-
     //When the submit button is clicked on the form.
     $(".projectEditForm").submit(function(event){
         event.preventDefault()
@@ -74,7 +73,4 @@ $(document).ready(() => {
             }
         })
     })
-
-
-
 })
