@@ -12,13 +12,32 @@ import java.util.List;
 public class Config implements WebMvcConfigurer
 {
 
-
+    /**
+     * This will intercept all the endpoints that we specify in the method and run them through RoleBasedInterceptor
+     * first
+     * @param registry Registry
+     */
     @Override
     public void addInterceptors(InterceptorRegistry registry)
     {
         List<String> pathsToIntercept = new ArrayList<>();
+
+        // Events
         pathsToIntercept.add("/addEvent");
-        pathsToIntercept.add("/portfolio");
+        pathsToIntercept.add("/deleteEvent");
+        pathsToIntercept.add("/editEvent");
+
+        // Portfolio
+        pathsToIntercept.add("/editProject");
+        pathsToIntercept.add("/projectEdit");
+        pathsToIntercept.add("/portfolio/addSprint");
+        pathsToIntercept.add("/sprintEdit");
+        pathsToIntercept.add("/sprintSubmit");
+        pathsToIntercept.add("/deleteSprint");
+
+
+
+
         registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToIntercept);
     }
 }
