@@ -9,7 +9,6 @@ import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
-import org.apache.tomcat.jni.Local;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -90,7 +89,7 @@ public class DeadlineControllerTest {
 
         @Override
         public void delete(Deadline entity) {
-
+            deadlines.remove(entity);
         }
 
         @Override
@@ -554,4 +553,67 @@ public class DeadlineControllerTest {
         Assertions.assertEquals(1,deadlines.get(0).getTypeOfOccasion());
     }
 
+    @Test
+    public void editDeadlineMultipleDeadlinesSaved() {
+        createAuthorisedUser();
+        Deadline deadline1 = null;
+        try {
+            deadline1 = new Deadline(project,"ToStayTheSame", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline1);
+
+        Deadline deadline2 = null;
+        try {
+            deadline2 = new Deadline(project,"ToBeEdited", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline2);
+
+        ResponseEntity response = deadlineController.editDeadline(principal, deadline2.getId(), project.getId(), "NewName", null, null, null);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals("NewName", deadlines.get(1).getName());
+        Assertions.assertEquals("ToStayTheSame", deadlines.get(0).getName());
+    }
+
+// These tests are for the delete method
+
+    @Test
+    public void deleteDeadlineNotAuthenticated(){
+        createUnauthorisedUser();
+        Deadline deadline = null;
+        try {
+            deadline = new Deadline(project,"ToBeDeleted", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline);
+        ResponseEntity response = deadlineController.deleteDeadline(principal,deadline.getId());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        Assertions.assertEquals(1,deadlines.size());
+    }
+
+    @Test
+    public void deleteDeadlineInvalidDeadlineId(){
+        createAuthorisedUser();
+        ResponseEntity response = deadlineController.editDeadline(principal,UUID.randomUUID(), project.getId(), null, null, null, 1);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    public void deleteDeadlineValidDeadlineId(){
+        createAuthorisedUser();
+        Deadline deadline = null;
+        try {
+            deadline = new Deadline(project,"ToBeDeleted", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline);
+        ResponseEntity response = deadlineController.deleteDeadline(principal,deadline.getId());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(0, deadlines.size());
+    }
 }

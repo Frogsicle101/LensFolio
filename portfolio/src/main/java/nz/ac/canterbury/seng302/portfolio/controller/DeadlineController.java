@@ -223,7 +223,7 @@ public class DeadlineController {
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PostMapping("/deleteDeadline")
-    public ResponseEntity editDeadline(
+    public ResponseEntity deleteDeadline(
             @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "deadlineId") UUID deadlineId) {
         UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
