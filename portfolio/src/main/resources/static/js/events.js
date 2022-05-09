@@ -150,7 +150,11 @@ function sortElementsByDate(div, childrenElement, dateElement) {
     });
 
     $(div).html(result);
+
+
+
 }
+
 
 
 // <--------------------------- Listener Functions --------------------------->
@@ -161,6 +165,7 @@ function sortElementsByDate(div, childrenElement, dateElement) {
  */
 $(document).on('submit', "#addEventForm", function (event) {
     event.preventDefault()
+
 
     let eventData = {
         "projectId": projectId,
@@ -811,7 +816,7 @@ function refreshMilestones(projectId){
                     "type" : response[milestone].type,
                 }
 
-                $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the eventObject to the createDiv function
+                $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the milestoneObject  to the createDiv function
                 sortElementsByDate("#milestoneContainer", ".occasion", ".endDate")
                 removeElementIfNotAuthorized()
             }
@@ -957,6 +962,10 @@ function addMilestone(milestoneId) {
             // addMilestonesToSprints()
             removeElementIfNotAuthorized()
 
+            nextMilestoneNumber++;
+            document.getElementById("milestoneName").setAttribute("value", "Milestone " + nextMilestoneNumber)
+            document.getElementById("milestoneName").setAttribute("placeholder", "Milestone " + nextMilestoneNumber)
+
         },
         error: function() {
             location.href = "error" // Moves the user to the error page
@@ -972,9 +981,9 @@ function addMilestone(milestoneId) {
  * Function that gets the maxlength of an input and lets the user know how many characters they have left.
  */
 function countCharacters() {
-    let maxLength = $(this).attr("maxLength")
+    let maxlength = $(this).attr("maxLength")
     let lengthOfCurrentInput = $(this).val().length;
-    let counter = maxLength - lengthOfCurrentInput;
+    let counter = maxlength - lengthOfCurrentInput;
     let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
 
     //If one character remains, changes from "characters remaining" to "character remaining"

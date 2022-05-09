@@ -143,7 +143,7 @@ public class PortfolioController {
             List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
             List<Milestone> milestoneList = MilestoneHelper.setMilestoneColours(project.getId(), milestoneRepository, sprintRepository);
 
-            String nextMilestoneName = "Milestone " + (milestoneRepository.countMilestoneByProjectId(projectId).intValue() + 1);
+            int nextMilestoneNumber = milestoneRepository.countMilestoneByProjectId(projectId).intValue() + 1;
             LocalDate defaultOccasionDate = project.getStartDate(); // Today is in a sprint, the start of th project otherwise
             if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
                 defaultOccasionDate = LocalDate.now();
@@ -152,8 +152,8 @@ public class PortfolioController {
             modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
             modelAndView.addObject("events", eventList);
             modelAndView.addObject("milestones", milestoneList);
-            modelAndView.addObject("nextMilestoneName", nextMilestoneName);
-            modelAndView.addObject("occasionNameLengthRestriction", Event.getNameLengthRestriction());
+            modelAndView.addObject("nextMilestoneNumber", nextMilestoneNumber);
+            modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
             modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
             modelAndView.addObject("user", user);
             modelAndView.addObject("projectId", projectId);
