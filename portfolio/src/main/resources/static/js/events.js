@@ -25,7 +25,7 @@ $(document).ready(function() {
 
 
 
-    let eventSource = new EventSource("http://localhost:9000/notifications");
+    let eventSource = new EventSource("notifications");
 
 
     /**
