@@ -22,6 +22,7 @@
         let titleRegex = /*[[${titleRegex}]]*/ 'default';
         let descriptionRegex = /*[[${descriptionRegex}]]*/ 'default';
         let nextMilestoneName = /*[[${nextMilestoneName}]]*/ 'default';
+        let defaultOccasionDate = /*[[${defaultOccasionDate}]]*/ 'default';
 
 
         /*]]>*/
@@ -72,7 +73,8 @@
     </div>
     <div class="projectContainer">
         <div class="eventContainer">
-            <div id="informationBar" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
+            <div id="informationBar" class="infoMessageParent alert alert-primary alert-dismissible fade show"
+                 role="alert" style="display: none">
             </div>
             <ul class="nav nav-tabs">
                 <li class="nav-item">
@@ -98,7 +100,8 @@
                 <!---------------------------------------- Events tab  ------------------------------------------>
                 <div class="tab-pane fade show active" id="events" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button type="button" class="addOccasionButton addEventButton noStyleButton" th:if="${userCanEdit == true}"
+                        <button type="button" class="addOccasionButton addEventButton noStyleButton"
+                                th:if="${userCanEdit == true}"
                                 data-bs-toggle="tooltip" data-bs-placement="right" title="Create Event">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                  class="bi bi-plus-circle addEventSvg" viewBox="0 0 16 16">
@@ -113,7 +116,8 @@
                             <div class="mb-1">
                                 <label for="eventName" class="form-label">Event name</label>
                                 <input type="text" class="form-control form-control-sm"
-                                       th:pattern="${titleRegex}" th:maxLength="${eventNameLengthRestriction}" name="eventName"
+                                       th:pattern="${titleRegex}" th:maxLength="${eventNameLengthRestriction}"
+                                       name="eventName"
                                        id="eventName"
                                        required>
                                 <small class="form-text text-muted countChar">0 characters remaining</small>
@@ -279,7 +283,8 @@
                 <!--------------------------------------- Milestones tab  --------------------------------------->
                 <div class="tab-pane fade show" id="milestones" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button type="button" class="addOccasionButton addMilestoneButton noStyleButton" th:if="${userCanEdit == true}"
+                        <button type="button" class="addOccasionButton addMilestoneButton noStyleButton"
+                                th:if="${userCanEdit == true}"
                                 data-bs-toggle="tooltip" data-bs-placement="right" title="Create Milestone">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                  class="bi bi-plus-circle addMilestoneSvg" viewBox="0 0 16 16">
@@ -316,7 +321,7 @@
                                     <label for="milestoneEnd" class="form-label">End</label>
                                     <input type="date"
                                            class="form-control form-control-sm milestoneInputEndDate"
-                                           th:value="${project.getStartDateAsLocalDateTime().toLocalDate()}"
+                                           th:value="${defaultOccasionDate}"
                                            th:min="${project.getStartDateAsLocalDateTime().toLocalDate()}"
                                            th:max="${project.getEndDateAsLocalDateTime().toLocalDate()}"
                                            name="milestoneEnd"
