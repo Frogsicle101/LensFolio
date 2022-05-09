@@ -117,7 +117,6 @@ $(document).ready(function() {
      */
     eventSource.addEventListener("notifyNewElement", function (event) {
         const data = JSON.parse(event.data);
-        console.log(data)
         if (data.typeOfEvent == "event"){
             addEvent(data.eventId)
         } else if (data.typeOfEvent == "milestone") {
@@ -466,7 +465,6 @@ function addEventsToSprints(){
         },
         error: function(error) {
             console.log(error)
-            // location.href = "/error" // Moves the user to the error page
         }
     })
 }
@@ -860,7 +858,6 @@ function refreshEvents(){
         },
         error: function(error) {
             console.log(error)
-            // location.href = "/error" // Moves the user to the error page
         }
     })
 
@@ -883,7 +880,6 @@ function refreshMilestones(projectId){
         data: {'projectId': projectId},
 
         success: function(response) {
-            console.log(response)
             for(let milestone in response){
                 $("#milestoneContainer").append(createMilstoneDiv(response[milestone]))
                 removeElementIfNotAuthorized()
@@ -905,8 +901,6 @@ function refreshMilestones(projectId){
 
 function reloadElement(id){
     let elementToReload = $("#" + id)
-    console.log(elementToReload)
-    console.log(id)
     elementToReload.slideUp() // Hides the element
     if (elementToReload.hasClass("event")){
         $.ajax({
