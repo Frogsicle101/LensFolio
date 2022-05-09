@@ -34,7 +34,7 @@ $(document).ready(function() {
     initialView: 'dayGridMonth',
     eventDurationEditable: true,
     eventResizableFromStart: true,
-    eventResize: eventResize( info ),
+    eventResize,
     themeSystem: 'bootstrap5',
     eventSources: [{ //The sources to grab the events from.
       url: '/getProjectSprintsWithDatesAsFeed', //Project sprints
