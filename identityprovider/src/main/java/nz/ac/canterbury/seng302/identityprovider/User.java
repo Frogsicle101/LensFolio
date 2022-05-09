@@ -182,6 +182,7 @@ public class User {
         for (UserRole role : roles) {
             rolesStrings.add(role.toString().toLowerCase(Locale.ROOT));
         }
+
         return String.join(",", rolesStrings);
     }
 

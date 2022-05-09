@@ -10,12 +10,6 @@ $(document).ready(function() {
     let beingEdited = $(".beingEdited");
     let formControl = $(".form-control");
 
-
-
-
-
-
-
     refreshEvents(projectId)
 
     refreshMilestones(projectId)
