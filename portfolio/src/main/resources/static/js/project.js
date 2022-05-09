@@ -3,8 +3,6 @@ $(document).ready(() => {
     const projectId = $("#projectId").html()
     getSprints()
 
-
-
     /**
      * When project edit button is clicked.
      * Redirect page.
@@ -12,6 +10,7 @@ $(document).ready(() => {
     $("#projectEditSprint").click(() => {
         location.href = "editProject?projectId=" + projectId ;
     })
+
     /**
      * When project add sprint button is pressed.
      * Redirect page.
@@ -36,17 +35,8 @@ $(document).ready(() => {
         $(this).parent().slideUp();
     })
 
-
-
-
-
-
-
-    setAddSprintButtonPlacement()
-    function setAddSprintButtonPlacement() {
-        $(".addSprint").css("left", $(".eventContainer").width() + "px")
-        $(".addSprint").css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
-    }
+    $(".addSprint").css("left", $(".eventContainer").width() + "px")
+    $(".addSprint").css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
 
 })
 
@@ -73,11 +63,9 @@ $(document).on("click", ".deleteSprint", function() {
         type: "DELETE",
         data: {"sprintId": sprintId},
     }).done(function () {
-        location.href = "/portfolio?projectId=" + projectId
+        location.href = "portfolio?projectId=" + projectId
     })
 })
-
-
 
 
 function getSprints() {
@@ -141,11 +129,6 @@ function appendSprint(springObject, index) {
                     </button>
                 </div>
             </div>`
-
-
-
-
-
 
     return SprintElement;
 }

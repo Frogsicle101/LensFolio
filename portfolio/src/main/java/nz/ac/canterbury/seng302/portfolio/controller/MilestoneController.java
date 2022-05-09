@@ -1,27 +1,19 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.EditEvent;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
@@ -38,9 +30,6 @@ public class MilestoneController {
 
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-
-    private List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
@@ -140,7 +129,11 @@ public class MilestoneController {
         }
     }
 
-
+    /**
+     * Gets the list of milestones in a project and returns it.
+     * @param projectId The projectId to get the milestones from this project
+     * @return A ResponseEntity with the milestones or an error
+     */
     @GetMapping("/getMilestoneList")
     public ResponseEntity<Object> getMilestoneList(
             @RequestParam(value="projectId") Long projectId
@@ -156,7 +149,11 @@ public class MilestoneController {
         }
     }
 
-
+    /**
+     * Returns a single milestone from the id that was given
+     * @param milestoneId The milestone id
+     * @return a single milestone
+     */
     @GetMapping("/getMilestone")
     public ResponseEntity<Object> getMilestone(
             @RequestParam(value="milestoneId") UUID milestoneId

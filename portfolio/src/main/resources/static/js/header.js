@@ -11,10 +11,8 @@ $(document).ready(function() {
     $(".profileDropdown").click(() => {
         toggleDropDown()
     })
-
-
-
 })
+
 
 /**
  * Toggles the dropdown menu.
@@ -24,4 +22,3 @@ function toggleDropDown() {
     $(".dropdown-content").slideToggle();
 
 }
-

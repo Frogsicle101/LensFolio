@@ -29,7 +29,6 @@ $(document).ready(() => {
             "email": email.val()
         }
 
-
         $.ajax({
             url: "register",
             type: "post",
@@ -43,8 +42,6 @@ $(document).ready(() => {
                 errorMessageParent.slideUp()
                 errorMessageParent.slideDown()
             },
-
         })
-
     })
 })
