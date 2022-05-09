@@ -890,7 +890,8 @@ function refreshMilestones(projectId){
                     "id" : response[milestone].id,
                     "name" : response[milestone].name,
                     "endDate" : response[milestone].endDate,
-                    "typeOfEvent" : response[milestone].type,
+                    "endDateFormatted" : response[milestone].endDateFormatted,
+                    "type" : response[milestone].type,
                 }
 
                 $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the eventObject to the createDiv function
@@ -1039,8 +1040,9 @@ function addMilestone(milestoneId) {
             let milestoneObject = {
                 "id" : response.id,
                 "name" : response.name,
-                "end" : response.endDate,
-                "typeOfEvent" : response.type,
+                "endDate" : response.endDate,
+                "endDateFormatted" : response.endDateFormatted,
+                "type" : response.type,
             }
 
             $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the eventObject to the createDiv function
