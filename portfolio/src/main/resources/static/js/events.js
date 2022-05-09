@@ -472,14 +472,14 @@ function addMilestonesToSprints() {
 }
 
 /**
- * At
+ * Adds milestone to sprint box
  * @param elementToAppendTo
  * @param milestone
  */
 function appendMilestoneToSprint(elementToAppendTo, milestone) {
     let milestoneInSprint = `
                 <div class="row" >
-                    <div class="milestoneInSprint milestoneInSprint${milestone.id}" style="display: flex;">
+                    <div class="milestoneInSprint milestoneInSprint${milestone.id}">
                         <p class="sprintMilestoneName">${milestone.name} :&#160</p>
                         <p class="sprintMilestoneEnd">${milestone.endDateFormatted}</p>
                     </div>
