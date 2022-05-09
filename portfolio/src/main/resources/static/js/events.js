@@ -329,7 +329,39 @@ $(document).on("submit", "#milestoneEditForm", function(event){
 })
 
 
-//TODO add deadlines listener for deadline edit form submit
+/**
+ * When existing deadline is edited and submitted
+ */
+$(document).on("submit", "#editDeadlineForm", function(event){
+    event.preventDefault()
+
+    let deadlineId = $(this).parent().find(".eventId").text()
+    let deadlineData = {
+        "projectId": projectId,
+        "deadlineId" : deadlineId,
+        "deadlineName": $(this).find(".deadlineName").val(),
+        "deadlineEnd": $(this).find(".deadlineEnd").val(),
+        "typeOfDeadline": $(this).find(".typeOfDeadline").val()
+    }
+
+    if (deadlineData.deadlineName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
+        $(this).closest(".existingDeadlineForm").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Oh no!</strong> You probably should enter a deadline name!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`)
+    } else {
+        $.ajax({
+            url: "editDeadline",
+            type: "POST",
+            data: deadlineData,
+            success: function(response) {
+
+                notifyToReload(deadlineId) // Let the server know the deadline is no longer being edited
+            }
+        })
+    }
+})
 
 
 
@@ -391,8 +423,17 @@ $(document).on("click", ".deleteButton", function(){
                 notifyToDelete(milestoneData.milestoneId)
             }
         })
+    } else if (parent.hasClass('deadline')) {
+        let deadlineData = {"deadlineId": $(this).closest(".occasion").attr("id")}
+        $.ajax({
+            url: 'deleteDeadline',
+            type: "DELETE",
+            data: deadlineData,
+            success: function(response) {
+                notifyToDelete(deadlineData.deadlineId)
+            }
+        })
     }
-    //TODO add deadlines
 })
 
 /**
@@ -410,11 +451,11 @@ $(document).on("click", ".editButton", function() {
         appendEventForm(parent)
     } else if (parent.hasClass("milestone")) {
         appendMilestoneForm(parent)
+    } else if (parent.hasClass("deadline")) {
+        appendDeadlineForm(parent)
     }
 
     $(".addOccasionButton").show()
-    //TODO add deadlines
-
 
 })
 
