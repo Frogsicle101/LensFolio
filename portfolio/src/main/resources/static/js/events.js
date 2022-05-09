@@ -11,9 +11,7 @@ $(document).ready(function() {
     let formControl = $(".form-control");
 
     refreshEvents(projectId)
-
     refreshMilestones(projectId)
-
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)

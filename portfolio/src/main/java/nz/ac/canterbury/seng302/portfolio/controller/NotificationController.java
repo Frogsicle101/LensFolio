@@ -38,9 +38,11 @@ public class NotificationController {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         try {
+            logger.info("GET /notifications");
             logger.info("Subscribing user: " + userId);
             emitter.send(SseEmitter.event().name("INIT"));
         } catch (IOException e) {
+            logger.error("GET /notifications: {}", e.getMessage());
             logger.warn("Not subscribing users");
         }
         emitter.onCompletion(() -> emitters.remove(emitter));
@@ -52,6 +54,7 @@ public class NotificationController {
     @PostMapping("/notifyEdit")
     public void sendEventToClients(@AuthenticationPrincipal AuthState editor,
                                    @RequestParam UUID id) {
+        logger.info("POST /notifyEdit");
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
                 .setId(eventEditorID)
@@ -67,6 +70,7 @@ public class NotificationController {
                 emitter.send(SseEmitter.event().name("editEvent")
                         .data(editEvent));
             } catch (IOException e) {
+                logger.error("GET /notifyEdit: {}", e.getMessage());
                 emitters.remove(emitter);
             }
         }
@@ -78,6 +82,7 @@ public class NotificationController {
             @RequestParam(value="id") UUID id,
             @AuthenticationPrincipal AuthState editor
     ) {
+        logger.info("POST /notifyNotEditing");
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
         logger.info(id + " is no longer being edited by user: " + eventEditorID);
         for (SseEmitter emitter : emitters) {
@@ -88,6 +93,7 @@ public class NotificationController {
                 emitter.send(SseEmitter.event().name("userNotEditing")
                         .data(editEvent));
             } catch (IOException e) {
+                logger.error("GET /notifyNotEditing: {}", e.getMessage());
                 emitters.remove(emitter);
             }
         }
@@ -98,6 +104,7 @@ public class NotificationController {
             @RequestParam(value="id") UUID id,
             @AuthenticationPrincipal AuthState editor
     ) {
+        logger.info("POST /notifyReloadElement");
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
         logger.info(id + " needs to be reloaded");
         for (SseEmitter emitter : emitters) {
@@ -108,6 +115,7 @@ public class NotificationController {
                 emitter.send(SseEmitter.event().name("reloadElement")
                         .data(editEvent));
             } catch (IOException e) {
+                logger.error("GET /notifyReloadElement: {}", e.getMessage());
                 emitters.remove(emitter);
             }
         }
@@ -118,6 +126,7 @@ public class NotificationController {
             @RequestParam(value="id") UUID id,
             @AuthenticationPrincipal AuthState editor
     ) {
+        logger.info("POST /notifyRemoveElement");
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
         logger.info(id + " needs to be removed");
         for (SseEmitter emitter : emitters) {
@@ -128,6 +137,7 @@ public class NotificationController {
                 emitter.send(SseEmitter.event().name("notifyRemoveEvent")
                         .data(editEvent));
             } catch (IOException e) {
+                logger.error("GET /notifyRemoveElement: {}", e.getMessage());
                 emitters.remove(emitter);
             }
         }
@@ -139,6 +149,7 @@ public class NotificationController {
             @RequestParam(value="typeOfEvent") String typeOfEvent,
             @AuthenticationPrincipal AuthState editor
     ) {
+        logger.info("POST /notifyNewElement");
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
         logger.info(id + " needs to be added");
         logger.info(typeOfEvent);
@@ -157,6 +168,7 @@ public class NotificationController {
                 emitter.send(SseEmitter.event().name("notifyNewElement")
                         .data(editEvent));
             } catch (IOException e) {
+                logger.error("GET /notifyNewElement: {}", e.getMessage());
                 emitters.remove(emitter);
             }
         }
