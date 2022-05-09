@@ -418,7 +418,10 @@ $(document).on("click", ".cancelEdit",function() {
 
 // <--------------------------- General Functions --------------------------->
 
-
+/**
+ * Adds Events to the sprints
+ * Displays the events in the sprints in which the dates overlap.
+ */
 function addEventsToSprints(){
     $.ajax({
         url: 'getEventsList',
@@ -476,7 +479,11 @@ function addEventsToSprints(){
     })
 }
 
-
+/**
+ * At
+ * @param elementToAppendTo
+ * @param event
+ */
 function appendEventToSprint(elementToAppendTo, event) {
     let eventInSprint = `
                 <div class="row">
