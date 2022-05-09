@@ -10,9 +10,11 @@ import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
@@ -66,7 +68,7 @@ public class PortfolioController {
     private static final String infoMessage = "infoMessage";
     private static final String successMessage = "successMessage";
 
-
+    private final CheckDateService checkDateService = new CheckDateService();
 
     RegexPatterns regexPatterns = new RegexPatterns();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -139,11 +141,20 @@ public class PortfolioController {
             }
 
             List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
+            List<Milestone> milestoneList = MilestoneHelper.setMilestoneColours(project.getId(), milestoneRepository, sprintRepository);
 
+            int nextMilestoneNumber = milestoneRepository.countMilestoneByProjectId(projectId).intValue() + 1;
+            LocalDate defaultOccasionDate = project.getStartDate(); // Today is in a sprint, the start of th project otherwise
+            if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
+                defaultOccasionDate = LocalDate.now();
+            }
             modelAndView.addObject("project", project);
             modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
             modelAndView.addObject("events", eventList);
+            modelAndView.addObject("milestones", milestoneList);
+            modelAndView.addObject("nextMilestoneNumber", nextMilestoneNumber);
             modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
+            modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
             modelAndView.addObject("user", user);
             modelAndView.addObject("projectId", projectId);
             modelAndView.addObject("titleRegex", regexPatterns.getTitleRegex().toString());

@@ -308,6 +308,17 @@ section {
     margin: 0 0 0 0;
 }
 
+.milestoneInSprint {
+    display: flex;
+    flex-direction: row;
+}
+
+.milestoneInSprint p {
+    padding: 0.1rem;
+    opacity: 70%;
+    margin: 0 0 0 0;
+}
+
 .bold {
     font-weight: bolder;
 }

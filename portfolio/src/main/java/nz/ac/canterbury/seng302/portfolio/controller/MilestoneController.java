@@ -134,8 +134,8 @@ public class MilestoneController {
      * @param projectId The projectId to get the milestones from this project
      * @return A ResponseEntity with the milestones or an error
      */
-    @GetMapping("/getMilestoneList")
-    public ResponseEntity<Object> getMilestoneList(
+    @GetMapping("/getMilestonesList")
+    public ResponseEntity<Object> getMilestonesList(
             @RequestParam(value="projectId") Long projectId
     ){
         try {
