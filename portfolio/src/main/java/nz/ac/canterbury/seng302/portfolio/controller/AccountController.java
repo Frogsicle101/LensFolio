@@ -43,6 +43,7 @@ public class AccountController {
     private static final String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
     private static final String pronounRegex = "([a-zA-Z/]*\\s?)+";
 
+
     /**
      * This method is responsible for populating the account page template
      * It adds in variables to the html template, as well as the values of those variables
@@ -50,16 +51,16 @@ public class AccountController {
      * <br>
      * Once a user class is created, we will want to supply this page with the specific user that is viewing it
      * <br>
-     * ToDo finish this javadoc with the params
-     * @return the Thymeleaf template
+     * @param principal the principal
+     * @param editInfo editInfo DTO
+     * @param passInfo passInfo DTO
+     * @return ModelAndView of accounts page
      */
     @RequestMapping("/account")
     public ModelAndView account(
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name = "editDetailsForm") UserRequest editInfo,
-            @ModelAttribute(name = "editPasswordForm") PasswordRequest passInfo,
-            @ModelAttribute(name = "detailChangeMessage") String detailChangeMessage,
-            @ModelAttribute(name = "passwordChangeMessage") String passwordChangeMessage
+            @ModelAttribute(name = "editPasswordForm") PasswordRequest passInfo
     ) {
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
         logger.info("GET REQUEST /account - retrieving account details for user " + user.getUsername());
@@ -375,51 +376,6 @@ public class AccountController {
     }
 
 
-    /**
-     * Helper function to add attributes to the model
-     * Given a Thymeleaf model, adds a bunch of attributes into it
-     * <p>
-     * This is really just to make the code a bit nicer to look at
-     * <br>
-     * @param userId - the userId of the account whose details are being retrieved
-     * @param model - The model you're adding attributes to
-     */
-    private void addModelAttributes(
-            int userId,
-            HttpServletRequest request,
-            ModelMap model) {
-        // NOTE: no logger as this is a helper function and calling function logs the input
-        /*
-        These addAttribute methods inject variables that we can use in our html file
-         */
-        UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
-                .setId(userId)
-                .build());
-
-        // For setting the profile image
-        String ip = request.getLocalAddr();
-        String url = "http://" + ip + ":9001/" + userResponse.getProfileImagePath();
-        model.addAttribute("profileImageUrl", url);
-
-        model.addAttribute("username", userResponse.getUsername());
-        model.addAttribute("email", userResponse.getEmail());
-        model.addAttribute("firstName", userResponse.getFirstName());
-        model.addAttribute("middleName", userResponse.getMiddleName());
-        model.addAttribute("lastName", userResponse.getLastName());
-        model.addAttribute("nickname", userResponse.getNickname());
-        model.addAttribute("pronouns", userResponse.getPersonalPronouns());
-        model.addAttribute("userBio", userResponse.getBio());
-        String rolesList = "";
-        for (int i = 0; i < userResponse.getRolesCount(); i++) {
-            rolesList += userResponse.getRoles(i) + "  ";
-        }
-        model.addAttribute("roles", rolesList);
-
-        String memberSince =
-                ReadableTimeService.getReadableDate(userResponse.getCreated())
-                        + " (" + ReadableTimeService.getReadableTimeSince(userResponse.getCreated()) + ")";
-        model.addAttribute("membersince", memberSince);
-    }
 
 
     @DeleteMapping("/deleteProfileImg")

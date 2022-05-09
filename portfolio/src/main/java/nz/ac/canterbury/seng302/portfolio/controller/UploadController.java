@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 
@@ -27,14 +27,14 @@ public class UploadController {
      * @return The Thymeleaf upload html template.
      */
     @GetMapping("/uploadImage")
-    public String showUpload(
-            @AuthenticationPrincipal AuthState principal,
-            Model model
+    public ModelAndView showUpload(
+            @AuthenticationPrincipal AuthState principal
     ) {
         logger.info("Endpoint reached: GET /uploadImage");
+        ModelAndView modelAndView = new ModelAndView("upload-image");
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
-        model.addAttribute("user", user);
-        return "upload-image";
+        modelAndView.addObject("user", user);
+        return modelAndView;
     }
 
     /**
@@ -42,14 +42,17 @@ public class UploadController {
      * @param file The file sent in the body of the post request
      */
     @PostMapping("/upload")
-    public String upload(
+    public ModelAndView upload(
             @AuthenticationPrincipal AuthState principal,
             @RequestParam("image") MultipartFile file
     ) throws IOException {
         logger.info("Endpoint reached: POST /upload");
+        ModelAndView modelAndView = new ModelAndView("upload-image");
         int id = PrincipalAttributes.getIdFromPrincipal(principal);
         userAccountsClientService.uploadProfilePhoto(file.getInputStream(), id, "jpg");
-        return "upload-image";
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        modelAndView.addObject("user", user);
+        return modelAndView;
     }
 
 }
