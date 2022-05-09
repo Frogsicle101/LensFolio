@@ -890,7 +890,7 @@ function reloadElement(id) {
                 elementToReload.slideDown()
                 addMilestonesToSprints()
                 sortElementsByDate("#milestoneContainer", ".occasion", ".milestoneEndDateNilFormat")
-
+                removeElementIfNotAuthorized()
             }, error: function () {
                 location.href = "error" // Moves the user to the error page
             }
@@ -898,7 +898,6 @@ function reloadElement(id) {
     }
     $(".editButton").show()
     $(".deleteButton").show()
-// removeElementIfNotAuthorized()
 
     //TODO add deadlines
 
