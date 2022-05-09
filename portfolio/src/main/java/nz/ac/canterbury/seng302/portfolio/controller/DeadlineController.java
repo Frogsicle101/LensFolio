@@ -108,7 +108,7 @@ public class DeadlineController {
             } else {
                 deadlineEndTime = LocalTime.parse(timeEnd);
             }
-            if (typeOfOccasion < 1){
+            if ( typeOfOccasion < 1){
                 throw new IllegalArgumentException("The type of the deadline is not a valid");
             }
 
@@ -170,12 +170,13 @@ public class DeadlineController {
                     "Project with id " + projectId + " was not found"
             ));
 
-            // if no name is given then set a default one with "Deadline" followed by the next unused integer
-            if (name == null) {
-                Long count = deadlineRepository.countDeadlineByProjectId(projectId);
-                name = "Deadline " + (count + 1);
-            } else if (name.length() > 50) {
-                throw new InvalidNameException("The name of a deadline cannot be more than 50 characters");
+            // if no name is given then keep the name it has already
+            if (name != null) {
+                if (name.length() > 50) {
+                    throw new InvalidNameException("The name of a deadline cannot be more than 50 characters");
+                } else {
+                    deadline.setName(name);
+                }
             }
 
             LocalDate deadlineEndDate;
@@ -202,7 +203,6 @@ public class DeadlineController {
                 throw new IllegalArgumentException("The type of the deadline is not a valid");
             }
 
-            deadline.setName(name);
             deadline.setEndDate(deadlineEndDate);
             deadline.setEndTime(deadlineEndTime);
             deadline.setType(typeOfOccasion);
