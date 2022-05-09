@@ -60,7 +60,7 @@ $(document).ready(() => {
             "projectDescription": projectDescription.val()
         }
         $.ajax({
-            url: "/projectEdit",
+            url: "projectEdit",
             data: dataToSend,
             type: "post",
             success: function() {
