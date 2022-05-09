@@ -152,7 +152,7 @@ public class DeadlineController {
             @RequestParam(value = "deadlineName") String name,
             @RequestParam(value = "deadlineDate") String dateEnd,
             @RequestParam(value = "deadlineTime") String timeEnd,
-            @RequestParam(defaultValue = "1", value = "typeOfMilestone") int typeOfOccasion
+            @RequestParam(value = "typeOfOccasion") Integer typeOfOccasion
     ) {
         UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
@@ -181,31 +181,25 @@ public class DeadlineController {
 
             LocalDate deadlineEndDate;
             LocalTime deadlineEndTime;
-            if (dateEnd == null) {  // if the date is empty then set it as the start of the project or today's date
-                if (LocalDate.now().isAfter(project.getStartDate())) {
-                    deadlineEndDate = LocalDate.now();
-                } else {
-                    deadlineEndDate = project.getStartDate();
-                }
-            } else {
+            if (dateEnd != null) {  // if the date is empty then keep it as it is
                 deadlineEndDate = LocalDate.parse(dateEnd);
-            }
-            if (deadlineEndDate.isAfter(project.getEndDate()) || deadlineEndDate.isBefore(project.getStartDate())){
-                throw new DateTimeException("The deadline date cannot be outside of the project");
+                if (deadlineEndDate.isAfter(project.getEndDate()) || deadlineEndDate.isBefore(project.getStartDate())){
+                    throw new DateTimeException("The deadline date cannot be outside of the project");
+                }
+                deadline.setEndDate(deadlineEndDate);
             }
 
-            if (timeEnd == null){ // if the time is nothing then set it as midnight
-                deadlineEndTime = LocalTime.MIN;
-            } else {
+            if (timeEnd != null){ // if the time is empty then keep it as it is
                 deadlineEndTime = LocalTime.parse(timeEnd);
+                deadline.setEndTime(deadlineEndTime);
             }
-            if (typeOfOccasion < 1){
-                throw new IllegalArgumentException("The type of the deadline is not a valid");
+            if (typeOfOccasion != null) {
+                if (typeOfOccasion < 1){
+                    throw new IllegalArgumentException("The type of the deadline is not a valid");
+                }
+                deadline.setType(typeOfOccasion);
             }
 
-            deadline.setEndDate(deadlineEndDate);
-            deadline.setEndTime(deadlineEndTime);
-            deadline.setType(typeOfOccasion);
             deadlineRepository.save(deadline);
 
             return new ResponseEntity<>(HttpStatus.OK);
