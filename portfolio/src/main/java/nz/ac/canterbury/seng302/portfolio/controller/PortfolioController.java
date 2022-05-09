@@ -621,10 +621,9 @@ public class PortfolioController {
    /////////////////////////////////////////////// Test Values  ////////////////////////////////////////////////////////
 
     public void createDefaultEvents(Project project) throws InvalidNameException {
-        LocalDateTime date = LocalDateTime.now();
 
-        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.now(), 1);
-        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.now(), 5);
+        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:30:00"), 1);
+        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.parse("20:30:00"), 5);
         Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDate.parse("2022-05-18"), LocalTime.now(), 4);
         Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDate.parse("2022-09-30"), LocalTime.now(), 6);
         eventRepository.save(event1);
@@ -644,7 +643,6 @@ public class PortfolioController {
     }
 
     public void createDefaultSprints(Project project) {
-        LocalDate date = LocalDate.now();
         Sprint sprint1 = new Sprint(project, "Sprint 1", LocalDate.parse("2022-02-28"), LocalDate.parse("2022-03-09"), "Sprint 1", "#0066cc");
         Sprint sprint2 = new Sprint(project, "Sprint 2", LocalDate.parse("2022-03-14"), LocalDate.parse("2022-03-30"), "Sprint 2", "#ffcc00");
         Sprint sprint3 = new Sprint(project, "Sprint 3", LocalDate.parse("2022-04-04"), LocalDate.parse("2022-05-11"), "Sprint 3", "#f48c06");

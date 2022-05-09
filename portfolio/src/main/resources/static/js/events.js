@@ -835,6 +835,7 @@ function reloadElement(id){
                 elementToReload.slideDown()
                 addEventsToSprints()
                 sortElementsByDate("#eventContainer", ".occasion", ".eventStartDateNilFormat")
+                removeElementIfNotAuthorized()
 
             },
             error: function() {
@@ -859,7 +860,7 @@ function reloadElement(id){
 
     $(".editButton").show()
     $(".deleteButton").show()
-    removeElementIfNotAuthorized()
+
 
     //TODO add milestones and deadlines
 
