@@ -760,7 +760,7 @@ function createEventDiv(eventObject) {
  * @param milestoneObject A Json object with event details
  * @returns {string} A div
  */
-function createMilstoneDiv(milestoneObject) {
+function createMilestoneDiv(milestoneObject) {
     // TODO make it different if user can edit
     let iconElement;
     switch(milestoneObject.type) {
@@ -885,15 +885,25 @@ function refreshMilestones(projectId){
 
         success: function(response) {
             console.log(response)
-            for(let milestone in response){
-                $("#milestoneContainer").append(createMilstoneDiv(response[milestone]))
+            for(let milestone in response){ // Goes through all the data from the server and creates an eventObject
+                let milestoneObject = {
+                    "id" : response[milestone].id,
+                    "name" : response[milestone].name,
+                    "endDate" : response[milestone].endDate,
+                    "typeOfEvent" : response[milestone].type,
+                }
+
+                $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the eventObject to the createDiv function
+                sortElementsByDate("#milestoneContainer", ".occasion", ".endDate")
                 removeElementIfNotAuthorized()
+
             }
+            // addMilestoneToSprints()
 
         },
         error: function(error) {
             console.log(error)
-
+            // location.href = "/error" // Moves the user to the error page
         }
     })
 
@@ -943,7 +953,7 @@ function reloadElement(id){
             data: {'milestoneId' : id},
             success: function(response) {
 
-                elementToReload.replaceWith(createMilstoneDiv(response))
+                elementToReload.replaceWith(createMilestoneDiv(response))
                 elementToReload.slideDown()
             },
             error: function() {
@@ -1025,10 +1035,22 @@ function addMilestone(milestoneId) {
         type: "GET",
         data: {"milestoneId" : milestoneId},
         success: function(response) {
-            $("#milestoneContainer").append(createMilstoneDiv(response))
-            //TODO sort elements by date
-            //TODO add milestones to sprint
+
+            let milestoneObject = {
+                "id" : response.id,
+                "name" : response.name,
+                "end" : response.endDate,
+                "typeOfEvent" : response.type,
+            }
+
+            $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the eventObject to the createDiv function
+            sortElementsByDate("#milestoneContainer", ".occasion", ".endDate")
+            // addMilestonesToSprints()
             removeElementIfNotAuthorized()
+
+        },
+        error: function() {
+            location.href = "/error" // Moves the user to the error page
         }
     })
 }
