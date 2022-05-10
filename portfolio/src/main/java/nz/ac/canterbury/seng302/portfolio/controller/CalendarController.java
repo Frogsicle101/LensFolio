@@ -34,14 +34,16 @@ public class CalendarController {
 
     private final ProjectRepository projectRepository;
     private final SprintRepository sprintRepository;
+    private final EventRepository eventRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    public CalendarController(ProjectRepository projectRepository, SprintRepository sprintRepository) {
+    public CalendarController(ProjectRepository projectRepository, SprintRepository sprintRepository, EventRepository eventRepository) {
         this.projectRepository = projectRepository;
         this.sprintRepository = sprintRepository;
+        this.eventRepository = eventRepository;
     }
 
 
@@ -202,12 +204,10 @@ public class CalendarController {
      */
     @GetMapping("getEventsAsFeed")
     public ResponseEntity<Object> getEventsAsFeed(
-            @RequestParam(value = "date") String date){
+            @RequestParam(value="projectId") long projectId){
         try{
             logger.info("GET REQUEST /getEventsAsFeed");
-
-            
-            List<Event> events = EventRepository.findAllByDate(date);
+            List<Event> events = EventRepository.findAllByProjectIdOrderByStartDate(projectId);
             List<HashMap<String, String>> eventsToSend = new ArrayList<>();
         }
     }    
