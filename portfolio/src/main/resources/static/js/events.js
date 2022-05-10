@@ -3,7 +3,7 @@ let thisUserIsEditing = false;
 
 
 
-$(document).ready(function() {
+$(document).ready(function () {
 
 
     let infoContainer = $("#informationBar")
@@ -18,11 +18,9 @@ $(document).ready(function() {
     formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
 
 
+// -------------------------------------- Notification Source and listeners --------------------------------------------
 
-
-
-
-
+    /** The source of notifications used to provide updates to the user such as events being edited */
     let eventSource = new EventSource("notifications");
 
 
@@ -37,18 +35,16 @@ $(document).ready(function() {
         if (checkPrivilege()) {
             let eventDiv = $("#" + data.eventId)
 
-            let infoString = data.usersName+ " is editing element: " + eventDiv.find(".name").text() // Find the name of the event from its id
-            infoContainer.append(`<p class="infoMessage" id="notice`+data.eventId+`"> ` + infoString + `</p>`)
+            let infoString = data.usersName + " is editing element: " + eventDiv.find(".name").text() // Find the name of the event from its id
+            infoContainer.append(`<p class="infoMessage" id="notice` + data.eventId + `"> ` + infoString + `</p>`)
             eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
             if (eventDiv.hasClass("beingEdited")) {
                 eventDiv.find(".controlButtons").hide()
-
             }
             infoContainer.slideDown() // Show the notice.
         }
 
     })
-
 
 
     /**
@@ -57,7 +53,7 @@ $(document).ready(function() {
      * Then it checks if this current user is editing another element, and avoids showing the edit buttons
      * If the user isn't currently editing an element then it redisplays the edit and delete button.
      */
-    eventSource.addEventListener("userNotEditing", function (event) {
+    eventSource.addEventListener("notifyNotEditing", function (event) {
         const data = JSON.parse(event.data);
         let elementDiv = $("#" + data.eventId)
 
@@ -78,11 +74,6 @@ $(document).ready(function() {
     })
 
 
-
-
-
-
-
     /**
      * This event listener listens for a notification that an element should be reloaded.
      * This happens if another user has changed an element.
@@ -98,11 +89,9 @@ $(document).ready(function() {
 
         reloadElement(data.eventId) // reloads specific element
 
-
-
-
-
     })
+
+
     /**
      * Listens for a notification to remove an element (happens if another client deletes an element)
      */
@@ -117,39 +106,42 @@ $(document).ready(function() {
      */
     eventSource.addEventListener("notifyNewElement", function (event) {
         const data = JSON.parse(event.data);
-        console.log(data)
-        if (data.typeOfEvent == "event"){
+        if (data.typeOfEvent === "event") {
             addEvent(data.eventId)
-        } else if (data.typeOfEvent == "milestone") {
+        } else if (data.typeOfEvent === "milestone") {
             addMilestone(data.eventId)
-        } else if (data.typeOfEvent == "deadline") {
+        } else if (data.typeOfEvent === "deadline") {
             addDeadline(data.eventId)
         }
 
     })
 
-
-
-
-
 })
+
+
+function notifyEdit(id, type, typeOfEvent = null) {
+    $.ajax({
+        url: "notifyEdit",
+        type: "POST",
+        data: {id, type, typeOfEvent}
+    })
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 
 function sortElementsByDate(div, childrenElement, dateElement) {
 
     let result = $(div).children(childrenElement).sort(function (a, b) {
 
-        let contentA = Date.parse( $(a).find(dateElement).text());
-        let contentB = Date.parse( $(b).find(dateElement).text());
+        let contentA = Date.parse($(a).find(dateElement).text());
+        let contentB = Date.parse($(b).find(dateElement).text());
         return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;
     });
 
     $(div).html(result);
-
-
-
 }
-
 
 
 // <--------------------------- Listener Functions --------------------------->
@@ -160,7 +152,6 @@ function sortElementsByDate(div, childrenElement, dateElement) {
  */
 $(document).on('submit', "#addEventForm", function (event) {
     event.preventDefault()
-
 
     let eventData = {
         "projectId": projectId,
@@ -187,8 +178,7 @@ $(document).on('submit', "#addEventForm", function (event) {
                 $(".eventForm").slideUp();
                 $(".addEventSvg").toggleClass('rotated');
 
-                notifyNewElement(response.id, "event")
-
+                notifyEdit(response.id, "notifyNewElement", "event")
             }
         })
     }
@@ -198,13 +188,13 @@ $(document).on('submit', "#addEventForm", function (event) {
 /**
  * When new milestone is submitted
  */
-$(document).on("submit", ".milestoneForm", function(event){
+$(document).on("submit", ".milestoneForm", function (event) {
     event.preventDefault()
     let milestoneData = {
-        "milestoneName" : $("#milestoneName").val(),
-        "milestoneEnd" : $("#milestoneEnd").val(),
-        "typeOfOccasion" : $(".typeOfMilestone").val(),
-        "projectId" : projectId
+        "milestoneName": $("#milestoneName").val(),
+        "milestoneEnd": $("#milestoneEnd").val(),
+        "typeOfOccasion": $(".typeOfMilestone").val(),
+        "projectId": projectId
     }
     $.ajax({
         url: "addMilestone",
@@ -213,11 +203,9 @@ $(document).on("submit", ".milestoneForm", function(event){
         success: function(response) {
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
-            notifyNewElement(response.id, "milestone")
+            notifyEdit(response.id, "notifyNewElement", "milestone")
         }
     })
-
-
 })
 
 
@@ -244,28 +232,22 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
             $(".deadlineForm").slideUp();
             $(".addDeadlineSvg").toggleClass('rotated');
 
-            notifyNewElement(response.id, "deadline")
+            notifyEdit(response.id, "notifyNewElement", "deadline")
 
         }
     })
 })
 
-
-
-
-
-
-
 /**
  * When existing event is edited and submitted
  */
-$(document).on("submit", "#editEventForm", function(event){
+$(document).on("submit", "#editEventForm", function (event) {
     event.preventDefault()
 
     let eventId = $(this).parent().find(".eventId").text()
     let eventData = {
         "projectId": projectId,
-        "eventId" : eventId,
+        "eventId": eventId,
         "eventName": $(this).find(".eventName").val(),
         "eventStart": $(this).find(".eventStart").val(),
         "eventEnd": $(this).find(".eventEnd").val(),
@@ -290,19 +272,17 @@ $(document).on("submit", "#editEventForm", function(event){
             type: "POST",
             data: eventData,
             success: function(response) {
-
-                notifyToReload(eventId) // Let the server know the event is no longer being edited
+                notifyEdit(eventId, "reloadElement") // Let the server know the event is no longer being edited
             }
         })
     }
 })
 
 
-
 /**
  * When edited milestone is submitted
  */
-$(document).on("submit", "#milestoneEditForm", function(event){
+$(document).on("submit", "#milestoneEditForm", function (event) {
     event.preventDefault();
 
     //TODO add in date checks
@@ -321,7 +301,7 @@ $(document).on("submit", "#milestoneEditForm", function(event){
         type: "POST",
         data: milestoneData,
         success: function(response) {
-            notifyToReload(milestoneId)
+            notifyEdit(milestoneId, "reloadElement")
         }
     })
 
@@ -357,19 +337,17 @@ $(document).on("submit", "#editDeadlineForm", function(event){
             data: deadlineData,
             success: function(response) {
 
-                notifyToReload(deadlineId) // Let the server know the deadline is no longer being edited
+                notifyEdit(deadlineId, "reloadElement") // Let the server know the deadline is no longer being edited
             }
         })
     }
 })
 
 
-
-
 /**
  * Listens for when add event button is clicked.
  */
-$(document).on('click', '.addEventButton', function() {
+$(document).on('click', '.addEventButton', function () {
 
     $(".addEventSvg").toggleClass('rotated');
     $(".eventForm").slideToggle();
@@ -379,7 +357,7 @@ $(document).on('click', '.addEventButton', function() {
 /**
  * Listens for when add milestone button is clicked.
  */
-$(document).on('click', '.addMilestoneButton', function() {
+$(document).on('click', '.addMilestoneButton', function () {
 
     $(".addEventSvg").toggleClass('rotated');
     $(".milestoneForm").slideToggle();
@@ -401,7 +379,7 @@ $(document).on('click', '.addDeadlineButton', function() {
 /**
  * Listens for a click on the delete button
  */
-$(document).on("click", ".deleteButton", function(){
+$(document).on("click", ".deleteButton", function () {
     let parent = $(this).closest(".occasion")
     if (parent.hasClass('event')) { // Checks if the button belongs to an event
         let eventData = {"eventId": $(this).closest(".occasion").find(".eventId").text()}
@@ -410,7 +388,7 @@ $(document).on("click", ".deleteButton", function(){
             type: "DELETE",
             data: eventData,
             success: function(response) {
-                notifyToDelete(eventData.eventId)
+                notifyEdit(eventData.eventId, "notifyRemoveEvent")
             }
         })
     } else if (parent.hasClass('milestone')) {
@@ -420,7 +398,7 @@ $(document).on("click", ".deleteButton", function(){
             type: "DELETE",
             data: milestoneData,
             success: function(response) {
-                notifyToDelete(milestoneData.milestoneId)
+                notifyEdit(milestoneData.milestoneId, "notifyRemoveEvent")
             }
         })
     } else if (parent.hasClass('deadline')) {
@@ -430,7 +408,7 @@ $(document).on("click", ".deleteButton", function(){
             type: "DELETE",
             data: deadlineData,
             success: function(response) {
-                notifyToDelete(deadlineData.deadlineId)
+                notifyEdit(deadlineData.deadlineId, "notifyRemoveEvent")
             }
         })
     }
@@ -439,14 +417,14 @@ $(document).on("click", ".deleteButton", function(){
 /**
  * Listens for a click on the edit button
  */
-$(document).on("click", ".editButton", function() {
+$(document).on("click", ".editButton", function () {
     thisUserIsEditing = true;
     $(".addOccasionButton").hide()
     $(".editButton").hide()
     $(".deleteButton").hide()
     let parent = $(this).closest(".occasion")
     let id = parent.attr("id")
-    notifyEdit(id)
+    notifyEdit(id, "editEvent")
     if (parent.hasClass("event")) {
         appendEventForm(parent)
     } else if (parent.hasClass("milestone")) {
@@ -460,11 +438,10 @@ $(document).on("click", ".editButton", function() {
 })
 
 
-
 /**
  * Listens for a click on the event form cancel button
  */
-$(document).on("click", ".cancelEdit",function() {
+$(document).on("click", ".cancelEdit", function () {
     thisUserIsEditing = false;
     $(".addOccasionButton").show()
     $(".editButton").show()
@@ -476,11 +453,9 @@ $(document).on("click", ".cancelEdit",function() {
     form.slideUp(400, function () {
         form.remove();
     })
-    notifyNotEditing(id) // Let the server know the event is no longer being edited
+    notifyEdit(id, "notifyNotEditing") // Let the server know the event is no longer being edited
 
 })
-
-
 
 
 // <--------------------------- General Functions --------------------------->
@@ -495,53 +470,55 @@ function addEventsToSprints(){
         type: 'get',
         data: {'projectId': projectId},
 
-        success: function(response) {
+        success: function (response) {
+            let sprint = $(".sprint")
 
             $(".eventInSprint").remove();
 
-            for(let index in response){
+            for (let index in response) {
                 let event = response[index]
 
-                $(".sprint").each(function(index, element) {
+                sprint.each(function(index, element) {
 
                     let eventStart = Date.parse(event.startDate)
                     let eventEnd = Date.parse(event.endDate)
                     let sprintStart = Date.parse($(element).find(".sprintStart").text())
                     let sprintEnd = Date.parse($(element).find(".sprintEnd").text())
-                    if(eventStart >= sprintStart && eventStart <= sprintEnd) { // Event start right between sprint dates
+                    if (eventStart >= sprintStart && eventStart <= sprintEnd) { // Event start right between sprint dates
                         appendEventToSprint(element, event)
                     } else if (eventEnd >= sprintStart && eventEnd <= sprintEnd) { //Event end falls within the sprint dates
                         appendEventToSprint(element, event)
+                    } else if (eventStart < sprintStart && eventEnd > sprintEnd) {
+                        appendEventToSprint(element, event) // Event is happening during a sprint
                     }
-
                 })
 
-                $(".sprint").each(function(index, element) {
+                sprint.each(function(index, element) {
 
                     let eventStart = Date.parse(event.startDate)
                     let eventEnd = Date.parse(event.endDate)
                     let sprintStart = Date.parse($(element).find(".sprintStart").text())
                     let sprintEnd = Date.parse($(element).find(".sprintEnd").text())
+                    let eventInSprint = $(".eventInSprint" + event.id);
+                    let sprintName = $(element).find(".sprintName").text()
 
                     if(eventStart >= sprintStart && eventStart <= sprintEnd) {
-                        $(".eventInSprint" + event.id).find(".sprintEventStart").css("color", $(element).find(".sprintColour").text())
+                        eventInSprint.find(".sprintEventStart").css("color", $(element).find(".sprintColour").text())
+                        eventInSprint.find(".sprintEventStart").attr("data-bs-toggle", "tooltip")
+                        eventInSprint.find(".sprintEventStart").attr("data-bs-placement", "top")
+                        eventInSprint.find(".sprintEventStart").attr("title", sprintName)
                     }
                     if ( sprintStart <= eventEnd && eventEnd <= sprintEnd) {
-                        $(".eventInSprint" + event.id).find(".sprintEventEnd").css("color", $(element).find(".sprintColour").text())
+                        eventInSprint.find(".sprintEventEnd").css("color", $(element).find(".sprintColour").text())
+                        eventInSprint.find(".sprintEventEnd").attr("data-bs-toggle", "tooltip")
+                        eventInSprint.find(".sprintEventEnd").attr("data-bs-placement", "top")
+                        eventInSprint.find(".sprintEventEnd").attr("title", sprintName)
                     }
-
-
-
-
                 })
+                enableToolTips()
             }
-
-
-
-        },
-        error: function(error) {
+        }, error: function (error) {
             console.log(error)
-            // location.href = "/error" // Moves the user to the error page
         }
     })
 }
@@ -567,7 +544,52 @@ function appendEventToSprint(elementToAppendTo, event) {
 }
 
 
+/**
+ * Adds Events to the sprints
+ * Displays the events in the sprints in which the dates overlap.
+ */
+function addMilestonesToSprints() {
+    $.ajax({
+        url: 'getMilestonesList', type: 'get', data: {'projectId': projectId},
 
+        success: function (response) {
+            $(".milestoneInSprint").remove();
+
+            for (let index in response) {
+                let milestone = response[index]
+                console.log(milestone)
+                $(".sprint").each(function (index, element) {
+
+                    let milestoneEnd = Date.parse(milestone.endDate)
+                    let sprintStart = Date.parse($(element).find(".sprintStart").text())
+                    let sprintEnd = Date.parse($(element).find(".sprintEnd").text())
+                    if (milestoneEnd >= sprintStart && milestoneEnd <= sprintEnd) { //Milestone end falls within the sprint dates
+                        appendMilestoneToSprint(element, milestone)
+                        $(".milestoneInSprint" + milestone.id).find(".sprintMilestoneEnd").css("color", $(element).find(".sprintColour").text())
+                    }
+                })
+            }
+        }, error: function (error) {
+            console.log(error)
+        }
+    })
+}
+
+/**
+ * Adds milestone to sprint box
+ * @param elementToAppendTo
+ * @param milestone
+ */
+function appendMilestoneToSprint(elementToAppendTo, milestone) {
+    let milestoneInSprint = `
+                <div class="row" >
+                    <div class="milestoneInSprint milestoneInSprint${milestone.id}">
+                        <p class="sprintMilestoneName">${milestone.name} :&#160</p>
+                        <p class="sprintMilestoneEnd">${milestone.endDateFormatted}</p>
+                    </div>
+                </div>`
+    $(elementToAppendTo).append(milestoneInSprint)
+}
 
 
 function removeElementIfNotAuthorized() {
@@ -575,80 +597,15 @@ function removeElementIfNotAuthorized() {
         $(".hasTeacherOrAbove").remove()
     }
 }
+
+
 /**
  * Checks if a user has a role above student.
  * @returns {boolean} returns true if userRole is above student.
  */
-function checkPrivilege(){
+function checkPrivilege() {
     return userRoles.includes('COURSE_ADMINISTRATOR') || userRoles.includes('TEACHER');
 }
-
-/**
- * Sends notification to server to notify other clients that this user is no longer editing an element.
- * @param id the id of the element
- */
-function notifyNotEditing(id) {
-    $.ajax({
-        url: "notifyNotEditing",
-        type: "post",
-        data: {"id": id},
-    })
-}
-
-
-
-
-
-/**
- * Sends notification to server to notify other clients to reload a specific event.
- * @param eventId the id of the event
- */
-function notifyToReload(id) {
-    $.ajax({
-        url: "notifyReloadElement",
-        type: "post",
-        data: {"id": id},
-    })
-}
-/**
- * Sends notification to server to notify other clients to delete a specific event
- * @param id the id of the event
- */
-function notifyToDelete(id) {
-    $.ajax({
-        url: "notifyRemoveElement",
-        type: "post",
-        data: {"id": id},
-    })
-}
-
-/**
- * Sends notification to server to notify other clients that this user has added an element.
- * @param id the id of the element
- * @param typeOfEvent the type of the element
- */
-function notifyNewElement(id, typeOfEvent) {
-    $.ajax({
-        url: "notifyNewElement",
-        type: "post",
-        data: {"id": id,
-            "typeOfEvent" : typeOfEvent},
-    })
-}
-
-
-function notifyEdit(id) {
-
-    $.ajax({
-        url: "notifyEdit",
-        type: "POST",
-        data: {"id" :id}
-    })
-}
-
-
-
-
 
 
 /**
@@ -656,10 +613,10 @@ function notifyEdit(id) {
  * Also gets data from that element.
  * @param element the element to append the form too.
  */
-function appendEventForm(element){
+function appendEventForm(element) {
     let eventName = $(element).find(".eventName").text();
-    let eventStart = $(element).find(".eventStartDateNilFormat").text().slice(0,16);
-    let eventEnd = $(element).find(".eventEndDateNilFormat").text().slice(0,16);
+    let eventStart = $(element).find(".eventStartDateNilFormat").text().slice(0, 16);
+    let eventEnd = $(element).find(".eventEndDateNilFormat").text().slice(0, 16);
 
     $(element).append(`
                 <form class="existingEventForm" id="editEventForm" style="display: none">
@@ -696,8 +653,6 @@ function appendEventForm(element){
                 </form>`)
 
 
-
-
     $(".form-control").each(countCharacters)
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#editEventForm").slideDown();
@@ -710,11 +665,10 @@ function appendEventForm(element){
  * Also gets data from that element.
  * @param element the element to append the form too.
  */
-function appendMilestoneForm(element){
+function appendMilestoneForm(element) {
 
     let milestoneName = $(element).find(".milestoneName").text();
-    let milestoneEnd = $(element).find(".milestoneEndDateNilFormat").text().slice(0,16);
-
+    let milestoneEnd = $(element).find(".milestoneEndDateNilFormat").text().slice(0, 16);
 
 
     $(element).append(`
@@ -746,10 +700,6 @@ function appendMilestoneForm(element){
                         <button type="button" class="btn btn-secondary cancelEdit" >Cancel</button>
                     </div>
                 </form>`)
-
-
-
-
     $(".form-control").each(countCharacters)
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#milestoneEditForm").slideDown();
@@ -806,10 +756,6 @@ function appendDeadlineForm(element){
 }
 
 
-
-
-
-
 /**
  * Creates the event divs from the eventObject
  * @param eventObject A Json object with event details
@@ -818,24 +764,24 @@ function appendDeadlineForm(element){
 function createEventDiv(eventObject) {
     // TODO make it different if user can edit
     let iconElement;
-    switch(eventObject.typeOfEvent) {
+    switch (eventObject.typeOfEvent) {
         case 1:
-            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="top" title="Event" th:case="'1'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event" viewBox="0 0 16 16"><path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>`
+            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="right" title="Event" th:case="'1'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event" viewBox="0 0 16 16"><path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>`
             break;
         case 2:
-            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="top" title="Test" th:case="'2'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>`
+            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="right" title="Test" th:case="'2'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>`
             break;
         case 3:
-            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="top" title="Meeting" th:case="'3'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cpu" viewBox="0 0 16 16"><path d="M5 0a.5.5 0 0 1 .5.5V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2A2.5 2.5 0 0 1 14 4.5h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14a2.5 2.5 0 0 1-2.5 2.5v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14A2.5 2.5 0 0 1 2 11.5H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2A2.5 2.5 0 0 1 4.5 2V.5A.5.5 0 0 1 5 0zm-.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 11.5 3h-7zM5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3zM6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>`
+            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="right" title="Meeting" th:case="'3'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cpu" viewBox="0 0 16 16"><path d="M5 0a.5.5 0 0 1 .5.5V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2A2.5 2.5 0 0 1 14 4.5h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14a2.5 2.5 0 0 1-2.5 2.5v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14A2.5 2.5 0 0 1 2 11.5H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2A2.5 2.5 0 0 1 4.5 2V.5A.5.5 0 0 1 5 0zm-.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 11.5 3h-7zM5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3zM6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>`
             break;
         case 4:
-            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="top" title="Workshop" th:case="'4'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16"><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/></svg>`
+            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="right" title="Workshop" th:case="'4'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16"><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/></svg>`
             break;
         case 5:
-            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="top" title="Special Event" th:case="'5'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/></svg>`
+            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="right" title="Special Event" th:case="'5'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/></svg>`
             break;
         case 6:
-            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="top" title="Important" th:case="'6'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation" viewBox="0 0 16 16"><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995z"/></svg>`
+            iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="right" title="Important" th:case="'6'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation" viewBox="0 0 16 16"><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995z"/></svg>`
             break;
 
     }
@@ -880,10 +826,10 @@ function createEventDiv(eventObject) {
  * @param milestoneObject A Json object with event details
  * @returns {string} A div
  */
-function createMilstoneDiv(milestoneObject) {
+function createMilestoneDiv(milestoneObject) {
     // TODO make it different if user can edit
     let iconElement;
-    switch(milestoneObject.type) {
+    switch (milestoneObject.type) {
         case 1:
             iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="top" title="Event" th:case="'1'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event" viewBox="0 0 16 16"><path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>`
             break;
@@ -1009,29 +955,27 @@ function createDeadlineDiv(deadlineObject) {
 }
 
 
-
-
 /**
  * Refreshes the event div section of the page
  */
-function refreshEvents(){
+function refreshEvents() {
     $("#eventContainer").find(".occasion").remove() // Finds all event divs are removes them
     $.ajax({
         url: 'getEventsList',
         type: 'get',
         data: {'projectId': projectId},
 
-        success: function(response) {
+        success: function (response) {
 
-            for(let event in response){ // Goes through all the data from the server and creates an eventObject
+            for (let event in response) { // Goes through all the data from the server and creates an eventObject
                 let eventObject = {
-                    "id" : response[event].id,
-                    "name" : response[event].name,
-                    "start" : response[event].startDate,
-                    "end" : response[event].dateTime,
-                    "startFormatted" : response[event].startDateFormatted,
-                    "endFormatted" : response[event].endDateFormatted,
-                    "typeOfEvent" : response[event].type,
+                    "id": response[event].id,
+                    "name": response[event].name,
+                    "start": response[event].startDate,
+                    "end": response[event].dateTime,
+                    "startFormatted": response[event].startDateFormatted,
+                    "endFormatted": response[event].endDateFormatted,
+                    "typeOfEvent": response[event].type,
                 }
 
                 $("#eventContainer").append(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
@@ -1040,40 +984,45 @@ function refreshEvents(){
             }
             addEventsToSprints()
 
-        },
-        error: function(error) {
+        }, error: function (error) {
             console.log(error)
-            // location.href = "/error" // Moves the user to the error page
         }
     })
 
 }
 
 
-
 /**
  * Refreshes the milestone div section of the page
  * @param projectId
  */
-function refreshMilestones(projectId){
+function refreshMilestones(projectId) {
     let milestoneContainer = $("#milestoneContainer")
     milestoneContainer.find(".occasion").remove()
     milestoneContainer.append(`<div id="infoMilestoneContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
             </div>`) // Adds an info box to the page
     $.ajax({
-        url: 'getMilestoneList',
+        url: 'getMilestonesList',
         type: 'get',
         data: {'projectId': projectId},
 
-        success: function(response) {
-            console.log(response)
-            for(let milestone in response){
-                $("#milestoneContainer").append(createMilstoneDiv(response[milestone]))
+        success: function (response) {
+            for (let milestone in response) { // Goes through all the data from the server and creates an eventObject
+                let milestoneObject = {
+                    "id": response[milestone].id,
+                    "name": response[milestone].name,
+                    "endDate": response[milestone].endDate,
+                    "endDateFormatted": response[milestone].endDateFormatted,
+                    "type": response[milestone].type,
+                }
+
+                $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the milestoneObject  to the createDiv function
+                sortElementsByDate("#milestoneContainer", ".occasion", ".milestoneEndDateNilFormat")
                 removeElementIfNotAuthorized()
             }
+            addMilestonesToSprints()
 
-        },
-        error: function(error) {
+        }, error: function (error) {
             console.log(error)
 
         }
@@ -1123,12 +1072,10 @@ function refreshDeadline(projectId){
 }
 
 
-function reloadElement(id){
+function reloadElement(id) {
     let elementToReload = $("#" + id)
-    console.log(elementToReload)
-    console.log(id)
     elementToReload.slideUp() // Hides the element
-    if (elementToReload.hasClass("event")){
+    if (elementToReload.hasClass("event")) {
         $.ajax({
             url: 'getEvent',
             type: 'get',
@@ -1136,23 +1083,23 @@ function reloadElement(id){
             success: function(response) {
 
                 let eventObject = {
-                    "id" : response.id,
-                    "name" : response.name,
-                    "start" : response.startDate,
-                    "end" : response.dateTime,
-                    "startFormatted" : response.startDateFormatted,
-                    "endFormatted" : response.endDateFormatted,
-                    "typeOfEvent" : response.type,
+                    "id": response.id,
+                    "name": response.name,
+                    "start": response.startDate,
+                    "end": response.dateTime,
+                    "startFormatted": response.startDateFormatted,
+                    "endFormatted": response.endDateFormatted,
+                    "typeOfEvent": response.type,
                 }
 
                 elementToReload.replaceWith(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
                 elementToReload.slideDown()
                 addEventsToSprints()
                 sortElementsByDate("#eventContainer", ".occasion", ".eventStartDateNilFormat")
+                removeElementIfNotAuthorized()
 
-            },
-            error: function() {
-                location.href = "/error" // Moves the user to the error page
+            }, error: function () {
+                location.href = "error" // Moves the user to the error page
             }
         })
     } else if (elementToReload.hasClass("milestone")) {
@@ -1162,11 +1109,13 @@ function reloadElement(id){
             data: {'milestoneId' : id},
             success: function(response) {
 
-                elementToReload.replaceWith(createMilstoneDiv(response))
+                elementToReload.replaceWith(createMilestoneDiv(response))
                 elementToReload.slideDown()
-            },
-            error: function() {
-                location.href = "/error" // Moves the user to the error page
+                addMilestonesToSprints()
+                sortElementsByDate("#milestoneContainer", ".occasion", ".milestoneEndDateNilFormat")
+                removeElementIfNotAuthorized()
+            }, error: function () {
+                location.href = "error" // Moves the user to the error page
             }
         })
     } else if (elementToReload.hasClass("deadline")) {
@@ -1184,10 +1133,8 @@ function reloadElement(id){
             }
         })
     }
-
     $(".editButton").show()
     $(".deleteButton").show()
-    removeElementIfNotAuthorized()
 }
 
 
@@ -1199,12 +1146,28 @@ function reloadElement(id){
 function removeElement(eventId) {
     let element = $("#" + eventId)
 
-    element.slideUp(400, function() {
+    element.slideUp(400, function () {
         element.remove()
     })
-    //TODO add deadlines and milestones
+    //TODO add deadlines
     addEventsToSprints()
 }
+
+
+/**
+ * Removes specific milestone
+ * @param milestoneId id of event to remove
+ */
+
+function removeElement(milestoneId) {
+    let element = $("#" + milestoneId)
+
+    element.slideUp(400, function () {
+        element.remove()
+    })
+    addMilestonesToSprints()
+}
+
 
 /**
  * Gets the details of the event and adds it to the page.
@@ -1218,13 +1181,13 @@ function addEvent(eventId) {
         success: function(response) {
 
             let eventObject = {
-                "id" : response.id,
-                "name" : response.name,
-                "start" : response.startDate,
-                "end" : response.dateTime,
-                "startFormatted" : response.startDateFormatted,
-                "endFormatted" : response.endDateFormatted,
-                "typeOfEvent" : response.type,
+                "id": response.id,
+                "name": response.name,
+                "start": response.startDate,
+                "end": response.dateTime,
+                "startFormatted": response.startDateFormatted,
+                "endFormatted": response.endDateFormatted,
+                "typeOfEvent": response.type,
             }
 
             $("#eventContainer").append(createEventDiv(eventObject)) // Passes the eventObject to the createDiv function
@@ -1232,9 +1195,8 @@ function addEvent(eventId) {
             addEventsToSprints()
             removeElementIfNotAuthorized()
 
-        },
-        error: function() {
-            location.href = "/error" // Moves the user to the error page
+        }, error: function () {
+            location.href = "error" // Moves the user to the error page
         }
     })
 }
@@ -1242,21 +1204,35 @@ function addEvent(eventId) {
 
 function addMilestone(milestoneId) {
     $.ajax({
-        url: "getMilestone",
-        type: "GET",
-        data: {"milestoneId" : milestoneId},
-        success: function(response) {
-            $("#milestoneContainer").append(createMilstoneDiv(response))
-            //TODO sort elements by date
-            //TODO add milestones to sprint
+        url: "getMilestone", type: "GET", data: {"milestoneId": milestoneId}, success: function (response) {
+
+            let milestoneObject = {
+                "id": response.id,
+                "name": response.name,
+                "endDate": response.endDate,
+                "endDateFormatted": response.endDateFormatted,
+                "type": response.type,
+            }
+
+            $("#milestoneContainer").append(createMilestoneDiv(milestoneObject)) // Passes the eventObject to the createDiv function
+            addMilestonesToSprints()
             removeElementIfNotAuthorized()
+
+            nextMilestoneNumber++;
+            document.getElementById("milestoneName").setAttribute("value", "Milestone " + nextMilestoneNumber)
+            document.getElementById("milestoneName").setAttribute("placeholder", "Milestone " + nextMilestoneNumber)
+
+            sortElementsByDate("#milestoneContainer", ".occasion", ".milestoneEndDateNilFormat")
+
+        }, error: function () {
+            location.href = "error" // Moves the user to the error page
         }
     })
 }
 
 
 /**
- * Gets the details of the event and adds it to the page.
+ * Gets the details of the deadline and adds it to the page.
  * @param deadlineId the event to add.
  */
 function addDeadline(deadlineId) {
@@ -1287,16 +1263,13 @@ function addDeadline(deadlineId) {
 }
 
 
-
-
-
 /**
  * Function that gets the maxlength of an input and lets the user know how many characters they have left.
  */
 function countCharacters() {
-    let maxLength = $(this).attr("maxLength")
+    let maxlength = $(this).attr("maxLength")
     let lengthOfCurrentInput = $(this).val().length;
-    let counter = maxLength - lengthOfCurrentInput;
+    let counter = maxlength - lengthOfCurrentInput;
     let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
 
     //If one character remains, changes from "characters remaining" to "character remaining"
@@ -1307,26 +1280,20 @@ function countCharacters() {
     }
 }
 
+
 /**
  * Checks if element is empty
  * @param el the element to check
  * @returns {boolean} true if empty, false if not
  */
-function isEmpty( el ){
+function isEmpty(el) {
     return !$.trim(el.html())
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+function enableToolTips() {
+    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+}

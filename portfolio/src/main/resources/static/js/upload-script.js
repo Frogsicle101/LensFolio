@@ -1,6 +1,6 @@
 $(document).ready(()=>{
     $(".backButton").click(function(){
-        location.href = "/account"
+        location.href = "account"
     })
 })
 
@@ -22,6 +22,7 @@ async function loadImage(imageUrl) {
     return img
 
 }
+
 
 /**
  *  Resizes image to desired width and height. Adjusts image quality according to constant value.
@@ -96,6 +97,7 @@ async function processImage() {
     );
 }
 
+
 async function sendImagePostRequest() {
     const url = document.getElementById('profileImagePreview').getAttribute('src');
     document.getElementById('profile').setAttribute('src', url);
@@ -112,10 +114,8 @@ async function sendImagePostRequest() {
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
     });
-
-
-
 }
+
 
 // source: https://stackoverflow.com/a/18650828
 function bytesToSize(bytes) {

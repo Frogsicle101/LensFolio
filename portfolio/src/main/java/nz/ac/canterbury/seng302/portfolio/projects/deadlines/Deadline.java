@@ -63,6 +63,8 @@ public class Deadline extends Milestone {
         this.endTime = endTime;
     }
 
+    public LocalTime getEndTime() { return this.endTime;}
+
     public LocalDateTime getDateTime() {
         return this.dateTime;
     }
