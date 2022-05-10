@@ -18,10 +18,7 @@ import org.springframework.http.ResponseEntity;
 import javax.naming.InvalidNameException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,7 +28,13 @@ public class DeadlineControllerTest {
     private DeadlineRepository deadlineRepository = new DeadlineRepository() {
         @Override
         public List<Deadline> findAllByProjectId(Long projectId) {
-            return null;
+            List<Deadline> deadlineList = new ArrayList<>();
+            for (Deadline deadline: deadlines) {
+                if (deadline.getProject().getId() == projectId){
+                    deadlineList.add(deadline);
+                }
+            }
+            return deadlineList;
         }
 
         @Override
@@ -576,7 +579,7 @@ public class DeadlineControllerTest {
         Assertions.assertEquals("ToStayTheSame", deadlines.get(0).getName());
     }
 
-// These tests are for the delete method
+    // These tests are for the delete method
 
     @Test
     public void deleteDeadlineNotAuthenticated(){
@@ -614,4 +617,114 @@ public class DeadlineControllerTest {
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertEquals(0, deadlines.size());
     }
+
+    // These tests are for the get one deadline method
+
+    @Test
+    public void getDeadlineInvalidId() {
+        createAuthorisedUser();
+        Deadline deadline1 = null;
+        try {
+            deadline1 = new Deadline(project,"aDeadline", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline1);
+
+        Deadline deadline2 = null;
+        try {
+            deadline2 = new Deadline(project,"aDeadline2", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline2);
+        UUID invalidId = UUID.randomUUID();
+        //used to ensure it is actually invalid
+        while (invalidId == deadline1.getId() || invalidId == deadline2.getId()){
+            invalidId = UUID.randomUUID();
+        }
+
+        ResponseEntity response = deadlineController.getDeadline(invalidId);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Assertions.assertEquals(null, response.getBody());
+    }
+
+    @Test
+    public void getDeadlineValidId() {
+        createAuthorisedUser();
+        Deadline deadline1 = null;
+        try {
+            deadline1 = new Deadline(project,"aDeadline", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline1);
+
+        Deadline deadline2 = null;
+        try {
+            deadline2 = new Deadline(project,"aDeadline2", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline2);
+
+        ResponseEntity response = deadlineController.getDeadline(deadline2.getId());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals("aDeadline2", ((Deadline) response.getBody()).getName());
+    }
+
+    // These tests are for the get list of deadlines method
+
+    @Test
+    public void getDeadlinesListInvalidId(){
+        createAuthorisedUser();
+
+        Deadline deadline1 = null;
+        try {
+            deadline1 = new Deadline(project,"aDeadline", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline1);
+
+        Deadline deadline2 = null;
+        try {
+            deadline2 = new Deadline(project,"aDeadline2", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline2);
+
+        Long invalidId = project.getId() + 1;
+        ResponseEntity response = deadlineController.getDeadlinesList(invalidId);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(0,((List<Deadline>) response.getBody()).size());
+    }
+
+    @Test
+    public void getDeadlinesListValidId(){
+        createAuthorisedUser();
+
+        Deadline deadline1 = null;
+        try {
+            deadline1 = new Deadline(project,"aDeadline", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline1);
+
+        Deadline deadline2 = null;
+        try {
+            deadline2 = new Deadline(project,"aDeadline2", project.getStartDate(),LocalTime.MIN,1);
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+        deadlineRepository.save(deadline2);
+
+        Long invalidId = project.getId();
+        ResponseEntity response = deadlineController.getDeadlinesList(invalidId);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(2,((List<Deadline>) response.getBody()).size());
+    }
+
 }
