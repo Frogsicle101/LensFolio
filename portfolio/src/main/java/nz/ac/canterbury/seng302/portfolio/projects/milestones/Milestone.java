@@ -20,7 +20,7 @@ public class Milestone {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(columnDefinition = "BINARY(16)")
+    @Column(updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private UUID id;
 
     @ManyToOne()
