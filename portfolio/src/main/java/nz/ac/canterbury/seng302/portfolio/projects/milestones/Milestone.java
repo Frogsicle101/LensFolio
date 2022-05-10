@@ -17,6 +17,7 @@ import java.util.UUID;
 public class Milestone {
 
     private @Id
+    @GeneratedValue
     UUID id;
 
     @ManyToOne()
