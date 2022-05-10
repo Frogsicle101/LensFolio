@@ -62,7 +62,6 @@ deploy-staging-identityprovider:
     - cp ../runner/staging-identityprovider.sh /home/gitlab-runner/staging-identityprovider.sh
     - echo "$databaseUsername" > /home/gitlab-runner/staging-identityprovider/username.txt
     - echo "$databasePassword" > /home/gitlab-runner/staging-identityprovider/password.txt
-    - echo "$databaseUsername"
     - chmod u+x /home/gitlab-runner/staging-identityprovider.sh
     - sudo systemctl restart staging-identityprovider
   artifacts:
