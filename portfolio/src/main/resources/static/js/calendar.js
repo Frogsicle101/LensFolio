@@ -15,7 +15,7 @@ function eventResize (info) {
     "sprintStartDate" : startDate.toISOString().split("T")[0],
     "sprintEndDate" : info.event.end.toISOString().split("T")[0],
     "sprintDescription" : info.event.extendedProps.description,
-    "sprintColour" : info.event.backgroundColor
+    "sprintColour" : info.event.extendedProps.defaultColor
   }
 
   // Update sprint to have new start and end dates
