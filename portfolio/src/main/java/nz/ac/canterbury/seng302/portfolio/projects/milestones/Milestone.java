@@ -18,10 +18,7 @@ import java.util.UUID;
 @Entity
 public class Milestone {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
-    private UUID id;
+    private String id;
 
     @ManyToOne()
     private Project project;
@@ -51,11 +48,14 @@ public class Milestone {
      * @throws InvalidNameException If the milestone name is null or has length greater than fifty characters.
      */
     public Milestone(Project project, String name, LocalDate endDate, int type) throws InvalidNameException {
+
+
+
         if (name == null || name.length() > 50) { //useful for creating default milestones, but project.js includes validations for frontend milestone editing
             throw new InvalidNameException();
         }
         validateDate(project, endDate);
-
+        this.id = UUID.randomUUID().toString();
         this.project = project;
         this.name = name;
         this.endDate = endDate;
@@ -87,9 +87,9 @@ public class Milestone {
      * SHOULD ONLY BE USED FOR TESTING PURPOSES
      * @param id the UUID to be set
      */
-    public void setUuid(UUID id) { this.id = id; }
+    public void setUuid(String id) { this.id = id; }
 
-    public UUID getId() {
+    public String getId() {
         return this.id;
     }
 
