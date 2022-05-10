@@ -44,6 +44,12 @@ public class Config implements WebMvcConfigurer
         pathsToIntercept.add("/addMilestone");
 
 
+        //Deadlines
+        pathsToIntercept.add("/addDeadline");
+        pathsToIntercept.add("/editDeadline");
+        pathsToIntercept.add("/deleteDeadline");
+
+
         registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToIntercept);
     }
 }

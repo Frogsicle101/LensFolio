@@ -7,8 +7,8 @@ $(document).ready(function () {
 
 
     let infoContainer = $("#informationBar")
-    let beingEdited = $(".beingEdited");
     let formControl = $(".form-control");
+
 
     refreshEvents(projectId)
     refreshMilestones(projectId)
@@ -294,7 +294,7 @@ $(document).on("submit", "#editEventForm", function (event) {
             url: "editEvent",
             type: "POST",
             data: eventData,
-            success: function(response) {
+            success: function() {
                 notifyEdit(eventId, "reloadElement") // Let the server know the event is no longer being edited
             }
         })
@@ -323,7 +323,7 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         url: "editMilestone",
         type: "POST",
         data: milestoneData,
-        success: function(response) {
+        success: function() {
             notifyEdit(milestoneId, "reloadElement")
         }
     })
@@ -365,7 +365,7 @@ $(document).on("submit", "#editDeadlineForm", function(event){
             url: "editDeadline",
             type: "POST",
             data: deadlineData,
-            success: function(response) {
+            success: function() {
 
                 notifyEdit(deadlineId, "reloadElement") // Let the server know the deadline is no longer being edited
             }
@@ -417,7 +417,7 @@ $(document).on("click", ".deleteButton", function () {
             url: "deleteEvent",
             type: "DELETE",
             data: eventData,
-            success: function(response) {
+            success: function() {
                 notifyEdit(eventData.eventId, "notifyRemoveEvent")
             }
         })
@@ -427,7 +427,7 @@ $(document).on("click", ".deleteButton", function () {
             url: 'deleteMilestone',
             type: "DELETE",
             data: milestoneData,
-            success: function(response) {
+            success: function() {
                 notifyEdit(milestoneData.milestoneId, "notifyRemoveEvent")
             }
         })
@@ -437,7 +437,7 @@ $(document).on("click", ".deleteButton", function () {
             url: 'deleteDeadline',
             type: "DELETE",
             data: deadlineData,
-            success: function(response) {
+            success: function() {
                 notifyEdit(deadlineData.deadlineId, "notifyRemoveEvent")
             }
         })
@@ -449,7 +449,8 @@ $(document).on("click", ".deleteButton", function () {
  */
 $(document).on("click", ".editButton", function () {
     thisUserIsEditing = true;
-    $(".addOccasionButton").hide()
+    let addOccasionButton = $(".addOccasionButton")
+    addOccasionButton.hide()
     $(".editButton").hide()
     $(".deleteButton").hide()
     let parent = $(this).closest(".occasion")
@@ -463,7 +464,7 @@ $(document).on("click", ".editButton", function () {
         appendDeadlineForm(parent)
     }
 
-    $(".addOccasionButton").show()
+    addOccasionButton.show()
 
 })
 
@@ -633,7 +634,6 @@ function addDeadlinesToSprints() {
 
             for (let index in response) {
                 let deadline = response[index]
-                console.log(deadline)
                 $(".sprint").each(function (index, element) {
 
                     let deadlineEnd = Date.parse(deadline.endDate)
@@ -657,7 +657,6 @@ function addDeadlinesToSprints() {
  * @param deadline the deadline object (matching the format provided by /getDeadlinesList) that holds the data to append
  */
 function appendDeadlineToSprint(elementToAppendTo, deadline) {
-    console.log(deadline)
     let deadlineInSprint = `
                 <div class="row" >
                     <div class="deadlineInSprint deadlineInSprint${deadline.id}">
@@ -736,8 +735,9 @@ function appendEventForm(element) {
         }
     });
 
-    $(".form-control").each(countCharacters)
-    $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    let formControl = $(".form-control")
+    formControl.each(countCharacters)
+    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#editEventForm").slideDown();
 
 }
@@ -791,8 +791,9 @@ function appendMilestoneForm(element) {
 
     });
 
-    $(".form-control").each(countCharacters)
-    $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    let formControl = $(".form-control")
+    formControl.each(countCharacters)
+    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#milestoneEditForm").slideDown();
 }
 
@@ -804,7 +805,6 @@ function appendMilestoneForm(element) {
  * @param element the element to append the form too.
  */
 function appendDeadlineForm(element){
-    console.log(element)
     let deadlineName = $(element).find(".deadlineName").text();
     let deadlineEnd = $(element).find(".deadlineEndDateNilFormat").text().slice(0,16);
 
@@ -840,9 +840,9 @@ function appendDeadlineForm(element){
 
 
 
-
-    $(".form-control").each(countCharacters)
-    $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    let formControl = $(".form-control")
+    formControl.each(countCharacters)
+    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#editDeadlineForm").slideDown();
 
 }
@@ -1142,7 +1142,6 @@ function refreshDeadlines(projectId){
 
         success: function(response) {
 
-            console.log(response)
             for(let deadline in response){ // Goes through all the data from the server and creates an eventObject
                 let deadlineObject = response[deadline];
                 $("#deadlineContainer").append(createDeadlineDiv(deadlineObject)) // Passes the deadlineObject to the createDiv function
