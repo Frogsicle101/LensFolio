@@ -78,6 +78,14 @@ public class Milestone {
         return nameLengthRestriction;
     }
 
+    /**
+     * This sets the ID
+     *
+     * SHOULD ONLY BE USED FOR TESTING PURPOSES
+     * @param id the UUID to be set
+     */
+    public void setUuid(UUID id) { this.id = id; }
+
     public UUID getId() {
         return this.id;
     }
@@ -88,7 +96,9 @@ public class Milestone {
 
     public void setName(String name) { this.name = name; }
 
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+    public void setEndDate(LocalDate endDate) {
+        this.validateDate(this.getProject(), endDate);
+        this.endDate = endDate; }
 
     public void setEndDateColour(String colour) { this.endDateColour = colour; }
 

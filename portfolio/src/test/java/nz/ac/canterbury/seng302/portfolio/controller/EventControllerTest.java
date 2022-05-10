@@ -36,7 +36,6 @@ class EventControllerTest {
 
     private final ProjectRepository mockProjectRepository = mock(ProjectRepository.class);
     private final EventRepository mockEventRepository = mock(EventRepository.class);
-    private final Event mockEvent = mock(Event.class);
 
     @Autowired
     private EventRepository eventRepository;
