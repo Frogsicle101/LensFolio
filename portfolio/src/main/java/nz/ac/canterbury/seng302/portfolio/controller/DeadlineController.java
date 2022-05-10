@@ -62,7 +62,7 @@ public class DeadlineController {
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PutMapping("/addDeadline")
-    public ResponseEntity<String> addDeadline(
+    public ResponseEntity<Object> addDeadline(
             @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "deadlineName") String name,
@@ -116,10 +116,10 @@ public class DeadlineController {
             }
 
             Deadline deadline = new Deadline(project, name, deadlineEnd.toLocalDate(), deadlineEnd.toLocalTime(), typeOfOccasion);
-            deadlineRepository.save(deadline);
+            Deadline deadlineReturn = deadlineRepository.save(deadline);
 
             logger.info("PUT /addDeadline: Success");
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(deadlineReturn, HttpStatus.OK);
         } catch (EntityNotFoundException err) {
             logger.warn("PUT /addDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

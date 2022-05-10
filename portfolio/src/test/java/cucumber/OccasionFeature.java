@@ -155,7 +155,7 @@ public class OccasionFeature {
         if (deadlineName.equals("left blank")) {
             deadlineName = null;
         }
-        ResponseEntity<String> stat = deadlineController.addDeadline(principal, project.getId(), deadlineName, dateTime, 1);
+        ResponseEntity<Object> stat = deadlineController.addDeadline(principal, project.getId(), deadlineName, dateTime, 1);
     }
 
     @When("a user creates a milestone for {string} with name {string} and type {int}")
