@@ -169,7 +169,7 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineUserNotAuthorisedTest(){
         createUnauthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, null, null, null, null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, null, null, null, 1);
         Assertions.assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         Assertions.assertEquals(0, deadlines.size());
     }
@@ -177,7 +177,7 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineInvalidProjectId(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, 2L, null, null, null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, 2L, null, null, 1);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         Assertions.assertEquals(0, deadlines.size());
     }
@@ -185,7 +185,7 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineValidName(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), "Deadline Name", null, null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), "Deadline Name", null, 1);
         String expectedName = "Deadline Name";
         Assertions.assertEquals(expectedName, deadlines.get(0).getName());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -194,7 +194,7 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineNameLongerThan50Characters(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), "This is fifty-one characters, which is more than 50", null, null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), "This is fifty-one characters, which is more than 50",  null, 1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals(0, deadlines.size());
     }
@@ -202,7 +202,7 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineNoNameNoOtherDeadlines() {
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(),  null, null, 1);
         String expectedName = "Deadline 1";
         Assertions.assertEquals(expectedName, deadlines.get(0).getName());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -211,8 +211,8 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineNoNameOneOtherDeadline() {
         createAuthorisedUser();
-        deadlineController.addDeadline(principal, project.getId(), "A Deadline", null, null, 1);
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, null, 1);
+        deadlineController.addDeadline(principal, project.getId(), "A Deadline",  null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(),  null, null, 1);
         String expectedName = "Deadline 2";
         Assertions.assertEquals(expectedName, deadlines.get(1).getName());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -221,7 +221,7 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineValidDate(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, "2022-06-14", null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, "2022-06-14T00:00:00.00", 1);
         LocalDate expectedDate = LocalDate.parse("2022-06-14");
         Assertions.assertEquals(expectedDate, deadlines.get(0).getEndDate());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -230,7 +230,7 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineDateBeforeProjectStartDate(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, "2021-01-01", null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, "2021-01-01T00:00:00.00", 1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals(0, deadlines.size());
     }
@@ -238,7 +238,7 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineDateAfterProjectEndDate(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, "2023-01-01", null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, "2023-01-01T00:00:00.00", 1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals(0, deadlines.size());
     }
@@ -248,7 +248,7 @@ public class DeadlineControllerTest {
         createAuthorisedUser();
         project = new Project("default", LocalDate.parse("2040-01-01"), LocalDate.parse("2040-12-31"), "test");
         when(mockProjectRepository.findById(project.getId())).thenReturn(java.util.Optional.ofNullable(project));
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, 1);
         LocalDate expectedDate = LocalDate.parse("2040-01-01");
         Assertions.assertEquals(expectedDate, deadlines.get(0).getEndDate());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -259,7 +259,7 @@ public class DeadlineControllerTest {
         createAuthorisedUser();
         project = new Project("default", LocalDate.parse("2022-01-01"), LocalDate.parse("2040-12-31"), "test");
         when(mockProjectRepository.findById(project.getId())).thenReturn(java.util.Optional.ofNullable(project));
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null,  1);
         LocalDate expectedDate = LocalDate.now();
         Assertions.assertEquals(expectedDate, deadlines.get(0).getEndDate());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -268,40 +268,15 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineInvalidDateString(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, "INVALID", null, 1);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, "INVALID",  1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals(0, deadlines.size());
-    }
-
-    @Test
-    public void createDeadlineValidTime(){
-        createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, "12:30:00", 1);
-        LocalTime expectedTime = LocalTime.parse("12:30:00");
-        Assertions.assertEquals(expectedTime, deadlines.get(0).getEndTime());
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @Test
-    public void createDeadlineInvalidTimeString(){
-        createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, "INVALID", 1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals(0, deadlines.size());
-    }
-
-    @Test
-    public void createDeadlineNoTime(){
-        createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, null, 1);
-        Assertions.assertEquals(LocalTime.MIN, deadlines.get(0).getEndTime());
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
     public void createDeadlineValidTypeOfOccasion(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, null, 2);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, 2);
         Assertions.assertEquals(2, deadlines.get(0).getType());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -309,7 +284,7 @@ public class DeadlineControllerTest {
     @Test
     public void createDeadlineInvalidTypeOfOccasion(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, null, 0);
+        ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null,  null, 0);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals(0, deadlines.size());
     }

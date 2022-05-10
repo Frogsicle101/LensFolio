@@ -21,7 +21,9 @@ import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -56,8 +58,7 @@ public class DeadlineController {
      * @param principal The AuthState of the user making the request, for authentication
      * @param projectId id of project to add deadline to.
      * @param name      Name of milestone.
-     * @param dateEnd   date of the end of the deadline.
-     * @param timeEnd   time of the end of the deadline
+     * @param end       end of the deadline
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PutMapping("/addDeadline")
@@ -65,8 +66,7 @@ public class DeadlineController {
             @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "deadlineName") String name,
-            @RequestParam(value = "deadlineDateEnd") String dateEnd,
-            @RequestParam(value = "deadlineTimeEnd") String timeEnd,
+            @RequestParam(value = "deadlineEnd") String end,
             @RequestParam(defaultValue = "1", value = "typeOfOccasion") int typeOfOccasion
     ) {
         logger.info("PUT /addDeadline");
@@ -89,32 +89,33 @@ public class DeadlineController {
             } else if (name.length() > 50) {
                 throw new InvalidNameException("The name of a deadline cannot be more than 50 characters");
             }
-
-            LocalDate deadlineEndDate;
-            LocalTime deadlineEndTime;
-            if (dateEnd == null) {  // if the date is empty then set it as the start of the project or today's date
+            //  Get the deadline end dateTime.
+            // end returns a string in the format "1986-01-28T11:38:00.01"
+            // DateTimeFormatter.ISO_DATE_TIME helps parse that string by declaring its format.
+            LocalDateTime deadlineEnd;
+            if (end == null) {  // if the date is empty then set it as the start of the project or today's date
                 if (LocalDate.now().isAfter(project.getStartDate())) {
-                    deadlineEndDate = LocalDate.now();
+                    deadlineEnd = LocalDateTime.now();
                 } else {
-                    deadlineEndDate = project.getStartDate();
+                    deadlineEnd = project.getStartDateAsLocalDateTime();
                 }
             } else {
-                deadlineEndDate = LocalDate.parse(dateEnd);
+                deadlineEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
             }
-            if (deadlineEndDate.isAfter(project.getEndDate()) || deadlineEndDate.isBefore(project.getStartDate())){
-                throw new DateTimeException("The deadline date cannot be outside of the project");
+            //Check to see if the dates are within the correct range
+            if (deadlineEnd.isAfter(project.getEndDateAsLocalDateTime()) || deadlineEnd.isBefore(project.getStartDateAsLocalDateTime())){
+                String returnMessage = "Date(s) exist outside of project dates";
+                logger.warn("PUT /addDeadline: {}", returnMessage);
+                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
+            }
+            //Check if the type of occasion is valid
+            if (typeOfOccasion < 1) {
+                String returnMessage = "Invalid type of occasion";
+                logger.warn("PUT /addDeadline: {}", returnMessage);
+                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
             }
 
-            if (timeEnd == null){ // if the time is nothing then set it as midnight
-                deadlineEndTime = LocalTime.MIN;
-            } else {
-                deadlineEndTime = LocalTime.parse(timeEnd);
-            }
-            if ( typeOfOccasion < 1){
-                throw new IllegalArgumentException("The type of the deadline is not a valid");
-            }
-
-            Deadline deadline = new Deadline(project, name, deadlineEndDate, deadlineEndTime, typeOfOccasion);
+            Deadline deadline = new Deadline(project, name, deadlineEnd.toLocalDate(), deadlineEnd.toLocalTime(), typeOfOccasion);
             deadlineRepository.save(deadline);
 
             logger.info("PUT /addDeadline: Success");
