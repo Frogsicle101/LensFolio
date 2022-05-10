@@ -234,7 +234,7 @@ public class DeadlineController {
      * @param deadlineId The UUID of the deadline to be deleted
      * @return A response indicating either success, or an error-code as to why it failed.
      */
-    @PostMapping("/deleteDeadline")
+    @DeleteMapping("/deleteDeadline")
     public ResponseEntity<Object> deleteDeadline(
             @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "deadlineId") UUID deadlineId) {
