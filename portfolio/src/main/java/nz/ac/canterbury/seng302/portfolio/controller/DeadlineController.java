@@ -154,7 +154,7 @@ public class DeadlineController {
     @PostMapping("/editDeadline")
     public ResponseEntity editDeadline(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam(value = "deadlineId") UUID deadlineId,
+            @RequestParam(value = "deadlineId") String deadlineId,
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "deadlineName") String name,
             @RequestParam(value = "deadlineDate") String dateEnd,
@@ -237,7 +237,7 @@ public class DeadlineController {
     @DeleteMapping("/deleteDeadline")
     public ResponseEntity<Object> deleteDeadline(
             @AuthenticationPrincipal AuthState principal,
-            @RequestParam(value = "deadlineId") UUID deadlineId) {
+            @RequestParam(value = "deadlineId") String deadlineId) {
         logger.info("PUT /deleteDeadline");
         UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
@@ -290,7 +290,7 @@ public class DeadlineController {
      */
     @GetMapping("/getDeadline")
     public ResponseEntity<Object> getDeadline(
-            @RequestParam(value="deadlineId") UUID deadlineId
+            @RequestParam(value="deadlineId") String deadlineId
     ){
         try {
             logger.info("GET /getDeadline");
