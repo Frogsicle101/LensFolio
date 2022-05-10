@@ -12,6 +12,7 @@ $(document).ready(function () {
 
     refreshEvents(projectId)
     refreshMilestones(projectId)
+    refreshDeadlines(projectId)
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)
@@ -98,6 +99,14 @@ $(document).ready(function () {
     eventSource.addEventListener("notifyRemoveEvent", function (event) {
         const data = JSON.parse(event.data);
         removeElement(data.eventId) // removes specific event
+        //Now reload the elements, depending on what type of element was removed
+        if (data.typeOfEvent === "event") {
+            addEventsToSprints()
+        } else if (data.typeOfEvent === "milestone") {
+            addMilestonesToSprints()
+        } else if (data.typeOfEvent === "deadline") {
+            addDeadlinesToSprints()
+        }
     })
 
 
@@ -117,6 +126,19 @@ $(document).ready(function () {
     })
 
 })
+
+/**
+ * Removes element milestone
+ * @param elementId id of element to remove
+ */
+
+function removeElement(elementId) {
+    let element = $("#" + elementId)
+
+    element.slideUp(400, function () {
+        element.remove()
+    })
+}
 
 
 function notifyEdit(id, type, typeOfEvent = null) {
@@ -323,14 +345,15 @@ $(document).on("submit", "#editDeadlineForm", function(event){
         "deadlineEnd": $(this).find(".deadlineEnd").val(),
         "typeOfDeadline": $(this).find(".typeOfDeadline").val()
     }
-
-    if (deadlineData.deadlineName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
+    //Check that the name isn't empty
+    if (deadlineData.deadlineName.toString().length === 0 || deadlineData.deadlineName.toString().trim().length === 0){
         $(this).closest(".existingDeadlineForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You probably should enter a deadline name!
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
     } else {
+        //Ajax call to change the deadline
         $.ajax({
             url: "editDeadline",
             type: "POST",
@@ -589,6 +612,53 @@ function appendMilestoneToSprint(elementToAppendTo, milestone) {
                     </div>
                 </div>`
     $(elementToAppendTo).append(milestoneInSprint)
+}
+
+/**
+ * Adds Deadlines to the sprints
+ * Displays the deadlines in the sprints in which contain the deadline
+ */
+function addDeadlinesToSprints() {
+    $.ajax({
+        url: 'getDeadlinesList', type: 'get', data: {'projectId': projectId},
+
+        success: function (response) {
+            $(".deadlineInSprint").remove();
+
+            for (let index in response) {
+                let deadline = response[index]
+                console.log(deadline)
+                $(".sprint").each(function (index, element) {
+
+                    let deadlineEnd = Date.parse(deadline.endDate)
+                    let sprintStart = Date.parse($(element).find(".sprintStart").text())
+                    let sprintEnd = Date.parse($(element).find(".sprintEnd").text())
+                    if (deadlineEnd >= sprintStart && deadlineEnd <= sprintEnd) { //Deadline end falls within the sprint dates
+                        appendDeadlineToSprint(element, deadline)
+                        $(".deadlineInSprint" + deadline.id).find(".sprintDeadlineEnd").css("color", $(element).find(".sprintColour").text())
+                    }
+                })
+            }
+        }, error: function (error) {
+            console.log(error)
+        }
+    })
+}
+
+/**
+ * Adds milestone to sprint box
+ * @param elementToAppendTo The element that you're appending to
+ * @param deadline the deadline object (matching the format provided by /getDeadlinesList) that holds the data to append
+ */
+function appendDeadlineToSprint(elementToAppendTo, deadline) {
+    let deadlineInSprint = `
+                <div class="row" >
+                    <div class="deadlineInSprint deadlineInSprint${deadline.id}">
+                        <p class="sprintDeadlineName">${deadline.name} :&#160</p>
+                        <p class="sprintDeadlineEnd">${deadline.endFormatted}</p>
+                    </div>
+                </div>`
+    $(elementToAppendTo).append(deadlineInSprint)
 }
 
 
@@ -1036,8 +1106,8 @@ function refreshMilestones(projectId) {
  * Refreshes the deadline div section of the page
  * @param projectId
  */
-function refreshDeadline(projectId){
-    let deadlineContainer = $("deadlineContainer")
+function refreshDeadlines(projectId){
+    let deadlineContainer = $("#deadlineContainer")
     deadlineContainer.find(".occasion").remove() // Finds all deadline divs are removes them
     deadlineContainer.append(`<div id="infoDeadlineContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
             </div>`) // Adds an info box to the page
@@ -1058,13 +1128,13 @@ function refreshDeadline(projectId){
                 }
 
                 $("#deadlineContainer").append(createDeadlineDiv(deadlineObject)) // Passes the deadlineObject to the createDiv function
+                sortElementsByDate("#deadlineContainer", ".occasion", ".deadlineEndDateNilFormat")
                 removeElementIfNotAuthorized()
             }
-
+            addDeadlinesToSprints()
         },
         error: function(error) {
             console.log(error)
-            // location.href = "/error" // Moves the user to the error page
         }
     })
 
@@ -1135,37 +1205,6 @@ function reloadElement(id) {
     }
     $(".editButton").show()
     $(".deleteButton").show()
-}
-
-
-/**
- * Removes specific event
- * @param eventId id of event to remove
- */
-
-function removeElement(eventId) {
-    let element = $("#" + eventId)
-
-    element.slideUp(400, function () {
-        element.remove()
-    })
-    //TODO add deadlines
-    addEventsToSprints()
-}
-
-
-/**
- * Removes specific milestone
- * @param milestoneId id of event to remove
- */
-
-function removeElement(milestoneId) {
-    let element = $("#" + milestoneId)
-
-    element.slideUp(400, function () {
-        element.remove()
-    })
-    addMilestonesToSprints()
 }
 
 
@@ -1252,7 +1291,7 @@ function addDeadline(deadlineId) {
 
             $("#deadlineContainer").append(createDeadlineDiv(deadlineObject)) // Passes the eventObject to the createDiv function
             sortElementsByDate("#deadlineContainer", ".occasion", ".deadlineEndDateNilFormat")
-            //TODO add deadlines to sprint
+            addDeadlinesToSprints()
             removeElementIfNotAuthorized()
 
         },
