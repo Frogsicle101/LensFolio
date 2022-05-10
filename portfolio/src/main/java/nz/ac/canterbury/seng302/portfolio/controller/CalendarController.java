@@ -5,6 +5,8 @@ import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.events.Event;
+import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
@@ -194,7 +196,22 @@ public class CalendarController {
         }
     }
 
+    /**
+     * Returns the events as in a json format, only finds the events by date
+     * @param date the date to look for the events in
+     */
+    @GetMapping("getEventsAsFeed")
+    public ResponseEntity<Object> getEventsAsFeed(
+            @RequestParam(value = "date") String date){
+        try{
+            logger.info("GET REQUEST /getEventsAsFeed");
 
+            // Gets the event that the request is referring to.
+            ZonedDateTime dateLocalDateTime = ZonedDateTime.parse(date);
+            List<Event> events = eventRepository.findAllByDate(dateLocalDateTime);
+
+        }
+    }    
 
     /**
      * For testing
