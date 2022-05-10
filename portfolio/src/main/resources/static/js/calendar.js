@@ -67,10 +67,7 @@ $(document).ready(function() {
         failure: function(err){
           console.log(err.responseText)
         }
-      },
-
-    
-    
+      }
     ]
 
   });

@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -209,18 +210,18 @@ public class CalendarController {
         try{
             logger.info("GET REQUEST /getEventsAsFeed");
 
-            ZonedDateTime theDate = ZonedDateTime.parse(date);
-            List<Event> events = EventRepository.findAllByProjectIdOrderByStartDate(projectId);
-            List<HashMap<String, String>> eventsToSend = new ArrayList<>();
+            LocalDateTime parsedDate = LocalDateTime.parse(date);
+            List<Event> events = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
+            HashMap<String, String> eventsToSend = new HashMap<>();
             List<HashMap<String, String>> eventsList = new ArrayList<>();
 
             for (Event event:events)  {
-                if(event.getStartDate().equals(theDate)
-                        || event.getStartDate().isBefore(theDate) && event.getStartDate().isAfter(theDate)
-                        || event.getEndDate().equals(theDate)) {
+                if(event.getStartDate().equals(parsedDate)
+                        || event.getStartDate().isBefore(parsedDate) && event.getStartDate().isAfter(parsedDate)
+                        || event.getEndDate().equals(parsedDate.toLocalDate())) {
                     HashMap<String, String> jsonedEvent = new HashMap<>();
                     jsonedEvent.put("title", event.getName());
-                    jsonedEvent.put("start", (LocalDateTime.from(event.getStartDate().atStartOfDay().plusHours(12))).toString());
+                    jsonedEvent.put("start", (LocalDateTime.from(event.getStartDate().truncatedTo(ChronoUnit.DAYS).plusHours(12))).toString());
                     jsonedEvent.put("end", (LocalDateTime.from(event.getEndDate().atStartOfDay().plusHours(24))).toString());
                     jsonedEvent.put("endTime", (LocalDateTime.from(event.getEndTime()).toString()));
                     eventsList.add(jsonedEvent);

@@ -13,6 +13,6 @@ public interface EventRepository extends CrudRepository<Event, UUID> {
     @Query
     Event getById(UUID eventId);
 
-    @Query("select name from #{#entityName} as m where m.startDate <= ? and m.endDate >= ?")
+    @Query("select e from #{#entityName} as e where e.startDate <= ?1 and e.endDate >= ?1")
     List<Event> findAllByDate(String date);
 }
