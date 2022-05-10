@@ -480,7 +480,6 @@ function addMilestonesToSprints() {
 
             for (let index in response) {
                 let milestone = response[index]
-                console.log(milestone)
                 $(".sprint").each(function (index, element) {
 
                     let milestoneEnd = Date.parse(milestone.endDate)
@@ -575,13 +574,18 @@ function appendEventForm(element) {
                     </div>
                 </form>`)
 
+    let eventType = $(element).find(".typeOfEvent")
+    $("#exampleFormControlInput1 > option").each(function() {
+        if (this.value === eventType.text().split(" ")[0].trim()) {
+            this.setAttribute("selected", "selected")
+        }
+    });
 
     $(".form-control").each(countCharacters)
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#editEventForm").slideDown();
 
 }
-
 
 /**
  * Appends form to the element that is passed to it.
@@ -601,10 +605,10 @@ function appendMilestoneForm(element) {
                         <input type="text" class="form-control form-control-sm milestoneName" id="milestoneName" value="${milestoneName}" maxlength="${eventNameLengthRestriction}" name="milestoneName" required>
                         <small class="form-text text-muted countChar">0 characters remaining</small>
                     </div>
-                    <div class="mb-3">
-                        <label for="exampleFormControlInput2" class="form-label">Type of milestone</label>
-                        <select class="form-select typeOfMilestone" id="exampleFormControlInput2">
-                            <option value="1">Event</option>
+                    <div class="mb-3" >
+                        <label for="exampleFormControlInput2" class="form-label" >Type of milestone</label>
+                        <select class="form-select typeOfMilestone" id="exampleFormControlInput2" >
+                            <option value="1" selected disabled>Event</option>
                             <option value="2">Test</option>
                             <option value="3">Meeting</option>
                             <option value="4">Workshop</option>
@@ -623,6 +627,13 @@ function appendMilestoneForm(element) {
                         <button type="button" class="btn btn-secondary cancelEdit" >Cancel</button>
                     </div>
                 </form>`)
+    let milestoneType = $(element).find(".typeOfMilestone")
+    $("#exampleFormControlInput2 > option").each(function() {
+        if (this.value === milestoneType.text().split(" ")[0].trim()) {
+            this.setAttribute("selected", "selected")
+        }
+    });
+
     $(".form-control").each(countCharacters)
     $(".form-control").keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#milestoneEditForm").slideDown();
@@ -891,6 +902,7 @@ function reloadElement(id) {
                 addMilestonesToSprints()
                 sortElementsByDate("#milestoneContainer", ".occasion", ".milestoneEndDateNilFormat")
                 removeElementIfNotAuthorized()
+
             }, error: function () {
                 location.href = "error" // Moves the user to the error page
             }
