@@ -430,9 +430,8 @@ public class PortfolioController {
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
 
-            UUID uuidSprintId = UUID.fromString(sprintId);
 
-            Sprint sprint = sprintRepository.findById(String.valueOf(uuidSprintId)).orElseThrow(() -> new EntityNotFoundException(
+            Sprint sprint = sprintRepository.findById(String.valueOf(sprintId)).orElseThrow(() -> new EntityNotFoundException(
                     "Sprint with id " + projectId.toString() + " was not found"
             ));
 
