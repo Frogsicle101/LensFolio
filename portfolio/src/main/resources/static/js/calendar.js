@@ -41,12 +41,45 @@ function eventResize (info) {
 }
 
 /**
- * Runs when an event is clicked
- * @param info
+ * Function to handle event selection when clicked. Called by Full Calendar eventClick property.
+ * @param info object supplied by FullCalendar contains various relevant properties
  */
 function eventClick (info) {
-  info.event.eventBackgroundColor = '#aaa' ;
-  // info.el.classList.add('selected-event');
+
+  let canEdit = $("#canEdit").val() === "true";
+
+  if (!canEdit) {
+    return;
+  }
+
+  let events = info.view.calendar.getEvents();
+
+  if (!info.event.extendedProps.selected) {
+    // Deselects all events
+    for (calEvent of events) {
+      if (calEvent.extendedProps.isSprint) {
+        calEvent.setExtendedProp("selected", false);
+        calEvent.setProp("durationEditable", false);
+        calEvent.setProp("backgroundColor", calEvent.extendedProps.defaultColor);
+        calEvent.setProp("borderColor", '#13CEE2');
+      }
+
+    }
+
+    // Selects this event
+    info.event.setExtendedProp("selected", true);
+    info.event.setProp("durationEditable", true);
+    info.event.setProp("backgroundColor", '#aaa');
+    info.event.setProp("borderColor", '#c2080b');
+
+  } else {
+    // Deselects this event
+    info.event.setExtendedProp("selected", false);
+    info.event.setProp("durationEditable", false);
+    info.event.setProp("backgroundColor", info.event.extendedProps.defaultColor)
+    info.event.setProp("borderColor", '#13CEE2');
+  }
+
 }
 
 /**
@@ -65,7 +98,7 @@ $(document).ready(function() {
    */
   let calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
-    eventDurationEditable: true,
+    eventDurationEditable: false,
     eventResizableFromStart: true,
     eventResize: function( info ) {
       eventResize( info )
@@ -75,17 +108,18 @@ $(document).ready(function() {
     },
     themeSystem: 'bootstrap5',
     eventSources: [{ //The sources to grab the events from.
-      url: '/getProjectSprintsWithDatesAsFeed', //Project sprints
+      url: 'getProjectSprintsWithDatesAsFeed', //Project sprints
       method: "get",
       extraParams: {
                 projectId: projectId.toString()
               },
+
       failure: function(err){
         console.log(err.responseText)
       }
     },
       {
-        url: '/getProjectAsFeed', // Project itself
+        url: 'getProjectAsFeed', // Project itself
         method: "get",
         display: "inverse-background",
         extraParams: {
