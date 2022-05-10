@@ -37,7 +37,6 @@ $(document).ready(() => {
                 location.href = "account"
             },
             error: function(error){
-                //TODO Add in error handling here
                 errorMessage.text(error.responseText)
                 errorMessageParent.slideUp()
                 errorMessageParent.slideDown()

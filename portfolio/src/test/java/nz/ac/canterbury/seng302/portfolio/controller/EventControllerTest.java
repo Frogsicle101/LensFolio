@@ -33,7 +33,6 @@ import static reactor.core.publisher.Mono.when;
 class EventControllerTest {
 
 
-
     private final ProjectRepository mockProjectRepository = mock(ProjectRepository.class);
     private final EventRepository mockEventRepository = mock(EventRepository.class);
 
@@ -47,8 +46,7 @@ class EventControllerTest {
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
 
 
-
-    private  EventController eventController = new EventController(mockProjectRepository, mockEventRepository);
+    private final EventController eventController = new EventController(mockProjectRepository, mockEventRepository);
 
     private Project project;
 
@@ -157,16 +155,6 @@ class EventControllerTest {
     }
 
 
-
-
-
-
-
-
-
-
-
-
     @Test
     void testDeleteEvent() throws InvalidNameException {
 
@@ -186,27 +174,6 @@ class EventControllerTest {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
     void testEditEvent() throws InvalidNameException {
         Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
@@ -219,7 +186,7 @@ class EventControllerTest {
         }
 
         Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
-        ResponseEntity<String> response = eventController.editEvent(event.getId(),"changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
+        ResponseEntity<String> response = eventController.editEvent(event.getId(), "changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
         Optional<Event> changedEvent = mockEventRepository.findById(event.getId());
@@ -237,7 +204,7 @@ class EventControllerTest {
         Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
 
         Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
-        ResponseEntity<String> response = eventController.editEvent(event.getId(),"changedName", "Cheese", LocalDateTime.now().toString(), 2);
+        ResponseEntity<String> response = eventController.editEvent(event.getId(), "changedName", "Cheese", LocalDateTime.now().toString(), 2);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals("Could not parse date(s)", response.getBody());
 
@@ -249,7 +216,7 @@ class EventControllerTest {
         Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
 
         Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
-        ResponseEntity<String> response = eventController.editEvent(event.getId(),"changedName", LocalDateTime.now().minusYears(1).toString(), LocalDateTime.now().toString(), 2);
+        ResponseEntity<String> response = eventController.editEvent(event.getId(), "changedName", LocalDateTime.now().minusYears(1).toString(), LocalDateTime.now().toString(), 2);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals("Date(s) exist outside of project dates", response.getBody());
 
@@ -261,7 +228,7 @@ class EventControllerTest {
         Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
 
         Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
-        ResponseEntity<String> response = eventController.editEvent(event.getId(),"changed@Name", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
+        ResponseEntity<String> response = eventController.editEvent(event.getId(), "changed@Name", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals("Name does not match required pattern", response.getBody());
 
@@ -273,7 +240,7 @@ class EventControllerTest {
         Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
 
         Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
-        ResponseEntity<String> response = eventController.editEvent(UUID.randomUUID().toString(),"changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
+        ResponseEntity<String> response = eventController.editEvent(UUID.randomUUID().toString(), "changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
     }
@@ -285,30 +252,10 @@ class EventControllerTest {
 
         Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
         Mockito.when(mockEventRepository.save(Mockito.any())).thenThrow(new RuntimeException());
-        ResponseEntity<String> response = eventController.editEvent(event.getId(),"changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
+        ResponseEntity<String> response = eventController.editEvent(event.getId(), "changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     @Test
@@ -322,8 +269,8 @@ class EventControllerTest {
         Event event1 = new Event(project, "testEvent1", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalTime.now(), 1);
         Event event2 = new Event(project, "testEvent2", LocalDateTime.now().plusDays(1), LocalDate.now().plusDays(1), LocalTime.now(), 1);
         Event event3 = new Event(project, "testEvent3", LocalDateTime.now().minusDays(3), LocalDate.now().plusDays(1), LocalTime.now(), 1);
-        eventController.addEvent(project.getId(),"testEvent1", LocalDateTime.now().toString(), LocalDate.now().plusDays(1).toString(), 1);
-        eventController.addEvent(project.getId(),"testEvent2", LocalDateTime.now().plusDays(1).toString(), LocalDate.now().plusDays(1).toString(), 1);
+        eventController.addEvent(project.getId(), "testEvent1", LocalDateTime.now().toString(), LocalDate.now().plusDays(1).toString(), 1);
+        eventController.addEvent(project.getId(), "testEvent2", LocalDateTime.now().plusDays(1).toString(), LocalDate.now().plusDays(1).toString(), 1);
         List<Event> returnList = new ArrayList<>();
         returnList.add(event1);
         returnList.add(event2);
@@ -350,21 +297,6 @@ class EventControllerTest {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
     void testGetEvent() throws InvalidNameException {
         Event event1 = new Event(project, "testEvent1", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalTime.now(), 1);
@@ -373,7 +305,6 @@ class EventControllerTest {
 
 
         Event returnEvent = (Event) response.getBody();
-
 
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -390,32 +321,6 @@ class EventControllerTest {
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

@@ -141,7 +141,12 @@ function removeElement(elementId) {
     })
 }
 
-
+/**
+ * Notifies the server that this user is editing.
+ * @param id the id of the object being edited.
+ * @param type The type of notification to send to the server
+ * @param typeOfEvent The type of the object being edited (milestone, deadline, event)
+ */
 function notifyEdit(id, type, typeOfEvent = null) {
     $.ajax({
         url: "notifyEdit",
@@ -153,7 +158,12 @@ function notifyEdit(id, type, typeOfEvent = null) {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-
+/**
+ * Sorts the elements passed by the date.
+ * @param div the div to sort.
+ * @param childrenElement the elements to sort in the div
+ * @param dateElement the date to sort by
+ */
 function sortElementsByDate(div, childrenElement, dateElement) {
 
     let result = $(div).children(childrenElement).sort(function (a, b) {
@@ -667,7 +677,10 @@ function appendDeadlineToSprint(elementToAppendTo, deadline) {
     $(elementToAppendTo).append(deadlineInSprint)
 }
 
-
+/**
+ * Checks if the user has privilege and then removes all elements with the class
+ * TeacherOrAbove if they don't.
+ */
 function removeElementIfNotAuthorized() {
     if (!checkPrivilege()) {
         $(".hasTeacherOrAbove").remove()
@@ -854,7 +867,6 @@ function appendDeadlineForm(element){
  * @returns {string} A div
  */
 function createEventDiv(eventObject) {
-    // TODO make it different if user can edit
     let iconElement;
     switch (eventObject.typeOfEvent) {
         case 1:
@@ -1159,7 +1171,10 @@ function refreshDeadlines(projectId){
 
 }
 
-
+/**
+ * Reloads a single element on the page dependent on its classname
+ * @param id the id of the element to reload
+ */
 function reloadElement(id) {
     let elementToReload = $("#" + id)
     elementToReload.slideUp() // Hides the element
@@ -1262,7 +1277,10 @@ function addEvent(eventId) {
     })
 }
 
-
+/**
+ * Gets a single milestone then adds it to the page
+ * @param milestoneId the id of the milestone
+ */
 function addMilestone(milestoneId) {
     $.ajax({
         url: "getMilestone", type: "GET", data: {"milestoneId": milestoneId}, success: function (response) {

@@ -2,6 +2,10 @@ package nz.ac.canterbury.seng302.portfolio.controller.notifications;
 
 import java.util.UUID;
 
+/**
+ * This class is used for an EditEvent object which is used by the notification classes.
+ * The object has a user id associated with it, an eventId, a username, and the type of event.
+ */
 public class EditEvent {
 
     private int userId;

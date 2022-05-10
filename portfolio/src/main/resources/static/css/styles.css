@@ -8,6 +8,7 @@ html, body {
     margin: 0;
     padding: 0;
     font-family: 'Roboto', sans-serif;
+    background-color: #f6f6f6;
 }
 
 section {
@@ -35,6 +36,7 @@ section {
     --select-red: #ff0000;
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
+    --background-colour-white: #ffffff;
 }
 
 
@@ -174,6 +176,7 @@ section {
     border-bottom: solid 1px var(--main-border-colour);
     padding: 2rem;
     position: relative;
+    background-color: var(--background-colour-white);
 }
 
 .projectDetails h1 {
@@ -212,6 +215,7 @@ section {
     padding-top: 1rem;
     padding-right: 1rem;
     transition: all 1s ease-out;
+    background-color: var(--background-colour-white);
 }
 
 .occasionAddButton {
@@ -345,7 +349,7 @@ section {
     width: 100%;
     flex-direction: column;
     align-items: center;
-    background-color: #ececec;
+
 }
 
 .sprint {
@@ -353,7 +357,7 @@ section {
     width: 45rem;
     padding: 2rem;
     border: solid 1px var(--main-border-colour);
-    background-color: #ffffff;
+    background-color: var(--background-colour-white);
     border-radius: var(--border-radius);
     margin-top: 1rem;
     box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
@@ -443,6 +447,7 @@ section {
     display: flex;
     flex-direction: column;
     align-items: center;
+
 }
 
 .sprintEditForm, .projectEditForm {
