@@ -4,6 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -14,17 +15,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @RestController
@@ -258,6 +258,48 @@ public class DeadlineController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception err) {
             logger.warn("PUT /deleteDeadline: {}", err.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Gets the list of deadlines in a project and returns it.
+     * @param projectId The projectId to get the deadlines from this project
+     * @return A ResponseEntity with the deadlines or an error
+     */
+    @GetMapping("/getDeadlinesList")
+    public ResponseEntity<Object> getDeadlinesList(
+            @RequestParam(value="projectId") Long projectId
+    ){
+        try {
+            logger.info("GET /getDeadlinesList");
+            List<Deadline> deadlineList = deadlineRepository.findAllByProjectId(projectId);
+            deadlineList.sort(Comparator.comparing(Deadline::getDateTime));
+            return new ResponseEntity<>(deadlineList, HttpStatus.OK);
+        } catch(Exception err){
+            logger.error("GET /getDeadlineList: {}", err.getMessage() );
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Returns a single deadline from the id that was given
+     * @param deadlineId The deadline id
+     * @return a single deadline
+     */
+    @GetMapping("/getDeadline")
+    public ResponseEntity<Object> getDeadline(
+            @RequestParam(value="deadlineId") UUID deadlineId
+    ){
+        try {
+            logger.info("GET /getDeadline");
+            Deadline deadline = deadlineRepository.findById(deadlineId).orElseThrow();
+            return new ResponseEntity<>(deadline, HttpStatus.OK);
+        } catch(NoSuchElementException err) {
+            logger.error("GET /getDeadline: {}", err.getMessage() );
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch(Exception err){
+            logger.error("GET /getDeadline: {}", err.getMessage() );
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
