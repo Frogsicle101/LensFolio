@@ -3,6 +3,8 @@ package nz.ac.canterbury.seng302.portfolio.projects.milestones;
 import com.sun.istack.NotNull;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.*;
@@ -16,7 +18,11 @@ import java.util.UUID;
 @Entity
 public class Milestone {
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
     private UUID id;
 
     @ManyToOne()
