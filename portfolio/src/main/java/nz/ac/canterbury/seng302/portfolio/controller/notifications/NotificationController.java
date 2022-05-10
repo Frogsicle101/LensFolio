@@ -15,10 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 
 @RestController
@@ -28,8 +26,6 @@ public class NotificationController {
     private UserAccountsClientService userAccountsClientService;
 
     @Autowired NotificationService notificationService;
-
-    private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -41,7 +37,7 @@ public class NotificationController {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         logger.info("GET /notifications - Subscribing user " + userId + " to notifications");
         try {
-            SseEmitter emitter = notificationService.initialiseEmitter();
+            SseEmitter emitter = notificationService.initialiseEmitter(userId);
             response.addHeader("X-Accel-Buffering", "no");
             return emitter;
         } catch (IOException exception) {
@@ -69,5 +65,13 @@ public class NotificationController {
         } else {
             notificationService.sendNotification(type, new EditEvent(eventEditorID, username, id, typeOfEvent));
         }
+    }
+
+
+    @PostMapping("/closeNotifications")
+    public void closeNotifications(@AuthenticationPrincipal AuthState user) {
+        int userId = PrincipalAttributes.getIdFromPrincipal(user);
+        logger.info("POST /closeNotifications - cancelling notifications for user " + userId);
+        notificationService.removeEditor(userId);
     }
 }

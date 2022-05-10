@@ -34,16 +34,17 @@ $(document).ready(function () {
         const data = JSON.parse(event.data);
         if (checkPrivilege()) {
             let eventDiv = $("#" + data.eventId)
-
-            let infoString = data.usersName + " is editing element: " + eventDiv.find(".name").text() // Find the name of the event from its id
-            infoContainer.append(`<p class="infoMessage" id="notice` + data.eventId + `"> ` + infoString + `</p>`)
-            eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
-            if (eventDiv.hasClass("beingEdited")) {
-                eventDiv.find(".controlButtons").hide()
+            let noticeSelector = $("#notice" + data.eventId)
+            if (!noticeSelector.length) {
+                let infoString = data.usersName + " is editing element: " + eventDiv.find(".name").text() // Find the name of the event from its id
+                infoContainer.append(`<p class="infoMessage" id="notice${data.eventId}"> ` + infoString + `</p>`)
+                eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
+                if (eventDiv.hasClass("beingEdited")) {
+                    eventDiv.find(".controlButtons").hide()
+                }
+                infoContainer.slideDown() // Show the notice.
             }
-            infoContainer.slideDown() // Show the notice.
         }
-
     })
 
 
