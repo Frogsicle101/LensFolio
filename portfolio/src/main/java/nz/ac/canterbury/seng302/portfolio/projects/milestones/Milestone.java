@@ -42,7 +42,7 @@ public class Milestone {
     }
 
     /**
-     * Constructs an instance of the milestone object.
+     * Constructs an instance of the milestone object.s
      *
      * @param project The project in which the milestone occurs.
      * @param name The name of the milestone.
