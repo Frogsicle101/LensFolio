@@ -17,10 +17,11 @@ function eventResize (info) {
     "sprintDescription" : info.event.extendedProps.description,
     "sprintColour" : info.event.extendedProps.defaultColor
   }
+  console.log(info.event.id)
 
   // Update sprint to have new start and end dates
   $.ajax({
-    url: "/sprintSubmit",
+    url: "sprintSubmit",
     type: "post",
     data: dataToSend,
     success: function(){
