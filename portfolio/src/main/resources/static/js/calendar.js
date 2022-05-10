@@ -35,7 +35,8 @@ $(document).ready(function() {
     eventResizableFromStart: true,
     eventResize,
     themeSystem: 'bootstrap5',
-    eventSources: [{ //The sources to grab the events from.
+    eventSources: [
+      { //The sources to grab the events from.
       url: 'getProjectSprintsWithDatesAsFeed', //Project sprints
       method: "get",
       extraParams: {
@@ -55,9 +56,25 @@ $(document).ready(function() {
         failure: function(err){
           console.log(err.responseText)
         }
-      }]
+      },
+      {
+        url: 'getEventsAsFeed', // Events 
+        method: "get",
+        display: "inverse-background",
+        extraParams: {
+          projectId: projectId.toString()
+        },
+        failure: function(err){
+          console.log(err.responseText)
+        }
+      },
+
+    
+    
+    ]
 
   });
 
   calendar.render();
 })
+

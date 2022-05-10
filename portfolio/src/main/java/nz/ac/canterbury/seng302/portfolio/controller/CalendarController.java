@@ -5,8 +5,8 @@ import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
-import nz.ac.canterbury.seng302.portfolio.events.Event;
-import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
@@ -206,10 +206,9 @@ public class CalendarController {
         try{
             logger.info("GET REQUEST /getEventsAsFeed");
 
-            // Gets the event that the request is referring to.
-            ZonedDateTime dateLocalDateTime = ZonedDateTime.parse(date);
-            List<Event> events = eventRepository.findAllByDate(dateLocalDateTime);
-
+            
+            List<Event> events = EventRepository.findAllByDate(date);
+            List<HashMap<String, String>> eventsToSend = new ArrayList<>();
         }
     }    
 
