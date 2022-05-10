@@ -18,18 +18,32 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
-
+/**
+ * Controls sending and subscribing to event notifications, such as editing of events.
+ * <br>
+ * This controller interacts with the Notification Service class which deals with the sending and subscribing functions
+ */
 @RestController
 public class NotificationController {
 
+    /** Used to get information about users who are making edits from the IdP */
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
+    /** Notification service which provides the logic for sending notifications to subscribed users */
     @Autowired NotificationService notificationService;
 
+    /** For logging */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
+    /**
+     * Subscribes a user to receive notifications so that they know when events are being/has been edited
+     * <br>
+     * @param principal - The user who is requesting to subscribe to notifications
+     * @param response - Used to clarify that send notifications should not be buffered.
+     * @return the SseEmitter that the new subscriber uses
+     */
     @CrossOrigin
     @GetMapping(value = "/notifications", consumes = MediaType.ALL_VALUE)
     public SseEmitter subscribeToNotifications(@AuthenticationPrincipal AuthState principal,
@@ -37,6 +51,7 @@ public class NotificationController {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         logger.info("GET /notifications - Subscribing user " + userId + " to notifications");
         try {
+            // Logged in the service
             SseEmitter emitter = notificationService.initialiseEmitter(userId);
             response.addHeader("X-Accel-Buffering", "no");
             return emitter;
@@ -47,6 +62,15 @@ public class NotificationController {
     }
 
 
+    /**
+     * Sends an edit notification to all the subscribing users. This notification is determined by the parameters
+     * of the request.
+     * <br>
+     * @param editor - The user who is making the edit, also the user sending the request.
+     * @param id - the UUID of the event being edited
+     * @param type - The type of edit, i.e., editEvent, no longer editing, event deleted etc
+     * @param typeOfEvent - The type of the event being edited, not required, i.e., milestone, event, deadline
+     */
     @PostMapping("/notifyEdit")
     public void sendEventToClients(
             @AuthenticationPrincipal AuthState editor,
@@ -68,6 +92,11 @@ public class NotificationController {
     }
 
 
+    /**
+     * Removes an emitter of a subscribed user, also removes their events from the list of edited events.
+     * <br>
+     * @param user - The user who is no longer needing notifications and no longer editing
+     */
     @PostMapping("/closeNotifications")
     public void closeNotifications(@AuthenticationPrincipal AuthState user) {
         int userId = PrincipalAttributes.getIdFromPrincipal(user);
