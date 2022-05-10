@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.projects.milestones;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,5 +15,5 @@ public interface MilestoneRepository extends CrudRepository<Milestone, UUID> {
     Long countMilestoneByProjectId(Long projectId);
 
     @Query("select m from #{#entityName} as m where m.startDate IS NULL and m.dateTime IS NULL and m.project.id = ?1 and m.endDate = ?2")
-    List<Milestone> findAllByProjectIdAndEndDate(Long projectId, String endDate);
+    List<Milestone> findAllByProjectIdAndEndDate(Long projectId, LocalDate endDate);
 }

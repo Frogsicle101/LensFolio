@@ -32,6 +32,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class CalendarController {
@@ -250,7 +251,7 @@ public class CalendarController {
     }
 
     /**
-     * Returns the events as in a json format, only finds the events by date
+     * Returns the milestones in a json format, with the date of the milestone mapped to the number of milestones occurring on that date.
      */
     @GetMapping("getMilestonesAsFeed")
     public ResponseEntity<Object> getMilestonesAsFeed(
@@ -258,32 +259,29 @@ public class CalendarController {
         try {
             logger.info("GET REQUEST /getMilestonesAsFeed");
             Project project = projectRepository.getProjectById(projectId);
-            LocalDate currDate = LocalDate.parse(project.getStartDate().toString());
-            LocalDate end = LocalDate.parse(project.getEndDate().toString());
-            logger.info("localdatesacquired");
 
             List<HashMap<String, String>> milestonesList = new ArrayList<>();
+            HashMap<LocalDate, Integer> milestonesCount = new HashMap<>();
+            List<Milestone> allMilestones = milestoneRepository.findAllByProjectIdOrderByEndDate(projectId);
 
-            while (currDate.isBefore(end.plusDays(1))) {
-                logger.info("currdate");
-
-                List<Milestone> milestones = milestoneRepository.findAllByProjectIdAndEndDate(projectId, String.valueOf(currDate));
-                logger.info(String.valueOf(milestones));
-
-                int milestoneCount = milestones.size();
-                HashMap<String, String> jsonedMilestone = new HashMap<>();
-                logger.info(String.valueOf(jsonedMilestone));
-
-                jsonedMilestone.put("title", "milestone");
-                jsonedMilestone.put("count", String.valueOf(milestoneCount));
-                jsonedMilestone.put("start", currDate.toString());
-                jsonedMilestone.put("end", currDate.toString());
-                milestonesList.add(jsonedMilestone);
-                logger.info(String.valueOf(jsonedMilestone));
-                currDate = currDate.plusDays(1);
-                logger.info(String.valueOf(currDate));
+            for (Milestone milestone : allMilestones) { //iterates over all milestones in repo, and counts the
+                Integer countByDate = milestonesCount.get(milestone.getEndDate());
+                if (countByDate == null) {
+                    milestonesCount.put(milestone.getEndDate(), 1); //add date to map as key
+                }else {
+                    countByDate++;
+                    milestonesCount.replace(milestone.getEndDate(), countByDate);
+                }
             }
-            logger.info("done");
+
+            for (Map.Entry<LocalDate, Integer> entry : milestonesCount.entrySet()) {
+                HashMap<String, String> jsonedMilestone = new HashMap<>();
+                jsonedMilestone.put("title", "milestone");
+                jsonedMilestone.put("count", String.valueOf(entry.getValue()));
+                jsonedMilestone.put("start", entry.getKey().toString());
+                jsonedMilestone.put("end", entry.getKey().toString());
+                milestonesList.add(jsonedMilestone);
+            }
 
             return new ResponseEntity<>(milestonesList, HttpStatus.OK);
         } catch(DateTimeParseException err) {
