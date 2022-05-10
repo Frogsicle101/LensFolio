@@ -487,6 +487,7 @@ public class PortfolioController {
             @RequestParam(value = "projectId") Long projectId
     ) {
         List<Sprint> sprintList = sprintRepository.findAllByProjectId(projectId);
+        sprintList.sort(Comparator.comparing(Sprint::getStartDate));
         return new ResponseEntity<>(sprintList, HttpStatus.OK);
     }
 
@@ -499,7 +500,7 @@ public class PortfolioController {
     private HashMap<String, LocalDate> checkNeighbourDatesForSprint(Project project, Sprint sprint){
         // Gets a list of all sprints that belong to the project and orders them by start date: earliest to latest
         List<Sprint> sprintList = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
-        sprintList.sort(Comparator.comparing(Sprint::getStartDate));
+
 
         HashMap<String, LocalDate> neighbouringSprintDates = new HashMap<>();
 
