@@ -336,14 +336,20 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
  */
 $(document).on("submit", "#editDeadlineForm", function(event){
     event.preventDefault()
+    let deadlineId = $(this).parent().find(".deadlineId").text()
+    let deadlineDate = $(this).find(".deadlineEnd").val()
+    let deadlineTime = deadlineDate.split("T")[1]
+    let returnDate = deadlineDate.split("T")[0]
 
-    let deadlineId = $(this).parent().find(".eventId").text()
+
+
     let deadlineData = {
         "projectId": projectId,
         "deadlineId" : deadlineId,
         "deadlineName": $(this).find(".deadlineName").val(),
-        "deadlineEnd": $(this).find(".deadlineEnd").val(),
-        "typeOfDeadline": $(this).find(".typeOfDeadline").val()
+        "deadlineDate": returnDate,
+        "deadlineTime": deadlineTime,
+        "typeOfOccasion": $(this).find(".typeOfDeadline").val()
     }
     //Check that the name isn't empty
     if (deadlineData.deadlineName.toString().length === 0 || deadlineData.deadlineName.toString().trim().length === 0){
@@ -650,11 +656,12 @@ function addDeadlinesToSprints() {
  * @param deadline the deadline object (matching the format provided by /getDeadlinesList) that holds the data to append
  */
 function appendDeadlineToSprint(elementToAppendTo, deadline) {
+    console.log(deadline)
     let deadlineInSprint = `
                 <div class="row" >
                     <div class="deadlineInSprint deadlineInSprint${deadline.id}">
-                        <p class="sprintDeadlineName">${deadline.name} :&#160</p>
-                        <p class="sprintDeadlineEnd">${deadline.endFormatted}</p>
+                        <p class="sprintDeadlineName">${deadline.name}</p>
+                        <p class="sprintDeadlineEnd">${deadline.endDateFormatted}</p>
                     </div>
                 </div>`
     $(elementToAppendTo).append(deadlineInSprint)
@@ -794,7 +801,8 @@ function appendMilestoneForm(element) {
  * @param element the element to append the form too.
  */
 function appendDeadlineForm(element){
-    let deadlineName = $(element).find(".eventName").text();
+    console.log(element)
+    let deadlineName = $(element).find(".deadlineName").text();
     let deadlineEnd = $(element).find(".deadlineEndDateNilFormat").text().slice(0,16);
 
     $(element).append(`
@@ -908,7 +916,7 @@ function createEventDiv(eventObject) {
  * @returns {string} A div
  */
 function createMilestoneDiv(milestoneObject) {
-    // TODO make it different if user can edit
+
     let iconElement;
     switch (milestoneObject.type) {
         case 1:
@@ -976,7 +984,7 @@ function createMilestoneDiv(milestoneObject) {
  * @returns {string} A div
  */
 function createDeadlineDiv(deadlineObject) {
-    // TODO make it different if user can edit
+
     let iconElement;
     switch(deadlineObject.type) {
         case 1:
@@ -1001,9 +1009,9 @@ function createDeadlineDiv(deadlineObject) {
     }
 
     return `
-            <div class="occasion" id="${deadlineObject.id}">
+            <div class="occasion deadline" id="${deadlineObject.id}">
                 <p class="deadlineId" style="display: none">${deadlineObject.id}</p>
-                <p class="deadlineEndDateNilFormat" style="display: none">${deadlineObject.end}</p>
+                <p class="deadlineEndDateNilFormat" style="display: none">${deadlineObject.dateTime}</p>
                 <p class="typeOfDeadline" style="display: none">${deadlineObject.type}</p>
                 
                 
@@ -1012,25 +1020,27 @@ function createDeadlineDiv(deadlineObject) {
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="deadlineName">${deadlineObject.name}</p>
+                    <p class="deadlineName name">${deadlineObject.name}</p>
                 </div>
-                
-                <button class="deadlineEditButton noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Deadline">
+                <div class="controlButtons">
+                        <button class="editButton noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Deadline">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                  class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
                                 <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
                                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
                             </svg>
                         </button>
-                        <button type="button" class="deadlineDeleteButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Deadline">
+                        <button type="button" class="deleteButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Deadline">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                  class="bi bi-x-circle" viewBox="0 0 16 16">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                             </svg>
                         </button>
+                </div>
+                
                         <div class="deadlineDateDiv">
-                            <p class="deadlineEnd">${deadlineObject.endFormatted}</p>
+                            <p class="deadlineEnd">${deadlineObject.endDateFormatted}</p>
                         </div>
             </div>`;
 }
@@ -1123,25 +1133,20 @@ function refreshDeadlines(projectId){
     deadlineContainer.append(`<div id="infoDeadlineContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
             </div>`) // Adds an info box to the page
     $.ajax({
-        url: '/getDeadlineList',
-        type: 'get',
+        url: '/getDeadlinesList',
+        type: 'GET',
         data: {'projectId': projectId},
 
         success: function(response) {
+
             console.log(response)
             for(let deadline in response){ // Goes through all the data from the server and creates an eventObject
-                let deadlineObject = {
-                    "id" : response[deadline].id,
-                    "name" : response[deadline].name,
-                    "end" : response[deadline].dateTime,
-                    "endFormatted" : response[deadline].endFormatted,
-                    "type" : response[deadline].type,
-                }
-
+                let deadlineObject = response[deadline];
                 $("#deadlineContainer").append(createDeadlineDiv(deadlineObject)) // Passes the deadlineObject to the createDiv function
-                sortElementsByDate("#deadlineContainer", ".occasion", ".deadlineEndDateNilFormat")
-                removeElementIfNotAuthorized()
+
             }
+            sortElementsByDate("#deadlineContainer", ".occasion", ".deadlineEndDateNilFormat")
+            removeElementIfNotAuthorized()
             addDeadlinesToSprints()
         },
         error: function(error) {
@@ -1209,6 +1214,9 @@ function reloadElement(id) {
 
                 elementToReload.replaceWith(createDeadlineDiv(response))
                 elementToReload.slideDown()
+                addDeadlinesToSprints();
+                sortElementsByDate("#deadlineContainer", ".occasion", ".deadlineEndDateNilFormat")
+                removeElementIfNotAuthorized()
             },
             error: function() {
                 location.href = "/error" // Moves the user to the error page
@@ -1297,7 +1305,7 @@ function addDeadline(deadlineId) {
                 "id" : response.id,
                 "name" : response.name,
                 "end" : response.dateTime,
-                "endFormatted" : response.endFormatted,
+                "endFormatted" : response.endDateFormatted,
                 "typeOfEvent" : response.type,
             }
 

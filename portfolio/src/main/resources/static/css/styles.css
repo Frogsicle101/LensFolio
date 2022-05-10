@@ -220,7 +220,7 @@ section {
     flex-direction: row;
 }
 
-.eventName, .milestoneName {
+.eventName, .milestoneName, .deadlineName {
     padding-left: 0.5rem;
     font-weight: bolder;
     text-decoration-line: underline;
@@ -273,7 +273,7 @@ section {
     padding: 1rem;
 }
 
-.addEventSvg, .addMilestoneSvg {
+.addEventSvg, .addMilestoneSvg, .addDeadlineSvg{
     vertical-align: baseline;
     transition: transform 200ms;
 }
@@ -314,6 +314,17 @@ section {
 }
 
 .milestoneInSprint p {
+    padding: 0.1rem;
+    opacity: 70%;
+    margin: 0 0 0 0;
+}
+
+.deadlineInSprint {
+    display: flex;
+    flex-direction: row;
+}
+
+.deadlineInSprint p {
     padding: 0.1rem;
     opacity: 70%;
     margin: 0 0 0 0;
