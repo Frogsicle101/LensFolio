@@ -129,7 +129,7 @@ public class EventController {
      */
     @DeleteMapping("/deleteEvent")
     public ResponseEntity<String> deleteEvent(
-            @RequestParam(value = "eventId") UUID eventId
+            @RequestParam(value = "eventId") String eventId
     ) {
         try{
             logger.info("DELETE: /deleteEvent");
@@ -170,7 +170,7 @@ public class EventController {
      */
     @PostMapping("/editEvent")
     public ResponseEntity<String> editEvent(
-            @RequestParam(value = "eventId") UUID eventId,
+            @RequestParam(value = "eventId") String eventId,
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart") String start,
             @RequestParam(value = "eventEnd") String end,
@@ -251,7 +251,7 @@ public class EventController {
      */
     @GetMapping("/getEvent")
     public ResponseEntity<Object> getEvent(
-            @RequestParam(value="eventId") UUID eventId
+            @RequestParam(value="eventId") String eventId
     ){
         try {
             logger.info("GET /getEventsList");
