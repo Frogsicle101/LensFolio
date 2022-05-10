@@ -1136,7 +1136,7 @@ function refreshDeadlines(projectId){
     deadlineContainer.append(`<div id="infoDeadlineContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
             </div>`) // Adds an info box to the page
     $.ajax({
-        url: '/getDeadlinesList',
+        url: 'getDeadlinesList',
         type: 'GET',
         data: {'projectId': projectId},
 

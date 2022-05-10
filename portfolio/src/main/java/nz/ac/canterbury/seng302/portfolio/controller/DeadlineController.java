@@ -235,7 +235,7 @@ public class DeadlineController {
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PostMapping("/deleteDeadline")
-    public ResponseEntity deleteDeadline(
+    public ResponseEntity<Object> deleteDeadline(
             @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "deadlineId") UUID deadlineId) {
         logger.info("PUT /deleteDeadline");
