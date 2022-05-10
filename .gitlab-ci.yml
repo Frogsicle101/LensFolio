@@ -122,8 +122,8 @@ deploy-production-portfolio:
     - mkdir /home/gitlab-runner/production-portfolio/
     - cp -r ./build/libs /home/gitlab-runner/production-portfolio
     - cp ../runner/production-portfolio.sh /home/gitlab-runner/production-portfolio.sh
-    - echo "$databaseUsername" > /home/gitlab-runner/staging-portfolio/username.txt
-    - echo "$databasePassword" > /home/gitlab-runner/staging-portfolio/password.txt
+    - echo "$databaseUsername" > /home/gitlab-runner/production-portfolio/username.txt
+    - echo "$databasePassword" > /home/gitlab-runner/production-portfolio/password.txt
     - chmod u+x /home/gitlab-runner/production-portfolio.sh
     - sudo systemctl restart production-portfolio
   artifacts:
