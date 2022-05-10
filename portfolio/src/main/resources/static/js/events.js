@@ -307,7 +307,7 @@ $(document).on("submit", "#editEventForm", function (event) {
 $(document).on("submit", "#milestoneEditForm", function (event) {
     event.preventDefault();
 
-    //TODO add in date checks
+
     let milestoneId = $(this).parent().find(".milestoneId").text()
     let milestoneData = {
         "projectId": projectId,
@@ -1301,15 +1301,8 @@ function addDeadline(deadlineId) {
         data: {'deadlineId': deadlineId},
         success: function(response) {
 
-            let deadlineObject = {
-                "id" : response.id,
-                "name" : response.name,
-                "end" : response.dateTime,
-                "endFormatted" : response.endDateFormatted,
-                "typeOfEvent" : response.type,
-            }
 
-            $("#deadlineContainer").append(createDeadlineDiv(deadlineObject)) // Passes the eventObject to the createDiv function
+            $("#deadlineContainer").append(createDeadlineDiv(response)) // Passes the eventObject to the createDiv function
             sortElementsByDate("#deadlineContainer", ".occasion", ".deadlineEndDateNilFormat")
             addDeadlinesToSprints()
             removeElementIfNotAuthorized()
