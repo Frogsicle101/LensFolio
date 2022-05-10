@@ -25,6 +25,7 @@ $(document).ready(function() {
   let projectId = $("#projectId").html();
   let calendarEl = document.getElementById('calendar');
 
+  let dateRange;
   /**
    * Calendar functionality
    * https://fullcalendar.io/docs
@@ -37,15 +38,15 @@ $(document).ready(function() {
     themeSystem: 'bootstrap5',
     eventSources: [
       { //The sources to grab the events from.
-      url: 'getProjectSprintsWithDatesAsFeed', //Project sprints
-      method: "get",
-      extraParams: {
-                projectId: projectId.toString()
-              },
-      failure: function(err){
-        console.log(err.responseText)
-      }
-    },
+        url: 'getProjectSprintsWithDatesAsFeed', //Project sprints
+        method: "get",
+        extraParams: {
+          projectId: projectId.toString()
+        },
+        failure: function (err) {
+          console.log(err.responseText)
+        }
+      },
       {
         url: 'getProjectAsFeed', // Project itself
         method: "get",
@@ -53,23 +54,33 @@ $(document).ready(function() {
         extraParams: {
           projectId: projectId.toString()
         },
-        failure: function(err){
+        failure: function (err) {
           console.log(err.responseText)
         }
       },
       {
-        url: 'getEventsAsFeed', // Events 
+        url: 'getEventsAsFeed', // Get all milestones
         method: "get",
         display: "inverse-background",
         extraParams: {
           projectId: projectId.toString()
         },
-        failure: function(err){
+        failure: function (err) {
+          console.log(err.responseText)
+        }
+      },
+      {
+        url: 'getMilestonesAsFeed', // Get all milestones
+        method: "get",
+        display: "inverse-background",
+        extraParams: {
+          projectId: projectId.toString()
+        },
+        failure: function (err) {
           console.log(err.responseText)
         }
       }
     ]
-
   });
 
   calendar.render();

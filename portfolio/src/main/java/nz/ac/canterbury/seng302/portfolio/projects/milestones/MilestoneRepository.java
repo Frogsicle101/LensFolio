@@ -13,4 +13,6 @@ public interface MilestoneRepository extends CrudRepository<Milestone, UUID> {
     @Query("select count(m) from #{#entityName} as m where m.startDate IS NULL and m.dateTime IS NULL and m.project.id = ?1")
     Long countMilestoneByProjectId(Long projectId);
 
+    @Query("select m from #{#entityName} as m where m.startDate IS NULL and m.dateTime IS NULL and m.project.id = ?1 and m.endDate = ?2")
+    List<Milestone> findAllByProjectIdAndEndDate(Long projectId, String endDate);
 }

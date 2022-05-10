@@ -1,7 +1,10 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import com.google.type.DateTime;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
@@ -36,15 +39,17 @@ public class CalendarController {
     private final ProjectRepository projectRepository;
     private final SprintRepository sprintRepository;
     private final EventRepository eventRepository;
+    private final MilestoneRepository milestoneRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    public CalendarController(ProjectRepository projectRepository, SprintRepository sprintRepository, EventRepository eventRepository) {
+    public CalendarController(ProjectRepository projectRepository, SprintRepository sprintRepository, EventRepository eventRepository, MilestoneRepository milestoneRepository) {
         this.projectRepository = projectRepository;
         this.sprintRepository = sprintRepository;
         this.eventRepository = eventRepository;
+        this.milestoneRepository = milestoneRepository;
     }
 
 
@@ -213,6 +218,8 @@ public class CalendarController {
             LocalDateTime parsedDate = LocalDateTime.parse(date);
             List<Event> events = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
             HashMap<String, String> eventsToSend = new HashMap<>();
+            List<HashMap<String, String>> eventsToSendList = new ArrayList<>();
+
             List<HashMap<String, String>> eventsList = new ArrayList<>();
 
             for (Event event:events)  {
@@ -230,8 +237,9 @@ public class CalendarController {
             eventsToSend.put("date", date);
             eventsToSend.put("eventList", eventsList.toString());
             eventsToSend.put("number", String.valueOf(eventsList.size()));
+            eventsToSendList.add(eventsToSend);
 
-            return new ResponseEntity<>(eventsToSend, HttpStatus.OK);
+            return new ResponseEntity<>(eventsToSendList, HttpStatus.OK);
         } catch(DateTimeParseException err) {
             logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
             return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
@@ -239,7 +247,54 @@ public class CalendarController {
             logger.error("GET REQUEST /getEventsAsFeed", err);
             return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }    
+    }
+
+    /**
+     * Returns the events as in a json format, only finds the events by date
+     */
+    @GetMapping("getMilestonesAsFeed")
+    public ResponseEntity<Object> getMilestonesAsFeed(
+            @RequestParam(value="projectId") long projectId) {
+        try {
+            logger.info("GET REQUEST /getMilestonesAsFeed");
+            Project project = projectRepository.getProjectById(projectId);
+            LocalDate currDate = LocalDate.parse(project.getStartDate().toString());
+            LocalDate end = LocalDate.parse(project.getEndDate().toString());
+            logger.info("localdatesacquired");
+
+            List<HashMap<String, String>> milestonesList = new ArrayList<>();
+
+            while (currDate.isBefore(end.plusDays(1))) {
+                logger.info("currdate");
+
+                List<Milestone> milestones = milestoneRepository.findAllByProjectIdAndEndDate(projectId, String.valueOf(currDate));
+                logger.info(String.valueOf(milestones));
+
+                int milestoneCount = milestones.size();
+                HashMap<String, String> jsonedMilestone = new HashMap<>();
+                logger.info(String.valueOf(jsonedMilestone));
+
+                jsonedMilestone.put("title", "milestone");
+                jsonedMilestone.put("count", String.valueOf(milestoneCount));
+                jsonedMilestone.put("start", currDate.toString());
+                jsonedMilestone.put("end", currDate.toString());
+                milestonesList.add(jsonedMilestone);
+                logger.info(String.valueOf(jsonedMilestone));
+                currDate = currDate.plusDays(1);
+                logger.info(String.valueOf(currDate));
+            }
+            logger.info("done");
+
+            return new ResponseEntity<>(milestonesList, HttpStatus.OK);
+        } catch(DateTimeParseException err) {
+            logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
+            return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+        } catch (Exception err){
+            logger.error("GET REQUEST /getMilestonesAsFeed", err);
+            return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     /**
      * For testing
