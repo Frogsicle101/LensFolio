@@ -99,7 +99,11 @@ deploy-production-identityprovider:
     - rm -rf /home/gitlab-runner/production-identityprovider/ || true
     - mkdir /home/gitlab-runner/production-identityprovider/
     - cp -r ./build/libs /home/gitlab-runner/production-identityprovider
+    - mkdir /home/gitlab-runner/production-identityprovider/photos
+    - cp ./src/main/resources/profile-photos/default.png /home/gitlab-runner/production-identityprovider/photos
     - cp ../runner/production-identityprovider.sh /home/gitlab-runner/production-identityprovider.sh
+    - echo "$databaseUsername" > /home/gitlab-runner/production-identityprovider/username.txt
+    - echo "$databasePassword" > /home/gitlab-runner/production-identityprovider/password.txt
     - chmod u+x /home/gitlab-runner/production-identityprovider.sh
     - sudo systemctl restart production-identityprovider
   artifacts:
@@ -118,6 +122,8 @@ deploy-production-portfolio:
     - mkdir /home/gitlab-runner/production-portfolio/
     - cp -r ./build/libs /home/gitlab-runner/production-portfolio
     - cp ../runner/production-portfolio.sh /home/gitlab-runner/production-portfolio.sh
+    - echo "$databaseUsername" > /home/gitlab-runner/staging-portfolio/username.txt
+    - echo "$databasePassword" > /home/gitlab-runner/staging-portfolio/password.txt
     - chmod u+x /home/gitlab-runner/production-portfolio.sh
     - sudo systemctl restart production-portfolio
   artifacts:
