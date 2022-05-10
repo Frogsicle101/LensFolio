@@ -167,7 +167,7 @@ public class CalendarController {
             HashMap<String, String> jsonedProject = new HashMap<>();
             jsonedProject.put("title", project.getName());
             jsonedProject.put("start", project.getStartDate().toString());
-            jsonedProject.put("end", project.getEndDate().toString());
+            jsonedProject.put("end", project.getEndDate().plusDays(1).toString());
             jsonedProject.put("backgroundColor", "grey");
 
             projectToSend.add(jsonedProject);
