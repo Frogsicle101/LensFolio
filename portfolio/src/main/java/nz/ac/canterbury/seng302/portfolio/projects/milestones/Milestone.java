@@ -15,10 +15,9 @@ import java.util.UUID;
  */
 @Entity
 public class Milestone {
-
-    private @Id
+    @Id
     @GeneratedValue
-    UUID id;
+    private UUID id;
 
     @ManyToOne()
     private Project project;
