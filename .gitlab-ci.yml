@@ -24,8 +24,7 @@ junit-identityprovider:
  script:
    - cd identityprovider
    - ./gradlew test
-  except:
-    - dev   
+
 
 
 publish-protos-to-maven-local:
