@@ -17,6 +17,8 @@
         <div th:insert="fragments/general.html :: errorBox"> </div>
         <div th:insert="fragments/general.html :: successBox"> </div>
         <div th:insert="fragments/general.html :: infoBox"> </div>
+
+        <input id="canEdit" style="display: none" th:value="${userCanEdit}" />
         <div id="projectDetails" class="mt-3">
           <h1 id="projectId" th:text="${project.getId()}" style="display: none"></h1>
           <div class="mb-3">
