@@ -44,7 +44,7 @@ public class Sprint {
      * @param colour      colour of sprint.
      */
     public Sprint(Project project, String name, LocalDate startDate, LocalDate endDate, String description, String colour) {
-        this.id = String.valueOf(UUID.randomUUID());
+        this.id = UUID.randomUUID().toString();
         this.project = project;
         this.name = name;
         this.startDate = startDate;
@@ -61,7 +61,7 @@ public class Sprint {
      */
     public Sprint(Project project, String name, LocalDate startDate) {
 
-        this.id = String.valueOf(UUID.randomUUID());
+        this.id = UUID.randomUUID().toString();
         this.project = project;
         this.name = name;
         this.startDate = startDate;
@@ -73,7 +73,7 @@ public class Sprint {
 
     public Sprint(Project project, String name, LocalDate startDate, LocalDate endDate) {
 
-        this.id = String.valueOf(UUID.randomUUID());
+        this.id = UUID.randomUUID().toString();
         this.project = project;
         this.name = name;
         this.startDate = startDate;
