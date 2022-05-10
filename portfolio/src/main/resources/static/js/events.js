@@ -253,7 +253,7 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
         "projectId": projectId,
         "deadlineName": $("#deadlineName").val(),
         "deadlineEnd": $("#deadlineEnd").val(),
-        "typeOfDeadline": $(".typeOfDeadline").val()
+        "typeOfOccasion": $(".typeOfDeadline").val()
     }
     //Ajax call to PUT the deadline
     $.ajax({
