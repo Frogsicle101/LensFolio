@@ -7,16 +7,16 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 import java.util.UUID;
 
-public interface SprintRepository extends CrudRepository<Sprint, UUID> {
+public interface SprintRepository extends CrudRepository<Sprint, String> {
 
     @Query
     List<Sprint> findAllByProjectId(Long projectId);
 
     @Query
-    List<Sprint> findAllByIdNot(UUID id);
+    List<Sprint> findAllByIdNot(String id);
 
     @Query
-    Sprint getSprintById(UUID id);
+    Sprint getSprintById(String id);
 
     @Query
     List<Sprint> getAllByProjectOrderByEndDateDesc(Project project);

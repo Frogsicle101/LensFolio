@@ -432,7 +432,7 @@ public class PortfolioController {
 
             UUID uuidSprintId = UUID.fromString(sprintId);
 
-            Sprint sprint = sprintRepository.findById(uuidSprintId).orElseThrow(() -> new EntityNotFoundException(
+            Sprint sprint = sprintRepository.findById(String.valueOf(uuidSprintId)).orElseThrow(() -> new EntityNotFoundException(
                     "Sprint with id " + projectId.toString() + " was not found"
             ));
 
@@ -634,7 +634,7 @@ public class PortfolioController {
    @DeleteMapping("deleteSprint")
     public ResponseEntity<String> deleteSprint(@RequestParam (value = "sprintId")UUID id) {
        logger.info("DELETE REQUEST /deleteSprint");
-        sprintRepository.deleteById(id);
+        sprintRepository.deleteById(String.valueOf(id));
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
    }
 

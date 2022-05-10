@@ -13,8 +13,8 @@ import java.util.UUID;
 
 @Entity // This maps Sprint to a table in the Db called "Sprint"
 public class Sprint {
-    private @Id
-    UUID id; // @Id lets JPA know it's the objects ID
+    @Id
+    private String id; // @Id lets JPA know it's the objects ID
 
     @ManyToOne
     private Project project;
@@ -44,7 +44,7 @@ public class Sprint {
      * @param colour      colour of sprint.
      */
     public Sprint(Project project, String name, LocalDate startDate, LocalDate endDate, String description, String colour) {
-        this.id = UUID.randomUUID();
+        this.id = String.valueOf(UUID.randomUUID());
         this.project = project;
         this.name = name;
         this.startDate = startDate;
@@ -61,7 +61,7 @@ public class Sprint {
      */
     public Sprint(Project project, String name, LocalDate startDate) {
 
-        this.id = UUID.randomUUID();
+        this.id = String.valueOf(UUID.randomUUID());
         this.project = project;
         this.name = name;
         this.startDate = startDate;
@@ -73,7 +73,7 @@ public class Sprint {
 
     public Sprint(Project project, String name, LocalDate startDate, LocalDate endDate) {
 
-        this.id = UUID.randomUUID();
+        this.id = String.valueOf(UUID.randomUUID());
         this.project = project;
         this.name = name;
         this.startDate = startDate;
@@ -119,11 +119,11 @@ public class Sprint {
         return endDate.format(DateTimeFormat.dayDateMonthYear());
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 

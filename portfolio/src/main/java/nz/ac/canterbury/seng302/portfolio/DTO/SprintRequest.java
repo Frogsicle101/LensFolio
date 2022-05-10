@@ -3,7 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.DTO;
 import java.util.UUID;
 
 public class SprintRequest {
-    private UUID sprintId;
+    private String sprintId;
     private String sprintName;
     private String sprintStartDate;
     private String sprintEndDate;
@@ -16,7 +16,7 @@ public class SprintRequest {
 
     public SprintRequest(String sprintId, String sprintName, String sprintStartDate, String sprintEndDate, String sprintDescription, String sprintColour) {
         super();
-        this.sprintId = UUID.fromString(sprintId);
+        this.sprintId = sprintId;
         this.sprintName = sprintName;
         this.sprintStartDate = sprintStartDate;
         this.sprintEndDate = sprintEndDate;
@@ -32,12 +32,12 @@ public class SprintRequest {
         this.sprintColour = sprintColour;
     }
 
-    public UUID getSprintId() {
-        return sprintId;
+    public String getSprintId() {
+        return this.sprintId;
     }
 
     public void setSprintId(String sprintId) {
-        this.sprintId = UUID.fromString(sprintId);
+        this.sprintId = sprintId;
     }
 
     public String getSprintName() {
