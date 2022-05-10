@@ -60,8 +60,8 @@ deploy-staging-identityprovider:
     - mkdir /home/gitlab-runner/staging-identityprovider/photos
     - cp ./src/main/resources/profile-photos/default.png /home/gitlab-runner/staging-identityprovider/photos
     - cp ../runner/staging-identityprovider.sh /home/gitlab-runner/staging-identityprovider.sh
-    - export SPRING_DATASOURCE_USERNAME=${databaseUsername}
-    - export SPRING_DATASOURCE_PASSWORD=${databasePassword}
+    - export SPRING_DATASOURCE_USERNAME=$databaseUsername
+    - export SPRING_DATASOURCE_PASSWORD=$databasePassword
     - chmod u+x /home/gitlab-runner/staging-identityprovider.sh
     - sudo systemctl restart staging-identityprovider
   artifacts:
