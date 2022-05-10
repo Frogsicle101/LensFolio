@@ -596,7 +596,8 @@ function appendMilestoneForm(element) {
 
     let milestoneName = $(element).find(".milestoneName").text();
     let milestoneEnd = $(element).find(".milestoneEndDateNilFormat").text().slice(0, 16);
-
+    let projectStartDate = projectStart.split("T")[0]
+    let projectEndDate = projectEnd.split("T")[0]
 
     $(element).append(`
                 <form class="existingMilestoneForm" id="milestoneEditForm" style="display: none">
@@ -619,7 +620,7 @@ function appendMilestoneForm(element) {
                     <div class="row mb-1">
                         <div class="col">
                             <label for="milestoneEnd" class="form-label">End</label>
-                            <input type="date" class="form-control form-control-sm milestoneInputEndDate milestoneEnd" value="${milestoneEnd}" min="${projectStart}" max="${projectEnd}" name="milestoneEnd" required>
+                            <input type="date" class="form-control form-control-sm milestoneInputEndDate milestoneEnd" value="${milestoneEnd}" min="${projectStartDate}" max="${projectEndDate}" name="milestoneEnd" required>
                         </div>
                     </div>
                     <div class="mb-1">
@@ -632,6 +633,7 @@ function appendMilestoneForm(element) {
         if (this.value === milestoneType.text().split(" ")[0].trim()) {
             this.setAttribute("selected", "selected")
         }
+
     });
 
     $(".form-control").each(countCharacters)
