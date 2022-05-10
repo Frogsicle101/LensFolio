@@ -204,11 +204,39 @@ public class CalendarController {
      */
     @GetMapping("getEventsAsFeed")
     public ResponseEntity<Object> getEventsAsFeed(
-            @RequestParam(value="projectId") long projectId){
+            @RequestParam(value="projectId") long projectId,
+            @RequestParam(value = "date") String date){
         try{
             logger.info("GET REQUEST /getEventsAsFeed");
+
+            ZonedDateTime theDate = ZonedDateTime.parse(date);
             List<Event> events = EventRepository.findAllByProjectIdOrderByStartDate(projectId);
             List<HashMap<String, String>> eventsToSend = new ArrayList<>();
+            List<HashMap<String, String>> eventsList = new ArrayList<>();
+
+            for (Event event:events)  {
+                if(event.getStartDate().equals(theDate)
+                        || event.getStartDate().isBefore(theDate) && event.getStartDate().isAfter(theDate)
+                        || event.getEndDate().equals(theDate)) {
+                    HashMap<String, String> jsonedEvent = new HashMap<>();
+                    jsonedEvent.put("title", event.getName());
+                    jsonedEvent.put("start", (LocalDateTime.from(event.getStartDate().atStartOfDay().plusHours(12))).toString());
+                    jsonedEvent.put("end", (LocalDateTime.from(event.getEndDate().atStartOfDay().plusHours(24))).toString());
+                    jsonedEvent.put("endTime", (LocalDateTime.from(event.getEndTime()).toString()));
+                    eventsList.add(jsonedEvent);
+                }
+            }
+            eventsToSend.put("date", date);
+            eventsToSend.put("eventList", eventsList.toString());
+            eventsToSend.put("number", String.valueOf(eventsList.size()));
+
+            return new ResponseEntity<>(eventsToSend, HttpStatus.OK);
+        } catch(DateTimeParseException err) {
+            logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
+            return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+        } catch (Exception err){
+            logger.error("GET REQUEST /getEventsAsFeed", err);
+            return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }    
 
