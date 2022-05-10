@@ -4,7 +4,6 @@ $(document).ready(() => {
     getSprints()
 
 
-
     /**
      * When project edit button is clicked.
      * Redirect page.
@@ -12,6 +11,7 @@ $(document).ready(() => {
     $("#projectEditSprint").click(() => {
         location.href = "editProject?projectId=" + projectId ;
     })
+
     /**
      * When project add sprint button is pressed.
      * Redirect page.
@@ -36,17 +36,8 @@ $(document).ready(() => {
         $(this).parent().slideUp();
     })
 
-
-
-
-
-
-
-    setAddSprintButtonPlacement()
-    function setAddSprintButtonPlacement() {
-        $(".addSprint").css("left", $(".eventContainer").width() + "px")
-        $(".addSprint").css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
-    }
+    $(".addSprint").css("left", $(".eventContainer").width() + "px")
+    $(".addSprint").css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
 
 })
 
@@ -73,11 +64,9 @@ $(document).on("click", ".deleteSprint", function() {
         type: "DELETE",
         data: {"sprintId": sprintId},
     }).done(function () {
-        location.href = "/portfolio?projectId=" + projectId
+        location.href = "portfolio?projectId=" + projectId
     })
 })
-
-
 
 
 function getSprints() {
@@ -89,6 +78,7 @@ function getSprints() {
             for (let index in response){
                 $(".sprintsContainer").append(appendSprint(response[index], index));
             }
+            removeElementIfNotAuthorized()
         }
     })
 }
@@ -97,7 +87,6 @@ function getSprints() {
 function appendSprint(springObject, index) {
     index = parseInt(index) + 1
 
-    //TODO hide buttons if user cant edit
     let SprintElement = `
              <div class="sprint" style="border-left: solid 0.3rem ${springObject.colour}; border-right: solid 0.3rem ${springObject.colour};">
                 <p class="sprintColour" style="display: none">${springObject.colour}</p>
@@ -106,7 +95,7 @@ function appendSprint(springObject, index) {
                 <p class="sprintEnd" style="display: none">${springObject.endDate}</p>
                 <p class="sprintLabel" >Sprint ${index}</p>
                 <div class="mb3">
-                    <h2>${springObject.name}</h2>
+                    <h2 class="sprintName">${springObject.name}</h2>
                 </div>
                 <div class="row">
                     <div class="col">
@@ -122,7 +111,7 @@ function appendSprint(springObject, index) {
                 <div class="mb-3">
                     <p>${springObject.description}</p>
                 </div>
-                <div class="mb3">
+                <div class="mb3 hasTeacherOrAbove">
                     <button type="button" class="deleteSprint noStyleButton sprintButton" data-bs-toggle="tooltip"
                             data-bs-placement="top" title="Delete Sprint">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
@@ -142,16 +131,15 @@ function appendSprint(springObject, index) {
                 </div>
             </div>`
 
-
-
-
-
-
     return SprintElement;
 }
 
 
 
-
+function removeElementIfNotAuthorized() {
+    if (!checkPrivilege()) {
+        $(".hasTeacherOrAbove").remove()
+    }
+}
 
 

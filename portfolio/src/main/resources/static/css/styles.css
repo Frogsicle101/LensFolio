@@ -195,21 +195,9 @@ section {
 
 /*Portfolio Project*/
 
-.addSprint {
-    position: absolute;
-    bottom: -25px;
-    left: 20rem;
 
-}
 
-.addSprintSvg {
-    color: #09d70c;
-    transition: all 0.3s ease-out;
-}
 
-.addSprintSvg:hover {
-    transform: scale(110%) rotate(90deg);
-}
 
 
 
@@ -218,7 +206,7 @@ section {
 .eventContainer {
     display: flex;
     flex-direction: column;
-    min-width: 40rem;
+    min-width: 30rem;
     border-right: solid 1px var(--main-border-colour);
     padding-left: 1rem;
     padding-top: 1rem;
@@ -320,6 +308,17 @@ section {
     margin: 0 0 0 0;
 }
 
+.milestoneInSprint {
+    display: flex;
+    flex-direction: row;
+}
+
+.milestoneInSprint p {
+    padding: 0.1rem;
+    opacity: 70%;
+    margin: 0 0 0 0;
+}
+
 .bold {
     font-weight: bolder;
 }
@@ -340,7 +339,7 @@ section {
 
 .sprint {
     position: relative;
-    width: 60rem;
+    width: 45rem;
     padding: 2rem;
     border: solid 1px var(--main-border-colour);
     background-color: #ffffff;
@@ -351,9 +350,6 @@ section {
     will-change: transform;
 }
 
-.sprint:hover {
-    transform: scale(101%);
-}
 
 .sprint h6 {
     color: var(--secondary-text-colour-darker);

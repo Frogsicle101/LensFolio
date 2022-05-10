@@ -6,13 +6,17 @@ import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
@@ -33,6 +37,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -57,6 +62,9 @@ public class PortfolioController {
     @Autowired
     private final EventRepository eventRepository;
 
+    @Autowired
+    private final DeadlineRepository deadlineRepository;
+
 
     @Autowired
     private final MilestoneRepository milestoneRepository;
@@ -66,7 +74,7 @@ public class PortfolioController {
     private static final String infoMessage = "infoMessage";
     private static final String successMessage = "successMessage";
 
-
+    private final CheckDateService checkDateService = new CheckDateService();
 
     RegexPatterns regexPatterns = new RegexPatterns();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -81,11 +89,16 @@ public class PortfolioController {
      * @param projectRepository repository
      * @param milestoneRepository
      */
-    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository, MilestoneRepository milestoneRepository) throws InvalidNameException {
+    public PortfolioController(SprintRepository sprintRepository,
+                               ProjectRepository projectRepository,
+                               EventRepository eventRepository,
+                               MilestoneRepository milestoneRepository,
+                               DeadlineRepository deadlineRepository) throws InvalidNameException {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
         this.milestoneRepository = milestoneRepository;
+        this.deadlineRepository = deadlineRepository;
 
         //Below are only for testing purposes.
         if (includeTestValues) {
@@ -98,6 +111,7 @@ public class PortfolioController {
             createDefaultEvents(defaultProject);
             createDefaultSprints(defaultProject);
             createDefaultMilestones(defaultProject);
+            createDefaultDeadlines(defaultProject);
         } else {
             projectRepository.save(new Project("Default Project"));
         }
@@ -139,11 +153,20 @@ public class PortfolioController {
             }
 
             List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
+            List<Milestone> milestoneList = MilestoneHelper.setMilestoneColours(project.getId(), milestoneRepository, sprintRepository);
 
+            int nextMilestoneNumber = milestoneRepository.countMilestoneByProjectId(projectId).intValue() + 1;
+            LocalDate defaultOccasionDate = project.getStartDate(); // Today is in a sprint, the start of th project otherwise
+            if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
+                defaultOccasionDate = LocalDate.now();
+            }
             modelAndView.addObject("project", project);
             modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
             modelAndView.addObject("events", eventList);
+            modelAndView.addObject("milestones", milestoneList);
+            modelAndView.addObject("nextMilestoneNumber", nextMilestoneNumber);
             modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
+            modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
             modelAndView.addObject("user", user);
             modelAndView.addObject("projectId", projectId);
             modelAndView.addObject("titleRegex", regexPatterns.getTitleRegex().toString());
@@ -621,16 +644,36 @@ public class PortfolioController {
    /////////////////////////////////////////////// Test Values  ////////////////////////////////////////////////////////
 
     public void createDefaultEvents(Project project) throws InvalidNameException {
-        LocalDateTime date = LocalDateTime.now();
 
-        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.now(), 1);
-        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.now(), 5);
+        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:30:00"), 1);
+        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.parse("20:30:00"), 5);
         Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDate.parse("2022-05-18"), LocalTime.now(), 4);
         Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDate.parse("2022-09-30"), LocalTime.now(), 6);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
         eventRepository.save(event4);
+    }
+
+    /**
+     * Creates default deadlines for a given project.
+     *
+     * @param project The project in which the deadlines will be stored.
+     * @throws InvalidNameException If the deadline name is null or longer than 50 characters.
+     */
+    public void createDefaultDeadlines(Project project) throws InvalidNameException {
+        try {
+            Deadline deadline1 = new Deadline(project, "SENG 101 Assignment due", LocalDate.parse("2022-05-01"), LocalTime.parse("23:59:00"), 1);
+            Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate Entries Close", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
+            Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-10-14"), LocalTime.parse("09:30:00"), 3);
+            Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences Applics close", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
+            deadlineRepository.save(deadline1);
+            deadlineRepository.save(deadline2);
+            deadlineRepository.save(deadline3);
+            deadlineRepository.save(deadline4);
+        } catch (InvalidNameException | DateTimeException err) {
+            logger.warn("Error occurred loading default deadlines");
+        }
     }
 
     public void createDefaultMilestones(Project project) throws InvalidNameException {
@@ -644,7 +687,6 @@ public class PortfolioController {
     }
 
     public void createDefaultSprints(Project project) {
-        LocalDate date = LocalDate.now();
         Sprint sprint1 = new Sprint(project, "Sprint 1", LocalDate.parse("2022-02-28"), LocalDate.parse("2022-03-09"), "Sprint 1", "#0066cc");
         Sprint sprint2 = new Sprint(project, "Sprint 2", LocalDate.parse("2022-03-14"), LocalDate.parse("2022-03-30"), "Sprint 2", "#ffcc00");
         Sprint sprint3 = new Sprint(project, "Sprint 3", LocalDate.parse("2022-04-04"), LocalDate.parse("2022-05-11"), "Sprint 3", "#f48c06");

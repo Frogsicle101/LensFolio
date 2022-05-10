@@ -1,27 +1,21 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.EditEvent;
+import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
@@ -38,9 +32,7 @@ public class MilestoneController {
 
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-
-    private List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+    private final RegexPatterns regexPatterns = new RegexPatterns();
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
@@ -75,22 +67,37 @@ public class MilestoneController {
             @RequestParam(defaultValue = "1", value = "typeOfOccasion") int typeOfOccasion
     ) {
         try {
-            //TODO add checks that the end date doesn't go past project end date
+            logger.info("PUT /addMilestone");
             LocalDate milestoneEnd = LocalDate.parse(end);
-
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Project with id " + projectId + " was not found"
             ));
 
+
+
+            if (!regexPatterns.getTitleRegex().matcher(name).matches()) {
+                String returnMessage = "Name does not match required pattern";
+                logger.warn("PUT /addMilestone: {}", returnMessage);
+                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
+            }
+
+
+
             Milestone milestone = new Milestone(project, name, milestoneEnd, typeOfOccasion);
             milestoneRepository.save(milestone);
-
+            logger.info("PUT /addMilestone: Success");
             return new ResponseEntity<>(milestone, HttpStatus.OK);
         } catch (EntityNotFoundException err) {
+            logger.warn("PUT /addMilestone: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (DateTimeParseException err) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.warn("PUT /addMilestone: {}", err.getMessage());
+            return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
+        } catch (DateTimeException err) {
+            logger.warn("PUT /addMilestone: {}", err.getMessage());
+            return new ResponseEntity<>("End date must occur during project", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
+            logger.error("PUT /addMilestone: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -113,30 +120,43 @@ public class MilestoneController {
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PostMapping("/editMilestone")
-    public ResponseEntity editMilestone(
+    public ResponseEntity<Object> editMilestone(
             @RequestParam(value = "milestoneId") UUID milestoneId,
             @RequestParam(value = "milestoneName") String name,
             @RequestParam(value = "milestoneDate") String date,
             @RequestParam(defaultValue = "1", value = "typeOfMilestone") int typeOfOccasion
     ) {
         try {
+            logger.info("PUT /editMilestone");
             Milestone milestone = milestoneRepository.findById(milestoneId).orElseThrow(() -> new EntityNotFoundException(
                     "Milestone with id " + milestoneId + " was not found"
             ));
 
             LocalDate milestoneDate = LocalDate.parse(date);
 
+
             milestone.setName(name);
             milestone.setEndDate(milestoneDate);
             milestone.setType(typeOfOccasion);
+
+
             milestoneRepository.save(milestone);
 
+            logger.info("PUT /editMilestone: Success");
             return new ResponseEntity<>(milestone.getId(),HttpStatus.OK);
         } catch (EntityNotFoundException err) {
+            logger.warn("PUT /editMilestone: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch(DateTimeParseException err) {
+            logger.warn("PUT /editMilestone: {}", err.getMessage());
+            return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
+        } catch (DateTimeException err) {
+            logger.warn("PUT /editMilestone: {}", err.getMessage());
+            return new ResponseEntity<>("End date must occur during project", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+            logger.error("PUT /editMilestone: {}", err.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
     }
 
@@ -145,8 +165,8 @@ public class MilestoneController {
      * @param projectId The projectId to get the milestones from this project
      * @return A ResponseEntity with the milestones or an error
      */
-    @GetMapping("/getMilestoneList")
-    public ResponseEntity<Object> getMilestoneList(
+    @GetMapping("/getMilestonesList")
+    public ResponseEntity<Object> getMilestonesList(
             @RequestParam(value="projectId") Long projectId
     ){
         try {
@@ -183,7 +203,7 @@ public class MilestoneController {
 
 
     @DeleteMapping("/deleteMilestone")
-    public ResponseEntity<String> deleteMilestone(
+    public ResponseEntity<Object> deleteMilestone(
             @RequestParam(value = "milestoneId") UUID milestoneId
     ) {
         try{

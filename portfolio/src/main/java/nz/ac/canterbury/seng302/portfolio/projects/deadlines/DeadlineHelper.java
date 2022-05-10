@@ -1,7 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.projects.deadlines;
 
-import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
-import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 
