@@ -69,11 +69,13 @@ public class DeadlineController {
             @RequestParam(value = "deadlineTimeEnd") String timeEnd,
             @RequestParam(defaultValue = "1", value = "typeOfOccasion") int typeOfOccasion
     ) {
+        logger.info("PUT /addDeadline");
         UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
         if (!roles.contains(UserRole.TEACHER) && !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
+            logger.info("PUT /addDeadline: Unauthorised User");
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
@@ -115,12 +117,16 @@ public class DeadlineController {
             Deadline deadline = new Deadline(project, name, deadlineEndDate, deadlineEndTime, typeOfOccasion);
             deadlineRepository.save(deadline);
 
+            logger.info("PUT /addDeadline: Success");
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException err) {
+            logger.warn("PUT /addDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (InvalidNameException | IllegalArgumentException | DateTimeException err) {
+            logger.warn("PUT /addDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
+            logger.warn("PUT /addDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -154,11 +160,13 @@ public class DeadlineController {
             @RequestParam(value = "deadlineTime") String timeEnd,
             @RequestParam(value = "typeOfOccasion") Integer typeOfOccasion
     ) {
+        logger.info("PUT /editDeadline");
         UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
         if (!roles.contains(UserRole.TEACHER) && !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
+            logger.info("PUT /editDeadline: Unauthorised User");
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
@@ -201,13 +209,16 @@ public class DeadlineController {
             }
 
             deadlineRepository.save(deadline);
-
+            logger.info("PUT /deleteDeadline: Success");
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException err) {
+            logger.warn("PUT /editDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (InvalidNameException | IllegalArgumentException | DateTimeException err) {
+            logger.warn("PUT /editDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
+            logger.warn("PUT /editDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -226,11 +237,13 @@ public class DeadlineController {
     public ResponseEntity deleteDeadline(
             @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "deadlineId") UUID deadlineId) {
+        logger.info("PUT /deleteDeadline");
         UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
         if (!roles.contains(UserRole.TEACHER) && !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
+            logger.info("PUT /deleteDeadline: Unauthorised User");
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
@@ -238,13 +251,14 @@ public class DeadlineController {
                     "Deadline with id " + deadlineId + " was not found"
             ));
             deadlineRepository.delete(deadline);
-
+            logger.info("PUT /deleteDeadline: Success");
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException err) {
+            logger.warn("PUT /deleteDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception err) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+            logger.warn("PUT /deleteDeadline: {}", err.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

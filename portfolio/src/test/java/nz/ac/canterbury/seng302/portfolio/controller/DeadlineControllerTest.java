@@ -299,7 +299,7 @@ public class DeadlineControllerTest {
     public void createDeadlineValidTypeOfOccasion(){
         createAuthorisedUser();
         ResponseEntity response = deadlineController.addDeadline(principal, project.getId(), null, null, null, 2);
-        Assertions.assertEquals(2, deadlines.get(0).getTypeOfOccasion());
+        Assertions.assertEquals(2, deadlines.get(0).getType());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -532,7 +532,7 @@ public class DeadlineControllerTest {
         }
         deadlineRepository.save(deadline);
         ResponseEntity response = deadlineController.editDeadline(principal,deadline.getId(), project.getId(), null, null, null, 2);
-        Assertions.assertEquals(2, deadlines.get(0).getTypeOfOccasion());
+        Assertions.assertEquals(2, deadlines.get(0).getType());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -548,7 +548,7 @@ public class DeadlineControllerTest {
         deadlineRepository.save(deadline);
         ResponseEntity response = deadlineController.editDeadline(principal,deadline.getId(), project.getId(), null, null, null, 0);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals(1,deadlines.get(0).getTypeOfOccasion());
+        Assertions.assertEquals(1,deadlines.get(0).getType());
     }
 
     @Test

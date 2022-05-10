@@ -6,6 +6,8 @@ import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
@@ -35,6 +37,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -58,6 +61,9 @@ public class PortfolioController {
 
     @Autowired
     private final EventRepository eventRepository;
+
+    @Autowired
+    private final DeadlineRepository deadlineRepository;
 
 
     @Autowired
@@ -83,11 +89,16 @@ public class PortfolioController {
      * @param projectRepository repository
      * @param milestoneRepository
      */
-    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository, MilestoneRepository milestoneRepository) throws InvalidNameException {
+    public PortfolioController(SprintRepository sprintRepository,
+                               ProjectRepository projectRepository,
+                               EventRepository eventRepository,
+                               MilestoneRepository milestoneRepository,
+                               DeadlineRepository deadlineRepository) throws InvalidNameException {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
         this.milestoneRepository = milestoneRepository;
+        this.deadlineRepository = deadlineRepository;
 
         //Below are only for testing purposes.
         if (includeTestValues) {
@@ -100,6 +111,7 @@ public class PortfolioController {
             createDefaultEvents(defaultProject);
             createDefaultSprints(defaultProject);
             createDefaultMilestones(defaultProject);
+            createDefaultDeadlines(defaultProject);
         } else {
             projectRepository.save(new Project("Default Project"));
         }
@@ -641,6 +653,27 @@ public class PortfolioController {
         eventRepository.save(event2);
         eventRepository.save(event3);
         eventRepository.save(event4);
+    }
+
+    /**
+     * Creates default deadlines for a given project.
+     *
+     * @param project The project in which the deadlines will be stored.
+     * @throws InvalidNameException If the deadline name is null or longer than 50 characters.
+     */
+    public void createDefaultDeadlines(Project project) throws InvalidNameException {
+        try {
+            Deadline deadline1 = new Deadline(project, "SENG 101 Assignment due", LocalDate.parse("2022-05-01"), LocalTime.parse("23:59:00"), 1);
+            Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate Entries Close", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
+            Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-10-14"), LocalTime.parse("09:30:00"), 3);
+            Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences Applics close", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
+            deadlineRepository.save(deadline1);
+            deadlineRepository.save(deadline2);
+            deadlineRepository.save(deadline3);
+            deadlineRepository.save(deadline4);
+        } catch (InvalidNameException | DateTimeException err) {
+            logger.warn("Error occurred loading default deadlines");
+        }
     }
 
     public void createDefaultMilestones(Project project) throws InvalidNameException {
