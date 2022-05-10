@@ -42,6 +42,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -498,6 +499,7 @@ public class PortfolioController {
     private HashMap<String, LocalDate> checkNeighbourDatesForSprint(Project project, Sprint sprint){
         // Gets a list of all sprints that belong to the project and orders them by start date: earliest to latest
         List<Sprint> sprintList = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
+        sprintList.sort(Comparator.comparing(Sprint::getStartDate));
 
         HashMap<String, LocalDate> neighbouringSprintDates = new HashMap<>();
 
