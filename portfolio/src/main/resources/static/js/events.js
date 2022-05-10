@@ -830,7 +830,7 @@ function appendDeadlineForm(element){
                     </div>
                     <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label">Type of deadline</label>
-                        <select class="form-select typeOfDeadline" id="exampleFormControlInput1">
+                        <select class="form-select typeOfDeadline" id="exampleFormControlInput3">
                             <option value="1">Event</option>
                             <option value="2">Test</option>
                             <option value="3">Meeting</option>
@@ -850,7 +850,13 @@ function appendDeadlineForm(element){
                         <button type="button" class="btn btn-secondary cancelEdit" >Cancel</button>
                     </div>
                 </form>`)
+    let deadlineType = $(element).find(".typeOfDeadline")
+    $("#exampleFormControlInput3 > option").each(function() {
+        if (this.value === deadlineType.text().split(" ")[0].trim()) {
+            this.setAttribute("selected", "selected")
+        }
 
+    });
 
 
     let formControl = $(".form-control")
