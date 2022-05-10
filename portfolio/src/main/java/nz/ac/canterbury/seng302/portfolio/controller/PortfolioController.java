@@ -664,15 +664,15 @@ public class PortfolioController {
     public void createDefaultDeadlines(Project project) throws InvalidNameException {
         try {
             Deadline deadline1 = new Deadline(project, "SENG 101 Assignment due", LocalDate.parse("2022-05-01"), LocalTime.parse("23:59:00"), 1);
-            Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate Entries Close", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
-            Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-10-14"), LocalTime.parse("09:30:00"), 3);
-            Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences Applics close", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
+            Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
+            Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-08-14"), LocalTime.parse("09:30:00"), 3);
+            Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
             deadlineRepository.save(deadline1);
             deadlineRepository.save(deadline2);
             deadlineRepository.save(deadline3);
             deadlineRepository.save(deadline4);
         } catch (InvalidNameException | DateTimeException err) {
-            logger.warn("Error occurred loading default deadlines");
+            logger.warn("Error occurred loading default deadlines: {}", err.getMessage());
         }
     }
 

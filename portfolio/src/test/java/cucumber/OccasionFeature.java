@@ -147,17 +147,15 @@ public class OccasionFeature {
 
     @When("the user creates a deadline for {string} with name {string}")
     public void a_user_creates_a_deadline_for_deadline_date_with_name_deadline_name(String deadlineDate, String deadlineName) {
-        String date = null;
-        String time = null;
+        String dateTime = null;
         if (!deadlineDate.equals("left blank")) {
             LocalDateTime parsedDate = LocalDateTime.parse(deadlineDate);
-            date = parsedDate.toLocalDate().toString();
-            time = parsedDate.toLocalTime().toString();
+            dateTime = parsedDate.toString();
         }
         if (deadlineName.equals("left blank")) {
             deadlineName = null;
         }
-        ResponseEntity<String> stat = deadlineController.addDeadline(principal, project.getId(), deadlineName, date, time, 1);
+        ResponseEntity<Object> stat = deadlineController.addDeadline(principal, project.getId(), deadlineName, dateTime, 1);
     }
 
     @When("a user creates a milestone for {string} with name {string} and type {int}")
