@@ -12,6 +12,6 @@ java -jar staging-portfolio/libs/portfolio-0.0.1-SNAPSHOT.jar \
     --grpc.client.identity-provider-grpc-server.negotiationType=plaintext \
     --spring.datasource.url=jdbc:mariadb://db2.csse.canterbury.ac.nz/seng302-2022-team600-portfolio-test \
     --spring.datasource.driver-class-name=org.mariadb.jdbc.Driver \
-    --spring.jpa.hibernate.ddl-auto=create-drop \
+    --spring.jpa.hibernate.ddl-auto=update \
     --spring.datasource.username=${DATABASE_USERNAME} \
     --spring.datasource.password=${DATABASE_PASSWORD}
