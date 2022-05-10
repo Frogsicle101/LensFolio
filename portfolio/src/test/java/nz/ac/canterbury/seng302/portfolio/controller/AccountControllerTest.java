@@ -1,27 +1,25 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
+
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -32,14 +30,9 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 class AccountControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
+
 
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
-
-    @Autowired
-    private SprintRepository sprintRepository;
-
 
     private final AccountController accountController = new AccountController();
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
@@ -279,6 +272,193 @@ class AccountControllerTest {
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
+
+
+
+
+
+
+
+    @Test
+    void testGetAccount() {
+        ModelAndView modelAndView = accountController.account(principal);
+
+        Assertions.assertTrue(modelAndView.hasView());
+        Assertions.assertTrue(modelAndView.getModel().containsKey("alphaSpacesRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("alphaSpacesRegexCanBeEmpty"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("userNameRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("emailRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("bioRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("passwordRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("pronounRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("user"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("membersince"));
+
+    }
+
+
+    @Test
+    void testEditAccount(){
+        UserRequest userRequest = new UserRequest("testUser", "password");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("User");
+        userRequest.setEmail("Test@Test.com");
+        EditUserResponse.Builder editUserResponse = EditUserResponse.newBuilder();
+        editUserResponse.setIsSuccess(true);
+        editUserResponse.build();
+        Mockito.when(mockClientService.editUser(Mockito.any())).thenReturn(editUserResponse.build());
+        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    }
+
+    @Test
+    void testEditAccountBadNickname(){
+        UserRequest userRequest = new UserRequest("testUser", "password");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("User");
+        userRequest.setEmail("Test@Test.com");
+        userRequest.setNickname("@");
+        EditUserResponse.Builder editUserResponse = EditUserResponse.newBuilder();
+        editUserResponse.setIsSuccess(true);
+        editUserResponse.build();
+        Mockito.when(mockClientService.editUser(Mockito.any())).thenReturn(editUserResponse.build());
+        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Field(s) not matching patterns", response.getBody());
+
+    }
+
+    @Test
+    void testEditAccountBadMiddlename(){
+        UserRequest userRequest = new UserRequest("testUser", "password");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("User");
+        userRequest.setEmail("Test@Test.com");
+        userRequest.setMiddlename("@");
+        EditUserResponse.Builder editUserResponse = EditUserResponse.newBuilder();
+        editUserResponse.setIsSuccess(true);
+        editUserResponse.build();
+        Mockito.when(mockClientService.editUser(Mockito.any())).thenReturn(editUserResponse.build());
+        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Field(s) not matching patterns", response.getBody());
+
+    }
+
+    @Test
+    void testEditAccountBadPronouns(){
+        UserRequest userRequest = new UserRequest("testUser", "password");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("User");
+        userRequest.setEmail("Test@Test.com");
+        userRequest.setPersonalPronouns("@");
+        EditUserResponse.Builder editUserResponse = EditUserResponse.newBuilder();
+        editUserResponse.setIsSuccess(true);
+        editUserResponse.build();
+        Mockito.when(mockClientService.editUser(Mockito.any())).thenReturn(editUserResponse.build());
+        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Field(s) not matching patterns", response.getBody());
+
+    }
+
+    @Test
+    void testEditAccountBadBio(){
+        UserRequest userRequest = new UserRequest("testUser", "password");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("User");
+        userRequest.setEmail("Test@Test.com");
+        userRequest.setBio("@");
+        EditUserResponse.Builder editUserResponse = EditUserResponse.newBuilder();
+        editUserResponse.setIsSuccess(true);
+        editUserResponse.build();
+        Mockito.when(mockClientService.editUser(Mockito.any())).thenReturn(editUserResponse.build());
+        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Field(s) not matching patterns", response.getBody());
+
+    }
+
+    @Test
+    void testEditAccountBadRequest(){
+        UserRequest userRequest = new UserRequest("testUser", "password");
+        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+
+    @Test
+    void testEditAccountFailToChange(){
+        UserRequest userRequest = new UserRequest("testUser", "password");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("User");
+        userRequest.setEmail("Test@Test.com");
+        EditUserResponse.Builder editUserResponse = EditUserResponse.newBuilder();
+        editUserResponse.setIsSuccess(false);
+        editUserResponse.build();
+        Mockito.when(mockClientService.editUser(Mockito.any())).thenReturn(editUserResponse.build());
+        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+    }
+
+
+    @Test
+    void testEditPassword(){
+        PasswordRequest passwordRequest = new PasswordRequest();
+        passwordRequest.setNewPassword("password");
+        passwordRequest.setConfirmPassword("password");
+        passwordRequest.setOldPassword("password");
+
+        ChangePasswordResponse.Builder changePasswordresponse = ChangePasswordResponse.newBuilder();
+        changePasswordresponse.setIsSuccess(true);
+        Mockito.when(mockClientService.changeUserPassword(Mockito.any())).thenReturn(changePasswordresponse.build());
+        ResponseEntity<Object> response = accountController.editPassword(principal, passwordRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testEditPasswordFailToChange(){
+        PasswordRequest passwordRequest = new PasswordRequest();
+        passwordRequest.setNewPassword("password");
+        passwordRequest.setConfirmPassword("password");
+        passwordRequest.setOldPassword("password");
+
+        ChangePasswordResponse.Builder changePasswordresponse = ChangePasswordResponse.newBuilder();
+        changePasswordresponse.setIsSuccess(false);
+        Mockito.when(mockClientService.changeUserPassword(Mockito.any())).thenReturn(changePasswordresponse.build());
+        ResponseEntity<Object> response = accountController.editPassword(principal, passwordRequest);
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+    }
+
+    @Test
+    void testEditPasswordPasswordsDontMatch(){
+        PasswordRequest passwordRequest = new PasswordRequest();
+        passwordRequest.setNewPassword("password");
+        passwordRequest.setConfirmPassword("password2");
+        passwordRequest.setOldPassword("password");
+
+        ChangePasswordResponse.Builder changePasswordresponse = ChangePasswordResponse.newBuilder();
+        changePasswordresponse.setIsSuccess(false);
+        Mockito.when(mockClientService.changeUserPassword(Mockito.any())).thenReturn(changePasswordresponse.build());
+        ResponseEntity<Object> response = accountController.editPassword(principal, passwordRequest);
+        Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
+        Assertions.assertEquals("Confirm password does not match new password.", response.getBody());
+    }
+
+
+    @Test
+    void testDeleteProfileImg(){
+
+        DeleteUserProfilePhotoResponse.Builder delete = DeleteUserProfilePhotoResponse.newBuilder();
+        delete.setIsSuccess(true);
+        Mockito.when(mockClientService.deleteUserProfilePhoto(Mockito.any())).thenReturn(delete.build());
+        ResponseEntity<String> response = accountController.deleteProfilePhoto(principal);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    }
+
 
 
 

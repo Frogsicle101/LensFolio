@@ -1,6 +1,6 @@
 $(document).ready(()=>{
     $(".backButton").click(function(){
-        location.href = "/account"
+        location.href = "account"
     })
 })
 
@@ -22,6 +22,7 @@ async function loadImage(imageUrl) {
     return img
 
 }
+
 
 /**
  *  Resizes image to desired width and height. Adjusts image quality according to constant value.
@@ -96,33 +97,32 @@ async function processImage() {
     );
 }
 
+
 async function sendImagePostRequest() {
     const url = document.getElementById('profileImagePreview').getAttribute('src');
     document.getElementById('profile').setAttribute('src', url);
     const formData = new FormData();
     formData.append("image", await fetch(url).then(r => r.blob()));
 
-    await fetch("/upload", {
+    await fetch("upload", {
         method: "POST",
         body: formData
     }).then(function(){
         $(".successBox").append(`
                             <div class="alert alert-info alert-dismissible fade show" role="alert">
-                                 Your profile image is being uploaded, you can click <a href="/account">here</a> to go back to account's page.
+                                 Your profile image is being uploaded, you can click <a href="account">here</a> to go back to account's page.
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
     });
-
-
-
 }
+
 
 // source: https://stackoverflow.com/a/18650828
 function bytesToSize(bytes) {
     const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
 
     if (bytes === 0) {
-        return "0 Byte";
+        return "0 bytes";
     }
 
     const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));

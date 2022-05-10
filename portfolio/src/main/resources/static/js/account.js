@@ -1,6 +1,5 @@
 $(document).ready(() => {
 
-
     //Jquery selectors to remove duplicity
     let editUserButton = $(".editUserButton")
     let firstname = $("#firstname")
@@ -14,10 +13,6 @@ $(document).ready(() => {
     let errorMessage = $(".errorMessage")
     let errorMessageParentPassword  = $(".errorMessageParentPassword")
     let errorMessagePassword = $(".errorMessagePassword")
-
-
-
-
 
 
     //On Edit Account button click
@@ -36,19 +31,19 @@ $(document).ready(() => {
 
     //On upload photo button click
     $(".uploadPhotoButton").click(() => {
-        location.href = "/uploadImage"; // change location
+        location.href = "uploadImage"; // change location
     });
+
 
     $(".deleteProfilePhotoButton").click(() => {
         $.ajax({
-            url: "/deleteProfileImg",
+            url: "deleteProfileImg",
             type: "DELETE",
             success: function () {
                 location.reload()
             }
         })
     });
-
 
 
     // On account form submit
@@ -65,22 +60,19 @@ $(document).ready(() => {
         }
 
         $.ajax({
-            url: "/edit/details",
+            url: "edit/details",
             type: "post",
             data: accountData,
             success: function () {
-                location.href = "/account" // On success reloads page
+                location.href = "account" // On success reloads page
             },
             error: function(error){//Displays error in box on failure
                 errorMessage.text(error.responseText)
                 errorMessageParent.slideUp()
                 errorMessageParent.slideDown()
-
-
             }
         })
     })
-
 
 
     // On password change form submit
@@ -96,23 +88,15 @@ $(document).ready(() => {
         $.ajax({
             type: "post",
             data: data,
-            url: "/edit/password",
+            url: "edit/password",
             success: function(){
-                location.href = "/account" // Reload page on success
+                location.href = "account" // Reload page on success
             },
             error: function(error){ // Display errors in box on failure
                 errorMessagePassword.text(error.responseText)
                 errorMessageParentPassword.slideUp()
                 errorMessageParentPassword.slideDown()
-
-
-
             }
-
         })
     })
-
-
-
-
 })

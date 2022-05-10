@@ -2,42 +2,49 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
-import nz.ac.canterbury.seng302.portfolio.events.Event;
-import nz.ac.canterbury.seng302.portfolio.events.EventHelper;
-import nz.ac.canterbury.seng302.portfolio.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
+
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneHelper;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
+
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 
 
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
-import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletRequest;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 
 @Controller
@@ -55,32 +62,43 @@ public class PortfolioController {
     @Autowired
     private final EventRepository eventRepository;
 
+    @Autowired
+    private final DeadlineRepository deadlineRepository;
+
+
+    @Autowired
+    private final MilestoneRepository milestoneRepository;
+
     //Selectors for the error/info/success boxes.
     private static final String errorMessage = "errorMessage";
     private static final String infoMessage = "infoMessage";
     private static final String successMessage = "successMessage";
 
+    private final CheckDateService checkDateService = new CheckDateService();
 
-    private final Pattern projectNameRegex = Pattern.compile("([a-zA-Z0-9_]+\\s?)+");
-    private final Pattern projectIdRegex = Pattern.compile("[0-9]+");
-    private final Pattern descriptionRegex = Pattern.compile("([a-zA-Z0-9.,'\"]*\s?)+");
-    private final Pattern hexRegex = Pattern.compile("#[0-9A-Fa-f]{1,6}");
-
+    RegexPatterns regexPatterns = new RegexPatterns();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // For testing
-    private final boolean includeTestValues = false;
+    private final boolean includeTestValues = true;
 
 
     /**
      * Constructor for PortfolioController
      * @param sprintRepository repository
      * @param projectRepository repository
+     * @param milestoneRepository
      */
-    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository) {
+    public PortfolioController(SprintRepository sprintRepository,
+                               ProjectRepository projectRepository,
+                               EventRepository eventRepository,
+                               MilestoneRepository milestoneRepository,
+                               DeadlineRepository deadlineRepository) throws InvalidNameException {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
+        this.milestoneRepository = milestoneRepository;
+        this.deadlineRepository = deadlineRepository;
 
         //Below are only for testing purposes.
         if (includeTestValues) {
@@ -92,6 +110,8 @@ public class PortfolioController {
                                                             " create software as a team."));
             createDefaultEvents(defaultProject);
             createDefaultSprints(defaultProject);
+            createDefaultMilestones(defaultProject);
+            createDefaultDeadlines(defaultProject);
         } else {
             projectRepository.save(new Project("Default Project"));
         }
@@ -122,10 +142,6 @@ public class PortfolioController {
                     "Project with id " + projectId + " was not found"
             ));
 
-
-
-
-            //View that we are going to return.
             ModelAndView modelAndView = new ModelAndView("portfolio");
 
             // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
@@ -135,27 +151,26 @@ public class PortfolioController {
             } else {
                 modelAndView.addObject("userCanEdit", false);
             }
-            //Creates the list of events for the front end.
+
             List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
+            List<Milestone> milestoneList = MilestoneHelper.setMilestoneColours(project.getId(), milestoneRepository, sprintRepository);
 
-            //Add the project object to the view to be accessed on the frontend.
+            int nextMilestoneNumber = milestoneRepository.countMilestoneByProjectId(projectId).intValue() + 1;
+            LocalDate defaultOccasionDate = project.getStartDate(); // Today is in a sprint, the start of th project otherwise
+            if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
+                defaultOccasionDate = LocalDate.now();
+            }
             modelAndView.addObject("project", project);
-
-            //Add a list of sprint objects to the view to be accessed on the frontend.
             modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
-
-            //Add a list of event objects to the view to be accessed on the frontend.
             modelAndView.addObject("events", eventList);
-
-            //Add an object that lets us access the event name restriction length on the frontend.
+            modelAndView.addObject("milestones", milestoneList);
+            modelAndView.addObject("nextMilestoneNumber", nextMilestoneNumber);
             modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
-
-            //Add the user object to the view to be accessed on the front end.
+            modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
             modelAndView.addObject("user", user);
-
-            //TESTING PURPOSES. Passes the projectId to the front end. This will be removed when there is a way
-            //to have each user select what project they want to go to from the navbar.
             modelAndView.addObject("projectId", projectId);
+            modelAndView.addObject("titleRegex", regexPatterns.getTitleRegex().toString());
+            modelAndView.addObject("descriptionRegex", regexPatterns.getDescriptionRegex().toString());
 
             return modelAndView;
 
@@ -300,10 +315,11 @@ public class PortfolioController {
             String projectDescription = projectRequest.getProjectDescription();
 
 
-            if(!projectNameRegex.matcher(projectName).matches()) {
+
+            if(!regexPatterns.getTitleRegex().matcher(projectName).matches()) {
                 return new ResponseEntity<>("Project Name contains characters outside of a-z 0-9", HttpStatus.BAD_REQUEST);
             }
-            if(!descriptionRegex.matcher(projectDescription).matches()) {
+            if(!regexPatterns.getDescriptionRegex().matcher(projectDescription).matches()) {
                 return new ResponseEntity<>("Project description contains illegal characters", HttpStatus.BAD_REQUEST);
             }
 
@@ -448,7 +464,7 @@ public class PortfolioController {
 
 
             // Adds the username to the view for use.
-            modelAndView.addObject("username", user.getUsername());
+            modelAndView.addObject("user", user);
 
             // Add the sprint to the view for use.
             modelAndView.addObject("sprint", sprint);
@@ -462,6 +478,16 @@ public class PortfolioController {
         }
 
 
+    }
+
+
+
+    @GetMapping("/getSprintList")
+    public ResponseEntity<Object> getSprintList(
+            @RequestParam(value = "projectId") Long projectId
+    ) {
+        List<Sprint> sprintList = sprintRepository.findAllByProjectId(projectId);
+        return new ResponseEntity<>(sprintList, HttpStatus.OK);
     }
 
     /**
@@ -574,15 +600,15 @@ public class PortfolioController {
             String sprintDescription = sprintRequest.getSprintDescription();
             String sprintColour = sprintRequest.getSprintColour();
 
-            if (!projectNameRegex.matcher(sprintName).matches()) {
+            if (!regexPatterns.getTitleRegex().matcher(sprintName).matches()) {
                 return new ResponseEntity<>("Sprint Name not in correct format", HttpStatus.BAD_REQUEST);
             }
 
-            if (!descriptionRegex.matcher(sprintDescription).matches()) {
+            if (!regexPatterns.getDescriptionRegex().matcher(sprintDescription).matches()) {
                 return new ResponseEntity<>("Sprint Description not in correct format", HttpStatus.BAD_REQUEST);
             }
 
-            if (!hexRegex.matcher(sprintColour).matches()) {
+            if (!regexPatterns.getHexRegex().matcher(sprintColour).matches()) {
                 return new ResponseEntity<>("Sprint Colour not in correct hex format", HttpStatus.BAD_REQUEST);
             }
 
@@ -617,21 +643,50 @@ public class PortfolioController {
 
    /////////////////////////////////////////////// Test Values  ////////////////////////////////////////////////////////
 
-    public void createDefaultEvents(Project project) {
-        LocalDateTime date = LocalDateTime.now();
+    public void createDefaultEvents(Project project) throws InvalidNameException {
 
-        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDateTime.parse("2022-05-01T08:00:00"), 1);
-        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDateTime.parse("2022-04-10T19:00:00"), 5);
-        Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDateTime.parse("2022-05-18T17:00:00"), 4);
-        Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDateTime.parse("2022-09-30T17:00:00"), 6);
+        Event event1 = new Event(project, "Term Break",LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:30:00"), 1);
+        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.parse("20:30:00"), 5);
+        Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDate.parse("2022-05-18"), LocalTime.now(), 4);
+        Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDate.parse("2022-09-30"), LocalTime.now(), 6);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
         eventRepository.save(event4);
     }
 
+    /**
+     * Creates default deadlines for a given project.
+     *
+     * @param project The project in which the deadlines will be stored.
+     * @throws InvalidNameException If the deadline name is null or longer than 50 characters.
+     */
+    public void createDefaultDeadlines(Project project) throws InvalidNameException {
+        try {
+            Deadline deadline1 = new Deadline(project, "SENG 101 Assignment due", LocalDate.parse("2022-05-01"), LocalTime.parse("23:59:00"), 1);
+            Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate Entries Close", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
+            Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-10-14"), LocalTime.parse("09:30:00"), 3);
+            Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences Applics close", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
+            deadlineRepository.save(deadline1);
+            deadlineRepository.save(deadline2);
+            deadlineRepository.save(deadline3);
+            deadlineRepository.save(deadline4);
+        } catch (InvalidNameException | DateTimeException err) {
+            logger.warn("Error occurred loading default deadlines");
+        }
+    }
+
+    public void createDefaultMilestones(Project project) throws InvalidNameException {
+        Milestone milestone1 = new Milestone(project, "Finished the project!", LocalDate.parse("2022-05-01"), 1);
+        Milestone milestone2 = new Milestone(project, "Lost all the money", LocalDate.parse("2022-06-01"), 2);
+        Milestone milestone3 = new Milestone(project, "Wow look at that flying dog", LocalDate.parse("2022-07-01"), 3);
+
+        milestoneRepository.save(milestone1);
+        milestoneRepository.save(milestone2);
+        milestoneRepository.save(milestone3);
+    }
+
     public void createDefaultSprints(Project project) {
-        LocalDate date = LocalDate.now();
         Sprint sprint1 = new Sprint(project, "Sprint 1", LocalDate.parse("2022-02-28"), LocalDate.parse("2022-03-09"), "Sprint 1", "#0066cc");
         Sprint sprint2 = new Sprint(project, "Sprint 2", LocalDate.parse("2022-03-14"), LocalDate.parse("2022-03-30"), "Sprint 2", "#ffcc00");
         Sprint sprint3 = new Sprint(project, "Sprint 3", LocalDate.parse("2022-04-04"), LocalDate.parse("2022-05-11"), "Sprint 3", "#f48c06");

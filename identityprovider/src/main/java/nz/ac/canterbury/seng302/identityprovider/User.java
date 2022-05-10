@@ -4,15 +4,18 @@ import com.google.protobuf.Timestamp;
 import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * The object used to store Users in the database
@@ -174,6 +177,15 @@ public class User {
 
     public ArrayList<UserRole> getRoles() { return roles; }
 
+    public String getRolesCsv() {
+        ArrayList<String> rolesStrings = new ArrayList<>();
+        for (UserRole role : roles) {
+            rolesStrings.add(role.toString().toLowerCase(Locale.ROOT));
+        }
+
+        return String.join(",", rolesStrings);
+    }
+
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -253,20 +265,14 @@ public class User {
         }
     }
 
-    public URL getProfileImagePath() {
-        try {
-            return new URL("http",
-                        "localhost",
-                        9001,
-                        imagePath);
-        } catch (MalformedURLException exception) {
-            // This shouldn't happen as we make the URL
-        }
-        return null;
+    public String getProfileImagePath() {
+        return imagePath;
     }
 
-    public boolean deleteProfileImage() {
-        File image = new File("src/main/resources/profile-photos/" + id + ".jpg");
+    public boolean deleteProfileImage(Environment env) {
+        String photoLocation = env.getProperty("photoLocation", "src/main/resources/profile-photos/");
+
+        File image = new File(photoLocation + id + ".jpg");
         imagePath = "profile/default.png";
         return image.delete();
     }

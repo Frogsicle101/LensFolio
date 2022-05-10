@@ -21,7 +21,7 @@ public class IdentityProviderApplication {
 
     @EventListener(ApplicationReadyEvent.class)
     public void setup() {
-        logger.info("Initialising test user steve");
+        logger.info("Initialising test user Steve");
         User testUser = new User(
                 "steve",
                 "password",
@@ -36,8 +36,23 @@ public class IdentityProviderApplication {
         );
         testUser.addRole(UserRole.TEACHER);
         repository.save(testUser);
-        logger.info("Initialising test user steve");
+        logger.info("Initialising test user Admin");
         User testUser1 = new User(
+                "admin",
+                "password",
+                "John",
+                "McSteve",
+                "Wayne",
+                "Stev",
+                "kdsflkdjf",
+                "Steve/Steve",
+                "steve@example.com",
+                TimeService.getTimeStamp()
+        );
+        testUser1.addRole(UserRole.COURSE_ADMINISTRATOR);
+        repository.save(testUser1);
+        logger.info("Initialising test user Student");
+        User testUser2 = new User(
                 "student",
                 "password",
                 "Steve",
@@ -49,8 +64,8 @@ public class IdentityProviderApplication {
                 "steve@example.com",
                 TimeService.getTimeStamp()
         );
-        testUser.addRole(UserRole.STUDENT);
-        repository.save(testUser1);
+        testUser2.addRole(UserRole.STUDENT);
+        repository.save(testUser2);
 
         /*
         TODO: Remove this when finished testing
@@ -70,12 +85,11 @@ public class IdentityProviderApplication {
             );
             repository.save(lemming);
         }
-
     }
+
 
     public static void main(String[] args) {
         SpringApplication.run(IdentityProviderApplication.class, args);
     }
-
 
 }

@@ -1,8 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -179,7 +179,7 @@ class CalendarControllerTest {
         Assertions.assertNotNull(returnValue.getBody());
         Assertions.assertTrue(returnValue.getBody().toString().contains("title=TestSprint"));
         Assertions.assertTrue(returnValue.getBody().toString().contains("start=" + sprint.getStartDate().toString()));
-        Assertions.assertTrue(returnValue.getBody().toString().contains("end=" + sprint.getEndDate().toString()));
+        Assertions.assertTrue(returnValue.getBody().toString().contains("end="));
 
     }
 
@@ -193,7 +193,6 @@ class CalendarControllerTest {
         Assertions.assertNotNull(returnValue.getBody());
         Assertions.assertTrue(returnValue.getBody().toString().contains("title=" + project.getName()));
         Assertions.assertTrue(returnValue.getBody().toString().contains("start=" + project.getStartDate()));
-        Assertions.assertTrue(returnValue.getBody().toString().contains("end=" + project.getEndDate()));
 
 
     }

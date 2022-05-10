@@ -29,8 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @GrpcService
 public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
-    private final String ROLE_OF_USER = "student"; // Puce teams may want to change this to "teacher" to test some functionality
-
     private final JwtTokenUtil jwtTokenService = JwtTokenUtil.getInstance();
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -92,7 +90,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
                 foundUser.getUsername(),
                 foundUser.getId(),
                 foundUser.getFirstName() + " " + foundUser.getLastName(),
-                ROLE_OF_USER
+                foundUser.getRolesCsv()
         );
 
         reply
