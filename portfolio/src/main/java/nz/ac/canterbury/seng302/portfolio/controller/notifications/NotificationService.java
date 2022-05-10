@@ -134,7 +134,7 @@ public class NotificationService {
      * @param userId - the id of the user to remove.
      */
     public void removeEditor(Integer userId) {
-        logger.info("SERVICE - User " + userId + " logged out, unsubscribing and removing editEvent");
+        logger.info("SERVICE - User " + userId + " unsubscribing and removing editEvent");
         EditEvent editEvent = activeEdits.get(userId);
         if (editEvent != null) {
             sendNotification("notifyNotEditing", editEvent);
