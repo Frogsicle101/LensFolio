@@ -276,8 +276,9 @@ public class CalendarController {
 
             for (Map.Entry<LocalDate, Integer> entry : milestonesCount.entrySet()) {
                 HashMap<String, String> jsonedMilestone = new HashMap<>();
-                jsonedMilestone.put("title", "milestone");
-                jsonedMilestone.put("count", String.valueOf(entry.getValue()));
+                jsonedMilestone.put("title", String.valueOf(entry.getValue()));
+                jsonedMilestone.put("classNames", "milestoneCalendar");
+                jsonedMilestone.put("content", "");
                 jsonedMilestone.put("start", entry.getKey().toString());
                 jsonedMilestone.put("end", entry.getKey().toString());
                 milestonesList.add(jsonedMilestone);
