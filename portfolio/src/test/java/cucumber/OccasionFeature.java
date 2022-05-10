@@ -57,12 +57,12 @@ public class OccasionFeature {
         }
 
         @Override
-        public Optional<Deadline> findById(UUID uuid) {
+        public Optional<Deadline> findById(String s) {
             return Optional.empty();
         }
 
         @Override
-        public boolean existsById(UUID uuid) {
+        public boolean existsById(String s) {
             return false;
         }
 
@@ -72,9 +72,10 @@ public class OccasionFeature {
         }
 
         @Override
-        public Iterable<Deadline> findAllById(Iterable<UUID> uuids) {
+        public Iterable<Deadline> findAllById(Iterable<String> strings) {
             return null;
         }
+
 
         @Override
         public long count() {
@@ -82,7 +83,7 @@ public class OccasionFeature {
         }
 
         @Override
-        public void deleteById(UUID uuid) {
+        public void deleteById(String s) {
 
         }
 
@@ -92,7 +93,7 @@ public class OccasionFeature {
         }
 
         @Override
-        public void deleteAllById(Iterable<? extends UUID> uuids) {
+        public void deleteAllById(Iterable<? extends String> strings) {
 
         }
 

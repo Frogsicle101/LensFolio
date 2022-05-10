@@ -45,7 +45,7 @@ public class DeadlineControllerTest {
         @Override
         public <S extends Deadline> S save(S entity) {
             if (!deadlines.contains(entity)){
-                entity.setUuid(UUID.randomUUID());
+                entity.setUuid(UUID.randomUUID().toString());
                 deadlines.add(entity);
             }
             return entity;
@@ -57,7 +57,7 @@ public class DeadlineControllerTest {
         }
 
         @Override
-        public Optional<Deadline> findById(UUID uuid) {
+        public Optional<Deadline> findById(String uuid) {
             for (Deadline deadline: deadlines) {
                 if (deadline.getId() == uuid){
                     return Optional.of(deadline);
@@ -67,7 +67,7 @@ public class DeadlineControllerTest {
         }
 
         @Override
-        public boolean existsById(UUID uuid) {
+        public boolean existsById(String uuid) {
             return false;
         }
 
@@ -77,7 +77,7 @@ public class DeadlineControllerTest {
         }
 
         @Override
-        public Iterable<Deadline> findAllById(Iterable<UUID> uuids) {
+        public Iterable<Deadline> findAllById(Iterable<String> uuids) {
             return null;
         }
 
@@ -87,7 +87,7 @@ public class DeadlineControllerTest {
         }
 
         @Override
-        public void deleteById(UUID uuid) {
+        public void deleteById(String uuid) {
 
         }
 
@@ -97,7 +97,7 @@ public class DeadlineControllerTest {
         }
 
         @Override
-        public void deleteAllById(Iterable<? extends UUID> uuids) {
+        public void deleteAllById(Iterable<? extends String> uuids) {
 
         }
 
@@ -309,7 +309,7 @@ public class DeadlineControllerTest {
     @Test
     public void editDeadlineInvalidDeadlineId(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.editDeadline(principal,UUID.randomUUID(), project.getId(), null, null, null, 1);
+        ResponseEntity response = deadlineController.editDeadline(principal,UUID.randomUUID().toString(), project.getId(), null, null, null, 1);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
@@ -574,7 +574,7 @@ public class DeadlineControllerTest {
     @Test
     public void deleteDeadlineInvalidDeadlineId(){
         createAuthorisedUser();
-        ResponseEntity response = deadlineController.editDeadline(principal,UUID.randomUUID(), project.getId(), null, null, null, 1);
+        ResponseEntity response = deadlineController.editDeadline(principal,UUID.randomUUID().toString(), project.getId(), null, null, null, 1);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
@@ -613,10 +613,10 @@ public class DeadlineControllerTest {
             e.printStackTrace();
         }
         deadlineRepository.save(deadline2);
-        UUID invalidId = UUID.randomUUID();
+        String invalidId = UUID.randomUUID().toString();
         //used to ensure it is actually invalid
-        while (invalidId == deadline1.getId() || invalidId == deadline2.getId()){
-            invalidId = UUID.randomUUID();
+        while (Objects.equals(invalidId, deadline1.getId()) || Objects.equals(invalidId, deadline2.getId())){
+            invalidId = UUID.randomUUID().toString();
         }
 
         ResponseEntity response = deadlineController.getDeadline(invalidId);

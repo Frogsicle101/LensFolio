@@ -273,7 +273,7 @@ class EventControllerTest {
         Event event = new Event(project, "testEvent", LocalDateTime.now(), LocalDate.now(), LocalTime.now(), 1);
 
         Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
-        ResponseEntity<String> response = eventController.editEvent(UUID.randomUUID(),"changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
+        ResponseEntity<String> response = eventController.editEvent(UUID.randomUUID().toString(),"changedName", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
     }
