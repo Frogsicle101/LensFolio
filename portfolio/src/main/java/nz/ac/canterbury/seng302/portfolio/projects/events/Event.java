@@ -12,6 +12,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAccessor;
 
 /**
  * Represents an Event entity.
@@ -57,7 +58,12 @@ public class Event extends Deadline {
         return startDateColour;
     }
 
+    public LocalTime getEndTime(){
+        return getEndTime();
+    }
+
     public void setStartDateColour(String startDateColour) {
         this.startDateColour = startDateColour;
     }
+
 }
