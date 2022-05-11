@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -128,7 +129,7 @@ public class EventController {
      */
     @DeleteMapping("/deleteEvent")
     public ResponseEntity<String> deleteEvent(
-            @RequestParam(value = "eventId") UUID eventId
+            @RequestParam(value = "eventId") String eventId
     ) {
         try{
             logger.info("DELETE: /deleteEvent");
@@ -169,7 +170,7 @@ public class EventController {
      */
     @PostMapping("/editEvent")
     public ResponseEntity<String> editEvent(
-            @RequestParam(value = "eventId") UUID eventId,
+            @RequestParam(value = "eventId") String eventId,
             @RequestParam(value = "eventName") String name,
             @RequestParam(value = "eventStart") String start,
             @RequestParam(value = "eventEnd") String end,
@@ -210,7 +211,7 @@ public class EventController {
         } catch (EntityNotFoundException err) {
             logger.warn("POST /editEvent: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (DateTimeParseException err) {
+        } catch (DateTimeException err) {
             logger.warn("POST /editEvent: {}", err.getMessage());
             return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
         } catch(Exception err) {
@@ -271,7 +272,7 @@ public class EventController {
      */
     @GetMapping("/getEvent")
     public ResponseEntity<Object> getEvent(
-            @RequestParam(value="eventId") UUID eventId
+            @RequestParam(value="eventId") String eventId
     ){
         try {
             logger.info("GET /getEventsList");
@@ -286,13 +287,6 @@ public class EventController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
-
-
-
-
-
 
 
 }

@@ -20,13 +20,20 @@ $(document).ready(() => {
         $.ajax({
             url: "portfolio/addSprint?projectId=" + projectId,
             success: function (){
-                location.reload()
+
+                $(".sprintsContainer").slideUp(400, function() {
+                    $(".sprintsContainer").empty()
+                    getSprints()
+                })
+
             },
             error: function(error){
-                console.log(error.responseText)
-                $(".sprintAddErrorMessage").text(error.responseText)
-                $(".sprintAddAlert").slideUp()
-                $(".sprintAddAlert").slideDown()
+
+                $("#sprintAddInformationBar").append(`
+                    <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert">
+                        <p class="errorMessage">${error.responseText}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`)
             }
         })
 
@@ -36,8 +43,9 @@ $(document).ready(() => {
         $(this).parent().slideUp();
     })
 
-    $(".addSprint").css("left", $(".eventContainer").width() + "px")
-    $(".addSprint").css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
+    let addSprint = $(".addSprint")
+    addSprint.css("left", $(".eventContainer").width() + "px")
+    addSprint.css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
 
 })
 
@@ -75,9 +83,11 @@ function getSprints() {
         type: 'GET',
         data: {"projectId" : projectId},
         success: function (response) {
+            let sprintContainer = $(".sprintsContainer")
             for (let index in response){
-                $(".sprintsContainer").append(appendSprint(response[index], index));
+                sprintContainer.append(appendSprint(response[index], index));
             }
+            sprintContainer.slideDown(400)
             removeElementIfNotAuthorized()
         }
     })
@@ -87,7 +97,7 @@ function getSprints() {
 function appendSprint(springObject, index) {
     index = parseInt(index) + 1
 
-    let SprintElement = `
+    return `
              <div class="sprint" style="border-left: solid 0.3rem ${springObject.colour}; border-right: solid 0.3rem ${springObject.colour};">
                 <p class="sprintColour" style="display: none">${springObject.colour}</p>
                 <p class="sprintId" style="display: none">${springObject.id}</p>
@@ -129,9 +139,7 @@ function appendSprint(springObject, index) {
                         </svg>
                     </button>
                 </div>
-            </div>`
-
-    return SprintElement;
+            </div>`;
 }
 
 

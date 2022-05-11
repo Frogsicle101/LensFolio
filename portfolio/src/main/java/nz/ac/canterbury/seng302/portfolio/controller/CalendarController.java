@@ -12,6 +12,7 @@ import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,12 @@ public class CalendarController {
             ModelAndView model = new ModelAndView("monthlyCalendar");
             model.addObject("project", project);
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+            List<UserRole> roles = user.getRolesList();
+            if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
+                model.addObject("userCanEdit", true);
+            } else {
+                model.addObject("userCanEdit", false);
+            }
             model.addObject("user", user);
             return model;
 
@@ -114,7 +121,7 @@ public class CalendarController {
 
 
             List<Sprint> sprints = sprintRepository.findAllByProjectId(projectId);
-            List<HashMap<String, String>> sprintsToSend = new ArrayList<>();
+            List<HashMap<String, Object>> sprintsToSend = new ArrayList<>();
 
             for (Sprint sprint:sprints)  {
                 if(sprint.getStartDate().equals(sprintStartDate)
@@ -122,14 +129,20 @@ public class CalendarController {
                         || sprint.getEndDate().equals(sprintEndDate)
                         || sprint.getEndDate().isBefore(sprintEndDate)
                         || sprint.getStartDate().isBefore(sprintStartDate) && sprint.getEndDate().isAfter(sprintEndDate)) {
-                    HashMap<String, String> jsonedSprint = new HashMap<>();
+                    HashMap<String, Object> jsonedSprint = new HashMap<>();
                     jsonedSprint.put("title", sprint.getName());
-                    jsonedSprint.put("start", (LocalDateTime.from(sprint.getStartDate().atStartOfDay().plusHours(12))).toString());
+                    jsonedSprint.put("id", sprint.getId().toString());
+                    jsonedSprint.put("start", (LocalDateTime.from(sprint.getStartDate().atStartOfDay())).toString());
                     jsonedSprint.put("end", (LocalDateTime.from(sprint.getEndDate().atStartOfDay().plusHours(24))).toString());
+                    jsonedSprint.put("description", sprint.getDescription());
                     jsonedSprint.put("backgroundColor", sprint.getColour());
-                    jsonedSprint.put("allDay", "true");
+                    jsonedSprint.put("defaultColor", sprint.getColour());
+                    jsonedSprint.put("allDay", true);
+                    jsonedSprint.put("isSprint", true);
+                    jsonedSprint.put("selected", false);
                     sprintsToSend.add(jsonedSprint);
                 }
+
             }
 
             return new ResponseEntity<>(sprintsToSend, HttpStatus.OK);
@@ -165,7 +178,7 @@ public class CalendarController {
             HashMap<String, String> jsonedProject = new HashMap<>();
             jsonedProject.put("title", project.getName());
             jsonedProject.put("start", project.getStartDate().toString());
-            jsonedProject.put("end", project.getEndDate().toString());
+            jsonedProject.put("end", project.getEndDate().plusDays(1).toString());
             jsonedProject.put("backgroundColor", "grey");
 
             projectToSend.add(jsonedProject);

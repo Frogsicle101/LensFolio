@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio;
 
+import nz.ac.canterbury.seng302.portfolio.service.RemoveNotificationInterceptor;
 import nz.ac.canterbury.seng302.portfolio.service.RoleBasedIntercepter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -20,30 +21,56 @@ public class Config implements WebMvcConfigurer
     @Override
     public void addInterceptors(InterceptorRegistry registry)
     {
-        List<String> pathsToIntercept = new ArrayList<>();
+        List<String> pathsToInterceptForRoleBased = new ArrayList<>();
+        List<String> pathsToInterceptForNotificationRemoval = new ArrayList<>();
 
         // User Roles
-        pathsToIntercept.add("/editUserRole");
+        pathsToInterceptForRoleBased.add("/editUserRole");
 
         // Events
-        pathsToIntercept.add("/addEvent");
-        pathsToIntercept.add("/deleteEvent");
-        pathsToIntercept.add("/editEvent");
+        pathsToInterceptForRoleBased.add("/addEvent");
+        pathsToInterceptForRoleBased.add("/deleteEvent");
+        pathsToInterceptForRoleBased.add("/editEvent");
 
         // Portfolio
-        pathsToIntercept.add("/editProject");
-        pathsToIntercept.add("/projectEdit");
-        pathsToIntercept.add("/portfolio/addSprint");
-        pathsToIntercept.add("/sprintEdit");
-        pathsToIntercept.add("/sprintSubmit");
-        pathsToIntercept.add("/deleteSprint");
+        pathsToInterceptForRoleBased.add("/editProject");
+        pathsToInterceptForRoleBased.add("/projectEdit");
+        pathsToInterceptForRoleBased.add("/portfolio/addSprint");
+        pathsToInterceptForRoleBased.add("/sprintEdit");
+        pathsToInterceptForRoleBased.add("/sprintSubmit");
+        pathsToInterceptForRoleBased.add("/deleteSprint");
 
         //Milestone
-        pathsToIntercept.add("/editMilestone");
-        pathsToIntercept.add("/deleteMilestone");
-        pathsToIntercept.add("/addMilestone");
+        pathsToInterceptForRoleBased.add("/editMilestone");
+        pathsToInterceptForRoleBased.add("/deleteMilestone");
+        pathsToInterceptForRoleBased.add("/addMilestone");
 
 
-        registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToIntercept);
+        //Deadlines
+        pathsToInterceptForRoleBased.add("/addDeadline");
+        pathsToInterceptForRoleBased.add("/editDeadline");
+        pathsToInterceptForRoleBased.add("/deleteDeadline");
+
+
+
+
+
+
+        pathsToInterceptForNotificationRemoval.add("/account");
+        pathsToInterceptForNotificationRemoval.add("/portfolio");
+        pathsToInterceptForNotificationRemoval.add("/calendar");
+        pathsToInterceptForNotificationRemoval.add("/user-list");
+        pathsToInterceptForNotificationRemoval.add("/editProject");
+        pathsToInterceptForNotificationRemoval.add("/sprintEdit");
+
+
+
+
+
+
+
+
+        registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToInterceptForRoleBased);
+        registry.addInterceptor(new RemoveNotificationInterceptor()).addPathPatterns(pathsToInterceptForNotificationRemoval);
     }
 }

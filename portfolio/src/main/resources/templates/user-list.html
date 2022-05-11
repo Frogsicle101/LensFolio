@@ -73,7 +73,7 @@
                     Total Items [[${totalItems}]] : Page [[${currentPage}]] of [[${totalPages}]]
                     &nbsp; &nbsp; - &nbsp;
 
-                    <a th:if="${currentPage > 1}" th:href="@{user-list}">First</a>
+                    <a th:if="${currentPage > 1}" th:href="@{user-list?page=1}">First</a>
                     <span th:unless="${currentPage > 1}">First</span>
                     &nbsp;&nbsp;
                     <a th:if="${currentPage > 1}" th:href="@{'user-list?page=' + ${currentPage - 1}}">Previous</a>

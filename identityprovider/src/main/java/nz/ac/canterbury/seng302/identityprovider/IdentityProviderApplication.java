@@ -41,11 +41,11 @@ public class IdentityProviderApplication {
                 "admin",
                 "password",
                 "John",
-                "McSteve",
+                "McSteves",
                 "Wayne",
                 "Stev",
                 "kdsflkdjf",
-                "Steve/Steve",
+                "He/Him",
                 "steve@example.com",
                 TimeService.getTimeStamp()
         );
@@ -56,7 +56,7 @@ public class IdentityProviderApplication {
                 "student",
                 "password",
                 "Steve",
-                "McSteve",
+                "McSteveon",
                 "Steveson",
                 "Stev",
                 "kdsflkdjf",
@@ -67,9 +67,7 @@ public class IdentityProviderApplication {
         testUser2.addRole(UserRole.STUDENT);
         repository.save(testUser2);
 
-        /*
-        TODO: Remove this when finished testing
-         */
+
         for (int i = 0; i < 10000; i++) {
             User lemming = new User(
                     "Lemming number: " + i,

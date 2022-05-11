@@ -118,7 +118,7 @@ public class MilestoneController {
      */
     @PostMapping("/editMilestone")
     public ResponseEntity<Object> editMilestone(
-            @RequestParam(value = "milestoneId") UUID milestoneId,
+            @RequestParam(value = "milestoneId") String milestoneId,
             @RequestParam(value = "milestoneName") String name,
             @RequestParam(value = "milestoneDate") String date,
             @RequestParam(defaultValue = "1", value = "typeOfMilestone") int typeOfOccasion
@@ -184,7 +184,7 @@ public class MilestoneController {
      */
     @GetMapping("/getMilestone")
     public ResponseEntity<Object> getMilestone(
-            @RequestParam(value="milestoneId") UUID milestoneId
+            @RequestParam(value="milestoneId") String milestoneId
     ){
         try {
             logger.info("GET /getMilestone");
@@ -201,7 +201,7 @@ public class MilestoneController {
 
     @DeleteMapping("/deleteMilestone")
     public ResponseEntity<Object> deleteMilestone(
-            @RequestParam(value = "milestoneId") UUID milestoneId
+            @RequestParam(value = "milestoneId") String milestoneId
     ) {
         try{
             logger.info("DELETE: /deleteMilestone");

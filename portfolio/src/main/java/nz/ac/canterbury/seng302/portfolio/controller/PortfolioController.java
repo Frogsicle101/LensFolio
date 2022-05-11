@@ -6,6 +6,8 @@ import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
@@ -35,10 +37,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -58,6 +62,9 @@ public class PortfolioController {
 
     @Autowired
     private final EventRepository eventRepository;
+
+    @Autowired
+    private final DeadlineRepository deadlineRepository;
 
 
     @Autowired
@@ -83,11 +90,16 @@ public class PortfolioController {
      * @param projectRepository repository
      * @param milestoneRepository
      */
-    public PortfolioController(SprintRepository sprintRepository, ProjectRepository projectRepository, EventRepository eventRepository, MilestoneRepository milestoneRepository) throws InvalidNameException {
+    public PortfolioController(SprintRepository sprintRepository,
+                               ProjectRepository projectRepository,
+                               EventRepository eventRepository,
+                               MilestoneRepository milestoneRepository,
+                               DeadlineRepository deadlineRepository) throws InvalidNameException {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
         this.milestoneRepository = milestoneRepository;
+        this.deadlineRepository = deadlineRepository;
 
         //Below are only for testing purposes.
         if (includeTestValues) {
@@ -100,6 +112,7 @@ public class PortfolioController {
             createDefaultEvents(defaultProject);
             createDefaultSprints(defaultProject);
             createDefaultMilestones(defaultProject);
+            createDefaultDeadlines(defaultProject);
         } else {
             projectRepository.save(new Project("Default Project"));
         }
@@ -418,9 +431,8 @@ public class PortfolioController {
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
 
-            UUID uuidSprintId = UUID.fromString(sprintId);
 
-            Sprint sprint = sprintRepository.findById(uuidSprintId).orElseThrow(() -> new EntityNotFoundException(
+            Sprint sprint = sprintRepository.findById(String.valueOf(sprintId)).orElseThrow(() -> new EntityNotFoundException(
                     "Sprint with id " + projectId.toString() + " was not found"
             ));
 
@@ -475,6 +487,7 @@ public class PortfolioController {
             @RequestParam(value = "projectId") Long projectId
     ) {
         List<Sprint> sprintList = sprintRepository.findAllByProjectId(projectId);
+        sprintList.sort(Comparator.comparing(Sprint::getStartDate));
         return new ResponseEntity<>(sprintList, HttpStatus.OK);
     }
 
@@ -487,6 +500,7 @@ public class PortfolioController {
     private HashMap<String, LocalDate> checkNeighbourDatesForSprint(Project project, Sprint sprint){
         // Gets a list of all sprints that belong to the project and orders them by start date: earliest to latest
         List<Sprint> sprintList = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
+
 
         HashMap<String, LocalDate> neighbouringSprintDates = new HashMap<>();
 
@@ -622,7 +636,7 @@ public class PortfolioController {
    @DeleteMapping("deleteSprint")
     public ResponseEntity<String> deleteSprint(@RequestParam (value = "sprintId")UUID id) {
        logger.info("DELETE REQUEST /deleteSprint");
-        sprintRepository.deleteById(id);
+        sprintRepository.deleteById(String.valueOf(id));
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
    }
 
@@ -641,6 +655,27 @@ public class PortfolioController {
         eventRepository.save(event2);
         eventRepository.save(event3);
         eventRepository.save(event4);
+    }
+
+    /**
+     * Creates default deadlines for a given project.
+     *
+     * @param project The project in which the deadlines will be stored.
+     * @throws InvalidNameException If the deadline name is null or longer than 50 characters.
+     */
+    public void createDefaultDeadlines(Project project) throws InvalidNameException {
+        try {
+            Deadline deadline1 = new Deadline(project, "SENG 101 Assignment due", LocalDate.parse("2022-05-01"), LocalTime.parse("23:59:00"), 1);
+            Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
+            Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-08-14"), LocalTime.parse("09:30:00"), 3);
+            Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
+            deadlineRepository.save(deadline1);
+            deadlineRepository.save(deadline2);
+            deadlineRepository.save(deadline3);
+            deadlineRepository.save(deadline4);
+        } catch (InvalidNameException | DateTimeException err) {
+            logger.warn("Error occurred loading default deadlines: {}", err.getMessage());
+        }
     }
 
     public void createDefaultMilestones(Project project) throws InvalidNameException {

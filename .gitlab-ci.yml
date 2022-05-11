@@ -14,16 +14,18 @@ tag-checker:
     - tags
 
 # junit-porfolio:
-#   stage: test
-#   script:
-#     - cd portfolio
-#     - ./gradlew test
+#  stage: test
+#  script:
+#    - cd portfolio
+#    - ./gradlew test
 
 # junit-identityprovider:
-#   stage: test
-#   script:
-#     - cd identityprovider
-#     - ./gradlew test
+#  stage: test
+#  script:
+#    - cd identityprovider
+#    - ./gradlew test
+
+
 
 publish-protos-to-maven-local:
   stage: publishProtosToLocalMavenRepo
@@ -60,6 +62,8 @@ deploy-staging-identityprovider:
     - mkdir /home/gitlab-runner/staging-identityprovider/photos
     - cp ./src/main/resources/profile-photos/default.png /home/gitlab-runner/staging-identityprovider/photos
     - cp ../runner/staging-identityprovider.sh /home/gitlab-runner/staging-identityprovider.sh
+    - echo "$databaseUsername" > /home/gitlab-runner/staging-identityprovider/username.txt
+    - echo "$databasePassword" > /home/gitlab-runner/staging-identityprovider/password.txt
     - chmod u+x /home/gitlab-runner/staging-identityprovider.sh
     - sudo systemctl restart staging-identityprovider
   artifacts:
@@ -77,6 +81,8 @@ deploy-staging-portfolio:
     - mkdir /home/gitlab-runner/staging-portfolio/
     - cp -r ./build/libs /home/gitlab-runner/staging-portfolio
     - cp ../runner/staging-portfolio.sh /home/gitlab-runner/staging-portfolio.sh
+    - echo "$databaseUsername" > /home/gitlab-runner/staging-portfolio/username.txt
+    - echo "$databasePassword" > /home/gitlab-runner/staging-portfolio/password.txt
     - chmod u+x /home/gitlab-runner/staging-portfolio.sh
     - sudo systemctl restart staging-portfolio
   artifacts:

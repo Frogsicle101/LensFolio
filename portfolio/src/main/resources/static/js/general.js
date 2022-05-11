@@ -17,6 +17,20 @@ $(document).ready(function() {
     let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
+
+
+
 });
 
+
+$(document).on("click", ".logout", function() {
+    $.ajax({
+        url: "closeNotifications",
+        type: "POST"
+    })
+    $.ajax({
+        url: "logout",
+        type: "POST"
+    })
+})
 

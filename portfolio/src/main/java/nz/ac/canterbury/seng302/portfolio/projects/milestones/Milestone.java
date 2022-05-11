@@ -3,6 +3,8 @@ package nz.ac.canterbury.seng302.portfolio.projects.milestones;
 import com.sun.istack.NotNull;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.*;
@@ -15,10 +17,8 @@ import java.util.UUID;
  */
 @Entity
 public class Milestone {
-
-    private @Id
-    @GeneratedValue
-    UUID id;
+    @Id
+    private String id;
 
     @ManyToOne()
     private Project project;
@@ -39,7 +39,7 @@ public class Milestone {
     }
 
     /**
-     * Constructs an instance of the milestone object.
+     * Constructs an instance of the milestone object.s
      *
      * @param project The project in which the milestone occurs.
      * @param name The name of the milestone.
@@ -48,11 +48,14 @@ public class Milestone {
      * @throws InvalidNameException If the milestone name is null or has length greater than fifty characters.
      */
     public Milestone(Project project, String name, LocalDate endDate, int type) throws InvalidNameException {
+
+
+
         if (name == null || name.length() > 50) { //useful for creating default milestones, but project.js includes validations for frontend milestone editing
             throw new InvalidNameException();
         }
         validateDate(project, endDate);
-
+        this.id = UUID.randomUUID().toString();
         this.project = project;
         this.name = name;
         this.endDate = endDate;
@@ -78,7 +81,15 @@ public class Milestone {
         return nameLengthRestriction;
     }
 
-    public UUID getId() {
+    /**
+     * This sets the ID
+     *
+     * SHOULD ONLY BE USED FOR TESTING PURPOSES
+     * @param id the UUID to be set
+     */
+    public void setUuid(String id) { this.id = id; }
+
+    public String getId() {
         return this.id;
     }
 
