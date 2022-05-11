@@ -231,7 +231,7 @@ section {
 }
 
 .occasionTitleDiv {
-    display: inline-flex;
+    display: flex;
     flex-direction: row;
     width: 89%;
 }

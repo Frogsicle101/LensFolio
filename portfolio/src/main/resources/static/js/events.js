@@ -40,7 +40,7 @@ $(document).ready(function () {
             let noticeSelector = $("#notice" + data.eventId)
             if (!noticeSelector.length) {
                 let infoString = data.usersName + " is editing element: " + eventDiv.find(".name").text() // Find the name of the event from its id
-                infoContainer.append(`<p class="infoMessage" id="notice${data.eventId}"> ` + infoString + `</p>`)
+                infoContainer.append(`<p class="infoMessage text-truncate" id="notice${data.eventId}"> ` + infoString + `</p>`)
                 eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
                 if (eventDiv.hasClass("beingEdited")) {
                     eventDiv.find(".controlButtons").hide()
@@ -588,7 +588,7 @@ function appendEventToSprint(elementToAppendTo, event) {
                 <div class="row">
                     <div class="col">
                         <div class="eventInSprint eventInSprint${event.id}" >
-                            <p class="sprintEventName">${event.name} : </p>
+                            <p class="sprintEventName text-truncate">${event.name} : </p>
                             <p class="sprintEventStart">${event.startDateFormatted}</p>
                             <p>-</p>
                             <p class="sprintEventEnd">${event.endDateFormatted}</p>
@@ -638,7 +638,7 @@ function appendMilestoneToSprint(elementToAppendTo, milestone) {
     let milestoneInSprint = `
                 <div class="row" >
                     <div class="milestoneInSprint milestoneInSprint${milestone.id}">
-                        <p class="sprintMilestoneName">${milestone.name} :&#160</p>
+                        <p class="sprintMilestoneName text-truncate">${milestone.name} :&#160</p>
                         <p class="sprintMilestoneEnd">${milestone.endDateFormatted}</p>
                     </div>
                 </div>`
@@ -684,7 +684,7 @@ function appendDeadlineToSprint(elementToAppendTo, deadline) {
     let deadlineInSprint = `
                 <div class="row" >
                     <div class="deadlineInSprint deadlineInSprint${deadline.id}">
-                        <p class="sprintDeadlineName">${deadline.name}</p>
+                        <p class="sprintDeadlineName text-truncate">${deadline.name}</p>
                         <p class="sprintDeadlineEnd">${deadline.endDateFormatted}</p>
                     </div>
                 </div>`
