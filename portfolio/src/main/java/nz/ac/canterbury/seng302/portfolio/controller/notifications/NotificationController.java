@@ -1,6 +1,12 @@
 package nz.ac.canterbury.seng302.portfolio.controller.notifications;
 
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
@@ -35,6 +41,15 @@ public class NotificationController {
 
     /** For logging */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
+    private MilestoneRepository milestoneRepository;
+
+    @Autowired
+    private DeadlineRepository deadlineRepository;
 
 
     /**
@@ -74,7 +89,7 @@ public class NotificationController {
     @PostMapping("/notifyEdit")
     public void sendEventToClients(
             @AuthenticationPrincipal AuthState editor,
-            @RequestParam(required = false) UUID id,
+            @RequestParam(required = false) String id,
             @RequestParam String type,
             @RequestParam(required = false) String typeOfEvent
     ) throws IOException {
@@ -83,14 +98,19 @@ public class NotificationController {
         UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
                 .setId(eventEditorID)
                 .build());
+
         String username = userResponse.getFirstName() + " " + userResponse.getLastName();
-        if (!Objects.equals(type, "notifyNewElement")) {
-            notificationService.sendNotification(type, new EditEvent(eventEditorID, username, id));
-        } else if(Objects.equals(type, "keepAlive")) {
+        if(Objects.equals(type, "keepAlive")) {
             notificationService.sendKeepAlive(eventEditorID);
         } else {
-            notificationService.sendNotification(type, new EditEvent(eventEditorID, username, id, typeOfEvent));
+            if (typeOfEvent == null) {
+                notificationService.sendNotification(type, new EditEvent(eventEditorID, username, id, typeOfEvent));
+            } else {
+                notificationService.sendNotification(type, new EditEvent(eventEditorID, username, id, typeOfEvent, getObjectName(typeOfEvent, id)));
+            }
+
         }
+
     }
 
 
@@ -104,5 +124,25 @@ public class NotificationController {
         int userId = PrincipalAttributes.getIdFromPrincipal(user);
         logger.info("POST /closeNotifications - cancelling notifications for user " + userId);
         notificationService.removeEditor(userId);
+    }
+
+
+    public String getObjectName(String typeOfEvent, String id) {
+        switch (typeOfEvent) {
+            case "event" -> {
+                Event event = eventRepository.getById(id);
+                return event.getName();
+            }
+            case "milestone" -> {
+                Milestone milestone = milestoneRepository.getById(id);
+                return milestone.getName();
+            }
+            case "deadline" -> {
+                Deadline deadline = deadlineRepository.getById(id);
+                return deadline.getName();
+            }
+            default -> logger.warn("Notification Controller: getObjectName: Bad Request");
+        }
+        return null;
     }
 }

@@ -23,14 +23,4 @@ $(document).ready(function() {
 });
 
 
-$(document).on("click", ".logout", function() {
-    $.ajax({
-        url: "closeNotifications",
-        type: "POST"
-    })
-    $.ajax({
-        url: "logout",
-        type: "POST"
-    })
-})
 

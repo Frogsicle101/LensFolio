@@ -9,21 +9,25 @@ import java.util.UUID;
 public class EditEvent {
 
     private int userId;
-    private UUID eventId;
+    private String eventId;
     private String usersName;
     private String typeOfEvent;
+    private String nameOfEvent;
 
-    public EditEvent(int userId, String usersName, UUID eventId) {
+    public EditEvent(int userId, String usersName, String eventId, String nameOfEvent) {
         this.userId = userId;
         this.usersName = usersName;
         this.eventId = eventId;
+        this.nameOfEvent = nameOfEvent;
+
     }
 
-    public EditEvent(int userId, String usersName, UUID eventId, String typeOfEvent) {
+    public EditEvent(int userId, String usersName, String eventId, String typeOfEvent,  String nameOfEvent) {
         this.userId = userId;
         this.usersName = usersName;
         this.eventId = eventId;
         this.typeOfEvent = typeOfEvent;
+        this.nameOfEvent = nameOfEvent;
     }
 
     public int getUserId() {
@@ -46,11 +50,23 @@ public class EditEvent {
         this.typeOfEvent = typeOfEvent;
     }
 
-    public UUID getEventId() {
+    public void setUsersName(String usersName) {
+        this.usersName = usersName;
+    }
+
+    public String getNameOfEvent() {
+        return nameOfEvent;
+    }
+
+    public void setNameOfEvent(String nameOfEvent) {
+        this.nameOfEvent = nameOfEvent;
+    }
+
+    public String getEventId() {
         return eventId;
     }
 
-    public void setEventId(UUID eventId) {
+    public void setEventId(String eventId) {
         this.eventId = eventId;
     }
 

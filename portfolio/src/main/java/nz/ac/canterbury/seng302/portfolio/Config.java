@@ -62,6 +62,7 @@ public class Config implements WebMvcConfigurer
         pathsToInterceptForNotificationRemoval.add("/user-list");
         pathsToInterceptForNotificationRemoval.add("/editProject");
         pathsToInterceptForNotificationRemoval.add("/sprintEdit");
+        pathsToInterceptForNotificationRemoval.add("/logout");
 
 
 
