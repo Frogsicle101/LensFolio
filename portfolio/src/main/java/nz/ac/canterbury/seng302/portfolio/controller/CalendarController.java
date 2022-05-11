@@ -211,36 +211,35 @@ public class CalendarController {
      */
     @GetMapping("getEventsAsFeed")
     public ResponseEntity<Object> getEventsAsFeed(
-            @RequestParam(value="projectId") long projectId,
-            @RequestParam(value = "date") String date){
+            @RequestParam(value="projectId") long projectId){
         try{
             logger.info("GET REQUEST /getEventsAsFeed");
-
-            LocalDateTime parsedDate = LocalDateTime.parse(date);
-            List<Event> events = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
-            HashMap<String, String> eventsToSend = new HashMap<>();
-            List<HashMap<String, String>> eventsToSendList = new ArrayList<>();
+            Project project = projectRepository.getProjectById(projectId);
 
             List<HashMap<String, String>> eventsList = new ArrayList<>();
+            HashMap<LocalDate, Integer> eventsCount = new HashMap<>();
+            List<Event> allEvents = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
 
-            for (Event event:events)  {
-                if(event.getStartDate().equals(parsedDate)
-                        || event.getStartDate().isBefore(parsedDate) && event.getStartDate().isAfter(parsedDate)
-                        || event.getEndDate().equals(parsedDate.toLocalDate())) {
-                    HashMap<String, String> jsonedEvent = new HashMap<>();
-                    jsonedEvent.put("title", event.getName());
-                    jsonedEvent.put("start", (LocalDateTime.from(event.getStartDate().truncatedTo(ChronoUnit.DAYS).plusHours(12))).toString());
-                    jsonedEvent.put("end", (LocalDateTime.from(event.getEndDate().atStartOfDay().plusHours(24))).toString());
-                    jsonedEvent.put("endTime", (LocalDateTime.from(event.getEndTime()).toString()));
-                    eventsList.add(jsonedEvent);
+            for (Event event : allEvents)  {Integer countByDate = eventsCount.get(event.getEndDate());
+                if (countByDate == null) {
+                    eventsCount.put(event.getEndDate(), 1); //add date to map as key
+                }else {
+                    countByDate++;
+                    eventsCount.replace(event.getEndDate(), countByDate);
                 }
             }
-            eventsToSend.put("date", date);
-            eventsToSend.put("eventList", eventsList.toString());
-            eventsToSend.put("number", String.valueOf(eventsList.size()));
-            eventsToSendList.add(eventsToSend);
 
-            return new ResponseEntity<>(eventsToSendList, HttpStatus.OK);
+            for (Map.Entry<LocalDate, Integer> entry : eventsCount.entrySet()) {
+                HashMap<String, String> jsonedEvent = new HashMap<>();
+                jsonedEvent.put("title", String.valueOf(entry.getValue()));
+                jsonedEvent.put("classNames", "eventCalendar");
+                jsonedEvent.put("content", "");
+                jsonedEvent.put("start", entry.getKey().toString());
+                jsonedEvent.put("end", entry.getKey().toString());
+                eventsList.add(jsonedEvent);
+            }
+
+            return new ResponseEntity<>(eventsList, HttpStatus.OK);
         } catch(DateTimeParseException err) {
             logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
             return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
@@ -249,6 +248,8 @@ public class CalendarController {
             return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
     /**
      * Returns the milestones in a json format, with the date of the milestone mapped to the number of milestones occurring on that date.
