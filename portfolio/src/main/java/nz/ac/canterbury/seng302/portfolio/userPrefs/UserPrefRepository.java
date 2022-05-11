@@ -1,9 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.userPrefs;
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 
 /**
  * Interface that defines how to interact with the database. Spring boot does the hard work under the hood

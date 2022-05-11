@@ -46,6 +46,11 @@ public class OccasionFeature {
         }
 
         @Override
+        public List<Deadline> findAllByProjectIdOrderByEndDate(Long projectId) {
+            return null;
+        }
+
+        @Override
         public <S extends Deadline> S save(S entity) {
             deadlines.add(entity);
             return entity;
@@ -60,6 +65,9 @@ public class OccasionFeature {
         public Optional<Deadline> findById(String s) {
             return Optional.empty();
         }
+
+        @Override
+        public Deadline getById(String s) {return null;}
 
         @Override
         public boolean existsById(String s) {

@@ -9,14 +9,16 @@ $(document).ready(function () {
     let infoContainer = $("#informationBar")
     let formControl = $(".form-control");
 
-
-    refreshEvents(projectId)
-    refreshMilestones(projectId)
     refreshDeadlines(projectId)
+    refreshMilestones(projectId)
+    refreshEvents(projectId)
+
+
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)
     formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+
 
 
 // -------------------------------------- Notification Source and listeners --------------------------------------------
@@ -33,12 +35,13 @@ $(document).ready(function () {
      */
     eventSource.addEventListener("editEvent", function (event) {
         const data = JSON.parse(event.data);
+        console.log(data)
         if (checkPrivilege()) {
             let eventDiv = $("#" + data.eventId)
             let noticeSelector = $("#notice" + data.eventId)
             if (!noticeSelector.length) {
-                let infoString = data.usersName + " is editing element: " + eventDiv.find(".name").text() // Find the name of the event from its id
-                infoContainer.append(`<p class="infoMessage" id="notice${data.eventId}"> ` + infoString + `</p>`)
+                let infoString = data.usersName + " is editing element: " + data.nameOfEvent // Find the name of the event from its id
+                infoContainer.append(`<p class="infoMessage text-truncate" id="notice${data.eventId}"> ` + infoString + `</p>`)
                 eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
                 if (eventDiv.hasClass("beingEdited")) {
                     eventDiv.find(".controlButtons").hide()
@@ -126,7 +129,19 @@ $(document).ready(function () {
 
     })
 
+
+
+
+    keepAlive().then();
 })
+
+
+async function keepAlive() {
+    setTimeout(function(){
+        notifyEdit(null, "keepAlive")
+    }, 10000)
+
+}
 
 /**
  * Removes element milestone
@@ -147,7 +162,7 @@ function removeElement(elementId) {
  * @param type The type of notification to send to the server
  * @param typeOfEvent The type of the object being edited (milestone, deadline, event)
  */
-function notifyEdit(id, type, typeOfEvent = null) {
+function notifyEdit(id, type, typeOfEvent) {
     $.ajax({
         url: "notifyEdit",
         type: "POST",
@@ -465,12 +480,15 @@ $(document).on("click", ".editButton", function () {
     $(".deleteButton").hide()
     let parent = $(this).closest(".occasion")
     let id = parent.attr("id")
-    notifyEdit(id, "editEvent")
+
     if (parent.hasClass("event")) {
+        notifyEdit(id, "editEvent", "event")
         appendEventForm(parent)
     } else if (parent.hasClass("milestone")) {
+        notifyEdit(id, "editEvent", "milestone")
         appendMilestoneForm(parent)
     } else if (parent.hasClass("deadline")) {
+        notifyEdit(id, "editEvent", "deadline")
         appendDeadlineForm(parent)
     }
 
@@ -574,7 +592,7 @@ function appendEventToSprint(elementToAppendTo, event) {
                 <div class="row">
                     <div class="col">
                         <div class="eventInSprint eventInSprint${event.id}" >
-                            <p class="sprintEventName">${event.name} : </p>
+                            <p class="sprintEventName text-truncate">${event.name} : </p>
                             <p class="sprintEventStart">${event.startDateFormatted}</p>
                             <p>-</p>
                             <p class="sprintEventEnd">${event.endDateFormatted}</p>
@@ -624,7 +642,7 @@ function appendMilestoneToSprint(elementToAppendTo, milestone) {
     let milestoneInSprint = `
                 <div class="row" >
                     <div class="milestoneInSprint milestoneInSprint${milestone.id}">
-                        <p class="sprintMilestoneName">${milestone.name} :&#160</p>
+                        <p class="sprintMilestoneName text-truncate">${milestone.name} :&#160</p>
                         <p class="sprintMilestoneEnd">${milestone.endDateFormatted}</p>
                     </div>
                 </div>`
@@ -670,7 +688,7 @@ function appendDeadlineToSprint(elementToAppendTo, deadline) {
     let deadlineInSprint = `
                 <div class="row" >
                     <div class="deadlineInSprint deadlineInSprint${deadline.id}">
-                        <p class="sprintDeadlineName">${deadline.name}</p>
+                        <p class="sprintDeadlineName text-truncate">${deadline.name}</p>
                         <p class="sprintDeadlineEnd">${deadline.endDateFormatted}</p>
                     </div>
                 </div>`
@@ -906,7 +924,7 @@ function createEventDiv(eventObject) {
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="eventName name" >${eventObject.name}</p>
+                    <p class="eventName name text-truncate" >${eventObject.name}</p>
                 </div>
                 <div class="controlButtons">
                     <button class="editButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Event">
@@ -973,7 +991,7 @@ function createMilestoneDiv(milestoneObject) {
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="milestoneName name">${milestoneObject.name}</p>
+                    <p class="milestoneName name text-truncate">${milestoneObject.name}</p>
                 </div>
                 <div class="controlButtons">
                     <button class="editButton noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Milestone">
@@ -1041,7 +1059,7 @@ function createDeadlineDiv(deadlineObject) {
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="deadlineName name">${deadlineObject.name}</p>
+                    <p class="deadlineName name text-truncate">${deadlineObject.name}</p>
                 </div>
                 <div class="controlButtons">
                         <button class="editButton noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Deadline">

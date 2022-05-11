@@ -1,10 +1,17 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import com.google.type.DateTime;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
@@ -24,23 +31,31 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class CalendarController {
 
     private final ProjectRepository projectRepository;
     private final SprintRepository sprintRepository;
+    private final EventRepository eventRepository;
+    private final DeadlineRepository deadlineRepository;
+    private final MilestoneRepository milestoneRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    public CalendarController(ProjectRepository projectRepository, SprintRepository sprintRepository) {
+    public CalendarController(ProjectRepository projectRepository, SprintRepository sprintRepository, EventRepository eventRepository, DeadlineRepository deadlineRepository, MilestoneRepository milestoneRepository) {
         this.projectRepository = projectRepository;
         this.sprintRepository = sprintRepository;
+        this.eventRepository = eventRepository;
+        this.deadlineRepository = deadlineRepository;
+        this.milestoneRepository = milestoneRepository;
     }
 
 
@@ -207,6 +222,150 @@ public class CalendarController {
         }
     }
 
+    /**
+     * Returns the events as in a json format, only finds the events by date
+     */
+    @GetMapping("getEventsAsFeed")
+    public ResponseEntity<Object> getEventsAsFeed(
+            @RequestParam(value="projectId") long projectId){
+        try{
+            logger.info("GET REQUEST /getEventsAsFeed");
+            Project project = projectRepository.getProjectById(projectId);
+
+            List<HashMap<String, String>> eventsList = new ArrayList<>();
+            HashMap<LocalDate, Integer> eventsCount = new HashMap<>();
+            List<Event> allEvents = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
+
+            for (Event event : allEvents)  {
+                List<LocalDate> dates = new ArrayList<>();
+                LocalDateTime current = event.getStartDate();
+                while (current.isBefore(LocalDateTime.of(event.getEndDate(), event.getEndTime()))) {
+                    dates.add(current.toLocalDate());
+                    current = current.plusDays(1);
+                }
+
+                for (LocalDate date: dates) {
+                    Integer countByDate = eventsCount.get(date);
+                    if (countByDate == null) {
+                        eventsCount.put(date, 1); //add date to map as key
+                    }else {
+                        countByDate++;
+                        eventsCount.replace(date, countByDate);
+                    }
+                }
+
+
+            }
+
+            for (Map.Entry<LocalDate, Integer> entry : eventsCount.entrySet()) {
+                HashMap<String, String> jsonedEvent = new HashMap<>();
+                jsonedEvent.put("title", String.valueOf(entry.getValue()));
+                jsonedEvent.put("classNames", "eventCalendar");
+                jsonedEvent.put("content", "");
+                jsonedEvent.put("start", entry.getKey().toString());
+                jsonedEvent.put("end", entry.getKey().toString());
+                eventsList.add(jsonedEvent);
+            }
+
+            return new ResponseEntity<>(eventsList, HttpStatus.OK);
+        } catch(DateTimeParseException err) {
+            logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
+            return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+        } catch (Exception err){
+            logger.error("GET REQUEST /getEventsAsFeed", err);
+            return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Returns the deadlines in a json format, with the date of the deadline mapped to the number of deadline occurring on that date.
+     */
+    @GetMapping("getDeadlinesAsFeed")
+    public ResponseEntity<Object> getDeadlinesAsFeed(
+            @RequestParam(value="projectId") long projectId) {
+        try {
+            logger.info("GET REQUEST /getDeadlinesAsFeed");
+            Project project = projectRepository.getProjectById(projectId);
+
+            List<HashMap<String, String>> deadlinesList = new ArrayList<>();
+            HashMap<LocalDate, Integer> deadlinesCount = new HashMap<>();
+            List<Deadline> allDeadlines = deadlineRepository.findAllByProjectIdOrderByEndDate(projectId);
+
+            for (Deadline deadline : allDeadlines) { //iterates over all milestones in repo, and counts the
+                Integer countByDate = deadlinesCount.get(deadline.getEndDate());
+                if (countByDate == null) {
+                    deadlinesCount.put(deadline.getEndDate(), 1); //add date to map as key
+                }else {
+                    countByDate++;
+                    deadlinesCount.replace(deadline.getEndDate(), countByDate);
+                }
+            }
+
+            for (Map.Entry<LocalDate, Integer> entry : deadlinesCount.entrySet()) {
+                HashMap<String, String> jsonedDeadline = new HashMap<>();
+                jsonedDeadline.put("title", String.valueOf(entry.getValue()));
+                jsonedDeadline.put("classNames", "deadlineCalendar");
+                jsonedDeadline.put("content", "");
+                jsonedDeadline.put("start", entry.getKey().toString());
+                jsonedDeadline.put("end", entry.getKey().toString());
+                deadlinesList.add(jsonedDeadline);
+            }
+
+            return new ResponseEntity<>(deadlinesList, HttpStatus.OK);
+        } catch(DateTimeParseException err) {
+            logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
+            return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+        } catch (Exception err){
+            logger.error("GET REQUEST /getDeadlinesAsFeed", err);
+            return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Returns the milestones in a json format, with the date of the milestone mapped to the number of milestones occurring on that date.
+     */
+    @GetMapping("getMilestonesAsFeed")
+    public ResponseEntity<Object> getMilestonesAsFeed(
+            @RequestParam(value="projectId") long projectId) {
+        try {
+            logger.info("GET REQUEST /getMilestonesAsFeed");
+            Project project = projectRepository.getProjectById(projectId);
+
+            List<HashMap<String, String>> milestonesList = new ArrayList<>();
+            HashMap<LocalDate, Integer> milestonesCount = new HashMap<>();
+            List<Milestone> allMilestones = milestoneRepository.findAllByProjectIdOrderByEndDate(projectId);
+
+            for (Milestone milestone : allMilestones) { //iterates over all milestones in repo, and counts the
+                Integer countByDate = milestonesCount.get(milestone.getEndDate());
+                if (countByDate == null) {
+                    milestonesCount.put(milestone.getEndDate(), 1); //add date to map as key
+                }else {
+                    countByDate++;
+                    milestonesCount.replace(milestone.getEndDate(), countByDate);
+                }
+            }
+
+            for (Map.Entry<LocalDate, Integer> entry : milestonesCount.entrySet()) {
+                HashMap<String, String> jsonedMilestone = new HashMap<>();
+                jsonedMilestone.put("title", String.valueOf(entry.getValue()));
+                jsonedMilestone.put("classNames", "milestoneCalendar");
+                jsonedMilestone.put("content", "");
+                jsonedMilestone.put("start", entry.getKey().toString());
+                jsonedMilestone.put("end", entry.getKey().toString());
+                milestonesList.add(jsonedMilestone);
+            }
+
+            return new ResponseEntity<>(milestonesList, HttpStatus.OK);
+        } catch(DateTimeParseException err) {
+            logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
+            return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+        } catch (Exception err){
+            logger.error("GET REQUEST /getMilestonesAsFeed", err);
+            return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
     /**

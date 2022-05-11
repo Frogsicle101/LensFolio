@@ -43,6 +43,16 @@ public class DeadlineControllerTest {
         }
 
         @Override
+        public List<Deadline> findAllByProjectIdOrderByEndDate(Long projectId) {
+            return null;
+        }
+
+        @Override
+        public Deadline getById(String eventId) {
+            return null;
+        }
+
+        @Override
         public <S extends Deadline> S save(S entity) {
             if (!deadlines.contains(entity)){
                 entity.setUuid(UUID.randomUUID().toString());

@@ -233,6 +233,7 @@ section {
 .occasionTitleDiv {
     display: flex;
     flex-direction: row;
+    width: 89%;
 }
 
 .occasionIcon {
@@ -529,5 +530,19 @@ section {
 .fc-event-title{
     display: none;
 }
+
+.fc-event-skin {
+
+}
+
+.milestoneCalendar, .deadlineCalendar, .eventCalendar {
+    background: white;
+    width: 40px;
+    height: 20px;
+    line-height: 17px;
+}
+
+
+.hover-end{padding:0;margin:0;font-size:75%;text-align:center;position:absolute;bottom:0;width:100%;opacity:.8}
 
 
