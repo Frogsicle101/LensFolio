@@ -13,6 +13,9 @@ public interface DeadlineRepository extends CrudRepository<Deadline, String> {
     @Query
     Long countDeadlineByProjectId(Long projectId);
 
+    @Query("select d from #{#entityName} as d where d.startDate IS NULL and d.project.id = ?1")
+    List<Deadline> findAllByProjectIdOrderByEndDate(Long projectId);
+
     @Query
     Deadline getById(String eventId);
 }
