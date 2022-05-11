@@ -18,26 +18,29 @@ public class IdentityProviderApplication {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private boolean includeAdminAccount = true;
+
+    private boolean includeTestData = true;
+
 
     @EventListener(ApplicationReadyEvent.class)
     public void setup() {
-        logger.info("Initialising test user Steve");
-        User testUser = new User(
-                "steve",
-                "password",
-                "Steve",
-                "McSteve",
-                "Steveson",
-                "Stev",
-                "kdsflkdjf",
-                "Steve/Steve",
-                "steve@example.com",
-                TimeService.getTimeStamp()
-        );
-        testUser.addRole(UserRole.TEACHER);
-        repository.save(testUser);
-        logger.info("Initialising test user Admin");
-        User testUser1 = new User(
+        if (includeAdminAccount)
+            addAdminAccount();
+        if (includeTestData)
+            addTestUsers();
+    }
+
+
+    public static void main(String[] args) {
+        SpringApplication.run(IdentityProviderApplication.class, args);
+    }
+
+    // ----------------------------------------- Test data ---------------------------------------------------
+
+    private void addAdminAccount() {
+        logger.info("Initialising Admin user");
+        User admin = new User(
                 "admin",
                 "password",
                 "John",
@@ -49,10 +52,30 @@ public class IdentityProviderApplication {
                 "steve@example.com",
                 TimeService.getTimeStamp()
         );
-        testUser1.addRole(UserRole.COURSE_ADMINISTRATOR);
-        repository.save(testUser1);
+        admin.addRole(UserRole.COURSE_ADMINISTRATOR);
+        repository.save(admin);
+    }
+
+
+    private void addTestUsers() {
+        logger.info("Initialising test user Steve");
+        User steve = new User(
+                "steve",
+                "password",
+                "Steve",
+                "McSteve",
+                "Steveson",
+                "Stev",
+                "kdsflkdjf",
+                "Steve/Steve",
+                "steve@example.com",
+                TimeService.getTimeStamp()
+        );
+        steve.addRole(UserRole.TEACHER);
+        repository.save(steve);
+
         logger.info("Initialising test user Student");
-        User testUser2 = new User(
+        User student = new User(
                 "student",
                 "password",
                 "Steve",
@@ -64,13 +87,12 @@ public class IdentityProviderApplication {
                 "steve@example.com",
                 TimeService.getTimeStamp()
         );
-        testUser2.addRole(UserRole.STUDENT);
-        repository.save(testUser2);
+        student.addRole(UserRole.STUDENT);
+        repository.save(student);
 
-
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             User lemming = new User(
-                    "Lemming number: " + i,
+                    "User " + i,
                     "password",
                     "Steve",
                     "McSteve",
@@ -84,10 +106,4 @@ public class IdentityProviderApplication {
             repository.save(lemming);
         }
     }
-
-
-    public static void main(String[] args) {
-        SpringApplication.run(IdentityProviderApplication.class, args);
-    }
-
 }
