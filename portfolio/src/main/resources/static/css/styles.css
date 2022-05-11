@@ -231,8 +231,9 @@ section {
 }
 
 .occasionTitleDiv {
-    display: flex;
+    display: inline-flex;
     flex-direction: row;
+    width: 89%;
 }
 
 .occasionIcon {

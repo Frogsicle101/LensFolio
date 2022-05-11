@@ -906,7 +906,7 @@ function createEventDiv(eventObject) {
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="eventName name" >${eventObject.name}</p>
+                    <p class="eventName name text-truncate" >${eventObject.name}</p>
                 </div>
                 <div class="controlButtons">
                     <button class="editButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Event">
@@ -973,7 +973,7 @@ function createMilestoneDiv(milestoneObject) {
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="milestoneName name">${milestoneObject.name}</p>
+                    <p class="milestoneName name text-truncate">${milestoneObject.name}</p>
                 </div>
                 <div class="controlButtons">
                     <button class="editButton noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Milestone">
@@ -1041,7 +1041,7 @@ function createDeadlineDiv(deadlineObject) {
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="deadlineName name">${deadlineObject.name}</p>
+                    <p class="deadlineName name text-truncate">${deadlineObject.name}</p>
                 </div>
                 <div class="controlButtons">
                         <button class="editButton noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Deadline">
