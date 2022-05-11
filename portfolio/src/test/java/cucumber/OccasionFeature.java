@@ -67,6 +67,9 @@ public class OccasionFeature {
         }
 
         @Override
+        public Deadline getById(String s) {return null;}
+
+        @Override
         public boolean existsById(String s) {
             return false;
         }

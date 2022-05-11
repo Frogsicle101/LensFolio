@@ -46,7 +46,7 @@ class CalendarControllerTest {
     private final SprintRepository sprintRepository = mock(SprintRepository.class);
 
 
-    private final CalendarController calendarController = new CalendarController(projectRepository, sprintRepository, null, null);
+    private final CalendarController calendarController = new CalendarController(projectRepository, sprintRepository, null, null, null);
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
     private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
 
