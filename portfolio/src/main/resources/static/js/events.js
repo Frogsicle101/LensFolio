@@ -35,11 +35,12 @@ $(document).ready(function () {
      */
     eventSource.addEventListener("editEvent", function (event) {
         const data = JSON.parse(event.data);
+        console.log(data)
         if (checkPrivilege()) {
             let eventDiv = $("#" + data.eventId)
             let noticeSelector = $("#notice" + data.eventId)
             if (!noticeSelector.length) {
-                let infoString = data.usersName + " is editing element: " + eventDiv.find(".name").text() // Find the name of the event from its id
+                let infoString = data.usersName + " is editing element: " + data.nameOfEvent // Find the name of the event from its id
                 infoContainer.append(`<p class="infoMessage text-truncate" id="notice${data.eventId}"> ` + infoString + `</p>`)
                 eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
                 if (eventDiv.hasClass("beingEdited")) {
@@ -161,7 +162,7 @@ function removeElement(elementId) {
  * @param type The type of notification to send to the server
  * @param typeOfEvent The type of the object being edited (milestone, deadline, event)
  */
-function notifyEdit(id, type, typeOfEvent = null) {
+function notifyEdit(id, type, typeOfEvent) {
     $.ajax({
         url: "notifyEdit",
         type: "POST",
@@ -479,12 +480,15 @@ $(document).on("click", ".editButton", function () {
     $(".deleteButton").hide()
     let parent = $(this).closest(".occasion")
     let id = parent.attr("id")
-    notifyEdit(id, "editEvent")
+
     if (parent.hasClass("event")) {
+        notifyEdit(id, "editEvent", "event")
         appendEventForm(parent)
     } else if (parent.hasClass("milestone")) {
+        notifyEdit(id, "editEvent", "milestone")
         appendMilestoneForm(parent)
     } else if (parent.hasClass("deadline")) {
+        notifyEdit(id, "editEvent", "deadline")
         appendDeadlineForm(parent)
     }
 

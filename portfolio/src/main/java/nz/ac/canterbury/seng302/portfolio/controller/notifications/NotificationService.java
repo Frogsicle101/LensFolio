@@ -1,8 +1,10 @@
 package nz.ac.canterbury.seng302.portfolio.controller.notifications;
 
+import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -27,6 +29,8 @@ public class NotificationService {
 
     /** For logging */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
 
 
     /**
@@ -94,6 +98,9 @@ public class NotificationService {
      */
     public void sendNotification(String eventName, EditEvent editEvent) {
         logger.info("SERVICE Sending Notification - " + eventName + " on " + editEvent.getEventId() + "[" + emitters.size() + " listeners]");
+
+
+
         if (Objects.equals(eventName, "editEvent") || Objects.equals(eventName, "notifyNotEditing")) {
             updateActiveEdits(eventName, editEvent);
         }
@@ -147,4 +154,7 @@ public class NotificationService {
         logger.info("SERVICE - User " + id + ": Keep Alive");
         emitters.get(id).send(SseEmitter.event().name("keepAlive"));
     }
+
+
+
 }
