@@ -3,6 +3,8 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import com.google.type.DateTime;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -41,16 +43,18 @@ public class CalendarController {
     private final ProjectRepository projectRepository;
     private final SprintRepository sprintRepository;
     private final EventRepository eventRepository;
+    private final DeadlineRepository deadlineRepository;
     private final MilestoneRepository milestoneRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    public CalendarController(ProjectRepository projectRepository, SprintRepository sprintRepository, EventRepository eventRepository, MilestoneRepository milestoneRepository) {
+    public CalendarController(ProjectRepository projectRepository, SprintRepository sprintRepository, EventRepository eventRepository, DeadlineRepository deadlineRepository, MilestoneRepository milestoneRepository) {
         this.projectRepository = projectRepository;
         this.sprintRepository = sprintRepository;
         this.eventRepository = eventRepository;
+        this.deadlineRepository = deadlineRepository;
         this.milestoneRepository = milestoneRepository;
     }
 
@@ -220,7 +224,6 @@ public class CalendarController {
 
     /**
      * Returns the events as in a json format, only finds the events by date
-     * @param date the date to look for the events in
      */
     @GetMapping("getEventsAsFeed")
     public ResponseEntity<Object> getEventsAsFeed(
@@ -262,6 +265,50 @@ public class CalendarController {
         }
     }
 
+
+    /**
+     * Returns the deadlines in a json format, with the date of the deadline mapped to the number of deadline occurring on that date.
+     */
+    @GetMapping("getDeadlinesAsFeed")
+    public ResponseEntity<Object> getDeadlinesAsFeed(
+            @RequestParam(value="projectId") long projectId) {
+        try {
+            logger.info("GET REQUEST /getDeadlinesAsFeed");
+            Project project = projectRepository.getProjectById(projectId);
+
+            List<HashMap<String, String>> deadlinesList = new ArrayList<>();
+            HashMap<LocalDate, Integer> deadlinesCount = new HashMap<>();
+            List<Deadline> allDeadlines = deadlineRepository.findAllByProjectIdOrderByEndDate(projectId);
+
+            for (Deadline deadline : allDeadlines) { //iterates over all milestones in repo, and counts the
+                Integer countByDate = deadlinesCount.get(deadline.getEndDate());
+                if (countByDate == null) {
+                    deadlinesCount.put(deadline.getEndDate(), 1); //add date to map as key
+                }else {
+                    countByDate++;
+                    deadlinesCount.replace(deadline.getEndDate(), countByDate);
+                }
+            }
+
+            for (Map.Entry<LocalDate, Integer> entry : deadlinesCount.entrySet()) {
+                HashMap<String, String> jsonedDeadline = new HashMap<>();
+                jsonedDeadline.put("title", String.valueOf(entry.getValue()));
+                jsonedDeadline.put("classNames", "deadlineCalendar");
+                jsonedDeadline.put("content", "");
+                jsonedDeadline.put("start", entry.getKey().toString());
+                jsonedDeadline.put("end", entry.getKey().toString());
+                deadlinesList.add(jsonedDeadline);
+            }
+
+            return new ResponseEntity<>(deadlinesList, HttpStatus.OK);
+        } catch(DateTimeParseException err) {
+            logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
+            return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+        } catch (Exception err){
+            logger.error("GET REQUEST /getDeadlinesAsFeed", err);
+            return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
     /**

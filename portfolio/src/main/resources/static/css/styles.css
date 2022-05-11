@@ -535,14 +535,7 @@ section {
 
 }
 
-.milestoneCalendar {
-    background: white;
-    width: 40px;
-    height: 20px;
-    line-height: 17px;
-}
-
-.eventCalendar {
+.milestoneCalendar, .deadlineCalendar, .eventCalendar {
     background: white;
     width: 40px;
     height: 20px;
