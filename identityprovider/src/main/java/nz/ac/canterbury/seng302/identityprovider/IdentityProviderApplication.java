@@ -10,19 +10,28 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
+/**
+ * The main IdP application class using springboot.
+ */
 @SpringBootApplication
 public class IdentityProviderApplication {
 
+    /** Enables us to directly inject test users into the database*/
     @Autowired
     UserRepository repository;
 
+    /** Logs the applications' initialisation process */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /** Turn on (true) to create the default admin account */
     private boolean includeAdminAccount = true;
 
+    /** Turn on (true) to create the 1000 test accounts */
     private boolean includeTestData = true;
 
-
+    /**
+     * Initialises test data when the boolean variables are true
+     */
     @EventListener(ApplicationReadyEvent.class)
     public void setup() {
         if (includeAdminAccount)
@@ -32,12 +41,19 @@ public class IdentityProviderApplication {
     }
 
 
+    /**
+     * Main method see class documentation.
+     * @param args - default main params
+     */
     public static void main(String[] args) {
         SpringApplication.run(IdentityProviderApplication.class, args);
     }
 
     // ----------------------------------------- Test data ---------------------------------------------------
 
+    /**
+     * Adds the default admin user
+     */
     private void addAdminAccount() {
         logger.info("Initialising Admin user");
         User admin = new User(
@@ -57,6 +73,9 @@ public class IdentityProviderApplication {
     }
 
 
+    /**
+     * Adds the 1000 default test users
+     */
     private void addTestUsers() {
         logger.info("Initialising test user Steve");
         User steve = new User(
