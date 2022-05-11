@@ -169,5 +169,36 @@ $(document).ready(function() {
   calendar.render();
 
 
+// -------------------------------------- Notification Source and listeners --------------------------------------------
+
+
+  /** The source of notifications used to provide updates to the user such as events being edited */
+  let eventSource = new EventSource("notifications");
+
+
+  /**
+   * This event listener listens for a notification that an element should be reloaded.
+   * This happens if another user has changed an element.
+   * It removes the class that shows the border and then calls ReloadEvent()
+   */
+  eventSource.addEventListener("reloadElement", function (event) {
+    calendar.refetchEvents();
+  })
+
+
+  /**
+   * Listens for a notification to remove an element (happens if another client deletes an element)
+   */
+  eventSource.addEventListener("notifyRemoveEvent", function (event) {
+    calendar.refetchEvents();
+  })
+
+
+  /**
+   * Listens for a notification to add a new element that another client has created
+   */
+  eventSource.addEventListener("notifyNewElement", function (event) {
+    calendar.refetchEvents();
+  })
 })
 

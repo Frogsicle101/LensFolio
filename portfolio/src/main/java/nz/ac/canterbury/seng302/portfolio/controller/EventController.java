@@ -243,27 +243,6 @@ public class EventController {
         }
     }
 
-    /**
-     * Gets the list of events by date and returns it.
-     * @param date The date to get the events 
-     * @return A ResponseEntity with the events or an error
-     */
-    @GetMapping("/getEventsListByDate")
-    public ResponseEntity<Object> getEventsListByDate(
-            @RequestParam(value="date") String date
-    ){
-        try {
-            logger.info("GET /getEventsListByDate");
-            List<Event> eventList = eventRepository.findAllByDate(date);
-            eventList.sort(Comparator.comparing(Event::getStartDate));
-            logger.info("GET /getEventsListByDate: Success");
-            return new ResponseEntity<>(eventList, HttpStatus.OK);
-        } catch(Exception err){
-            logger.error("GET /getEventsListByDate: {}", err.getMessage() );
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 
     /**
      * Returns a single event from the id that was given

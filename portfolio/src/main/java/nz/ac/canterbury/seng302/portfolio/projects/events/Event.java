@@ -58,10 +58,6 @@ public class Event extends Deadline {
         return startDateColour;
     }
 
-    public LocalTime getEndTime(){
-        return getEndTime();
-    }
-
     public void setStartDateColour(String startDateColour) {
         this.startDateColour = startDateColour;
     }
