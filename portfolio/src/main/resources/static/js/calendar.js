@@ -132,7 +132,6 @@ $(document).ready(function() {
       {
         url: 'getEventsAsFeed', // Get all milestones
         method: "get",
-        display: "inverse-background",
         extraParams: {
           projectId: projectId.toString()
         },

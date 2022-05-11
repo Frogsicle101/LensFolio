@@ -233,13 +233,25 @@ public class CalendarController {
             HashMap<LocalDate, Integer> eventsCount = new HashMap<>();
             List<Event> allEvents = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
 
-            for (Event event : allEvents)  {Integer countByDate = eventsCount.get(event.getEndDate());
-                if (countByDate == null) {
-                    eventsCount.put(event.getEndDate(), 1); //add date to map as key
-                }else {
-                    countByDate++;
-                    eventsCount.replace(event.getEndDate(), countByDate);
+            for (Event event : allEvents)  {
+                List<LocalDate> dates = new ArrayList<>();
+                LocalDateTime current = event.getStartDate();
+                while (current.isBefore(LocalDateTime.of(event.getEndDate(), event.getEndTime()))) {
+                    dates.add(current.toLocalDate());
+                    current = current.plusDays(1);
                 }
+
+                for (LocalDate date: dates) {
+                    Integer countByDate = eventsCount.get(date);
+                    if (countByDate == null) {
+                        eventsCount.put(date, 1); //add date to map as key
+                    }else {
+                        countByDate++;
+                        eventsCount.replace(date, countByDate);
+                    }
+                }
+
+
             }
 
             for (Map.Entry<LocalDate, Integer> entry : eventsCount.entrySet()) {
