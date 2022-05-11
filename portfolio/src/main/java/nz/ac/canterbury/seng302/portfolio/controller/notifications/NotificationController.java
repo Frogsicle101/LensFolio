@@ -74,10 +74,10 @@ public class NotificationController {
     @PostMapping("/notifyEdit")
     public void sendEventToClients(
             @AuthenticationPrincipal AuthState editor,
-            @RequestParam UUID id,
+            @RequestParam(required = false) UUID id,
             @RequestParam String type,
-            @RequestParam(value="typeOfEvent", required = false) String typeOfEvent
-    ) {
+            @RequestParam(required = false) String typeOfEvent
+    ) throws IOException {
         int eventEditorID = PrincipalAttributes.getIdFromPrincipal(editor);
         logger.info("POST /notifyEdit - edit type " + type + " on " + id + " by user : " + eventEditorID);
         UserResponse userResponse = userAccountsClientService.getUserAccountById(GetUserByIdRequest.newBuilder()
@@ -86,6 +86,8 @@ public class NotificationController {
         String username = userResponse.getFirstName() + " " + userResponse.getLastName();
         if (!Objects.equals(type, "notifyNewElement")) {
             notificationService.sendNotification(type, new EditEvent(eventEditorID, username, id));
+        } else if(Objects.equals(type, "keepAlive")) {
+            notificationService.sendKeepAlive(eventEditorID);
         } else {
             notificationService.sendNotification(type, new EditEvent(eventEditorID, username, id, typeOfEvent));
         }

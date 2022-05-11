@@ -141,4 +141,10 @@ public class NotificationService {
             activeEdits.remove(editEvent.getUserId());
         }
     }
+
+
+    public void sendKeepAlive(Integer id) throws IOException {
+        logger.info("SERVICE - User " + id + ": Keep Alive");
+        emitters.get(id).send(SseEmitter.event().name("keepAlive"));
+    }
 }

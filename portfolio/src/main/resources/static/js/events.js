@@ -9,14 +9,16 @@ $(document).ready(function () {
     let infoContainer = $("#informationBar")
     let formControl = $(".form-control");
 
-
-    refreshEvents(projectId)
-    refreshMilestones(projectId)
     refreshDeadlines(projectId)
+    refreshMilestones(projectId)
+    refreshEvents(projectId)
+
+
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)
     formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+
 
 
 // -------------------------------------- Notification Source and listeners --------------------------------------------
@@ -126,7 +128,19 @@ $(document).ready(function () {
 
     })
 
+
+
+
+    keepAlive().then();
 })
+
+
+async function keepAlive() {
+    setTimeout(function(){
+        notifyEdit(null, "keepAlive")
+    }, 10000)
+
+}
 
 /**
  * Removes element milestone
