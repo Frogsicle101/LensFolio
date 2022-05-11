@@ -25,10 +25,10 @@ public class IdentityProviderApplication {
 
     @EventListener(ApplicationReadyEvent.class)
     public void setup() {
-       if (includeTestData)
-           addTestUsers();
-       if (includeAdminAccount)
-           addAdminAccount();
+        if (includeAdminAccount)
+            addAdminAccount();
+        if (includeTestData)
+            addTestUsers();
     }
 
 
