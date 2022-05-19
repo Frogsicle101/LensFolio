@@ -4,7 +4,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-
+/**
+ * Provides utility functions to add and remove users from groups
+ */
 @Service
 public class GroupService {
 
@@ -14,6 +16,11 @@ public class GroupService {
         this.repository = repository;
     }
 
+    /**
+     * Adds a user to a group
+     * @param groupId The id of the group
+     * @param userId The id of the user
+     */
     public void addUserToGroup(long groupId, int userId) {
         Optional<Group> optionalGroup = repository.findById(groupId);
         if (optionalGroup.isEmpty()) {
@@ -26,6 +33,11 @@ public class GroupService {
 
     }
 
+    /**
+     * Removes a user from a group
+     * @param groupId The id of the group
+     * @param userId The id of the user
+     */
     public void removeUserFromGroup(long groupId, int userId) {
         Optional<Group> optionalGroup = repository.findById(groupId);
         if (optionalGroup.isEmpty()) {
