@@ -31,13 +31,14 @@ public class AccountController {
     private UserAccountsClientService userAccountsClientService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String alphaSpacesRegex = "([a-zA-Z]+\s?)+";
-    private static final String alphaSpacesRegexCanBeEmpty = "([a-zA-Z]*\s?)+";
-    private static final String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
-    private static final String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
-    private static final String bioRegex = "([a-zA-Z0-9.,'\"]*\\s?)+";
-    private static final String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
-    private static final String pronounRegex = "([a-zA-Z/]*\\s?)+";
+    private static final String alphaSpacesRegex = "([a-zA-Z]+[.,'-]*\s?)+";
+    private static final String alphaSpacesRegexCanBeEmpty = "([a-zA-Z.,'-]*\s?)+";
+    private static final String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~.,-]+)";
+    private static final String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$";
+    private static final String bioRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~.,-]+\s?)";
+    private static final String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)";
+    private static final String pronounRegex = "([a-zA-Z/]*)+";
+
 
 
     /**
@@ -84,9 +85,17 @@ public class AccountController {
      * @return Thymeleaf template for the register screen
      */
     @GetMapping("/register")
-    public String register() {
+    public ModelAndView register() {
         logger.info("GET REQUEST /register - get register page");
-        return "accountRegister";
+        ModelAndView model = new ModelAndView("accountRegister");
+        model.addObject("alphaSpacesRegex", alphaSpacesRegex);
+        model.addObject("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
+        model.addObject("userNameRegex", userNameRegex);
+        model.addObject("emailRegex", emailRegex);
+        model.addObject("bioRegex", bioRegex);
+        model.addObject("passwordRegex", passwordRegex);
+        model.addObject("pronounRegex", pronounRegex);
+        return model;
     }
 
     /**

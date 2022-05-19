@@ -68,8 +68,16 @@ class AccountControllerTest {
 
     @Test
     void testGetRegister() {
-        String model = accountController.register();
-        Assertions.assertEquals("accountRegister", model);
+        ModelAndView model = accountController.register();
+
+        Assertions.assertTrue(model.hasView());
+        Assertions.assertTrue(model.getModel().containsKey("alphaSpacesRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("alphaSpacesRegexCanBeEmpty"));
+        Assertions.assertTrue(model.getModel().containsKey("userNameRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("emailRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("bioRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("passwordRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("pronounRegex"));
     }
 
     @Test
