@@ -47,6 +47,22 @@ $(document).ready(() => {
     addSprint.css("left", $(".eventContainer").width() + "px")
     addSprint.css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
 
+    /*
+    Connection code for Websockets
+     */
+    let stompClient = null;
+
+    function connect() {
+        let socket = new SockJS('/gs-guide-websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/notifications/receiving/DeadlineEdit', function (notification) {
+                console.log('Receieved message:' + JSON.parse(notification.body).content);
+            });
+        });
+    }
+    connect();
 })
 
 
