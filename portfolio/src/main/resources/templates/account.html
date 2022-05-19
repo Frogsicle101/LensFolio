@@ -67,9 +67,7 @@
                     <label for="bio" class="form-label">User Bio</label>
                     <!-- The max length for fields in our database is, by default, somewhere just past 250
                     So going beyond 250 characters, even for a bio, runs the risk of errors -->
-                    <textarea  class="form-control canDisable" id="bio" name="bio" th:text="${user.getBio()}" maxlength="250"
-                               th:pattern="${bioRegex}"
-                               title="Cannot contain special characters other than !#$%&'*+-/=?^_`{|}~.,"></textarea>
+                    <textarea  class="form-control canDisable" id="bio" name="bio" th:text="${user.getBio()}" maxlength="250" disabled></textarea>
                 </div>
 
             </div>

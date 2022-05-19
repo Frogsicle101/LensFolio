@@ -35,7 +35,7 @@ public class AccountController {
     private static final String alphaSpacesRegexCanBeEmpty = "([a-zA-Z.,'-]*\s?)+";
     private static final String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~.,-]+)";
     private static final String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$";
-    private static final String bioRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~.,-]+\s?)";
+    //private static final String bioRegex = "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.,-]*(\\s)*";
     private static final String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)";
     private static final String pronounRegex = "([a-zA-Z/]*)+";
 
@@ -64,7 +64,7 @@ public class AccountController {
             model.addObject("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
             model.addObject("userNameRegex", userNameRegex);
             model.addObject("emailRegex", emailRegex);
-            model.addObject("bioRegex", bioRegex);
+            //model.addObject("bioRegex", bioRegex);
             model.addObject("passwordRegex", passwordRegex);
             model.addObject("pronounRegex", pronounRegex);
             model.addObject("user", user);
@@ -92,7 +92,7 @@ public class AccountController {
         model.addObject("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
         model.addObject("userNameRegex", userNameRegex);
         model.addObject("emailRegex", emailRegex);
-        model.addObject("bioRegex", bioRegex);
+        //model.addObject("bioRegex", bioRegex);
         model.addObject("passwordRegex", passwordRegex);
         model.addObject("pronounRegex", pronounRegex);
         return model;
@@ -178,21 +178,50 @@ public class AccountController {
             userRequest.setPersonalPronouns("");
         }
 
-
-        // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
-        if (!firstname.matches(alphaSpacesRegex)
-                || !lastname.matches(alphaSpacesRegex)
-                || !username.matches(userNameRegex)
-                || !email.matches(emailRegex)
-                || !password.matches(passwordRegex)
-                // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
-                || nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)
-                || middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)
-                || pronouns != null && !pronouns.matches(pronounRegex)
-                || bio != null && !bio.matches(bioRegex)) {
-
+        if (!firstname.matches(alphaSpacesRegex)){
+            System.out.println("firstname");
             return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
         }
+        if (!lastname.matches(alphaSpacesRegex)){
+            System.out.println("lastname");
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+        }
+        if (!email.matches(emailRegex)){
+            System.out.println("email");
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+        }
+
+        if( nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)){
+            System.out.println("nickname");
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+        }
+        if (middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)){
+            System.out.println("middlename");
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+        }
+        if (pronouns != null && !pronouns.matches(pronounRegex)){
+            System.out.println("pronouns");
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+        }
+//        if(bio != null && !bio.matches(bioRegex)) {
+//            System.out.println("bio");
+//            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+//        }
+
+        // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
+//        if (!firstname.matches(alphaSpacesRegex)
+//                || !lastname.matches(alphaSpacesRegex)
+//                || !username.matches(userNameRegex)
+//                || !email.matches(emailRegex)
+//                || !password.matches(passwordRegex)
+//                // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
+//                || nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)
+//                || middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)
+//                || pronouns != null && !pronouns.matches(pronounRegex)
+//                || bio != null && !bio.matches(bioRegex)) {
+//
+//            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+//        }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
@@ -232,19 +261,49 @@ public class AccountController {
             userRequest.setPersonalPronouns("");
         }
 
-
-        // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
-        if (!firstname.matches(alphaSpacesRegex)
-                || !lastname.matches(alphaSpacesRegex)
-                || !email.matches(emailRegex)
-                // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
-                || nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)
-                || middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)
-                || pronouns != null && !pronouns.matches(pronounRegex)
-                || bio != null && !bio.matches(bioRegex)) {
-
+        if (!firstname.matches(alphaSpacesRegex)){
+            System.out.println("firstname");
             return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
         }
+        if (!lastname.matches(alphaSpacesRegex)){
+            System.out.println("lastname");
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+        }
+        if (!email.matches(emailRegex)){
+            System.out.println("email");
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+        }
+
+        if( nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)){
+            System.out.println("nickname");
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+        }
+        if (middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)){
+            System.out.println("middlename");
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+        }
+        if (pronouns != null && !pronouns.matches(pronounRegex)){
+            System.out.println("pronouns");
+            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+        }
+//        if(bio != null && !bio.matches(bioRegex)) {
+//            System.out.println("bio");
+//            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+//        }
+
+
+        // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
+//        if (!firstname.matches(alphaSpacesRegex)
+//                || !lastname.matches(alphaSpacesRegex)
+//                || !email.matches(emailRegex)
+//                // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
+//                || nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)
+//                || middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)
+//                || pronouns != null && !pronouns.matches(pronounRegex)
+//                || bio != null && !bio.matches(bioRegex)) {
+//
+//            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+//        }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }

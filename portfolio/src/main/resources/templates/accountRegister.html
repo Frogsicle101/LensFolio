@@ -62,9 +62,9 @@
             <label for="bio" class="form-label">Bio</label>
             <!-- The max length for fields in our database is, by default, somewhere around 250
             So going beyond 250 characters, even for a bio, runs the risk of errors -->
-            <textarea class="form-control canDisable" id="bio"  name="bio" maxlength="250"
+            <textarea class="form-control canDisable" contenteditable id="bio"  name="bio" maxlength="250"
                       th:pattern="${bioRegex}"
-                      title="Cannot contain special characters other than !#$%&'*+-/=?^_`{|}~.," required></textarea>
+                      title="Cannot contain special characters other than !#$%&'*+-/=?^_`{|}~.,"></textarea>
         </div>
         <button type="submit" id="registerSubmitButton" class="btn btn-primary ">Submit</button>
         <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
