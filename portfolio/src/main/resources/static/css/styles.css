@@ -146,6 +146,11 @@ section {
     height: 15rem;
 }
 
+.required:after {
+    content:"*";
+    color: red;
+}
+
 
 /*Login*/
 .loginSection {

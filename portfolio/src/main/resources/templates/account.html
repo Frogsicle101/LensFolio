@@ -21,7 +21,7 @@
 
 
             <h1>Personal Information</h1>
-            <p class="mandatoryMessage">Mandatory fields are marked with *</p>
+            <p class="required mandatoryMessage">Mandatory fields are marked with </p>
 
 
             <div class="row">
@@ -32,7 +32,7 @@
 
                 <div class="col-sm order-sm-first">
                     <div class="mb-3">
-                        <label for="FirstName" class="form-label">First name</label>
+                        <label for="FirstName" class="required form-label">First name</label>
                         <input type="text" class="form-control canDisable" name="firstname" id="firstname" th:value="${user.getFirstName()}" th:pattern="${alphaSpacesRegex}" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50" required disabled>
                     </div>
 
@@ -42,7 +42,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="LastName" class="form-label">Last name</label>
+                        <label for="LastName" class="required form-label">Last name</label>
                         <input type="text" class="form-control canDisable" name="lastname" id="lastname" th:value="${user.getLastName()}" th:pattern="${alphaSpacesRegex}" title="Only letters A-Z upper or lowercase, names must be seperated by a space" maxlength="50" disabled  required>
                     </div>
 
@@ -53,11 +53,11 @@
                 <input type="text" class="form-control canDisable" name="nickname" id="nickname" th:value="${user.getNickname()}" th:pattern="${alphaSpacesRegexCanBeEmpty}" title="Only letters A-Z upper or lowercase, with words seperated by a space" maxlength="50" disabled >
             </div>
             <div class="mb-3">
-                <label for="username" class="form-label">Username*</label>
+                <label for="username" class="required form-label">Username</label>
                 <input type="text" class="form-control" id="username" name="username" th:value="${user.getUsername()}" th:pattern="${userNameRegex}" title="Cannot contain spaces or special characters other than !#$%&'*+-/=?^_`{|}~" maxlength="50" disabled required>
             </div>
             <div class="mb-3">
-                <label for="email" class="form-label">Email address*</label>
+                <label for="email" class="required form-label">Email address</label>
                 <input type="email" class="form-control canDisable" id="email" name="email" th:value="${user.getEmail()}" maxlength="100"
                        th:pattern="${emailRegex}"
                        title="Cannot contain spaces, must match email conventions like 'name@something.something'" disabled required>
