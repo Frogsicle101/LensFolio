@@ -6,6 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface GroupRepository extends CrudRepository<Event, String> {
+public interface GroupRepository extends CrudRepository<Group, Long> {
 
 }

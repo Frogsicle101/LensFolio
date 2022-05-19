@@ -2,9 +2,9 @@ package nz.ac.canterbury.seng302.portfolio.groups;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Object representation of a group of users
@@ -13,17 +13,40 @@ import java.util.ArrayList;
 public class Group {
 
     @Id
-    @GeneratedValue
     private Long id;
 
     @ElementCollection
-    private ArrayList<Integer> memberIds;
+    private List<Integer> memberIds;
 
     private String shortName;
 
     private String longName;
 
     protected Group() {}
+
+    public Group (Long id, String shortName, String longName) {
+        this.id = id;
+        this.shortName = shortName;
+        this.longName = longName;
+        this.memberIds = new ArrayList<>();
+    }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public List<Integer> getMemberIds() {
+        return memberIds;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public String getLongName() {
+        return longName;
+    }
 
     /**
      * Adds a user to the group object if the user is not already present
