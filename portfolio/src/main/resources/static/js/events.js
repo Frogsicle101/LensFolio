@@ -566,12 +566,14 @@ function addEventsToSprints(){
                         eventInSprint.find(".sprintEventStart").attr("data-bs-toggle", "tooltip")
                         eventInSprint.find(".sprintEventStart").attr("data-bs-placement", "top")
                         eventInSprint.find(".sprintEventStart").attr("title", sprintName)
+                        $('#' + event.id).find(".eventStart").css("color", $(element).find(".sprintColour").text())
                     }
                     if ( sprintStart <= eventEnd && eventEnd <= sprintEnd) {
                         eventInSprint.find(".sprintEventEnd").css("color", $(element).find(".sprintColour").text())
                         eventInSprint.find(".sprintEventEnd").attr("data-bs-toggle", "tooltip")
                         eventInSprint.find(".sprintEventEnd").attr("data-bs-placement", "top")
                         eventInSprint.find(".sprintEventEnd").attr("title", sprintName)
+                        $('#' + event.id).find(".eventEnd").css("color", $(element).find(".sprintColour").text())
                     }
                 })
                 enableToolTips()
@@ -624,6 +626,7 @@ function addMilestonesToSprints() {
                     if (milestoneEnd >= sprintStart && milestoneEnd <= sprintEnd) { //Milestone end falls within the sprint dates
                         appendMilestoneToSprint(element, milestone)
                         $(".milestoneInSprint" + milestone.id).find(".sprintMilestoneEnd").css("color", $(element).find(".sprintColour").text())
+                        $('#' + milestone.id).find(".milestoneEnd").css("color", $(element).find(".sprintColour").text())
                     }
                 })
             }
@@ -670,6 +673,8 @@ function addDeadlinesToSprints() {
                     if (deadlineEnd >= sprintStart && deadlineEnd <= sprintEnd) { //Deadline end falls within the sprint dates
                         appendDeadlineToSprint(element, deadline)
                         $(".deadlineInSprint" + deadline.id).find(".sprintDeadlineEnd").css("color", $(element).find(".sprintColour").text())
+                        $('#' + deadline.id).find(".deadlineEnd").css("color", $(element).find(".sprintColour").text())
+
                     }
                 })
             }
