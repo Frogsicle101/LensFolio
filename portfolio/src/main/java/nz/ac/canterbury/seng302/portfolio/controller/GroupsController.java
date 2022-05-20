@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class GroupsController {
 
     /** For logging the requests related to groups */
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** For making gRpc requests to the IdP */
     @Autowired

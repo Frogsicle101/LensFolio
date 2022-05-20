@@ -51,14 +51,14 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         if (groupRepository.findByLongName(request.getLongName()).isPresent()) {
             response.addValidationErrors(ValidationError.newBuilder()
                     .setFieldName("Long name")
-                    .setErrorText("A group exists with the longName " + request.getShortName())
+                    .setErrorText("A group exists with the longName " + request.getLongName())
                     .build())
                     .setIsSuccess(false);
         }
         if (response.getIsSuccess()) {
             Group group = groupRepository.save(new Group(request.getShortName(), request.getLongName()));
             response.setNewGroupId(group.getId())
-                    .setMessage("something");
+                    .setMessage("Created");
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
