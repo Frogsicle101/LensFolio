@@ -542,6 +542,12 @@ section {
     line-height: 17px;
 }
 
+.calendarOccasion{
+    display: inline-block;
+    position: absolute;
+    z-index: 5;
+}
+
 
 .hover-end{padding:0;margin:0;font-size:75%;text-align:center;position:absolute;bottom:0;width:100%;opacity:.8}
 

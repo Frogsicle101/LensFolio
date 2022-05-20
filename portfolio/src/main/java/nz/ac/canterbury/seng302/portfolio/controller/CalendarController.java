@@ -264,8 +264,7 @@ public class CalendarController {
                 jsonedEvent.put("content", "");
                 jsonedEvent.put("start", entry.getKey().toString());
                 jsonedEvent.put("end", entry.getKey().toString());
-                jsonedEvent.put("display", "background");
-                //jsonedEvent.put("eventClassNames", "eventCalendar");
+                // jsonedEvent.put("display", "background");
                 eventsList.add(jsonedEvent);
             }
 
@@ -311,7 +310,7 @@ public class CalendarController {
                 jsonedDeadline.put("content", "");
                 jsonedDeadline.put("start", entry.getKey().toString());
                 jsonedDeadline.put("end", entry.getKey().toString());
-                jsonedDeadline.put("display", "background");
+                // jsonedDeadline.put("display", "background");
                 deadlinesList.add(jsonedDeadline);
             }
 
@@ -357,7 +356,7 @@ public class CalendarController {
                 jsonedMilestone.put("content", "");
                 jsonedMilestone.put("start", entry.getKey().toString());
                 jsonedMilestone.put("end", entry.getKey().toString());
-                jsonedMilestone.put("display", "background");
+                // jsonedMilestone.put("display", "background");
                 milestonesList.add(jsonedMilestone);
             }
 
