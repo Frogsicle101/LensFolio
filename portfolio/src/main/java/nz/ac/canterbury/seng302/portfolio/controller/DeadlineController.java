@@ -1,12 +1,11 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.EditSTOMP;
-import nz.ac.canterbury.seng302.portfolio.DTO.MessengerSTOMP;
+import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPEditNotification;
+import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPOccasionMessage;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -31,7 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 @RestController
 public class DeadlineController {
@@ -315,23 +313,6 @@ public class DeadlineController {
      */
     public void setUserAccountsClientService(UserAccountsClientService service) { this.userAccountsClientService = service;}
 
-    /**
-     * A message-mapping method that will:
-     * receive an EditSTOMP object that was sent to /notifications/sending/DeadlineEdit
-     * (the /notifications/sending part is pre-configured over in the WebSocketConfig class)
-     * Make a string that will be the content of our editing notification
-     * Put it into a MessengerSTOMP object
-     * Send it off to /notifications/receiving/DeadlineEdit, for any and all STOMP clients subscribed to that endpoint
-     *
-     * Don't call this method directly. This is a spring method; it'll call itself when the time is right.
-     * @param edit A model for the edit details, which should contain a name and a subject
-     * @return A messenger object containing only a single message.
-     */
-    @MessageMapping("/DeadlineEdit")
-    @SendTo("/notifications/receiving/DeadlineEdit")
-    public MessengerSTOMP notifyDeadlineEdit(EditSTOMP edit) {
-        logger.info("MESSAGE: /DeadlineEdit: Sending message with name {}", edit.getName());
-        return new MessengerSTOMP(edit.getName() + " is editing " + edit.getSubject());
-    }
+
 
 }

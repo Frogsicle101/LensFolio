@@ -57,7 +57,7 @@ $(document).ready(() => {
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/notifications/receiving/DeadlineEdit', function (notification) {
+            stompClient.subscribe('/notifications/receiving/occasions', function (notification) {
                 console.log('Receieved message:' + JSON.parse(notification.body).content);
             });
         });
