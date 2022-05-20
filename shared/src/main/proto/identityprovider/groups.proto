@@ -81,7 +81,7 @@ message GetPaginatedGroupsRequest {
 }
 
 message PaginatedGroupsResponse {
-    repeated GroupDetailsResponse GroupDetailsResponses = 1;
+    repeated GroupDetailsResponse Groups = 1;
     int32 ResultSetSize = 2;
 }
 
