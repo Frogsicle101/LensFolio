@@ -51,7 +51,7 @@ public class Config implements WebMvcConfigurer
         pathsToInterceptForRoleBased.add("/editDeadline");
         pathsToInterceptForRoleBased.add("/deleteDeadline");
 
-
+        pathsToInterceptForRoleBased.add("/groups/edit");
 
 
 
