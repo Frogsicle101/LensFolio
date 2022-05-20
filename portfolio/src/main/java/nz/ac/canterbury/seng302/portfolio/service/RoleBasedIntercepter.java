@@ -15,8 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public class RoleBasedIntercepter implements HandlerInterceptor {
 
-
-
     public AuthenticateClientService authenticateClientService;
 
     private AuthenticateClientService getAuthenticateClientService(HttpServletRequest request) {
@@ -48,7 +46,5 @@ public class RoleBasedIntercepter implements HandlerInterceptor {
             response.sendError(401);
             return false;
         }
-
     }
-
 }

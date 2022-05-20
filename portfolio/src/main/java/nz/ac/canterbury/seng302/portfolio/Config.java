@@ -24,13 +24,10 @@ public class Config implements WebMvcConfigurer
         List<String> pathsToInterceptForRoleBased = new ArrayList<>();
         List<String> pathsToInterceptForNotificationRemoval = new ArrayList<>();
 
+
         // User Roles
         pathsToInterceptForRoleBased.add("/editUserRole");
 
-        // Events
-        pathsToInterceptForRoleBased.add("/addEvent");
-        pathsToInterceptForRoleBased.add("/deleteEvent");
-        pathsToInterceptForRoleBased.add("/editEvent");
 
         // Portfolio
         pathsToInterceptForRoleBased.add("/editProject");
@@ -39,6 +36,13 @@ public class Config implements WebMvcConfigurer
         pathsToInterceptForRoleBased.add("/sprintEdit");
         pathsToInterceptForRoleBased.add("/sprintSubmit");
         pathsToInterceptForRoleBased.add("/deleteSprint");
+
+
+        // Events
+        pathsToInterceptForRoleBased.add("/addEvent");
+        pathsToInterceptForRoleBased.add("/deleteEvent");
+        pathsToInterceptForRoleBased.add("/editEvent");
+
 
         //Milestone
         pathsToInterceptForRoleBased.add("/editMilestone");
@@ -52,6 +56,9 @@ public class Config implements WebMvcConfigurer
         pathsToInterceptForRoleBased.add("/deleteDeadline");
 
 
+        //Groups
+        pathsToInterceptForRoleBased.add("/addUser");
+        pathsToInterceptForRoleBased.add("/removeUser");
 
 
 

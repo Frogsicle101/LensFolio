@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.groups;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -10,10 +11,12 @@ import java.util.Optional;
 @Service
 public class GroupService {
 
-    private final GroupRepository repository;
+    private final GroupRepository groupRepository;
+    private final UserRepository userRepository;
 
-    public GroupService(GroupRepository repository) {
-        this.repository = repository;
+    public GroupService(GroupRepository groupRepository, UserRepository userRepository) {
+        this.groupRepository = groupRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -22,15 +25,19 @@ public class GroupService {
      * @param userId The id of the user
      */
     public void addUserToGroup(long groupId, int userId) {
-        Optional<Group> optionalGroup = repository.findById(groupId);
+        Optional<Group> optionalGroup = groupRepository.findById(groupId);
         if (optionalGroup.isEmpty()) {
             throw new IllegalArgumentException(groupId + " does not refer to a valid group");
         }
 
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalArgumentException(userId + "does not refer to a valid user");
+        }
+
         Group group = optionalGroup.get();
         group.addUserToGroup(userId);
-        repository.save(group);
-
+        groupRepository.save(group);
     }
 
     /**
@@ -39,16 +46,21 @@ public class GroupService {
      * @param userId The id of the user
      */
     public void removeUserFromGroup(long groupId, int userId) {
-        Optional<Group> optionalGroup = repository.findById(groupId);
+        Optional<Group> optionalGroup = groupRepository.findById(groupId);
         if (optionalGroup.isEmpty()) {
             throw new IllegalArgumentException(groupId + " does not refer to a valid group");
         }
 
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalArgumentException(userId + "does not refer to a valid user");
+        } else if ( groupRepository.getGroupByGroupId(groupId).getMemberIds().contains(userId) == false) {
+            throw new IllegalArgumentException(userId + " does not refer to a member of the given group");
+        }
+
+
         Group group = optionalGroup.get();
         group.removeUserFromGroup(userId);
-        repository.save(group);
-
+        groupRepository.save(group);
     }
-
-
 }
