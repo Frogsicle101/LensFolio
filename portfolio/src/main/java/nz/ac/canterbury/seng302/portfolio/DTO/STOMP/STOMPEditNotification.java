@@ -6,8 +6,11 @@ package nz.ac.canterbury.seng302.portfolio.DTO.STOMP;
  *
  * This objects models a JSON object that looks like
  * {
- *     "name": "Threderick"
- *     "subject": "Pizza Party"
+ *     name: Threderick
+ *     occasion: event
+ *     subject: Pizza Party
+ *     subjectId: 48
+ *     type: notify
  * }
  */
 public class STOMPEditNotification {
@@ -34,6 +37,8 @@ public class STOMPEditNotification {
      * What type of message this is.
      * Is it informing us to update something? delete something?
      * Or just notify people about something?
+     * should be one of:
+     * 'create', 'update', 'delete', 'notify'
      */
     private String type;
 
