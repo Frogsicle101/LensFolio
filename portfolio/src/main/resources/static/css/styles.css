@@ -537,15 +537,14 @@ section {
 
 .milestoneCalendar, .deadlineCalendar, .eventCalendar {
     background: white;
+    border-color: white;
     width: 40px;
     height: 20px;
     line-height: 17px;
 }
 
 .calendarOccasion{
-    display: inline-block;
-    position: absolute;
-    z-index: 5;
+    color: black;
 }
 
 
