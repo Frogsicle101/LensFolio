@@ -546,11 +546,11 @@ section {
 }
 
 .milestoneCalendar {
-    bottom: -43px;
+    bottom: -44px;
 }
 
 .deadlineCalendar {
-    bottom: -61px;
+    bottom: -61.5px;
 }
 
 .eventCalendar {
