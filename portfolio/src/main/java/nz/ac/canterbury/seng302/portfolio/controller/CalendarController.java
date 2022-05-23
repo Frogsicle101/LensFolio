@@ -368,6 +368,7 @@ public class CalendarController {
                 HashMap<String, String> jsonedMilestone = new HashMap<>();
                 jsonedMilestone.put("title", String.valueOf(entry.getValue()));
                 jsonedMilestone.put("namesList", milestonesNames.get(entry.getKey()));
+                //milestonesNames.get(entry.getKey())
                 jsonedMilestone.put("classNames", "milestoneCalendar");
                 jsonedMilestone.put("content", "");
                 jsonedMilestone.put("start", entry.getKey().toString());
