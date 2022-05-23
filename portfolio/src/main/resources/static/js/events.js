@@ -1,11 +1,5 @@
 let thisUserIsEditing = false;
 
-/*
-Connection code for Websockets
- */
-let stompClient = null;
-
-
 $(document).ready(function () {
 
 
@@ -138,26 +132,7 @@ $(document).ready(function () {
     keepAlive().then();
 
 // ---------------------------  Websockets  ------------------------------
-    function connect() {
-        let socket = new SockJS('/gs-guide-websocket');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
-            stompClient.subscribe('/notifications/receiving/occasions', function (notification) {
-                //Whenever we receive a message from the url, this function will run.
-                /*TODO: use the ID and occasion to call the relevant functions to lock and notify
-                Take a look at the STOMPOccasionMessage class to see what you have to work with
-                You'll need to determine the occasion and then call those functions for the rest of it
-                 */
-                /*
-                The type of JSON object we're receiving is modeled by STOMPOccasionMessage.
-                Please refer to the class' documentation for details.
-                 */
-                console.log('Receieved message:' + JSON.parse(notification.body).content);
-            });
-        });
-    }
-    connect();
+    connect()
 })
 
 
@@ -185,14 +160,22 @@ function removeElement(elementId) {
  * Notifies the server that this user is editing.
  * @param id the id of the object being edited.
  * @param type The type of notification to send to the server
- * @param typeOfEvent The type of the object being edited (milestone, deadline, event)
+ * @param occasion The type of the object being edited (milestone, deadline, event)
  */
-function notifyEdit(id, type, typeOfEvent) {
+function notifyEdit(id, type, occasion) {
     $.ajax({
         url: "notifyEdit",
         type: "POST",
-        data: {id, type, typeOfEvent}
+        data: {id, type, occasion}
     })
+
+    stompClient.send("/notifications/sending/OccasionEdit", {}, JSON.stringify({
+        'name': 'Threderick',
+        'occasion': occasion,
+        'subject': 'Pizza Party',
+        'subjectId': 48,
+        'type':'notify'
+    }));
 }
 
 
@@ -509,13 +492,7 @@ $(document).on("click", ".editButton", function () {
     if (parent.hasClass("event")) {
         notifyEdit(id, "editEvent", "event")
         appendEventForm(parent)
-        stompClient.send("/notifications/sending/OccasionEdit", {}, JSON.stringify({
-            'name': 'Threderick',
-            'occasion': 'event',
-            'subject': 'Pizza Party',
-            'subjectId': 48,
-            'type':'notify'
-        }));
+        requestNotify('nameGoesHere', 'event', $(parent).find(".eventName").text(), id)
     } else if (parent.hasClass("milestone")) {
         notifyEdit(id, "editEvent", "milestone")
         appendMilestoneForm(parent)

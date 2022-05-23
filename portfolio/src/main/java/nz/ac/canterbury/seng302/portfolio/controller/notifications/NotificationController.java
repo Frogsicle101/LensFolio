@@ -190,7 +190,7 @@ public class NotificationController {
      */
     @MessageMapping("/OccasionReload")
     @SendTo("/notifications/receiving/occasions")
-    public STOMPOccasionMessage notifyDeadlineEdit(STOMPOccasionMessage target) {
+    public STOMPOccasionMessage notifyOccasionReload(STOMPOccasionMessage target) {
         logger.info("MESSAGE: /OccasionReload: Occasion: " + target.getOccasion() + ", " +
                 "ID: " + target.getSubjectId() + ", " +
                 "action type: " + target.getType());
