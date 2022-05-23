@@ -10,7 +10,18 @@
 <body>
 <header th:insert="fragments/general.html"></header>
 <br><br><br>
-<button class="btn btn-primary" type="button" onclick="getBranches('seng302-2022/team-600')">GET Request</button>
+<form>
+    <label>Project ID</label><br>
+    <input id="apiProjectID" type="text" value="12298"><br>
+    <label>Access Token</label><br>
+    <input id="apiAccessToken" type="text" default=""><br>
+    <label>Commit sha (for getting single commit only)</label><br>
+    <input id="apiCommitSha" type="text" default="">
+</form><br>
+<button class="btn btn-primary" type="button" onclick="getBranches();">Get branches</button><br><br>
+<button class="btn btn-primary" type="button" onclick="getCommits();">Get commits</button><br><br>
+<button class="btn btn-primary" type="button" onclick="getCommit();">Get single commit</button><br><br>
+<button class="btn btn-primary" type="button" onclick="getMembers();">Get project members</button>
 </body>
 
 <script type="application/javascript" th:src="@{js/gitlabAPI.js}"></script>
