@@ -16,7 +16,7 @@
 
         <div class="row mb-3">
             <div class="col">
-                <label for="firstname" class="required form-label">First name(s)*</label>
+                <label for="firstname" class="required form-label">First name(s)</label>
                 <input type="text" class="form-control canDisable" name="firstname" id="firstname" th:pattern="${alphaSpacesRegex}" title="Only letters A-Z upper or lowercase and , . ' or - allowed, names must be seperated by a space"  maxlength="50" required>
             </div>
             <div class="col">
@@ -24,17 +24,17 @@
                 <input type="text" class="form-control canDisable" name="middlename" id="middlename" th:pattern="${alphaSpacesRegexCanBeEmpty}" title="Only letters A-Z upper or lowercase and , . ' or - allowed, names must be seperated by a space"  maxlength="50">
             </div>
             <div class="col">
-                <label for="lastname" class="required form-label">Last name(s)*</label>
+                <label for="lastname" class="required form-label">Last name(s)</label>
                 <input type="text" class="form-control canDisable" name="lastname" id="lastname" th:pattern="${alphaSpacesRegex}" title="Only letters A-Z upper or lowercase and , . ' or - allowed, names must be seperated by a space" maxlength="50" required>
             </div>
         </div>
         <div class="row mb-3">
             <div class="col">
-                <label for="username" class="required form-label">Username*</label>
+                <label for="username" class="required form-label">Username</label>
                 <input type="text" class="form-control" name="username" id="username" th:pattern="${userNameRegex}" title="Cannot contain spaces or special characters other than !#$%&'*+-/=?^_`{|}~.," maxlength="50" required>
             </div>
             <div class="col">
-                <label for="password" class="required form-label">Password*</label>
+                <label for="password" class="required form-label">Password</label>
                 <input type="password" class="form-control canDisable" name="password" id="password"  maxlength="50" minlength="5"
                        th:pattern="${passwordRegex}"
                        title="Must be between 5 and 50 characters long, cannot contain special characters other than !#$%&'*+-/=?^_`{|}~.," required>
@@ -62,9 +62,7 @@
             <label for="bio" class="form-label">Bio</label>
             <!-- The max length for fields in our database is, by default, somewhere around 250
             So going beyond 250 characters, even for a bio, runs the risk of errors -->
-            <textarea class="form-control canDisable" contenteditable id="bio"  name="bio" maxlength="250"
-                      th:pattern="${bioRegex}"
-                      title="Cannot contain special characters other than !#$%&'*+-/=?^_`{|}~.,"></textarea>
+            <textarea class="form-control canDisable" contenteditable id="bio"  name="bio" maxlength="250"></textarea>
         </div>
         <button type="submit" id="registerSubmitButton" class="btn btn-primary ">Submit</button>
         <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
