@@ -566,6 +566,8 @@ section {
     position: relative;
     display: inline-block;
     border-bottom: 1px dotted black;
+    white-space: pre-line;
+
 }
 
 .tooltip .tooltiptext {
@@ -577,10 +579,13 @@ section {
     padding: 5px 0;
     border-radius: 6px;
     position:absolute;
+    white-space: pre-line;
 }
 
 .tooltip:hover .tooltiptext{
     visibility: visible;
+    white-space: pre-line;
+
 }
 
 
