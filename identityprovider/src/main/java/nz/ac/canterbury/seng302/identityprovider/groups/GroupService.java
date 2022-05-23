@@ -1,4 +1,4 @@
-package nz.ac.canterbury.seng302.portfolio.groups;
+package nz.ac.canterbury.seng302.identityprovider.groups;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class GroupService {
      * @param groupId The id of the group
      * @param userId The id of the user
      */
-    public void addUserToGroup(long groupId, int userId) {
+    public void addUserToGroup(Integer groupId, int userId) {
         Optional<Group> optionalGroup = groupRepository.findById(groupId);
         if (optionalGroup.isEmpty()) {
             throw new IllegalArgumentException(groupId + " does not refer to a valid group");
@@ -45,7 +45,7 @@ public class GroupService {
      * @param groupId The id of the group
      * @param userId The id of the user
      */
-    public void removeUserFromGroup(long groupId, int userId) {
+    public void removeUserFromGroup(Integer groupId, int userId) {
         Optional<Group> optionalGroup = groupRepository.findById(groupId);
         if (optionalGroup.isEmpty()) {
             throw new IllegalArgumentException(groupId + " does not refer to a valid group");

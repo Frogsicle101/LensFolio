@@ -1,4 +1,4 @@
-package nz.ac.canterbury.seng302.portfolio.groups;
+package nz.ac.canterbury.seng302.identityprovider.groups;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -13,7 +13,7 @@ import java.util.List;
 public class Group {
 
     @Id
-    private Long id;
+    private Integer id;
 
     @ElementCollection
     private List<Integer> memberIds;
@@ -24,7 +24,13 @@ public class Group {
 
     protected Group() {}
 
-    public Group (Long id, String shortName, String longName) {
+    public Group (String shortName, String longName) {
+        this.shortName = shortName;
+        this.longName = longName;
+        this.memberIds = new ArrayList<>();
+    }
+
+    public Group (Integer id, String shortName, String longName) {
         this.id = id;
         this.shortName = shortName;
         this.longName = longName;
@@ -32,7 +38,7 @@ public class Group {
     }
 
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 

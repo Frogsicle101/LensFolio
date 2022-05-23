@@ -57,8 +57,10 @@ public class Config implements WebMvcConfigurer
 
 
         //Groups
-        pathsToInterceptForRoleBased.add("/addUser");
-        pathsToInterceptForRoleBased.add("/removeUser");
+        pathsToInterceptForRoleBased.add("/groups/addUser");
+        pathsToInterceptForRoleBased.add("/groups/removeUser");
+        pathsToInterceptForRoleBased.add("/groups/edit");
+
 
 
 
