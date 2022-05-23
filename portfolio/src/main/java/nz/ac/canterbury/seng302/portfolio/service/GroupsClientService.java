@@ -44,25 +44,25 @@ public class GroupsClientService {
 
 
     /**
-     * The grpc service to request the adding of a user to a group on the Idp
+     * The grpc service to request the adding of users to a group on the Idp
      *
-     * @param request The request to add a user to a group, following the AddGroupMembersRequest message format
+     * @param request The request to add users to a group, following the AddGroupMembersRequest message format
      * @return The IdP's response following the AddGroupMembersResponse message format
      */
     public AddGroupMembersResponse addGroupMembers (AddGroupMembersRequest request) {
-        logger.info("SERVICE - send deleteGroupRequest request to server");
+        logger.info("SERVICE - send addGroupMembersRequest request to server");
         return groupsStub.addGroupMembers(request);
     }
 
 
     /**
-     * The grpc service to request the removal of a user from a group on the Idp
+     * The grpc service to request the removal of users from a group on the Idp
      *
-     * @param request The request to remove a user from a group, following the AddGroupMembersRequest message format
+     * @param request The request to remove users from a group, following the AddGroupMembersRequest message format
      * @return The IdP's response following the RemoveGroupMembersResponse message format
      */
     public RemoveGroupMembersResponse removeGroupMembers (RemoveGroupMembersRequest request) {
-        logger.info("SERVICE - send deleteGroupRequest request to server");
+        logger.info("SERVICE - send deleteGroupMembersRequest request to server");
         return groupsStub.removeGroupMembers(request);
     }
 }

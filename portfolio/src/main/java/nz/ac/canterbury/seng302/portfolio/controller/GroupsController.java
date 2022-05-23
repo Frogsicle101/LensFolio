@@ -94,19 +94,20 @@ public class GroupsController {
         }
     }
 
+
     /**
      * Post mapping for a user to be added to a group. Restricted to course administrators and teachers.
      *
      * @param userIds  The users to be added to the group.
      * @param groupId The group to which the use will be added.
-     * @return a response entity
+     * @return a response entity containing the status of the response and the response message
      */
-    @PostMapping("/groups/addUser")
+    @PostMapping("/groups/addUsers")
     public ResponseEntity<String> addUserToGroup(
             @RequestParam(value = "groupId") Integer groupId,
             @RequestParam(value = "userIds") ArrayList<Integer> userIds
     ) {
-        logger.info("POST REQUEST /groups/addUser");
+        logger.info("POST REQUEST /groups/addUsers");
 
         try {
             AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder()
@@ -119,26 +120,27 @@ public class GroupsController {
             }
             return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            logger.error("ERROR /groups/edit - an error occurred while adding a user to a group");
+            logger.error("ERROR /groups/addUsers - an error occurred while adding a user to a group");
             logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     /**
      * Post mapping for users to be removed from a group. Restricted to course administrators and teachers.
      *
      * @param userIds  The users to be removed from the group.
      * @param groupId The group to which the use will be removed.
-     * @return
+     * @return a response entity containing the status of the response and the response message
      */
-    @DeleteMapping("/groups/removeUser")
+    @DeleteMapping("/groups/removeUsers")
     public ResponseEntity<String> removeUserFromGroup(
             @RequestParam(value = "groupId") Integer groupId,
             @RequestParam(value = "userIds") ArrayList<Integer> userIds
 
     ) {
-        logger.info("DELETE REQUEST /groups/removeUser");
+        logger.info("DELETE REQUEST /groups/removeUsers");
 
         try {
             RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder()
@@ -152,10 +154,9 @@ public class GroupsController {
             return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (
                 Exception e) {
-            logger.error("ERROR /groups/edit - an error occurred while removing a user from a group");
+            logger.error("ERROR /groups/removeUsers - an error occurred while removing a user from a group");
             logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 }

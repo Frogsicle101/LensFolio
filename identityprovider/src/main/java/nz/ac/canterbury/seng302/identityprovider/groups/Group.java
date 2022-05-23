@@ -56,11 +56,13 @@ public class Group {
 
 
     /**
-     * Removes a user from a group
-     * @param userId the id of the user
+     * Removes users from a group
+     * @param userIds the id of the users to be removed
      */
-    public void removeUserFromGroup(int userId) {
-        memberIds.remove((Integer) userId);
+    public void removeAllUsersFromGroup(List<Integer> userIds) {
+        for (Integer userId : userIds)  {
+            memberIds.remove(userId);
+        }
     }
 
     /**

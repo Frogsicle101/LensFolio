@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
+import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupService;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,27 +17,30 @@ import static org.mockito.Mockito.when;
 
 class GroupServiceTest {
 
-    private final GroupRepository repository = Mockito.mock(GroupRepository.class);
+    private final GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    private final UserRepository userRepository = Mockito.mock(UserRepository.class);
 
     private GroupService groupService;
 
     @BeforeEach
     public void setUp() {
 
-        groupService = new GroupService(repository);
+        groupService = new GroupService(groupRepository, userRepository);
     }
 
     @Test
     void testAddUser() {
 
         Group group = new Group(1, "Short", "Long");
-        when(repository.findById(group.getId())).thenReturn(Optional.of(group));
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+        userIds.add(2);
 
-        int userId = 1;
-        groupService.addUserToGroup(group.getId(), userId);
+        groupService.addUsersToGroup(group.getId(), userIds);
 
-        assertEquals(1, group.getMemberIds().size());
-        assertEquals(userId, group.getMemberIds().get(0));
+        assertEquals(2, group.getMemberIds().size());
+        assertEquals(userIds, group.getMemberIds());
 
     }
 
@@ -43,25 +48,29 @@ class GroupServiceTest {
     void testAddAlreadyPresentUser() {
 
         Group group = new Group(1, "Short", "Long");
-        when(repository.findById(group.getId())).thenReturn(Optional.of(group));
-        int userId = 1;
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+        userIds.add(2);
 
-        groupService.addUserToGroup(group.getId(), userId);
-        groupService.addUserToGroup(group.getId(), userId);
+        groupService.addUsersToGroup(group.getId(), userIds);
+        groupService.addUsersToGroup(group.getId(), userIds);
 
-        assertEquals(1, group.getMemberIds().size());
-        assertEquals(userId, group.getMemberIds().get(0));
+        assertEquals(2, group.getMemberIds().size());
+        assertEquals(userIds, group.getMemberIds());
     }
 
     @Test
     void testDeleteUser() {
 
         Group group = new Group(1, "Short", "Long");
-        when(repository.findById(group.getId())).thenReturn(Optional.of(group));
-        int userId = 1;
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+        userIds.add(2);
 
-        groupService.addUserToGroup(group.getId(), userId);
-        groupService.removeUserFromGroup(group.getId(), userId);
+        groupService.addUsersToGroup(group.getId(), userIds);
+        groupService.removeUsersFromGroup(group.getId(), userIds);
 
         assertEquals(0, group.getMemberIds().size());
 

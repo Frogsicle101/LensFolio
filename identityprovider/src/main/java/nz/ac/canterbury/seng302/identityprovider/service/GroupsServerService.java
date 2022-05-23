@@ -68,16 +68,31 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     @Override
     public void addGroupMembers(AddGroupMembersRequest request, StreamObserver<AddGroupMembersResponse> responseObserver) {
 
-
         AddGroupMembersResponse.Builder response = AddGroupMembersResponse.newBuilder().setIsSuccess(true);
-        groupService.addUsersToGroup(request.getGroupId(), request.getUserIdsList());
 
+        try {
+            groupService.addUsersToGroup(request.getGroupId(), request.getUserIdsList());
+            response.setIsSuccess(true);
+            response.setMessage("Successfully added users to group");
+        } catch (Exception e) {
+            response.setIsSuccess(false);
+            response.setMessage(e.getMessage());
+        }
     }
 
 
     @Override
     public void removeGroupMembers(RemoveGroupMembersRequest request, StreamObserver<RemoveGroupMembersResponse> responseObserver) {
-        super.removeGroupMembers(request, responseObserver);
+        RemoveGroupMembersResponse.Builder response = RemoveGroupMembersResponse.newBuilder().setIsSuccess(true);
+
+        try {
+            groupService.removeUsersFromGroup(request.getGroupId(), request.getUserIdsList());
+            response.setIsSuccess(true);
+            response.setMessage("Successfully removed users from group");
+        } catch (Exception e) {
+            response.setIsSuccess(false);
+            response.setMessage(e.getMessage());
+        }
     }
 
     @Override

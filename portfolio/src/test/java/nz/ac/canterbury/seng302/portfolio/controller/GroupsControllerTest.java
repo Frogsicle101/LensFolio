@@ -4,21 +4,31 @@ import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.ValidationError;
+import org.apache.catalina.Group;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -164,6 +174,115 @@ public class GroupsControllerTest {
                         .param("groupId", "1"))
                 .andExpect(status().isNotFound());
     }
+
+
+    @Test
+    void addUsersToGroup() throws Exception { //fixMe I fail
+        setUserToTeacher();
+        setUpContext();
+
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+        userIds.add(2);
+
+        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(1).addAllUserIds(userIds).build();
+
+        AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
+                        .setIsSuccess(true)
+                        .setMessage("Successfully added users to group")
+                        .build();
+
+        Mockito.when(groupsClientService.addGroupMembers(request)).thenReturn(response);
+
+        System.out.println(response.getMessage());
+        mockMvc.perform(post("/groups/addUsers")
+                .param("groupId", "1")
+                .param("userIds", (userIds).toString()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void addUsersToGroupNotAGroup() throws Exception {
+        setUserToTeacher();
+        setUpContext();
+
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+        userIds.add(2);
+
+        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(1).addAllUserIds(userIds).build();
+
+        AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
+                .setIsSuccess(false)
+                .setMessage("1 does not refer to a valid group")
+                .build();
+
+        Mockito.when(groupsClientService.addGroupMembers(request)).thenReturn(response);
+
+        System.out.println(response.getMessage());
+        mockMvc.perform(post("/groups/addUsers")
+                        .param("groupId", "1")
+                        .param("userIds", (userIds).toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void addUserToGroupNotUser() throws Exception { //fIXme succeeding for the wrong reasons
+        setUserToTeacher();
+        setUpContext();
+
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+
+        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(1).addAllUserIds(userIds).build();
+
+        AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
+                .setIsSuccess(false)
+                .setMessage("1 does not refer to a valid user")
+                .build();
+
+        Mockito.when(groupsClientService.addGroupMembers(request)).thenReturn(response);
+
+        System.out.println(response.getMessage());
+        mockMvc.perform(post("/groups/addUsers")
+                        .param("groupId", "1")
+                        .param("userIds", (userIds).toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void removeUsers() throws Exception {
+        setUserToTeacher();
+        setUpContext();
+
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+        userIds.add(2);
+
+        RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().setGroupId(1).addAllUserIds(userIds).build();
+
+        RemoveGroupMembersResponse response = RemoveGroupMembersResponse.newBuilder()
+                .setIsSuccess(false)
+                .setMessage("1 does not refer to a valid group")
+                .build();
+
+        Mockito.when(groupsClientService.removeGroupMembers(request)).thenReturn(response);
+
+        System.out.println(response.getMessage());
+        mockMvc.perform(post("/groups/removeUsers")
+                        .param("groupId", "1")
+                        .param("userIds", (userIds).toString()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteUserNotAGroup() {
+
+    }
+
+    @Test
+    void deleteUserNotInGroup() {
+     }
 
 
     // ------------------------------------- Helpers -----------------------------------------
