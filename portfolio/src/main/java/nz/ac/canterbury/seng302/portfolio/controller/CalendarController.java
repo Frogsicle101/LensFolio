@@ -250,7 +250,7 @@ public class CalendarController {
                     String namesByDate = eventsNames.get(date);
                     if (countByDate == null) {
                         eventsCount.put(date, 1); //add date to map as key
-                        eventsNames.put(date,"");
+                        eventsNames.put(date,event.getName());
                     }else {
                         countByDate++;
                         namesByDate += ("\n" + event.getName());
@@ -265,7 +265,7 @@ public class CalendarController {
             for (Map.Entry<LocalDate, Integer> entry : eventsCount.entrySet()) {
                 HashMap<String, String> jsonedEvent = new HashMap<>();
                 jsonedEvent.put("title", String.valueOf(entry.getValue()));
-                jsonedEvent.put("namesList",eventsNames.get(entry.getKey()));
+                jsonedEvent.put("occasionTitles",eventsNames.get(entry.getKey()).toString());
                 jsonedEvent.put("classNames", "eventCalendar");
                 jsonedEvent.put("content", "");
                 jsonedEvent.put("start", entry.getKey().toString());
@@ -304,7 +304,7 @@ public class CalendarController {
                 String namesByDate = deadlinesNames.get(deadline.getEndDate());
                 if (countByDate == null) {
                     deadlinesCount.put(deadline.getEndDate(), 1); //add date to map as key
-                    deadlinesNames.put(deadline.getEndDate(),"");
+                    deadlinesNames.put(deadline.getEndDate(),deadline.getName());
                 }else {
                     countByDate++;
                     deadlinesCount.replace(deadline.getEndDate(), countByDate);
@@ -316,7 +316,7 @@ public class CalendarController {
             for (Map.Entry<LocalDate, Integer> entry : deadlinesCount.entrySet()) {
                 HashMap<String, String> jsonedDeadline = new HashMap<>();
                 jsonedDeadline.put("title", String.valueOf(entry.getValue()));
-                jsonedDeadline.put("namesList", deadlinesNames.get(entry.getKey()));
+                jsonedDeadline.put("occasionTitles", deadlinesNames.get(entry.getKey()));
                 jsonedDeadline.put("classNames", "deadlineCalendar");
                 jsonedDeadline.put("content", "");
                 jsonedDeadline.put("start", entry.getKey().toString());
@@ -355,7 +355,7 @@ public class CalendarController {
                 String namesByDate = milestonesNames.get(milestone.getEndDate());
                 if (countByDate == null) {
                     milestonesCount.put(milestone.getEndDate(), 1); //add date to map as key
-                    milestonesNames.put(milestone.getEndDate(),"");
+                    milestonesNames.put(milestone.getEndDate(),milestone.getName());
                 }else {
                     countByDate++;
                     milestonesCount.replace(milestone.getEndDate(), countByDate);
@@ -367,7 +367,7 @@ public class CalendarController {
             for (Map.Entry<LocalDate, Integer> entry : milestonesCount.entrySet()) {
                 HashMap<String, String> jsonedMilestone = new HashMap<>();
                 jsonedMilestone.put("title", String.valueOf(entry.getValue()));
-                jsonedMilestone.put("namesList", milestonesNames.get(entry.getKey()));
+                jsonedMilestone.put("occasionTitles", milestonesNames.get(entry.getKey()));
                 //milestonesNames.get(entry.getKey())
                 jsonedMilestone.put("classNames", "milestoneCalendar");
                 jsonedMilestone.put("content", "");
