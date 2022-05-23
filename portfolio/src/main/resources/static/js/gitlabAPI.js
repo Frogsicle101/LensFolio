@@ -6,4 +6,4 @@ function getBranches(repoID) {
     });
 }
 
-getBranches("seng302-2022/team-600");
+getBranches("12298");
