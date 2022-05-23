@@ -13,13 +13,21 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.lang.annotation.Repeatable;
+import java.util.ArrayList;
+import java.util.List;
+
 @Controller
 public class GroupsController {
 
-    /** For logging the requests related to groups */
+    /**
+     * For logging the requests related to groups
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** For making gRpc requests to the IdP */
+    /**
+     * For making gRpc requests to the IdP
+     */
     @Autowired
     private GroupsClientService groupsClientService;
 
@@ -27,8 +35,9 @@ public class GroupsController {
     /**
      * Restricted to teachers and course administrators, This endpoint deletes an existing group.
      * <br>
+     *
      * @param principal - The user who made the request
-     * @param groupId - The group Id of the group to be deleted
+     * @param groupId   - The group Id of the group to be deleted
      * @return ResponseEntity - a response entity containing either OK or NOT FOUND (for now)
      */
     @DeleteMapping("/groups/edit")
@@ -38,15 +47,14 @@ public class GroupsController {
         logger.info("DELETE REQUEST /groups - attempt to delete group {} by user: {}", groupId, userId);
         try {
             DeleteGroupRequest request = DeleteGroupRequest.newBuilder()
-                .setGroupId(groupId)
-                .build();
+                    .setGroupId(groupId)
+                    .build();
             DeleteGroupResponse response = groupsClientService.deleteGroup(request);
             if (response.getIsSuccess()) {
                 return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
             }
             return new ResponseEntity<>(response.getMessage(), HttpStatus.NOT_FOUND);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("ERROR /groups/edit - an error occurred while deleting a group");
             logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -57,9 +65,10 @@ public class GroupsController {
     /**
      * Restricted to teachers and course administrators, This endpoint creates a new group.
      * <br>
+     *
      * @param principal - The user who made the request
      * @param shortName - The short name of the group
-     * @param longName -  The full name of the group
+     * @param longName  -  The full name of the group
      * @return ResponseEntity - a response entity containing either CREATED or BAD_REQUEST (for now)
      */
     @PostMapping("/groups/edit")
@@ -78,12 +87,75 @@ public class GroupsController {
                 return new ResponseEntity<>(response.getMessage(), HttpStatus.CREATED);
             }
             return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("ERROR /groups/edit - an error occurred while creating a group");
             logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    /**
+     * Post mapping for a user to be added to a group. Restricted to course administrators and teachers.
+     *
+     * @param userIds  The users to be added to the group.
+     * @param groupId The group to which the use will be added.
+     * @return a response entity
+     */
+    @PostMapping("/groups/addUser")
+    public ResponseEntity<String> addUserToGroup(
+            @RequestParam(value = "groupId") Integer groupId,
+            @RequestParam(value = "userIds") ArrayList<Integer> userIds
+    ) {
+        logger.info("POST REQUEST /groups/addUser");
+
+        try {
+            AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder()
+                    .setGroupId(groupId)
+                    .addAllUserIds(userIds)
+                    .build();
+            AddGroupMembersResponse response = groupsClientService.addGroupMembers(request);
+            if (response.getIsSuccess()) {
+                return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logger.error("ERROR /groups/edit - an error occurred while adding a user to a group");
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Post mapping for users to be removed from a group. Restricted to course administrators and teachers.
+     *
+     * @param userIds  The users to be removed from the group.
+     * @param groupId The group to which the use will be removed.
+     * @return
+     */
+    @DeleteMapping("/groups/removeUser")
+    public ResponseEntity<String> removeUserFromGroup(
+            @RequestParam(value = "groupId") Integer groupId,
+            @RequestParam(value = "userIds") ArrayList<Integer> userIds
+
+    ) {
+        logger.info("DELETE REQUEST /groups/removeUser");
+
+        try {
+            RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder()
+                    .setGroupId(groupId)
+                    .addAllUserIds(userIds)
+                    .build();
+            RemoveGroupMembersResponse response = groupsClientService.removeGroupMembers(request);
+            if (response.getIsSuccess()) {
+                return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (
+                Exception e) {
+            logger.error("ERROR /groups/edit - an error occurred while removing a user from a group");
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 }

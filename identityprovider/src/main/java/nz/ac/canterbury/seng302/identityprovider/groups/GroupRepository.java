@@ -13,4 +13,5 @@ public interface GroupRepository extends CrudRepository<Group, Integer> {
     @Query
     Optional<Group> findByLongName(String longName);
 
+    Group getGroupById(Integer groupId);
 }

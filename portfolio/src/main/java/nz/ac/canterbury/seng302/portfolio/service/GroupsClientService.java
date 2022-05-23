@@ -16,7 +16,7 @@ public class GroupsClientService {
     private GroupsServiceGrpc.GroupsServiceBlockingStub groupsStub;
 
     /** For logging the grpc requests related to groups */
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     /**
@@ -40,5 +40,29 @@ public class GroupsClientService {
     public CreateGroupResponse createGroup (CreateGroupRequest request) {
         logger.info("SERVICE - send createGroupRequest request to server");
         return groupsStub.createGroup(request);
+    }
+
+
+    /**
+     * The grpc service to request the adding of a user to a group on the Idp
+     *
+     * @param request The request to add a user to a group, following the AddGroupMembersRequest message format
+     * @return The IdP's response following the AddGroupMembersResponse message format
+     */
+    public AddGroupMembersResponse addGroupMembers (AddGroupMembersRequest request) {
+        logger.info("SERVICE - send deleteGroupRequest request to server");
+        return groupsStub.addGroupMembers(request);
+    }
+
+
+    /**
+     * The grpc service to request the removal of a user from a group on the Idp
+     *
+     * @param request The request to remove a user from a group, following the AddGroupMembersRequest message format
+     * @return The IdP's response following the RemoveGroupMembersResponse message format
+     */
+    public RemoveGroupMembersResponse removeGroupMembers (RemoveGroupMembersRequest request) {
+        logger.info("SERVICE - send deleteGroupRequest request to server");
+        return groupsStub.removeGroupMembers(request);
     }
 }

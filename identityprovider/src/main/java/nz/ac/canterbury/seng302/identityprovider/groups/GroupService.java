@@ -1,8 +1,12 @@
 package nz.ac.canterbury.seng302.identityprovider.groups;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
+import nz.ac.canterbury.seng302.identityprovider.User;
+import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,23 +24,25 @@ public class GroupService {
     }
 
     /**
-     * Adds a user to a group
+     * Adds users to a group
      * @param groupId The id of the group
-     * @param userId The id of the user
+     * @param userIds The ids of the users
      */
-    public void addUserToGroup(Integer groupId, int userId) {
+    public void addUsersToGroup(Integer groupId, List<Integer> userIds) {
         Optional<Group> optionalGroup = groupRepository.findById(groupId);
         if (optionalGroup.isEmpty()) {
             throw new IllegalArgumentException(groupId + " does not refer to a valid group");
         }
 
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            throw new IllegalArgumentException(userId + "does not refer to a valid user");
+        try {
+            userRepository.findAllById(userIds);
+        } catch (EntityNotFoundException e) {
+            throw new IllegalArgumentException(userIds + " does not refer to valid users");
         }
 
+
         Group group = optionalGroup.get();
-        group.addUserToGroup(userId);
+        group.addAllUsersToGroup(userIds);
         groupRepository.save(group);
     }
 
@@ -51,10 +57,10 @@ public class GroupService {
             throw new IllegalArgumentException(groupId + " does not refer to a valid group");
         }
 
-        Optional<User> optionalUser = userRepository.findById(userId);
+        Optional<User> optionalUser = Optional.ofNullable(userRepository.findById(userId));
         if (optionalUser.isEmpty()) {
             throw new IllegalArgumentException(userId + "does not refer to a valid user");
-        } else if ( groupRepository.getGroupByGroupId(groupId).getMemberIds().contains(userId) == false) {
+        } else if (!groupRepository.getGroupById(groupId).getMemberIds().contains(userId)) {
             throw new IllegalArgumentException(userId + " does not refer to a member of the given group");
         }
 

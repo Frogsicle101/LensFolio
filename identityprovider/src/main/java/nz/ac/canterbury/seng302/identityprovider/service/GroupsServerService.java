@@ -67,7 +67,11 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
     @Override
     public void addGroupMembers(AddGroupMembersRequest request, StreamObserver<AddGroupMembersResponse> responseObserver) {
-        super.addGroupMembers(request, responseObserver);
+
+
+        AddGroupMembersResponse.Builder response = AddGroupMembersResponse.newBuilder().setIsSuccess(true);
+        groupService.addUsersToGroup(request.getGroupId(), request.getUserIdsList());
+
     }
 
 

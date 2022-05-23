@@ -54,16 +54,6 @@ public class Group {
         return longName;
     }
 
-    /**
-     * Adds a user to the group object if the user is not already present
-     * @param userId The id of the user
-     */
-    public void addUserToGroup(int userId) {
-        if (!memberIds.contains(userId)) {
-            memberIds.add(userId);
-        }
-
-    }
 
     /**
      * Removes a user from a group
@@ -73,7 +63,15 @@ public class Group {
         memberIds.remove((Integer) userId);
     }
 
-
-
-
+    /**
+     * Adds a user to the group object if the user is not already present
+     * @param userIds The ids of the users to be added
+     */
+    public void addAllUsersToGroup(List<Integer> userIds) {
+        for (Integer userId : userIds) {
+            if (!memberIds.contains(userId)) {
+                memberIds.add(userId);
+            }
+        }
+    }
 }
