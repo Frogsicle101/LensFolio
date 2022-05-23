@@ -1,6 +1,9 @@
 let thisUserIsEditing = false;
 
-
+/*
+Connection code for Websockets
+ */
+let stompClient = null;
 
 
 $(document).ready(function () {
@@ -133,6 +136,28 @@ $(document).ready(function () {
 
 
     keepAlive().then();
+
+// ---------------------------  Websockets  ------------------------------
+    function connect() {
+        let socket = new SockJS('/gs-guide-websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/notifications/receiving/occasions', function (notification) {
+                //Whenever we receive a message from the url, this function will run.
+                /*TODO: use the ID and occasion to call the relevant functions to lock and notify
+                Take a look at the STOMPOccasionMessage class to see what you have to work with
+                You'll need to determine the occasion and then call those functions for the rest of it
+                 */
+                /*
+                The type of JSON object we're receiving is modeled by STOMPOccasionMessage.
+                Please refer to the class' documentation for details.
+                 */
+                console.log('Receieved message:' + JSON.parse(notification.body).content);
+            });
+        });
+    }
+    connect();
 })
 
 
@@ -480,10 +505,17 @@ $(document).on("click", ".editButton", function () {
     $(".deleteButton").hide()
     let parent = $(this).closest(".occasion")
     let id = parent.attr("id")
-
+    //TODO: Send the correct information depending on what edit was made
     if (parent.hasClass("event")) {
         notifyEdit(id, "editEvent", "event")
         appendEventForm(parent)
+        stompClient.send("/notifications/sending/OccasionEdit", {}, JSON.stringify({
+            'name': 'Threderick',
+            'occasion': 'event',
+            'subject': 'Pizza Party',
+            'subjectId': 48,
+            'type':'notify'
+        }));
     } else if (parent.hasClass("milestone")) {
         notifyEdit(id, "editEvent", "milestone")
         appendMilestoneForm(parent)
