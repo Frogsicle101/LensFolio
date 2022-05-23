@@ -1,0 +1,17 @@
+<!--TODO Remove this page when group settings page is complete-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lensfolio | Gitlab API Test</title>
+
+</head>
+
+<body>
+<header th:insert="fragments/general.html"></header>
+<br><br><br>
+<button class="btn btn-primary" type="button" onclick="getBranches('seng302-2022/team-600')">GET Request</button>
+</body>
+
+<script type="application/javascript" th:src="@{js/gitlabAPI.js}"></script>
+</html>

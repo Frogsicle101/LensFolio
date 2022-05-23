@@ -38,6 +38,23 @@ public class UploadController {
     }
 
     /**
+     * TODO Remove this once group settings page is implemented
+     * @param principal
+     * @return
+     */
+    @GetMapping("/gitlabAPI")
+    public ModelAndView showGitlabAPI(
+            @AuthenticationPrincipal AuthState principal
+    ) {
+        logger.info("Endpoint reached: GET /gitlabAOI");
+        ModelAndView modelAndView = new ModelAndView("gitlabAPI-temp");
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        modelAndView.addObject("user", user);
+        return modelAndView;
+    }
+
+
+    /**
      * Endpoint that sends the given file to the identity provider
      * @param file The file sent in the body of the post request
      */
