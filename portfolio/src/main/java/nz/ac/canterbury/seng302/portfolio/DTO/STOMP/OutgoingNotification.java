@@ -23,4 +23,35 @@ public class OutgoingNotification {
         this.action = action;
     }
 
+    public String getEditorName() {
+        return editorName;
+    }
+
+    public void setEditorName(String editorName) {
+        this.editorName = editorName;
+    }
+
+    public String getOccasionType() {
+        return occasionType;
+    }
+
+    public void setOccasionType(String occasionType) {
+        this.occasionType = occasionType;
+    }
+
+    public String getOccasionId() {
+        return occasionId;
+    }
+
+    public void setOccasionId(String occasionId) {
+        this.occasionId = occasionId;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
 }
