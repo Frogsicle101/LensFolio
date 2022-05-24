@@ -1,5 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller.notifications;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.IncomingNotification;
+import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.OutgoingNotification;
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPEditNotification;
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPOccasionMessage;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
@@ -17,14 +19,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -150,50 +159,36 @@ public class NotificationController {
         return null;
     }
 
-    /**
-     * A message-mapping method that will:
-     * receive a STOMPEditNotification object that was sent to /notifications/sending/OccasionEdit
-     * (the /notifications/sending part is pre-configured over in the WebSocketConfig class)
-     * Make a string that will be the content of our editing notification
-     * Put it into a STOMPOccasionMessage object
-     * Send it off to /notifications/receiving/occasions, for any and all STOMP clients subscribed to that endpoint
-     *
-     * This is the endpoint for edit notifications. I.E. that little message that says
-     * 'so-and-so' is editing 'The Big Event'.
-     *
-     * Don't call this method directly. This is a spring method; it'll call itself when the time is right.
-     * @param edit A model for the edit details, which should contain a name, subject, id and content
-     * @return A messenger object containing a type, occasion, id and content
-     */
-    @MessageMapping("/OccasionEdit")
-    @SendTo("/notifications/receiving/occasions")
-    public STOMPOccasionMessage notifyOccasionEdit(STOMPEditNotification edit) {
-        String content = edit.getName() + " is editing " + edit.getSubject();
-        logger.info("MESSAGE: /OccasionEdit: Sending notification with content: {}", content);
-        return new STOMPOccasionMessage(edit.getType(), edit.getOccasion(), edit.getSubjectId(), content);
-    }
 
     /**
      * A message-mapping method that will:
-     * receive an EditSTOMP object that was sent to /notifications/sending/OccasionReload
+     * receive a IncomingNotification object that was sent to /notifications/receiving/message
      * (the /notifications/sending part is pre-configured over in the WebSocketConfig class)
      * Make a string that will be the content of our editing notification
-     * Put it into a STOMPOccasionMessage object
+     * Put it into a OutgoingNotification object
      * Send it off to /notifications/receiving/occasions, for any and all STOMP clients subscribed to that endpoint
-     *
-     * This is the endpoint for telling an occasion that we want it to reload.
-     * I.E. "we've changed this occasion, so reload it please."
-     *
+     *     *
      * Don't call this method directly. This is a spring method; it'll call itself when the time is right.
-     * @param target A model for the reload details, which should contain a name, subject, and id
-     * @return A messenger object containing a type, occasion, and id
+     * @param message A model for the edit details
+     * @return A messenger object containing a type, occasion, id and content
      */
-    @MessageMapping("/OccasionReload")
-    @SendTo("/notifications/receiving/occasions")
-    public STOMPOccasionMessage notifyOccasionReload(STOMPOccasionMessage target) {
-        logger.info("MESSAGE: /OccasionReload: Occasion: " + target.getOccasion() + ", " +
-                "ID: " + target.getSubjectId() + ", " +
-                "action type: " + target.getType());
-        return new STOMPOccasionMessage(target.getType(), target.getOccasion(), target.getSubjectId());
+    @MessageMapping("/message")
+    @SendTo("/notifications/sending/occasions")
+    public OutgoingNotification receiveIncomingNotification(@AuthenticationPrincipal Principal principal, IncomingNotification message) {
+        logger.info("Received message " + message.toString());
+        /*
+            Apparently, if you try and use @AuthenticationPrincipal in a @MessageMapping with anything other than a
+            java.security.principal, it won't realise it's a principal, and will instead try to put the message in
+            there.
+            The current solution is we let it insert its java.security.principal, and then do some complicated
+            typecasting to get it in the form we need it.
+
+         */
+        PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
+        AuthState state = (AuthState) auth.getPrincipal();
+
+        return new OutgoingNotification(state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
+
+
     }
 }
