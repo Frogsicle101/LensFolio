@@ -64,7 +64,7 @@ function eventClick (info) {
         calEvent.setProp("backgroundColor", calEvent.extendedProps.defaultColor);
         calEvent.setProp("borderColor", '#13CEE2');
         $(".fc-event-end").css("border-right", "solid 1px #13CEE2");
-        $(".fc-event-start").css("border-left", "solid 1px #13CEE2")
+        $(".fc-event-start").css("border-left", "solid 1px #13CEE2");
       }
 
     }
@@ -74,11 +74,8 @@ function eventClick (info) {
     info.event.setProp("durationEditable", true);
     info.event.setProp("backgroundColor", '#aaa');
     info.event.setProp("borderColor", '#c2080b');
-    if ($(".fc-event-resizer").parent().hasClass("fc-event-end")) {
-      $(".fc-event-resizer").parent().css("border-right", "solid 5px red");
-    } else {
-      $(".fc-event-resizer").parent().css("border-left", "solid 5px red");
-    }
+    $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
+    $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
 
   } else {
     // Deselects this event
