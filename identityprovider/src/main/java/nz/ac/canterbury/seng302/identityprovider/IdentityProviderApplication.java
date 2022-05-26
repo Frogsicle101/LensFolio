@@ -13,7 +13,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The main IdP application class using springboot.
@@ -21,22 +20,32 @@ import java.util.stream.Collectors;
 @SpringBootApplication
 public class IdentityProviderApplication {
 
-    /** Enables us to directly inject test users into the database*/
+    /**
+     * Enables us to directly inject test users into the database
+     */
     @Autowired
     UserRepository repository;
 
-    /** Enables us to directly inject our two main groups (Teachers and Non-member group) into the database */
+    /**
+     * Enables us to directly inject our two main groups (Teachers and Non-member group) into the database
+     */
     @Autowired
     GroupRepository groupRepository;
 
-    /** Logs the applications' initialisation process */
+    /**
+     * Logs the applications' initialisation process
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** Turn on (true) to create the default admin account */
-    private boolean includeAdminAccount = true;
+    /**
+     * Turn on (true) to create the default admin account
+     */
+    private final boolean includeAdminAccount = true;
 
-    /** Turn on (true) to create the 1000 test accounts */
-    private boolean includeTestData = false;
+    /**
+     * Turn on (true) to create the 1000 test accounts
+     */
+    private final boolean includeTestData = false;
 
     /**
      * Initialises test data when the boolean variables are true
@@ -54,6 +63,7 @@ public class IdentityProviderApplication {
 
     /**
      * Main method see class documentation.
+     *
      * @param args - default main params
      */
     public static void main(String[] args) {
@@ -68,8 +78,8 @@ public class IdentityProviderApplication {
     private void addDefaultGroups() {
         logger.info("Creating default groups");
         // Create the two main groups we need, teachers and non group group.
-        Group teachingGroup = new Group(0,"Teachers", "Teaching Staff");
-        Group nonGroupGroup = new Group(1,"Non-Group", "Members Without A Group");
+        Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
+        Group nonGroupGroup = new Group(1, "Non-Group", "Members Without A Group");
 
         List<User> everyUserList = (List<User>) repository.findAll();
         List<User> teachers = everyUserList.stream().filter(p -> p.getRoles().contains(UserRole.TEACHER)).toList();

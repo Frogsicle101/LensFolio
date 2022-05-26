@@ -25,25 +25,34 @@ import java.util.Optional;
 @GrpcService
 public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase {
 
-    /** For logging the requests related to groups */
+    /**
+     * For logging the requests related to groups
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** The groups repository for adding, deleting, updating and retrieving groups */
+    /**
+     * The groups repository for adding, deleting, updating and retrieving groups
+     */
     @Autowired
     private GroupRepository groupRepository;
 
-    /** Provides helpful services for adding and removing users from groups */
+    /**
+     * Provides helpful services for adding and removing users from groups
+     */
     @Autowired
     private GroupService groupService;
 
-    /** The user repository for getting users */
+    /**
+     * The user repository for getting users
+     */
     @Autowired
     private UserRepository userRepository;
 
     /**
      * Follows the gRPC contract and provides the server side service for creating groups
      * <br>
-     * @param request - A CreateGroupRequest formatted to satisfy the groups.proto contract
+     *
+     * @param request          - A CreateGroupRequest formatted to satisfy the groups.proto contract
      * @param responseObserver - Used to return the response to the client side.
      */
     @Override
@@ -52,16 +61,16 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         CreateGroupResponse.Builder response = CreateGroupResponse.newBuilder().setIsSuccess(true);
         if (groupRepository.findByShortName(request.getShortName()).isPresent()) {
             response.addValidationErrors(ValidationError.newBuilder()
-                    .setFieldName("Short name")
-                    .setErrorText("A group exists with the shortName " + request.getShortName())
-                    .build())
+                            .setFieldName("Short name")
+                            .setErrorText("A group exists with the shortName " + request.getShortName())
+                            .build())
                     .setIsSuccess(false);
         }
         if (groupRepository.findByLongName(request.getLongName()).isPresent()) {
             response.addValidationErrors(ValidationError.newBuilder()
-                    .setFieldName("Long name")
-                    .setErrorText("A group exists with the longName " + request.getLongName())
-                    .build())
+                            .setFieldName("Long name")
+                            .setErrorText("A group exists with the longName " + request.getLongName())
+                            .build())
                     .setIsSuccess(false);
         }
         if (response.getIsSuccess()) {
@@ -122,7 +131,8 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     /**
      * Follows the gRPC contract and provides the server side service for deleting groups
      * <br>
-     * @param request - A DeleteGroupRequest formatted to satisfy the groups.proto contract
+     *
+     * @param request          - A DeleteGroupRequest formatted to satisfy the groups.proto contract
      * @param responseObserver - Used to return the response to the client side.
      */
     @Override
@@ -131,13 +141,13 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
         DeleteGroupResponse.Builder response = DeleteGroupResponse.newBuilder();
         if (groupRepository.existsById(request.getGroupId())) {
-            logger.info("SERVICE - Successfully deleted the group with Id: " + request.getGroupId());
+            logger.info("SERVICE - Successfully deleted the group with Id: {}", request.getGroupId());
             groupRepository.deleteById(request.getGroupId());
             response.setIsSuccess(true)
                     .setMessage("Successfully deleted the group with Id: " + request.getGroupId());
 
         } else {
-            logger.info("SERVICE - No group exists with Id: " + request.getGroupId());
+            logger.info("SERVICE - No group exists with Id: {}", request.getGroupId());
             response.setIsSuccess(false)
                     .setMessage("No group exists with Id: " + request.getGroupId());
         }
@@ -148,7 +158,8 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
     /**
      * Follows the gRPC contract and provides the server side service for getting group details
-     * @param request a GetGroupDetailRequest formatted to satisfy the groups.proto contract
+     *
+     * @param request          a GetGroupDetailRequest formatted to satisfy the groups.proto contract
      * @param responseObserver - Used to return the response to the client side
      */
     @Override
@@ -163,16 +174,16 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             List<UserResponse> userResponseList = new ArrayList<>();
 
             //Checks to see if there are members of the group.
-            if (!group.getMemberIds().isEmpty()){
+            if (!group.getMemberIds().isEmpty()) {
                 List<Integer> groupMembers = group.getMemberIds();
-                for (int id: groupMembers) {
+                for (int id : groupMembers) {
                     //For each group member Id that the group has, we want to create a UserResponse.
                     User user = userRepository.findById(id);
                     UserResponse userResponse = UserHelperService.retrieveUser(user);
                     userResponseList.add(userResponse);
                 }
                 // Iterates over the list of UserResponses and adds them to the response.
-                for (UserResponse userResponse: userResponseList) {
+                for (UserResponse userResponse : userResponseList) {
                     response.addMembers(userResponse);
                 }
             }
@@ -199,7 +210,8 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
     /**
      * Follows the gRPC contract and provides the server side service for getting the teaching group details
-     * @param request an empty request
+     *
+     * @param request          an empty request
      * @param responseObserver - Used to return the response to the client side
      */
     @Override
@@ -211,16 +223,16 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         Optional<Group> group = groupRepository.findByShortName("Teachers");
         List<UserResponse> userResponseList = new ArrayList<>();
         //Checks to see if there are members of the group.
-        if (group.isPresent() && !group.get().getMemberIds().isEmpty()){
+        if (group.isPresent() && !group.get().getMemberIds().isEmpty()) {
             List<Integer> groupMembers = group.get().getMemberIds();
-            for (int id: groupMembers) {
+            for (int id : groupMembers) {
                 //For each group member ID that the group has, we want to create a UserResponse.
                 User user = userRepository.findById(id);
                 UserResponse userResponse = UserHelperService.retrieveUser(user);
                 userResponseList.add(userResponse);
             }
             // Iterates over the list of UserResponses and adds them to the response.
-            for (UserResponse userResponse: userResponseList) {
+            for (UserResponse userResponse : userResponseList) {
                 response.addMembers(userResponse);
             }
 
