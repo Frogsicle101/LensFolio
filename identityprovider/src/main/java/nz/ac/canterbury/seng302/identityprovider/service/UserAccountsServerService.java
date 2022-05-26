@@ -414,7 +414,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      * @param user User passed through from the getPaginatedUsers method
      * @return UserResponse - a response with all the info about the user passed through
      */
-    private UserResponse retrieveUser(User user) {
+    public UserResponse retrieveUser(User user) {
         UserResponse.Builder response = UserResponse.newBuilder();
         response.setUsername(user.getUsername())
                 .setFirstName(user.getFirstName())

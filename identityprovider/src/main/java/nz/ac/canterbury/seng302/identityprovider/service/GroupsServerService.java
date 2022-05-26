@@ -3,6 +3,8 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import nz.ac.canterbury.seng302.identityprovider.User;
+import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupService;
@@ -11,6 +13,10 @@ import nz.ac.canterbury.seng302.shared.util.ValidationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * The GroupsServerService implements the server side functionality of the services defined by the
@@ -29,6 +35,12 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     /** Provides helpful services for adding and removing users from groups */
     @Autowired
     private GroupService groupService;
+
+    /** The user repository for getting users */
+    @Autowired
+    private UserRepository userRepository;
+
+    private UserAccountsServerService userAccountsServerService;
 
 
     /**
@@ -137,7 +149,45 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
     @Override
     public void getGroupDetails(GetGroupDetailsRequest request, StreamObserver<GroupDetailsResponse> responseObserver) {
-        super.getGroupDetails(request, responseObserver);
+        logger.info("SERVICE - Getting group {}", request.getGroupId());
+
+        GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder();
+
+        // Checks that the group exists.
+        if (groupRepository.existsById(request.getGroupId())) {
+            Group group = groupRepository.getGroupById(request.getGroupId());
+            List<UserResponse> userResponseList = new ArrayList<>();
+
+
+            if (!group.getMemberIds().isEmpty()){
+                List<Integer> groupMembers = group.getMemberIds();
+                for (int id: groupMembers) {
+
+                    User user = userRepository.findById(id);
+                    UserResponse userResponse = userAccountsServerService.retrieveUser(user);
+                    userResponseList.add(userResponse);
+
+                }
+
+                for (UserResponse userResponse: userResponseList) {
+                    response.addMembers(userResponse);
+                }
+            }
+
+
+            response.setLongName(group.getLongName())
+                    .setShortName(group.getShortName())
+                    .setGroupId(group.getId()).build();
+            responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
+
+        } else {
+            logger.info("SERVICE - No group exists with Id: {}", request.getGroupId());
+            response.setLongName("NOT FOUND");
+            response.setShortName("");
+            responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
+        }
     }
 
     @Override
