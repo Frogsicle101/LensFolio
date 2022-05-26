@@ -29,13 +29,21 @@ function eventResize (info) {
       $(".successMessage").text("Sprint dates updated successfully")
       $(".successMessageParent").slideUp()
       $(".successMessageParent").slideDown()
+      $(".fc-event").css("border-right", "solid 0px #13CEE2");
+      $(".fc-event").css("border-left", "solid 0px #13CEE2");
+      $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
+      $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
     },
     error: function(error){
       console.log(error.responseText)
       $(".errorMessage").text(error.responseText)
       $(".errorMessageParent").slideUp()
       $(".errorMessageParent").slideDown()
+      $(".fc-event").css("border-right", "solid 0px #13CEE2");
+      $(".fc-event").css("border-left", "solid 0px #13CEE2");
       info.revert()
+      $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
+      $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
     }
   })
 
@@ -63,8 +71,8 @@ function eventClick (info) {
         calEvent.setProp("durationEditable", false);
         calEvent.setProp("backgroundColor", calEvent.extendedProps.defaultColor);
         calEvent.setProp("borderColor", '#13CEE2');
-        $(".fc-event-end").css("border-right", "solid 1px #13CEE2");
-        $(".fc-event-start").css("border-left", "solid 1px #13CEE2");
+        $(".fc-event").css("border-right", "solid 0px #13CEE2");
+        $(".fc-event").css("border-left", "solid 0px #13CEE2");
       }
 
     }
@@ -83,8 +91,8 @@ function eventClick (info) {
     info.event.setProp("durationEditable", false);
     info.event.setProp("backgroundColor", info.event.extendedProps.defaultColor)
     info.event.setProp("borderColor", '#13CEE2');
-    $(".fc-event-end").css("border-right", "solid 1px #13CEE2");
-    $(".fc-event-start").css("border-left", "solid 1px #13CEE2");
+    $(".fc-event").css("border-right", "solid 0px #13CEE2");
+    $(".fc-event").css("border-left", "solid 0px #13CEE2");
   }
 
 }
