@@ -36,7 +36,7 @@ public class IdentityProviderApplication {
     private boolean includeAdminAccount = true;
 
     /** Turn on (true) to create the 1000 test accounts */
-    private boolean includeTestData = true;
+    private boolean includeTestData = false;
 
     /**
      * Initialises test data when the boolean variables are true
@@ -48,20 +48,22 @@ public class IdentityProviderApplication {
         if (includeTestData)
             addTestUsers();
 
-//        // Create the two main groups we need, teachers and non group group.
-//        Group teachingGroup = new Group(0,"Teachers", "Teaching Staff");
-//        Group nonGroupGroup = new Group(1,"Non-Group", "Members Without A Group");
-//
-//        List<User> everyUserList = (List<User>) repository.findAll();
-//        List<User> teachers = everyUserList.stream().filter(p -> p.getRoles().contains(UserRole.TEACHER)).toList();
-//        List<User> nonGroupUsers = everyUserList.stream().filter(p -> !p.getRoles().contains(UserRole.TEACHER)).toList();
-//
-//        teachingGroup.addAllUsersToGroup(teachers.stream().map(User::getId).toList());
-//        nonGroupGroup.addAllUsersToGroup(nonGroupUsers.stream().map(User::getId).toList());
-//
-//
-//        groupRepository.save(teachingGroup);
-//        groupRepository.save(nonGroupGroup);
+        logger.info("Creating default groups");
+        // Create the two main groups we need, teachers and non group group.
+        Group teachingGroup = new Group(0,"Teachers", "Teaching Staff");
+        Group nonGroupGroup = new Group(1,"Non-Group", "Members Without A Group");
+
+        List<User> everyUserList = (List<User>) repository.findAll();
+        List<User> teachers = everyUserList.stream().filter(p -> p.getRoles().contains(UserRole.TEACHER)).toList();
+        List<User> nonGroupUsers = everyUserList.stream().filter(p -> !p.getRoles().contains(UserRole.TEACHER)).toList();
+
+        teachingGroup.addAllUsersToGroup(teachers.stream().map(User::getId).toList());
+        nonGroupGroup.addAllUsersToGroup(nonGroupUsers.stream().map(User::getId).toList());
+
+
+        groupRepository.save(teachingGroup);
+        groupRepository.save(nonGroupGroup);
+        logger.info("Finished creating default groups");
     }
 
 

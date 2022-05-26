@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.identityprovider.groups;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * Object representation of a group of users
  */
 @Entity
+@Table(name = "group_table") // had to add this, as I think Group can't be a table name in H2 as it's a reserved keyword?
 public class Group {
 
     @Id
