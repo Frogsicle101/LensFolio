@@ -14,24 +14,49 @@ import java.util.List;
 @Table(name = "group_table") // had to add this, as I think Group can't be a table name in H2 as it's a reserved keyword?
 public class Group {
 
+    /**
+    * The unique ID of the Group.
+    */
     @Id
     private Integer id;
 
+    /**
+    * The ID's of the group's members.
+    */
     @ElementCollection
     private List<Integer> memberIds;
 
+    /**
+    * The group's short name.
+    */
     private String shortName;
 
+    /**
+    * The group's long name.
+    */
     private String longName;
 
+
+    /**
+    * The Group constructor required by JPA.
+    */
     protected Group() {}
 
+    /**
+    * The default constructor for a group, which automatically generates a unique ID.
+    *
+    * @param shortName The group's short name.
+    * @param longName The group's long name.
+    */
     public Group (String shortName, String longName) {
         this.shortName = shortName;
         this.longName = longName;
         this.memberIds = new ArrayList<>();
     }
 
+    /**
+    * The constructor for a group with a specified group ID.
+    */
     public Group (Integer id, String shortName, String longName) {
         this.id = id;
         this.shortName = shortName;
