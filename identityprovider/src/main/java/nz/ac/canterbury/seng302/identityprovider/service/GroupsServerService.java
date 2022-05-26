@@ -40,9 +40,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     @Autowired
     private UserRepository userRepository;
 
-    private UserAccountsServerService userAccountsServerService;
-
-
     /**
      * Follows the gRPC contract and provides the server side service for creating groups
      * <br>
@@ -76,7 +73,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onCompleted();
     }
 
-
     @Override
     public void addGroupMembers(AddGroupMembersRequest request, StreamObserver<AddGroupMembersResponse> responseObserver) {
 
@@ -95,7 +91,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
-
 
     @Override
     public void removeGroupMembers(RemoveGroupMembersRequest request, StreamObserver<RemoveGroupMembersResponse> responseObserver) {
@@ -151,11 +146,10 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onCompleted();
     }
 
-
     /**
      * Follows the gRPC contract and provides the server side service for getting group details
      * @param request a GetGroupDetailRequest formatted to satisfy the groups.proto contract
-     * @param responseObserver - User to return the response to the client side
+     * @param responseObserver - Used to return the response to the client side
      */
     @Override
     public void getGroupDetails(GetGroupDetailsRequest request, StreamObserver<GroupDetailsResponse> responseObserver) {
@@ -174,7 +168,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                 for (int id: groupMembers) {
                     //For each group member Id that the group has, we want to create a UserResponse.
                     User user = userRepository.findById(id);
-                    UserResponse userResponse = userAccountsServerService.retrieveUser(user);
+                    UserResponse userResponse = UserHelperService.retrieveUser(user);
                     userResponseList.add(userResponse);
                 }
                 // Iterates over the list of UserResponses and adds them to the response.
@@ -182,14 +176,12 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                     response.addMembers(userResponse);
                 }
             }
-
             //General setters for the response.
             response.setLongName(group.getLongName())
                     .setShortName(group.getShortName())
                     .setGroupId(group.getId()).build();
             responseObserver.onNext(response.build());
             responseObserver.onCompleted();
-
         } else {
             //If the group doesn't exist
             logger.info("SERVICE - No group exists with Id: {}", request.getGroupId());
@@ -205,28 +197,32 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         super.getPaginatedGroups(request, responseObserver);
     }
 
+    /**
+     * Follows the gRPC contract and provides the server side service for getting the teaching group details
+     * @param request an empty request
+     * @param responseObserver - Used to return the response to the client side
+     */
     @Override
     public void getTeachingStaffGroup(Empty request, StreamObserver<GroupDetailsResponse> responseObserver) {
         logger.info("SERVICE - Getting teaching group");
 
         GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder();
 
-        Optional<Group> group = groupRepository.findByShortName("Teachers"); //TODO make "Teachers" a reserved short name so it can't be used
+        Optional<Group> group = groupRepository.findByShortName("Teachers");
         List<UserResponse> userResponseList = new ArrayList<>();
         //Checks to see if there are members of the group.
         if (group.isPresent() && !group.get().getMemberIds().isEmpty()){
             List<Integer> groupMembers = group.get().getMemberIds();
             for (int id: groupMembers) {
-                //For each group member Id that the group has, we want to create a UserResponse.
+                //For each group member ID that the group has, we want to create a UserResponse.
                 User user = userRepository.findById(id);
-                UserResponse userResponse = userAccountsServerService.retrieveUser(user);
+                UserResponse userResponse = UserHelperService.retrieveUser(user);
                 userResponseList.add(userResponse);
             }
             // Iterates over the list of UserResponses and adds them to the response.
             for (UserResponse userResponse: userResponseList) {
                 response.addMembers(userResponse);
             }
-
 
             //General setters for the response.
             response.setLongName(group.get().getLongName())

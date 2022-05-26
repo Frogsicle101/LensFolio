@@ -47,7 +47,25 @@ public class IdentityProviderApplication {
             addAdminAccount();
         if (includeTestData)
             addTestUsers();
+        addDefaultGroups();
 
+    }
+
+
+    /**
+     * Main method see class documentation.
+     * @param args - default main params
+     */
+    public static void main(String[] args) {
+        SpringApplication.run(IdentityProviderApplication.class, args);
+    }
+
+    /**
+     * Creates the two default groups, members without groups and teaching staff.
+     * Loops through a list that contains every user and filters them into either nonGroupUsers or Teachers.
+     * Saves both the groups to the repository
+     */
+    private void addDefaultGroups() {
         logger.info("Creating default groups");
         // Create the two main groups we need, teachers and non group group.
         Group teachingGroup = new Group(0,"Teachers", "Teaching Staff");
@@ -64,15 +82,6 @@ public class IdentityProviderApplication {
         groupRepository.save(teachingGroup);
         groupRepository.save(nonGroupGroup);
         logger.info("Finished creating default groups");
-    }
-
-
-    /**
-     * Main method see class documentation.
-     * @param args - default main params
-     */
-    public static void main(String[] args) {
-        SpringApplication.run(IdentityProviderApplication.class, args);
     }
 
     // ----------------------------------------- Test data ---------------------------------------------------

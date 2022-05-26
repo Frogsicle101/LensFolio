@@ -41,6 +41,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
+
     /** Name Comparator */
     Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
 
@@ -401,38 +403,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         }
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
-            reply.addUsers(retrieveUser(allUsers.get(i)));
+            reply.addUsers(UserHelperService.retrieveUser(allUsers.get(i)));
         }
         reply.setResultSetSize(allUsers.size());
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
-    }
-
-    /**
-     * Helper function to grab all the info from a specific user and add it to a UserResponse
-     *
-     * @param user User passed through from the getPaginatedUsers method
-     * @return UserResponse - a response with all the info about the user passed through
-     */
-    public UserResponse retrieveUser(User user) {
-        UserResponse.Builder response = UserResponse.newBuilder();
-        response.setUsername(user.getUsername())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setNickname(user.getNickname())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime())
-                .setId(user.getId());
-
-        // To add all the users roles to the response
-        ArrayList<UserRole> roles = user.getRoles();
-        for (UserRole role : roles) {
-            response.addRoles(role);
-        }
-
-        return response.build();
     }
 }
