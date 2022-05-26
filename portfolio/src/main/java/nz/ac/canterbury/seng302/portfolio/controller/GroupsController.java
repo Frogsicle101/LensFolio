@@ -103,7 +103,7 @@ public class GroupsController {
      * @return a response entity containing the status of the response and the response message
      */
     @PostMapping("/groups/addUsers")
-    public ResponseEntity<String> addUserToGroup(
+    public ResponseEntity<String> addUsersToGroup(
             @RequestParam(value = "groupId") Integer groupId,
             @RequestParam(value = "userIds") ArrayList<Integer> userIds
     ) {
@@ -135,7 +135,7 @@ public class GroupsController {
      * @return a response entity containing the status of the response and the response message
      */
     @DeleteMapping("/groups/removeUsers")
-    public ResponseEntity<String> removeUserFromGroup(
+    public ResponseEntity<String> removeUsersFromGroup(
             @RequestParam(value = "groupId") Integer groupId,
             @RequestParam(value = "userIds") ArrayList<Integer> userIds
 

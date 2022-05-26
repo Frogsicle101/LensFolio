@@ -22,8 +22,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,6 +90,7 @@ public class GroupsControllerTest {
                         .param("longName", longName))
                 .andExpect(status().isCreated());
     }
+
 
 
     @Test
@@ -176,65 +180,110 @@ public class GroupsControllerTest {
     }
 
 
+
     @Test
     void addUsersToGroup() throws Exception { //fixMe I fail
         setUserToTeacher();
         setUpContext();
 
+        String groupId = "3";
         ArrayList<Integer> userIds = new ArrayList<>();
         userIds.add(1);
         userIds.add(2);
 
-        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(1).addAllUserIds(userIds).build();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        for (Integer userId : userIds) {
+            params.addAll("userIds", Collections.singletonList(userId.toString()));
+
+        }
+        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(Integer.parseInt(groupId)).addAllUserIds(userIds).build();
 
         AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
-                        .setIsSuccess(true)
-                        .setMessage("Successfully added users to group")
-                        .build();
+                .setIsSuccess(true)
+                .setMessage("Successfully added users to group")
+                .build();
 
         Mockito.when(groupsClientService.addGroupMembers(request)).thenReturn(response);
 
-        System.out.println(response.getMessage());
         mockMvc.perform(post("/groups/addUsers")
-                .param("groupId", "1")
-                .param("userIds", (userIds).toString()))
+                        .param("groupId", groupId)
+                        .params(params))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void removeUsers() throws Exception {
+        setUserToTeacher();
+        setUpContext();
+        String groupId = "3";
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+        userIds.add(2);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        for (Integer userId : userIds) {
+            params.addAll("userIds", Collections.singletonList(userId.toString()));
+        }
+
+        RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().setGroupId(Integer.parseInt(groupId)).addAllUserIds(userIds).build();
+
+        RemoveGroupMembersResponse response = RemoveGroupMembersResponse.newBuilder()
+                .setIsSuccess(true)
+                .setMessage("Successfully removed users from group")
+                .build();
+
+        Mockito.when(groupsClientService.removeGroupMembers(request)).thenReturn(response);
+
+        mockMvc.perform(delete("/groups/removeUsers")
+                        .param("groupId", groupId)
+                        .params(params))
+                .andExpect(status().isOk());
+    }
+
 
     @Test
     void addUsersToGroupNotAGroup() throws Exception {
         setUserToTeacher();
         setUpContext();
-
+        String groupId = "3";
         ArrayList<Integer> userIds = new ArrayList<>();
         userIds.add(1);
         userIds.add(2);
 
-        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(1).addAllUserIds(userIds).build();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        for (Integer userId : userIds) {
+            params.addAll("userIds", Collections.singletonList(userId.toString()));
+        }
+
+        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(Integer.parseInt(groupId)).addAllUserIds(userIds).build();
 
         AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
                 .setIsSuccess(false)
-                .setMessage("1 does not refer to a valid group")
+                .setMessage(groupId + " does not refer to a valid group")
                 .build();
 
         Mockito.when(groupsClientService.addGroupMembers(request)).thenReturn(response);
 
-        System.out.println(response.getMessage());
         mockMvc.perform(post("/groups/addUsers")
-                        .param("groupId", "1")
-                        .param("userIds", (userIds).toString()))
-                .andExpect(status().isBadRequest());
+                        .param("groupId", groupId)
+                        .params(params))
+                        .andExpect(status().isBadRequest());
     }
 
     @Test
     void addUserToGroupNotUser() throws Exception { //fIXme succeeding for the wrong reasons
         setUserToTeacher();
         setUpContext();
-
+        String groupId = "3";
         ArrayList<Integer> userIds = new ArrayList<>();
         userIds.add(1);
 
-        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(1).addAllUserIds(userIds).build();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        for (Integer userId : userIds) {
+            params.addAll("userIds", Collections.singletonList(userId.toString()));
+        }
+
+        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(Integer.parseInt(groupId)).addAllUserIds(userIds).build();
 
         AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
                 .setIsSuccess(false)
@@ -243,46 +292,42 @@ public class GroupsControllerTest {
 
         Mockito.when(groupsClientService.addGroupMembers(request)).thenReturn(response);
 
-        System.out.println(response.getMessage());
         mockMvc.perform(post("/groups/addUsers")
-                        .param("groupId", "1")
-                        .param("userIds", (userIds).toString()))
+                        .param("groupId", groupId)
+                        .params(params))
                 .andExpect(status().isBadRequest());
     }
 
+
     @Test
-    void removeUsers() throws Exception {
+    void deleteUserNotAGroup() throws Exception {
         setUserToTeacher();
         setUpContext();
-
+        String groupId = "100";
         ArrayList<Integer> userIds = new ArrayList<>();
         userIds.add(1);
         userIds.add(2);
 
-        RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().setGroupId(1).addAllUserIds(userIds).build();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        for (Integer userId : userIds) {
+            params.addAll("userIds", Collections.singletonList(userId.toString()));
+        }
+
+        RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().setGroupId(Integer.parseInt(groupId)).addAllUserIds(userIds).build();
 
         RemoveGroupMembersResponse response = RemoveGroupMembersResponse.newBuilder()
                 .setIsSuccess(false)
-                .setMessage("1 does not refer to a valid group")
+                .setMessage(groupId + " does not refer to a valid group")
                 .build();
 
         Mockito.when(groupsClientService.removeGroupMembers(request)).thenReturn(response);
 
-        System.out.println(response.getMessage());
-        mockMvc.perform(post("/groups/removeUsers")
-                        .param("groupId", "1")
-                        .param("userIds", (userIds).toString()))
-                .andExpect(status().isOk());
+        mockMvc.perform(delete("/groups/removeUsers")
+                        .param("groupId", groupId)
+                        .params(params))
+                .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void deleteUserNotAGroup() {
-
-    }
-
-    @Test
-    void deleteUserNotInGroup() {
-     }
 
 
     // ------------------------------------- Helpers -----------------------------------------

@@ -72,12 +72,16 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
         try {
             groupService.addUsersToGroup(request.getGroupId(), request.getUserIdsList());
-            response.setIsSuccess(true);
-            response.setMessage("Successfully added users to group");
+            response.setIsSuccess(true)
+                    .setMessage("Successfully added users to group")
+                    .build();
         } catch (Exception e) {
-            response.setIsSuccess(false);
-            response.setMessage(e.getMessage());
+            response.setIsSuccess(false)
+                    .setMessage(e.getMessage())
+                    .build();
         }
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
     }
 
 
@@ -87,12 +91,16 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
         try {
             groupService.removeUsersFromGroup(request.getGroupId(), request.getUserIdsList());
-            response.setIsSuccess(true);
-            response.setMessage("Successfully removed users from group");
+            response.setIsSuccess(true)
+                    .setMessage("Successfully removed users from group")
+                    .build();
         } catch (Exception e) {
-            response.setIsSuccess(false);
-            response.setMessage(e.getMessage());
+            response.setIsSuccess(false)
+                    .setMessage(e.getMessage())
+                    .build();
         }
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
     }
 
     @Override

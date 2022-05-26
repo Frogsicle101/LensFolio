@@ -34,18 +34,26 @@ public class GroupService {
     }
 
     /**
-     * Removes users from a group.
+     * Removes users from a given group.
      *
      * @param groupId The id of the group from which users will be removed.
      * @param userIds The id of the users to be removed.
      */
-    public void removeUsersFromGroup(Integer groupId, List<Integer> userIds) {
+    public void removeUsersFromGroup(Integer groupId, List<Integer> userIds) throws IllegalArgumentException {
         Group group = checkRequestValidity(groupId, userIds);
         group.removeAllUsersFromGroup(userIds);
         groupRepository.save(group);
     }
 
-    private Group checkRequestValidity(Integer groupId, List<Integer> userIds) {
+    /**
+     * Verifies that a group exists and contains the users to be removed.
+     *
+     * @param groupId The group from which the users will be removed.
+     * @param userIds The user IDs of the users to be removed from the given group.
+     * @return The group, if it exists.
+     * @throws IllegalArgumentException If the group or users do not exist.
+     */
+    private Group checkRequestValidity(Integer groupId, List<Integer> userIds) throws IllegalArgumentException {
         Optional<Group> optionalGroup = groupRepository.findById(groupId);
         if (optionalGroup.isEmpty()) {
             throw new IllegalArgumentException(groupId + " does not refer to a valid group");
