@@ -46,6 +46,7 @@ public class CalendarController {
     private final DeadlineRepository deadlineRepository;
     private final MilestoneRepository milestoneRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final int tooltipLength = 20;
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
@@ -135,7 +136,7 @@ public class CalendarController {
                         || sprint.getStartDate().isBefore(sprintStartDate) && sprint.getEndDate().isAfter(sprintEndDate)) {
                     HashMap<String, Object> jsonedSprint = new HashMap<>();
                     jsonedSprint.put("title", sprint.getName());
-                    jsonedSprint.put("id", sprint.getId().toString());
+                    jsonedSprint.put("id", sprint.getId());
                     jsonedSprint.put("start", (LocalDateTime.from(sprint.getStartDate().atStartOfDay())).toString());
                     jsonedSprint.put("end", (LocalDateTime.from(sprint.getEndDate().atStartOfDay().plusHours(24))).toString());
                     jsonedSprint.put("description", sprint.getDescription());
@@ -249,15 +250,15 @@ public class CalendarController {
                     Integer countByDate = eventsCount.get(date);
                     String namesByDate = eventsNames.get(date);
                     String lineEnd = "\r";
-                    if (event.getName().length() > 9) {
+                    if (event.getName().length() > tooltipLength) {
                         lineEnd = "...\r";
                     }
                     if (countByDate == null) {
                         eventsCount.put(date, 1); //add date to map as key
-                        eventsNames.put(date,event.getName().substring(0, Math.min(event.getName().length(), 10)) + lineEnd);
+                        eventsNames.put(date,event.getName().substring(0, Math.min(event.getName().length(), tooltipLength)) + lineEnd);
                     } else {
                         countByDate++;
-                        namesByDate += (event.getName().substring(0, Math.min(event.getName().length(), 10))+ lineEnd);
+                        namesByDate += (event.getName().substring(0, Math.min(event.getName().length(), tooltipLength))+ lineEnd);
                         eventsNames.replace(date, namesByDate);
                         eventsCount.replace(date, countByDate);
                     }
@@ -267,7 +268,7 @@ public class CalendarController {
             for (Map.Entry<LocalDate, Integer> entry : eventsCount.entrySet()) {
                 HashMap<String, String> jsonedEvent = new HashMap<>();
                 jsonedEvent.put("title", String.valueOf(entry.getValue()));
-                jsonedEvent.put("occasionTitles",eventsNames.get(entry.getKey()).toString());
+                jsonedEvent.put("occasionTitles",eventsNames.get(entry.getKey()));
                 jsonedEvent.put("classNames", "eventCalendar");
                 jsonedEvent.put("content", "");
                 jsonedEvent.put("start", entry.getKey().toString());
@@ -305,17 +306,17 @@ public class CalendarController {
                 Integer countByDate = deadlinesCount.get(deadline.getEndDate());
                 String namesByDate = deadlinesNames.get(deadline.getEndDate());
                 String lineEnd = "\r";
-                if (deadline.getName().length() > 9) {
+                if (deadline.getName().length() > tooltipLength) {
                     lineEnd = "...\r";
                 }
                 if (countByDate == null) {
                     deadlinesCount.put(deadline.getEndDate(), 1); //add date to map as key
-                    deadlinesNames.put(deadline.getEndDate(), deadline.getName().substring(0, Math.min(deadline.getName().length(), 10)) + lineEnd);
+                    deadlinesNames.put(deadline.getEndDate(), deadline.getName().substring(0, Math.min(deadline.getName().length(), tooltipLength)) + lineEnd);
                 }else {
 
                     countByDate++;
                     deadlinesCount.replace(deadline.getEndDate(), countByDate);
-                    namesByDate += (deadline.getName().substring(0, Math.min(deadline.getName().length(), 10)) + lineEnd);
+                    namesByDate += (deadline.getName().substring(0, Math.min(deadline.getName().length(), tooltipLength)) + lineEnd);
                     deadlinesNames.replace(deadline.getEndDate(), namesByDate);
                 }
             }
@@ -361,16 +362,16 @@ public class CalendarController {
                 Integer countByDate = milestonesCount.get(milestone.getEndDate());
                 String namesByDate = milestonesNames.get(milestone.getEndDate());
                 String lineEnd = "\r";
-                if (milestone.getName().length() > 9) {
+                if (milestone.getName().length() > tooltipLength) {
                     lineEnd = "...\r";
                 }
                 if (countByDate == null) {
                     milestonesCount.put(milestone.getEndDate(), 1); //add date to map as key
-                    milestonesNames.put(milestone.getEndDate(), milestone.getName().substring(0,Math.min(milestone.getName().length(), 10))+ lineEnd);
+                    milestonesNames.put(milestone.getEndDate(), milestone.getName().substring(0,Math.min(milestone.getName().length(), tooltipLength))+ lineEnd);
                 }else {
                     countByDate++;
                     milestonesCount.replace(milestone.getEndDate(), countByDate);
-                    namesByDate += (milestone.getName().substring(0,Math.min(milestone.getName().length(), 10)) + lineEnd);
+                    namesByDate += (milestone.getName().substring(0,Math.min(milestone.getName().length(), tooltipLength)) + lineEnd);
                     milestonesNames.replace(milestone.getEndDate(), namesByDate);
                 }
             }
