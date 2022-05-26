@@ -210,12 +210,12 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         logger.info("SERVICE - Getting teaching group");
 
         GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder();
-        //TODO make a permanent teaching group.
-        Group group = groupRepository.getGroupById(2); //TODO add the teaching id
+
+        Optional<Group> group = groupRepository.findByShortName("Teachers"); //TODO make "Teachers" a reserved short name so it can't be used
         List<UserResponse> userResponseList = new ArrayList<>();
         //Checks to see if there are members of the group.
-        if (!group.getMemberIds().isEmpty()){
-            List<Integer> groupMembers = group.getMemberIds();
+        if (group.isPresent() && !group.get().getMemberIds().isEmpty()){
+            List<Integer> groupMembers = group.get().getMemberIds();
             for (int id: groupMembers) {
                 //For each group member Id that the group has, we want to create a UserResponse.
                 User user = userRepository.findById(id);
@@ -229,9 +229,9 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
 
             //General setters for the response.
-            response.setLongName(group.getLongName())
-                    .setShortName(group.getShortName())
-                    .setGroupId(group.getId()).build();
+            response.setLongName(group.get().getLongName())
+                    .setShortName(group.get().getShortName())
+                    .setGroupId(group.get().getId()).build();
             responseObserver.onNext(response.build());
             responseObserver.onCompleted();
 
