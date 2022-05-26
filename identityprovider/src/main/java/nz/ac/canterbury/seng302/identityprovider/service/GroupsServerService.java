@@ -151,6 +151,12 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onCompleted();
     }
 
+
+    /**
+     * Follows the gRPC contract and provides the server side service for getting group details
+     * @param request a GetGroupDetailRequest formatted to satisfy the groups.proto contract
+     * @param responseObserver - User to return the response to the client side
+     */
     @Override
     public void getGroupDetails(GetGroupDetailsRequest request, StreamObserver<GroupDetailsResponse> responseObserver) {
         logger.info("SERVICE - Getting group {}", request.getGroupId());
@@ -162,23 +168,22 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             Group group = groupRepository.getGroupById(request.getGroupId());
             List<UserResponse> userResponseList = new ArrayList<>();
 
-
+            //Checks to see if there are members of the group.
             if (!group.getMemberIds().isEmpty()){
                 List<Integer> groupMembers = group.getMemberIds();
                 for (int id: groupMembers) {
-
+                    //For each group member Id that the group has, we want to create a UserResponse.
                     User user = userRepository.findById(id);
                     UserResponse userResponse = userAccountsServerService.retrieveUser(user);
                     userResponseList.add(userResponse);
-
                 }
-
+                // Iterates over the list of UserResponses and adds them to the response.
                 for (UserResponse userResponse: userResponseList) {
                     response.addMembers(userResponse);
                 }
             }
 
-
+            //General setters for the response.
             response.setLongName(group.getLongName())
                     .setShortName(group.getShortName())
                     .setGroupId(group.getId()).build();
@@ -186,6 +191,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             responseObserver.onCompleted();
 
         } else {
+            //If the group doesn't exist
             logger.info("SERVICE - No group exists with Id: {}", request.getGroupId());
             response.setLongName("NOT FOUND");
             response.setShortName("");
