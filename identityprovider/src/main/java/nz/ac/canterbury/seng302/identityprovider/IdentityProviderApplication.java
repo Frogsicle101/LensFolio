@@ -1,5 +1,7 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
+import nz.ac.canterbury.seng302.identityprovider.groups.Group;
+import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
@@ -10,6 +12,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * The main IdP application class using springboot.
  */
@@ -19,6 +24,10 @@ public class IdentityProviderApplication {
     /** Enables us to directly inject test users into the database*/
     @Autowired
     UserRepository repository;
+
+    /** Enables us to directly inject our two main groups (Teachers and Non-member group) into the database */
+    @Autowired
+    GroupRepository groupRepository;
 
     /** Logs the applications' initialisation process */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -38,6 +47,21 @@ public class IdentityProviderApplication {
             addAdminAccount();
         if (includeTestData)
             addTestUsers();
+
+//        // Create the two main groups we need, teachers and non group group.
+//        Group teachingGroup = new Group(0,"Teachers", "Teaching Staff");
+//        Group nonGroupGroup = new Group(1,"Non-Group", "Members Without A Group");
+//
+//        List<User> everyUserList = (List<User>) repository.findAll();
+//        List<User> teachers = everyUserList.stream().filter(p -> p.getRoles().contains(UserRole.TEACHER)).toList();
+//        List<User> nonGroupUsers = everyUserList.stream().filter(p -> !p.getRoles().contains(UserRole.TEACHER)).toList();
+//
+//        teachingGroup.addAllUsersToGroup(teachers.stream().map(User::getId).toList());
+//        nonGroupGroup.addAllUsersToGroup(nonGroupUsers.stream().map(User::getId).toList());
+//
+//
+//        groupRepository.save(teachingGroup);
+//        groupRepository.save(nonGroupGroup);
     }
 
 

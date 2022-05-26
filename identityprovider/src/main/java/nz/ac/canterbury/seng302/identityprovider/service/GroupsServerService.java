@@ -207,7 +207,35 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
     @Override
     public void getTeachingStaffGroup(Empty request, StreamObserver<GroupDetailsResponse> responseObserver) {
-        super.getTeachingStaffGroup(request, responseObserver);
+        logger.info("SERVICE - Getting teaching group");
+
+        GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder();
+        //TODO make a permanent teaching group.
+        Group group = groupRepository.getGroupById(2); //TODO add the teaching id
+        List<UserResponse> userResponseList = new ArrayList<>();
+        //Checks to see if there are members of the group.
+        if (!group.getMemberIds().isEmpty()){
+            List<Integer> groupMembers = group.getMemberIds();
+            for (int id: groupMembers) {
+                //For each group member Id that the group has, we want to create a UserResponse.
+                User user = userRepository.findById(id);
+                UserResponse userResponse = userAccountsServerService.retrieveUser(user);
+                userResponseList.add(userResponse);
+            }
+            // Iterates over the list of UserResponses and adds them to the response.
+            for (UserResponse userResponse: userResponseList) {
+                response.addMembers(userResponse);
+            }
+
+
+            //General setters for the response.
+            response.setLongName(group.getLongName())
+                    .setShortName(group.getShortName())
+                    .setGroupId(group.getId()).build();
+            responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
+
+        }
     }
 
     @Override
