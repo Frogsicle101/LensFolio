@@ -563,12 +563,14 @@ function addEventsToSprints(){
                         eventInSprint.find(".sprintEventStart").attr("data-bs-toggle", "tooltip")
                         eventInSprint.find(".sprintEventStart").attr("data-bs-placement", "top")
                         eventInSprint.find(".sprintEventStart").attr("title", sprintName)
+                        $('#' + event.id).find(".eventStart").css("color", $(element).find(".sprintColour").text())
                     }
                     if ( sprintStart <= eventEnd && eventEnd <= sprintEnd) {
                         eventInSprint.find(".sprintEventEnd").css("color", $(element).find(".sprintColour").text())
                         eventInSprint.find(".sprintEventEnd").attr("data-bs-toggle", "tooltip")
                         eventInSprint.find(".sprintEventEnd").attr("data-bs-placement", "top")
                         eventInSprint.find(".sprintEventEnd").attr("title", sprintName)
+                        $('#' + event.id).find(".eventEnd").css("color", $(element).find(".sprintColour").text())
                     }
                 })
                 enableToolTips()
@@ -580,9 +582,9 @@ function addEventsToSprints(){
 }
 
 /**
- * At
- * @param elementToAppendTo
- * @param event
+ * Adds event to sprint box
+ * @param elementToAppendTo The element that you're appending to
+ * @param event the event object (matching the format provided by /getEventsList) that holds the data to append
  */
 function appendEventToSprint(elementToAppendTo, event) {
     let eventInSprint = `
@@ -601,8 +603,8 @@ function appendEventToSprint(elementToAppendTo, event) {
 
 
 /**
- * Adds Events to the sprints
- * Displays the events in the sprints in which the dates overlap.
+ * Adds Milestones to the sprints
+ * Displays the milestones in the sprints in which the dates overlap.
  */
 function addMilestonesToSprints() {
     $.ajax({
@@ -620,7 +622,10 @@ function addMilestonesToSprints() {
                     let sprintEnd = Date.parse($(element).find(".sprintEnd").text())
                     if (milestoneEnd >= sprintStart && milestoneEnd <= sprintEnd) { //Milestone end falls within the sprint dates
                         appendMilestoneToSprint(element, milestone)
+
+                        // Find milestone, and set colour to that of the sprint
                         $(".milestoneInSprint" + milestone.id).find(".sprintMilestoneEnd").css("color", $(element).find(".sprintColour").text())
+                        $('#' + milestone.id).find(".milestoneEnd").css("color", $(element).find(".sprintColour").text())
                     }
                 })
             }
@@ -632,8 +637,8 @@ function addMilestonesToSprints() {
 
 /**
  * Adds milestone to sprint box
- * @param elementToAppendTo
- * @param milestone
+ * @param elementToAppendTo The element that you're appending to
+ * @param milestone the milestone object (matching the format provided by /getEventsList) that holds the data to append
  */
 function appendMilestoneToSprint(elementToAppendTo, milestone) {
     let milestoneInSprint = `
@@ -666,7 +671,11 @@ function addDeadlinesToSprints() {
                     let sprintEnd = Date.parse($(element).find(".sprintEnd").text())
                     if (deadlineEnd >= sprintStart && deadlineEnd <= sprintEnd) { //Deadline end falls within the sprint dates
                         appendDeadlineToSprint(element, deadline)
+
+                        // Find deadline, and set colour to that of the sprint
                         $(".deadlineInSprint" + deadline.id).find(".sprintDeadlineEnd").css("color", $(element).find(".sprintColour").text())
+                        $('#' + deadline.id).find(".deadlineEnd").css("color", $(element).find(".sprintColour").text())
+
                     }
                 })
             }
