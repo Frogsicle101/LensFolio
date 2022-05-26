@@ -217,10 +217,34 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     @Override
     public void getTeachingStaffGroup(Empty request, StreamObserver<GroupDetailsResponse> responseObserver) {
         logger.info("SERVICE - Getting teaching group");
-
         GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder();
+        try {
+            Optional<Group> group = groupRepository.findByShortName("Teachers");
+            groupResponseHelper(group, responseObserver, response);
+        } catch (Exception err) {
+            logger.error("SERVICE - Getting teaching group: {}", err.getMessage());
+            responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
+        }
+    }
 
-        Optional<Group> group = groupRepository.findByShortName("Teachers");
+    @Override
+    public void getMembersWithoutAGroup(Empty request, StreamObserver<GroupDetailsResponse> responseObserver) {
+        {
+            logger.info("SERVICE - Getting MWAG group");
+            GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder();
+            try {
+                Optional<Group> group = groupRepository.findByShortName("Non-Group");
+                groupResponseHelper(group, responseObserver, response);
+            } catch (Exception err) {
+                logger.error("SERVICE - Getting MWAG group: {}", err.getMessage());
+                responseObserver.onNext(response.build());
+                responseObserver.onCompleted();
+            }
+        }
+    }
+
+    private void groupResponseHelper(Optional<Group> group, StreamObserver<GroupDetailsResponse> responseObserver,GroupDetailsResponse.Builder response) {
         List<UserResponse> userResponseList = new ArrayList<>();
         //Checks to see if there are members of the group.
         if (group.isPresent() && !group.get().getMemberIds().isEmpty()) {
@@ -235,19 +259,12 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             for (UserResponse userResponse : userResponseList) {
                 response.addMembers(userResponse);
             }
-
             //General setters for the response.
             response.setLongName(group.get().getLongName())
                     .setShortName(group.get().getShortName())
                     .setGroupId(group.get().getId()).build();
             responseObserver.onNext(response.build());
             responseObserver.onCompleted();
-
         }
-    }
-
-    @Override
-    public void getMembersWithoutAGroup(Empty request, StreamObserver<GroupDetailsResponse> responseObserver) {
-        super.getMembersWithoutAGroup(request, responseObserver);
     }
 }
