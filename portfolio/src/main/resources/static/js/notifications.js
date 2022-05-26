@@ -25,7 +25,7 @@ function handleNotification(notification) {
 
     switch (action) {
         case 'create' :
-            handleCreateEvent();
+            handleCreateEvent(content);
             break;
         case 'update' :
             handleUpdateEvent();
@@ -63,12 +63,24 @@ function sendNotification(occasionType, occasionId, action) {
 // --------------------------------------------- Notification handlers -------------------------------------------------
 
 function handleCreateEvent( notification ) {
-    const editorName = notification.editorName;
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
-    console.log("Todo: Handle create event: notification controller line 65");
+    console.log("Handle create event: Adding occasion of type: " + occasionType + " and ID: " + occasionId);
+    switch (occasionType) {
+        case 'event' :
+            addEvent(occasionId)
+            break
+        case 'milestone' :
+            addMilestone(occasionId)
+            break
+        case 'deadline' :
+            addDeadline(occasionId)
+            break
+        default :
+            console.log("WARNING: un-supported occasion type receieved. Ignoring message")
+            break
+    }
     // Link this up to the events controller. Use events.js lines 120-130 for reference
-
 }
 
 

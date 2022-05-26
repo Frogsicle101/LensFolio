@@ -188,7 +188,5 @@ public class NotificationController {
         AuthState state = (AuthState) auth.getPrincipal();
 
         return new OutgoingNotification(state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
-
-
     }
 }

@@ -215,8 +215,14 @@ $(document).on('submit', "#addEventForm", function (event) {
 
                 $(".eventForm").slideUp();
                 $(".addEventSvg").toggleClass('rotated');
-
-                sendNotification("event", null, "create");
+                //The id here is the ID of the newly created event, given to use by the database (through the response)
+                /*
+                If your database system and H2 provide this differently (I.E. if whatever database you use
+                 doesn't give the object an id attribute like H2 does)
+                Then this will break on the VM, and you'll have no idea why.
+                Now you do.
+                 */
+                sendNotification("event", response.id, "create");
             }
         })
     }
@@ -241,7 +247,7 @@ $(document).on("submit", ".milestoneForm", function (event) {
         success: function(response) {
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
-            sendNotification("milestone", null, "create");
+            sendNotification("milestone", response.id, "create");
         }
     })
 })
@@ -270,7 +276,7 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
             $(".deadlineForm").slideUp();
             $(".addDeadlineSvg").toggleClass('rotated');
 
-            sendNotification("milestone", null, "create");
+            sendNotification("deadline", response.id, "create");
 
         }
     })
