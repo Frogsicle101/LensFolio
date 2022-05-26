@@ -542,9 +542,55 @@ section {
 
 .milestoneCalendar, .deadlineCalendar, .eventCalendar {
     background: white;
-    width: 40px;
-    height: 20px;
+    border-color: white;
+    position: absolute;
+    width: 30px;
+    height: 18px;
     line-height: 17px;
+    left: 0px;
+}
+
+.milestoneCalendar {
+    bottom: -44px;
+}
+
+.deadlineCalendar {
+    bottom: -61.5px;
+}
+
+.eventCalendar {
+    bottom: -77px;
+}
+
+
+.calendarOccasion{
+    color: black;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+    white-space: pre-line;
+
+}
+
+.tooltip .tooltiptext {
+    visibility: visible;
+    width: 120px;
+    background-color: black;
+    color:darkred;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position:absolute;
+    white-space: pre-line;
+}
+
+.tooltip:hover .tooltiptext{
+    visibility: visible;
+    white-space: pre-line;
+
 }
 
 

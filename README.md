@@ -1,6 +1,13 @@
 # Seng302 Team 600 Project
 
-Project using `gradle`, `Spring Boot`, `Thymeleaf` and `Gitlab CI`. Implements stories about users (Urobilin)
+An application for use in project courses such as SENG302
+
+### Uses external dependencies:
+ - `Bootstrap`
+ - `jQuery 3.6.0`
+ - `FullCalendar`
+ - `Spring Boot`
+ - `Thymeleaf`
 
 
 ## Basic Project Structure
