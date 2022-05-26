@@ -105,7 +105,11 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
     @Override
     public void modifyGroupDetails(ModifyGroupDetailsRequest request, StreamObserver<ModifyGroupDetailsResponse> responseObserver) {
-        super.modifyGroupDetails(request, responseObserver);
+        // log
+        ModifyGroupDetailsResponse.Builder response = ModifyGroupDetailsResponse.newBuilder();
+        // Do logic to populate response
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
     }
 
     /**
