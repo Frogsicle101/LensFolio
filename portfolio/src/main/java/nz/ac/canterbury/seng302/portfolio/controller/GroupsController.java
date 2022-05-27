@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.lang.annotation.Repeatable;
 import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 public class GroupsController {
@@ -152,8 +150,7 @@ public class GroupsController {
                 return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
             }
             return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             logger.error("ERROR /groups/removeUsers - an error occurred while removing a user from a group");
             logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
