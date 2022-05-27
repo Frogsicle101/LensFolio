@@ -19,41 +19,39 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The GroupsServerService implements the server side functionality of the services defined by the
- * groups.proto gRpc contracts.
+ * Implements the server side functionality of the services defined by the groups.proto gRpc contracts.
  */
 @GrpcService
 public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase {
 
     /**
-     * For logging the requests related to groups
+     * For logging the requests related to groups.
      */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * The groups repository for adding, deleting, updating and retrieving groups
+     * The groups repository for adding, deleting, updating and retrieving groups.
      */
     @Autowired
     private GroupRepository groupRepository;
 
     /**
-     * Provides helpful services for adding and removing users from groups
+     * Provides helpful services for adding and removing users from groups.
      */
     @Autowired
     private GroupService groupService;
 
     /**
-     * The user repository for getting users
+     * The user repository for getting users.
      */
     @Autowired
     private UserRepository userRepository;
 
     /**
-     * Follows the gRPC contract and provides the server side service for creating groups
-     * <br>
+     * Follows the gRPC contract and provides the server side service for creating groups.
      *
-     * @param request          - A CreateGroupRequest formatted to satisfy the groups.proto contract
-     * @param responseObserver - Used to return the response to the client side.
+     * @param request          A CreateGroupRequest formatted to satisfy the groups.proto contract.
+     * @param responseObserver Used to return the response to the client side.
      */
     @Override
     public void createGroup(CreateGroupRequest request, StreamObserver<CreateGroupResponse> responseObserver) {
@@ -82,13 +80,18 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onCompleted();
     }
 
+    /**
+     * Follows the gRPC contract and provides the server side service for adding members to groups.
+     *
+     * @param request          An AddGroupMembersRequest formatted to satisfy the groups.proto contract.
+     * @param responseObserver Used to return the response to the client side.
+     */
     @Override
     public void addGroupMembers(AddGroupMembersRequest request, StreamObserver<AddGroupMembersResponse> responseObserver) {
-
+        logger.info("SERVICE - Adding users {} to group {}", request.getUserIdsList(), request.getGroupId());
         AddGroupMembersResponse.Builder response = AddGroupMembersResponse.newBuilder().setIsSuccess(true);
-
         try {
-            groupService.addUsersToGroup(request.getGroupId(), request.getUserIdsList());
+            groupService.addGroupMembers(request.getGroupId(), request.getUserIdsList());
             response.setIsSuccess(true)
                     .setMessage("Successfully added users to group")
                     .build();
@@ -101,12 +104,18 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onCompleted();
     }
 
+    /**
+     * Follows the gRPC contract and provides the server side service for removing members from groups.
+     *
+     * @param request          A RemoveGroupMembersRequest formatted to satisfy the groups.proto contract.
+     * @param responseObserver Used to return the response to the client side.
+     */
     @Override
     public void removeGroupMembers(RemoveGroupMembersRequest request, StreamObserver<RemoveGroupMembersResponse> responseObserver) {
+        logger.info("SERVICE - Removing users {} from group {}", request.getUserIdsList(), request.getGroupId());
         RemoveGroupMembersResponse.Builder response = RemoveGroupMembersResponse.newBuilder().setIsSuccess(true);
-
         try {
-            groupService.removeUsersFromGroup(request.getGroupId(), request.getUserIdsList());
+            groupService.removeGroupMembers(request.getGroupId(), request.getUserIdsList());
             response.setIsSuccess(true)
                     .setMessage("Successfully removed users from group")
                     .build();
@@ -119,6 +128,12 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onCompleted();
     }
 
+     /**
+     * Follows the gRPC contract and provides the server side service for modifying group details.
+     *
+     * @param request          A ModifyGroupDetailsRequest formatted to satisfy the groups.proto contract.
+     * @param responseObserver Used to return the response to the client side.
+     */
     @Override
     public void modifyGroupDetails(ModifyGroupDetailsRequest request, StreamObserver<ModifyGroupDetailsResponse> responseObserver) {
         // log
@@ -129,45 +144,39 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     }
 
     /**
-     * Follows the gRPC contract and provides the server side service for deleting groups
-     * <br>
+     * Follows the gRPC contract and provides the server side service for deleting groups.
      *
-     * @param request          - A DeleteGroupRequest formatted to satisfy the groups.proto contract
-     * @param responseObserver - Used to return the response to the client side.
+     * @param request          A DeleteGroupRequest formatted to satisfy the groups.proto contract.
+     * @param responseObserver Used to return the response to the client side.
      */
     @Override
     public void deleteGroup(DeleteGroupRequest request, StreamObserver<DeleteGroupResponse> responseObserver) {
         logger.info("SERVICE - Deleting group {}", request.getGroupId());
-
         DeleteGroupResponse.Builder response = DeleteGroupResponse.newBuilder();
         if (groupRepository.existsById(request.getGroupId())) {
             logger.info("SERVICE - Successfully deleted the group with Id: {}", request.getGroupId());
             groupRepository.deleteById(request.getGroupId());
             response.setIsSuccess(true)
                     .setMessage("Successfully deleted the group with Id: " + request.getGroupId());
-
         } else {
             logger.info("SERVICE - No group exists with Id: {}", request.getGroupId());
             response.setIsSuccess(false)
                     .setMessage("No group exists with Id: " + request.getGroupId());
         }
-
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
 
     /**
-     * Follows the gRPC contract and provides the server side service for getting group details
+     * Follows the gRPC contract and provides the server side service for getting group details.
      *
-     * @param request          a GetGroupDetailRequest formatted to satisfy the groups.proto contract
-     * @param responseObserver - Used to return the response to the client side
+     * @param request          A GetGroupDetailRequest formatted to satisfy the groups.proto contract.
+     * @param responseObserver Used to return the response to the client side.
      */
     @Override
     public void getGroupDetails(GetGroupDetailsRequest request, StreamObserver<GroupDetailsResponse> responseObserver) {
         logger.info("SERVICE - Getting group {}", request.getGroupId());
-
         GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder();
-
         // Checks that the group exists.
         if (groupRepository.existsById(request.getGroupId())) {
             Group group = groupRepository.getGroupById(request.getGroupId());
@@ -209,10 +218,10 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     }
 
     /**
-     * Follows the gRPC contract and provides the server side service for getting the teaching group details
+     * Follows the gRPC contract and provides the server side service for getting the teaching group details.
      *
-     * @param request          an empty request
-     * @param responseObserver - Used to return the response to the client side
+     * @param request          An empty request.
+     * @param responseObserver Used to return the response to the client side.
      */
     @Override
     public void getTeachingStaffGroup(Empty request, StreamObserver<GroupDetailsResponse> responseObserver) {
@@ -228,6 +237,12 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         }
     }
 
+     /**
+     * Follows the gRPC contract and provides the server side service for getting the group of members without a group details.
+     *
+     * @param request          An empty request.
+     * @param responseObserver Used to return the response to the client side.
+     */
     @Override
     public void getMembersWithoutAGroup(Empty request, StreamObserver<GroupDetailsResponse> responseObserver) {
         {
@@ -244,7 +259,15 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         }
     }
 
-    private void groupResponseHelper(Optional<Group> group, StreamObserver<GroupDetailsResponse> responseObserver,GroupDetailsResponse.Builder response) {
+    /**
+     *  Creates a UserResponse for each member in the given group, if there are any members, and adds each UserResponse
+     *  to the response returned to the client.
+     *
+     * @param group The optional group for which each member is added to the response.
+     * @param responseObserver An observer to return the response to the client once all UserResponses have been added.
+     * @param response The response to which each UserResponse is added.
+     */
+    private void groupResponseHelper(Optional<Group> group, StreamObserver<GroupDetailsResponse> responseObserver, GroupDetailsResponse.Builder response) {
         List<UserResponse> userResponseList = new ArrayList<>();
         //Checks to see if there are members of the group.
         if (group.isPresent() && !group.get().getMemberIds().isEmpty()) {

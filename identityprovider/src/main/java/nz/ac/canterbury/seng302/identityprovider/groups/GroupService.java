@@ -13,9 +13,22 @@ import java.util.Optional;
 @Service
 public class GroupService {
 
+    /**
+     * The repository containing the groups being managed by the group service.
+     */
     private final GroupRepository groupRepository;
+
+    /**
+     * The repository containing the users being managed by the group service.
+     */
     private final UserRepository userRepository;
 
+    /**
+     * The default constructor for the group service.
+     *
+     * @param groupRepository The repository containing the groups being managed by the group service.
+     * @param userRepository The repository containing the users being managed by the group service.
+     */
     public GroupService(GroupRepository groupRepository, UserRepository userRepository) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
@@ -24,12 +37,12 @@ public class GroupService {
     /**
      * Adds users to a group.
      *
-     * @param groupId The id of the group
-     * @param userIds The ids of the users
+     * @param groupId The id of the group.
+     * @param userIds The ids of the users.
      */
-    public void addUsersToGroup(Integer groupId, List<Integer> userIds) {
+    public void addGroupMembers(Integer groupId, List<Integer> userIds) {
         Group group = checkRequestValidity(groupId, userIds);
-        group.addAllUsersToGroup(userIds);
+        group.addGroupMembers(userIds);
         groupRepository.save(group);
     }
 
@@ -39,9 +52,9 @@ public class GroupService {
      * @param groupId The id of the group from which users will be removed.
      * @param userIds The id of the users to be removed.
      */
-    public void removeUsersFromGroup(Integer groupId, List<Integer> userIds) throws IllegalArgumentException {
+    public void removeGroupMembers(Integer groupId, List<Integer> userIds) throws IllegalArgumentException {
         Group group = checkRequestValidity(groupId, userIds);
-        group.removeAllUsersFromGroup(userIds);
+        group.removeGroupMembers(userIds);
         groupRepository.save(group);
     }
 

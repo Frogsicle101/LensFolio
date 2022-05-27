@@ -37,7 +37,7 @@ class GroupServiceTest {
         userIds.add(1);
         userIds.add(2);
 
-        groupService.addUsersToGroup(group.getId(), userIds);
+        groupService.addGroupMembers(group.getId(), userIds);
 
         assertEquals(2, group.getMemberIds().size());
         assertEquals(userIds, group.getMemberIds());
@@ -53,8 +53,8 @@ class GroupServiceTest {
         userIds.add(1);
         userIds.add(2);
 
-        groupService.addUsersToGroup(group.getId(), userIds);
-        groupService.addUsersToGroup(group.getId(), userIds);
+        groupService.addGroupMembers(group.getId(), userIds);
+        groupService.addGroupMembers(group.getId(), userIds);
 
         assertEquals(2, group.getMemberIds().size());
         assertEquals(userIds, group.getMemberIds());
@@ -69,8 +69,8 @@ class GroupServiceTest {
         userIds.add(1);
         userIds.add(2);
 
-        groupService.addUsersToGroup(group.getId(), userIds);
-        groupService.removeUsersFromGroup(group.getId(), userIds);
+        groupService.addGroupMembers(group.getId(), userIds);
+        groupService.removeGroupMembers(group.getId(), userIds);
 
         assertEquals(0, group.getMemberIds().size());
 

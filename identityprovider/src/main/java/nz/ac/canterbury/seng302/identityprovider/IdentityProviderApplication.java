@@ -60,7 +60,6 @@ public class IdentityProviderApplication {
 
     }
 
-
     /**
      * Main method see class documentation.
      *
@@ -73,11 +72,11 @@ public class IdentityProviderApplication {
     /**
      * Creates the two default groups, members without groups and teaching staff.
      * Loops through a list that contains every user and filters them into either nonGroupUsers or Teachers.
-     * Saves both the groups to the repository
+     * Saves both the groups to the repository.
      */
     private void addDefaultGroups() {
         logger.info("Creating default groups");
-        // Create the two main groups we need, teachers and non group group.
+        // Create the two main groups we need, teachers and members-without-a-group group.
         Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
         Group nonGroupGroup = new Group(1, "Non-Group", "Members Without A Group");
 
@@ -85,8 +84,8 @@ public class IdentityProviderApplication {
         List<User> teachers = everyUserList.stream().filter(p -> p.getRoles().contains(UserRole.TEACHER)).toList();
         List<User> nonGroupUsers = everyUserList.stream().filter(p -> !p.getRoles().contains(UserRole.TEACHER)).toList();
 
-        teachingGroup.addAllUsersToGroup(teachers.stream().map(User::getId).toList());
-        nonGroupGroup.addAllUsersToGroup(nonGroupUsers.stream().map(User::getId).toList());
+        teachingGroup.addGroupMembers(teachers.stream().map(User::getId).toList());
+        nonGroupGroup.addGroupMembers(nonGroupUsers.stream().map(User::getId).toList());
 
 
         groupRepository.save(teachingGroup);

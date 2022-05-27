@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Object representation of a group of users
+ * Object representation of a group of users.
  */
 @Entity
 @Table(name = "group_table") // had to add this, as I think Group can't be a table name in H2 as it's a reserved keyword?
@@ -55,8 +55,12 @@ public class Group {
     }
 
     /**
-    * The constructor for a group with a specified group ID.
-    */
+     * The constructor for a group with a specified group ID.
+     *
+     * @param id The ID of the group to be created.
+     * @param shortName The short name of the group to be created.
+     * @param longName The long name of the group to be created.
+     */
     public Group (Integer id, String shortName, String longName) {
         this.id = id;
         this.shortName = shortName;
@@ -86,7 +90,7 @@ public class Group {
      * Removes users from a group
      * @param userIds the id of the users to be removed
      */
-    public void removeAllUsersFromGroup(List<Integer> userIds) {
+    public void removeGroupMembers(List<Integer> userIds) {
         for (Integer userId : userIds)  {
             memberIds.remove(userId);
         }
@@ -96,7 +100,7 @@ public class Group {
      * Adds a user to the group object if the user is not already present
      * @param userIds The ids of the users to be added
      */
-    public void addAllUsersToGroup(List<Integer> userIds) {
+    public void addGroupMembers(List<Integer> userIds) {
         for (Integer userId : userIds) {
             if (!memberIds.contains(userId)) {
                 memberIds.add(userId);

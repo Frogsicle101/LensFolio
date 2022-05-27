@@ -53,14 +53,14 @@ class GroupServerServiceTest {
         List<Integer> userInts = new ArrayList<>();
         userInts.add(1);
         userInts.add(2);
-        group.addAllUsersToGroup(userInts);
+        group.addGroupMembers(userInts);
         when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
         when(groupRepository.existsById(Mockito.any())).thenReturn(true);
         when(groupRepository.getGroupById(Mockito.any())).thenReturn(group);
         when(userRepository.findById(1)).thenReturn(user);
         when(userRepository.findById(2)).thenReturn(user2);
         GetGroupDetailsRequest getGroupRequest = GetGroupDetailsRequest.newBuilder().setGroupId(1).build();
-        StreamObserver<GroupDetailsResponse> responseObserver = new StreamObserver<GroupDetailsResponse>() {
+        StreamObserver<GroupDetailsResponse> responseObserver = new StreamObserver<>() {
             List<UserResponse> userResponseList;
             @Override
             public void onNext(GroupDetailsResponse value) {
@@ -87,7 +87,7 @@ class GroupServerServiceTest {
     void testGetGroupDetailsNoGroupDoesNotExist() {
         when(groupRepository.existsById(Mockito.any())).thenReturn(false);
         GetGroupDetailsRequest getGroupRequest = GetGroupDetailsRequest.newBuilder().setGroupId(3).build();
-        StreamObserver<GroupDetailsResponse> responseObserver = new StreamObserver<GroupDetailsResponse>() {
+        StreamObserver<GroupDetailsResponse> responseObserver = new StreamObserver<>() {
             List<UserResponse> userResponseList;
             @Override
             public void onNext(GroupDetailsResponse value) {
@@ -115,14 +115,14 @@ class GroupServerServiceTest {
         List<Integer> userInts = new ArrayList<>();
         userInts.add(1);
         userInts.add(2);
-        teachingGroup.addAllUsersToGroup(userInts);
+        teachingGroup.addGroupMembers(userInts);
         when(groupRepository.findById(teachingGroup.getId())).thenReturn(Optional.of(teachingGroup));
         when(groupRepository.existsById(Mockito.any())).thenReturn(true);
         when(groupRepository.getGroupById(Mockito.any())).thenReturn(teachingGroup);
         when(userRepository.findById(1)).thenReturn(user);
         when(userRepository.findById(2)).thenReturn(user2);
         GetGroupDetailsRequest getGroupRequest = GetGroupDetailsRequest.newBuilder().setGroupId(1).build();
-        StreamObserver<GroupDetailsResponse> responseObserver = new StreamObserver<GroupDetailsResponse>() {
+        StreamObserver<GroupDetailsResponse> responseObserver = new StreamObserver<>() {
             List<UserResponse> userResponseList;
             @Override
             public void onNext(GroupDetailsResponse value) {

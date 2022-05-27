@@ -23,8 +23,6 @@ import java.util.List;
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
  * user_accounts.proto rpc contracts.
- *
- * @author Sam Clark
  */
 @GrpcService
 public class UserAccountsServerService extends UserAccountServiceImplBase {
@@ -40,7 +38,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     private Environment env;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
 
     /** Name Comparator */
@@ -88,13 +85,11 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setProfileImagePath(urlService.getProfileURL(user).toString()
         );
 
-
         // To add all the users roles to the response
         ArrayList<UserRole> roles = user.getRoles();
         for (UserRole role : roles) {
             reply.addRoles(role);
         }
-
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
@@ -112,7 +107,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         // Untested
 
         try {
-
             User user = new User(
                     request.getUsername(),
                     request.getPassword(),
@@ -124,7 +118,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     request.getPersonalPronouns(),
                     request.getEmail(),
                     TimeService.getTimeStamp());
-
 
             if (repository.findByUsername(user.getUsername()) == null) {
                 logger.info("Registration Success - for new user " + request.getUsername());
@@ -148,7 +141,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
-
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to edit the details of a user.
