@@ -551,3 +551,26 @@ section {
 .hover-end{padding:0;margin:0;font-size:75%;text-align:center;position:absolute;bottom:0;width:100%;opacity:.8}
 
 
+/*Group Creation */
+
+.createGroupBody {
+    width: 100%;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.createGroupDiv {
+    padding: 5rem;
+    width: 100%;
+    max-width: 50rem;
+}
+
+.longNameDiv {
+    padding-top: 0.5rem;
+}
+
+.groupButtons {
+    padding-top: 1rem;
+}

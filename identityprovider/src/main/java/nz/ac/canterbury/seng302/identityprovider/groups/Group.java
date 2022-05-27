@@ -1,8 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider.groups;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,9 +8,11 @@ import java.util.List;
  * Object representation of a group of users
  */
 @Entity
+@Table(name = "group_table")
 public class Group {
 
     @Id
+    @GeneratedValue
     private Integer id;
 
     @ElementCollection

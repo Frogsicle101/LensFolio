@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class GroupsClientService {
 
     /** The gRpc stub to make calls to the server service */
-    @GrpcClient("groups-grpc-server")
+    @GrpcClient("identity-provider-grpc-server")
     private GroupsServiceGrpc.GroupsServiceBlockingStub groupsStub;
 
     /** For logging the grpc requests related to groups */
