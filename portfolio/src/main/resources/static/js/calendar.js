@@ -189,7 +189,6 @@ $(document).ready(function () {
             // Get parent HTML element of event
             let parentElement = info.el.querySelector(".fc-event-title").parentElement;
             // Set the text colour of calendar occasions to black
-            console.log(info.event);
             let eventTitles = "";
             if (["milestoneCalendar", "deadlineCalendar", "eventCalendar"].includes(info.event.classNames.toString())) {
                 info.event.setProp("textColor", "black");
