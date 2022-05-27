@@ -166,7 +166,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             response.setIsSuccess(false)
                     .setMessage("Could not find group to modify");
         }
-
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
@@ -240,9 +239,50 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         }
     }
 
+
+    /**
+     * Follows the gRPC contract for retrieving the paginated groups. Does this by sorting a list of all the groups based
+     * on what was requested and then looping through to add the specific page of groups to the response
+     *
+     * @param request the GetPaginatedGroupsRequest passed through from the client service
+     * @param responseObserver Used to return the response to the client side.
+     */
     @Override
     public void getPaginatedGroups(GetPaginatedGroupsRequest request, StreamObserver<PaginatedGroupsResponse> responseObserver) {
         super.getPaginatedGroups(request, responseObserver);
+
+        PaginatedGroupsResponse.Builder reply = PaginatedGroupsResponse.newBuilder();
+        //TODO: check is there a repository.findAll()?
+        List<Group> allGroups = (List<Group>) repository.findAll();
+        String sortMethod = request.getOrderBy();
+
+        switch (sortMethod) {
+            //TODO: creat compareByShortname, compareByLongname, compareByMemberNumber
+            case "shortname-increasing" -> allGroups.sort(compareByShortname);
+            case "shortname-decreasing" -> {
+                allGroups.sort(compareByShortname);
+                Collections.reverse(allGroups);
+            }
+            case "longname-increasing" -> allGroups.sort(compareByLongname);
+            case "longname-decreasing" -> {
+                allGroups.sort(compareByLongname);
+                Collections.reverse(allGroups);
+            }
+            case "MemberNumber-increasing" -> allGroups.sort(compareByMemberNumber);
+            case "MemberNumber-decreasing" -> {
+                allGroups.sort(compareByMemberNumber);
+                Collections.reverse(allGroups);
+            }
+            default -> allGroups.sort(compareByShortname);
+        }
+        //for each group up to the limit or until all the users have been looped through, add to the response
+        //TODO: creat GroupHelperService.retrieveGroup
+        for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allGroups.size()); i++) {
+            reply.addGroups(GroupHelperService.retrieveGroup(allGroups.get(i)));
+        }
+        reply.setResultSetSize(allGroups.size());
+        responseObserver.onNext(reply.build());
+        responseObserver.onCompleted();
     }
 
     /**
