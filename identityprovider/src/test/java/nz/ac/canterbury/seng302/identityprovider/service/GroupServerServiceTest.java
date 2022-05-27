@@ -6,7 +6,6 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
-import nz.ac.canterbury.seng302.identityprovider.service.GroupService;
 import nz.ac.canterbury.seng302.shared.identityprovider.DeleteGroupResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetGroupDetailsRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
@@ -29,8 +28,6 @@ class GroupServerServiceTest {
     private final GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
 
     private final UserRepository userRepository = Mockito.mock(UserRepository.class);
-
-    private final UserAccountsServerService userAccountsServerService = Mockito.spy(UserAccountsServerService.class);
 
     @InjectMocks
     private GroupsServerService groupsServerService = new GroupsServerService();
@@ -202,7 +199,7 @@ class GroupServerServiceTest {
             public void onCompleted() {
             }
         };
-        groupService.getGroupDetails(getGroupRequest, responseObserver);
+        groupsServerService.getGroupDetails(getGroupRequest, responseObserver);
 
     }
 
@@ -233,7 +230,17 @@ class GroupServerServiceTest {
                 Assertions.assertEquals(teachingGroup.getLongName(), value.getLongName());
                 Assertions.assertEquals(teachingGroup.getShortName(), value.getShortName());
             }
-        }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+
+            }
+        };
 
         groupsServerService.getGroupDetails(getGroupRequest, responseObserver);
 

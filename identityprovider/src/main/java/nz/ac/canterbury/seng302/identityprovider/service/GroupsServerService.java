@@ -14,9 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Implements the server side functionality of the services defined by the groups.proto gRpc contracts.
@@ -143,10 +141,11 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         logger.info("SERVICE - modify group details for group with group id " + request.getGroupId());
         ModifyGroupDetailsResponse.Builder response = ModifyGroupDetailsResponse.newBuilder();
         // Do logic to populate response
-        Group GroupToModify = repository.findById(request.getGroupId());
-        if (GroupToModify != null) {
+        Optional<Group> optionalGroup = groupRepository.findById(request.getGroupId());
+        if (optionalGroup.isPresent()) {
             try {
                 logger.info("Group Modify Success - updated group details for group " + request.getGroupId());
+                Group group = optionalGroup.get();
 
                 if (groupRepository.findByShortName(request.getShortName()).isPresent()) {
                     response.addValidationErrors(ValidationError.newBuilder()
@@ -163,11 +162,11 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                             .setIsSuccess(false);
                 }
                 if (response.getIsSuccess()) {
-                    GroupToModify.setShortName()(request.getShortName());
-                    GroupToModify.setLongName()(request.getLongName());
-                    repository.save(GroupToModify);
+                    group.setShortName(request.getShortName());
+                    group.setLongName(request.getLongName());
+                    groupRepository.save(group);
                     response.setIsSuccess(true)
-                            .setMessage("Successfully updated details for " + GroupToModify.getShortName());
+                            .setMessage("Successfully updated details for " + group.getShortName());
                 }
             } catch (StatusRuntimeException e) {
                 logger.error("An error occurred editing group from request: " + request + "\n See stack trace below \n");
@@ -267,11 +266,11 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
         PaginatedGroupsResponse.Builder reply = PaginatedGroupsResponse.newBuilder();
         //TODO: check is there a repository.findAll()?
-        List<Group> allGroups = (List<Group>) repository.findAll();
+        List<Group> allGroups = (List<Group>) groupRepository.findAll();
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
-
+            //TODO: creat compareByShortname, compareByLongname, compareByMemberNumber
             case "shortname-increasing" -> allGroups.sort(compareByShortName);
             case "shortname-decreasing" -> {
                 allGroups.sort(compareByShortName);
@@ -279,7 +278,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             }
             case "longname-increasing" -> allGroups.sort(compareByLongName);
             case "longname-decreasing" -> {
-                allGroups.sort(compareByLongname);
+                allGroups.sort(compareByLongName);
                 Collections.reverse(allGroups);
             }
             case "MemberNumber-increasing" -> allGroups.sort(compareByMemberNumber);

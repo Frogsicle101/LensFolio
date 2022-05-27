@@ -21,7 +21,7 @@ public class GroupsServiceHelperService {
      * @return The group, if it exists.
      * @throws IllegalArgumentException If the group or users do not exist.
      */
-    Group checkRequestValidity(Integer groupId, List<Integer> userIds, UserRepository userRepository, GroupRepository groupRepository) throws IllegalArgumentException {
+    static Group checkRequestValidity(Integer groupId, List<Integer> userIds, UserRepository userRepository, GroupRepository groupRepository) throws IllegalArgumentException {
         Optional<Group> optionalGroup = groupRepository.findById(groupId);
         if (optionalGroup.isEmpty()) {
             throw new IllegalArgumentException(groupId + " does not refer to a valid group");

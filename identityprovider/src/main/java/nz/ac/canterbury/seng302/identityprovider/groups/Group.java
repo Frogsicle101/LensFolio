@@ -14,9 +14,7 @@ import java.util.List;
 @Table(name = "group_table") // had to add this, as I think Group can't be a table name in H2 as it's a reserved keyword?
 public class Group {
 
-    /**
-    * The unique ID of the Group.
-    */
+    /** The unique ID of the Group. */
     @Id
     private Integer id;
 
@@ -116,4 +114,9 @@ public class Group {
             }
         }
     }
+
+    public void setMemberIds(List<Integer> memberIds) {
+        this.memberIds = memberIds;
+    }
+
 }
