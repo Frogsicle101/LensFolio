@@ -77,6 +77,8 @@ public class Group {
         return memberIds;
     }
 
+    public Integer getMembersNumber(){return getMemberIds().size();}
+
     public String getShortName() {
         return shortName;
     }
@@ -85,6 +87,13 @@ public class Group {
         return longName;
     }
 
+    public void setLongName(String longName) {
+        this.longName = longName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
 
     /**
      * Removes users from a group

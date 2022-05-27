@@ -39,6 +39,17 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     @Autowired
     private UserRepository userRepository;
 
+
+    /** GroupShortName Comparator */
+    Comparator<Group> compareByShortName = Comparator.comparing(Group::getShortName);
+
+    /** GroupLongName Comparator */
+    Comparator<Group> compareByLongName = Comparator.comparing(Group::getLongName);
+
+    /** GroupMemberNumber Comparator */
+    Comparator<Group> compareByMemberNumber = Comparator.comparing(Group::getMembersNumber);
+
+
     /**
      * Follows the gRPC contract and provides the server side service for creating groups.
      *
@@ -137,16 +148,27 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             try {
                 logger.info("Group Modify Success - updated group details for group " + request.getGroupId());
 
-                //TODO: set short/long name need to be create in Group.java
-                GroupToModify.setShortName()(request.getShortName());
-                GroupToModify.setLongName()(request.getLongName());
-                //TODO: request.getRemoveMembersIds() and request.getAddMembersIds() need to be create
-                GroupToModify.removeGroupMembers(request.getRemoveMembersIds());
-                GroupToModify.addGroupMembers(request.getAddMembersIds());
-
-                groupRepository.save(GroupToModify);
-                response.setIsSuccess(true)
-                        .setMessage("Successfully updated details for " + GroupToModify.getShortName());
+                if (groupRepository.findByShortName(request.getShortName()).isPresent()) {
+                    response.addValidationErrors(ValidationError.newBuilder()
+                                    .setFieldName("Short name")
+                                    .setErrorText("A group exists with the shortName " + request.getShortName())
+                                    .build())
+                            .setIsSuccess(false);
+                }
+                if (groupRepository.findByLongName(request.getLongName()).isPresent()) {
+                    response.addValidationErrors(ValidationError.newBuilder()
+                                    .setFieldName("Long name")
+                                    .setErrorText("A group exists with the longName " + request.getLongName())
+                                    .build())
+                            .setIsSuccess(false);
+                }
+                if (response.getIsSuccess()) {
+                    GroupToModify.setShortName()(request.getShortName());
+                    GroupToModify.setLongName()(request.getLongName());
+                    repository.save(GroupToModify);
+                    response.setIsSuccess(true)
+                            .setMessage("Successfully updated details for " + GroupToModify.getShortName());
+                }
             } catch (StatusRuntimeException e) {
                 logger.error("An error occurred editing group from request: " + request + "\n See stack trace below \n");
                 logger.error(e.getMessage());
@@ -249,13 +271,13 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
-            //TODO: creat compareByShortname, compareByLongname, compareByMemberNumber
-            case "shortname-increasing" -> allGroups.sort(compareByShortname);
+
+            case "shortname-increasing" -> allGroups.sort(compareByShortName);
             case "shortname-decreasing" -> {
-                allGroups.sort(compareByShortname);
+                allGroups.sort(compareByShortName);
                 Collections.reverse(allGroups);
             }
-            case "longname-increasing" -> allGroups.sort(compareByLongname);
+            case "longname-increasing" -> allGroups.sort(compareByLongName);
             case "longname-decreasing" -> {
                 allGroups.sort(compareByLongname);
                 Collections.reverse(allGroups);
@@ -265,7 +287,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                 allGroups.sort(compareByMemberNumber);
                 Collections.reverse(allGroups);
             }
-            default -> allGroups.sort(compareByShortname);
+            default -> allGroups.sort(compareByShortName);
         }
         //for each group up to the limit or until all the users have been looped through, add to the response
         //TODO: creat GroupHelperService.retrieveGroup
