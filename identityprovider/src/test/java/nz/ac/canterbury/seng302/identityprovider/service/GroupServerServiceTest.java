@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings("unchecked") // Suppresses intelliJ's warning for testing with mock StreamObservers
 class GroupServerServiceTest {
 
-
     private final GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
 
     private final UserRepository userRepository = Mockito.mock(UserRepository.class);
@@ -174,6 +173,7 @@ class GroupServerServiceTest {
         Assertions.assertEquals(group.getShortName(), response.getShortName());
     }
 
+
     @Test
     void testGetGroupDetailsNoGroupDoesNotExist() {
         when(groupRepository.existsById(Mockito.any())).thenReturn(false);
@@ -191,6 +191,7 @@ class GroupServerServiceTest {
         Assertions.assertEquals("NOT FOUND", response.getLongName());
         Assertions.assertEquals("", response.getShortName());
     }
+
 
     @Test
     void testGetTeachingGroup() {
@@ -295,5 +296,4 @@ class GroupServerServiceTest {
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         return responseCaptor.getValue();
     }
-
 }
