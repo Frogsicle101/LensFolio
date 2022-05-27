@@ -145,7 +145,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         if (optionalGroup.isPresent()) {
             try {
                 logger.info("Group Modify Success - updated group details for group " + request.getGroupId());
-                Group group = optionalGroup.get();
 
                 if (groupRepository.findByShortName(request.getShortName()).isPresent()) {
                     response.addValidationErrors(ValidationError.newBuilder()
@@ -270,7 +269,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
-            //TODO: creat compareByShortname, compareByLongname, compareByMemberNumber
+
             case "shortname-increasing" -> allGroups.sort(compareByShortName);
             case "shortname-decreasing" -> {
                 allGroups.sort(compareByShortName);
@@ -288,7 +287,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             }
             default -> allGroups.sort(compareByShortName);
         }
-        //for each group up to the limit or until all the users have been looped through, add to the response
+        //for each group up to the limit or until all the groups have been looped through, add to the response
         //TODO: creat GroupHelperService.retrieveGroup
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allGroups.size()); i++) {
             reply.addGroups(GroupHelperService.retrieveGroup(allGroups.get(i)));
