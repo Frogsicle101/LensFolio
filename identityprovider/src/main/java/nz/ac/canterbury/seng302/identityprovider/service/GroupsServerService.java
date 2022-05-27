@@ -1,13 +1,13 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
 import com.google.protobuf.Empty;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
-import nz.ac.canterbury.seng302.identityprovider.groups.GroupService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.ValidationError;
 import org.slf4j.Logger;
@@ -24,26 +24,18 @@ import java.util.Optional;
 @GrpcService
 public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase {
 
-    /**
-     * For logging the requests related to groups.
-     */
+    /** For logging the requests related to groups. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * The groups repository for adding, deleting, updating and retrieving groups.
-     */
+    /** The group repository for adding, deleting, updating and retrieving groups. */
     @Autowired
     private GroupRepository groupRepository;
 
-    /**
-     * Provides helpful services for adding and removing users from groups.
-     */
+    /** Provides helpful services for adding and removing users from groups. */
     @Autowired
     private GroupService groupService;
 
-    /**
-     * The user repository for getting users.
-     */
+    /** The user repository for getting users. */
     @Autowired
     private UserRepository userRepository;
 
@@ -353,7 +345,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
      * A helper method used to get the members of a group and build the list of UserResponse's.
      * Builds the response and returns it to the client.
      *
-     * @param group the optoinal group, for which each member is added to the response.
+     * @param group the optional group, for which each member is added to the response.
      * @param responseObserver the client.
      * @param response the response to send to the client.
      */
