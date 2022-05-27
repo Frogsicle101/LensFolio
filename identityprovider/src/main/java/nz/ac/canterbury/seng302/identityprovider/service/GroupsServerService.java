@@ -137,8 +137,36 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     @Override
     public void modifyGroupDetails(ModifyGroupDetailsRequest request, StreamObserver<ModifyGroupDetailsResponse> responseObserver) {
         // log
+        logger.info("SERVICE - modify group details for group with group id " + request.getGroupId());
         ModifyGroupDetailsResponse.Builder response = ModifyGroupDetailsResponse.newBuilder();
         // Do logic to populate response
+        Group GroupToModify = repository.findById(request.getGroupId());
+        if (GroupToModify != null) {
+            try {
+                logger.info("Group Modify Success - updated group details for group " + request.getGroupId());
+
+                //TODO: set short/long name need to be create in Group.java
+                GroupToModify.setShortName()(request.getShortName());
+                GroupToModify.setLongName()(request.getLongName());
+                //TODO: request.getRemoveMembersIds() and request.getAddMembersIds() need to be create
+                GroupToModify.removeGroupMembers(request.getRemoveMembersIds());
+                GroupToModify.addGroupMembers(request.getAddMembersIds());
+
+                repository.save(GroupToModify);
+                response.setIsSuccess(true)
+                        .setMessage("Successfully updated details for " + GroupToModify.getShortName());
+            } catch (StatusRuntimeException e) {
+                logger.error("An error occurred editing group from request: " + request + "\n See stack trace below \n");
+                logger.error(e.getMessage());
+                response.setIsSuccess(false)
+                        .setMessage("Incorrect current password provided");
+            }
+        } else {
+            logger.info("Group Edit Failure - could not find group with id " + request.getGroupId());
+            response.setIsSuccess(false)
+                    .setMessage("Could not find group to modify");
+        }
+
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
