@@ -1,6 +1,7 @@
 /**
- * Runs when a sprint is resized on the calendar
- * @param info
+ * Runs when a sprint is resized on the calendar, sends a message (error or success) and then sets the handles of the
+ * sprints
+ * @param info - the fullcalendar event information being sent to the function
  */
 function eventResize(info) {
     // Data to send in post request to server
@@ -17,7 +18,6 @@ function eventResize(info) {
         "sprintDescription": info.event.extendedProps.description,
         "sprintColour": info.event.extendedProps.defaultColor
     }
-    console.log(info.event.id)
 
     // Update sprint to have new start and end dates
     $.ajax({
@@ -46,7 +46,6 @@ function eventResize(info) {
             $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
         }
     })
-
 }
 
 /**
@@ -74,7 +73,6 @@ function eventClick(info) {
                 $(".fc-event").css("border-right", "solid 0px #13CEE2");
                 $(".fc-event").css("border-left", "solid 0px #13CEE2");
             }
-
         }
 
         // Selects this event
@@ -94,11 +92,10 @@ function eventClick(info) {
         $(".fc-event").css("border-right", "solid 0px #13CEE2");
         $(".fc-event").css("border-left", "solid 0px #13CEE2");
     }
-
 }
 
 /**
- * Turns an html stirng into a Node object to be added into a div
+ * Turns an html string into a Node object to be added into a div
  * @param htmlString
  * @returns {ChildNode}
  */
@@ -118,7 +115,6 @@ $(document).ready(function () {
     let projectId = $("#projectId").html();
     let calendarEl = document.getElementById('calendar');
     $("body").tooltip({selector: '[data-toggle=tooltip]'});
-
 
     /**
      * Calendar functionality
@@ -141,7 +137,6 @@ $(document).ready(function () {
             extraParams: {
                 projectId: projectId.toString()
             },
-
             failure: function (err) {
                 console.log(err.responseText)
             }
@@ -158,7 +153,7 @@ $(document).ready(function () {
                 }
             },
             {
-                url: 'getEventsAsFeed', // Get all evets
+                url: 'getEventsAsFeed', // Get all events
                 method: "get",
                 extraParams: {
                     projectId: projectId.toString()
@@ -198,7 +193,6 @@ $(document).ready(function () {
             let eventTitles = "";
             if (["milestoneCalendar", "deadlineCalendar", "eventCalendar"].includes(info.event.classNames.toString())) {
                 info.event.setProp("textColor", "black");
-                console.log(info.event.extendedProps.occasionTitles)
                 eventTitles += info.event.extendedProps.occasionTitles;
             } // Add svg icons to parent html element for calendar occasions
             if (info.event.classNames.toString() === "milestoneCalendar") {
