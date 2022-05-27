@@ -3,7 +3,6 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
-import nz.ac.canterbury.seng302.identityprovider.groups.GroupService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -37,7 +36,7 @@ class GroupServiceTest {
         userIds.add(1);
         userIds.add(2);
 
-        groupService.addUsersToGroup(group.getId(), userIds);
+        groupService.addGroupMembers(group.getId(), userIds);
 
         assertEquals(2, group.getMemberIds().size());
         assertEquals(userIds, group.getMemberIds());
@@ -53,8 +52,8 @@ class GroupServiceTest {
         userIds.add(1);
         userIds.add(2);
 
-        groupService.addUsersToGroup(group.getId(), userIds);
-        groupService.addUsersToGroup(group.getId(), userIds);
+        groupService.addGroupMembers(group.getId(), userIds);
+        groupService.addGroupMembers(group.getId(), userIds);
 
         assertEquals(2, group.getMemberIds().size());
         assertEquals(userIds, group.getMemberIds());
@@ -69,8 +68,8 @@ class GroupServiceTest {
         userIds.add(1);
         userIds.add(2);
 
-        groupService.addUsersToGroup(group.getId(), userIds);
-        groupService.removeUsersFromGroup(group.getId(), userIds);
+        groupService.addGroupMembers(group.getId(), userIds);
+        groupService.removeGroupMembers(group.getId(), userIds);
 
         assertEquals(0, group.getMemberIds().size());
 

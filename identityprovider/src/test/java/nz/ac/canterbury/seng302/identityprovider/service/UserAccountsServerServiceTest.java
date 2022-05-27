@@ -4,7 +4,10 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
-import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.identityprovider.ModifyRoleOfUserRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRoleChangeResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +53,9 @@ class UserAccountsServerServiceTest {
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
-        .setRole(UserRole.TEACHER)
-        .setUserId(user.getId())
-        .build();
+                .setRole(UserRole.TEACHER)
+                .setUserId(user.getId())
+                .build();
 
         StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
 
