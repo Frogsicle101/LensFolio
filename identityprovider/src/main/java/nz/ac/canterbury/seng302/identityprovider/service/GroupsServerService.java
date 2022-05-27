@@ -144,6 +144,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         Optional<Group> optionalGroup = groupRepository.findById(request.getGroupId());
         if (optionalGroup.isPresent()) {
             try {
+                Group group = optionalGroup.get();
                 logger.info("Group Modify Success - updated group details for group " + request.getGroupId());
 
                 if (groupRepository.findByShortName(request.getShortName()).isPresent()) {
