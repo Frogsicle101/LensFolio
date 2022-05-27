@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("unchecked") // Suppresses intelliJ's warning for testing with mock StreamObservers
 class GroupServerServiceTest {
 
 
@@ -140,7 +141,6 @@ class GroupServerServiceTest {
     }
 
 
-
     @Test
     void testGetGroupDetails() {
         Group group = new Group(1, "Short", "Long");
@@ -150,57 +150,46 @@ class GroupServerServiceTest {
         userInts.add(1);
         userInts.add(2);
         group.addGroupMembers(userInts);
+        StreamObserver<GroupDetailsResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<GroupDetailsResponse> responseCaptor = ArgumentCaptor.forClass(GroupDetailsResponse.class);
+
         when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
         when(groupRepository.existsById(Mockito.any())).thenReturn(true);
         when(groupRepository.getGroupById(Mockito.any())).thenReturn(group);
         when(userRepository.findById(1)).thenReturn(user);
         when(userRepository.findById(2)).thenReturn(user2);
         GetGroupDetailsRequest getGroupRequest = GetGroupDetailsRequest.newBuilder().setGroupId(1).build();
-        StreamObserver<GroupDetailsResponse> responseObserver = new StreamObserver<>() {
-            List<UserResponse> userResponseList;
-            @Override
-            public void onNext(GroupDetailsResponse value) {
-                userResponseList = value.getMembersList();
-                Assertions.assertEquals(user.getUsername(), value.getMembers(0).getUsername());
-                Assertions.assertEquals(user2.getUsername(), value.getMembers(1).getUsername());
-                Assertions.assertEquals(2, userResponseList.size());
-                Assertions.assertEquals(group.getLongName(), value.getLongName());
-                Assertions.assertEquals(group.getShortName(), value.getShortName());
-            }
-            @Override
-            public void onError(Throwable t) {
-            }
 
-            @Override
-            public void onCompleted() {
-            }
-        };
 
         groupsServerService.getGroupDetails(getGroupRequest, responseObserver);
 
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        GroupDetailsResponse response = responseCaptor.getValue();
+
+        List<UserResponse> userResponseList = response.getMembersList();
+        Assertions.assertEquals(user.getUsername(), response.getMembers(0).getUsername());
+        Assertions.assertEquals(user2.getUsername(), response.getMembers(1).getUsername());
+        Assertions.assertEquals(2, userResponseList.size());
+        Assertions.assertEquals(group.getLongName(), response.getLongName());
+        Assertions.assertEquals(group.getShortName(), response.getShortName());
     }
 
     @Test
     void testGetGroupDetailsNoGroupDoesNotExist() {
         when(groupRepository.existsById(Mockito.any())).thenReturn(false);
         GetGroupDetailsRequest getGroupRequest = GetGroupDetailsRequest.newBuilder().setGroupId(3).build();
-        StreamObserver<GroupDetailsResponse> responseObserver = new StreamObserver<>() {
-            List<UserResponse> userResponseList;
-            @Override
-            public void onNext(GroupDetailsResponse value) {
 
-                Assertions.assertEquals("NOT FOUND", value.getLongName());
-                Assertions.assertEquals("", value.getShortName());
-            }
-            @Override
-            public void onError(Throwable t) {
-            }
-            @Override
-            public void onCompleted() {
-            }
-        };
+        StreamObserver<GroupDetailsResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<GroupDetailsResponse> responseCaptor = ArgumentCaptor.forClass(GroupDetailsResponse.class);
+
+
         groupsServerService.getGroupDetails(getGroupRequest, responseObserver);
 
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        GroupDetailsResponse response = responseCaptor.getValue();
+
+        Assertions.assertEquals("NOT FOUND", response.getLongName());
+        Assertions.assertEquals("", response.getShortName());
     }
 
     @Test
@@ -212,38 +201,32 @@ class GroupServerServiceTest {
         userInts.add(1);
         userInts.add(2);
         teachingGroup.addGroupMembers(userInts);
+
+        // Mocks
+        StreamObserver<GroupDetailsResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<GroupDetailsResponse> responseCaptor = ArgumentCaptor.forClass(GroupDetailsResponse.class);
         when(groupRepository.findById(teachingGroup.getId())).thenReturn(Optional.of(teachingGroup));
         when(groupRepository.existsById(Mockito.any())).thenReturn(true);
         when(groupRepository.getGroupById(Mockito.any())).thenReturn(teachingGroup);
         when(userRepository.findById(1)).thenReturn(user);
         when(userRepository.findById(2)).thenReturn(user2);
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+
+
         GetGroupDetailsRequest getGroupRequest = GetGroupDetailsRequest.newBuilder().setGroupId(1).build();
-        StreamObserver<GroupDetailsResponse> responseObserver = new StreamObserver<>() {
-            List<UserResponse> userResponseList;
-
-            @Override
-            public void onNext(GroupDetailsResponse value) {
-                userResponseList = value.getMembersList();
-                Assertions.assertEquals(user.getUsername(), value.getMembers(0).getUsername());
-                Assertions.assertEquals(user2.getUsername(), value.getMembers(1).getUsername());
-                Assertions.assertEquals(2, userResponseList.size());
-                Assertions.assertEquals(teachingGroup.getLongName(), value.getLongName());
-                Assertions.assertEquals(teachingGroup.getShortName(), value.getShortName());
-            }
-
-            @Override
-            public void onError(Throwable t) {
-
-            }
-
-            @Override
-            public void onCompleted() {
-
-            }
-        };
 
         groupsServerService.getGroupDetails(getGroupRequest, responseObserver);
 
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+
+        GroupDetailsResponse response = responseCaptor.getValue();
+        List<UserResponse> userResponseList = response.getMembersList();
+        Assertions.assertEquals(user.getUsername(), response.getMembers(0).getUsername());
+        Assertions.assertEquals(user2.getUsername(), response.getMembers(1).getUsername());
+        Assertions.assertEquals(2, userResponseList.size());
+        Assertions.assertEquals(teachingGroup.getLongName(), response.getLongName());
+        Assertions.assertEquals(teachingGroup.getShortName(), response.getShortName());
     }
 
 
