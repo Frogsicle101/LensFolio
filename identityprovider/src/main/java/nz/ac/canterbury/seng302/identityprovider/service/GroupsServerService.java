@@ -238,7 +238,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     }
 
      /**
-     * Follows the gRPC contract and provides the server side service for getting the group of members without a group details.
+     * Follows the gRPC contract and provides the server side service for getting the MWAG group details.
      *
      * @param request          An empty request.
      * @param responseObserver Used to return the response to the client side.
@@ -260,14 +260,14 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     }
 
     /**
-     *  Creates a UserResponse for each member in the given group, if there are any members, and adds each UserResponse
-     *  to the response returned to the client.
+     * A helper method used to get the members of a group and build the list of UserResponse's.
+     * Builds the response and returns it to the client.
      *
-     * @param group The optional group for which each member is added to the response.
-     * @param responseObserver An observer to return the response to the client once all UserResponses have been added.
-     * @param response The response to which each UserResponse is added.
+     * @param group the optoinal group, for which each member is added to the response.
+     * @param responseObserver the client.
+     * @param response the response to send to the client.
      */
-    private void groupResponseHelper(Optional<Group> group, StreamObserver<GroupDetailsResponse> responseObserver, GroupDetailsResponse.Builder response) {
+    private void groupResponseHelper(Optional<Group> group, StreamObserver<GroupDetailsResponse> responseObserver,GroupDetailsResponse.Builder response) {
         List<UserResponse> userResponseList = new ArrayList<>();
         //Checks to see if there are members of the group.
         if (group.isPresent() && !group.get().getMemberIds().isEmpty()) {
