@@ -39,8 +39,9 @@ public class GroupService {
      *
      * @param groupId The id of the group.
      * @param userIds The ids of the users.
+     * @throws IllegalArgumentException If the group ID or user IDs are invalid
      */
-    public void addGroupMembers(Integer groupId, List<Integer> userIds) {
+    public void addGroupMembers(Integer groupId, List<Integer> userIds) throws IllegalArgumentException{
         Group group = groupsServiceHelperService.checkRequestValidity(groupId, userIds, userRepository, groupRepository);
         group.addGroupMembers(userIds);
         groupRepository.save(group);
@@ -52,6 +53,7 @@ public class GroupService {
      *
      * @param groupId The id of the group from which users will be removed.
      * @param userIds The id of the users to be removed.
+     * @throws IllegalArgumentException If the group ID or user IDs are invalid
      */
     public void removeGroupMembers(Integer groupId, List<Integer> userIds) throws IllegalArgumentException {
         Group group = groupsServiceHelperService.checkRequestValidity(groupId, userIds, userRepository, groupRepository);
