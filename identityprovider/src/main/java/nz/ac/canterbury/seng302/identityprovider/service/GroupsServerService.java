@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Comparator;
+
 
 /**
  * Implements the server side functionality of the services defined by the groups.proto gRpc contracts.
@@ -289,7 +291,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             }
             default -> allGroups.sort(compareByShortName);
         }
-        //for each group up to the limit or until all the users have been looped through, add to the response
+        //for each group up to the limit or until all the groups have been looped through, add to the response
         //TODO: creat GroupHelperService.retrieveGroup
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allGroups.size()); i++) {
             reply.addGroups(GroupHelperService.retrieveGroup(allGroups.get(i)));
