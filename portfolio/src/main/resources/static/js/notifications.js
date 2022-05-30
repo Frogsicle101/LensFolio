@@ -31,7 +31,7 @@ function handleNotification(notification) {
             handleUpdateEvent(content);
             break;
         case 'delete' :
-            handleDeleteEvent();
+            handleDeleteEvent(content);
             break;
         case 'notify' :
             handleNotifyEvent();
@@ -45,6 +45,7 @@ function handleNotification(notification) {
 /**
  * Sends a message to the server.
  * We don't need to add our ID as the server can get it from the websocket authentication
+ *
  * @param occasionType The type of the object being edited (milestone, deadline, event)
  * @param occasionId The ID of our the object being edited
  * @param action What action the user has performed to create this message
@@ -94,13 +95,29 @@ function handleUpdateEvent( notification ) {
     reloadElement(occasionId)
 }
 
-
+/**
+ * Processes a delete notification by removing the element from the DOM
+ * @param notification
+ */
 function handleDeleteEvent( notification ) {
-    const editorName = notification.editorName;
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
-    console.log("Todo: Handle notify event: notification controller line 83");
-    // Link this up to the events controller. Use events.js lines 103-114 for reference
+
+    removeElement(occasionId) // removes specific event
+
+    removeClass()
+    //Now reload the elements, depending on what type of element was removed
+    switch (occasionType) {
+        case "event":
+            removeClass(`eventInSprint${occasionId}`);
+            break;
+        case "milestone":
+            removeClass(`milestoneInSprint${occasionId}`);
+            break;
+        case "deadline":
+            removeClass(`deadlineInSprint${occasionId}`);
+            break;
+    }
 }
 
 

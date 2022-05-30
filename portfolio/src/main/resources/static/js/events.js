@@ -160,6 +160,14 @@ function removeElement(elementId) {
     })
 }
 
+function removeClass(elementClass) {
+    let elements = $("." + elementClass);
+
+    for (let element of elements) {
+        element.remove();
+    }
+}
+
 
 // ---------------------------------------------------------------------------------------------------------------------
 
