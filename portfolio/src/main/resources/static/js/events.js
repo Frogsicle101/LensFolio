@@ -1,10 +1,10 @@
+//import {connect, sendNotification} from "./notifications";
+
 let thisUserIsEditing = false;
-
-
-
 
 $(document).ready(function () {
 
+    console.log("start")
 
     let infoContainer = $("#informationBar")
     let formControl = $(".form-control");
@@ -24,7 +24,7 @@ $(document).ready(function () {
 // -------------------------------------- Notification Source and listeners --------------------------------------------
 
     /** The source of notifications used to provide updates to the user such as events being edited */
-    let eventSource = new EventSource("notifications");
+    // let eventSource = new EventSource("notifications");
 
 
     /**
@@ -33,23 +33,23 @@ $(document).ready(function () {
      * It then adds a class to the event being edited which puts a border around it
      * Then it hides the edit and delete button for that event to prevent the user from editing/deleting it too.
      */
-    eventSource.addEventListener("editEvent", function (event) {
-        const data = JSON.parse(event.data);
-        console.log(data)
-        if (checkPrivilege()) {
-            let eventDiv = $("#" + data.eventId)
-            let noticeSelector = $("#notice" + data.eventId)
-            if (!noticeSelector.length) {
-                let infoString = data.usersName + " is editing element: " + data.nameOfEvent // Find the name of the event from its id
-                infoContainer.append(`<p class="infoMessage text-truncate" id="notice${data.eventId}"> ` + infoString + `</p>`)
-                eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
-                if (eventDiv.hasClass("beingEdited")) {
-                    eventDiv.find(".controlButtons").hide()
-                }
-                infoContainer.slideDown() // Show the notice.
-            }
-        }
-    })
+    // eventSource.addEventListener("editEvent", function (event) {
+    //     const data = JSON.parse(event.data);
+    //     console.log(data)
+    //     if (checkPrivilege()) {
+    //         let eventDiv = $("#" + data.eventId)
+    //         let noticeSelector = $("#notice" + data.eventId)
+    //         if (!noticeSelector.length) {
+    //             let infoString = data.usersName + " is editing element: " + data.nameOfEvent // Find the name of the event from its id
+    //             infoContainer.append(`<p class="infoMessage text-truncate" id="notice${data.eventId}"> ` + infoString + `</p>`)
+    //             eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
+    //             if (eventDiv.hasClass("beingEdited")) {
+    //                 eventDiv.find(".controlButtons").hide()
+    //             }
+    //             infoContainer.slideDown() // Show the notice.
+    //         }
+    //     }
+    // })
 
 
     /**
@@ -58,25 +58,25 @@ $(document).ready(function () {
      * Then it checks if this current user is editing another element, and avoids showing the edit buttons
      * If the user isn't currently editing an element then it redisplays the edit and delete button.
      */
-    eventSource.addEventListener("notifyNotEditing", function (event) {
-        const data = JSON.parse(event.data);
-        let elementDiv = $("#" + data.eventId)
-
-        if (checkPrivilege()) {
-            $("#notice" + data.eventId).remove()
-            elementDiv.removeClass("beingEdited")
-            if (!thisUserIsEditing) {
-                elementDiv.find(".controlButtons").show()
-            }
-            if (elementDiv.hasClass("beingEdited")) {
-                elementDiv.find(".controlButtons").hide()
-            }
-            if (isEmpty(infoContainer)) {
-                infoContainer.slideUp() // Hide the notice.
-            }
-        }
-
-    })
+    // eventSource.addEventListener("notifyNotEditing", function (event) {
+    //     const data = JSON.parse(event.data);
+    //     let elementDiv = $("#" + data.eventId)
+    //
+    //     if (checkPrivilege()) {
+    //         $("#notice" + data.eventId).remove()
+    //         elementDiv.removeClass("beingEdited")
+    //         if (!thisUserIsEditing) {
+    //             elementDiv.find(".controlButtons").show()
+    //         }
+    //         if (elementDiv.hasClass("beingEdited")) {
+    //             elementDiv.find(".controlButtons").hide()
+    //         }
+    //         if (isEmpty(infoContainer)) {
+    //             infoContainer.slideUp() // Hide the notice.
+    //         }
+    //     }
+    //
+    // })
 
 
     /**
@@ -84,64 +84,68 @@ $(document).ready(function () {
      * This happens if another user has changed an element.
      * It removes the class that shows the border and then calls ReloadEvent()
      */
-    eventSource.addEventListener("reloadElement", function (event) {
-        const data = JSON.parse(event.data);
-        $("#notice" + data.eventId).remove()
-        $("#" + data.eventId).removeClass("beingEdited")
-        if (isEmpty(infoContainer)) {
-            infoContainer.slideUp() // Hide the notice.
-        }
-
-        reloadElement(data.eventId) // reloads specific element
-
-    })
+    // eventSource.addEventListener("reloadElement", function (event) {
+    //     const data = JSON.parse(event.data);
+    //     $("#notice" + data.eventId).remove()
+    //     $("#" + data.eventId).removeClass("beingEdited")
+    //     if (isEmpty(infoContainer)) {
+    //         infoContainer.slideUp() // Hide the notice.
+    //     }
+    //
+    //     reloadElement(data.eventId) // reloads specific element
+    //
+    // })
 
 
     /**
      * Listens for a notification to remove an element (happens if another client deletes an element)
      */
-    eventSource.addEventListener("notifyRemoveEvent", function (event) {
-        const data = JSON.parse(event.data);
-        removeElement(data.eventId) // removes specific event
-        //Now reload the elements, depending on what type of element was removed
-        if (data.typeOfEvent === "event") {
-            addEventsToSprints()
-        } else if (data.typeOfEvent === "milestone") {
-            addMilestonesToSprints()
-        } else if (data.typeOfEvent === "deadline") {
-            addDeadlinesToSprints()
-        }
-    })
+    // eventSource.addEventListener("notifyRemoveEvent", function (event) {
+    //     const data = JSON.parse(event.data);
+    //     removeElement(data.eventId) // removes specific event
+    //     //Now reload the elements, depending on what type of element was removed
+    //     if (data.typeOfEvent === "event") {
+    //         addEventsToSprints()
+    //     } else if (data.typeOfEvent === "milestone") {
+    //         addMilestonesToSprints()
+    //     } else if (data.typeOfEvent === "deadline") {
+    //         addDeadlinesToSprints()
+    //     }
+    // })
 
 
     /**
      * Listens for a notification to add a new element that another client has created
      */
-    eventSource.addEventListener("notifyNewElement", function (event) {
-        const data = JSON.parse(event.data);
-        if (data.typeOfEvent === "event") {
-            addEvent(data.eventId)
-        } else if (data.typeOfEvent === "milestone") {
-            addMilestone(data.eventId)
-        } else if (data.typeOfEvent === "deadline") {
-            addDeadline(data.eventId)
-        }
-
-    })
-
-
+    // eventSource.addEventListener("notifyNewElement", function (event) {
+    //     const data = JSON.parse(event.data);
+    //     if (data.typeOfEvent === "event") {
+    //         addEvent(data.eventId)
+    //     } else if (data.typeOfEvent === "milestone") {
+    //         addMilestone(data.eventId)
+    //     } else if (data.typeOfEvent === "deadline") {
+    //         addDeadline(data.eventId)
+    //     }
+    //
+    // })
 
 
-    keepAlive().then();
+
+
+    // keepAlive().then();
+
+// ---------------------------  Websockets  ------------------------------
+    connect();
 })
 
 
-async function keepAlive() {
-    setTimeout(function(){
-        notifyEdit(null, "keepAlive")
-    }, 10000)
 
-}
+// async function keepAlive() {
+//     setTimeout(function(){
+//         notifyEdit(null, "keepAlive")
+//     }, 10000)
+//
+// }
 
 /**
  * Removes element milestone
@@ -156,18 +160,12 @@ function removeElement(elementId) {
     })
 }
 
-/**
- * Notifies the server that this user is editing.
- * @param id the id of the object being edited.
- * @param type The type of notification to send to the server
- * @param typeOfEvent The type of the object being edited (milestone, deadline, event)
- */
-function notifyEdit(id, type, typeOfEvent) {
-    $.ajax({
-        url: "notifyEdit",
-        type: "POST",
-        data: {id, type, typeOfEvent}
-    })
+function removeClass(elementClass) {
+    let elements = $("." + elementClass);
+
+    for (let element of elements) {
+        element.remove();
+    }
 }
 
 
@@ -225,8 +223,14 @@ $(document).on('submit', "#addEventForm", function (event) {
 
                 $(".eventForm").slideUp();
                 $(".addEventSvg").toggleClass('rotated');
-
-                notifyEdit(response.id, "notifyNewElement", "event")
+                //The id here is the ID of the newly created event, given to use by the database (through the response)
+                /*
+                If your database system and H2 provide this differently (I.E. if whatever database you use
+                 doesn't give the object an id attribute like H2 does)
+                Then this will break on the VM, and you'll have no idea why.
+                Now you do.
+                 */
+                sendNotification("event", response.id, "create");
             }
         })
     }
@@ -251,7 +255,7 @@ $(document).on("submit", ".milestoneForm", function (event) {
         success: function(response) {
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
-            notifyEdit(response.id, "notifyNewElement", "milestone")
+            sendNotification("milestone", response.id, "create");
         }
     })
 })
@@ -280,7 +284,7 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
             $(".deadlineForm").slideUp();
             $(".addDeadlineSvg").toggleClass('rotated');
 
-            notifyEdit(response.id, "notifyNewElement", "deadline")
+            sendNotification("deadline", response.id, "create");
 
         }
     })
@@ -320,7 +324,7 @@ $(document).on("submit", "#editEventForm", function (event) {
             type: "POST",
             data: eventData,
             success: function() {
-                notifyEdit(eventId, "reloadElement") // Let the server know the event is no longer being edited
+                sendNotification("event", eventId, "stop"); // Let the server know the event is no longer being edited
             }
         })
     }
@@ -349,7 +353,7 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         type: "POST",
         data: milestoneData,
         success: function() {
-            notifyEdit(milestoneId, "reloadElement")
+            sendNotification("milestone", milestoneId, "stop");
         }
     })
 
@@ -392,7 +396,7 @@ $(document).on("submit", "#editDeadlineForm", function(event){
             data: deadlineData,
             success: function() {
 
-                notifyEdit(deadlineId, "reloadElement") // Let the server know the deadline is no longer being edited
+                sendNotification("deadline", deadlineId, "stop"); // Let the server know the deadline is no longer being edited
             }
         })
     }
@@ -443,7 +447,7 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: eventData,
             success: function() {
-                notifyEdit(eventData.eventId, "notifyRemoveEvent")
+                sendNotification("event", eventData.eventId, "delete");
             }
         })
     } else if (parent.hasClass('milestone')) {
@@ -453,7 +457,7 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: milestoneData,
             success: function() {
-                notifyEdit(milestoneData.milestoneId, "notifyRemoveEvent")
+                sendNotification("milestone", milestoneData.milestoneId, "delete");
             }
         })
     } else if (parent.hasClass('deadline')) {
@@ -463,7 +467,7 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: deadlineData,
             success: function() {
-                notifyEdit(deadlineData.deadlineId, "notifyRemoveEvent")
+                sendNotification("deadline", deadlineData.deadlineId, "delete");
             }
         })
     }
@@ -480,15 +484,15 @@ $(document).on("click", ".editButton", function () {
     $(".deleteButton").hide()
     let parent = $(this).closest(".occasion")
     let id = parent.attr("id")
-
+    //TODO: Send the correct information depending on what edit was made
     if (parent.hasClass("event")) {
-        notifyEdit(id, "editEvent", "event")
+        sendNotification("event", id, "edit");
         appendEventForm(parent)
     } else if (parent.hasClass("milestone")) {
-        notifyEdit(id, "editEvent", "milestone")
+        sendNotification("milestone", id, "edit");
         appendMilestoneForm(parent)
     } else if (parent.hasClass("deadline")) {
-        notifyEdit(id, "editEvent", "deadline")
+        sendNotification("deadline", id, "edit");
         appendDeadlineForm(parent)
     }
 
@@ -512,7 +516,14 @@ $(document).on("click", ".cancelEdit", function () {
     form.slideUp(400, function () {
         form.remove();
     })
-    notifyEdit(id, "notifyNotEditing") // Let the server know the event is no longer being edited
+
+    if (parent.hasClass("event")) {
+        sendNotification("event", id, "stop");
+    } else if (parent.hasClass("milestone")) {
+        sendNotification("milestone", id, "stop");
+    } else if (parent.hasClass("deadline")) {
+        sendNotification("deadline", id, "stop");
+    }
 
 })
 

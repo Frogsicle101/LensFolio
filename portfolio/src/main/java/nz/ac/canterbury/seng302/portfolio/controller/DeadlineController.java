@@ -1,10 +1,11 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPEditNotification;
+import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPOccasionMessage;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -14,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 @RestController
 public class DeadlineController {
@@ -310,5 +312,7 @@ public class DeadlineController {
      * @param service The userAccountClientService to be used
      */
     public void setUserAccountsClientService(UserAccountsClientService service) { this.userAccountsClientService = service;}
+
+
 
 }

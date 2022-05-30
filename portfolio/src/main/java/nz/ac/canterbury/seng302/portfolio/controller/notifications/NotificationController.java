@@ -1,5 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller.notifications;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.IncomingNotification;
+import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.OutgoingNotification;
+import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPEditNotification;
+import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPOccasionMessage;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
@@ -15,12 +19,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -144,5 +157,36 @@ public class NotificationController {
             default -> logger.warn("Notification Controller: getObjectName: Bad Request");
         }
         return null;
+    }
+
+
+    /**
+     * A message-mapping method that will:
+     * receive a IncomingNotification object that was sent to /notifications/receiving/message
+     * (the /notifications/sending part is pre-configured over in the WebSocketConfig class)
+     * Make a string that will be the content of our editing notification
+     * Put it into a OutgoingNotification object
+     * Send it off to /notifications/receiving/occasions, for any and all STOMP clients subscribed to that endpoint
+     *     *
+     * Don't call this method directly. This is a spring method; it'll call itself when the time is right.
+     * @param message A model for the edit details
+     * @return A messenger object containing a type, occasion, id and content
+     */
+    @MessageMapping("/message")
+    @SendTo("/notifications/sending/occasions")
+    public OutgoingNotification receiveIncomingNotification(@AuthenticationPrincipal Principal principal, IncomingNotification message) {
+        logger.info("Received message " + message.toString());
+        /*
+            Apparently, if you try and use @AuthenticationPrincipal in a @MessageMapping with anything other than a
+            java.security.principal, it won't realise it's a principal, and will instead try to put the message in
+            there.
+            The current solution is we let it insert its java.security.principal, and then do some complicated
+            typecasting to get it in the form we need it.
+
+         */
+        PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
+        AuthState state = (AuthState) auth.getPrincipal();
+
+        return new OutgoingNotification(state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
     }
 }

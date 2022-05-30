@@ -46,7 +46,6 @@ $(document).ready(() => {
     let addSprint = $(".addSprint")
     addSprint.css("left", $(".eventContainer").width() + "px")
     addSprint.css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
-
 })
 
 
