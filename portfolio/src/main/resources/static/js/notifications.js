@@ -41,7 +41,6 @@ function handleNotification(notification) {
             break;
     }
 }
-
 /**
  * Sends a message to the server.
  * We don't need to add our ID as the server can get it from the websocket authentication
