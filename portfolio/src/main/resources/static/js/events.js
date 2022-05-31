@@ -13,7 +13,6 @@ $(document).ready(function () {
     refreshMilestones(projectId)
     refreshEvents(projectId)
 
-
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)
@@ -147,18 +146,6 @@ $(document).ready(function () {
 //
 // }
 
-/**
- * Removes element milestone
- * @param elementId id of element to remove
- */
-
-function removeElement(elementId) {
-    let element = $("#" + elementId)
-
-    element.slideUp(400, function () {
-        element.remove()
-    })
-}
 
 function removeClass(elementClass) {
     let elements = $("." + elementClass);
@@ -173,6 +160,7 @@ function removeClass(elementClass) {
 
 /**
  * Sorts the elements passed by the date.
+ *
  * @param div the div to sort.
  * @param childrenElement the elements to sort in the div
  * @param dateElement the date to sort by
@@ -206,7 +194,6 @@ $(document).on('submit', "#addEventForm", function (event) {
         "eventEnd": $("#eventEnd").val(),
         "typeOfEvent": $(".typeOfEvent").val()
     }
-
 
     if (eventData.eventEnd < eventData.eventStart) {
         $(this).closest("#addEventForm").append(`
@@ -267,7 +254,6 @@ $(document).on("submit", ".milestoneForm", function (event) {
 $(document).on('submit', "#addDeadlineForm", function (event) {
     event.preventDefault()
 
-
     let deadlineData = {
         "projectId": projectId,
         "deadlineName": $("#deadlineName").val(),
@@ -285,11 +271,9 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
             $(".addDeadlineSvg").toggleClass('rotated');
 
             sendNotification("deadline", response.id, "create");
-
         }
     })
 })
-
 /**
  * When existing event is edited and submitted
  */
@@ -337,8 +321,6 @@ $(document).on("submit", "#editEventForm", function (event) {
  */
 $(document).on("submit", "#milestoneEditForm", function (event) {
     event.preventDefault();
-
-
     let milestoneId = $(this).parent().find(".milestoneId").text()
     let milestoneData = {
         "projectId": projectId,
@@ -347,8 +329,6 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         "milestoneDate": $(this).find(".milestoneEnd").val(),
         "typeOfMilestone": $(this).find(".typeOfMilestone").val()
     }
-
-
     $.ajax({
         url: "editMilestone",
         type: "POST",
@@ -358,8 +338,6 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
             sendNotification("milestone", milestoneId, "update") //Let the server know that others should update the element
         }
     })
-
-
 })
 
 
@@ -372,8 +350,6 @@ $(document).on("submit", "#editDeadlineForm", function(event){
     let deadlineDate = $(this).find(".deadlineEnd").val()
     let deadlineTime = deadlineDate.split("T")[1]
     let returnDate = deadlineDate.split("T")[0]
-
-
 
     let deadlineData = {
         "projectId": projectId,
@@ -436,8 +412,6 @@ $(document).on('click', '.addDeadlineButton', function() {
 })
 
 
-
-
 /**
  * Listens for a click on the delete button
  */
@@ -476,6 +450,7 @@ $(document).on("click", ".deleteButton", function () {
     }
 })
 
+
 /**
  * Listens for a click on the edit button
  */
@@ -498,9 +473,7 @@ $(document).on("click", ".editButton", function () {
         sendNotification("deadline", id, "edit");
         appendDeadlineForm(parent)
     }
-
     addOccasionButton.show()
-
 })
 
 
@@ -527,7 +500,6 @@ $(document).on("click", ".cancelEdit", function () {
     } else if (parent.hasClass("deadline")) {
         sendNotification("deadline", id, "stop");
     }
-
 })
 
 
@@ -598,8 +570,10 @@ function addEventsToSprints(){
     })
 }
 
+
 /**
  * Adds event to sprint box
+ *
  * @param elementToAppendTo The element that you're appending to
  * @param event the event object (matching the format provided by /getEventsList) that holds the data to append
  */
@@ -793,7 +767,6 @@ function appendEventForm(element) {
     formControl.each(countCharacters)
     formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#editEventForm").slideDown();
-
 }
 
 /**
@@ -842,9 +815,7 @@ function appendMilestoneForm(element) {
         if (this.value === milestoneType.text().split(" ")[0].trim()) {
             this.setAttribute("selected", "selected")
         }
-
     });
-
     let formControl = $(".form-control")
     formControl.each(countCharacters)
     formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
@@ -852,10 +823,10 @@ function appendMilestoneForm(element) {
 }
 
 
-
 /**
  * Appends form to the element that is passed to it.
  * Also gets data from that element.
+ *
  * @param element the element to append the form too.
  */
 function appendDeadlineForm(element){
@@ -896,22 +867,19 @@ function appendDeadlineForm(element){
         if (this.value === deadlineType.text().split(" ")[0].trim()) {
             this.setAttribute("selected", "selected")
         }
-
     });
-
-
     let formControl = $(".form-control")
     formControl.each(countCharacters)
     formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#editDeadlineForm").slideDown();
-
 }
 
 
 /**
- * Creates the event divs from the eventObject
+ * Creates the event div from the eventObject.
+ *
  * @param eventObject A Json object with event details
- * @returns {string} A div
+ * @returns {string} A div containing the event details
  */
 function createEventDiv(eventObject) {
     let iconElement;
@@ -974,6 +942,7 @@ function createEventDiv(eventObject) {
 
 /**
  * Creates the Milestone divs from the milestoneObject
+ *
  * @param milestoneObject A Json object with event details
  * @returns {string} A div
  */
@@ -1009,7 +978,6 @@ function createMilestoneDiv(milestoneObject) {
                 <p class="typeOfMilestone" style="display: none">${milestoneObject.type}</p>
                 
                 
-                
                 <div class="mb-2 occasionTitleDiv">
                     <div class="occasionIcon">
                         ${iconElement}
@@ -1037,13 +1005,14 @@ function createMilestoneDiv(milestoneObject) {
                     <p class="milestoneEnd">${milestoneObject.endDateFormatted}</p>
                 </div>
             </div>
-`;
 }
 
+
 /**
- * Creates the Deadline divs from the deadlineObject
+ * Creates the Deadline div from the deadlineObject.
+ *
  * @param deadlineObject A Json object with deadline details
- * @returns {string} A div
+ * @returns {string} A div containing the deadline details
  */
 function createDeadlineDiv(deadlineObject) {
 
@@ -1067,7 +1036,6 @@ function createDeadlineDiv(deadlineObject) {
         case 6:
             iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="top" title="Important" th:case="'6'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation" viewBox="0 0 16 16"><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.553.553 0 0 1-1.1 0L7.1 4.995z"/></svg>`
             break;
-
     }
 
     return `
@@ -1075,9 +1043,6 @@ function createDeadlineDiv(deadlineObject) {
                 <p class="deadlineId" style="display: none">${deadlineObject.id}</p>
                 <p class="deadlineEndDateNilFormat" style="display: none">${deadlineObject.dateTime}</p>
                 <p class="typeOfDeadline" style="display: none">${deadlineObject.type}</p>
-                
-                
-                
                 <div class="mb-2 occasionTitleDiv">
                     <div class="occasionIcon">
                         ${iconElement}
@@ -1100,7 +1065,6 @@ function createDeadlineDiv(deadlineObject) {
                             </svg>
                         </button>
                 </div>
-                
                         <div class="deadlineDateDiv">
                             <p class="deadlineEnd">${deadlineObject.endDateFormatted}</p>
                         </div>
