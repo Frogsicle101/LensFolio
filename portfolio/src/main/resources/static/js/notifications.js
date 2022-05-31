@@ -135,8 +135,11 @@ function handleNotifyEvent( notification ) {
         let infoContainer = $("#informationBar");
         let eventDiv = $("#" + occasionId)
         let noticeSelector = $("#notice" + occasionId)
+
+        let eventName = eventDiv.find(".name").text();
+
         if (!noticeSelector.length) {
-            let infoString = editorName + " is editing element: " + occasionId // Find the name of the event from its id
+            let infoString = editorName + " is editing element: " + eventName
             infoContainer.append(`<p class="infoMessage text-truncate" id="notice${occasionId}"> ` + infoString + `</p>`)
             eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
             if (eventDiv.hasClass("beingEdited")) {
