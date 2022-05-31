@@ -419,7 +419,7 @@ section {
 }
 
 .sprintButton:hover {
-    transform: scale(120%);
+    transform: scale(1.2);
 
 }
 
@@ -547,7 +547,7 @@ section {
     width: 30px;
     height: 18px;
     line-height: 17px;
-    left: 0px;
+    left: 0;
 }
 
 .milestoneCalendar {
@@ -594,6 +594,15 @@ section {
 }
 
 
-.hover-end{padding:0;margin:0;font-size:75%;text-align:center;position:absolute;bottom:0;width:100%;opacity:.8}
+.hover-end {
+    padding: 0;
+    margin: 0;
+    font-size: 75%;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    opacity: .8
+}
 
 

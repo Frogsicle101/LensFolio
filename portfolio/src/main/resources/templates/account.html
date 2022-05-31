@@ -53,7 +53,7 @@
                 <input type="text" class="form-control canDisable" name="nickname" id="nickname" th:value="${user.getNickname()}" th:pattern="${alphaSpacesRegexCanBeEmpty}" title="Only letters A-Z upper or lowercase and , . ' or - allowed, with words seperated by a space" maxlength="50" disabled >
             </div>
             <div class="mb-3">
-                <label for="username" class="required form-label">Username*</label>
+                <label for="username" class="required form-label">Username</label>
                 <input type="text" class="form-control" id="username" name="username" th:value="${user.getUsername()}" th:pattern="${userNameRegex}" title="Cannot contain spaces or special characters other than !#$%&'*+-/=?^_`{|}~.," maxlength="50" disabled required>
             </div>
             <div class="mb-3">
