@@ -13,14 +13,24 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
 
+/**
+ * This class handles websockets intentionally disconnecting or crashing. Sends a message to all connected clients to
+ * inform that the client who disconnected is no longer editing anything.
+ */
 @Component
 public class SocketCloseListener implements ApplicationListener<SessionDisconnectEvent> {
 
+    /** Provides methods for sending STOMP messages */
     @Autowired
     private SimpMessagingTemplate template;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * Spring publishes a SessionDisconnectEvent when a websocket goes down. This method listens for that event and
+     * sends the STOMP message to all other clients.
+     * @param event The Spring SessionDisconnectionEvent
+     */
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
         logger.info("Got SessionDisconnectEvent" + event.getMessage() + "\n" + event.getUser());
