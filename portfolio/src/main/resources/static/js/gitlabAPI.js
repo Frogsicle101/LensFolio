@@ -9,6 +9,7 @@ function getBranches(repoID, accessToken) {
     });
 }
 
+
 /**
  * Gets JSON data for all commits in given project
  * @param repoID ID of repository
@@ -19,6 +20,7 @@ function getCommits(repoID, accessToken) {
         return data;
     });
 }
+
 
 /**
  * Gets JSON data fora specific commit
@@ -31,6 +33,7 @@ function getCommit(repoID, accessToken, commitSha) {
         return data;
     });
 }
+
 
 /**
  * Gets JSON data for all members in given project
