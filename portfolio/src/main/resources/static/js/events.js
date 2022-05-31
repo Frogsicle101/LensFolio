@@ -324,7 +324,8 @@ $(document).on("submit", "#editEventForm", function (event) {
             type: "POST",
             data: eventData,
             success: function() {
-                sendNotification("event", eventId, "stop"); // Let the server know the event is no longer being edited
+                sendNotification("event", eventId, "stop") // Let the server know the event is no longer being edited
+                sendNotification("event", eventId, "update") //Let the server know that others should update the element
             }
         })
     }
@@ -353,7 +354,8 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         type: "POST",
         data: milestoneData,
         success: function() {
-            sendNotification("milestone", milestoneId, "stop");
+            sendNotification("milestone", milestoneId, "stop") // Let the server know the milestone is no longer being edited
+            sendNotification("milestone", milestoneId, "update") //Let the server know that others should update the element
         }
     })
 
@@ -396,7 +398,8 @@ $(document).on("submit", "#editDeadlineForm", function(event){
             data: deadlineData,
             success: function() {
 
-                sendNotification("deadline", deadlineId, "stop"); // Let the server know the deadline is no longer being edited
+                sendNotification("deadline", deadlineId, "stop") // Let the server know the deadline is no longer being edited
+                sendNotification("deadline", deadlineId, "update") //Let the server know that others should update the element
             }
         })
     }

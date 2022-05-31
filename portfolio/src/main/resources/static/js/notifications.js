@@ -28,7 +28,7 @@ function handleNotification(notification) {
             handleCreateEvent(content);
             break;
         case 'update' :
-            handleUpdateEvent();
+            handleUpdateEvent(content);
             break;
         case 'delete' :
             handleDeleteEvent(content);
@@ -81,19 +81,18 @@ function handleCreateEvent( notification ) {
             console.log("WARNING: un-supported occasion type receieved. Ignoring message")
             break
     }
-    // Link this up to the events controller. Use events.js lines 120-130 for reference
 }
 
 
 function handleUpdateEvent( notification ) {
-    const editorName = notification.editorName;
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
-    console.log("Todo: Handle update event: notification controller line 74");
-    // Link this up to the events controller. Use events.js lines 61-97 for reference
-    // Note: new format may require some refactoring as notify editing and not editing
-    //       are no longer separate, hence an update with some special body may mean not
-    //       editing. (See Sam if confused)
+    console.log("Handle Update event: Reloading occasion of type: " + occasionType + " and ID: " + occasionId);
+    /*
+    Reload the element with the specific ID
+    Occasion types are handled in that method, so we only need to provide it the ID
+     */
+    reloadElement(occasionId)
 }
 
 /**
