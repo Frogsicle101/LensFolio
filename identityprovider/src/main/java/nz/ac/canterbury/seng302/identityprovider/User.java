@@ -53,7 +53,7 @@ public class User {
     private String imagePath;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "group_members")
+    @ManyToMany(mappedBy = "userList")
     private List<Group> groups;
 
 
