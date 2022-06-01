@@ -24,11 +24,14 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
     @Autowired
     private SimpMessagingTemplate template;
 
+    /** For logging when disconnection events occur */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     /**
      * Spring publishes a SessionDisconnectEvent when a websocket goes down. This method listens for that event and
      * sends the STOMP message to all other clients.
+     *
      * @param event The Spring SessionDisconnectionEvent
      */
     @Override
@@ -45,13 +48,10 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
                             "*",
                             "*",
                             "stop"
-
                     )
             );
         } else {
             throw new RuntimeException("AuthState null in websocket disconnect message");
         }
-
-
     }
 }

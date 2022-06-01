@@ -88,13 +88,8 @@ function handleCreateEvent( notification ) {
 
 
 function handleUpdateEvent( notification ) {
-    const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
-    console.log("Handle Update event: Reloading occasion of type: " + occasionType + " and ID: " + occasionId);
-    /*
-    Reload the element with the specific ID
-    Occasion types are handled in that method, so we only need to provide it the ID
-     */
+
     reloadElement(occasionId)
 }
 
