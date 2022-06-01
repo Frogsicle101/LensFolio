@@ -41,8 +41,11 @@ function handleNotification(notification) {
         case 'delete' :
             handleDeleteEvent(content);
             break;
-        case 'notify' :
-            handleNotifyEvent();
+        case 'edit' :
+            handleNotifyEvent(content);
+            break;
+        case 'stop' :
+            handleStopEvent(content);
             break;
         default :
             // Do nothing, unknown message format
@@ -98,12 +101,8 @@ function handleCreateEvent( notification ) {
  * @param notification The update notification, from which we extract the ID (and also the type for logging)
  */
 function handleUpdateEvent( notification ) {
-    const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
     console.log("Handle Update event: Reloading occasion of type: " + occasionType + " and ID: " + occasionId);
-    /*
-
-     */
     reloadElement(occasionId)
 }
 
@@ -133,14 +132,55 @@ function handleDeleteEvent( notification ) {
     }
 }
 
-
+/**
+ * Opens a dialog box at the top of the screen, and disables the edit buttons for the
+ * occasion that is being edited.
+ * @param notification
+ */
 function handleNotifyEvent( notification ) {
     const editorName = notification.editorName;
-    const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
-    console.log("Todo: Handle notify event: notification controller line 92");
-    // TODO Link this up to the events controller. Use events.js lines 61-97 for reference
-    // Note: new format may require some refactoring as notify editing and not editing
-    //       are no longer separate, hence an update with some special body may mean not
-    //       editing. (See Sam if confused)}
+    if (checkPrivilege()) {
+        let infoContainer = $("#informationBar");
+        let eventDiv = $("#" + occasionId)
+        let noticeSelector = $("#notice" + occasionId)
+
+        let eventName = eventDiv.find(".name").text();
+
+        if (!noticeSelector.length) {
+            let infoString = editorName + " is editing element: " + eventName
+            infoContainer.append(`<p class="infoMessage text-truncate" id="notice${occasionId}"> ` + infoString + `</p>`)
+            eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
+            if (eventDiv.hasClass("beingEdited")) {
+                eventDiv.find(".controlButtons").hide()
+            }
+            infoContainer.slideDown() // Show the notice.
+        }
+    }
+}
+
+/**
+ * Reverts all the changes made by handleNotifyEvent
+ * @param notification
+ */
+function handleStopEvent( notification ) {
+
+    const occasionId = notification.occasionId;
+
+    if (checkPrivilege()) {
+        let infoContainer = $("#informationBar");
+        let elementDiv = $("#" + occasionId);
+
+        $("#notice" + occasionId).remove()
+        elementDiv.removeClass("beingEdited")
+        if (!thisUserIsEditing) {
+            elementDiv.find(".controlButtons").show()
+        }
+        if (elementDiv.hasClass("beingEdited")) {
+            elementDiv.find(".controlButtons").hide()
+        }
+        if (isEmpty(infoContainer)) {
+            infoContainer.slideUp() // Hide the notice.
+        }
+    }
 }
