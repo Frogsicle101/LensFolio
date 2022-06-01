@@ -21,6 +21,7 @@ public class GroupHelperService {
                 .setLongName(group.getLongName());
         // Todo add the members to the response
 
+
         return response.build();
     }
 }
