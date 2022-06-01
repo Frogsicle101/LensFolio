@@ -46,11 +46,10 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         logger.info("SERVICE - Creating group {}", request.getShortName());
         CreateGroupResponse.Builder response = CreateGroupResponse.newBuilder().setIsSuccess(true);
 
-        int shortNameLength = request.getShortName().length();
-        int longNameLength = request.getLongName().length();
+        int shortNameLength = request.getShortName().trim().length();
+        int longNameLength = request.getLongName().trim().length();
 
         if (shortNameLength < MIN_LENGTH || shortNameLength > MAX_SHORT_NAME_LENGTH) {
-            System.out.println("HERE");
             response.addValidationErrors(ValidationError.newBuilder()
                             .setFieldName("Short name")
                             .setErrorText("Group short name has to be between " + MIN_LENGTH + " and " +
@@ -59,7 +58,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                     .setIsSuccess(false)
                     .setMessage("Error: A group short name has to be between " + MIN_LENGTH + " and " +
                             MAX_SHORT_NAME_LENGTH + " characters");
-        } else if (longNameLength < MIN_LENGTH || longNameLength > MAX_SHORT_NAME_LENGTH) {
+        } else if (longNameLength < MIN_LENGTH || longNameLength > MAX_LONG_NAME_LENGTH) {
             response.addValidationErrors(ValidationError.newBuilder()
                             .setFieldName("Long name")
                             .setErrorText("Group long name has to be between " + MIN_LENGTH + " and " +

@@ -19,11 +19,13 @@
 
             <div>
                 <label for="shortName" class="form-label">Short Name</label>
-                <input type="text" class="form-control canDisable" name="shortName" id="shortName" maxlength="50"/>
+                <input type="text" class="form-control canDisable" name="shortName" id="shortName" maxlength="50" required/>
+                <small class="form-text text-muted countChar">0 characters remaining</small>
             </div>
             <div class="longNameDiv">
                 <label for="longName" class="form-label">Long Name</label>
-                <input type="text" class="form-control canDisable" name="longName" id="longName" maxlength="100" />
+                <input type="text" class="form-control canDisable" name="longName" id="longName" maxlength="100" required/>
+                <small class="form-text text-muted countChar">0 characters remaining</small>
             </div>
             <div class="groupButtons">
                 <button type="submit" id="groupCreateButton" class="btn btn-primary">Create Group</button>
