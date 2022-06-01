@@ -2,8 +2,6 @@ package nz.ac.canterbury.seng302.portfolio.controller.notifications;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.IncomingNotification;
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.OutgoingNotification;
-import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPEditNotification;
-import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPOccasionMessage;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
@@ -19,23 +17,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Controls sending and subscribing to event notifications, such as editing of events.
@@ -186,7 +178,8 @@ public class NotificationController {
          */
         PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
         AuthState state = (AuthState) auth.getPrincipal();
+        String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
 
-        return new OutgoingNotification(state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
+        return new OutgoingNotification(editorId, state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
     }
 }

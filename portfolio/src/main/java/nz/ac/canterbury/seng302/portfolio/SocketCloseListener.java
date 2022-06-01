@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.OutgoingNotification;
+import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +39,11 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
         PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
         if (auth != null) {
             AuthState state = (AuthState) auth.getPrincipal();
+            String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
 
             template.convertAndSend("/notifications/sending/occasions",
                     new OutgoingNotification(
-                            state.getName(),
+                            editorId, state.getName(),
                             "*",
                             "*",
                             "stop"
