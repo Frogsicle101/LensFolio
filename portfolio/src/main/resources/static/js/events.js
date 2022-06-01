@@ -17,11 +17,30 @@ $(document).ready(function () {
 
     formControl.each(countCharacters)
     formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
-// ---------------------------  Websockets  ------------------------------
+    // ---------------------------  Websockets  ------------------------------
     connect();
 })
 
 
+/**
+ * Removes an element from the DOM by its unique ID.
+ *
+ * @param elementId the ID of the element to be removed.
+ */
+function removeElement(elementId) {
+    let element = $("#" + elementId)
+
+    element.slideUp(400, function () {
+        element.remove()
+    })
+}
+
+
+/**
+ * Removes an element from the DOM by its class.
+ *
+ * @param elementClass the class of the element to be removed.
+ */
 function removeClass(elementClass) {
     let elements = $("." + elementClass);
 
