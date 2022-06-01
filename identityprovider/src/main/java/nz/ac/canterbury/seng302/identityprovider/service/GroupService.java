@@ -1,10 +1,14 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
+import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides utility functions to add and remove users from groups.
@@ -17,9 +21,6 @@ public class GroupService {
 
     /** The repository containing the users being managed by the group service. */
     private final UserRepository userRepository;
-
-    /** The helper service to validate group membership requests. */
-    private final GroupsServiceHelperService groupsServiceHelperService = new GroupsServiceHelperService();
 
 
     /**
@@ -42,8 +43,17 @@ public class GroupService {
      * @throws IllegalArgumentException If the group ID or user IDs are invalid.
      */
     public void addGroupMembers(Integer groupId, List<Integer> userIds) throws IllegalArgumentException{
-        Group group = groupsServiceHelperService.checkRequestValidity(groupId, userIds, userRepository, groupRepository);
-        group.addGroupMembers(userIds);
+        Optional<Group> optionalGroup = groupRepository.findById(groupId);
+        if (optionalGroup.isEmpty()) {
+            throw new IllegalArgumentException(groupId + " does not refer to a valid group");
+        }
+        Group group = optionalGroup.get();
+        try {
+            List<User> usersToAdd = (List<User>) userRepository.findAllById(userIds);
+            group.addGroupMembers(usersToAdd);
+        } catch (EntityNotFoundException e) {
+            throw new IllegalArgumentException(userIds + " does not refer to valid users");
+        }
         groupRepository.save(group);
     }
 
@@ -56,8 +66,18 @@ public class GroupService {
      * @throws IllegalArgumentException If the group ID or user IDs are invalid.
      */
     public void removeGroupMembers(Integer groupId, List<Integer> userIds) throws IllegalArgumentException {
-        Group group = groupsServiceHelperService.checkRequestValidity(groupId, userIds, userRepository, groupRepository);
-        group.removeGroupMembers(userIds);
+        Optional<Group> optionalGroup = groupRepository.findById(groupId);
+        if (optionalGroup.isEmpty()) {
+            throw new IllegalArgumentException(groupId + " does not refer to a valid group");
+        }
+        Group group = optionalGroup.get();
+        try {
+            List<User> usersToRemove = (List<User>) userRepository.findAllById(userIds);
+            group.removeGroupMembers(usersToRemove);
+        } catch (EntityNotFoundException e) {
+            throw new IllegalArgumentException(userIds + " does not refer to valid users");
+        }
+
         groupRepository.save(group);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -74,18 +75,25 @@ public class IdentityProviderApplication {
      * Loops through a list that contains every user and filters them into either nonGroupUsers or Teachers.
      * Saves both the groups to the repository.
      */
-    private void addDefaultGroups() {
+    public void addDefaultGroups() {
         logger.info("Creating default groups");
         // Create the two main groups we need, teachers and members-without-a-group group.
         Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
         Group nonGroupGroup = new Group(1, "Non-Group", "Members Without A Group");
 
         List<User> everyUserList = (List<User>) repository.findAll();
-        List<User> teachers = everyUserList.stream().filter(p -> p.getRoles().contains(UserRole.TEACHER)).toList();
-        List<User> nonGroupUsers = everyUserList.stream().filter(p -> !p.getRoles().contains(UserRole.TEACHER)).toList();
+        List<User> teachers = new ArrayList<>();
+        List<User> nonGroupUsers = new ArrayList<>();
+        for (User user: everyUserList) {
+            if (user.getRoles().contains(UserRole.TEACHER)) {
+                teachers.add(user);
+            } else {
+                nonGroupUsers.add(user);
+            }
+        }
 
-        teachingGroup.addGroupMembers(teachers.stream().map(User::getId).toList());
-        nonGroupGroup.addGroupMembers(nonGroupUsers.stream().map(User::getId).toList());
+        teachingGroup.addGroupMembers(teachers);
+        nonGroupGroup.addGroupMembers(nonGroupUsers);
 
 
         groupRepository.save(teachingGroup);

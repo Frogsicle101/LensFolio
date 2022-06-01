@@ -216,38 +216,18 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     @Override
     public void getGroupDetails(GetGroupDetailsRequest request, StreamObserver<GroupDetailsResponse> responseObserver) {
         logger.info("SERVICE - Getting group {}", request.getGroupId());
-        GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder();
+        GroupDetailsResponse response;
         // Checks that the group exists.
         if (groupRepository.existsById(request.getGroupId())) {
             Group group = groupRepository.getGroupById(request.getGroupId());
-            List<UserResponse> userResponseList = new ArrayList<>();
+            response = group.groupDetailsResponse();
 
-            //Checks to see if there are members of the group.
-            if (!group.getMemberIds().isEmpty()) {
-                List<Integer> groupMembers = group.getMemberIds();
-                for (int id : groupMembers) {
-                    //For each group member Id that the group has, we want to create a UserResponse.
-                    User user = userRepository.findById(id);
-                    UserResponse userResponse = UserHelperService.retrieveUser(user);
-                    userResponseList.add(userResponse);
-                }
-                // Iterates over the list of UserResponses and adds them to the response.
-                for (UserResponse userResponse : userResponseList) {
-                    response.addMembers(userResponse);
-                }
-            }
-            //General setters for the response.
-            response.setLongName(group.getLongName())
-                    .setShortName(group.getShortName())
-                    .setGroupId(group.getId()).build();
-            responseObserver.onNext(response.build());
+            responseObserver.onNext(response);
             responseObserver.onCompleted();
         } else {
             //If the group doesn't exist
             logger.info("SERVICE - No group exists with Id: {}", request.getGroupId());
-            response.setLongName("NOT FOUND");
-            response.setShortName("");
-            responseObserver.onNext(response.build());
+            responseObserver.onNext(GroupDetailsResponse.newBuilder().setGroupId(-1).build());
             responseObserver.onCompleted();
         }
     }
@@ -307,13 +287,19 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     @Override
     public void getTeachingStaffGroup(Empty request, StreamObserver<GroupDetailsResponse> responseObserver) {
         logger.info("SERVICE - Getting teaching group");
-        GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder();
+        GroupDetailsResponse response;
         try {
             Optional<Group> group = groupRepository.findByShortName("Teachers");
-            groupResponseHelper(group, responseObserver, response);
+            if (group.isPresent()) {
+                response = group.get().groupDetailsResponse();
+            } else {
+                response = GroupDetailsResponse.newBuilder().setGroupId(-1).build();
+            }
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         } catch (Exception err) {
             logger.error("SERVICE - Getting teaching group: {}", err.getMessage());
-            responseObserver.onNext(response.build());
+            responseObserver.onNext(GroupDetailsResponse.newBuilder().setGroupId(-1).build());
             responseObserver.onCompleted();
         }
     }
@@ -328,13 +314,19 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     public void getMembersWithoutAGroup(Empty request, StreamObserver<GroupDetailsResponse> responseObserver) {
         {
             logger.info("SERVICE - Getting MWAG group");
-            GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder();
+            GroupDetailsResponse response;
             try {
                 Optional<Group> group = groupRepository.findByShortName("Non-Group");
-                groupResponseHelper(group, responseObserver, response);
+                if (group.isPresent()) {
+                    response = group.get().groupDetailsResponse();
+                } else {
+                    response = GroupDetailsResponse.newBuilder().setGroupId(-1).build();
+                }
+                responseObserver.onNext(response);
+                responseObserver.onCompleted();
             } catch (Exception err) {
                 logger.error("SERVICE - Getting MWAG group: {}", err.getMessage());
-                responseObserver.onNext(response.build());
+                responseObserver.onNext(GroupDetailsResponse.newBuilder().setGroupId(-1).build());
                 responseObserver.onCompleted();
             }
         }
@@ -351,14 +343,8 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     private void groupResponseHelper(Optional<Group> group, StreamObserver<GroupDetailsResponse> responseObserver,GroupDetailsResponse.Builder response) {
         List<UserResponse> userResponseList = new ArrayList<>();
         //Checks to see if there are members of the group.
-        if (group.isPresent() && !group.get().getMemberIds().isEmpty()) {
-            List<Integer> groupMembers = group.get().getMemberIds();
-            for (int id : groupMembers) {
-                //For each group member ID that the group has, we want to create a UserResponse.
-                User user = userRepository.findById(id);
-                UserResponse userResponse = UserHelperService.retrieveUser(user);
-                userResponseList.add(userResponse);
-            }
+        if (group.isPresent() && !group.get().getUserList().isEmpty()) {
+
             // Iterates over the list of UserResponses and adds them to the response.
             for (UserResponse userResponse : userResponseList) {
                 response.addMembers(userResponse);

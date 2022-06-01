@@ -1,9 +1,11 @@
 package nz.ac.canterbury.seng302.identityprovider.groups;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import nz.ac.canterbury.seng302.identityprovider.User;
+import nz.ac.canterbury.seng302.identityprovider.service.UserHelperService;
+import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +23,11 @@ public class Group {
     /**
     * The ID's of the group's members.
     */
-    @ElementCollection
-    private List<Integer> memberIds;
+    @ManyToMany
+    @JoinTable(name = "group_members",
+            joinColumns = @JoinColumn(name = "groupId"),
+            inverseJoinColumns = @JoinColumn(name = "userId"))
+    private List<User> userList = new ArrayList<>();
 
     /**
     * The group's short name.
@@ -49,7 +54,6 @@ public class Group {
     public Group (String shortName, String longName) {
         this.shortName = shortName;
         this.longName = longName;
-        this.memberIds = new ArrayList<>();
     }
 
     /**
@@ -63,7 +67,6 @@ public class Group {
         this.id = id;
         this.shortName = shortName;
         this.longName = longName;
-        this.memberIds = new ArrayList<>();
     }
 
 
@@ -71,11 +74,11 @@ public class Group {
         return id;
     }
 
-    public List<Integer> getMemberIds() {
-        return memberIds;
+    public List<User> getUserList() {
+        return this.userList;
     }
 
-    public Integer getMembersNumber(){return getMemberIds().size();}
+    public Integer getMembersNumber(){return this.userList.size();}
 
     public String getShortName() {
         return shortName;
@@ -97,9 +100,9 @@ public class Group {
      * Removes users from a group
      * @param userIds the id of the users to be removed
      */
-    public void removeGroupMembers(List<Integer> userIds) {
-        for (Integer userId : userIds)  {
-            memberIds.remove(userId);
+    public void removeGroupMembers(List<User> users) {
+        for (User user : users)  {
+            userList.remove(user);
         }
     }
 
@@ -107,16 +110,33 @@ public class Group {
      * Adds a user to the group object if the user is not already present
      * @param userIds The ids of the users to be added
      */
-    public void addGroupMembers(List<Integer> userIds) {
-        for (Integer userId : userIds) {
-            if (!memberIds.contains(userId)) {
-                memberIds.add(userId);
+    public void addGroupMembers(List<User> users) {
+        for (User user : users) {
+            if (!userList.contains(user)) {
+                userList.add(user);
             }
         }
     }
 
-    public void setMemberIds(List<Integer> memberIds) {
-        this.memberIds = memberIds;
+
+    /**
+     * Converts this group to a GroupDetailsResponse
+     *
+     * @return GroupDetailsResponse - the GroupDetailsResponse equivalent of this group
+     */
+    public GroupDetailsResponse groupDetailsResponse() {
+        GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder()
+                .setLongName(this.getLongName())
+                .setShortName(this.getShortName())
+                .setGroupId(this.getId());
+        List<User> groupMembers = this.getUserList();
+        for (User user : groupMembers) {
+            //For each group member ID that the group has, we want to create a UserResponse.
+            response.addMembers(user.userResponse());
+        }
+
+        return response.build();
     }
+
 
 }
