@@ -245,7 +245,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         super.getPaginatedGroups(request, responseObserver);
 
         PaginatedGroupsResponse.Builder reply = PaginatedGroupsResponse.newBuilder();
-        //TODO: check is there a repository.findAll()?
         List<Group> allGroups = (List<Group>) groupRepository.findAll();
         String sortMethod = request.getOrderBy();
 

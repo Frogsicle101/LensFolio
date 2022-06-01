@@ -102,13 +102,13 @@ public class GroupsController {
      * @param longName  The new long name of the group.
      * @return ResponseEntity A response entity containing either Modified or BAD_REQUEST (for now).
      */
-    @PostMapping("/groups/edit")
+    @PostMapping("/groups/edit/details")
     public ResponseEntity<String> modifyGroupDetails (@AuthenticationPrincipal AuthState principal,
                                                       @RequestParam Integer groupId,
                                                       @RequestParam String shortName,
                                                       @RequestParam String longName) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("POST REQUEST /groups/edit - attempt to modify details of group {} by user: {}",groupId, shortName, longName, userId);
+        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}",groupId, shortName, longName, userId);
         try {
             ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)
@@ -121,7 +121,7 @@ public class GroupsController {
             }
             return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            logger.error("ERROR /groups/edit - an error occurred while modify a group details");
+            logger.error("ERROR /groups/edit/details - an error occurred while modify a group details");
             logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
