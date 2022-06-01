@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -89,7 +90,6 @@ public class GroupsController {
         }
     }
 
-
     /**
      * Restricted to teachers and course administrators, This endpoint creates a new group.
      * <br>
@@ -104,8 +104,6 @@ public class GroupsController {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
         logger.info("POST REQUEST /groups/edit - attempt to create group {} by user: {}", createInfo.getShortName(), userId);
         try {
-            System.out.println(createInfo.getShortName());
-            System.out.println(createInfo.getLongName());
             CreateGroupRequest request = CreateGroupRequest.newBuilder()
                     .setShortName(createInfo.getShortName())
                     .setLongName(createInfo.getLongName())
@@ -121,6 +119,7 @@ public class GroupsController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
     /**
