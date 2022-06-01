@@ -296,4 +296,63 @@
 //        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
 //        return responseCaptor.getValue();
 //    }
+
+// ------------------------------------------ Test Modify Group Details------------------------------------------
+//
+//    @Test
+//    void testModifyGroupDetailsValidInformation() {
+//        String shortName = "Valid";
+//        String longName = "Valid";
+//
+//        ModifyGroupDetailsResponse response = runModifyGroupDetailsTest(shortName, longName);
+//
+//        // Insert Assertions here
+//        Assertions.assertTrue(response.getIsSuccess());
+//        Assertions.assertEquals(1, response.getNewGroupId());
+//        Assertions.assertEquals("Created", response.getMessage());
+//        Assertions.assertEquals(0, response.getValidationErrorsCount());
+//    }
+//
+//
+//    @Test
+//    void testModifyGroupShortNameInUse() {
+//        String shortName = "Invalid";
+//        String longName = "Valid";
+//
+//        ModifyGroupDetailsResponse response = runCModifyGroupDetailsTest(shortName, longName);
+//
+//        // Insert Assertions here
+//        Assertions.assertFalse(response.getIsSuccess());
+//        Assertions.assertEquals(1, response.getValidationErrorsCount());
+//        Assertions.assertEquals("Short name", response.getValidationErrors(0).getFieldName());
+//    }
+//
+//
+//    @Test
+//    void testModifyGroupLongNameInUse() {
+//        String shortName = "Valid";
+//        String longName = "Invalid";
+//
+//        ModifyGroupDetailsResponse response = runModifyGroupDetailsTest(shortName, longName);
+//
+//        // Insert Assertions here
+//        Assertions.assertFalse(response.getIsSuccess());
+//        Assertions.assertEquals(1, response.getValidationErrorsCount());
+//        Assertions.assertEquals("Long name", response.getValidationErrors(0).getFieldName());
+//    }
+//
+//
+//    @Test
+//    void testModifyGroupShortNameAndLongNameInUse() {
+//        String shortName = "Invalid";
+//        String longName = "Invalid";
+//
+//        ModifyGroupDetailsResponse response = runModifyGroupDetailsTest(shortName, longName);
+//
+//        // Insert Assertions here
+//        Assertions.assertFalse(response.getIsSuccess());
+//        Assertions.assertEquals(2, response.getValidationErrorsCount());
+//        Assertions.assertEquals("Short name", response.getValidationErrors(0).getFieldName());
+//        Assertions.assertEquals("Long name", response.getValidationErrors(1).getFieldName());
+//    }
 //}
