@@ -129,6 +129,7 @@ function handleDeleteEvent( notification ) {
  * @param notification
  */
 function handleNotifyEvent( notification ) {
+    const editorId = notification.editorId;
     const editorName = notification.editorName;
     const occasionId = notification.occasionId;
     if (checkPrivilege()) {
@@ -140,8 +141,9 @@ function handleNotifyEvent( notification ) {
 
         if (!noticeSelector.length) {
             let infoString = editorName + " is editing element: " + eventName
-            infoContainer.append(`<p class="infoMessage text-truncate" id="notice${occasionId}"> ` + infoString + `</p>`)
+            infoContainer.append(`<p class="infoMessage text-truncate noticeEditor${editorId}" id="notice${occasionId}"> ` + infoString + `</p>`)
             eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
+            eventDiv.addClass("editor" + editorId)
             if (eventDiv.hasClass("beingEdited")) {
                 eventDiv.find(".controlButtons").hide()
             }
@@ -157,19 +159,37 @@ function handleNotifyEvent( notification ) {
 function handleStopEvent( notification ) {
 
     const occasionId = notification.occasionId;
+    const editorId = notification.editorId
+
+
 
     if (checkPrivilege()) {
-        let infoContainer = $("#informationBar");
-        let elementDiv = $("#" + occasionId);
 
-        $("#notice" + occasionId).remove()
+        let elementDiv;
+        let notice;
+
+        if (occasionId === "*") {
+            // A websocket disconnected, so we need to remove the element by the editorId
+            notice = $(".noticeEditor" + editorId);
+            elementDiv = $(".editor" + editorId);
+        } else {
+            elementDiv = $("#" + occasionId);
+            notice = $("#notice" + occasionId);
+        }
+
+        notice.remove();
+
         elementDiv.removeClass("beingEdited")
+        elementDiv.removeClass("editor" + editorId);
         if (!thisUserIsEditing) {
             elementDiv.find(".controlButtons").show()
         }
         if (elementDiv.hasClass("beingEdited")) {
             elementDiv.find(".controlButtons").hide()
         }
+
+        let infoContainer = $("#informationBar");
+
         if (isEmpty(infoContainer)) {
             infoContainer.slideUp() // Hide the notice.
         }
