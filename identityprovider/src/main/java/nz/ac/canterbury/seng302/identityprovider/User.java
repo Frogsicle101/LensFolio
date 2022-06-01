@@ -1,20 +1,21 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.protobuf.Timestamp;
+import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -50,6 +51,10 @@ public class User {
     private final ArrayList<UserRole> roles = new ArrayList<>();
 
     private String imagePath;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "group_members")
+    private List<Group> groups;
 
 
 
@@ -279,5 +284,27 @@ public class User {
 
     public void setProfileImagePath(String path) {
         imagePath = path;
+    }
+
+    public UserResponse userResponse() {
+        UserResponse.Builder response = UserResponse.newBuilder();
+        response.setUsername(this.getUsername())
+                .setFirstName(this.getFirstName())
+                .setMiddleName(this.getMiddleName())
+                .setLastName(this.getLastName())
+                .setNickname(this.getNickname())
+                .setBio(this.getBio())
+                .setPersonalPronouns(this.getPronouns())
+                .setEmail(this.getEmail())
+                .setCreated(this.getAccountCreatedTime())
+                .setId(this.getId());
+
+        // To add all the users roles to the response
+        ArrayList<UserRole> roles = this.getRoles();
+        for (UserRole role : roles) {
+            response.addRoles(role);
+        }
+
+        return response.build();
     }
 }
