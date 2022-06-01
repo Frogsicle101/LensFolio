@@ -51,7 +51,5 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
         } else {
             throw new RuntimeException("AuthState null in websocket disconnect message");
         }
-
-
     }
 }
