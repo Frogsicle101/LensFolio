@@ -17,8 +17,7 @@ $(document).ready(function () {
 
     formControl.each(countCharacters)
     formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
-    // ---------------------------  Websockets  ------------------------------
-    connect();
+    connect(); // to connect to websocket server
 })
 
 
