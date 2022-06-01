@@ -21,7 +21,7 @@ import java.util.*;
 import static org.mockito.Mockito.*;
 
 
-public class GroupTest {
+class GroupTest {
 
     @Mock
     private GroupRepository groupRepository;
@@ -122,23 +122,16 @@ public class GroupTest {
     @Test
     void TestAddDefaultGroups() {
         Mockito.when(repository.findAll()).thenReturn(userList);
-
-
-
         ArgumentCaptor<Group> groupArgumentCaptor = ArgumentCaptor.forClass(Group.class);
         identityProviderApplication.addDefaultGroups();
         Mockito.verify(groupRepository, Mockito.atLeast(2)).save(groupArgumentCaptor.capture());
-
         List<Group> groups = groupArgumentCaptor.getAllValues();
         Group teachingGroup = groups.get(0);
         Group nonMemberGroup = groups.get(1);
-
-
         Assertions.assertEquals("Teachers", teachingGroup.getShortName());
-        Assertions.assertEquals(teachingGroup.getMembersNumber(), 3);
-
+        Assertions.assertEquals(3, teachingGroup.getMembersNumber());
         Assertions.assertEquals("Non-Group", nonMemberGroup.getShortName());
-        Assertions.assertEquals(nonMemberGroup.getMembersNumber(), 2);
+        Assertions.assertEquals(2, nonMemberGroup.getMembersNumber());
 
 
     }
