@@ -77,7 +77,6 @@ message GetPaginatedGroupsRequest {
     int32 Offset = 1;
     int32 Limit = 2;
     string OrderBy = 3;
-    bool IsAscendingOrder = 4;
 }
 
 message PaginatedGroupsResponse {
