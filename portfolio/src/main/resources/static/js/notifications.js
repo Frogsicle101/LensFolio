@@ -1,5 +1,10 @@
 let stompClient = null
 
+
+/**
+ * Connects via websockets to the server, listening to all messages from /notifications/sending/occasions
+ * and designates handleNotification to run whenever we get a message
+ */
 function connect() {
     let socket = new SockJS('/gs-guide-websocket');
     stompClient = Stomp.over(socket);
@@ -9,15 +14,18 @@ function connect() {
     });
 }
 
+
+/**
+ * Whenever we receive a message from the /notifications/sending/occasions, this function will run.
+ * This takes the notification, checks what type it is, then calls the relevant helper function
+ * to handle that notification.
+ *
+ * @param notification The notification to handle. Should be modeled by the STOMPOccasionMessage class.
+ */
 function handleNotification(notification) {
     const content = JSON.parse(notification.body);
     const action = content.action;
 
-    //Whenever we receive a message from the url, this function will run.
-    /*TODO: use the ID and occasion to call the relevant functions to lock and notify
-    Take a look at the STOMPOccasionMessage class to see what you have to work with
-    You'll need to determine the occasion and then call those functions for the rest of it
-     */
     /*
     The type of JSON object we're receiving is modeled by STOMPOccasionMessage.
     Please refer to the class' documentation for details.
@@ -82,20 +90,26 @@ function handleCreateEvent( notification ) {
     }
 }
 
-
+/**
+ * Helper function for handling an update event.
+ * Tells us (our client) to reload the element with the specific ID
+ * Occasion types are handled in the reloading method, so we only need to provide it the ID
+ *
+ * @param notification The update notification, from which we extract the ID (and also the type for logging)
+ */
 function handleUpdateEvent( notification ) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
     console.log("Handle Update event: Reloading occasion of type: " + occasionType + " and ID: " + occasionId);
     /*
-    Reload the element with the specific ID
-    Occasion types are handled in that method, so we only need to provide it the ID
+
      */
     reloadElement(occasionId)
 }
 
 /**
  * Processes a delete notification by removing the element from the DOM
+ *
  * @param notification
  */
 function handleDeleteEvent( notification ) {
@@ -125,7 +139,7 @@ function handleNotifyEvent( notification ) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
     console.log("Todo: Handle notify event: notification controller line 92");
-    // Link this up to the events controller. Use events.js lines 61-97 for reference
+    // TODO Link this up to the events controller. Use events.js lines 61-97 for reference
     // Note: new format may require some refactoring as notify editing and not editing
     //       are no longer separate, hence an update with some special body may mean not
     //       editing. (See Sam if confused)}

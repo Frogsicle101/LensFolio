@@ -17,134 +17,9 @@ $(document).ready(function () {
 
     formControl.each(countCharacters)
     formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
-
-
-
-// -------------------------------------- Notification Source and listeners --------------------------------------------
-
-    /** The source of notifications used to provide updates to the user such as events being edited */
-    // let eventSource = new EventSource("notifications");
-
-
-    /**
-     * This event listener listens for a notification that an event is being edited
-     * It then appends a message to the notice alert showing that the event is being edited and by who.
-     * It then adds a class to the event being edited which puts a border around it
-     * Then it hides the edit and delete button for that event to prevent the user from editing/deleting it too.
-     */
-    // eventSource.addEventListener("editEvent", function (event) {
-    //     const data = JSON.parse(event.data);
-    //     console.log(data)
-    //     if (checkPrivilege()) {
-    //         let eventDiv = $("#" + data.eventId)
-    //         let noticeSelector = $("#notice" + data.eventId)
-    //         if (!noticeSelector.length) {
-    //             let infoString = data.usersName + " is editing element: " + data.nameOfEvent // Find the name of the event from its id
-    //             infoContainer.append(`<p class="infoMessage text-truncate" id="notice${data.eventId}"> ` + infoString + `</p>`)
-    //             eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
-    //             if (eventDiv.hasClass("beingEdited")) {
-    //                 eventDiv.find(".controlButtons").hide()
-    //             }
-    //             infoContainer.slideDown() // Show the notice.
-    //         }
-    //     }
-    // })
-
-
-    /**
-     * This event listener listens for a notification that an element is no longer being edited
-     * It removes the class that shows the border
-     * Then it checks if this current user is editing another element, and avoids showing the edit buttons
-     * If the user isn't currently editing an element then it redisplays the edit and delete button.
-     */
-    // eventSource.addEventListener("notifyNotEditing", function (event) {
-    //     const data = JSON.parse(event.data);
-    //     let elementDiv = $("#" + data.eventId)
-    //
-    //     if (checkPrivilege()) {
-    //         $("#notice" + data.eventId).remove()
-    //         elementDiv.removeClass("beingEdited")
-    //         if (!thisUserIsEditing) {
-    //             elementDiv.find(".controlButtons").show()
-    //         }
-    //         if (elementDiv.hasClass("beingEdited")) {
-    //             elementDiv.find(".controlButtons").hide()
-    //         }
-    //         if (isEmpty(infoContainer)) {
-    //             infoContainer.slideUp() // Hide the notice.
-    //         }
-    //     }
-    //
-    // })
-
-
-    /**
-     * This event listener listens for a notification that an element should be reloaded.
-     * This happens if another user has changed an element.
-     * It removes the class that shows the border and then calls ReloadEvent()
-     */
-    // eventSource.addEventListener("reloadElement", function (event) {
-    //     const data = JSON.parse(event.data);
-    //     $("#notice" + data.eventId).remove()
-    //     $("#" + data.eventId).removeClass("beingEdited")
-    //     if (isEmpty(infoContainer)) {
-    //         infoContainer.slideUp() // Hide the notice.
-    //     }
-    //
-    //     reloadElement(data.eventId) // reloads specific element
-    //
-    // })
-
-
-    /**
-     * Listens for a notification to remove an element (happens if another client deletes an element)
-     */
-    // eventSource.addEventListener("notifyRemoveEvent", function (event) {
-    //     const data = JSON.parse(event.data);
-    //     removeElement(data.eventId) // removes specific event
-    //     //Now reload the elements, depending on what type of element was removed
-    //     if (data.typeOfEvent === "event") {
-    //         addEventsToSprints()
-    //     } else if (data.typeOfEvent === "milestone") {
-    //         addMilestonesToSprints()
-    //     } else if (data.typeOfEvent === "deadline") {
-    //         addDeadlinesToSprints()
-    //     }
-    // })
-
-
-    /**
-     * Listens for a notification to add a new element that another client has created
-     */
-    // eventSource.addEventListener("notifyNewElement", function (event) {
-    //     const data = JSON.parse(event.data);
-    //     if (data.typeOfEvent === "event") {
-    //         addEvent(data.eventId)
-    //     } else if (data.typeOfEvent === "milestone") {
-    //         addMilestone(data.eventId)
-    //     } else if (data.typeOfEvent === "deadline") {
-    //         addDeadline(data.eventId)
-    //     }
-    //
-    // })
-
-
-
-
-    // keepAlive().then();
-
 // ---------------------------  Websockets  ------------------------------
     connect();
 })
-
-
-
-// async function keepAlive() {
-//     setTimeout(function(){
-//         notifyEdit(null, "keepAlive")
-//     }, 10000)
-//
-// }
 
 
 function removeClass(elementClass) {
@@ -155,8 +30,6 @@ function removeClass(elementClass) {
     }
 }
 
-
-// ---------------------------------------------------------------------------------------------------------------------
 
 /**
  * Sorts the elements passed by the date.
@@ -182,7 +55,9 @@ function sortElementsByDate(div, childrenElement, dateElement) {
 
 
 /**
- * When new event is submitted.
+ * Event listener that runs whenever a new event is submitted.
+ * Does a basic date check (can't end before it starts), then
+ * makes a call to the server to add the event to the project.
  */
 $(document).on('submit', "#addEventForm", function (event) {
     event.preventDefault()
@@ -225,7 +100,8 @@ $(document).on('submit', "#addEventForm", function (event) {
 
 
 /**
- * When new milestone is submitted
+ * Event listener that runs whenever a new milestone is submitted.
+ * makes a call to the server to add the milestone to the project.
  */
 $(document).on("submit", ".milestoneForm", function (event) {
     event.preventDefault()
@@ -249,7 +125,8 @@ $(document).on("submit", ".milestoneForm", function (event) {
 
 
 /**
- * When new deadline is submitted.
+ * Event listener that runs whenever a new deadline is submitted.
+ * makes a call to the server to add the deadline to the project.
  */
 $(document).on('submit', "#addDeadlineForm", function (event) {
     event.preventDefault()
@@ -274,8 +151,14 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
         }
     })
 })
+
+
 /**
- * When existing event is edited and submitted
+ * Event listener that runs whenever an existing event is edited and submitted.
+ * Checks that the name is still there, and that the end is not before the start.
+ * Then it makes a call to the server to edit that event
+ * Also sends notifications to other clients to update that event
+ * and unlock it so others can edit it again
  */
 $(document).on("submit", "#editEventForm", function (event) {
     event.preventDefault()
@@ -309,7 +192,7 @@ $(document).on("submit", "#editEventForm", function (event) {
             data: eventData,
             success: function() {
                 sendNotification("event", eventId, "stop") // Let the server know the event is no longer being edited
-                sendNotification("event", eventId, "update") //Let the server know that others should update the element
+                sendNotification("event", eventId, "update") //Let the server know that other clients should update the element
             }
         })
     }
@@ -317,7 +200,10 @@ $(document).on("submit", "#editEventForm", function (event) {
 
 
 /**
- * When edited milestone is submitted
+ * Event listener that runs whenever an existing milestone is edited and submitted.
+ * It makes a call to the server to edit that milestone
+ * Also sends notifications to other clients to update that milestone
+ * and unlock it so others can edit it again
  */
 $(document).on("submit", "#milestoneEditForm", function (event) {
     event.preventDefault();
@@ -335,14 +221,18 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         data: milestoneData,
         success: function() {
             sendNotification("milestone", milestoneId, "stop") // Let the server know the milestone is no longer being edited
-            sendNotification("milestone", milestoneId, "update") //Let the server know that others should update the element
+            sendNotification("milestone", milestoneId, "update") //Let the server know that other clients should update the element
         }
     })
 })
 
 
 /**
- * When existing deadline is edited and submitted
+ * Event listener that runs whenever an existing deadline is edited and submitted.
+ * Checks that the name isn't empty.
+ * Then it makes a call to the server to edit that deadline
+ * Also sends notifications to other clients to update that deadline
+ * and unlock it so others can edit it again
  */
 $(document).on("submit", "#editDeadlineForm", function(event){
     event.preventDefault()
@@ -367,15 +257,13 @@ $(document).on("submit", "#editDeadlineForm", function(event){
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
     } else {
-        //Ajax call to change the deadline
         $.ajax({
             url: "editDeadline",
             type: "POST",
             data: deadlineData,
             success: function() {
-
                 sendNotification("deadline", deadlineId, "stop") // Let the server know the deadline is no longer being edited
-                sendNotification("deadline", deadlineId, "update") //Let the server know that others should update the element
+                sendNotification("deadline", deadlineId, "update") //Let the server know that other clients should update the element
             }
         })
     }
@@ -384,6 +272,7 @@ $(document).on("submit", "#editDeadlineForm", function(event){
 
 /**
  * Listens for when add event button is clicked.
+ * Rotates the button and shows the event form via a slide-down transition
  */
 $(document).on('click', '.addEventButton', function () {
 
@@ -394,16 +283,18 @@ $(document).on('click', '.addEventButton', function () {
 
 /**
  * Listens for when add milestone button is clicked.
+ * Rotates the button and shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addMilestoneButton', function () {
 
-    $(".addEventSvg").toggleClass('rotated');
+    $(".addMilestoneSvg").toggleClass('rotated');
     $(".milestoneForm").slideToggle();
 })
 
 
 /**
- * Slide toggle for when add deadline button is clicked.
+ * Listens for when add milestone button is clicked.
+ * Rotates the button and shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addDeadlineButton', function() {
 
@@ -414,6 +305,8 @@ $(document).on('click', '.addDeadlineButton', function() {
 
 /**
  * Listens for a click on the delete button
+ * Finds out what occasion type the button was connected to
+ * then makes a call to the server to delete that occasion.
  */
 $(document).on("click", ".deleteButton", function () {
     let parent = $(this).closest(".occasion")
@@ -452,7 +345,10 @@ $(document).on("click", ".deleteButton", function () {
 
 
 /**
- * Listens for a click on the edit button
+ * Listens for a click on the edit button.
+ * Adds the edit form to the occasion and sends a notification
+ * to other clients telling them that we are editing this occasion
+ * (so please lock it).
  */
 $(document).on("click", ".editButton", function () {
     thisUserIsEditing = true;
@@ -462,7 +358,6 @@ $(document).on("click", ".editButton", function () {
     $(".deleteButton").hide()
     let parent = $(this).closest(".occasion")
     let id = parent.attr("id")
-    //TODO: Send the correct information depending on what edit was made
     if (parent.hasClass("event")) {
         sendNotification("event", id, "edit");
         appendEventForm(parent)
@@ -479,6 +374,8 @@ $(document).on("click", ".editButton", function () {
 
 /**
  * Listens for a click on the event form cancel button
+ * Removes the edit form from the occasion and sends a notification
+ * to other clients telling them we've stopped editing the occasion (so you can unlock it).
  */
 $(document).on("click", ".cancelEdit", function () {
     thisUserIsEditing = false;
@@ -1005,6 +902,7 @@ function createMilestoneDiv(milestoneObject) {
                     <p class="milestoneEnd">${milestoneObject.endDateFormatted}</p>
                 </div>
             </div>
+            `;
 }
 
 
