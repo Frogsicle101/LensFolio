@@ -3,8 +3,8 @@ let stompClient = null
 
 
 /**
- * Sets up a websocket connection with to the server
- *
+ * Connects via websockets to the server, listening to all messages from /notifications/sending/occasions
+ * and designates handleNotification to run whenever we get a message
  */
 function connect() {
     let socket = new SockJS('/gs-guide-websocket');
@@ -34,9 +34,11 @@ function sendNotification(occasionType, occasionId, action) {
 
 
 /**
- * Whenever we receive a message from the url, this function will run.
+ * Whenever we receive a message from the /notifications/sending/occasions, this function will run.
+ * This takes the notification, checks what type it is, then calls the relevant helper function
+ * to handle that notification.
  *
- * @param notification The JSON object we receive (modeled by OutgoingNotification).
+ * @param notification The notification to handle. (modeled by OutgoingNotification)
  */
 function handleNotification(notification) {
     const content = JSON.parse(notification.body);
@@ -64,6 +66,7 @@ function handleNotification(notification) {
     }
 }
 
+
 /**
  * Processes a create notification by adding boxes for that notification to the DOM
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
@@ -89,9 +92,11 @@ function handleCreateEvent( notification ) {
 }
 
 /**
-* Processes an update notification by reloading the event with the given id
-* @param notification The JSON object we receive (modeled by OutgoingNotification).
-*/
+ * Helper function for handling an update event. Tells us to reload the element with the specific ID.
+ * Occasion types are handled in the reloading method, so we only need to provide it the ID
+ *
+ * @param notification The update notification, from which we extract the ID (and also the type for logging)
+ */
 function handleUpdateEvent( notification ) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
@@ -102,6 +107,7 @@ function handleUpdateEvent( notification ) {
 
 /**
  * Processes a delete notification by removing the element from the DOM
+ *
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
 function handleDeleteEvent( notification ) {
@@ -128,6 +134,7 @@ function handleDeleteEvent( notification ) {
 /**
  * Opens a dialog box at the top of the screen, and disables the edit buttons for the
  * occasion that is being edited.
+ *
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
 function handleNotifyEvent( notification ) {
