@@ -11,7 +11,7 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/notifications/sending/occasions', handleNotification);
+        stompClient.subscribe('notifications/sending/occasions', handleNotification);
     });
 }
 
@@ -25,7 +25,7 @@ function connect() {
  * @param action What action the user has performed to create this message
  */
 function sendNotification(occasionType, occasionId, action) {
-    stompClient.send("/notifications/receiving/message", {}, JSON.stringify({
+    stompClient.send("notifications/receiving/message", {}, JSON.stringify({
         'occasionType': occasionType,
         'occasionId': occasionId,
         'action': action
