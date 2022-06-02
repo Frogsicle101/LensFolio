@@ -1,7 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPEditNotification;
-import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPOccasionMessage;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
@@ -15,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,14 +42,15 @@ public class DeadlineController {
         this.deadlineRepository = deadlineRepository;
     }
 
+
     /**
      * Mapping for a put request to add a deadline.
      * The method first parses a date and time string that is passed as a request parameter.
      * The parser converts it to the standard LocalDate format and a LocalTime format
-     * <p>
+     *
      * The project is then grabbed from the repository by its ID.
      * If the project can't be found, it throws an EntityNotFoundException
-     * <p>
+     *
      * The deadline is then created with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -134,13 +131,14 @@ public class DeadlineController {
         }
     }
 
+
     /**
      * Mapping for a post request to edit a deadline.
      * The method first gets the deadline from the repository. If the deadline cannot be retrieved, it throws an EntityNotFound exception.
-     * <p>
+     *
      * The method then parses a date string and a time string that is passed as a request parameter.
      * The parser converts it to the standard LocalDate format.
-     * <p>
+     *
      * The deadline is then edited with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -154,7 +152,7 @@ public class DeadlineController {
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PostMapping("/editDeadline")
-    public ResponseEntity editDeadline(
+    public ResponseEntity<String> editDeadline(
             @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "deadlineId") String deadlineId,
             @RequestParam(value = "projectId") Long projectId,
@@ -226,6 +224,7 @@ public class DeadlineController {
         }
     }
 
+
     /**
      * Mapping for deleting an existing deadline.
      * The method attempts to get the deadline from the repository and if it cannot it will throw an EntityNotFoundException
@@ -265,8 +264,10 @@ public class DeadlineController {
         }
     }
 
+
     /**
      * Gets the list of deadlines in a project and returns it.
+     *
      * @param projectId The projectId to get the deadlines from this project
      * @return A ResponseEntity with the deadlines or an error
      */
@@ -285,8 +286,10 @@ public class DeadlineController {
         }
     }
 
+
     /**
      * Returns a single deadline from the id that was given
+     *
      * @param deadlineId The deadline id
      * @return a single deadline
      */

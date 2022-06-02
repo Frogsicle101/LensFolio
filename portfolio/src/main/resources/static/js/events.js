@@ -1,12 +1,7 @@
-//import {connect, sendNotification} from "./notifications";
-
 let thisUserIsEditing = false;
 
 $(document).ready(function () {
 
-    console.log("start")
-
-    let infoContainer = $("#informationBar")
     let formControl = $(".form-control");
 
     refreshDeadlines(projectId)
@@ -16,8 +11,9 @@ $(document).ready(function () {
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
-    connect(); // to connect to websocket server
+    formControl.keyup(countCharacters) // Runs when key is pressed (well released) on form-control elements.
+
+    connect(); // Start the websocket connection
 })
 
 

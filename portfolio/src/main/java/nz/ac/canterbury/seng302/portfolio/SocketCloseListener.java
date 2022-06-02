@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.OutgoingNotification;
+import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,14 +37,16 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
      */
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
-        logger.info("Got SessionDisconnectEvent" + event.getMessage() + "\n" + event.getUser());
+        logger.info("Got SessionDisconnectEvent");
         Principal principal = event.getUser();
         PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
         if (auth != null) {
             AuthState state = (AuthState) auth.getPrincipal();
+            String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
 
             template.convertAndSend("/notifications/sending/occasions",
                     new OutgoingNotification(
+                            editorId,
                             state.getName(),
                             "*",
                             "*",
