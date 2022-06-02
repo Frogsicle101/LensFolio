@@ -44,7 +44,7 @@ public class NotificationController {
      * @return A messenger object containing a type, occasion, id and content
      */
     @MessageMapping("/message")
-    @SendTo("/notifications/sending/occasions")
+    @SendTo("notifications/sending/occasions")
     public OutgoingNotification receiveIncomingNotification(@AuthenticationPrincipal Principal principal, IncomingNotification message) {
         logger.info("Received " + message.getAction() + " message");
 
