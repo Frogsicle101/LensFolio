@@ -37,7 +37,7 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
      */
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
-        logger.info("Got SessionDisconnectEvent" + event.getMessage() + "\n" + event.getUser());
+        logger.info("Got SessionDisconnectEvent");
         Principal principal = event.getUser();
         PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
         if (auth != null) {
