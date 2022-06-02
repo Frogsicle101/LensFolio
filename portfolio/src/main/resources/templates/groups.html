@@ -1,14 +1,16 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Lensfolio | Groups</title>
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
             </th:block> /*/-->
 </head>
-<body>
-<header th:insert="fragments/general.html :: header"></header>
-<section>
-
-</section>
-</body>
+    <body>
+        <header th:insert="fragments/general.html :: header"></header>
+        <section>
+            <div class="groupsContainer">
+            </div>
+        </section>
+    </body>
+<script type="application/javascript" th:src="@{js/groups.js}"></script>
 </html>

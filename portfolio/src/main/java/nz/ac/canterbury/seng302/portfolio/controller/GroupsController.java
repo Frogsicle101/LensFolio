@@ -34,15 +34,25 @@ public class GroupsController {
     @Autowired
     private GroupsClientService groupsClientService;
 
+    // arbitrary values used while building groups page.//TODO make these settable and useful:)
+    private final int offset = 0;
+    private final boolean isAscending = true;
+    private final int limit = 20;
 
+
+    /**
+     * This endpoint retrieves all groups as a paginated list.
+     *
+     * @return a response entity containing the list of GroupDetailsResponse object, and a response status.
+     */
     @GetMapping("/groups")
-    public ResponseEntity<> getGroups(@AuthenticationPrincipal AuthState principal) {
+    public ResponseEntity<List<GroupDetailsResponse>> getGroups() {
         logger.info("GET REQUEST /groups - attempt to get all groups");
         try {
             GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
-                    .setOffset(0)
-                    .setIsAscendingOrder(false)
-                    .setLimit(-1)
+                    .setOffset(offset)
+                    .setIsAscendingOrder(isAscending)
+                    .setLimit(limit)
                     .build();
             PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
             return new ResponseEntity<>(response.getGroupsList(), HttpStatus.OK);
@@ -129,7 +139,7 @@ public class GroupsController {
                                                       @RequestParam String shortName,
                                                       @RequestParam String longName) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}",groupId, shortName, longName, userId);
+        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}",groupId, userId);
         try {
             ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)
