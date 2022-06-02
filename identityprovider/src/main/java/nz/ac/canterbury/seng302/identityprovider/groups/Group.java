@@ -6,6 +6,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +46,7 @@ public class Group {
     */
     protected Group() {}
 
+
     /**
     * The default constructor for a group, which automatically generates a unique ID.
     *
@@ -55,6 +57,7 @@ public class Group {
         this.shortName = shortName;
         this.longName = longName;
     }
+
 
     /**
      * The constructor for a group with a specified group ID.
@@ -74,31 +77,38 @@ public class Group {
         return id;
     }
 
+
     public List<User> getUserList() {
         return this.userList;
     }
 
+
     public Integer getMembersNumber(){return this.userList.size();}
+
 
     public String getShortName() {
         return shortName;
     }
 
+
     public String getLongName() {
         return longName;
     }
+
 
     public void setLongName(String longName) {
         this.longName = longName;
     }
 
+
     public void setShortName(String shortName) {
         this.shortName = shortName;
     }
 
+
     /**
      * Removes users from a group
-     * @param userIds the id of the users to be removed
+     * @param users a list of the users to be removed
      */
     public void removeGroupMembers(List<User> users) {
         for (User user : users)  {
@@ -106,9 +116,10 @@ public class Group {
         }
     }
 
+
     /**
      * Adds a user to the group object if the user is not already present
-     * @param userIds The ids of the users to be added
+     * @param users A list of the users to be added
      */
     public void addGroupMembers(List<User> users) {
         for (User user : users) {
@@ -137,6 +148,4 @@ public class Group {
 
         return response.build();
     }
-
-
 }

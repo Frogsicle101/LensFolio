@@ -37,8 +37,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Autowired
     private Environment env;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    private GroupService groupService;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** Name Comparator */
     Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
@@ -94,6 +96,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+
     /**
      * Follows the gRPC contract and provides the server side service for registering new users, adding them to the database
      *
@@ -142,6 +145,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+
     /**
      * Follows the gRPC contract for editing users, this method attempts to edit the details of a user.
      * <br>
@@ -187,6 +191,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
+
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to change the password of a User
@@ -244,6 +249,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+
     /**
      * The gRPC implementation of bidirectional streaming used to receive uploaded user profile images.
      * <br>
@@ -263,6 +269,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         return new ImageRequestStreamObserver(responseObserver, repository, env);
     }
 
+
     @Override
     public void deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request, StreamObserver<DeleteUserProfilePhotoResponse> responseObserver) {
         DeleteUserProfilePhotoResponse.Builder response = DeleteUserProfilePhotoResponse.newBuilder();
@@ -277,6 +284,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
+
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to add a role to a User.
@@ -299,6 +307,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             if (!userToUpdate.getRoles().contains(request.getRole())) {
                 userToUpdate.addRole(request.getRole());
                 repository.save(userToUpdate);
+                if (request.getRole() == UserRole.TEACHER){
+                    addNewTeacherToGroup(userToUpdate);
+                }
                 response.setIsSuccess(true)
                         .setMessage(true);
             } else {
@@ -312,6 +323,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
+
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to remove a role from a User.
@@ -340,6 +352,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 repository.save(userToUpdate);
                 logger.info("Role Removal Success - removed " + request.getRole()
                         + " from user " + request.getUserId());
+                if (request.getRole() == UserRole.TEACHER){
+                    removeUserFromTeacherGroup(userToUpdate);
+                }
                 response.setIsSuccess(true)
                         .setMessage(true);
             } catch (IllegalStateException e) {
@@ -358,6 +373,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
+
+
     /**
      * Follows the gRPC contract for retrieving the paginated users. Does this by sorting a list of all the users based
      * on what was requested and then looping through to add the specific page of users to the response
@@ -400,5 +417,35 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         reply.setResultSetSize(allUsers.size());
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
+    }
+
+
+    /**
+     * Used to automatically add a user to the teacher group. This occurs when a users roles is changed to include the
+     * teacher role
+     *
+     * @param user The user to be added to the teacher group
+     */
+    private void addNewTeacherToGroup(User user) {
+        List<Integer> userIds = new ArrayList<>();
+        userIds.add(user.getId());
+
+        Integer groupId = groupService.getTeacherGroupId();
+        groupService.addGroupMembers(groupId, userIds);
+    }
+
+
+    /**
+     * Used to automatically remove a user from the teacher group. This occurs when a users roles is changed to no
+     * longer have the teacher role
+     *
+     * @param user The user to be removed from the teacher group
+     */
+    private void removeUserFromTeacherGroup(User user) {
+        List<Integer> userIds = new ArrayList<>();
+        userIds.add(user.getId());
+
+        Integer groupId = groupService.getTeacherGroupId();
+        groupService.removeGroupMembers(groupId, userIds);
     }
 }

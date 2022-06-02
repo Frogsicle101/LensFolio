@@ -4,7 +4,9 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
+import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
@@ -42,6 +44,7 @@ public class GroupService {
      * @param userIds The ids of the users.
      * @throws IllegalArgumentException If the group ID or user IDs are invalid.
      */
+    @Transactional
     public void addGroupMembers(Integer groupId, List<Integer> userIds) throws IllegalArgumentException{
         Optional<Group> optionalGroup = groupRepository.findById(groupId);
         if (optionalGroup.isEmpty()) {
@@ -65,6 +68,7 @@ public class GroupService {
      * @param userIds The id of the users to be removed.
      * @throws IllegalArgumentException If the group ID or user IDs are invalid.
      */
+    @Transactional
     public void removeGroupMembers(Integer groupId, List<Integer> userIds) throws IllegalArgumentException {
         Optional<Group> optionalGroup = groupRepository.findById(groupId);
         if (optionalGroup.isEmpty()) {
@@ -79,5 +83,21 @@ public class GroupService {
         }
 
         groupRepository.save(group);
+    }
+
+
+    /**
+     * Used to retrieve the teachers group id, this is used in order to add and remove users from this group on role
+     * change
+     *
+     * @return Returns an Integer of the teacher group id or -1 if not found
+     */
+    public Integer getTeacherGroupId() {
+        Optional<Group> group = groupRepository.findByShortName("Teachers");
+        if (group.isPresent()) {
+            return group.get().getId();
+        } else {
+            return -1;
+        }
     }
 }
