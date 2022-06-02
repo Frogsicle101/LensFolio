@@ -20,8 +20,10 @@ public class OutgoingNotification {
     /** The type of message */
     private final String action;
 
+
     /**
      * Constructor for OutgoingNotifications
+     *
      * @param editorId The id of the user making changes
      * @param editorName The name of the user making changes
      * @param occasionType The type of occasion we are editing

@@ -91,6 +91,7 @@ function handleCreateEvent( notification ) {
     }
 }
 
+
 /**
  * Helper function for handling an update event. Tells us to reload the element with the specific ID.
  * Occasion types are handled in the reloading method, so we only need to provide it the ID
@@ -104,6 +105,7 @@ function handleUpdateEvent( notification ) {
 
     reloadElement(occasionId)
 }
+
 
 /**
  * Processes a delete notification by removing the element from the DOM
@@ -130,6 +132,7 @@ function handleDeleteEvent( notification ) {
             break;
     }
 }
+
 
 /**
  * Opens a dialog box at the top of the screen, and disables the edit buttons for the
@@ -162,6 +165,7 @@ function handleNotifyEvent( notification ) {
         }
     }
 }
+
 
 /**
  * Reverts all the changes made by handleNotifyEvent

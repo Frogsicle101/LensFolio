@@ -42,14 +42,15 @@ public class DeadlineController {
         this.deadlineRepository = deadlineRepository;
     }
 
+
     /**
      * Mapping for a put request to add a deadline.
      * The method first parses a date and time string that is passed as a request parameter.
      * The parser converts it to the standard LocalDate format and a LocalTime format
-     * <p>
+     *
      * The project is then grabbed from the repository by its ID.
      * If the project can't be found, it throws an EntityNotFoundException
-     * <p>
+     *
      * The deadline is then created with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -130,13 +131,14 @@ public class DeadlineController {
         }
     }
 
+
     /**
      * Mapping for a post request to edit a deadline.
      * The method first gets the deadline from the repository. If the deadline cannot be retrieved, it throws an EntityNotFound exception.
-     * <p>
+     *
      * The method then parses a date string and a time string that is passed as a request parameter.
      * The parser converts it to the standard LocalDate format.
-     * <p>
+     *
      * The deadline is then edited with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -222,6 +224,7 @@ public class DeadlineController {
         }
     }
 
+
     /**
      * Mapping for deleting an existing deadline.
      * The method attempts to get the deadline from the repository and if it cannot it will throw an EntityNotFoundException
@@ -261,8 +264,10 @@ public class DeadlineController {
         }
     }
 
+
     /**
      * Gets the list of deadlines in a project and returns it.
+     *
      * @param projectId The projectId to get the deadlines from this project
      * @return A ResponseEntity with the deadlines or an error
      */
@@ -281,8 +286,10 @@ public class DeadlineController {
         }
     }
 
+
     /**
      * Returns a single deadline from the id that was given
+     *
      * @param deadlineId The deadline id
      * @return a single deadline
      */

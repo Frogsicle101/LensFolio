@@ -14,6 +14,7 @@ public class IncomingNotification {
     /** The ID of the person making the edit */
     private final String action;
 
+
     /**
      * Constructor for IncomingNotifications
      * @param occasionType The type of occasion we are editing
@@ -26,13 +27,16 @@ public class IncomingNotification {
         this.action = action;
     }
 
+
     public String getOccasionType() {
         return occasionType;
     }
 
+
     public String getOccasionId() {
         return occasionId;
     }
+
 
     public String getAction() {
         return action;
