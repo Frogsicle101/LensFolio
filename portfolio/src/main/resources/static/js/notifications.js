@@ -7,7 +7,7 @@ let stompClient = null
  * and designates handleNotification to run whenever we get a message
  */
 function connect() {
-    let socket = new SockJS('/gs-guide-websocket');
+    let socket = new SockJS('gs-guide-websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
