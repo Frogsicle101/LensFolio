@@ -9,10 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -30,6 +32,10 @@ public class NotificationController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
+    @SubscribeMapping("/notifications/sending/occasions")
+    public Collection<OutgoingNotification> sendStoredNotifications() {
+        return notificationService.sendStoredNotifications();
+    }
 
     /**
      * A message-mapping method that will:

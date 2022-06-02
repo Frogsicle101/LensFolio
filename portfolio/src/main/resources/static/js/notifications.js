@@ -42,6 +42,7 @@ function sendNotification(occasionType, occasionId, action) {
  */
 function handleNotification(notification) {
     const content = JSON.parse(notification.body);
+    console.log(content)
     const action = content.action;
 
     switch (action) {

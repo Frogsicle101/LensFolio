@@ -8,8 +8,8 @@ import java.util.*;
 
 /**
  * Notification service provides the logic for sending event edit notifications to subscribed users.
- * <br>
- * Uses Spring Boot SseEmitters
+ *
+ *
  */
 @Service
 public class NotificationService {
@@ -37,6 +37,11 @@ public class NotificationService {
         String key = notification.getOccasionType() + ":" + notification.getOccasionId();
         logger.info("SERVICE - Storing notification: " + key);
         activeEditNotifications.put(key, notification);
+    }
+
+    public Collection<OutgoingNotification> sendStoredNotifications() {
+        logger.info("SERVICE - SENDING STORED NOTIFICATIONS");
+        return activeEditNotifications.values();
     }
 
 }
