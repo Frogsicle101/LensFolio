@@ -1,6 +1,7 @@
 /** The STOMP client that connects to the server for sending and receiving notifications */
 let stompClient = null
 
+
 /**
  * Sets up a websocket connection with to the server
  *
