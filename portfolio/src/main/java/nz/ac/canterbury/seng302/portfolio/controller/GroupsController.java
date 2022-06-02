@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,10 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +33,12 @@ public class GroupsController {
     @Autowired
     private GroupsClientService groupsClientService;
 
+    /**
+     * For requesting user information form the IdP.
+     */
+    @Autowired
+    private UserAccountsClientService userAccountsClientService;
+
     // arbitrary values used while building groups page.//TODO make these settable and useful:)
     private final int offset = 0;
     private final boolean isAscending = true;
@@ -46,8 +51,21 @@ public class GroupsController {
      * @return a response entity containing the list of GroupDetailsResponse object, and a response status.
      */
     @GetMapping("/groups")
-    public ResponseEntity<List<GroupDetailsResponse>> getGroups() {
+    public ModelAndView groups(@AuthenticationPrincipal AuthState principal) {
         logger.info("GET REQUEST /groups - attempt to get all groups");
+
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        ModelAndView modelAndView = new ModelAndView("groups");
+
+        // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
+        List<UserRole> roles = user.getRolesList();
+        if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
+            modelAndView.addObject("userCanEdit", true);
+        } else {
+            modelAndView.addObject("userCanEdit", false);
+        }
+
+        //to populate groups page with groups
         try {
             GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
                     .setOffset(offset)
@@ -55,12 +73,17 @@ public class GroupsController {
                     .setLimit(limit)
                     .build();
             PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
-            return new ResponseEntity<>(response.getGroupsList(), HttpStatus.OK);
+
+            modelAndView.addObject("groups", response.getGroupsList());
+            modelAndView.addObject("user", user);
+
         } catch (Exception e) {
             logger.error("ERROR /groups - an error occurred while retrieving groups");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ModelAndView("errorPage").addObject(e.getMessage(), e);
         }
+
+        return modelAndView;
     }
 
 

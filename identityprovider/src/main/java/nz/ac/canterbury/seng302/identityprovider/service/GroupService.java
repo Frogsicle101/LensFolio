@@ -86,6 +86,7 @@ public class GroupService {
     }
 
 
+
     /**
      * Used to retrieve the teachers group id, this is used in order to add and remove users from this group on role
      * change

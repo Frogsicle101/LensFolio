@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class GroupsClientService {
 
     /** The gRpc stub to make calls to the server service */
-    @GrpcClient("groups-grpc-server")
+    @GrpcClient("identity-provider-grpc-server")
     private GroupsServiceGrpc.GroupsServiceBlockingStub groupsStub;
 
     /** For logging the grpc requests related to groups */
@@ -86,6 +86,7 @@ public class GroupsClientService {
      * @return response - a GetPaginatedGroupsResponse, a response with a list of groups and the total amount of groups
      */
     public PaginatedGroupsResponse getPaginatedGroups(GetPaginatedGroupsRequest request) {
+        logger.info("SERVICE - send getPaginatedGroupsRequest request to server");
         return groupsStub.getPaginatedGroups(request);
     }
 }
