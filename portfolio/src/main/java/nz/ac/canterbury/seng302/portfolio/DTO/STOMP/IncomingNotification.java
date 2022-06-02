@@ -4,9 +4,16 @@ package nz.ac.canterbury.seng302.portfolio.DTO.STOMP;
  * A Data Transfer Object (DTO) for clients to send messages about what they are doing to the server
  */
 public class IncomingNotification {
-    private String occasionType;
-    private String occasionId;
-    private String action;
+
+    /** The subtype of occasion. One of 'event', 'milestone', or 'deadline' */
+    private final String occasionType;
+
+    /** The ID of the edited occasion */
+    private final String occasionId;
+
+    /** The ID of the person making the edit */
+    private final String action;
+
 
     /**
      * Constructor for IncomingNotifications
@@ -20,13 +27,16 @@ public class IncomingNotification {
         this.action = action;
     }
 
+
     public String getOccasionType() {
         return occasionType;
     }
 
+
     public String getOccasionId() {
         return occasionId;
     }
+
 
     public String getAction() {
         return action;
