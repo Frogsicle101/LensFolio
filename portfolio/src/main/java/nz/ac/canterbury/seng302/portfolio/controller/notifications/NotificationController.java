@@ -52,7 +52,7 @@ public class NotificationController {
         PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
         AuthState state = (AuthState) auth.getPrincipal();
         String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
-        OutgoingNotification notification = new OutgoingNotification(state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
+        OutgoingNotification notification = new OutgoingNotification(editorId, state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
         //If we want to notify other users,
         logger.info("Received message " + message.getAction());
         if (Objects.equals(message.getAction(), "edit")) {
