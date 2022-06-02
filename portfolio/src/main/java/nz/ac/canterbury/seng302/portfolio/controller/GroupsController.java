@@ -10,10 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The controller for managing requests to edit groups and their user's memberships.
@@ -31,6 +33,25 @@ public class GroupsController {
      */
     @Autowired
     private GroupsClientService groupsClientService;
+
+
+    @GetMapping("/groups")
+    public ResponseEntity<> getGroups(@AuthenticationPrincipal AuthState principal) {
+        logger.info("GET REQUEST /groups - attempt to get all groups");
+        try {
+            GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
+                    .setOffset(0)
+                    .setIsAscendingOrder(false)
+                    .setLimit(-1)
+                    .build();
+            PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
+            return new ResponseEntity<>(response.getGroupsList(), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("ERROR /groups - an error occurred while retrieving groups");
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
     /**
