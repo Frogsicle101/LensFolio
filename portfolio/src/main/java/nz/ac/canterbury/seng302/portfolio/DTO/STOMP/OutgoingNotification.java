@@ -4,11 +4,21 @@ package nz.ac.canterbury.seng302.portfolio.DTO.STOMP;
  * A Data Transfer Object (DTO) for sending notifications from the server to each client
  */
 public class OutgoingNotification {
-    private String editorId;
-    private String editorName;
-    private String occasionType;
-    private String occasionId;
-    private String action;
+
+    /** The ID of the person making the edit */
+    private final String editorId;
+
+    /** The name of the editor (firstname lastname) */
+    private final String editorName;
+
+    /** The subtype of occasion. One of 'event', 'milestone', or 'deadline' */
+    private final String occasionType;
+
+    /** The ID of the edited occasion */
+    private final String occasionId;
+
+    /** The type of message */
+    private final String action;
 
     /**
      * Constructor for OutgoingNotifications
@@ -31,41 +41,23 @@ public class OutgoingNotification {
         return editorId;
     }
 
-    public void setEditorId(String id) {
-        this.editorId = id;
-    }
 
     public String getEditorName() {
         return editorName;
     }
 
-    public void setEditorName(String editorName) {
-        this.editorName = editorName;
-    }
 
     public String getOccasionType() {
         return occasionType;
     }
 
-    public void setOccasionType(String occasionType) {
-        this.occasionType = occasionType;
-    }
 
     public String getOccasionId() {
         return occasionId;
     }
 
-    public void setOccasionId(String occasionId) {
-        this.occasionId = occasionId;
-    }
 
     public String getAction() {
         return action;
     }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-
 }

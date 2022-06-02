@@ -1,12 +1,7 @@
-//import {connect, sendNotification} from "./notifications";
-
 let thisUserIsEditing = false;
 
 $(document).ready(function () {
 
-    console.log("start")
-
-    let infoContainer = $("#informationBar")
     let formControl = $(".form-control");
 
     refreshDeadlines(projectId)
@@ -17,135 +12,10 @@ $(document).ready(function () {
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    formControl.keyup(countCharacters) // Runs when key is pressed (well released) on form-control elements.
 
-
-
-// -------------------------------------- Notification Source and listeners --------------------------------------------
-
-    /** The source of notifications used to provide updates to the user such as events being edited */
-    // let eventSource = new EventSource("notifications");
-
-
-    /**
-     * This event listener listens for a notification that an event is being edited
-     * It then appends a message to the notice alert showing that the event is being edited and by who.
-     * It then adds a class to the event being edited which puts a border around it
-     * Then it hides the edit and delete button for that event to prevent the user from editing/deleting it too.
-     */
-    // eventSource.addEventListener("editEvent", function (event) {
-    //     const data = JSON.parse(event.data);
-    //     console.log(data)
-    //     if (checkPrivilege()) {
-    //         let eventDiv = $("#" + data.eventId)
-    //         let noticeSelector = $("#notice" + data.eventId)
-    //         if (!noticeSelector.length) {
-    //             let infoString = data.usersName + " is editing element: " + data.nameOfEvent // Find the name of the event from its id
-    //             infoContainer.append(`<p class="infoMessage text-truncate" id="notice${data.eventId}"> ` + infoString + `</p>`)
-    //             eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
-    //             if (eventDiv.hasClass("beingEdited")) {
-    //                 eventDiv.find(".controlButtons").hide()
-    //             }
-    //             infoContainer.slideDown() // Show the notice.
-    //         }
-    //     }
-    // })
-
-
-    /**
-     * This event listener listens for a notification that an element is no longer being edited
-     * It removes the class that shows the border
-     * Then it checks if this current user is editing another element, and avoids showing the edit buttons
-     * If the user isn't currently editing an element then it redisplays the edit and delete button.
-     */
-    // eventSource.addEventListener("notifyNotEditing", function (event) {
-    //     const data = JSON.parse(event.data);
-    //     let elementDiv = $("#" + data.eventId)
-    //
-    //     if (checkPrivilege()) {
-    //         $("#notice" + data.eventId).remove()
-    //         elementDiv.removeClass("beingEdited")
-    //         if (!thisUserIsEditing) {
-    //             elementDiv.find(".controlButtons").show()
-    //         }
-    //         if (elementDiv.hasClass("beingEdited")) {
-    //             elementDiv.find(".controlButtons").hide()
-    //         }
-    //         if (isEmpty(infoContainer)) {
-    //             infoContainer.slideUp() // Hide the notice.
-    //         }
-    //     }
-    //
-    // })
-
-
-    /**
-     * This event listener listens for a notification that an element should be reloaded.
-     * This happens if another user has changed an element.
-     * It removes the class that shows the border and then calls ReloadEvent()
-     */
-    // eventSource.addEventListener("reloadElement", function (event) {
-    //     const data = JSON.parse(event.data);
-    //     $("#notice" + data.eventId).remove()
-    //     $("#" + data.eventId).removeClass("beingEdited")
-    //     if (isEmpty(infoContainer)) {
-    //         infoContainer.slideUp() // Hide the notice.
-    //     }
-    //
-    //     reloadElement(data.eventId) // reloads specific element
-    //
-    // })
-
-
-    /**
-     * Listens for a notification to remove an element (happens if another client deletes an element)
-     */
-    // eventSource.addEventListener("notifyRemoveEvent", function (event) {
-    //     const data = JSON.parse(event.data);
-    //     removeElement(data.eventId) // removes specific event
-    //     //Now reload the elements, depending on what type of element was removed
-    //     if (data.typeOfEvent === "event") {
-    //         addEventsToSprints()
-    //     } else if (data.typeOfEvent === "milestone") {
-    //         addMilestonesToSprints()
-    //     } else if (data.typeOfEvent === "deadline") {
-    //         addDeadlinesToSprints()
-    //     }
-    // })
-
-
-    /**
-     * Listens for a notification to add a new element that another client has created
-     */
-    // eventSource.addEventListener("notifyNewElement", function (event) {
-    //     const data = JSON.parse(event.data);
-    //     if (data.typeOfEvent === "event") {
-    //         addEvent(data.eventId)
-    //     } else if (data.typeOfEvent === "milestone") {
-    //         addMilestone(data.eventId)
-    //     } else if (data.typeOfEvent === "deadline") {
-    //         addDeadline(data.eventId)
-    //     }
-    //
-    // })
-
-
-
-
-    // keepAlive().then();
-
-// ---------------------------  Websockets  ------------------------------
-    connect();
+    connect(); // Start the websocket connection
 })
-
-
-
-// async function keepAlive() {
-//     setTimeout(function(){
-//         notifyEdit(null, "keepAlive")
-//     }, 10000)
-//
-// }
 
 /**
  * Removes element milestone

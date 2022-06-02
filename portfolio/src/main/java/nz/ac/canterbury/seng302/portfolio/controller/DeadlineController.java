@@ -1,7 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPEditNotification;
-import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.STOMPOccasionMessage;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
@@ -15,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -154,7 +150,7 @@ public class DeadlineController {
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PostMapping("/editDeadline")
-    public ResponseEntity editDeadline(
+    public ResponseEntity<String> editDeadline(
             @AuthenticationPrincipal AuthState principal,
             @RequestParam(value = "deadlineId") String deadlineId,
             @RequestParam(value = "projectId") Long projectId,

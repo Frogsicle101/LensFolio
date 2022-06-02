@@ -1,5 +1,10 @@
+/** The STOMP client that connects to the server for sending and receiving notifications */
 let stompClient = null
 
+/**
+ * Sets up a websocket connection with to the server
+ *
+ */
 function connect() {
     let socket = new SockJS('/gs-guide-websocket');
     stompClient = Stomp.over(socket);
@@ -9,19 +14,32 @@ function connect() {
     });
 }
 
+
+/**
+ * Sends a message to the server.
+ * We don't need to add our ID as the server can get it from the websocket authentication
+ *
+ * @param occasionType The type of the object being edited (milestone, deadline, event)
+ * @param occasionId The ID of our the object being edited
+ * @param action What action the user has performed to create this message
+ */
+function sendNotification(occasionType, occasionId, action) {
+    stompClient.send("/notifications/receiving/message", {}, JSON.stringify({
+        'occasionType': occasionType,
+        'occasionId': occasionId,
+        'action': action
+    }));
+}
+
+
+/**
+ * Whenever we receive a message from the url, this function will run.
+ *
+ * @param notification The JSON object we receive (modeled by OutgoingNotification).
+ */
 function handleNotification(notification) {
     const content = JSON.parse(notification.body);
     const action = content.action;
-
-    //Whenever we receive a message from the url, this function will run.
-    /*TODO: use the ID and occasion to call the relevant functions to lock and notify
-    Take a look at the STOMPOccasionMessage class to see what you have to work with
-    You'll need to determine the occasion and then call those functions for the rest of it
-     */
-    /*
-    The type of JSON object we're receiving is modeled by STOMPOccasionMessage.
-    Please refer to the class' documentation for details.
-     */
 
     switch (action) {
         case 'create' :
@@ -46,26 +64,9 @@ function handleNotification(notification) {
 }
 
 /**
- * Sends a message to the server.
- * We don't need to add our ID as the server can get it from the websocket authentication
- *
- * @param occasionType The type of the object being edited (milestone, deadline, event)
- * @param occasionId The ID of our the object being edited
- * @param action What action the user has performed to create this message
+ * Processes a create notification by adding boxes for that notification to the DOM
+ * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
-function sendNotification(occasionType, occasionId, action) {
-    stompClient.send("/notifications/receiving/message", {}, JSON.stringify({
-        'occasionType': occasionType,
-        'occasionId': occasionId,
-        'action': action
-    }));
-}
-
-
-
-
-// --------------------------------------------- Notification handlers -------------------------------------------------
-
 function handleCreateEvent( notification ) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
@@ -86,21 +87,21 @@ function handleCreateEvent( notification ) {
     }
 }
 
-
+/**
+* Processes an update notification by reloading the event with the given id
+* @param notification The JSON object we receive (modeled by OutgoingNotification).
+*/
 function handleUpdateEvent( notification ) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
     console.log("Handle Update event: Reloading occasion of type: " + occasionType + " and ID: " + occasionId);
-    /*
-    Reload the element with the specific ID
-    Occasion types are handled in that method, so we only need to provide it the ID
-     */
+
     reloadElement(occasionId)
 }
 
 /**
  * Processes a delete notification by removing the element from the DOM
- * @param notification
+ * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
 function handleDeleteEvent( notification ) {
     const occasionType = notification.occasionType;
@@ -126,12 +127,14 @@ function handleDeleteEvent( notification ) {
 /**
  * Opens a dialog box at the top of the screen, and disables the edit buttons for the
  * occasion that is being edited.
- * @param notification
+ * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
 function handleNotifyEvent( notification ) {
+
     const editorId = notification.editorId;
     const editorName = notification.editorName;
     const occasionId = notification.occasionId;
+
     if (checkPrivilege()) {
         let infoContainer = $("#informationBar");
         let eventDiv = $("#" + occasionId)
@@ -154,22 +157,19 @@ function handleNotifyEvent( notification ) {
 
 /**
  * Reverts all the changes made by handleNotifyEvent
- * @param notification
+ * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
 function handleStopEvent( notification ) {
 
     const occasionId = notification.occasionId;
     const editorId = notification.editorId
 
-
-
     if (checkPrivilege()) {
 
         let elementDiv;
         let notice;
 
-        if (occasionId === "*") {
-            // A websocket disconnected, so we need to remove the element by the editorId
+        if (occasionId === "*") { // A websocket disconnected, so we need to remove the element by the editorId
             notice = $(".noticeEditor" + editorId);
             elementDiv = $(".editor" + editorId);
         } else {
@@ -181,15 +181,16 @@ function handleStopEvent( notification ) {
 
         elementDiv.removeClass("beingEdited")
         elementDiv.removeClass("editor" + editorId);
+
         if (!thisUserIsEditing) {
             elementDiv.find(".controlButtons").show()
         }
+
         if (elementDiv.hasClass("beingEdited")) {
             elementDiv.find(".controlButtons").hide()
         }
 
         let infoContainer = $("#informationBar");
-
         if (isEmpty(infoContainer)) {
             infoContainer.slideUp() // Hide the notice.
         }
