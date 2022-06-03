@@ -13,7 +13,7 @@ import org.springframework.context.event.EventListener;
 @SpringBootApplication
 public class IdentityProviderApplication {
 
-    /** Checks if test data is required  */
+    /** Initialised the test and setup data for the IdP */
     @Autowired
     DataInitialisationManager dataInitializer;
 
