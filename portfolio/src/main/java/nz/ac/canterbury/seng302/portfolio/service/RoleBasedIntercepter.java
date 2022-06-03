@@ -12,13 +12,24 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
+/**
+ * Checks that a user has the teacher or administrator role before forwarding them onto the requested endpoint
+ */
 public class RoleBasedIntercepter implements HandlerInterceptor {
 
-
-
+    /** To get the users information */
     public AuthenticateClientService authenticateClientService;
 
+    /** To log when the checks are made */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+    /**
+     * Gets the AuthenticateClientService as the bean is not injected
+     *
+     * @param request - The httpServlet request
+     * @return the AuthenticateClientService instance
+     */
     private AuthenticateClientService getAuthenticateClientService(HttpServletRequest request) {
         if(authenticateClientService == null){
             ServletContext servletContext = request.getServletContext();
@@ -28,8 +39,17 @@ public class RoleBasedIntercepter implements HandlerInterceptor {
         return authenticateClientService;
     }
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * Checks that a user has the teacher or course administrator role
+     *
+     * @param request - The httpServlet request
+     * @param response - The httpServlet response
+     * @param handler - Required parameter for override
+     *
+     * @return trues if the user has the teacher or administrator role, else false
+     * @throws Exception - If the AuthenticateClientService can't be found.
+     */
     @Override
     public boolean preHandle(
             HttpServletRequest request,
@@ -48,7 +68,5 @@ public class RoleBasedIntercepter implements HandlerInterceptor {
             response.sendError(401);
             return false;
         }
-
     }
-
 }
