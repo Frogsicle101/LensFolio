@@ -12,6 +12,7 @@
         <div class="col groupsContainer">
             <div class="group" th:each="group : ${groups}">
                 <div class="mb3">
+                    <p class="members" style="display: none">${group.members}</p>
                     <h2 class="groupShortName" th:text="${group.shortName}"></h2>
                     <h3 class="groupLongName" th:text="${group.longName}"></h3>
                 </div>
