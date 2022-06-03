@@ -4,16 +4,14 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
-import nz.ac.canterbury.seng302.shared.identityprovider.ModifyRoleOfUserRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserRoleChangeResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class UserAccountsServerServiceTest {
@@ -28,6 +26,7 @@ class UserAccountsServerServiceTest {
 
     @GrpcClient(value = "identity-provider-grpc-server")
     private UserAccountServiceGrpc.UserAccountServiceBlockingStub userAccountStub;
+
 
     @BeforeEach
     void setUp() {
@@ -44,6 +43,7 @@ class UserAccountsServerServiceTest {
                 TimeService.getTimeStamp());
     }
 
+
     @Test
     void removeExistingRoleFromUser() {
         //Add some roles to the user
@@ -57,31 +57,20 @@ class UserAccountsServerServiceTest {
                 .setUserId(user.getId())
                 .build();
 
-        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
 
-            boolean successful;
-            boolean message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserRoleChangeResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        service.removeRoleFromUser(request, responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRoleChangeResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertTrue(successful);
-                User innerUser = repository.findById(user.getId());
-                assertEquals(1, innerUser.getRoles().size());
-            }
-        };
+        User updatedUser = repository.findById(user.getId());
 
-        //How do I build these right so I can call the method?
-        service.removeRoleFromUser(request, observer);
+        Assertions.assertTrue(response.getIsSuccess());
+        Assertions.assertEquals(1, updatedUser.getRoles().size());
     }
 }

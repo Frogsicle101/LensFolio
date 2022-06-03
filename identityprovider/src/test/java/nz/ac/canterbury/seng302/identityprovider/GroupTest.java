@@ -1,24 +1,16 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
-import io.cucumber.java.Before;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
-import nz.ac.canterbury.seng302.identityprovider.service.UrlService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.*;
-
-import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 class GroupTest {
@@ -29,11 +21,8 @@ class GroupTest {
     @Mock
     private UserRepository repository;
 
-
-
     @InjectMocks
     private IdentityProviderApplication identityProviderApplication = Mockito.spy(IdentityProviderApplication.class);
-
 
     private List<User> userList = new ArrayList<>();
 
@@ -41,7 +30,6 @@ class GroupTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-
 
         User test1 = new User(
                 "test1",
@@ -132,9 +120,5 @@ class GroupTest {
         Assertions.assertEquals(3, teachingGroup.getMembersNumber());
         Assertions.assertEquals("Non-Group", nonMemberGroup.getShortName());
         Assertions.assertEquals(2, nonMemberGroup.getMembersNumber());
-
-
     }
-
-
 }

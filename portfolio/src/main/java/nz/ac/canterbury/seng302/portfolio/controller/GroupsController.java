@@ -108,7 +108,7 @@ public class GroupsController {
                                                       @RequestParam String shortName,
                                                       @RequestParam String longName) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}",groupId, shortName, longName, userId);
+        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}",groupId, userId);
         try {
             ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)
