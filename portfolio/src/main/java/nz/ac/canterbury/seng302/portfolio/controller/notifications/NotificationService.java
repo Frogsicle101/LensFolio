@@ -39,6 +39,17 @@ public class NotificationService {
         activeEditNotifications.put(key, notification);
     }
 
+    /**
+     * Removes the outgoing notification from storage. If the notification exists in storage,
+     * it will be removed; otherwise nothing will happen.
+     * @param notification The notification to be removed. Must have a type and ID.
+     */
+    public void removeOutgoingNotification(OutgoingNotification notification) {
+        String key = notification.getOccasionType() + ":" + notification.getOccasionId();
+        logger.info("SERVICE - Removing notification: " + key);
+        activeEditNotifications.remove(key);
+    }
+
     public Collection<OutgoingNotification> sendStoredNotifications() {
         logger.info("SERVICE - SENDING STORED NOTIFICATIONS");
         return activeEditNotifications.values();
