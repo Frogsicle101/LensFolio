@@ -38,5 +38,7 @@ public class DataInitialisationManager {
             testUserData.addTestUsers();
         if (includeTestGroups)
             testGroupData.addTestGroups();
+        if (includeTestUsers && includeTestGroups)
+            testGroupData.addUsersToTestGroups();
     }
 }

@@ -58,6 +58,10 @@ public class TestGroupData {
         logger.info("Finished creating default groups");
     }
 
+
+    /**
+     * Creates six test groups, and saves them to the repository
+     */
     public void addTestGroups() {
         logger.info("Creating test groups");
         // Create the two main groups we need, teachers and members-without-a-group group.
@@ -75,5 +79,24 @@ public class TestGroupData {
         groupRepository.save(groupFive);
         groupRepository.save(groupSix);
         logger.info("Finished creating test groups");
+    }
+
+
+    /**
+     * Adds 3 users to test group 3, and 2 users to test group 4.
+     */
+    public void addUsersToTestGroups() {
+        ArrayList<User> groupThreeMembers = new ArrayList<>();
+        groupThreeMembers.add(userRepository.findById(1));
+        groupThreeMembers.add(userRepository.findById(2));
+        groupThreeMembers.add(userRepository.findById(3));
+
+        ArrayList<User> groupFourMembers = new ArrayList<>();
+        groupFourMembers.add(userRepository.findById(3));
+        groupFourMembers.add(userRepository.findById(4));
+
+        groupRepository.getGroupById(3).addGroupMembers(groupThreeMembers);
+        groupRepository.getGroupById(4).addGroupMembers(groupFourMembers);
+
     }
 }
