@@ -1,9 +1,7 @@
 package nz.ac.canterbury.seng302.identityprovider.groups;
 
 import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.service.UserHelperService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -27,7 +25,7 @@ public class Group {
     @JoinTable(name = "group_members",
             joinColumns = @JoinColumn(name = "groupId"),
             inverseJoinColumns = @JoinColumn(name = "userId"))
-    private List<User> userList = new ArrayList<>();
+    private final List<User> userList = new ArrayList<>();
 
     /**
     * The group's short name.
@@ -45,6 +43,7 @@ public class Group {
     */
     protected Group() {}
 
+
     /**
     * The default constructor for a group, which automatically generates a unique ID.
     *
@@ -55,6 +54,7 @@ public class Group {
         this.shortName = shortName;
         this.longName = longName;
     }
+
 
     /**
      * The constructor for a group with a specified group ID.
@@ -74,31 +74,39 @@ public class Group {
         return id;
     }
 
+
     public List<User> getUserList() {
         return this.userList;
     }
 
+
     public Integer getMembersNumber(){return this.userList.size();}
+
 
     public String getShortName() {
         return shortName;
     }
 
+
     public String getLongName() {
         return longName;
     }
+
 
     public void setLongName(String longName) {
         this.longName = longName;
     }
 
+
     public void setShortName(String shortName) {
         this.shortName = shortName;
     }
 
+
     /**
      * Removes users from a group
-     * @param userIds the id of the users to be removed
+     *
+     * @param users the users to be removed
      */
     public void removeGroupMembers(List<User> users) {
         for (User user : users)  {
@@ -106,9 +114,11 @@ public class Group {
         }
     }
 
+
     /**
      * Adds a user to the group object if the user is not already present
-     * @param userIds The ids of the users to be added
+     *
+     * @param users The users to be added
      */
     public void addGroupMembers(List<User> users) {
         for (User user : users) {
@@ -131,12 +141,9 @@ public class Group {
                 .setGroupId(this.getId());
         List<User> groupMembers = this.getUserList();
         for (User user : groupMembers) {
-            //For each group member ID that the group has, we want to create a UserResponse.
             response.addMembers(user.userResponse());
         }
 
         return response.build();
     }
-
-
 }

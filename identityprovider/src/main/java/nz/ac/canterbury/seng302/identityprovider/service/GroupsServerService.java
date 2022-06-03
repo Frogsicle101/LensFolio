@@ -4,8 +4,6 @@ import com.google.protobuf.Empty;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -32,11 +30,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     /** Provides helpful services for adding and removing users from groups. */
     @Autowired
     private GroupService groupService;
-
-    /** The user repository for getting users. */
-    @Autowired
-    private UserRepository userRepository;
-
 
     /** GroupShortName Comparator */
     Comparator<Group> compareByShortName = Comparator.comparing(Group::getShortName);
@@ -81,6 +74,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onCompleted();
     }
 
+
     /**
      * Follows the gRPC contract and provides the server side service for adding members to groups.
      *
@@ -104,6 +98,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
+
 
     /**
      * Follows the gRPC contract and provides the server side service for removing members from groups.
@@ -129,18 +124,19 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onCompleted();
     }
 
-     /**
+
+    /**
      * Follows the gRPC contract and provides the server side service for modifying group details.
+     * If the group exists and the new names (short and long) don't match existing names, the group
+     * is updated and the response isSuccess is try, otherwise it is false.
      *
-     * @param request          A ModifyGroupDetailsRequest formatted to satisfy the groups.proto contract.
+     * @param request A ModifyGroupDetailsRequest formatted to satisfy the groups.proto contract.
      * @param responseObserver Used to return the response to the client side.
      */
     @Override
     public void modifyGroupDetails(ModifyGroupDetailsRequest request, StreamObserver<ModifyGroupDetailsResponse> responseObserver) {
-        // log
         logger.info("SERVICE - modify group details for group with group id " + request.getGroupId());
         ModifyGroupDetailsResponse.Builder response = ModifyGroupDetailsResponse.newBuilder();
-        // Do logic to populate response
         Optional<Group> optionalGroup = groupRepository.findById(request.getGroupId());
         if (optionalGroup.isPresent()) {
             try {
@@ -183,6 +179,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onCompleted();
     }
 
+
     /**
      * Follows the gRPC contract and provides the server side service for deleting groups.
      *
@@ -206,6 +203,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
+
 
     /**
      * Follows the gRPC contract and provides the server side service for getting group details.
@@ -267,15 +265,16 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             }
             default -> allGroups.sort(compareByShortName);
         }
-        //for each group up to the limit or until all the groups have been looped through, add to the response
-        //TODO: creat GroupHelperService.retrieveGroup
+
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allGroups.size()); i++) {
-            reply.addGroups(GroupHelperService.retrieveGroup(allGroups.get(i)));
+            Group group = allGroups.get(i);
+            reply.addGroups(group.groupDetailsResponse());
         }
         reply.setResultSetSize(allGroups.size());
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
+
 
     /**
      * Follows the gRPC contract and provides the server side service for getting the teaching group details.
@@ -303,7 +302,8 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         }
     }
 
-     /**
+
+    /**
      * Follows the gRPC contract and provides the server side service for getting the MWAG group details.
      *
      * @param request          An empty request.
@@ -328,32 +328,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                 responseObserver.onNext(GroupDetailsResponse.newBuilder().setGroupId(-1).build());
                 responseObserver.onCompleted();
             }
-        }
-    }
-
-    /**
-     * A helper method used to get the members of a group and build the list of UserResponse's.
-     * Builds the response and returns it to the client.
-     *
-     * @param group the optional group, for which each member is added to the response.
-     * @param responseObserver the client.
-     * @param response the response to send to the client.
-     */
-    private void groupResponseHelper(Optional<Group> group, StreamObserver<GroupDetailsResponse> responseObserver,GroupDetailsResponse.Builder response) {
-        List<UserResponse> userResponseList = new ArrayList<>();
-        //Checks to see if there are members of the group.
-        if (group.isPresent() && !group.get().getUserList().isEmpty()) {
-
-            // Iterates over the list of UserResponses and adds them to the response.
-            for (UserResponse userResponse : userResponseList) {
-                response.addMembers(userResponse);
-            }
-            //General setters for the response.
-            response.setLongName(group.get().getLongName())
-                    .setShortName(group.get().getShortName())
-                    .setGroupId(group.get().getId()).build();
-            responseObserver.onNext(response.build());
-            responseObserver.onCompleted();
         }
     }
 }
