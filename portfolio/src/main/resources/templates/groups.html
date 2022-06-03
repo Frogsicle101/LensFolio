@@ -7,9 +7,17 @@
 </head>
     <body>
     <header th:insert="fragments/general.html :: header"></header>
-
     <section>
             <div class="groupsContainer">
+                <div th:each="group : ${groups}">
+                        <p class="groupId" style="display: none">${groupObject.id}</p>
+                        <p class="groupShortName" style="display: none">${groupObject.shortName}</p>
+                        <p class="groupLongName" style="display: none">${groupObject.longName}</p>
+                        <div class="mb3">
+                            <h2 class="groupShortName">${groupObject.shortName}</h2>
+                            <h3 class="groupLongName">${groupObject.longName}</h3>
+                        </div>
+                </div>
             </div>
         </section>
     </body>
