@@ -31,6 +31,7 @@ function eventResize(info) {
             $(".successMessageParent").slideDown()
             $(".fc-event").css("border-right", "solid 0px #13CEE2");
             $(".fc-event").css("border-left", "solid 0px #13CEE2");
+            info.event.setProp("borderColor", '#c2080b');
             $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
             $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
         },
@@ -42,11 +43,26 @@ function eventResize(info) {
             $(".fc-event").css("border-right", "solid 0px #13CEE2");
             $(".fc-event").css("border-left", "solid 0px #13CEE2");
             info.revert()
+            info.event.setProp("borderColor", '#c2080b');
             $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
             $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
         }
     })
 }
+
+
+/**
+ * runs when a sprint has finished resizing. Runs before the eventResize function above. This is used to fix the colours
+ * when the sprint is not actually changed as the eventResize only runs if the dates change, thus causing the colours to
+ * revert on the selected sprint
+ * @param info - the fullcalendar event information being sent to the function
+ */
+function eventResizeStop(info) {
+    info.event.setProp("borderColor", '#c2080b');
+    $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
+    $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
+}
+
 
 /**
  * Function to handle event selection when clicked. Called by Full Calendar eventClick property.
@@ -94,6 +110,7 @@ function eventClick(info) {
     }
 }
 
+
 /**
  * Turns an html string into a Node object to be added into a div
  * @param htmlString
@@ -106,6 +123,7 @@ function createElementFromHTML(htmlString) {
     // Change this to div.childNodes to support multiple top-level nodes.
     return div.firstChild;
 }
+
 
 /**
  * $(document).ready fires off a function when the document has finished loading.
@@ -126,6 +144,9 @@ $(document).ready(function () {
         eventResizableFromStart: true,
         eventResize: function (info) {
             eventResize(info)
+        },
+        eventResizeStop: function (info) {
+            eventResizeStop(info)
         },
         eventClick: function (info) {
             eventClick(info)
