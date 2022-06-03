@@ -82,8 +82,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail())
                 .setCreated(user.getAccountCreatedTime())
-                .setProfileImagePath(urlService.getProfileURL(user).toString()
-        );
+                .setProfileImagePath(urlService.getProfileURL(user).toString())
+                .setId(user.getId());
 
         // To add all the users roles to the response
         ArrayList<UserRole> roles = user.getRoles();

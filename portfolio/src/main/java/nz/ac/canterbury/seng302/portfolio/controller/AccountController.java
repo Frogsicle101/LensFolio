@@ -31,13 +31,13 @@ public class AccountController {
     private UserAccountsClientService userAccountsClientService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String alphaSpacesRegex = "([a-zA-Z]+\s?)+";
-    private static final String alphaSpacesRegexCanBeEmpty = "([a-zA-Z]*\s?)+";
-    private static final String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
-    private static final String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
-    private static final String bioRegex = "([a-zA-Z0-9.,'\"]*\\s?)+";
-    private static final String passwordRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)";
-    private static final String pronounRegex = "([a-zA-Z/]*\\s?)+";
+    private static final String alphaSpacesRegex = "([a-zA-Z]+[.,'-]*\s?)+";
+    private static final String alphaSpacesRegexCanBeEmpty = "([a-zA-Z]+[.,'-]*\s?)*";
+    private static final String userNameRegex = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~.,-]+)";
+    private static final String emailRegex = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$";
+    private static final String passwordRegex = "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+";
+    private static final String pronounRegex = "([a-zA-Z/]*)+";
+
 
 
     /**
@@ -63,7 +63,6 @@ public class AccountController {
             model.addObject("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
             model.addObject("userNameRegex", userNameRegex);
             model.addObject("emailRegex", emailRegex);
-            model.addObject("bioRegex", bioRegex);
             model.addObject("passwordRegex", passwordRegex);
             model.addObject("pronounRegex", pronounRegex);
             model.addObject("user", user);
@@ -79,15 +78,24 @@ public class AccountController {
 
     }
 
+
     /**
      * Returns the template for the register page
      * @return Thymeleaf template for the register screen
      */
     @GetMapping("/register")
-    public String register() {
+    public ModelAndView register() {
         logger.info("GET REQUEST /register - get register page");
-        return "accountRegister";
+        ModelAndView model = new ModelAndView("accountRegister");
+        model.addObject("alphaSpacesRegex", alphaSpacesRegex);
+        model.addObject("alphaSpacesRegexCanBeEmpty", alphaSpacesRegexCanBeEmpty);
+        model.addObject("userNameRegex", userNameRegex);
+        model.addObject("emailRegex", emailRegex);
+        model.addObject("passwordRegex", passwordRegex);
+        model.addObject("pronounRegex", pronounRegex);
+        return model;
     }
+
 
     /**
      * Called when a user attempts to register a new account, if the registration is successful forwards a user to
@@ -130,6 +138,7 @@ public class AccountController {
 
     }
 
+
     /**
      * Checks that the UserRequest follows the required patterns and contains everything needed
      * @param userRequest the UserRequest
@@ -169,7 +178,6 @@ public class AccountController {
             userRequest.setPersonalPronouns("");
         }
 
-
         // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
         if (!firstname.matches(alphaSpacesRegex)
                 || !lastname.matches(alphaSpacesRegex)
@@ -179,14 +187,13 @@ public class AccountController {
                 // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
                 || nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)
                 || middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)
-                || pronouns != null && !pronouns.matches(pronounRegex)
-                || bio != null && !bio.matches(bioRegex)) {
-
+                || pronouns != null && !pronouns.matches(pronounRegex)){
             return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
+
 
     /**
      * Checks that the UserRequest follows the required patterns and contains everything needed
@@ -223,7 +230,6 @@ public class AccountController {
             userRequest.setPersonalPronouns("");
         }
 
-
         // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
         if (!firstname.matches(alphaSpacesRegex)
                 || !lastname.matches(alphaSpacesRegex)
@@ -231,15 +237,12 @@ public class AccountController {
                 // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
                 || nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)
                 || middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)
-                || pronouns != null && !pronouns.matches(pronounRegex)
-                || bio != null && !bio.matches(bioRegex)) {
-
+                || pronouns != null && !pronouns.matches(pronounRegex)) {
             return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
-
 
 
     /**
@@ -265,11 +268,17 @@ public class AccountController {
             int userId = PrincipalAttributes.getIdFromPrincipal(principal);
             logger.info(" POST REQUEST /edit/details - update account details for user {}",userId);
 
+            // Used to trim off leading and training spaces
+            String firstname = editInfo.getFirstname().trim();
+            String middlename = editInfo.getMiddlename().trim();
+            String lastname = editInfo.getLastname().trim();
+            String nickname = editInfo.getNickname().trim();
+
             editRequest.setUserId(userId)
-                    .setFirstName(editInfo.getFirstname())
-                    .setMiddleName(editInfo.getMiddlename())
-                    .setLastName(editInfo.getLastname())
-                    .setNickname(editInfo.getNickname())
+                    .setFirstName(firstname)
+                    .setMiddleName(middlename)
+                    .setLastName(lastname)
+                    .setNickname(nickname)
                     .setBio(editInfo.getBio())
                     .setPersonalPronouns(editInfo.getPersonalPronouns())
                     .setEmail(editInfo.getEmail());
@@ -340,12 +349,6 @@ public class AccountController {
     }
 
 
-
-
-
-
-
-
     /**
      * Takes a UserRequest object populated from a registration form and returns a UserRegisterRequest to send to the server
      *
@@ -353,25 +356,25 @@ public class AccountController {
      * @return userRegisterRequest - a populated userRegisterRequest from the user_accounts.proto format
      */
     private UserRegisterRequest createUserRegisterRequest(UserRequest userRequest) {
+        // Used to trim off leading and training spaces
+        String firstname = userRequest.getFirstname().trim();
+        String middlename = userRequest.getMiddlename().trim();
+        String lastname = userRequest.getLastname().trim();
+        String nickname = userRequest.getNickname().trim();
+
         logger.info("Creating user register request from UserRequest");
         UserRegisterRequest.Builder userRegisterRequest = UserRegisterRequest.newBuilder();
         userRegisterRequest.setUsername(userRequest.getUsername())
                 .setPassword(userRequest.getPassword())
-                .setFirstName(userRequest.getFirstname())
-                .setMiddleName(userRequest.getMiddlename())
-                .setLastName(userRequest.getLastname())
+                .setFirstName(firstname)
+                .setMiddleName(middlename)
+                .setLastName(lastname)
                 .setEmail(userRequest.getEmail())
                 .setBio(userRequest.getBio())
                 .setPersonalPronouns(userRequest.getPersonalPronouns())
-                .setNickname(userRequest.getNickname());
+                .setNickname(nickname);
         return userRegisterRequest.build();
     }
-
-    public void setUserAccountsClientService(UserAccountsClientService service) {
-        this.userAccountsClientService = service;
-    }
-
-
 
 
     @DeleteMapping("/deleteProfileImg")

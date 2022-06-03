@@ -24,6 +24,7 @@ $(document).ready(() => {
             editUserButton.text("Cancel")
         } else {
             editUserButton.text("Edit Account")
+            location.href = "account" // On success reloads page
         }
 
     })
