@@ -1,24 +1,17 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
-import io.cucumber.java.Before;
+import nz.ac.canterbury.seng302.identityprovider.TestData.TestGroupData;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
-import nz.ac.canterbury.seng302.identityprovider.service.UrlService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.*;
-
-import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 class GroupTest {
@@ -29,13 +22,10 @@ class GroupTest {
     @Mock
     private UserRepository repository;
 
-
-
     @InjectMocks
-    private IdentityProviderApplication identityProviderApplication = Mockito.spy(IdentityProviderApplication.class);
+    private TestGroupData testGroupData = Mockito.spy(TestGroupData.class);
 
-
-    private List<User> userList = new ArrayList<>();
+    private final List<User> userList = new ArrayList<>();
 
 
     @BeforeEach
@@ -115,7 +105,6 @@ class GroupTest {
         userList.add(test3);
         userList.add(test4);
         userList.add(test5);
-
     }
 
 
@@ -123,7 +112,7 @@ class GroupTest {
     void TestAddDefaultGroups() {
         Mockito.when(repository.findAll()).thenReturn(userList);
         ArgumentCaptor<Group> groupArgumentCaptor = ArgumentCaptor.forClass(Group.class);
-        identityProviderApplication.addDefaultGroups();
+        testGroupData.addDefaultGroups();
         Mockito.verify(groupRepository, Mockito.atLeast(2)).save(groupArgumentCaptor.capture());
         List<Group> groups = groupArgumentCaptor.getAllValues();
         Group teachingGroup = groups.get(0);
@@ -132,9 +121,5 @@ class GroupTest {
         Assertions.assertEquals(3, teachingGroup.getMembersNumber());
         Assertions.assertEquals("Non-Group", nonMemberGroup.getShortName());
         Assertions.assertEquals(2, nonMemberGroup.getMembersNumber());
-
-
     }
-
-
 }
