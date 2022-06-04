@@ -1,12 +1,9 @@
 package nz.ac.canterbury.seng302.identityprovider.groups;
 
 import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.service.UserHelperService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 
 import javax.persistence.*;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +25,7 @@ public class Group {
     @JoinTable(name = "group_members",
             joinColumns = @JoinColumn(name = "groupId"),
             inverseJoinColumns = @JoinColumn(name = "userId"))
-    private List<User> userList = new ArrayList<>();
+    private final List<User> userList = new ArrayList<>();
 
     /**
     * The group's short name.
@@ -108,7 +105,8 @@ public class Group {
 
     /**
      * Removes users from a group
-     * @param users a list of the users to be removed
+     *
+     * @param users the users to be removed
      */
     public void removeGroupMembers(List<User> users) {
         for (User user : users)  {
@@ -119,7 +117,8 @@ public class Group {
 
     /**
      * Adds a user to the group object if the user is not already present
-     * @param users A list of the users to be added
+     *
+     * @param users The users to be added
      */
     public void addGroupMembers(List<User> users) {
         for (User user : users) {
@@ -142,7 +141,6 @@ public class Group {
                 .setGroupId(this.getId());
         List<User> groupMembers = this.getUserList();
         for (User user : groupMembers) {
-            //For each group member ID that the group has, we want to create a UserResponse.
             response.addMembers(user.userResponse());
         }
 
