@@ -4,11 +4,10 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
-import nz.ac.canterbury.seng302.shared.identityprovider.*;
-import org.junit.jupiter.api.Assertions;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -47,7 +46,7 @@ class UserAccountsServerServiceTest {
     @BeforeEach
     void setUp() {
         user = new User(
-                "test",
+                "MySuperCoolUsername",
                 "password",
                 "test",
                 "test",
@@ -106,32 +105,21 @@ class UserAccountsServerServiceTest {
                 .setUserId(-1)
                 .build();
 
-        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
 
-            boolean successful;
-            String message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserRoleChangeResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        service.removeRoleFromUser(request, responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRoleChangeResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertFalse(successful);
-                assertEquals("Could not find user", message);
-                User innerUser = repository.findById(user.getId());
-                assertTrue(innerUser.getRoles().contains(UserRole.TEACHER));
-            }
-        };
-
-        service.removeRoleFromUser(request, observer);
+        assertFalse(response.getIsSuccess());
+        assertEquals("Could not find user", response.getMessage());
+        User updatedUser = repository.findById(user.getId());
+        assertTrue(updatedUser.getRoles().contains(UserRole.TEACHER));
     }
 
 
@@ -148,32 +136,21 @@ class UserAccountsServerServiceTest {
                 .setUserId(user.getId())
                 .build();
 
-        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
 
-            boolean successful;
-            String message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserRoleChangeResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        service.removeRoleFromUser(request, responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRoleChangeResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertFalse(successful);
-                assertEquals("The user can't have zero roles", message);
-                User innerUser = repository.findById(user.getId());
-                assertTrue(innerUser.getRoles().contains(UserRole.STUDENT));
-            }
-        };
-
-        service.removeRoleFromUser(request, observer);
+        assertFalse(response.getIsSuccess());
+        assertEquals("The user can't have zero roles", response.getMessage());
+        User updatedUser = repository.findById(user.getId());
+        assertTrue(updatedUser.getRoles().contains(UserRole.STUDENT));
     }
 
 
@@ -192,32 +169,19 @@ class UserAccountsServerServiceTest {
                 .setPersonalPronouns(user.getPronouns())
                 .setNickname(user.getNickname());
 
-        StreamObserver<UserRegisterResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserRegisterResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRegisterResponse> responseCaptor = ArgumentCaptor.forClass(UserRegisterResponse.class);
 
-            boolean successful;
-            int userId;
-            String message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserRegisterResponse value) {
-                successful = value.getIsSuccess();
-                userId = value.getNewUserId();
-                message = value.getMessage();
-            }
+        service.register(request.build(), responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRegisterResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertTrue(successful);
-                assertTrue(repository.existsById(userId));
-            }
-        };
-
-        service.register(request.build(), observer);
+        assertTrue(response.getIsSuccess());
+        assertTrue(repository.existsById(response.getNewUserId()));
     }
 
 
@@ -237,33 +201,20 @@ class UserAccountsServerServiceTest {
                 .setPersonalPronouns(user.getPronouns())
                 .setNickname(user.getNickname());
 
-        StreamObserver<UserRegisterResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserRegisterResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRegisterResponse> responseCaptor = ArgumentCaptor.forClass(UserRegisterResponse.class);
 
-            boolean successful;
-            int userId;
-            String message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserRegisterResponse value) {
-                successful = value.getIsSuccess();
-                userId = value.getNewUserId();
-                message = value.getMessage();
-            }
+        service.register(request.build(), responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRegisterResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertFalse(successful);
-                assertFalse(repository.existsById(userId));
-                assertEquals("Username already in use", message);
-            }
-        };
-
-        service.register(request.build(), observer);
+        assertFalse(response.getIsSuccess());
+        assertFalse(repository.existsById(response.getNewUserId()));
+        assertEquals("Username already in use", response.getMessage());
     }
 
 
@@ -278,6 +229,7 @@ class UserAccountsServerServiceTest {
         UserResponse.Builder expectedObject = UserResponse.newBuilder();
 
         expectedObject.setUsername(user.getUsername())
+                .setId(user.getId())
                 .setFirstName(user.getFirstName())
                 .setMiddleName(user.getMiddleName())
                 .setLastName(user.getLastName())
@@ -290,27 +242,18 @@ class UserAccountsServerServiceTest {
                 );
         expectedObject.addRoles(UserRole.STUDENT);
 
-        StreamObserver<UserResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserResponse> responseCaptor = ArgumentCaptor.forClass(UserResponse.class);
 
-            UserResponse response;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserResponse value) {
-                response = value;
-            }
+        service.getUserAccountById(request.build(), responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertEquals(expectedObject.build(), response);
-            }
-        };
-
-        service.getUserAccountById(request.build(), observer);
+        assertEquals(expectedObject.build(), response);
     }
 
 
@@ -330,30 +273,19 @@ class UserAccountsServerServiceTest {
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail());
 
-        StreamObserver<EditUserResponse> observer = new StreamObserver<>() {
+        StreamObserver<EditUserResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<EditUserResponse> responseCaptor = ArgumentCaptor.forClass(EditUserResponse.class);
 
-            boolean successful;
-            String message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(EditUserResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        service.editUser(request.build(), responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        EditUserResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertTrue(successful);
-                assertEquals("Johnny", repository.findById(user.getId()).getFirstName());
-            }
-        };
-
-        service.editUser(request.build(), observer);
+        assertTrue(response.getIsSuccess());
+        assertEquals("Johnny", repository.findById(user.getId()).getFirstName());
     }
 
 
@@ -372,31 +304,20 @@ class UserAccountsServerServiceTest {
                 .setPersonalPronouns(user.getPronouns())
                 .setEmail(user.getEmail());
 
-        StreamObserver<EditUserResponse> observer = new StreamObserver<>() {
+        StreamObserver<EditUserResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<EditUserResponse> responseCaptor = ArgumentCaptor.forClass(EditUserResponse.class);
 
-            boolean successful;
-            String message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(EditUserResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        service.editUser(request.build(), responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        EditUserResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertFalse(successful);
-                assertEquals("Could not find user to edit", message);
-                assertEquals(user.getFirstName(), repository.findById(user.getId()).getFirstName());
-            }
-        };
-
-        service.editUser(request.build(), observer);
+        assertFalse(response.getIsSuccess());
+        assertEquals("Could not find user to edit", response.getMessage());
+        assertEquals(user.getFirstName(), repository.findById(user.getId()).getFirstName());
     }
 
 
@@ -414,30 +335,19 @@ class UserAccountsServerServiceTest {
         LoginService encryptor = new LoginService();
         String expectedPassword = encryptor.getHash(request.getNewPassword(), salt);
 
+        StreamObserver<ChangePasswordResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<ChangePasswordResponse> responseCaptor = ArgumentCaptor.forClass(ChangePasswordResponse.class);
 
-        StreamObserver<ChangePasswordResponse> observer = new StreamObserver<>() {
-            boolean successful;
-            String message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(ChangePasswordResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        service.changeUserPassword(request.build(), responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        ChangePasswordResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertTrue(successful);
-                assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
-            }
-        };
-
-        service.changeUserPassword(request.build(), observer);
+        assertTrue(response.getIsSuccess());
+        assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
     }
 
 
@@ -453,30 +363,20 @@ class UserAccountsServerServiceTest {
 
         String expectedPassword = user.getPwhash();
 
-        StreamObserver<ChangePasswordResponse> observer = new StreamObserver<>() {
-            boolean successful;
-            String message;
+        StreamObserver<ChangePasswordResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<ChangePasswordResponse> responseCaptor = ArgumentCaptor.forClass(ChangePasswordResponse.class);
 
-            @Override
-            public void onNext(ChangePasswordResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        service.changeUserPassword(request.build(), responseObserver);
 
-            @Override
-            public void onCompleted() {
-                assertFalse(successful);
-                assertEquals("Incorrect current password provided" , message);
-                assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
-            }
-        };
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        ChangePasswordResponse response = responseCaptor.getValue();
 
-        service.changeUserPassword(request.build(), observer);
+        assertFalse(response.getIsSuccess());
+        assertEquals("Incorrect current password provided" , response.getMessage());
+        assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
     }
 
 
@@ -492,30 +392,20 @@ class UserAccountsServerServiceTest {
 
         String expectedPassword = user.getPwhash();
 
-        StreamObserver<ChangePasswordResponse> observer = new StreamObserver<>() {
-            boolean successful;
-            String message;
+        StreamObserver<ChangePasswordResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<ChangePasswordResponse> responseCaptor = ArgumentCaptor.forClass(ChangePasswordResponse.class);
 
-            @Override
-            public void onNext(ChangePasswordResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        service.changeUserPassword(request.build(), responseObserver);
 
-            @Override
-            public void onCompleted() {
-                assertFalse(successful);
-                assertEquals("Could not find user" , message);
-                assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
-            }
-        };
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        ChangePasswordResponse response = responseCaptor.getValue();
 
-        service.changeUserPassword(request.build(), observer);
+        assertFalse(response.getIsSuccess());
+        assertEquals("Could not find user" , response.getMessage());
+        assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
     }
 
 
@@ -529,31 +419,20 @@ class UserAccountsServerServiceTest {
                 .setUserId(user.getId())
                 .build();
 
-        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
 
-            boolean successful;
-            String message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserRoleChangeResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        service.addRoleToUser(request, responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRoleChangeResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertTrue(successful);
-                User innerUser = repository.findById(user.getId());
-                assertTrue(innerUser.getRoles().contains(UserRole.TEACHER));
-            }
-        };
-
-        service.addRoleToUser(request, observer);
+        assertTrue(response.getIsSuccess());
+        User updatedUser = repository.findById(user.getId());
+        assertTrue(updatedUser.getRoles().contains(UserRole.TEACHER));
     }
 
 
@@ -567,32 +446,21 @@ class UserAccountsServerServiceTest {
                 .setUserId(-1)
                 .build();
 
-        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
 
-            boolean successful;
-            String message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserRoleChangeResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        service.addRoleToUser(request, responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRoleChangeResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertFalse(successful);
-                assertEquals("Could not find user", message);
-                User innerUser = repository.findById(user.getId());
-                assertFalse(innerUser.getRoles().contains(UserRole.TEACHER));
-            }
-        };
-
-        service.addRoleToUser(request, observer);
+        assertFalse(response.getIsSuccess());
+        User updatedUser = repository.findById(user.getId());
+        assertFalse(updatedUser.getRoles().contains(UserRole.TEACHER));
+        assertEquals("Could not find user", response.getMessage());
     }
 
 
@@ -607,30 +475,19 @@ class UserAccountsServerServiceTest {
                 .setUserId(user.getId())
                 .build();
 
-        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
 
-            boolean successful;
-            String message;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserRoleChangeResponse value) {
-                successful = value.getIsSuccess();
-                message = value.getMessage();
-            }
+        service.addRoleToUser(request, responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRoleChangeResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertFalse(successful);
-                assertEquals("User already has that role", message);
-            }
-        };
-
-        service.addRoleToUser(request, observer);
+        assertFalse(response.getIsSuccess());
+        assertEquals("User already has that role", response.getMessage());
     }
 
 
@@ -649,28 +506,18 @@ class UserAccountsServerServiceTest {
                 .setUserId(user.getId())
                 .build();
 
-        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
 
-            boolean successful;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserRoleChangeResponse value) {
-                successful = value.getIsSuccess();
-            }
+        service.addRoleToUser(request, responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRoleChangeResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertTrue(successful);
-            }
-        };
-
-        service.addRoleToUser(request, observer);
-
+        assertTrue(response.getIsSuccess());
         Optional<Group> group = groupRepository.findByShortName("Teachers");
         List<User> usersInTeachersGroup = null;
         if (group.isPresent()) {
@@ -687,7 +534,7 @@ class UserAccountsServerServiceTest {
     void removeTeacherRoleIsRemovedFromTeacherGroup() {
 
         User newUser = new User(
-                "steve",
+                "testuser",
                 "password",
                 "steve",
                 "steve",
@@ -701,43 +548,33 @@ class UserAccountsServerServiceTest {
         groupRepository.deleteAll();
         repository.deleteAll();
         newUser.addRole(UserRole.TEACHER);
-        repository.save(newUser);
+        User newSavedUser = repository.save(newUser);
+        System.out.println(newSavedUser);
         Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
 
         List<User> usersToAdd = new ArrayList<>();
-        usersToAdd.add(newUser);
+        usersToAdd.add(newSavedUser);
         teachingGroup.addGroupMembers(usersToAdd);
 
         groupRepository.save(teachingGroup);
 
-
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(newUser.getId())
+                .setUserId(newSavedUser.getId())
                 .build();
 
-        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+        StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
 
-            boolean successful;
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
 
-            @Override
-            public void onNext(UserRoleChangeResponse value) {
-                successful = value.getIsSuccess();
-            }
+        service.removeRoleFromUser(request, responseObserver);
 
-            @Override
-            public void onError(Throwable t) {
-                fail(t.getMessage());
-            }
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRoleChangeResponse response = responseCaptor.getValue();
 
-            @Override
-            public void onCompleted() {
-                assertTrue(successful);
-            }
-        };
-
-        service.removeRoleFromUser(request, observer);
-
+        assertTrue(response.getIsSuccess());
         Optional<Group> group = groupRepository.findByShortName("Teachers");
         List<User> usersInTeachersGroup = null;
         if (group.isPresent()) {
@@ -745,6 +582,6 @@ class UserAccountsServerServiceTest {
         } else {
             fail("Teachers group not found");
         }
-        assertFalse(usersInTeachersGroup.contains(newUser));
+        assertFalse(usersInTeachersGroup.contains(newSavedUser));
     }
 }
