@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -315,7 +314,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                                 request.getRole(), userToUpdate.getId()));
             } else {
                 response.setIsSuccess(false)
-                        .setMessage("User does not have that role to remove");
+                        .setMessage("User already has that role");
             }
         } else {
             response.setIsSuccess(false)

@@ -4,20 +4,23 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class UserAccountsServerServiceTest {
-
-    @Autowired
-    UserAccountsServerService service;
 
     @Autowired
     UserRepository repository;
@@ -27,6 +30,12 @@ class UserAccountsServerServiceTest {
 
     @Autowired
     private UrlService urlService;
+
+//    @InjectMocks
+//    private GroupService groupService;
+
+    @Autowired
+    UserAccountsServerService service;
 
     User user;
 
@@ -126,6 +135,48 @@ class UserAccountsServerServiceTest {
                 assertEquals("Could not find user", message);
                 User innerUser = repository.findById(user.getId());
                 assertTrue(innerUser.getRoles().contains(UserRole.TEACHER));
+            }
+        };
+
+        service.removeRoleFromUser(request, observer);
+    }
+
+
+    @Test
+    void removeExistingRoleFromUserOnlyHasOneRole() {
+        //Add some roles to the user
+        user.addRole(UserRole.STUDENT);
+
+        repository.deleteAll();
+        repository.save(user);
+
+        ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
+                .setRole(UserRole.STUDENT)
+                .setUserId(user.getId())
+                .build();
+
+        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+
+            boolean successful;
+            String message;
+
+            @Override
+            public void onNext(UserRoleChangeResponse value) {
+                successful = value.getIsSuccess();
+                message = value.getMessage();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                fail(t.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+                assertFalse(successful);
+                assertEquals("The user can't have zero roles", message);
+                User innerUser = repository.findById(user.getId());
+                assertTrue(innerUser.getRoles().contains(UserRole.STUDENT));
             }
         };
 
@@ -548,6 +599,159 @@ class UserAccountsServerServiceTest {
             }
         };
 
+        service.addRoleToUser(request, observer);
+    }
+
+
+    @Test
+    void addRoleToUserAlreadyHasThatRole() {
+        repository.deleteAll();
+        user.addRole(UserRole.TEACHER);
+        repository.save(user);
+
+        ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
+                .setRole(UserRole.TEACHER)
+                .setUserId(user.getId())
+                .build();
+
+        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+
+            boolean successful;
+            String message;
+
+            @Override
+            public void onNext(UserRoleChangeResponse value) {
+                successful = value.getIsSuccess();
+                message = value.getMessage();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                fail(t.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+                assertFalse(successful);
+                assertEquals("User already has that role", message);
+            }
+        };
+
+        service.addRoleToUser(request, observer);
+    }
+
+
+    @Test
+    @Transactional
+    void addTeacherRoleIsAddedToTeacherGroup() {
+        //clear and repopulate repositories
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
+        groupRepository.save(teachingGroup);
+        repository.save(user);
+
+        ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
+                .setRole(UserRole.TEACHER)
+                .setUserId(user.getId())
+                .build();
+
+        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+
+            boolean successful;
+
+            @Override
+            public void onNext(UserRoleChangeResponse value) {
+                successful = value.getIsSuccess();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                fail(t.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+                assertTrue(successful);
+            }
+        };
+
+        service.addRoleToUser(request, observer);
+
+        Optional<Group> group = groupRepository.findByShortName("Teachers");
+        List<User> usersInTeachersGroup = null;
+        if (group.isPresent()) {
+            usersInTeachersGroup = group.get().getUserList();
+        } else {
+            fail("Teachers group not found");
+        }
+        assertTrue(usersInTeachersGroup.contains(user));
+    }
+
+
+    @Test
+    @Transactional
+    void removeTeacherRoleIsRemovedFromTeacherGroup() {
+
+        User newUser = new User(
+                "steve",
+                "password",
+                "steve",
+                "steve",
+                "steve",
+                "steve",
+                "steve",
+                "steve/steve",
+                "steve@example.com",
+                TimeService.getTimeStamp());
+        //clear and repopulate repositories
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        newUser.addRole(UserRole.TEACHER);
+        repository.save(newUser);
+        Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
+
+        List<User> usersToAdd = new ArrayList<>();
+        usersToAdd.add(newUser);
+        teachingGroup.addGroupMembers(usersToAdd);
+
+        groupRepository.save(teachingGroup);
+
+
+        ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
+                .setRole(UserRole.TEACHER)
+                .setUserId(newUser.getId())
+                .build();
+
+        StreamObserver<UserRoleChangeResponse> observer = new StreamObserver<>() {
+
+            boolean successful;
+
+            @Override
+            public void onNext(UserRoleChangeResponse value) {
+                successful = value.getIsSuccess();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                fail(t.getMessage());
+            }
+
+            @Override
+            public void onCompleted() {
+                assertTrue(successful);
+            }
+        };
+
         service.removeRoleFromUser(request, observer);
+
+        Optional<Group> group = groupRepository.findByShortName("Teachers");
+        List<User> usersInTeachersGroup = null;
+        if (group.isPresent()) {
+            usersInTeachersGroup = group.get().getUserList();
+        } else {
+            fail("Teachers group not found");
+        }
+        assertFalse(usersInTeachersGroup.contains(newUser));
     }
 }
