@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,11 +52,11 @@ public class IdentityProviderApplication {
      */
     @EventListener(ApplicationReadyEvent.class)
     public void setup() {
-        addDefaultGroups();
         if (includeAdminAccount)
             addAdminAccount();
         if (includeTestData)
             addTestUsers();
+        addDefaultGroups();
     }
 
 
@@ -82,19 +81,13 @@ public class IdentityProviderApplication {
         Group nonGroupGroup = new Group(1, "Non-Group", "Members Without A Group");
 
         List<User> everyUserList = (List<User>) repository.findAll();
-        List<User> teachers = new ArrayList<>();
-        List<User> nonGroupUsers = new ArrayList<>();
         for (User user: everyUserList) {
             if (user.getRoles().contains(UserRole.TEACHER)) {
-                teachers.add(user);
+                teachingGroup.addGroupMember(user);
             } else {
-                nonGroupUsers.add(user);
+                nonGroupGroup.addGroupMember(user);
             }
         }
-
-        teachingGroup.addGroupMembers(teachers);
-        nonGroupGroup.addGroupMembers(nonGroupUsers);
-
 
         groupRepository.save(teachingGroup);
         groupRepository.save(nonGroupGroup);
@@ -121,6 +114,7 @@ public class IdentityProviderApplication {
                 TimeService.getTimeStamp()
         );
         admin.addRole(UserRole.COURSE_ADMINISTRATOR);
+        admin.addRole(UserRole.TEACHER);
         repository.save(admin);
     }
 

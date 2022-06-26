@@ -39,6 +39,8 @@ class UserAccountsServerServiceTest {
 
     User user;
 
+    List<Group> defaultGroups = new ArrayList<>();
+
     @GrpcClient(value = "identity-provider-grpc-server")
     private UserAccountServiceGrpc.UserAccountServiceBlockingStub userAccountStub;
 
@@ -56,6 +58,12 @@ class UserAccountsServerServiceTest {
                 "test/test",
                 "test@example.com",
                 TimeService.getTimeStamp());
+
+        Group teacherGroup = new Group(1, "Teachers", "Teaching staff group");
+        Group MwagGroup = new Group(2, "Non-Group", "Members Without A Group");
+
+        defaultGroups.add(teacherGroup);
+        defaultGroups.add(MwagGroup);
     }
 
 
@@ -64,6 +72,9 @@ class UserAccountsServerServiceTest {
         //Add some roles to the user
         user.addRole(UserRole.STUDENT);
         user.addRole(UserRole.TEACHER);
+
+        groupRepository.deleteAll();
+        groupRepository.saveAll(defaultGroups);
 
         repository.deleteAll();
         repository.save(user);
@@ -97,6 +108,7 @@ class UserAccountsServerServiceTest {
         user.addRole(UserRole.STUDENT);
         user.addRole(UserRole.TEACHER);
 
+        groupRepository.deleteAll();
         repository.deleteAll();
         repository.save(user);
 
@@ -128,6 +140,7 @@ class UserAccountsServerServiceTest {
         //Add some roles to the user
         user.addRole(UserRole.STUDENT);
 
+        groupRepository.deleteAll();
         repository.deleteAll();
         repository.save(user);
 
@@ -157,6 +170,7 @@ class UserAccountsServerServiceTest {
     @Test
     void registerNewUser() {
         groupRepository.deleteAll();
+        groupRepository.saveAll(defaultGroups);
         repository.deleteAll();
         UserRegisterRequest.Builder request = UserRegisterRequest.newBuilder();
         request.setUsername(user.getUsername())
@@ -187,6 +201,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     void registerNewUserUsernameInUse() {
+        groupRepository.deleteAll();
         repository.deleteAll();
         repository.save(user);
 
@@ -220,6 +235,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     void getUserAccountById() {
+        groupRepository.deleteAll();
         repository.deleteAll();
         repository.save(user);
 
@@ -291,6 +307,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     void editUserNoUserOfThatId() {
+        groupRepository.deleteAll();
         repository.deleteAll();
         repository.save(user);
 
@@ -323,6 +340,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     void changeUserPassword() {
+        groupRepository.deleteAll();
         repository.deleteAll();
         repository.save(user);
 
@@ -353,6 +371,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     void changeUserPasswordIncorrectCurrentPassword() {
+        groupRepository.deleteAll();
         repository.deleteAll();
         repository.save(user);
 
@@ -382,6 +401,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     void changeUserPasswordNoUserOfThatId() {
+        groupRepository.deleteAll();
         repository.deleteAll();
         repository.save(user);
 
@@ -411,6 +431,8 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUser() {
+        groupRepository.deleteAll();
+        groupRepository.saveAll(defaultGroups);
         repository.deleteAll();
         repository.save(user);
 
@@ -438,6 +460,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUserNoUserOfThatId() {
+        groupRepository.deleteAll();
         repository.deleteAll();
         repository.save(user);
 
@@ -466,6 +489,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUserAlreadyHasThatRole() {
+        groupRepository.deleteAll();
         repository.deleteAll();
         user.addRole(UserRole.TEACHER);
         repository.save(user);
@@ -494,16 +518,30 @@ class UserAccountsServerServiceTest {
     @Test
     @Transactional
     void addTeacherRoleIsAddedToTeacherGroup() {
+        User newUser = new User(
+                "testuser",
+                "password",
+                "steve",
+                "steve",
+                "steve",
+                "steve",
+                "steve",
+                "steve/steve",
+                "steve@example.com",
+                TimeService.getTimeStamp());
         //clear and repopulate repositories
         groupRepository.deleteAll();
         repository.deleteAll();
-        Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
+        User newSavedUser = repository.save(newUser);
+
+        Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
         groupRepository.save(teachingGroup);
-        repository.save(user);
+        Group MwagGroup = new Group(2, "Non-Group", "Members without a group");
+        groupRepository.save(MwagGroup);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(user.getId())
+                .setUserId(newSavedUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -525,7 +563,7 @@ class UserAccountsServerServiceTest {
         } else {
             fail("Teachers group not found");
         }
-        assertTrue(usersInTeachersGroup.contains(user));
+        assertTrue(usersInTeachersGroup.contains(newSavedUser));
     }
 
 
@@ -549,14 +587,13 @@ class UserAccountsServerServiceTest {
         repository.deleteAll();
         newUser.addRole(UserRole.TEACHER);
         User newSavedUser = repository.save(newUser);
-        System.out.println(newSavedUser);
+
         Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
-
-        List<User> usersToAdd = new ArrayList<>();
-        usersToAdd.add(newSavedUser);
-        teachingGroup.addGroupMembers(usersToAdd);
-
+        teachingGroup.addGroupMember(newSavedUser);
         groupRepository.save(teachingGroup);
+
+        Group MwagGroup = new Group(2, "Non-Group", "Members without a group");
+        groupRepository.save(MwagGroup);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
@@ -583,5 +620,44 @@ class UserAccountsServerServiceTest {
             fail("Teachers group not found");
         }
         assertFalse(usersInTeachersGroup.contains(newSavedUser));
+    }
+
+    @Test
+    @Transactional
+    void registerNewUserAddedToMwag() {
+        groupRepository.deleteAll();
+        groupRepository.saveAll(defaultGroups);
+        repository.deleteAll();
+        UserRegisterRequest.Builder request = UserRegisterRequest.newBuilder();
+        request.setUsername(user.getUsername())
+                .setPassword(user.getPwhash())
+                .setFirstName(user.getFirstName())
+                .setMiddleName(user.getMiddleName())
+                .setLastName(user.getLastName())
+                .setEmail(user.getEmail())
+                .setBio(user.getBio())
+                .setPersonalPronouns(user.getPronouns())
+                .setNickname(user.getNickname());
+
+        StreamObserver<UserRegisterResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<UserRegisterResponse> responseCaptor = ArgumentCaptor.forClass(UserRegisterResponse.class);
+
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+
+        service.register(request.build(), responseObserver);
+
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        UserRegisterResponse response = responseCaptor.getValue();
+
+        assertTrue(response.getIsSuccess());
+        Optional<Group> group = groupRepository.findByShortName("Non-Group");
+        List<User> usersInMwagGroup = null;
+        if (group.isPresent()) {
+            usersInMwagGroup = group.get().getUserList();
+        } else {
+            fail("Members Without A Group not found");
+        }
+        assertTrue(usersInMwagGroup.contains(user));
     }
 }

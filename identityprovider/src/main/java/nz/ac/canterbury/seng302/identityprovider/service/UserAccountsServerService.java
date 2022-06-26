@@ -124,6 +124,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             if (repository.findByUsername(user.getUsername()) == null) {
                 logger.info("Registration Success - for new user " + request.getUsername());
                 repository.save(user);
+                addUserToGroup(user, "Non-Group");
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())
                         .setMessage("Account has successfully been registered");
@@ -138,6 +139,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             reply.setMessage("An error occurred registering user from request");
             logger.error("An error occurred registering user from request: " + request + "\n see stack trace below \n");
             logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.info("An unexpected error occurred when trying to add the new user:\n" + e.getMessage());
+            reply.setIsSuccess(false)
+                    .setMessage("An Unexpected error occurred");
         }
 
         responseObserver.onNext(reply.build());
@@ -162,6 +167,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         EditUserResponse.Builder response = EditUserResponse.newBuilder();
         // Try to find user by ID
         User userToEdit = repository.findById(request.getUserId());
+
         if (userToEdit != null) {
             try {
                 logger.info("User Edit Success - updated user details for user " + request.getUserId());
@@ -303,18 +309,24 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
         User userToUpdate = repository.findById(request.getUserId());
         if (userToUpdate != null) {
-            if (!userToUpdate.getRoles().contains(request.getRole())) {
-                userToUpdate.addRole(request.getRole());
-                repository.save(userToUpdate);
-                if (request.getRole() == UserRole.TEACHER){
-                    addNewTeacherToGroup(userToUpdate);
+            try {
+                if (!userToUpdate.getRoles().contains(request.getRole())) {
+                    userToUpdate.addRole(request.getRole());
+                    repository.save(userToUpdate);
+                    if (request.getRole() == UserRole.TEACHER) {
+                        addUserToGroup(userToUpdate, "Teachers");
+                    }
+                    response.setIsSuccess(true)
+                            .setMessage(MessageFormat.format("Successfully added role {0} to user {1}",
+                                    request.getRole(), userToUpdate.getId()));
+                } else {
+                    response.setIsSuccess(false)
+                            .setMessage("User already has that role");
                 }
-                response.setIsSuccess(true)
-                        .setMessage(MessageFormat.format("Successfully added role {0} to user {1}",
-                                request.getRole(), userToUpdate.getId()));
-            } else {
+            } catch (Exception e){
+                logger.info("An unexpected error occurred when trying to add a role to user:\n" + e.getMessage());
                 response.setIsSuccess(false)
-                        .setMessage("User already has that role");
+                        .setMessage("An Unexpected error occurred");
             }
         } else {
             response.setIsSuccess(false)
@@ -352,8 +364,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 repository.save(userToUpdate);
                 logger.info("Role Removal Success - removed " + request.getRole()
                         + " from user " + request.getUserId());
-                if (request.getRole() == UserRole.TEACHER){
-                    removeUserFromTeacherGroup(userToUpdate);
+                if (request.getRole().equals(UserRole.TEACHER)){
+                    removeUserFromTeacherGroup(userToUpdate, "Teachers");
                 }
                 response.setIsSuccess(true)
                         .setMessage(MessageFormat.format("Successfully removed role {0} from user {1}",
@@ -364,6 +376,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                         + " has 1 role. Users cannot have 0 roles");
                 response.setIsSuccess(false)
                         .setMessage("The user can't have zero roles");
+            } catch (Exception e) {
+                logger.info(e.getMessage());
+                response.setIsSuccess(false)
+                        .setMessage("An Unexpected error occurred");
             }
         } else {
             //Here, we couldn't find the user, so we do not succeed.
@@ -422,31 +438,33 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
 
     /**
-     * Used to automatically add a user to the teacher group. This occurs when a users roles is changed to include the
-     * teacher role
+     * Used to automatically add a user to the provided group. This occurs when a users roles is changed to include the
+     * teacher role or when a new user is created, and they need to be added to the "No Groups" group
      *
-     * @param user The user to be added to the teacher group
+     * @param user The user to be added to the group
+     * @param groupShortName The shortname of the group to add the user too
      */
-    private void addNewTeacherToGroup(User user) {
+    private void addUserToGroup(User user, String groupShortName) throws Exception {
         List<Integer> userIds = new ArrayList<>();
         userIds.add(user.getId());
 
-        Integer groupId = groupService.getTeacherGroupId();
+        Integer groupId = groupService.getGroupIdByShortName(groupShortName);
         groupService.addGroupMembers(groupId, userIds);
     }
 
 
     /**
-     * Used to automatically remove a user from the teacher group. This occurs when a users roles is changed to no
+     * Used to automatically remove a user from the group. This occurs when a users roles is changed to no
      * longer have the teacher role
      *
-     * @param user The user to be removed from the teacher group
+     * @param user The user to be removed from the provided group
+     * @param groupShortName The shortname of the group to remove the user from
      */
-    private void removeUserFromTeacherGroup(User user) {
+    private void removeUserFromTeacherGroup(User user, String groupShortName) throws Exception {
         List<Integer> userIds = new ArrayList<>();
         userIds.add(user.getId());
 
-        Integer groupId = groupService.getTeacherGroupId();
+        Integer groupId = groupService.getGroupIdByShortName(groupShortName);
         groupService.removeGroupMembers(groupId, userIds);
     }
 }
