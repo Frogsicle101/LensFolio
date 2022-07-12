@@ -15,6 +15,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -311,17 +312,19 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     addNewTeacherToGroup(userToUpdate);
                 }
                 response.setIsSuccess(true)
-                        .setMessage(true);
+                        .setMessage(MessageFormat.format("Successfully added role {0} to user {1}",
+                                request.getRole(), userToUpdate.getId()));
             } else {
                 response.setIsSuccess(false)
-                        .setMessage(false);
+                        .setMessage("User already has that role");
             }
         } else {
             response.setIsSuccess(false)
-                    .setMessage(false);
+                    .setMessage("Could not find user");
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
+
     }
 
 
@@ -356,22 +359,25 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     removeUserFromTeacherGroup(userToUpdate);
                 }
                 response.setIsSuccess(true)
-                        .setMessage(true);
+                        .setMessage(MessageFormat.format("Successfully removed role {0} from user {1}",
+                                request.getRole(), userToUpdate.getId()));
             } catch (IllegalStateException e) {
                 //The user has only one role - we can't delete it!
                 logger.info("Role Removal Failure - user " + request.getUserId()
                         + " has 1 role. Users cannot have 0 roles");
                 response.setIsSuccess(false)
-                        .setMessage(false);
+                        .setMessage("The user can't have zero roles");
             }
         } else {
             //Here, we couldn't find the user, so we do not succeed.
             logger.info("Role Removal Failure - could not find user " + request.getUserId());
             response.setIsSuccess(false)
-                    .setMessage(false);
+                    .setMessage("Could not find user");
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
+
+
     }
 
 
