@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The controller for managing requests to edit groups and their user's memberships.
@@ -88,14 +91,19 @@ public class GroupsController {
 
 
     @GetMapping("/group")
-    public ResponseEntity<GroupDetailsResponse> getGroup(@AuthenticationPrincipal AuthState principal,
-                                                         @RequestParam Integer groupId) {
+    public ResponseEntity<Object> getGroup(@AuthenticationPrincipal AuthState principal,
+                                   @RequestParam Integer groupId) {
         logger.info("GET REQUEST /group - attempt to get group {}", groupId);
         try {
             GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)
                     .build();
             GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
+            return new ResponseEntity<>(new GroupDTO(response), HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.error("ERROR /groups - an error occurred while retrieving group {}", groupId);
+            logger.error(exception.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 

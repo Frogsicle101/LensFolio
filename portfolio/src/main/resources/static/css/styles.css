@@ -631,7 +631,7 @@ section {
     color: grey;
 }
 
-.membersContainer {
+#groupInformationContainer {
     position: relative;
     width: 45rem;
     padding: 2rem;

@@ -77,6 +77,19 @@ public class GroupsClientService {
         return groupsStub.modifyGroupDetails(request);
     }
 
+
+    /**
+     * Sends a request to the GroupsServerService to get a specific group by their group ID
+     *
+     * @param request the GetGroupDetailsRequest passed through from the controller, with the groupId
+     * @return response - a GroupDetailsResponse, a response with the given groups details
+     */
+    public GroupDetailsResponse getGroupDetails(GetGroupDetailsRequest request) {
+        logger.info("SERVICE - send getGroupDetailsRequest request to server");
+        return groupsStub.getGroupDetails(request);
+    }
+
+
     /**
      * Sends a request to the GroupsServerService to get a specific page for the groups list, through a
      * GetPaginatedGroupsRequest

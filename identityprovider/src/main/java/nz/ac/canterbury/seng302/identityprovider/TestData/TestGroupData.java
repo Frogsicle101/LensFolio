@@ -95,8 +95,12 @@ public class TestGroupData {
         groupFourMembers.add(userRepository.findById(3));
         groupFourMembers.add(userRepository.findById(4));
 
-        groupRepository.getGroupById(3).addGroupMembers(groupThreeMembers);
-        groupRepository.getGroupById(4).addGroupMembers(groupFourMembers);
+        Group group3 = groupRepository.getGroupById(3);
+        group3.addGroupMembers(groupThreeMembers);
+        groupRepository.save(group3);
 
+        Group group4 = groupRepository.getGroupById(4);
+        group4.addGroupMembers(groupFourMembers);
+        groupRepository.save(group4);
     }
 }
