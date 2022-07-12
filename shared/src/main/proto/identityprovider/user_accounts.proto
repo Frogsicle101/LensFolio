@@ -117,7 +117,7 @@ message ModifyRoleOfUserRequest {
 }
 message UserRoleChangeResponse {
    bool IsSuccess = 1;
-   bool Message = 2; // I think this should be a string - SAM
+   string Message = 2;
 }
 
 
