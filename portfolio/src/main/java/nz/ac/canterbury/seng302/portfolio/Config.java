@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio;
 
-import nz.ac.canterbury.seng302.portfolio.service.RemoveNotificationInterceptor;
 import nz.ac.canterbury.seng302.portfolio.service.RoleBasedIntercepter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -22,15 +21,11 @@ public class Config implements WebMvcConfigurer
     public void addInterceptors(InterceptorRegistry registry)
     {
         List<String> pathsToInterceptForRoleBased = new ArrayList<>();
-        List<String> pathsToInterceptForNotificationRemoval = new ArrayList<>();
+
 
         // User Roles
         pathsToInterceptForRoleBased.add("/editUserRole");
 
-        // Events
-        pathsToInterceptForRoleBased.add("/addEvent");
-        pathsToInterceptForRoleBased.add("/deleteEvent");
-        pathsToInterceptForRoleBased.add("/editEvent");
 
         // Portfolio
         pathsToInterceptForRoleBased.add("/editProject");
@@ -39,6 +34,13 @@ public class Config implements WebMvcConfigurer
         pathsToInterceptForRoleBased.add("/sprintEdit");
         pathsToInterceptForRoleBased.add("/sprintSubmit");
         pathsToInterceptForRoleBased.add("/deleteSprint");
+
+
+        // Events
+        pathsToInterceptForRoleBased.add("/addEvent");
+        pathsToInterceptForRoleBased.add("/deleteEvent");
+        pathsToInterceptForRoleBased.add("/editEvent");
+
 
         //Milestone
         pathsToInterceptForRoleBased.add("/editMilestone");
@@ -51,27 +53,6 @@ public class Config implements WebMvcConfigurer
         pathsToInterceptForRoleBased.add("/editDeadline");
         pathsToInterceptForRoleBased.add("/deleteDeadline");
 
-
-
-
-
-
-        pathsToInterceptForNotificationRemoval.add("/account");
-        pathsToInterceptForNotificationRemoval.add("/portfolio");
-        pathsToInterceptForNotificationRemoval.add("/calendar");
-        pathsToInterceptForNotificationRemoval.add("/user-list");
-        pathsToInterceptForNotificationRemoval.add("/editProject");
-        pathsToInterceptForNotificationRemoval.add("/sprintEdit");
-        pathsToInterceptForNotificationRemoval.add("/logout");
-
-
-
-
-
-
-
-
         registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToInterceptForRoleBased);
-        registry.addInterceptor(new RemoveNotificationInterceptor()).addPathPatterns(pathsToInterceptForNotificationRemoval);
     }
 }
