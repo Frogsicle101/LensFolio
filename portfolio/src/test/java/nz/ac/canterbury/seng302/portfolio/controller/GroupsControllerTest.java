@@ -158,6 +158,7 @@ public class GroupsControllerTest {
                 .andExpect(status().isOk());
     }
 
+
     @Test
     void testDeleteGroupInvalid() throws Exception {
         setUserToTeacher();
@@ -177,9 +178,8 @@ public class GroupsControllerTest {
     }
 
 
-
     @Test
-    void addUsersToGroup() throws Exception { //fixMe I fail
+    void addUsersToGroup() throws Exception {
         setUserToTeacher();
         setUpContext();
 
@@ -207,6 +207,7 @@ public class GroupsControllerTest {
                         .params(params))
                 .andExpect(status().isOk());
     }
+
 
     @Test
     void removeUsers() throws Exception {
@@ -267,8 +268,9 @@ public class GroupsControllerTest {
                         .andExpect(status().isBadRequest());
     }
 
+
     @Test
-    void addUserToGroupNotUser() throws Exception { //fIXme succeeding for the wrong reasons
+    void addUserToGroupNotUser() throws Exception {
         setUserToTeacher();
         setUpContext();
         String groupId = "3";
@@ -326,8 +328,8 @@ public class GroupsControllerTest {
     }
 
 
-
     // ------------------------------------- Helpers -----------------------------------------
+
 
     private CreateGroupRequest buildCreateRequest(String shortName, String longName) {
         return CreateGroupRequest.newBuilder()
@@ -347,6 +349,7 @@ public class GroupsControllerTest {
                 .build();
     }
 
+
     private void setUserToTeacher() {
         principal = AuthState.newBuilder()
                 .setIsAuthenticated(true)
@@ -356,6 +359,7 @@ public class GroupsControllerTest {
                 .addClaims(ClaimDTO.newBuilder().setType("role").setValue("course_administrator").build())
                 .build();
     }
+
 
     private void setUpContext() {
         Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal);

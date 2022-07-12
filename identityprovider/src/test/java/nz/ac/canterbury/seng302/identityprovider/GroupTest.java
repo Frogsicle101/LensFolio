@@ -32,7 +32,6 @@ class GroupTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-
         User test1 = new User(
                 "test1",
                 "password",

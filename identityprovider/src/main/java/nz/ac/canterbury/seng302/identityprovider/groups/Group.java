@@ -1,7 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider.groups;
 
 import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.service.UserHelperService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.hibernate.annotations.Fetch;
@@ -29,7 +28,7 @@ public class Group {
     @JoinTable(name = "group_members",
             joinColumns = @JoinColumn(name = "groupId"),
             inverseJoinColumns = @JoinColumn(name = "userId"))
-    private List<User> userList = new ArrayList<>();
+    private final List<User> userList = new ArrayList<>();
 
     /** The group's short name. */
     private String shortName;
@@ -139,7 +138,6 @@ public class Group {
                 .setGroupId(this.getId());
         List<User> groupMembers = this.getUserList();
         for (User user : groupMembers) {
-            //For each group member ID that the group has, we want to create a UserResponse.
             response.addMembers(user.userResponse());
         }
 

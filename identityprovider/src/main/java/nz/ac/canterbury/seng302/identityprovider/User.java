@@ -6,26 +6,20 @@ import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
 import javax.persistence.*;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 /**
  * The object used to store Users in the database
- * <br>
+ *
  * These users have an automatically generated id which is the primary key for users in the database.
  * The attributes contained in this class reflect the attributes that would be passed/used in the user_accounts.proto
  * contract.
- *
- * @author Frederik Markwell
  */
 @Entity
 public class User {
@@ -96,29 +90,6 @@ public class User {
     }
 
 
-    /**
-     * Constructor to explicitly set all properties of the new object. Unlike the other constructor, accepts a value for
-     * pwhash and salt instead of generating them.
-     * @param pwhash The base64 encoded password hash
-     * @param accountCreatedTime the time the account was created
-     * @param salt The salt used to generate the hash
-     */
-    public User(String username, String pwhash, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email, Timestamp accountCreatedTime, String salt) {
-        this.username = username;
-        this.pwhash = pwhash;
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.lastName = lastName;
-        this.nickname = nickname;
-        this.bio = bio;
-        this.pronouns = pronouns;
-        this.email = email;
-        this.accountCreatedTime = accountCreatedTime;
-        this.salt = salt;
-        this.roles.add(UserRole.STUDENT); //To automatically assign a new user as a student, subject to change
-    }
-
-
     @Override
     public String toString() {
         return "User [" + username + " (" + firstName + " " + lastName + ")]";
@@ -181,6 +152,7 @@ public class User {
 
 
     public ArrayList<UserRole> getRoles() { return roles; }
+
 
     public String getRolesCsv() {
         ArrayList<String> rolesStrings = new ArrayList<>();
@@ -256,6 +228,7 @@ public class User {
         }
     }
 
+
     /**
      * Deletes the given role from the user
      * @param role The role you want to delete from the user
@@ -270,9 +243,11 @@ public class User {
         }
     }
 
+
     public String getProfileImagePath() {
         return imagePath;
     }
+
 
     public boolean deleteProfileImage(Environment env) {
         String photoLocation = env.getProperty("photoLocation", "src/main/resources/profile-photos/");
@@ -282,9 +257,11 @@ public class User {
         return image.delete();
     }
 
+
     public void setProfileImagePath(String path) {
         imagePath = path;
     }
+
 
     public UserResponse userResponse() {
         UserResponse.Builder response = UserResponse.newBuilder();
