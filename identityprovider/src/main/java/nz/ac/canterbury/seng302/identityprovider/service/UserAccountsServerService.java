@@ -147,7 +147,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to edit the details of a user.
-     * <br>
+     *
      * This service first attempts to find the user by their id so that they can have their details edited <br>
      *  - If the user can't be found a response message is set to send a failure message to the client <br>
      *  - Otherwise the users details are updated as according to the request.
@@ -194,7 +194,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to change the password of a User
-     * <br>
+     *
      * This service first attempts to find the user by their id so that they can have their password changed <br>
      *  - If the user can't be found a response message is set to send a failure message to the client <br>
      *  - Otherwise the oldPassword is checked against the database to make sure the user knows their old password
@@ -251,10 +251,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * The gRPC implementation of bidirectional streaming used to receive uploaded user profile images.
-     * <br>
+     *
      * The server creates a stream observer and defines its actions when the client calls the OnNext, onError and
      * onComplete methods.
-     * <br>
+     *
      * @param responseObserver - Contains an observer, which the Client side defines the implementation for. This allows
      *                           client side actions to be called from the server side. E.g., if bytes have been
      *                           received from the client successfully, the server will call
@@ -287,7 +287,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to add a role to a User.
-     * <br>
+     *
      * This service first attempts to find the user by their id so that they can have their role changed <br>
      *  - If the user can't be found a response message is set to send a failure message to the client <br>
      *  - Otherwise the role to be added is checked against the user's current roles to prevent duplication, then the
@@ -327,11 +327,11 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to remove a role from a User.
-     * <br>
+     *
      * This service first attempts to find the user by their id so that they can have their role changed <br>
      *  - If the user can't be found a response message is set to send a failure message to the client <br>
      *  - Otherwise the role to be removed is checked against the user's current roles to prevent deleting a role
-     *  that doesn't exist. <br>
+     *  that doesn't exist.
      *  - Finally, we attempt to delete the role. If the user has 1 - or somehow no roles (which should not happen) -
      *  then an exception gets thrown, because a user should always have at least 1 role. We catch this exception
      *  and send a failure message.

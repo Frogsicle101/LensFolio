@@ -70,6 +70,7 @@ public class IdentityProviderApplication {
         SpringApplication.run(IdentityProviderApplication.class, args);
     }
 
+
     /**
      * Creates the two default groups, members without groups and teaching staff.
      * Loops through a list that contains every user and filters them into either nonGroupUsers or Teachers.
@@ -100,6 +101,7 @@ public class IdentityProviderApplication {
         groupRepository.save(nonGroupGroup);
         logger.info("Finished creating default groups");
     }
+
 
     // ----------------------------------------- Test data ---------------------------------------------------
 
