@@ -87,6 +87,19 @@ public class GroupsController {
     }
 
 
+    @GetMapping("/group")
+    public ResponseEntity<GroupDetailsResponse> getGroup(@AuthenticationPrincipal AuthState principal,
+                                                         @RequestParam Integer groupId) {
+        logger.info("GET REQUEST /group - attempt to get group {}", groupId);
+        try {
+            GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
+                    .setGroupId(groupId)
+                    .build();
+            GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
+        }
+    }
+
+
     /**
      * Restricted to teachers and course administrators, This endpoint deletes an existing group.
      *
