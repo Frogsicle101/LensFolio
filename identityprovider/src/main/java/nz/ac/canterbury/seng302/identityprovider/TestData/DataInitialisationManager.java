@@ -40,5 +40,6 @@ public class DataInitialisationManager {
             testGroupData.addTestGroups();
         if (includeTestUsers && includeTestGroups)
             testGroupData.addUsersToTestGroups();
+        testGroupData.setInitialTeachersAndMWAGGroupMembers();
     }
 }

@@ -39,20 +39,6 @@ public class TestGroupData {
         Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
         Group nonGroupGroup = new Group(1, "Non-Group", "Members Without A Group");
 
-        List<User> everyUserList = (List<User>) userRepository.findAll();
-        List<User> teachers = new ArrayList<>();
-        List<User> nonGroupUsers = new ArrayList<>();
-        for (User user: everyUserList) {
-            if (user.getRoles().contains(UserRole.TEACHER)) {
-                teachers.add(user);
-            } else {
-                nonGroupUsers.add(user);
-            }
-        }
-
-        teachingGroup.addGroupMembers(teachers);
-        nonGroupGroup.addGroupMembers(nonGroupUsers);
-
         groupRepository.save(teachingGroup);
         groupRepository.save(nonGroupGroup);
         logger.info("Finished creating default groups");
@@ -102,5 +88,29 @@ public class TestGroupData {
         Group group4 = groupRepository.getGroupById(4);
         group4.addGroupMembers(groupFourMembers);
         groupRepository.save(group4);
+    }
+
+    public void setInitialTeachersAndMWAGGroupMembers() {
+        logger.info("Adding Teacher and Members without a group to default groups");
+        Group teachingGroup = groupRepository.getGroupById(0);
+        Group nonGroupGroup = groupRepository.getGroupById(1);
+
+        List<User> everyUserList = (List<User>) userRepository.findAll();
+        List<User> teachers = new ArrayList<>();
+        List<User> nonGroupUsers = new ArrayList<>();
+        for (User user: everyUserList) {
+            if (user.getRoles().contains(UserRole.TEACHER)) {
+                teachers.add(user);
+            } else {
+                nonGroupUsers.add(user);
+            }
+        }
+
+        teachingGroup.addGroupMembers(teachers);
+        nonGroupGroup.addGroupMembers(nonGroupUsers);
+
+        groupRepository.save(teachingGroup);
+        groupRepository.save(nonGroupGroup);
+        logger.info("Finished adding teacher and MWAG to default groups");
     }
 }

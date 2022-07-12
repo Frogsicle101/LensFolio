@@ -110,8 +110,11 @@ class GroupTest {
     @Test
     void TestAddDefaultGroups() {
         Mockito.when(repository.findAll()).thenReturn(userList);
+        Mockito.when(groupRepository.getGroupById(0)).thenReturn(new Group(0, "Teachers", "Teaching Staff"));
+        Mockito.when(groupRepository.getGroupById(1)).thenReturn(new Group(1, "Non-Group", "Members Without A Group"));
         ArgumentCaptor<Group> groupArgumentCaptor = ArgumentCaptor.forClass(Group.class);
         testGroupData.addDefaultGroups();
+        testGroupData.setInitialTeachersAndMWAGGroupMembers();
         Mockito.verify(groupRepository, Mockito.atLeast(2)).save(groupArgumentCaptor.capture());
         List<Group> groups = groupArgumentCaptor.getAllValues();
         Group teachingGroup = groups.get(0);
