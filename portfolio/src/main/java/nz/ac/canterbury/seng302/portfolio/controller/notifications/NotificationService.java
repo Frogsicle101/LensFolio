@@ -8,8 +8,6 @@ import java.util.*;
 
 /**
  * Notification service provides the logic for sending event edit notifications to subscribed users.
- *
- *
  */
 @Service
 public class NotificationService {
