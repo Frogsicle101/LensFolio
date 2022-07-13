@@ -66,7 +66,6 @@ public class PortfolioController {
     @Autowired
     private final DeadlineRepository deadlineRepository;
 
-
     @Autowired
     private final MilestoneRepository milestoneRepository;
 
@@ -315,8 +314,6 @@ public class PortfolioController {
             LocalDate projectEndDate = LocalDate.parse(projectRequest.getProjectEndDate());
             String projectDescription = projectRequest.getProjectDescription();
 
-
-
             if(!regexPatterns.getTitleRegex().matcher(projectName).matches()) {
                 return new ResponseEntity<>("Project Name contains characters outside of a-z 0-9", HttpStatus.BAD_REQUEST);
             }
@@ -332,8 +329,6 @@ public class PortfolioController {
                 return new ResponseEntity<>("End date cannot be before start date", HttpStatus.BAD_REQUEST);
             }
 
-
-
             return new ResponseEntity<>(HttpStatus.OK);
 
         } catch (NumberFormatException err) {
@@ -347,11 +342,12 @@ public class PortfolioController {
 
     }
 
+
     /**
      * Get mapping for portfolio/addSprint
      * This is called when user wants to add a sprint.
      * @param projectId Project to add the sprint to.
-     * @return a repsponse entity response
+     * @return a response entity response
      */
     @GetMapping("/portfolio/addSprint")
     public ResponseEntity<Object> addSprint(
@@ -391,11 +387,8 @@ public class PortfolioController {
                     //Save the new sprint
                     sprintRepository.save(new Sprint(project, sprintName, startDate));
                 }
-
             }
-
             return new ResponseEntity<>(HttpStatus.OK);
-
 
         } catch(Exception err) {
             logger.error("GET REQUEST /portfolio/addSprint", err);
@@ -405,6 +398,7 @@ public class PortfolioController {
 
 
     }
+
 
     /**
      * Mapping for /sprintEdit. Looks for a sprint that matches the id
@@ -420,8 +414,6 @@ public class PortfolioController {
             @RequestParam (value = "projectId") Long projectId,
             RedirectAttributes attributes
     ) {
-
-
         try {
 
             logger.info("GET REQUEST /sprintEdit");
@@ -430,12 +422,9 @@ public class PortfolioController {
             // Get user from server
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
-
-
             Sprint sprint = sprintRepository.findById(String.valueOf(sprintId)).orElseThrow(() -> new EntityNotFoundException(
                     "Sprint with id " + projectId.toString() + " was not found"
             ));
-
 
 
             Project project = projectRepository.getProjectById(projectId);
@@ -451,7 +440,6 @@ public class PortfolioController {
                 textForPreviousSprint = "Previous sprint ends on " + neighbouringDates.get("previousSprintEnd");
             }
             modelAndView.addObject("textForPrevSprint", textForPreviousSprint);
-
 
 
             modelAndView.addObject("nextSprintStart", neighbouringDates.get("nextSprintStart"));
@@ -476,10 +464,7 @@ public class PortfolioController {
             attributes.addFlashAttribute(errorMessage, err);
             return new ModelAndView("redirect:/portfolio?projectId=" + projectId);
         }
-
-
     }
-
 
 
     @GetMapping("/getSprintList")
@@ -511,9 +496,6 @@ public class PortfolioController {
             indexOfPrevSprint = indexOfPrevSprint - 1;
             // Adds an object to the view that limits the calendar to dates past the previous sprints end.
             neighbouringSprintDates.put("previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate().plusDays(1));
-
-
-
         } else {
             // Else adds an object to the view that limits the calendar to project start .
             neighbouringSprintDates.put("previousSprintEnd", project.getStartDate());
@@ -558,7 +540,6 @@ public class PortfolioController {
             LocalDate endDate = LocalDate.parse(sprintInfo.getSprintEndDate());
 
 
-
             Sprint sprint = sprintRepository.getSprintById(sprintInfo.getSprintId());
             Project project = sprint.getProject();
 
@@ -588,6 +569,7 @@ public class PortfolioController {
 
         }
     }
+
 
     /**
      * Checks the SprintRequest DTO is all good and correct
@@ -629,7 +611,7 @@ public class PortfolioController {
 
 
     /**
-     * Mapping for PUT request "deleteSprint"
+     * Mapping for delete request "deleteSprint"
      * @param id UUID of sprint to delete
      * @return Confirmation of delete
      */
@@ -704,7 +686,4 @@ public class PortfolioController {
         sprintRepository.save(sprint6);
         sprintRepository.save(sprint7);
     }
-
-
-
 }

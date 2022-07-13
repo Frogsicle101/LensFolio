@@ -1,6 +1,7 @@
 /**
- * Runs when a sprint is resized on the calendar
- * @param info
+ * Runs when a sprint is resized on the calendar, sends a message (error or success) and then sets the handles of the
+ * sprints
+ * @param info - the fullcalendar event information being sent to the function
  */
 function eventResize(info) {
     // Data to send in post request to server
@@ -17,7 +18,6 @@ function eventResize(info) {
         "sprintDescription": info.event.extendedProps.description,
         "sprintColour": info.event.extendedProps.defaultColor
     }
-    console.log(info.event.id)
 
     // Update sprint to have new start and end dates
     $.ajax({
@@ -29,17 +29,40 @@ function eventResize(info) {
             $(".successMessage").text("Sprint dates updated successfully")
             $(".successMessageParent").slideUp()
             $(".successMessageParent").slideDown()
+            $(".fc-event").css("border-right", "solid 0px #13CEE2");
+            $(".fc-event").css("border-left", "solid 0px #13CEE2");
+            info.event.setProp("borderColor", '#c2080b');
+            $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
+            $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
         },
         error: function (error) {
             console.log(error.responseText)
             $(".errorMessage").text(error.responseText)
             $(".errorMessageParent").slideUp()
             $(".errorMessageParent").slideDown()
+            $(".fc-event").css("border-right", "solid 0px #13CEE2");
+            $(".fc-event").css("border-left", "solid 0px #13CEE2");
             info.revert()
+            info.event.setProp("borderColor", '#c2080b');
+            $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
+            $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
         }
     })
-
 }
+
+
+/**
+ * runs when a sprint has finished resizing. Runs before the eventResize function above. This is used to fix the colours
+ * when the sprint is not actually changed as the eventResize only runs if the dates change, thus causing the colours to
+ * revert on the selected sprint
+ * @param info - the fullcalendar event information being sent to the function
+ */
+function eventResizeStop(info) {
+    info.event.setProp("borderColor", '#c2080b');
+    $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
+    $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
+}
+
 
 /**
  * Function to handle event selection when clicked. Called by Full Calendar eventClick property.
@@ -63,8 +86,9 @@ function eventClick(info) {
                 calEvent.setProp("durationEditable", false);
                 calEvent.setProp("backgroundColor", calEvent.extendedProps.defaultColor);
                 calEvent.setProp("borderColor", '#13CEE2');
+                $(".fc-event").css("border-right", "solid 0px #13CEE2");
+                $(".fc-event").css("border-left", "solid 0px #13CEE2");
             }
-
         }
 
         // Selects this event
@@ -72,6 +96,8 @@ function eventClick(info) {
         info.event.setProp("durationEditable", true);
         info.event.setProp("backgroundColor", '#aaa');
         info.event.setProp("borderColor", '#c2080b');
+        $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
+        $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
 
     } else {
         // Deselects this event
@@ -79,12 +105,14 @@ function eventClick(info) {
         info.event.setProp("durationEditable", false);
         info.event.setProp("backgroundColor", info.event.extendedProps.defaultColor)
         info.event.setProp("borderColor", '#13CEE2');
+        $(".fc-event").css("border-right", "solid 0px #13CEE2");
+        $(".fc-event").css("border-left", "solid 0px #13CEE2");
     }
-
 }
 
+
 /**
- * Turns an html stirng into a Node object to be added into a div
+ * Turns an html string into a Node object to be added into a div
  * @param htmlString
  * @returns {ChildNode}
  */
@@ -96,6 +124,7 @@ function createElementFromHTML(htmlString) {
     return div.firstChild;
 }
 
+
 /**
  * $(document).ready fires off a function when the document has finished loading.
  * https://learn.jquery.com/using-jquery-core/document-ready/
@@ -104,7 +133,6 @@ $(document).ready(function () {
     let projectId = $("#projectId").html();
     let calendarEl = document.getElementById('calendar');
     $("body").tooltip({selector: '[data-toggle=tooltip]'});
-
 
     /**
      * Calendar functionality
@@ -117,6 +145,9 @@ $(document).ready(function () {
         eventResize: function (info) {
             eventResize(info)
         },
+        eventResizeStop: function (info) {
+            eventResizeStop(info)
+        },
         eventClick: function (info) {
             eventClick(info)
         },
@@ -127,7 +158,6 @@ $(document).ready(function () {
             extraParams: {
                 projectId: projectId.toString()
             },
-
             failure: function (err) {
                 console.log(err.responseText)
             }
@@ -144,7 +174,7 @@ $(document).ready(function () {
                 }
             },
             {
-                url: 'getEventsAsFeed', // Get all evets
+                url: 'getEventsAsFeed', // Get all events
                 method: "get",
                 extraParams: {
                     projectId: projectId.toString()
@@ -180,15 +210,13 @@ $(document).ready(function () {
             // Get parent HTML element of event
             let parentElement = info.el.querySelector(".fc-event-title").parentElement;
             // Set the text colour of calendar occasions to black
-            console.log(info.event);
             let eventTitles = "";
             if (["milestoneCalendar", "deadlineCalendar", "eventCalendar"].includes(info.event.classNames.toString())) {
                 info.event.setProp("textColor", "black");
-                console.log(info.event.extendedProps.occasionTitles)
                 eventTitles += info.event.extendedProps.occasionTitles;
             } // Add svg icons to parent html element for calendar occasions
             if (info.event.classNames.toString() === "milestoneCalendar") {
-                parentElement.insertBefore(createElementFromHTML(` <svg data-toggle="tooltip" data-bs-placement="left" data-html="true" title=${"'" + eventTitles + "'"}  
+                parentElement.insertBefore(createElementFromHTML(` <svg data-toggle="tooltip" data-bs-placement="left" data-html="true" title=${"'" + eventTitles + "'"}
                                    xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trophy-fill calendarOccasion" viewBox="0 0 16 16">
                                    <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5c0 .538-.012 1.05-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33.076 33.076 0 0 1 2.5.5zm.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935zm10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935z"/>
                                    </svg>`), parentElement.firstChild);
