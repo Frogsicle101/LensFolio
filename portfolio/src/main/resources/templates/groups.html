@@ -8,6 +8,7 @@
 <body>
 <header th:insert="fragments/general.html :: header"></header>
 <section>
+
     <div class="row">
         <div class="col groupsContainer">
             <div class="group" th:each="group : ${groups}">
@@ -21,10 +22,23 @@
         <div class="col" id="groupInformationContainer">
             <h2 id="groupInformationShortName"></h2>
             <h2 id="groupInformationLongName"></h2>
+            <hr>
+            <div id="groupDisplayOptions">
+                <p class="numSelected">0 Selected</p>
+                <button class="btn btn-danger">Delete</button>
+                <div>
+                    <p>Move to..</p>
+                    <select id="newGroupSelector"class="form-select">
+                        <option th:each="group : ${groups}" th:text="${group.shortName}"></option>
+                    </select>
+                </div>
+
+            </div>
+            <hr>
             <div class="membersContainer"></div>
             <table id="groupTable" class="table">
                 <thead>
-                <tr>
+                <tr class="tableHeader">
                     <th><input id="selectAllCheckboxGroups" type="checkbox"></th>
                     <th scope="col">Id</th>
                     <th scope="col">First</th>

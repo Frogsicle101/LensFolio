@@ -646,6 +646,17 @@ section {
     will-change: transform;
 }
 
+
+.selected{
+    background-color: var(--main-border-colour);
+
+}
+
+#groupDisplayOptions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
 #groupInformationShortName{
     margin-left: auto;
 }
