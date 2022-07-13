@@ -44,9 +44,9 @@ public class IdentityProviderApplication {
     private final boolean includeAdminAccount = true;
 
     /**
-     * Turn on (true) to create the 1000 test accounts
+     * Turn on (true) to create the 30 test accounts
      */
-    private final boolean includeTestData = false;
+    private final boolean includeTestData = true;
 
     /**
      * Initialises test data when the boolean variables are true
@@ -115,7 +115,7 @@ public class IdentityProviderApplication {
                 "McSteves",
                 "Wayne",
                 "Stev",
-                "kdsflkdjf",
+                "I am the Administrator for this website",
                 "He/Him",
                 "steve@gmail.com",
                 TimeService.getTimeStamp()

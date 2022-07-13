@@ -3,10 +3,6 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
 import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefs;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.PaginatedUsersResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,14 +13,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.*;
-
-import java.util.List;
-import java.util.ArrayList;
 
 
 @Controller
@@ -40,10 +31,11 @@ public class UserListController {
 
     private int pageNum = 1;
     private int totalPages = 1;
-    private final int usersPerPageLimit = 50;
+    private final int usersPerPageLimit = 20;
     private int offset = 0;
     private int totalNumUsers = 0;
-    private String sortOrder = "name-increasing";
+    private String sortOrder = "name";
+    private boolean isAscending = true;
     private final ArrayList<Integer> footerNumberSequence = new ArrayList<>();
     private List<UserResponse> userResponseList;
     private final HashMap<String, UserRole> stringToRole = setUserRolesDict();
@@ -62,10 +54,18 @@ public class UserListController {
     public ModelAndView getUserList(
             @AuthenticationPrincipal AuthState principal,
             Model model,
-          @RequestParam(name = "page", required = false) Integer page,
-          @RequestParam(name = "sortField", required = false) String order)
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "sortField", required = false) String order,
+            @RequestParam(name = "isAscending", required = false) String isAscending)
     {
         logger.info("GET REQUEST /user-list - retrieve paginated users for the user list");
+
+        if (Objects.equals(isAscending, "true")){
+            this.isAscending = true;
+        } else if (Objects.equals(isAscending, "false")){
+            this.isAscending = false;
+        }
+
         selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal), Objects.requireNonNullElse(order, ""));
         if (page != null) {
             pageNum = page;
@@ -107,7 +107,7 @@ public class UserListController {
         if (!Objects.equals(order, "")) {
             logger.info("VIEWING USERS - ID: " + userId + " : order provided, saving preferences");
             sortOrder = order;
-            prefRepository.save(new UserPrefs(userId, order));
+            prefRepository.save(new UserPrefs(userId, order, isAscending));
             logger.info("VIEWING USERS - ID: " + userId + " : preferences saved successfully");
         } else {
             //The request doesn't come with a sort order (it's null), so use the one saved
@@ -117,10 +117,11 @@ public class UserListController {
             if (user != null) {
                 logger.info("VIEWING USERS - ID: " + userId + " : user found, fetching preferences...");
                 sortOrder = user.getListSortPref();
+                isAscending = user.getIsAscending();
             } else {
                 logger.warn("VIEWING USERS - ID: " + userId + " : The user is null, saving them to the database");
-                sortOrder = "name-increasing";
-                user = new UserPrefs(userId, sortOrder);
+                sortOrder = "name";
+                user = new UserPrefs(userId, sortOrder, isAscending);
                 prefRepository.save(user);
             }
         }
@@ -153,6 +154,7 @@ public class UserListController {
         model.addAttribute("footerNumberSequence", footerNumberSequence);
         model.addAttribute("possibleRoles", possibleRoles);
         model.addAttribute("sortOrder", sortOrder);
+        model.addAttribute("isAscending", isAscending);
     }
 
 
@@ -165,7 +167,6 @@ public class UserListController {
      * @param roleString The role being deleted from the user, in a string format.
      * @return The success status of the deletion.
      */
-
     @DeleteMapping("/editUserRole")
     public ResponseEntity<String> deleteUserRole(
             @RequestParam(value = "userId") String userId,
@@ -187,7 +188,6 @@ public class UserListController {
      * @param roleString The role being added to the user, in a string format.
      * @return The success status of the addition.
      */
-
     @PutMapping("/editUserRole")
     public ResponseEntity<String> addUserRole(
             @ModelAttribute(value = "userId") String userId,
@@ -227,6 +227,7 @@ public class UserListController {
                                                                    .setOffset(offset)
                                                                    .setLimit(usersPerPageLimit)
                                                                    .setOrderBy(sortOrder)
+                                                                   .setIsAscendingOrder(isAscending)
                                                                    .build();
         return userAccountsClientService.getPaginatedUsers(request);
     }

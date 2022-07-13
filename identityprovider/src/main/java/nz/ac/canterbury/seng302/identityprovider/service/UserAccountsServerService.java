@@ -14,11 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -40,16 +36,36 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    /** Name Comparator */
-    Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
+    /** First Name Comparator, has other name fields after to decide order if first names are the same*/
+    Comparator<User> compareByFirstName = Comparator.comparing((User user) ->
+            (user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
+
+    /** Middle Name Comparator, has other name fields after to decide order if middle names are the same */
+    Comparator<User> compareByMiddleName = Comparator.comparing((User user) ->
+            (user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
+
+    /** Last Name Comparator, has other name fields after to decide order if last names are the same */
+    Comparator<User> compareByLastName = Comparator.comparing((User user) ->
+            (user.getLastName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT)));
 
     /** Username Comparator */
-    Comparator<User> compareByUsername = Comparator.comparing(User::getUsername);
+    Comparator<User> compareByUsername = Comparator.comparing((User user) ->
+            (user.getUsername().toLowerCase(Locale.ROOT)));
 
-    /** alias Comparator */
-    Comparator<User> compareByAlias = Comparator.comparing(User::getNickname);
+    /** Alias Comparator, has name fields afterwards to decide order if the aliases are the same */
+    Comparator<User> compareByAlias = Comparator.comparing((User user) ->
+            (user.getNickname().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
 
-    /** role Comparator */
+    /** Role Comparator */
     Comparator<User> compareByRole = (userOne, userTwo) -> {
         ArrayList<UserRole> userOneRoles = userOne.getRoles();
         ArrayList<UserRole> userTwoRoles = userTwo.getRoles();
@@ -300,14 +316,14 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 userToUpdate.addRole(request.getRole());
                 repository.save(userToUpdate);
                 response.setIsSuccess(true)
-                        .setMessage(true);
+                        .setMessage("Role added to user");
             } else {
                 response.setIsSuccess(false)
-                        .setMessage(false);
+                        .setMessage("Failed to add role to user");
             }
         } else {
             response.setIsSuccess(false)
-                    .setMessage(false);
+                    .setMessage("Failed to add role to user");
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
@@ -341,19 +357,19 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 logger.info("Role Removal Success - removed " + request.getRole()
                         + " from user " + request.getUserId());
                 response.setIsSuccess(true)
-                        .setMessage(true);
+                        .setMessage("Successfully removed role from user");
             } catch (IllegalStateException e) {
                 //The user has only one role - we can't delete it!
                 logger.info("Role Removal Failure - user " + request.getUserId()
                         + " has 1 role. Users cannot have 0 roles");
                 response.setIsSuccess(false)
-                        .setMessage(false);
+                        .setMessage("Failed to remove role from user");
             }
         } else {
             //Here, we couldn't find the user, so we do not succeed.
             logger.info("Role Removal Failure - could not find user " + request.getUserId());
             response.setIsSuccess(false)
-                    .setMessage(false);
+                    .setMessage("Failed to remove role from user");
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
@@ -372,27 +388,18 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
-            case "roles-increasing" -> allUsers.sort(compareByRole);
-            case "roles-decreasing" -> {
-                allUsers.sort(compareByRole);
-                Collections.reverse(allUsers);
-            }
-            case "username-increasing" -> allUsers.sort(compareByUsername);
-            case "username-decreasing" -> {
-                allUsers.sort(compareByUsername);
-                Collections.reverse(allUsers);
-            }
-            case "aliases-increasing" -> allUsers.sort(compareByAlias);
-            case "aliases-decreasing" -> {
-                allUsers.sort(compareByAlias);
-                Collections.reverse(allUsers);
-            }
-            case "name-decreasing" -> {
-                allUsers.sort(compareByName);
-                Collections.reverse(allUsers);
-            }
-            default -> allUsers.sort(compareByName);
+            case "roles" -> allUsers.sort(compareByRole);
+            case "username" -> allUsers.sort(compareByUsername);
+            case "aliases" -> allUsers.sort(compareByAlias);
+            case "middlename" -> allUsers.sort(compareByMiddleName);
+            case "lastname" -> allUsers.sort(compareByLastName);
+            default -> allUsers.sort(compareByFirstName);
         }
+
+        if (!request.getIsAscendingOrder()){
+            Collections.reverse(allUsers);
+        }
+
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
             reply.addUsers(UserHelperService.retrieveUser(allUsers.get(i)));
