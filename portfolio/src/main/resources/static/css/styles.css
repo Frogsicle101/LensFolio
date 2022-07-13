@@ -646,6 +646,10 @@ section {
     will-change: transform;
 }
 
+#groupInformationShortName{
+    margin-left: auto;
+}
+
 .membersContainerTitle {
     text-align: center;
 }
