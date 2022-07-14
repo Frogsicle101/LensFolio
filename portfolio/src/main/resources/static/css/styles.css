@@ -142,6 +142,11 @@ section {
     border-radius: 100%;
 }
 
+.profilePicGroupsList {
+    max-width: 3rem;
+    height: auto;
+}
+
 #accountPageImage {
     height: 15rem;
 }

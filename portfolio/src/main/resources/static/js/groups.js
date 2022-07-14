@@ -26,9 +26,6 @@ $(document).on("change","input[type=checkbox]", function() {
 })
 
 
-
-
-
 function displayGroupUsersList(groupId) {
     let membersContainer = $("#groupTableBody")
     $.ajax({
@@ -39,12 +36,16 @@ function displayGroupUsersList(groupId) {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
+            let baseUrl = window.location.origin
+            console.log(window.location)
             for (let member in response.userList) {
                 membersContainer.append(
-                    `
-                 <tr>
-                    <th scope="row"><input class="selectUserCheckboxGroups" type="checkbox"></th>
+                 `<tr>
+                     <th scope="row"><input class="selectUserCheckboxGroups" type="checkbox"/></th>
                     <td>${response.userList[member].id}</td>
+                    <td>
+                        <img src=${'http://localhost:9001' + response.userList[member].imagePath} alt="Profile image" class="profilePicGroupsList" id="userImage"> //FIXME this base url shouldn't be hard coded:(
+                    </td>
                     <td>${response.userList[member].firstName}</td>
                     <td>${response.userList[member].lastName}</td>
                     <td>${response.userList[member].username}</td>
