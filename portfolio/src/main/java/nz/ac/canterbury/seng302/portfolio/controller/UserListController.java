@@ -120,7 +120,8 @@ public class UserListController {
                 isAscending = user.getIsAscending();
             } else {
                 logger.warn("VIEWING USERS - ID: " + userId + " : The user is null, saving them to the database");
-                sortOrder = "name";
+                sortOrder = "firstname";
+                isAscending = true;
                 user = new UserPrefs(userId, sortOrder, isAscending);
                 prefRepository.save(user);
             }
@@ -283,6 +284,12 @@ public class UserListController {
      * @return a string of how to data is to be sorted
      */
     public String getSortOrder() { return this.sortOrder;}
+
+    /**
+     * To get the boolean describing how if the data should be sorted ascending or descending
+     * @return a boolean of if data is ascending or descending
+     */
+    public boolean getIsAscending() { return this.isAscending; }
 
     /**
      * Defines the value roles a user can have, and maps them to their string representation.
