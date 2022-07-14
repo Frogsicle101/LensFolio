@@ -44,7 +44,7 @@ function displayGroupUsersList(groupId) {
                      <th scope="row"><input class="selectUserCheckboxGroups" type="checkbox"/></th>
                     <td>${response.userList[member].id}</td>
                     <td>
-                        <img src=${'http://localhost:9001' + response.userList[member].imagePath} alt="Profile image" class="profilePicGroupsList" id="userImage"> //FIXME this base url shouldn't be hard coded:(
+                        <img src=${'http://localhost:9001' + response.userList[member].imagePath} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
                     </td>
                     <td>${response.userList[member].firstName}</td>
                     <td>${response.userList[member].lastName}</td>

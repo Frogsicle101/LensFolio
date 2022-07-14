@@ -274,8 +274,7 @@ public class User {
                 .setPersonalPronouns(this.getPronouns())
                 .setEmail(this.getEmail())
                 .setCreated(this.getAccountCreatedTime())
-                .setId(this.getId())
-                .setProfileImagePath(this.getProfileImagePath());
+                .setId(this.getId());
 
         // To add all the users roles to the response
         ArrayList<UserRole> roles = this.getRoles();
