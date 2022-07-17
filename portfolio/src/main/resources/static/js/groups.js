@@ -1,3 +1,5 @@
+let group;
+
 $(document).ready( function() {
 
 
@@ -12,6 +14,8 @@ $(document).on("click", ".group", function () {
 
 $(document).on("click", "#selectAllCheckboxGroups", function() {
     $(".selectUserCheckboxGroups").prop("checked", $("#selectAllCheckboxGroups").prop("checked"))
+    updateNumberSelectedDisplay($("input[type=checkbox]").length)
+
 
 
 })
@@ -21,9 +25,39 @@ $(document).on("change","input[type=checkbox]", function() {
     if (!tableRow.hasClass("tableHeader")) {
         $(this).closest("tr").toggleClass("selected")
     }
-    $(".numSelected").text($(".selected").length + " Selected")
+    updateNumberSelectedDisplay($(".selected").length)
+})
+
+/**
+ * Fires off when a click is detected on the delete button for the group.
+ */
+$(document).on("click", ".deleteButton", function() {
+     if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
+         $.ajax({
+             url: `/groups/edit?groupId=${group.id}`,
+             type: "delete",
+             success: function() {
+                 window.location.reload()
+             }, error: function (err) {
+                 console.log(err)
+             }
+         })
+     }
+})
+
+
+$(document).on("mouseover",$(".tableRowGroups"),function() {
 
 })
+
+$(document).on("click",$(".tableRowGroups"),function() {
+
+})
+
+function updateNumberSelectedDisplay(value) {
+    console.log(value)
+    $(".numSelected").text(value + " Selected")
+}
 
 
 function displayGroupUsersList(groupId) {
@@ -33,6 +67,7 @@ function displayGroupUsersList(groupId) {
         type: "GET",
         success: (response) => {
             console.log(response)
+            group = response
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
@@ -40,7 +75,7 @@ function displayGroupUsersList(groupId) {
             console.log(window.location)
             for (let member in response.userList) {
                 membersContainer.append(
-                 `<tr>
+                 `<tr class="tableRowGroups">
                      <th scope="row"><input class="selectUserCheckboxGroups" type="checkbox"/></th>
                     <td>${response.userList[member].id}</td>
                     <td>
