@@ -145,6 +145,7 @@ section {
 .profilePicGroupsList {
     max-width: 3rem;
     height: auto;
+    border-radius: 100%;
 }
 
 #accountPageImage {
