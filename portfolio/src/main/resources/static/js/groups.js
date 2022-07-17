@@ -1,15 +1,14 @@
-$(document).ready(function() {
-    $(".profilePicGroupsList").on("error", function () {
-        $(this).attr('src', 'defaultProfile.png');
-    })
-})
+
 
 /**
  * When group div is clicked, the members for that group are retrieved.
  */
 $(document).on("click", ".group", function () {
+    $(".group").removeClass("focusOnGroup")
     let groupId = $(this).closest(".group").find(".groupId").text();
     displayGroupUsersList(groupId);
+
+    $(this).closest(".group").addClass("focusOnGroup")
 })
 
 
