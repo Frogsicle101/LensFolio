@@ -36,8 +36,8 @@
                     </svg>
                 </button>
             </div>
-            <hr>
-            <div id="groupDisplayOptions">
+
+            <div id="groupDisplayOptions" class="hasTeacherOrAbove">
                 <p class="numSelected">0 Selected</p>
                 <button class="btn btn-danger">Delete</button>
                 <div>
@@ -46,9 +46,9 @@
                         <option th:each="group : ${groups}" th:text="${group.shortName}"></option>
                     </select>
                 </div>
-
+                <hr>
             </div>
-            <hr>
+
             <div class="membersContainer"></div>
             <table id="groupTable" class="table">
                 <thead>

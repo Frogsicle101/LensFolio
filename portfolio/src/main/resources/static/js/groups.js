@@ -40,6 +40,7 @@ $(document).on("click", ".deleteButton", function() {
                  window.location.reload()
              }, error: function (err) {
                  console.log(err)
+
              }
          })
      }
