@@ -1,7 +1,4 @@
-$(document).ready( function() {
 
-
-})
 /**
  * When group div is clicked, the members for that group are retrieved.
  */
