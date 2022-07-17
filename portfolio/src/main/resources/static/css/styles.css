@@ -662,10 +662,18 @@ section {
     flex-direction: row;
     justify-content: space-around;
 }
-#groupInformationShortName{
+#groupInformationLongName{
     margin-left: auto;
 }
 
+.groupLongName, #groupInformationLongName{
+    color: var(--secondary-text-colour-darker);
+    font-weight: lighter;
+}
+
+.groupShortName, #groupInformationShortName{
+    color: var(--main-text-color);
+}
 .membersContainerTitle {
     text-align: center;
 }

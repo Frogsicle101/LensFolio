@@ -1,28 +1,10 @@
-$(document).ready( function() {
 
-
-})
 /**
  * When group div is clicked, the members for that group are retrieved.
  */
 $(document).on("click", ".group", function () {
     let groupId = $(this).closest(".group").find(".groupId").text();
     displayGroupUsersList(groupId);
-})
-
-$(document).on("click", "#selectAllCheckboxGroups", function() {
-    $(".selectUserCheckboxGroups").prop("checked", $("#selectAllCheckboxGroups").prop("checked"))
-
-
-})
-
-$(document).on("change","input[type=checkbox]", function() {
-    let tableRow = $(this).closest("tr")
-    if (!tableRow.hasClass("tableHeader")) {
-        $(this).closest("tr").toggleClass("selected")
-    }
-    $(".numSelected").text($(".selected").length + " Selected")
-
 })
 
 
@@ -32,12 +14,10 @@ function displayGroupUsersList(groupId) {
         url: `group?groupId=${groupId}`,
         type: "GET",
         success: (response) => {
-            console.log(response)
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
             let baseUrl = window.location.origin
-            console.log(window.location)
             for (let member in response.userList) {
                 membersContainer.append(
                  `<tr>
@@ -51,12 +31,12 @@ function displayGroupUsersList(groupId) {
                     <td>${response.userList[member].username}</td>
                 </tr>`
                 )}
+            $("#groupInformationContainer").slideDown()
         },
         error: (error) => {
             console.log(error);
         }
     })
-    membersContainer.slideDown(400)
 
 }
 
