@@ -1,9 +1,5 @@
 let group;
 
-$(document).ready( function() {
-
-
-})
 /**
  * When group div is clicked, the members for that group are retrieved.
  */
@@ -12,15 +8,13 @@ $(document).on("click", ".group", function () {
     displayGroupUsersList(groupId);
 })
 
-$(document).on("click", "#selectAllCheckboxGroups", function() {
+$(document).on("click", "#selectAllCheckboxGroups", function () {
     $(".selectUserCheckboxGroups").prop("checked", $("#selectAllCheckboxGroups").prop("checked"))
     updateNumberSelectedDisplay($("input[type=checkbox]").length)
 
-
-
 })
 
-$(document).on("change","input[type=checkbox]", function() {
+$(document).on("change", "input[type=checkbox]", function () {
     let tableRow = $(this).closest("tr")
     if (!tableRow.hasClass("tableHeader")) {
         $(this).closest("tr").toggleClass("selected")
@@ -31,32 +25,23 @@ $(document).on("change","input[type=checkbox]", function() {
 /**
  * Fires off when a click is detected on the delete button for the group.
  */
-$(document).on("click", ".deleteButton", function() {
-     if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
-         $.ajax({
-             url: `/groups/edit?groupId=${group.id}`,
-             type: "delete",
-             success: function() {
-                 window.location.reload()
-             }, error: function (err) {
-                 console.log(err)
+$(document).on("click", ".deleteButton", function () {
+    if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
+        $.ajax({
+            url: `/groups/edit?groupId=${group.id}`,
+            type: "delete",
+            success: function () {
+                window.location.reload()
+            }, error: function (err) {
+                console.log(err)
 
-             }
-         })
-     }
+            }
+        })
+    }
 })
 
-
-$(document).on("mouseover",$(".tableRowGroups"),function() {
-
-})
-
-$(document).on("click",$(".tableRowGroups"),function() {
-
-})
 
 function updateNumberSelectedDisplay(value) {
-    console.log(value)
     $(".numSelected").text(value + " Selected")
 }
 
@@ -76,7 +61,7 @@ function displayGroupUsersList(groupId) {
             console.log(window.location)
             for (let member in response.userList) {
                 membersContainer.append(
-                 `<tr class="tableRowGroups">
+                    `<tr class="tableRowGroups">
                      <th scope="row"><input class="selectUserCheckboxGroups" type="checkbox"/></th>
                     <td>${response.userList[member].id}</td>
                     <td>
@@ -86,7 +71,8 @@ function displayGroupUsersList(groupId) {
                     <td>${response.userList[member].lastName}</td>
                     <td>${response.userList[member].username}</td>
                 </tr>`
-                )}
+                )
+            }
         },
         error: (error) => {
             console.log(error);
