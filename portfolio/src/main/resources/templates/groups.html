@@ -19,27 +19,15 @@
                 </div>
             </div>
         </div>
-        <div class="col" id="groupInformationContainer">
+        <div class="col" id="groupInformationContainer" style="display: none">
             <h2 id="groupInformationShortName"></h2>
-            <h2 id="groupInformationLongName"></h2>
-            <hr>
-            <div id="groupDisplayOptions">
-                <p class="numSelected">0 Selected</p>
-                <button class="btn btn-danger">Delete</button>
-                <div>
-                    <p>Move to..</p>
-                    <select id="newGroupSelector"class="form-select">
-                        <option th:each="group : ${groups}" th:text="${group.shortName}"></option>
-                    </select>
-                </div>
-
-            </div>
+            <h3 id="groupInformationLongName"></h3>
             <hr>
             <div class="membersContainer"></div>
-            <table id="groupTable" class="table">
+            <table id="groupTable" class="table" >
                 <thead>
-                <tr class="tableHeader">
-                    <th><input id="selectAllCheckboxGroups" type="checkbox"></th>
+                <tr class="tableHeader" >
+                    <th><input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label></th>
                     <th scope="col">Id</th>
                     <th scope="col">Image</th>
                     <th scope="col">First</th>
@@ -48,12 +36,7 @@
                 </tr>
                 </thead>
                 <tbody id="groupTableBody">
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                </tr>
+
 
                 </tbody>
             </table>
