@@ -100,7 +100,9 @@ public class TestGroupData {
             if (user.getRoles().contains(UserRole.TEACHER)) {
                 teachers.add(user);
             } else {
-                nonGroupUsers.add(user);
+                if (user.getGroups().isEmpty()) {
+                    nonGroupUsers.add(user);
+                }
             }
         }
 
