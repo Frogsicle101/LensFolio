@@ -23,7 +23,8 @@
             <h2 id="groupInformationShortName"></h2>
             <h3 id="groupInformationLongName"></h3>
             <hr>
-            <div id="groupDisplayOptions" class="hasTeacherOrAbove" style="display: none">
+            <div id="groupDisplayOptions" class="hasTeacherOrAbove">
+                <th><input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label></th>
                 <p class="numSelected">0 Selected</p>
                 <button class="btn btn-danger">Delete</button>
                 <div class="moveToDiv">
@@ -39,7 +40,6 @@
             <table id="groupTable" class="table" >
                 <thead>
                 <tr class="tableHeader" >
-                    <th><input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label></th>
                     <th scope="col">Id</th>
                     <th scope="col">Image</th>
                     <th scope="col">First</th>

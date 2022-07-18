@@ -39,7 +39,6 @@ $(document).on("click", "#moveUsersButton", function() {
     $(".selected").each(function() {
         arrayOfIds.push($(this).attr("userId"))
     })
-    console.log(arrayOfIds)
     $.ajax({
         url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
@@ -51,6 +50,8 @@ $(document).on("click", "#moveUsersButton", function() {
         }
     })
 })
+
+
 
 
 $(document).keydown(function(event) {
@@ -117,7 +118,6 @@ $(document).on("click", ".userRow", function() {
         boundaries[0] = parseInt(boundaries[0])
         boundaries[1] = parseInt(boundaries[1])
         boundaries = boundaries.sort()
-        console.log(boundaries)
         $(".userRow").each(function() {
             if ($(this).attr("userId") >= boundaries[0] && $(this).attr("userId") <= boundaries[1]) {
                 $(this).addClass("selected")
@@ -148,7 +148,6 @@ function displayGroupUsersList(groupId) {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
-            console.log(response)
             selectedGroupId = response.id;
             for (let member in response.userList) {
                 let imageSource;
@@ -159,7 +158,6 @@ function displayGroupUsersList(groupId) {
                 }
                 membersContainer.append(
                  `<tr class="userRow" userId=${response.userList[member].id}>
-                     <th scope="row"><input class="selectUserCheckboxGroups" type="checkbox"/></th>
                     <td>${response.userList[member].id}</td>
                     <td>
                         <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
