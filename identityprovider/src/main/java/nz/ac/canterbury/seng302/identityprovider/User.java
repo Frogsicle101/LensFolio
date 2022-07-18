@@ -49,7 +49,7 @@ public class User {
 
     @JsonIgnore
     @ManyToMany(mappedBy = "userList", fetch = FetchType.EAGER)
-    private List<Group> groups;
+    private List<Group> groups = new ArrayList<>();
 
 
 
