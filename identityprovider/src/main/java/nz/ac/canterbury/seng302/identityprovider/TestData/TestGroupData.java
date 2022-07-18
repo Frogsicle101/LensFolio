@@ -35,7 +35,6 @@ public class TestGroupData {
      */
     public void addDefaultGroups() {
         logger.info("Creating default groups");
-        // Create the two main groups we need, teachers and members-without-a-group group.
         Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
         Group nonGroupGroup = new Group(1, "Non-Group", "Members Without A Group");
 
@@ -50,7 +49,6 @@ public class TestGroupData {
      */
     public void addTestGroups() {
         logger.info("Creating test groups");
-        // Create the two main groups we need, teachers and members-without-a-group group.
         Group groupOne = new Group(3, "Team 100", "Seng 302 Team 100");
         Group groupTwo = new Group(4, "Team 200", "Seng 302 Team 200");
         Group groupThree = new Group(5, "Team 300", "Seng 302 Team 300");
@@ -102,7 +100,9 @@ public class TestGroupData {
             if (user.getRoles().contains(UserRole.TEACHER)) {
                 teachers.add(user);
             } else {
-                nonGroupUsers.add(user);
+                if (user.getGroups().isEmpty()) {
+                    nonGroupUsers.add(user);
+                }
             }
         }
 

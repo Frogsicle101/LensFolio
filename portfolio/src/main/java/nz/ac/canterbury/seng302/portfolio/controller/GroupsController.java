@@ -42,7 +42,6 @@ public class GroupsController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    // arbitrary values used while building groups page.//TODO make these settable and useful:)
     private final int offset = 0;
     private final String orderBy = "shortname-increasing";
     private final int limit = 20;
