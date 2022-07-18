@@ -1,3 +1,4 @@
+let selectedUserIds = [] // Group members who have been selected
 
 
 /**
@@ -11,12 +12,34 @@ $(document).on("click", ".group", function () {
     $(this).closest(".group").addClass("focusOnGroup")
 })
 
+
 /**
- * When a user is selected, the removal button appears.
+ * When a user is selected, the removal button appears and the selected user is added to the list of selected users.
+ * When there are no users selected, the "Remove" button is hidden.
  */
 $(document).on("click", ".selectUserCheckboxGroups", function () {
-    document.getElementById(`groupRemoveUser`).style.visibility = "visible"
+    let row = $(this).parent().parent()
+    let userId = row.find('.userId')[0].innerHTML
+    let isSelected = row[0].querySelector("#selectUserCheckboxGroups").checked
+
+    if (isSelected) { // adds the selected user is to the list of selected users
+        selectedUserIds.push(parseInt(userId))
+    } else { // removes the user id from the list of selected users
+        let indexOfId = selectedUserIds.indexOf(parseInt(userId))
+        if (indexOfId > -1) {
+            selectedUserIds.splice(indexOfId, 1)
+        }
+    }
+
+    if (selectedUserIds.length > 0) { //toggles "Remove" button visibility based on whether any users are selected
+        document.getElementById(`groupRemoveUser`).style.visibility = "visible"
+    } else {
+        document.getElementById(`groupRemoveUser`).style.visibility = "hidden"
+    }
+
+    console.log(selectedUserIds)
 })
+
 
 /**
  * When remove button is clicked, a request is made to remove the selected users from the group.
@@ -24,19 +47,9 @@ $(document).on("click", ".selectUserCheckboxGroups", function () {
 $(document).on("click", "#groupRemoveUser", function () {
     let group = document.getElementsByClassName("focusOnGroup").item(0)
     let groupId = group.getElementsByClassName("groupId").item(0).innerHTML
-    let userIds = [];
-    let table = document.getElementById("groupTableBody")
-
-    for (let i = 0, row; row = table.rows[i]; i++) {
-        let selected = row.querySelector("#selectUserCheckboxGroups").checked
-        if (selected) {
-            let userId = parseInt(row.cells[1].innerHTML)
-            userIds.push(userId)
-        }
-    }
 
     $.ajax({
-        url: `groups/removeUsers?groupId=${groupId}&userIds=${userIds}`,
+        url: `groups/removeUsers?groupId=${groupId}&userIds=${selectedUserIds}`,
         type: "DELETE",
         success: () => {
             displayGroupUsersList(groupId)
@@ -67,7 +80,7 @@ function displayGroupUsersList(groupId) {
                 membersContainer.append(
                  `<tr>
                      <th scope="row"><input id="selectUserCheckboxGroups" class="selectUserCheckboxGroups" type="checkbox"/></th>
-                    <td>${response.userList[member].id}</td>
+                    <td class="userId">${response.userList[member].id}</td>
                     <td>
                         <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
                     </td>
