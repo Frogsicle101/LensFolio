@@ -31,7 +31,11 @@ $(document).on("click", ".selectUserCheckboxGroups", function () {
         }
     }
 
-    if (selectedUserIds.length > 0) { //toggles "Remove" button visibility based on whether any users are selected
+    let group = document.getElementsByClassName("focusOnGroup").item(0)
+    let groupId = group.getElementsByClassName("groupId").item(0).innerHTML
+
+    console.log(groupId)
+    if (selectedUserIds.length > 0 && groupId !== '0' && groupId !== '1') { //toggles "Remove" button visibility based on whether any users are selected
         document.getElementById(`groupRemoveUser`).style.visibility = "visible"
     } else {
         document.getElementById(`groupRemoveUser`).style.visibility = "hidden"
