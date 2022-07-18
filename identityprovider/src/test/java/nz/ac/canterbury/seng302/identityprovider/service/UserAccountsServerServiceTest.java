@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class UserAccountsServerServiceTest {
 
     @Autowired
@@ -65,7 +67,6 @@ class UserAccountsServerServiceTest {
         user.addRole(UserRole.STUDENT);
         user.addRole(UserRole.TEACHER);
 
-        repository.deleteAll();
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -97,7 +98,6 @@ class UserAccountsServerServiceTest {
         user.addRole(UserRole.STUDENT);
         user.addRole(UserRole.TEACHER);
 
-        repository.deleteAll();
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -128,7 +128,6 @@ class UserAccountsServerServiceTest {
         //Add some roles to the user
         user.addRole(UserRole.STUDENT);
 
-        repository.deleteAll();
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -187,7 +186,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void registerNewUserUsernameInUse() {
-        repository.deleteAll();
         repository.save(user);
 
         UserRegisterRequest.Builder request = UserRegisterRequest.newBuilder();
@@ -220,7 +218,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void getUserAccountById() {
-        repository.deleteAll();
         repository.save(user);
 
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
@@ -291,7 +288,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void editUserNoUserOfThatId() {
-        repository.deleteAll();
         repository.save(user);
 
         EditUserRequest.Builder request = EditUserRequest.newBuilder();
@@ -323,7 +319,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void changeUserPassword() {
-        repository.deleteAll();
         repository.save(user);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
@@ -353,7 +348,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void changeUserPasswordIncorrectCurrentPassword() {
-        repository.deleteAll();
         repository.save(user);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
@@ -382,7 +376,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void changeUserPasswordNoUserOfThatId() {
-        repository.deleteAll();
         repository.save(user);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
@@ -411,7 +404,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUser() {
-        repository.deleteAll();
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -438,7 +430,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUserNoUserOfThatId() {
-        repository.deleteAll();
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -466,7 +457,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUserAlreadyHasThatRole() {
-        repository.deleteAll();
         user.addRole(UserRole.TEACHER);
         repository.save(user);
 
@@ -494,9 +484,6 @@ class UserAccountsServerServiceTest {
     @Test
     @Transactional
     void addTeacherRoleIsAddedToTeacherGroup() {
-        //clear and repopulate repositories
-        groupRepository.deleteAll();
-        repository.deleteAll();
         Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
         groupRepository.save(teachingGroup);
         repository.save(user);
