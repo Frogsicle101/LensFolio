@@ -44,7 +44,5 @@ public class ImageController {
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         IOUtils.copy(in, response.getOutputStream());
         in.close();
-
     }
-
 }

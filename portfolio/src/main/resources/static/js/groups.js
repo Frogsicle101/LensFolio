@@ -11,6 +11,33 @@ $(document).on("click", ".group", function () {
     $(this).closest(".group").addClass("focusOnGroup")
 })
 
+/**
+ * When a user is selected, the removal button appears.
+ */
+$(document).on("click", ".selectUserCheckboxGroups", function () {
+    document.getElementById(`groupRemoveUser`).style.visibility = "visible"
+})
+
+/**
+ * When remove button is clicked, a request is made to remove the users from the group.
+ */
+$(document).on("click", "#groupRemoveUser", function () {
+    let groupId = $(this).find('.groupId');
+    let groupMembers = [];
+    $(this).closest(`#groupTableBody > tr`).each(() => { //this doesn't work
+        groupMembers.push($(this).attr('id'))
+    })
+    console.log(groupMembers)
+    $.ajax({
+        url: `groups/removeUsers`,
+        type: "DELETE",
+        data: {'groupId': groupId, 'userIds': groupMembers},
+        success: (response) => {
+
+    }
+    })
+})
+
 
 function displayGroupUsersList(groupId) {
     let membersContainer = $("#groupTableBody")
@@ -38,6 +65,7 @@ function displayGroupUsersList(groupId) {
                     <td>${response.userList[member].firstName}</td>
                     <td>${response.userList[member].lastName}</td>
                     <td>${response.userList[member].username}</td>
+                    
                 </tr>`
                 )}
             $("#groupInformationContainer").slideDown()
@@ -46,7 +74,7 @@ function displayGroupUsersList(groupId) {
             console.log(error);
         }
     })
-
 }
+
 
 
