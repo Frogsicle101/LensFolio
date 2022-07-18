@@ -29,7 +29,7 @@
                 <div class="moveToDiv">
                     <label for="newGroupSelector">Move to..</label>
                     <select id="newGroupSelector" class="form-select moveToSelect">
-                        <option th:each="group : ${groups}" th:text="${group.shortName}"></option>
+                        <option th:each="group : ${groups}" th:text="${group.shortName}" th:value="${group.getGroupId()}"></option>
                     </select>
                     <button class="btn btn-primary moveToButton" id="moveUsersButton" >Move</button>
                 </div>

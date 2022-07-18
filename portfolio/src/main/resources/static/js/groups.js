@@ -41,7 +41,7 @@ $(document).on("click", "#moveUsersButton", function() {
     })
     console.log(arrayOfIds)
     $.ajax({
-        url: `/groups/addUsers?groupId=${selectedGroupId}&userIds=${arrayOfIds}`,
+        url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
         success: function() {
             window.location.reload()
