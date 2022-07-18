@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The controller for managing requests to edit groups and their user's memberships.
@@ -212,8 +210,8 @@ public class GroupsController {
      */
     @PostMapping("/groups/addUsers")
     public ResponseEntity<String> addUsersToGroup(
-            @RequestParam(value = "groupId") Integer groupId,
-            @RequestParam(value = "userIds") ArrayList<Integer> userIds
+            @RequestParam Integer groupId,
+            @RequestParam List<Integer> userIds
     ) {
         logger.info("POST REQUEST /groups/addUsers");
 

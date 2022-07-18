@@ -23,6 +23,18 @@
             <h2 id="groupInformationShortName"></h2>
             <h3 id="groupInformationLongName"></h3>
             <hr>
+            <div id="groupDisplayOptions" style="display: none">
+                <p class="numSelected">0 Selected</p>
+                <button class="btn btn-danger">Delete</button>
+                <div>
+                    <p>Move to..</p>
+                    <select id="newGroupSelector"class="form-select">
+                        <option th:each="group : ${groups}" th:text="${group.shortName}"></option>
+                    </select>
+                    <button class="btn btn-primary" id="moveUsersButton" >Move</button>
+                </div>
+
+            </div>
             <div class="membersContainer"></div>
             <table id="groupTable" class="table" >
                 <thead>
