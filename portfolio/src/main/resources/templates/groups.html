@@ -25,6 +25,15 @@
             <hr>
             <div class="membersContainer"></div>
             <button type="button" class="btn btn-danger" id="groupRemoveUser" style="visibility: hidden">Remove</button>
+            <div class="form-popup" id="confirmationForm" style="display: none">
+                <h6>Remove selected users from this group?</h6>
+                <table>
+                    <row>
+                        <button type="button" class="btn yes" id="confirmRemoval">Yes</button>
+                        <button type="button" class="btn no" id="cancelRemoval">No</button>
+                    </row>
+                </table>
+            </div>
             <table id="groupTable" class="table" >
                 <thead>
                 <tr class="tableHeader" >

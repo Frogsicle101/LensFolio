@@ -2,72 +2,96 @@ let selectedUserIds = [] // Group members who have been selected
 
 
 /**
- * When group div is clicked, the members for that group are retrieved.
+ * When group div is clicked, the members for that group are retrieved and any existing group member selections are
+ * removed.
  */
 $(document).on("click", ".group", function () {
-    $(".group").removeClass("focusOnGroup")
+    $(".group").removeClass("focusOnGroup");
     let groupId = $(this).closest(".group").find(".groupId").text();
     displayGroupUsersList(groupId);
 
-    selectedUserIds = [] //Deselects all users
-    document.getElementById(`groupRemoveUser`).style.visibility = "hidden"
+    selectedUserIds = [];
+    document.getElementById("groupRemoveUser").style.visibility = "hidden";
+    $("#confirmationForm").slideUp();
 
-    $(this).closest(".group").addClass("focusOnGroup")
+    $(this).closest(".group").addClass("focusOnGroup");
 })
 
 
 /**
- * When a user is selected, the removal button appears and the selected user is added to the list of selected users.
+ * When at least one user is selected, the removal button appears and the selected user is added to the list of selected
+ * users.
  * When there are no users selected, the "Remove" button is hidden.
  */
 $(document).on("click", ".selectUserCheckboxGroups", function () {
-    let row = $(this).parent().parent()
-    let userId = row.find('.userId')[0].innerHTML
-    let isSelected = row[0].querySelector("#selectUserCheckboxGroups").checked
+    let row = $(this).parent().parent();
+    let userId = row.find(".userId")[0].innerHTML;
+    let isSelected = row[0].querySelector("#selectUserCheckboxGroups").checked;
 
     if (isSelected) { // adds the selected user is to the list of selected users
-        selectedUserIds.push(parseInt(userId))
+        selectedUserIds.push(parseInt(userId));
     } else { // removes the user id from the list of selected users
-        let indexOfId = selectedUserIds.indexOf(parseInt(userId))
+        let indexOfId = selectedUserIds.indexOf(parseInt(userId));
         if (indexOfId > -1) {
-            selectedUserIds.splice(indexOfId, 1)
+            selectedUserIds.splice(indexOfId, 1);
         }
     }
 
-    let group = document.getElementsByClassName("focusOnGroup").item(0)
-    let groupId = group.getElementsByClassName("groupId").item(0).innerHTML
+    let group = document.getElementsByClassName("focusOnGroup").item(0);
+    let groupId = group.getElementsByClassName("groupId").item(0).innerHTML;
 
-    console.log(groupId)
-    if (selectedUserIds.length > 0 && groupId !== '0' && groupId !== '1') { //toggles "Remove" button visibility based on whether any users are selected
-        document.getElementById(`groupRemoveUser`).style.visibility = "visible"
+    if (selectedUserIds.length > 0 && groupId !== "0" && groupId !== "1") { //toggles "Remove" button visibility based on whether any users are selected
+        document.getElementById("groupRemoveUser").style.visibility = "visible";
     } else {
-        document.getElementById(`groupRemoveUser`).style.visibility = "hidden"
+        document.getElementById("groupRemoveUser").style.visibility = "hidden";
     }
-
-    console.log(selectedUserIds)
 })
 
 
 /**
- * When remove button is clicked, a request is made to remove the selected users from the group.
+ * When the remove button is clicked, a popup prompts confirmation of the action.
  */
 $(document).on("click", "#groupRemoveUser", function () {
-    let group = document.getElementsByClassName("focusOnGroup").item(0)
-    let groupId = group.getElementsByClassName("groupId").item(0).innerHTML
+    document.getElementById("confirmationForm").style.visibility = "visible"
+    $("#confirmationForm").slideDown();
+})
+
+
+/**
+ * When member removal is confirmed, a request is made to remove the selected users from the group.
+ */
+$(document).on("click", "#confirmRemoval", function () {
+    let group = document.getElementsByClassName("focusOnGroup").item(0);
+    let groupId = group.getElementsByClassName("groupId").item(0).innerHTML;
 
     $.ajax({
         url: `groups/removeUsers?groupId=${groupId}&userIds=${selectedUserIds}`,
         type: "DELETE",
         success: () => {
             displayGroupUsersList(groupId)
-    },
+        },
         error: (error) => {
             console.log(error);
         }
     })
+    $("#confirmationForm").slideUp();
 })
 
 
+/**
+ * When removal is cancelled, the popup form is hidden.
+ */
+$(document).on("click", "#cancelRemoval", function () {
+    $("#confirmationForm").slideUp();
+})
+
+
+/**
+ * Retrieves and displays info for each member of the group with the given ID, by appending a row for each user to the
+ * table of group members.
+ *
+ * @param groupId The ID of the group for which users are being displayed.
+ */
 function displayGroupUsersList(groupId) {
     let membersContainer = $("#groupTableBody")
     $.ajax({
@@ -94,7 +118,6 @@ function displayGroupUsersList(groupId) {
                     <td>${response.userList[member].firstName}</td>
                     <td>${response.userList[member].lastName}</td>
                     <td>${response.userList[member].username}</td>
-                    
                 </tr>`
                 )}
             $("#groupInformationContainer").slideDown()

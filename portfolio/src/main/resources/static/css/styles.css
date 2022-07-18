@@ -142,11 +142,6 @@ section {
     border-radius: 100%;
 }
 
-.profilePicGroupsList {
-    max-width: 3rem;
-    height: auto;
-    border-radius: 100%;
-}
 
 #accountPageImage {
     height: 15rem;
@@ -676,4 +671,15 @@ section {
 }
 .membersContainerTitle {
     text-align: center;
+}
+
+.profilePicGroupsList {
+    max-width: 3rem;
+    height: auto;
+    border-radius: 100%;
+}
+
+#confirmationForm {
+    border: #626262;
+    border-width: 2px;
 }
