@@ -117,8 +117,8 @@ class GroupTest {
         testGroupData.setInitialTeachersAndMWAGGroupMembers();
         Mockito.verify(groupRepository, Mockito.atLeast(2)).save(groupArgumentCaptor.capture());
         List<Group> groups = groupArgumentCaptor.getAllValues();
-        Group teachingGroup = groups.get(0);
-        Group nonMemberGroup = groups.get(1);
+        Group teachingGroup = groups.get(2);
+        Group nonMemberGroup = groups.get(3);
         Assertions.assertEquals("Teachers", teachingGroup.getShortName());
         Assertions.assertEquals(3, teachingGroup.getMembersNumber());
         Assertions.assertEquals("Non-Group", nonMemberGroup.getShortName());

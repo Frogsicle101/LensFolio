@@ -1,4 +1,5 @@
 let selectedUserIds = [] // Group members who have been selected
+let group;
 
 
 /**
@@ -29,6 +30,12 @@ $(document).on("click", ".group", function () {
     let groupId = $(this).closest(".group").find(".groupId").text();
     displayGroupUsersList(groupId);
 
+    $(this).closest(".group").addClass("focusOnGroup")
+    if (parseInt(groupId) === 0 || parseInt(groupId) === 1) {
+        $(".controlButtons").hide()
+    } else {
+        $(".controlButtons").show()
+    }
     selectedUserIds = [];
     document.getElementById("groupRemoveUser").style.visibility = "hidden";
     $("#confirmationForm").slideUp();
@@ -74,6 +81,45 @@ $(document).on("click", "#groupRemoveUser", function () {
     document.getElementById("confirmationForm").style.visibility = "visible"
     $("#confirmationForm").slideDown();
 })
+
+$(document).on("click", "#selectAllCheckboxGroups", function () {
+    $(".selectUserCheckboxGroups").prop("checked", $("#selectAllCheckboxGroups").prop("checked"))
+    updateNumberSelectedDisplay($("input[type=checkbox]").length)
+
+})
+
+$(document).on("change","input[type=checkbox]", function() {
+    let tableRow = $(this).closest("tr")
+    if (!tableRow.hasClass("tableHeader")) {
+        $(this).closest("tr").toggleClass("selected")
+    }
+    updateNumberSelectedDisplay($(".selected").length)
+
+})
+
+/**
+ * Fires off when a click is detected on the delete button for the group.
+ */
+$(document).on("click", ".deleteButton", function () {
+
+    if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
+        $.ajax({
+            url: `/groups/edit?groupId=${group.id}`,
+            type: "delete",
+            success: function () {
+                window.location.reload()
+            }, error: function (err) {
+                console.log(err)
+
+            }
+        })
+    }
+})
+
+
+function updateNumberSelectedDisplay(value) {
+    $(".numSelected").text(value + " Selected")
+}
 
 
 /**
@@ -122,6 +168,7 @@ function displayGroupUsersList(groupId) {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
+            group = response
 
             for (let member in response.userList) {
                 let imageSource;
@@ -134,7 +181,7 @@ function displayGroupUsersList(groupId) {
                 let userRow;
 
                 if (checkPrivilege()) {
-                    userRow = `<tr>
+                    userRow = `<tr class="tableRowGroups">
                     <th scope="row"><input id="selectUserCheckboxGroups" class="selectUserCheckboxGroups" type="checkbox"/></th>
                     <td class="userId">${response.userList[member].id}</td>
                     <td>
@@ -145,7 +192,7 @@ function displayGroupUsersList(groupId) {
                     <td>${response.userList[member].username}</td>
                 </tr>`
                 } else {
-                    userRow = `<tr>
+                    userRow = `<tr class="tableRowGroups">
                     <td class="userId">${response.userList[member].id}</td>
                     <td>
                         <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
@@ -155,17 +202,17 @@ function displayGroupUsersList(groupId) {
                     <td>${response.userList[member].username}</td>
                 </tr>`
                 }
-
                 membersContainer.append(userRow)
             }
-            $("#groupInformationContainer").slideDown()
         },
 
         error: (error) => {
             console.log(error);
         }
-    })
-}
 
+    })
+    $("#groupInformationContainer").slideDown()
+
+}
 
 
