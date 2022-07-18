@@ -1,4 +1,5 @@
 /** The STOMP client that connects to the server for sending and receiving notifications */
+
 let stompClient = null
 
 
@@ -7,12 +8,47 @@ let stompClient = null
  * and designates handleNotification to run whenever we get a message
  */
 function connect() {
-    let socket = new SockJS('gs-guide-websocket');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('notifications/sending/occasions', handleNotification);
+    let socket = new SockJS('websocket');
+
+    stompClient = new StompJs.Client();
+    stompClient.configure({
+        brokerURL: 'ws://localhost:9000/websocket',
+        reconnectDelay: 5000,
+        debug: function (str) {
+            console.log(str);
+        },
+        heartbeatIncoming: 4000,
+        heartbeatOutgoing: 4000,
+        onStompError: function (frame) {
+            console.log('Broker reported error: ' + frame.headers['message']);
+            console.log('Additional details: ' + frame.body);
+        },
+        connectionTimeout: 1000
     });
+
+    stompClient.onConnect = (frame) => {
+        console.log('Connected: ' + frame);
+        alert("connected");
+        //stompClient.subscribe('notifications/sending/occasions', handleNotification);
+    }
+
+    stompClient.onUnhandledMessage = (frame) => {
+        alert("unhandled");
+        console.log(frame);
+    }
+
+    console.log("here");
+    stompClient.activate();
+    console.log("activated");
+
+    //setTimeout(() => {stompClient.subscribe('notifications/sending/occasions', handleNotification)}, 5000)
+
+
+    // stompClient = StompJs.Stomp.over(socket);
+    // stompClient.connect({}, function (frame) {
+    //     console.log('Connected: ' + frame);
+    //     stompClient.subscribe('notifications/sending/occasions', handleNotification);
+    // });
 }
 
 
@@ -25,11 +61,17 @@ function connect() {
  * @param action What action the user has performed to create this message
  */
 function sendNotification(occasionType, occasionId, action) {
-    stompClient.send("notifications/receiving/message", {}, JSON.stringify({
-        'occasionType': occasionType,
-        'occasionId': occasionId,
-        'action': action
-    }));
+    //setTimeout(() => {stompClient.subscribe('notifications/sending/occasions', handleNotification);})
+
+    //stompClient.subscribe('notifications/sending/occasions', handleNotification);
+    stompClient.publish({
+        destination: "notifications/receiving/message",
+        body: JSON.stringify({
+            'occasionType': occasionType,
+            'occasionId': occasionId,
+            'action': action
+        })
+    });
 }
 
 
