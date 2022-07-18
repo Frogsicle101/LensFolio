@@ -103,7 +103,7 @@ $(document).on("change","input[type=checkbox]", function() {
 
 
 $(document).on("click", ".userRow", function() {
-    if (!controlDown) {
+    if (!controlDown && !shiftDown) {
         $(".selected").each(function() {
             $(this).removeClass("selected")
             $(this).find("input[type=checkbox]").prop("checked", false)
@@ -114,10 +114,12 @@ $(document).on("click", ".userRow", function() {
         let boundaries = [];
         boundaries.push(lastSelectedRow)
         boundaries.push($(this).attr("userId"));
+        boundaries[0] = parseInt(boundaries[0])
+        boundaries[1] = parseInt(boundaries[1])
         boundaries = boundaries.sort()
+        console.log(boundaries)
         $(".userRow").each(function() {
             if ($(this).attr("userId") >= boundaries[0] && $(this).attr("userId") <= boundaries[1]) {
-                console.log($(this).attr("userId"))
                 $(this).addClass("selected")
                 $(this).find("input[type=checkbox]").prop("checked", true)
             }
