@@ -39,7 +39,7 @@ $(document).on("click", "#groupRemoveUser", function () {
         url: `groups/removeUsers?groupId=${groupId}&userIds=${userIds}`,
         type: "DELETE",
         success: () => {
-            console.log("done")
+            displayGroupUsersList(groupId)
     },
         error: (error) => {
             console.log(error);
