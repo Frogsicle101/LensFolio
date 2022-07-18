@@ -1,7 +1,5 @@
-$(document).ready( function() {
+let group;
 
-
-})
 /**
  * When group div is clicked, the members for that group are retrieved.
  */
@@ -32,6 +30,7 @@ $(document).on("change","input[type=checkbox]", function() {
  * Fires off when a click is detected on the delete button for the group.
  */
 $(document).on("click", ".deleteButton", function () {
+
     if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
         $.ajax({
             url: `/groups/edit?groupId=${group.id}`,
@@ -61,6 +60,7 @@ function displayGroupUsersList(groupId) {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
+            group = response
             for (let member in response.userList) {
                 let imageSource;
                 if (response.userList[member].imagePath.length === 0) {
