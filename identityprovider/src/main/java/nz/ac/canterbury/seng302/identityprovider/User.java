@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.protobuf.Timestamp;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
+import nz.ac.canterbury.seng302.identityprovider.service.UrlUtil;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.springframework.core.env.Environment;
@@ -274,7 +275,8 @@ public class User {
                 .setPersonalPronouns(this.getPronouns())
                 .setEmail(this.getEmail())
                 .setCreated(this.getAccountCreatedTime())
-                .setId(this.getId());
+                .setId(this.getId())
+                .setProfileImagePath(UrlUtil.getUrlService().getProfileURL(this).toString());
 
         // To add all the users roles to the response
         ArrayList<UserRole> roles = this.getRoles();

@@ -19,9 +19,10 @@
                 </div>
             </div>
         </div>
-        <div class="col" id="groupInformationContainer">
+        <div class="col" id="groupInformationContainer" style="display: none">
             <h2 id="groupInformationShortName"></h2>
-            <h2 id="groupInformationLongName"></h2>
+            <h3 id="groupInformationLongName"></h3>
+            <hr>
             <div class="controlButtons">
                 <button class="editButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Group">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
@@ -36,8 +37,8 @@
                     </svg>
                 </button>
             </div>
-
-            <div id="groupDisplayOptions" class="hasTeacherOrAbove">
+            <hr>
+            <div id="groupDisplayOptions">
                 <p class="numSelected">0 Selected</p>
                 <button class="btn btn-danger">Delete</button>
                 <div>
@@ -46,14 +47,14 @@
                         <option th:each="group : ${groups}" th:text="${group.shortName}"></option>
                     </select>
                 </div>
-                <hr>
-            </div>
 
+            </div>
+            <hr>
             <div class="membersContainer"></div>
             <table id="groupTable" class="table">
                 <thead>
                 <tr class="tableHeader">
-                    <th><input id="selectAllCheckboxGroups" type="checkbox"></th>
+                    <th><input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label></th>
                     <th scope="col">Id</th>
                     <th scope="col">Image</th>
                     <th scope="col">First</th>
