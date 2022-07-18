@@ -91,7 +91,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     public void register(UserRegisterRequest request, StreamObserver<UserRegisterResponse> responseObserver) {
         logger.info("SERVICE - Registering new user with username " + request.getUsername());
         UserRegisterResponse.Builder reply = UserRegisterResponse.newBuilder();
-        // Untested
 
         try {
             User user = new User(
@@ -236,7 +235,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * The gRPC implementation of bidirectional streaming used to receive uploaded user profile images.
-     *
+     * <br>
      * The server creates a stream observer and defines its actions when the client calls the OnNext, onError and
      * onComplete methods.
      *
@@ -272,7 +271,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to add a role to a User.
-     * <br>
+     *
      * This service first attempts to find the user by their id so that they can have their role changed <br>
      *  - If the user can't be found a response message is set to send a failure message to the client <br>
      *  - Otherwise the role to be added is checked against the user's current roles to prevent duplication, then the
@@ -292,7 +291,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 userToUpdate.addRole(request.getRole());
                 repository.save(userToUpdate);
                 if (request.getRole() == UserRole.TEACHER){
-                    addNewTeacherToGroup(userToUpdate);
+                    groupService.addGroupMemberByGroupShortName("Teachers", userToUpdate.getId());
                 }
                 response.setIsSuccess(true)
                         .setMessage(MessageFormat.format("Successfully added role {0} to user {1}",
@@ -340,7 +339,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 logger.info("Role Removal Success - removed " + request.getRole()
                         + " from user " + request.getUserId());
                 if (request.getRole() == UserRole.TEACHER){
-                    removeUserFromTeacherGroup(userToUpdate);
+                    groupService.removeGroupMembersByGroupShortName("Teachers", userToUpdate.getId());
                 }
                 response.setIsSuccess(true)
                         .setMessage(MessageFormat.format("Successfully removed role {0} from user {1}",
@@ -405,35 +404,5 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         reply.setResultSetSize(allUsers.size());
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
-    }
-
-
-    /**
-     * Used to automatically add a user to the teacher group. This occurs when a users roles is changed to include the
-     * teacher role
-     *
-     * @param user The user to be added to the teacher group
-     */
-    private void addNewTeacherToGroup(User user) {
-        List<Integer> userIds = new ArrayList<>();
-        userIds.add(user.getId());
-
-        Integer groupId = groupService.getTeacherGroupId();
-        groupService.addGroupMembers(groupId, userIds);
-    }
-
-
-    /**
-     * Used to automatically remove a user from the teacher group. This occurs when a users roles is changed to no
-     * longer have the teacher role
-     *
-     * @param user The user to be removed from the teacher group
-     */
-    private void removeUserFromTeacherGroup(User user) {
-        List<Integer> userIds = new ArrayList<>();
-        userIds.add(user.getId());
-
-        Integer groupId = groupService.getTeacherGroupId();
-        groupService.removeGroupMembers(groupId, userIds);
     }
 }

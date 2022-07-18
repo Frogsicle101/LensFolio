@@ -48,8 +48,8 @@ public class User {
     private String imagePath;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "userList")
-    private List<Group> groups;
+    @ManyToMany(mappedBy = "userList", fetch = FetchType.EAGER)
+    private List<Group> groups = new ArrayList<>();
 
 
 
@@ -261,6 +261,10 @@ public class User {
 
     public void setProfileImagePath(String path) {
         imagePath = path;
+    }
+
+    public List<Group> getGroups() {
+        return groups;
     }
 
 

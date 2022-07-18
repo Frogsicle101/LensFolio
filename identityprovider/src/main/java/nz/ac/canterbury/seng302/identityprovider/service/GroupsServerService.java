@@ -240,8 +240,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
      */
     @Override
     public void getPaginatedGroups(GetPaginatedGroupsRequest request, StreamObserver<PaginatedGroupsResponse> responseObserver) {
-//        super.getPaginatedGroups(request, responseObserver);
-
         PaginatedGroupsResponse.Builder reply = PaginatedGroupsResponse.newBuilder();
 
         List<Group> allGroups = (List<Group>) groupRepository.findAll();

@@ -11,7 +11,6 @@ $(document).on("click", ".group", function () {
     displayGroupUsersList(groupId);
 
     $(this).closest(".group").addClass("focusOnGroup")
-    console.log(groupId)
     if (parseInt(groupId) === 0 || parseInt(groupId) === 1) {
         $(".controlButtons").hide()
     } else {
