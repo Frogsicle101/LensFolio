@@ -43,8 +43,8 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
         if (auth != null) {
             AuthState state = (AuthState) auth.getPrincipal();
             String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
-
-            template.convertAndSend("/notifications/sending/occasions",
+            //Remove all the active notifications belonging to that user
+            template.convertAndSend("/notifications/disconnection",
                     new OutgoingNotification(
                             editorId,
                             state.getName(),
