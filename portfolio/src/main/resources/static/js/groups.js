@@ -2,6 +2,25 @@ let selectedUserIds = [] // Group members who have been selected
 
 
 /**
+ * Checks if a user has a role above student.
+ *
+ * @returns {boolean} returns true if userRole is above student.
+ */
+function checkPrivilege() {
+    return userRoles.includes('COURSE_ADMINISTRATOR') || userRoles.includes('TEACHER');
+}
+
+/**
+ * On page load, removes user selection header if th logged-in user does not have editing permissions.
+ */
+$(document).ready(() => {
+    if (!checkPrivilege()) {
+        document.getElementById("selectAllCheckboxHeader").remove()
+    }
+})
+
+
+/**
  * When group div is clicked, the members for that group are retrieved and any existing group member selections are
  * removed.
  */
@@ -75,6 +94,7 @@ $(document).on("click", "#confirmRemoval", function () {
         }
     })
     $("#confirmationForm").slideUp();
+    document.getElementById("groupRemoveUser").style.visibility = "hidden";
 })
 
 
@@ -94,6 +114,7 @@ $(document).on("click", "#cancelRemoval", function () {
  */
 function displayGroupUsersList(groupId) {
     let membersContainer = $("#groupTableBody")
+
     $.ajax({
         url: `group?groupId=${groupId}`,
         type: "GET",
@@ -101,16 +122,20 @@ function displayGroupUsersList(groupId) {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
+
             for (let member in response.userList) {
                 let imageSource;
                 if (response.userList[member].imagePath.length === 0) {
                     imageSource = "defaultProfile.png"
                 } else {
-                    imageSource = response.userList[member].imagePath
+                    imageSource = response.userList[member].imagePath;
                 }
-                membersContainer.append(
-                 `<tr>
-                     <th scope="row"><input id="selectUserCheckboxGroups" class="selectUserCheckboxGroups" type="checkbox"/></th>
+
+                let userRow;
+
+                if (checkPrivilege()) {
+                    userRow = `<tr>
+                    <th scope="row"><input id="selectUserCheckboxGroups" class="selectUserCheckboxGroups" type="checkbox"/></th>
                     <td class="userId">${response.userList[member].id}</td>
                     <td>
                         <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
@@ -119,9 +144,23 @@ function displayGroupUsersList(groupId) {
                     <td>${response.userList[member].lastName}</td>
                     <td>${response.userList[member].username}</td>
                 </tr>`
-                )}
+                } else {
+                    userRow = `<tr>
+                    <td class="userId">${response.userList[member].id}</td>
+                    <td>
+                        <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
+                    </td>
+                    <td>${response.userList[member].firstName}</td>
+                    <td>${response.userList[member].lastName}</td>
+                    <td>${response.userList[member].username}</td>
+                </tr>`
+                }
+
+                membersContainer.append(userRow)
+            }
             $("#groupInformationContainer").slideDown()
         },
+
         error: (error) => {
             console.log(error);
         }
