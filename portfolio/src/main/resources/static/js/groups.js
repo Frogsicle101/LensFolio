@@ -9,6 +9,9 @@ $(document).on("click", ".group", function () {
     let groupId = $(this).closest(".group").find(".groupId").text();
     displayGroupUsersList(groupId);
 
+    selectedUserIds = [] //Deselects all users
+    document.getElementById(`groupRemoveUser`).style.visibility = "hidden"
+
     $(this).closest(".group").addClass("focusOnGroup")
 })
 
