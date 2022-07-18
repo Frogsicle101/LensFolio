@@ -26,12 +26,12 @@
             <div id="groupDisplayOptions" style="display: none">
                 <p class="numSelected">0 Selected</p>
                 <button class="btn btn-danger">Delete</button>
-                <div>
-                    <p>Move to..</p>
-                    <select id="newGroupSelector"class="form-select">
+                <div class="moveToDiv">
+                    <label for="newGroupSelector">Move to..</label>
+                    <select id="newGroupSelector" class="form-select moveToSelect">
                         <option th:each="group : ${groups}" th:text="${group.shortName}"></option>
                     </select>
-                    <button class="btn btn-primary" id="moveUsersButton" >Move</button>
+                    <button class="btn btn-primary moveToButton" id="moveUsersButton" >Move</button>
                 </div>
 
             </div>

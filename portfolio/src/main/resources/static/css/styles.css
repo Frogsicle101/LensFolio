@@ -661,6 +661,7 @@ section {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+    align-items: center;
 }
 #groupInformationLongName{
     margin-left: auto;
@@ -676,4 +677,18 @@ section {
 }
 .membersContainerTitle {
     text-align: center;
+}
+
+.moveToDiv{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#newGroupSelector{
+    margin: 1rem;
+}
+
+.userRow:hover{
+    cursor: pointer;
 }

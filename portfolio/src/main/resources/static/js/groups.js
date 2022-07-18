@@ -1,5 +1,7 @@
-let somethingSelected = false;
+let controlDown = false;
+let shiftDown = false;
 let selectedGroupId;
+let lastSelectedRow;
 /**
  * When group div is clicked, the members for that group are retrieved.
  */
@@ -17,6 +19,7 @@ function showOptions(show) {
     } else {
         $("#groupDisplayOptions").slideUp()
     }
+    $(".numSelected").text($(".selected").length + " Selected")
 }
 
 
@@ -50,6 +53,31 @@ $(document).on("click", "#moveUsersButton", function() {
 })
 
 
+$(document).keydown(function(event) {
+    if (event.key === "Control") {
+        controlDown = true;
+    }
+})
+
+$(document).keyup(function(event) {
+    if (event.key === "Control") {
+        controlDown = false;
+    }
+})
+
+
+$(document).keydown(function(event) {
+    if (event.key === "Shift") {
+        shiftDown = true;
+    }
+})
+
+$(document).keyup(function(event) {
+    if (event.key === "Shift") {
+        shiftDown = false;
+    }
+})
+
 
 $(document).on("click", "#selectAllCheckboxGroups", function() {
     let isChecked = $("#selectAllCheckboxGroups").prop("checked")
@@ -68,7 +96,43 @@ $(document).on("change","input[type=checkbox]", function() {
     if (!tableRow.hasClass("tableHeader")) {
         $(this).closest("tr").toggleClass("selected")
     }
-    $(".numSelected").text($(".selected").length + " Selected")
+    checkToSeeIfHideOrShowOptions()
+
+})
+
+
+
+$(document).on("click", ".userRow", function() {
+    if (!controlDown) {
+        $(".selected").each(function() {
+            $(this).removeClass("selected")
+            $(this).find("input[type=checkbox]").prop("checked", false)
+        })
+    }
+
+    if (shiftDown) {
+        let boundaries = [];
+        boundaries.push(lastSelectedRow)
+        boundaries.push($(this).attr("userId"));
+        boundaries = boundaries.sort()
+        $(".userRow").each(function() {
+            if ($(this).attr("userId") >= boundaries[0] && $(this).attr("userId") <= boundaries[1]) {
+                console.log($(this).attr("userId"))
+                $(this).addClass("selected")
+                $(this).find("input[type=checkbox]").prop("checked", true)
+            }
+        })
+    } else {
+        if ($(this).hasClass("selected")) {
+            $(this).removeClass("selected")
+            $(this).find("input[type=checkbox]").prop("checked", false)
+        } else {
+            $(this).addClass("selected")
+            $(this).find("input[type=checkbox]").prop("checked", true)
+        }
+    }
+
+    lastSelectedRow = $(this).attr("userId")
     checkToSeeIfHideOrShowOptions()
 
 })
