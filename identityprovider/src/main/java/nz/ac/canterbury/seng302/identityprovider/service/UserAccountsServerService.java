@@ -72,28 +72,11 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Override
     public void getUserAccountById(GetUserByIdRequest request, StreamObserver<UserResponse> responseObserver) {
         logger.info("SERVICE - Getting user details by Id: " + request.getId());
-        UserResponse.Builder reply = UserResponse.newBuilder();
         User user = repository.findById(request.getId());
         logger.info("Sending user details for " + user.getUsername());
-        //Build UserResponse (proto) from User
-        reply.setUsername(user.getUsername())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setNickname(user.getNickname())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime())
-                .setProfileImagePath(urlService.getProfileURL(user).toString())
-                .setId(user.getId());
+        UserResponse reply = user.userResponse();
 
-        // To add all the users roles to the response
-        ArrayList<UserRole> roles = user.getRoles();
-        for (UserRole role : roles) {
-            reply.addRoles(role);
-        }
-        responseObserver.onNext(reply.build());
+        responseObserver.onNext(reply);
         responseObserver.onCompleted();
     }
 
@@ -149,9 +132,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to edit the details of a user.
-     * <br>
-     * This service first attempts to find the user by their id so that they can have their details edited <br>
-     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *
+     * This service first attempts to find the user by their id so that they can have their details edited
+     *  - If the user can't be found a response message is set to send a failure message to the client
      *  - Otherwise the users details are updated as according to the request.
      *
      * @param request - The gRPC EditUserRequest passed from the client
@@ -196,11 +179,11 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to change the password of a User
-     * <br>
-     * This service first attempts to find the user by their id so that they can have their password changed <br>
-     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *
+     * This service first attempts to find the user by their id so that they can have their password changed
+     *  - If the user can't be found a response message is set to send a failure message to the client
      *  - Otherwise the oldPassword is checked against the database to make sure the user knows their old password
-     *  before changing <br>
+     *  before changing
      *    - If this password is correct the password is updated to the new password, otherwise the user is informed
      *    that they have used an incorrect old password.
      *
@@ -253,10 +236,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * The gRPC implementation of bidirectional streaming used to receive uploaded user profile images.
-     * <br>
+     *
      * The server creates a stream observer and defines its actions when the client calls the OnNext, onError and
      * onComplete methods.
-     * <br>
+     *
      * @param responseObserver - Contains an observer, which the Client side defines the implementation for. This allows
      *                           client side actions to be called from the server side. E.g., if bytes have been
      *                           received from the client successfully, the server will call
@@ -324,17 +307,18 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
-
     }
 
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to remove a role from a User.
-     * <br>
-     * This service first attempts to find the user by their id so that they can have their role changed <br>
-     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *
+     * This service first attempts to find the user by their id so that they can have their role changed
+     *  - If the user can't be found a response message is set to send a failure message to the client
+     *
      *  - Otherwise the role to be removed is checked against the user's current roles to prevent deleting a role
-     *  that doesn't exist. <br>
+     *  that doesn't exist.
+     *
      *  - Finally, we attempt to delete the role. If the user has 1 - or somehow no roles (which should not happen) -
      *  then an exception gets thrown, because a user should always have at least 1 role. We catch this exception
      *  and send a failure message.
@@ -376,8 +360,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
-
-
     }
 
 
@@ -418,7 +400,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         }
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
-            reply.addUsers(UserHelperService.retrieveUser(allUsers.get(i)));
+            reply.addUsers(allUsers.get(i).userResponse());
         }
         reply.setResultSetSize(allUsers.size());
         responseObserver.onNext(reply.build());
