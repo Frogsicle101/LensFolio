@@ -45,7 +45,10 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 window.location.reload()
             }, error: function (err) {
-                console.log(err)
+                $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                       ${error.responseText}
+                                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                     </div>`)
 
             }
         })
@@ -90,7 +93,10 @@ function displayGroupUsersList(groupId) {
             }
         },
         error: (error) => {
-            console.log(error);
+            $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                       ${error.responseText}
+                                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                     </div>`)
         }
 
     })
