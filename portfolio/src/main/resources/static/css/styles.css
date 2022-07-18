@@ -680,6 +680,6 @@ section {
 }
 
 #confirmationForm {
-    border: #626262;
-    border-width: 2px;
+    padding: 1rem;
+    margin-top: 1rem;
 }
