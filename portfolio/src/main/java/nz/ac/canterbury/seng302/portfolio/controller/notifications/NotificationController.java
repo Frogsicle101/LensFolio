@@ -28,7 +28,7 @@ import java.util.Objects;
 public class NotificationController {
 
     /** Notification service which provides the logic for sending notifications to subscribed users */
-    @Autowired NotificationService notificationService;
+    private final static NotificationService notificationService = NotificationUtil.getNotificationService();
 
     /** For logging */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -75,35 +75,5 @@ public class NotificationController {
             notificationService.removeOutgoingNotification(notification);
         }
         return List.of(notification);
-    }
-
-    /**
-     * A message-mapping method that will:
-     * receive a disconnection notification
-     * delete all the stored notifications of that editor
-     * inform all listeners subscribed to notifications/sending/occasions via stop notifications
-     *
-     * Don't call this method directly. This is a spring method; it'll call itself when the time is right.
-     * @param message A model for the edit details
-     * @return A messenger object containing a type, occasion, id and content
-     */
-    @MessageMapping("/disconnection")
-    @SendTo("notifications/sending/occasions")
-    public Collection<OutgoingNotification> receiveDisconnectionNotification(@AuthenticationPrincipal Principal principal, OutgoingNotification message) {
-        logger.info("Received disconnection message");
-
-        String editorId = message.getEditorId();
-        List<OutgoingNotification> removedNotifications = notificationService.removeAllOutgoingNotificationByEditorId(editorId);
-        ArrayList<OutgoingNotification> stopNotifications = new ArrayList<>();
-        for (OutgoingNotification notification : removedNotifications) {
-            stopNotifications.add( new OutgoingNotification(
-                    editorId,
-                    notification.getEditorName(),
-                    notification.getOccasionType(),
-                    notification.getOccasionId(),
-                    "stop"
-            ));
-        }
-        return stopNotifications;
     }
 }
