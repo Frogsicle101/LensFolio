@@ -19,22 +19,31 @@ $(document).on("click", ".selectUserCheckboxGroups", function () {
 })
 
 /**
- * When remove button is clicked, a request is made to remove the users from the group.
+ * When remove button is clicked, a request is made to remove the selected users from the group.
  */
 $(document).on("click", "#groupRemoveUser", function () {
-    let groupId = $(this).find('.groupId');
-    let groupMembers = [];
-    $(this).closest(`#groupTableBody > tr`).each(() => { //this doesn't work
-        groupMembers.push($(this).attr('id'))
-    })
-    console.log(groupMembers)
-    $.ajax({
-        url: `groups/removeUsers`,
-        type: "DELETE",
-        data: {'groupId': groupId, 'userIds': groupMembers},
-        success: () => {
+    let group = document.getElementsByClassName("focusOnGroup").item(0)
+    let groupId = group.getElementsByClassName("groupId").item(0).innerHTML
+    let userIds = [];
+    let table = document.getElementById("groupTableBody")
 
+    for (let i = 0, row; row = table.rows[i]; i++) {
+        let selected = row.querySelector("#selectUserCheckboxGroups").checked
+        if (selected) {
+            let userId = parseInt(row.cells[1].innerHTML)
+            userIds.push(userId)
+        }
     }
+
+    $.ajax({
+        url: `groups/removeUsers?groupId=${groupId}&userIds=${userIds}`,
+        type: "DELETE",
+        success: () => {
+            console.log("done")
+    },
+        error: (error) => {
+            console.log(error);
+        }
     })
 })
 
@@ -57,7 +66,7 @@ function displayGroupUsersList(groupId) {
                 }
                 membersContainer.append(
                  `<tr>
-                     <th scope="row"><input class="selectUserCheckboxGroups" type="checkbox"/></th>
+                     <th scope="row"><input id="selectUserCheckboxGroups" class="selectUserCheckboxGroups" type="checkbox"/></th>
                     <td>${response.userList[member].id}</td>
                     <td>
                         <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
