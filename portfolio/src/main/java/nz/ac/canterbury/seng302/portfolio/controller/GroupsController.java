@@ -16,15 +16,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.lang.annotation.Repeatable;
 import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * The controller for managing requests to edit groups and their user's memberships.
+ */
 @Controller
 public class GroupsController {
 
     /**
-     * For logging the requests related to groups
+     * For logging the requests related to groups.
      */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -35,7 +36,7 @@ public class GroupsController {
     private UserAccountsClientService userAccountsClientService;
 
     /**
-     * For making gRpc requests to the IdP
+     * For making gRpc requests to the IdP.
      */
     @Autowired
     private GroupsClientService groupsClientService;
@@ -63,11 +64,10 @@ public class GroupsController {
 
     /**
      * Restricted to teachers and course administrators, This endpoint deletes an existing group.
-     * <br>
      *
-     * @param principal - The user who made the request
-     * @param groupId   - The group Id of the group to be deleted
-     * @return ResponseEntity - a response entity containing either OK or NOT FOUND (for now)
+     * @param principal The user who made the request.
+     * @param groupId   The group ID of the group to be deleted.
+     * @return ResponseEntity A response entity containing either OK or NOT FOUND (for now).
      */
     @DeleteMapping("/groups/edit")
     public ResponseEntity<String> deleteGroup(@AuthenticationPrincipal AuthState principal,
@@ -92,7 +92,6 @@ public class GroupsController {
 
     /**
      * Restricted to teachers and course administrators, This endpoint creates a new group.
-     * <br>
      *
      * @param principal - The user who made the request
      * @param createInfo the group request that contains the short and long name
@@ -121,13 +120,46 @@ public class GroupsController {
     }
 
 
+    /**
+     * Restricted to teachers and course administrators, This endpoint modify a group details.
+     *
+     * @param principal The user who made the request.
+     * @param shortName The new short name of the group.
+     * @param longName  The new long name of the group.
+     * @return ResponseEntity A response entity containing either Modified or BAD_REQUEST (for now).
+     */
+    @PostMapping("/groups/edit/details")
+    public ResponseEntity<String> modifyGroupDetails (@AuthenticationPrincipal AuthState principal,
+                                                      @RequestParam Integer groupId,
+                                                      @RequestParam String shortName,
+                                                      @RequestParam String longName) {
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}",groupId, userId);
+        try {
+            ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()
+                    .setGroupId(groupId)
+                    .setShortName(shortName)
+                    .setLongName(longName)
+                    .build();
+            ModifyGroupDetailsResponse response = groupsClientService.modifyGroupDetails(request);
+            if (response.getIsSuccess()) {
+                return new ResponseEntity<>(response.getMessage(), HttpStatus.CREATED);
+            }
+            return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logger.error("ERROR /groups/edit/details - an error occurred while modify a group details");
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     /**
      * Post mapping for a user to be added to a group. Restricted to course administrators and teachers.
      *
-     * @param userIds  The users to be added to the group.
+     * @param userIds The users to be added to the group.
      * @param groupId The group to which the use will be added.
-     * @return a response entity containing the status of the response and the response message
+     * @return A response entity containing the status of the response and the response message.
      */
     @PostMapping("/groups/addUsers")
     public ResponseEntity<String> addUsersToGroup(
@@ -157,9 +189,9 @@ public class GroupsController {
     /**
      * Post mapping for users to be removed from a group. Restricted to course administrators and teachers.
      *
-     * @param userIds  The users to be removed from the group.
+     * @param userIds The users to be removed from the group.
      * @param groupId The group to which the use will be removed.
-     * @return a response entity containing the status of the response and the response message
+     * @return A response entity containing the status of the response and the response message.
      */
     @DeleteMapping("/groups/removeUsers")
     public ResponseEntity<String> removeUsersFromGroup(
@@ -179,8 +211,7 @@ public class GroupsController {
                 return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
             }
             return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             logger.error("ERROR /groups/removeUsers - an error occurred while removing a user from a group");
             logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
