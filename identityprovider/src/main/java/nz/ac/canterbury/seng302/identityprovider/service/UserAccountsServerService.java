@@ -307,7 +307,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 userToUpdate.addRole(request.getRole());
                 repository.save(userToUpdate);
                 if (request.getRole() == UserRole.TEACHER){
-                    addNewTeacherToGroup(userToUpdate);
+                    groupService.addGroupMemberByGroupShortName("Teachers", userToUpdate.getId());
                 }
                 response.setIsSuccess(true)
                         .setMessage(MessageFormat.format("Successfully added role {0} to user {1}",
@@ -353,7 +353,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 logger.info("Role Removal Success - removed " + request.getRole()
                         + " from user " + request.getUserId());
                 if (request.getRole() == UserRole.TEACHER){
-                    removeUserFromTeacherGroup(userToUpdate);
+                    groupService.removeGroupMembersByGroupShortName("Teachers", userToUpdate.getId());
                 }
                 response.setIsSuccess(true)
                         .setMessage(MessageFormat.format("Successfully removed role {0} from user {1}",
@@ -418,35 +418,5 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         reply.setResultSetSize(allUsers.size());
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
-    }
-
-
-    /**
-     * Used to automatically add a user to the teacher group. This occurs when a users roles is changed to include the
-     * teacher role
-     *
-     * @param user The user to be added to the teacher group
-     */
-    private void addNewTeacherToGroup(User user) {
-        List<Integer> userIds = new ArrayList<>();
-        userIds.add(user.getId());
-
-        Integer groupId = groupService.getTeacherGroupId();
-        groupService.addGroupMembers(groupId, userIds);
-    }
-
-
-    /**
-     * Used to automatically remove a user from the teacher group. This occurs when a users roles is changed to no
-     * longer have the teacher role
-     *
-     * @param user The user to be removed from the teacher group
-     */
-    private void removeUserFromTeacherGroup(User user) {
-        List<Integer> userIds = new ArrayList<>();
-        userIds.add(user.getId());
-
-        Integer groupId = groupService.getTeacherGroupId();
-        groupService.removeGroupMembers(groupId, userIds);
     }
 }
