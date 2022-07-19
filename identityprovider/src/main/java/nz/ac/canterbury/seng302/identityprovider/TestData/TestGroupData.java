@@ -80,18 +80,18 @@ public class TestGroupData {
         groupFourMembers.add(userRepository.findById(3));
         groupFourMembers.add(userRepository.findById(4));
 
-        Optional<Group> group3 = groupRepository.findByShortName("Team 100");
-        if (group3.isPresent()){
-            Group actualG3 = group3.get();
-            actualG3.addGroupMembers(groupThreeMembers);
-            groupRepository.save(actualG3);
+        Optional<Group> optionalGroup3 = groupRepository.findByShortName("Team 100");
+        if (optionalGroup3.isPresent()){
+            Group group3 = optionalGroup3.get();
+            group3.addGroupMembers(groupThreeMembers);
+            groupRepository.save(group3);
         }
 
-        Optional<Group> group4 = groupRepository.findByShortName("Team 200");
-        if (group4.isPresent()){
-            Group actualG4 = group4.get();
-            actualG4.addGroupMembers(groupFourMembers);
-            groupRepository.save(actualG4);
+        Optional<Group> optionalGroup4 = groupRepository.findByShortName("Team 200");
+        if (optionalGroup4.isPresent()){
+            Group group4 = optionalGroup4.get();
+            group4.addGroupMembers(groupFourMembers);
+            groupRepository.save(group4);
         }
     }
 
@@ -111,16 +111,16 @@ public class TestGroupData {
             }
         }
 
-        Optional<Group> tg = groupRepository.findByShortName("Teachers");
-        if (tg.isPresent()){
-            Group teachingGroup = tg.get();
+        Optional<Group> optionalTeachersGroup = groupRepository.findByShortName("Teachers");
+        if (optionalTeachersGroup.isPresent()){
+            Group teachingGroup = optionalTeachersGroup.get();
             teachingGroup.addGroupMembers(teachers);
             groupRepository.save(teachingGroup);
         }
 
-        Optional<Group> ng = groupRepository.findByShortName("Teachers");
-        if (ng.isPresent()){
-            Group nonGroupGroup = ng.get();
+        Optional<Group> optionalNonGroup = groupRepository.findByShortName("Teachers");
+        if (optionalNonGroup.isPresent()){
+            Group nonGroupGroup = optionalNonGroup.get();
             nonGroupGroup.addGroupMembers(nonGroupUsers);
             groupRepository.save(nonGroupGroup);
         }
