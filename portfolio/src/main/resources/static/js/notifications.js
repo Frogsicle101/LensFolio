@@ -8,11 +8,10 @@ let stompClient = null
  * and designates handleNotification to run whenever we get a message
  */
 function connect() {
-    let socket = new SockJS('websocket');
 
     stompClient = new StompJs.Client();
     stompClient.configure({
-        brokerURL: 'ws://localhost:9000/websocket',
+        brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
         reconnectDelay: 5000,
         debug: function (str) {
             console.log(str);
@@ -28,27 +27,10 @@ function connect() {
 
     stompClient.onConnect = (frame) => {
         console.log('Connected: ' + frame);
-        alert("connected");
-        //stompClient.subscribe('notifications/sending/occasions', handleNotification);
+        stompClient.subscribe('notifications/sending/occasions', handleNotification);
     }
 
-    stompClient.onUnhandledMessage = (frame) => {
-        alert("unhandled");
-        console.log(frame);
-    }
-
-    console.log("here");
     stompClient.activate();
-    console.log("activated");
-
-    //setTimeout(() => {stompClient.subscribe('notifications/sending/occasions', handleNotification)}, 5000)
-
-
-    // stompClient = StompJs.Stomp.over(socket);
-    // stompClient.connect({}, function (frame) {
-    //     console.log('Connected: ' + frame);
-    //     stompClient.subscribe('notifications/sending/occasions', handleNotification);
-    // });
 }
 
 
@@ -61,9 +43,6 @@ function connect() {
  * @param action What action the user has performed to create this message
  */
 function sendNotification(occasionType, occasionId, action) {
-    //setTimeout(() => {stompClient.subscribe('notifications/sending/occasions', handleNotification);})
-
-    //stompClient.subscribe('notifications/sending/occasions', handleNotification);
     stompClient.publish({
         destination: "notifications/receiving/message",
         body: JSON.stringify({
@@ -128,7 +107,7 @@ function handleCreateEvent( notification ) {
             addDeadline(occasionId)
             break
         default :
-            console.log("WARNING: un-supported occasion type receieved. Ignoring message")
+            console.log("WARNING: un-supported occasion type received. Ignoring message")
             break
     }
 }

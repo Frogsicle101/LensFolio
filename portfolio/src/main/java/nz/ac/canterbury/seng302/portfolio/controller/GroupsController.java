@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.slf4j.Logger;
@@ -41,9 +42,9 @@ public class GroupsController {
      * @return ResponseEntity A response entity containing either OK or NOT FOUND (for now).
      */
     @DeleteMapping("/groups/edit")
-    public ResponseEntity<String> deleteGroup(@AuthenticationPrincipal AuthState principal,
+    public ResponseEntity<String> deleteGroup(@AuthenticationPrincipal Authentication principal,
                                               @RequestParam Integer groupId) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
         logger.info("DELETE REQUEST /groups - attempt to delete group {} by user: {}", groupId, userId);
         try {
             DeleteGroupRequest request = DeleteGroupRequest.newBuilder()
@@ -71,10 +72,10 @@ public class GroupsController {
      * @return ResponseEntity A response entity containing either CREATED or BAD_REQUEST (for now).
      */
     @PostMapping("/groups/edit")
-    public ResponseEntity<String> createGroup(@AuthenticationPrincipal AuthState principal,
+    public ResponseEntity<String> createGroup(@AuthenticationPrincipal Authentication principal,
                                               @RequestParam String shortName,
                                               @RequestParam String longName) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
         logger.info("POST REQUEST /groups/edit - attempt to create group {} by user: {}", shortName, userId);
         try {
             CreateGroupRequest request = CreateGroupRequest.newBuilder()
@@ -103,11 +104,11 @@ public class GroupsController {
      * @return ResponseEntity A response entity containing either Modified or BAD_REQUEST (for now).
      */
     @PostMapping("/groups/edit/details")
-    public ResponseEntity<String> modifyGroupDetails (@AuthenticationPrincipal AuthState principal,
+    public ResponseEntity<String> modifyGroupDetails (@AuthenticationPrincipal Authentication principal,
                                                       @RequestParam Integer groupId,
                                                       @RequestParam String shortName,
                                                       @RequestParam String longName) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
         logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}",groupId, userId);
         try {
             ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()

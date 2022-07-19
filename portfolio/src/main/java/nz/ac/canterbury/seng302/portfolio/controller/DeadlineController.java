@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
@@ -62,14 +63,14 @@ public class DeadlineController {
      */
     @PutMapping("/addDeadline")
     public ResponseEntity<Object> addDeadline(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "deadlineName") String name,
             @RequestParam(value = "deadlineEnd") String end,
             @RequestParam(defaultValue = "1", value = "typeOfOccasion") int typeOfOccasion
     ) {
         logger.info("PUT /addDeadline");
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
@@ -142,7 +143,7 @@ public class DeadlineController {
      * The deadline is then edited with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
-     * @param principal The AuthState of the user making the request, for authentication
+     * @param principal The Authentication of the user making the request, for authentication
      * @param deadlineId the ID of the deadline being edited.
      * @param projectId id of project to add deadline to.
      * @param name the new name of the deadline.
@@ -153,7 +154,7 @@ public class DeadlineController {
      */
     @PostMapping("/editDeadline")
     public ResponseEntity<String> editDeadline(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "deadlineId") String deadlineId,
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "deadlineName") String name,
@@ -162,7 +163,7 @@ public class DeadlineController {
             @RequestParam(value = "typeOfOccasion") Integer typeOfOccasion
     ) {
         logger.info("PUT /editDeadline");
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
@@ -231,16 +232,16 @@ public class DeadlineController {
      *
      * Otherwise it will delete the deadline from the repository
      *
-     * @param principal The AuthState of the user making the request, for authentication
+     * @param principal The Authentication of the user making the request, for authentication
      * @param deadlineId The UUID of the deadline to be deleted
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @DeleteMapping("/deleteDeadline")
     public ResponseEntity<Object> deleteDeadline(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "deadlineId") String deadlineId) {
         logger.info("PUT /deleteDeadline");
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();

@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import com.google.type.DateTime;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
@@ -68,7 +69,7 @@ public class CalendarController {
      */
     @GetMapping("/calendar")
     public ModelAndView getCalendar(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "projectId") Long projectId
             ) {
         try{
@@ -79,7 +80,7 @@ public class CalendarController {
 
             ModelAndView model = new ModelAndView("monthlyCalendar");
             model.addObject("project", project);
-            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
             List<UserRole> roles = user.getRolesList();
             if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
                 model.addObject("userCanEdit", true);

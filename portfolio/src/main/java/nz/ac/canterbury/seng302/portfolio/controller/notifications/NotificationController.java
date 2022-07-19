@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller.notifications;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.IncomingNotification;
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.OutgoingNotification;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import org.slf4j.Logger;
@@ -50,7 +51,8 @@ public class NotificationController {
 
         // Spring's websocket handling doesn't support our AuthState type, so we typecast from java.security.Principal;
         PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
-        AuthState state = (AuthState) auth.getPrincipal();
+        Authentication authentication = (Authentication) auth.getPrincipal();
+        AuthState state = authentication.getAuthState();
         String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
         OutgoingNotification notification = new OutgoingNotification(editorId, state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
         //If we want to notify other users,

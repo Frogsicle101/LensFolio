@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.ReadableTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -52,10 +53,10 @@ public class AccountController {
      */
     @RequestMapping("/account")
     public ModelAndView account(
-            @AuthenticationPrincipal AuthState principal
+            @AuthenticationPrincipal Authentication principal
     ) {
         try {
-            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
             logger.info("GET REQUEST /account - retrieving account details for user {}", user.getUsername());
 
             ModelAndView model = new ModelAndView("account");
@@ -254,7 +255,7 @@ public class AccountController {
      */
     @PostMapping("/edit/details")
     public ResponseEntity<Object> editDetails(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication authentication,
             @ModelAttribute(name="editDetailsForm") UserRequest editInfo
     ) {
         try{
@@ -265,6 +266,7 @@ public class AccountController {
             }
 
             EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
+            AuthState principal = authentication.getAuthState();
             int userId = PrincipalAttributes.getIdFromPrincipal(principal);
             logger.info(" POST REQUEST /edit/details - update account details for user {}",userId);
 
@@ -309,11 +311,11 @@ public class AccountController {
      */
     @PostMapping("/edit/password")
     public ResponseEntity<Object> editPassword(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication authentication,
             @ModelAttribute(name="editPasswordForm") PasswordRequest editInfo
     ){
         try {
-            int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+            int userId = PrincipalAttributes.getIdFromPrincipal(authentication.getAuthState());
             logger.info("POST REQUEST /edit/password - update password for user {}", userId);
             ChangePasswordRequest.Builder changePasswordRequest = ChangePasswordRequest.newBuilder();
 
@@ -379,10 +381,10 @@ public class AccountController {
 
     @DeleteMapping("/deleteProfileImg")
     public ResponseEntity<String> deleteProfilePhoto(
-            @AuthenticationPrincipal AuthState principal
+            @AuthenticationPrincipal Authentication authentication
     ) {
         logger.info("Endpoint reached: DELETE /deleteProfileImg");
-        int id = PrincipalAttributes.getIdFromPrincipal(principal);
+        int id = PrincipalAttributes.getIdFromPrincipal(authentication.getAuthState());
 
         DeleteUserProfilePhotoRequest deleteRequest = DeleteUserProfilePhotoRequest.newBuilder().setUserId(id).build();
 

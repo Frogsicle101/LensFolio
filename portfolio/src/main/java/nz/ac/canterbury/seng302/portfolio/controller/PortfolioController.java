@@ -19,7 +19,7 @@ import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 
 
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -121,13 +121,13 @@ public class PortfolioController {
 
     /**
      * Get mapping for /Portfolio
-     * @param principal - The AuthState of the user making the request, for authentication
+     * @param principal - The Authentication of the user making the request, for authentication
      * @param projectId Id of the project to display
      * @return returns the portfolio view, or error-page
      */
     @GetMapping("/portfolio")
     public ModelAndView getPortfolio(
-                                  @AuthenticationPrincipal AuthState principal,
+                                  @AuthenticationPrincipal Authentication principal,
                                   @RequestParam(value = "projectId") long projectId
     ) {
         try {
@@ -135,7 +135,7 @@ public class PortfolioController {
             logger.info("GET REQUEST /portfolio");
 
             // Get user from server
-            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
 
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
@@ -187,20 +187,20 @@ public class PortfolioController {
 
     /**
      * Request mapping for /editProject
-     * @param principal - The AuthState of the user making the request, for authentication
+     * @param principal - The Authentication of the user making the request, for authentication
      * @param projectId The project to edit
      * @return Returns the project edit page or the error page
      */
     @RequestMapping("/editProject")
     public ModelAndView edit(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam (value = "projectId") Long projectId
     ) {
         try{
             logger.info("GET REQUEST /editProject");
 
             // Get user from server
-            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
             // Gets the project that the request is referring to.
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
@@ -409,7 +409,7 @@ public class PortfolioController {
      */
     @RequestMapping("/sprintEdit")
     public ModelAndView sprintEdit(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam (value = "sprintId") String sprintId,
             @RequestParam (value = "projectId") Long projectId,
             RedirectAttributes attributes
@@ -420,7 +420,7 @@ public class PortfolioController {
             ModelAndView modelAndView = new ModelAndView("sprintEdit");
 
             // Get user from server
-            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
             Sprint sprint = sprintRepository.findById(String.valueOf(sprintId)).orElseThrow(() -> new EntityNotFoundException(
                     "Sprint with id " + projectId.toString() + " was not found"

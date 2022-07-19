@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -884,7 +885,7 @@ class AccountControllerTest {
 
     @Test
     void testGetAccount() {
-        ModelAndView modelAndView = accountController.account(principal);
+        ModelAndView modelAndView = accountController.account(new Authentication(principal));
 
         Assertions.assertTrue(modelAndView.hasView());
         Assertions.assertTrue(modelAndView.getModel().containsKey("alphaSpacesRegex"));
