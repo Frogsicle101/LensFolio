@@ -19,14 +19,10 @@ import java.io.*;
 @Controller
 public class ImageController {
 
-    /**
-     * For logging the requests related to image endpoints.
-     */
+    /** For logging the requests related to image endpoints. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * Retrieves the environment variables at runtime.
-     */
+    /** Retrieves the environment variables at runtime. */
     @Autowired
     Environment env;
 
