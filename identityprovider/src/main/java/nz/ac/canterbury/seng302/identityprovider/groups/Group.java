@@ -13,14 +13,16 @@ import java.util.List;
  * Object representation of a group of users.
  */
 @Entity
-@Table(name = "group_table") // had to add this, as I think Group can't be a table name in H2 as it's a reserved keyword?
+@Table(name = "group_table")
 public class Group {
 
     /** The unique ID of the Group. */
     @Id
     private Integer id;
 
-    /** The ID's of the group's members. */
+    /**
+     * The User's in the group.
+     */
     @ManyToMany
     @Fetch(FetchMode.JOIN)
     @JoinTable(name = "group_members",
@@ -40,11 +42,11 @@ public class Group {
 
 
     /**
-    * The default constructor for a group, which automatically generates a unique ID.
-    *
-    * @param shortName The group's short name.
-    * @param longName The group's long name.
-    */
+     * The default constructor for a group, which automatically generates a unique ID.
+     *
+     * @param shortName The group's short name.
+     * @param longName The group's long name.
+     */
     public Group (String shortName, String longName) {
         this.shortName = shortName;
         this.longName = longName;
@@ -99,27 +101,23 @@ public class Group {
 
 
     /**
-     * Removes users from a group
+     * Removes a user from the group
      *
-     * @param users a list of the users to be removed
+     * @param user the user to be removed
      */
-    public void removeGroupMembers(List<User> users) {
-        for (User user : users)  {
-            userList.remove(user);
-        }
+    public void removeGroupMember(User user) {
+        userList.remove(user);
     }
 
 
     /**
-     * Adds a user to the group object if the user is not already present
+     * Adds a user to the group if the user is not already present
      *
-     * @param users A list of the users to be added
+     * @param user The user to be added
      */
-    public void addGroupMembers(List<User> users) {
-        for (User user : users) {
-            if (!userList.contains(user)) {
-                userList.add(user);
-            }
+    public void addGroupMember(User user) {
+        if (!userList.contains(user)) {
+            userList.add(user);
         }
     }
 

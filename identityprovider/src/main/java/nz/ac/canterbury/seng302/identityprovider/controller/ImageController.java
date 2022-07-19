@@ -36,7 +36,6 @@ public class ImageController {
         if (!image.exists()) {
             logger.info("profile image does not exist using default image");
             image = new File(photoLocation + "default.png");
-            System.out.println(image.getAbsolutePath());
         }
 
         InputStream in = new FileInputStream(image);

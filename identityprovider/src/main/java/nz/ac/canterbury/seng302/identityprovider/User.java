@@ -152,6 +152,11 @@ public class User {
     }
 
 
+    public List<Group> getGroups() {
+        return groups;
+    }
+
+
     public ArrayList<UserRole> getRoles() { return roles; }
 
 
@@ -263,10 +268,6 @@ public class User {
         imagePath = path;
     }
 
-    public List<Group> getGroups() {
-        return groups;
-    }
-
 
     public UserResponse userResponse() {
         UserResponse.Builder response = UserResponse.newBuilder();
@@ -289,5 +290,18 @@ public class User {
         }
 
         return response.build();
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof User u)) {
+            return false;
+        }
+
+        return CharSequence.compare(username, u.username) == 0;
     }
 }
