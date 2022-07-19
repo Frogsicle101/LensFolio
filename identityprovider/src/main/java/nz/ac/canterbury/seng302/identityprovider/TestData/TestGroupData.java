@@ -30,7 +30,6 @@ public class TestGroupData {
 
     /**
      * Creates the two default groups, members without groups and teaching staff.
-     * Loops through a list that contains every user and filters them into either nonGroupUsers or Teachers.
      * Saves both the groups to the repository.
      */
     public void addDefaultGroups() {
@@ -88,6 +87,9 @@ public class TestGroupData {
         groupRepository.save(group4);
     }
 
+    /**
+     * Loops through a list that contains every user and filters them into either nonGroupUsers or Teachers.
+     */
     public void setInitialTeachersAndMWAGGroupMembers() {
         logger.info("Adding Teacher and Members without a group to default groups");
         Group teachingGroup = groupRepository.getGroupById(0);

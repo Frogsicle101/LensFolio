@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
+import nz.ac.canterbury.seng302.portfolio.service.GroupService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -35,6 +36,10 @@ public class GroupsController {
      */
     @Autowired
     private GroupsClientService groupsClientService;
+
+    /** For performing more complicated operations on groups */
+    @Autowired
+    private GroupService groupService;
 
     /**
      * For requesting user information form the IdP.
@@ -217,11 +222,7 @@ public class GroupsController {
         logger.info("POST REQUEST /groups/addUsers");
 
         try {
-            AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder()
-                    .setGroupId(groupId)
-                    .addAllUserIds(userIds)
-                    .build();
-            AddGroupMembersResponse response = groupsClientService.addGroupMembers(request);
+            AddGroupMembersResponse response = groupService.addUsersToGroup(groupId, userIds);
             if (response.getIsSuccess()) {
                 return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
             }
