@@ -1,9 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.DTO.GroupRequest;
-import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
+import nz.ac.canterbury.seng302.portfolio.DTO.GroupRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -15,12 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -126,10 +118,10 @@ public class GroupsController {
      * @return ModelAndView - the model and view of the group creation page
      */
     @GetMapping("/groups/create")
-    public ModelAndView getCreatePage(@AuthenticationPrincipal AuthState principal) {
+    public ModelAndView getCreatePage(@AuthenticationPrincipal Authentication principal) {
         try {
             logger.info("GET REQUEST /groups/create - get group creation page");
-            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
             ModelAndView model = new ModelAndView("groupCreation");
             model.addObject("user", user);
