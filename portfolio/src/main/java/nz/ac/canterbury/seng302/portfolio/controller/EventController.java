@@ -21,20 +21,18 @@ import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 
 @RestController
 public class EventController {
 
     private final ProjectRepository projectRepository;
+
     private final EventRepository eventRepository;
 
-
-
     private final RegexPatterns regexPatterns = new RegexPatterns();
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     public EventController(ProjectRepository projectRepository, EventRepository eventRepository) {
@@ -48,10 +46,10 @@ public class EventController {
      * The method first parses the two date strings that are passed as request parameters.
      * They are being passed in, in a format called ISO_DATE_TIME, the parsers converts them from that to the standard
      * LocalDateTime format that we use.
-     * <p>
+     *
      * The project is then grabbed from the repository by its ID.
      * If the project can't be found, it throws an EntityNotFoundException
-     * <p>
+     *
      * The Event is then created with the parameters passed, and saved to the event repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -119,11 +117,13 @@ public class EventController {
 
     }
 
+
     /**
      * Mapping for a delete request for event.
      * Trys to find the event with the Id given.
      * If it can't find the event an exception is thrown and then caught, with the error being returned.
      * If it can find the event, it tries to delete the event and if successful returns OK.
+     *
      * @param eventId Id of event to be deleted.
      * @return A status code indicating request was successful, or failed.
      */
@@ -154,10 +154,10 @@ public class EventController {
     /**
      * Mapping for a post request to edit an event.
      * The method first gets the event from the repository. If the event cannot be retrieved, it throws an EntityNotFound exception.
-     * <p>
+     *
      * The method then parses the date strings that is passed as a request parameter.
      * The parsers convert the dates to the standard LocalDateTime format.
-     * <p>
+     *
      * The Event is then edited with the parameters passed, and saved to the event repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -224,6 +224,7 @@ public class EventController {
 
     /**
      * Gets the list of events in a project and returns it.
+     *
      * @param projectId The projectId to get the events from this project
      * @return A ResponseEntity with the events or an error
      */
@@ -246,6 +247,7 @@ public class EventController {
 
     /**
      * Returns a single event from the id that was given
+     *
      * @param eventId the event id
      * @return a single event
      */
@@ -266,6 +268,4 @@ public class EventController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 }

@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import com.google.type.DateTime;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
@@ -62,13 +63,14 @@ public class CalendarController {
 
     /**
      * Get mapping for /calendar. Returns the calendar view.
+     *
      * @param principal principal
      * @param projectId id of the project that the calendar will display
      * @return the calendar view
      */
     @GetMapping("/calendar")
     public ModelAndView getCalendar(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "projectId") Long projectId
             ) {
         try{
@@ -79,7 +81,7 @@ public class CalendarController {
 
             ModelAndView model = new ModelAndView("monthlyCalendar");
             model.addObject("project", project);
-            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
             List<UserRole> roles = user.getRolesList();
             if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
                 model.addObject("userCanEdit", true);
@@ -93,15 +95,12 @@ public class CalendarController {
             logger.error("GET REQUEST /calendar", err);
             return new ModelAndView("errorPage").addObject("errorMessage", err.getMessage());
         }
-
-
-
     }
-
 
 
     /**
      * Returns the sprints as in a json format, only finds the sprints that are within the start and end dates
+     *
      * @param projectId the project to look for the sprints in
      * @param startDate start date to look for
      * @param endDate end date to look for
@@ -147,7 +146,6 @@ public class CalendarController {
                     jsonedSprint.put("selected", false);
                     sprintsToSend.add(jsonedSprint);
                 }
-
             }
 
             return new ResponseEntity<>(sprintsToSend, HttpStatus.OK);
@@ -161,8 +159,10 @@ public class CalendarController {
 
     }
 
+
     /**
      * Gets project in a json feed format
+     *
      * @param projectId project to get
      * @return ResponseEntity with status, and List of hashmaps.
      */
@@ -171,7 +171,6 @@ public class CalendarController {
             @RequestParam(value = "projectId") Long projectId){
         try{
             logger.info("GET REQUEST /getProjectAsFeed");
-
 
             // Gets the project that the request is referring to.
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
@@ -197,12 +196,12 @@ public class CalendarController {
             logger.error("GET REQUEST /getProjectAsFeed", err);
             return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
 
     /**
      * Gets the project details
+     *
      * @param projectId project to get
      * @return response entity with project, or error message
      */
@@ -222,6 +221,7 @@ public class CalendarController {
             return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
         }
     }
+
 
     /**
      * Returns the events as in a json format, only finds the events by date
@@ -406,6 +406,5 @@ public class CalendarController {
     public void setUserAccountsClientService(UserAccountsClientService service) {
         this.userAccountsClientService = service;
     }
-
 }
 

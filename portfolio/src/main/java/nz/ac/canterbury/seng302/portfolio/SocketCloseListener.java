@@ -37,6 +37,7 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
     /** Notification service which provides the logic for sending notifications to subscribed users */
     private final static NotificationService notificationService = NotificationUtil.getNotificationService();
 
+
     /**
      * Spring publishes a SessionDisconnectEvent when a websocket goes down. This method listens for that event and
      * sends the STOMP message to all other clients.

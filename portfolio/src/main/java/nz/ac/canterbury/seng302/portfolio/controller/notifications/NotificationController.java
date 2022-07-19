@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller.notifications;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.IncomingNotification;
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.OutgoingNotification;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ public class NotificationController {
     /** For logging */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
     /**
      * A method that will run whenever a client subscribes to the notifications/sending/occasions
      * Asks the notification service for all of our stored notifications, and then returns them.
@@ -45,6 +47,7 @@ public class NotificationController {
         return notificationService.sendStoredNotifications();
     }
 
+
     /**
      * A message-mapping method that will:
      * receive a IncomingNotification object that was sent to /notifications/message
@@ -52,7 +55,7 @@ public class NotificationController {
      * Make a string that will be the content of our editing notification
      * Put it into a OutgoingNotification object
      * Send it off to /notifications/receiving/occasions, for any and all STOMP clients subscribed to that endpoint
-     *     *
+     *
      * Don't call this method directly. This is a spring method; it'll call itself when the time is right.
      * @param message A model for the edit details
      * @return A messenger object containing a type, occasion, id and content
@@ -64,7 +67,8 @@ public class NotificationController {
 
         // Spring's websocket handling doesn't support our AuthState type, so we typecast from java.security.Principal;
         PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
-        AuthState state = (AuthState) auth.getPrincipal();
+        Authentication authentication = (Authentication) auth.getPrincipal();
+        AuthState state = authentication.getAuthState();
         String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
         OutgoingNotification notification = new OutgoingNotification(editorId, state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
         //If we want to notify other users,

@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -22,30 +23,35 @@ public class UploadController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
+
     /**
      * Shows the form to upload a profile image if the user is logged in
+     *
      * @return The Thymeleaf upload html template.
      */
     @GetMapping("/uploadImage")
     public ModelAndView showUpload(
-            @AuthenticationPrincipal AuthState principal
+            @AuthenticationPrincipal Authentication principal
     ) {
         logger.info("Endpoint reached: GET /uploadImage");
         ModelAndView modelAndView = new ModelAndView("upload-image");
-        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         modelAndView.addObject("user", user);
         return modelAndView;
     }
 
+
     /**
      * Endpoint that sends the given file to the identity provider
+     *
      * @param file The file sent in the body of the post request
      */
     @PostMapping("/upload")
     public ModelAndView upload(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication authentication,
             @RequestParam("image") MultipartFile file
     ) throws IOException {
+        AuthState principal = authentication.getAuthState();
         logger.info("Endpoint reached: POST /upload");
         ModelAndView modelAndView = new ModelAndView("upload-image");
         int id = PrincipalAttributes.getIdFromPrincipal(principal);
@@ -54,5 +60,4 @@ public class UploadController {
         modelAndView.addObject("user", user);
         return modelAndView;
     }
-
 }

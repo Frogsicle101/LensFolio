@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
 import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefs;
@@ -60,13 +61,13 @@ public class UserListController {
      */
     @GetMapping("/user-list")
     public ModelAndView getUserList(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             Model model,
           @RequestParam(name = "page", required = false) Integer page,
           @RequestParam(name = "sortField", required = false) String order)
     {
         logger.info("GET REQUEST /user-list - retrieve paginated users for the user list");
-        selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal), Objects.requireNonNullElse(order, ""));
+        selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal.getAuthState()), Objects.requireNonNullElse(order, ""));
         if (page != null) {
             pageNum = page;
         }
@@ -90,7 +91,7 @@ public class UserListController {
         
         createFooterNumberSequence();
         userResponseList = response.getUsersList();
-        addAttributesToModel(principal, model);
+        addAttributesToModel(principal.getAuthState(), model);
 
         logger.info("RESOLVED /user-list");
         return new ModelAndView("user-list");

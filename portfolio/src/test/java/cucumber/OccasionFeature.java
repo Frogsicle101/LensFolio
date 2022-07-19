@@ -3,6 +3,7 @@ package cucumber;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.DeadlineController;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
@@ -164,7 +165,7 @@ public class OccasionFeature {
         if (deadlineName.equals("left blank")) {
             deadlineName = null;
         }
-        ResponseEntity<Object> stat = deadlineController.addDeadline(principal, project.getId(), deadlineName, dateTime, 1);
+        ResponseEntity<Object> stat = deadlineController.addDeadline(new Authentication(principal), project.getId(), deadlineName, dateTime, 1);
     }
 
     @When("a user creates a milestone for {string} with name {string} and type {int}")

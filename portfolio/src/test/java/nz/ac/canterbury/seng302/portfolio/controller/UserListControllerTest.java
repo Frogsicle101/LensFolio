@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -22,7 +23,7 @@ public class UserListControllerTest {
     private static final UserListController userListController = new UserListController();
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
     private final ArrayList<UserResponse> expectedUsersList = new ArrayList<>();
-    private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
+    private final Authentication principal = new Authentication(AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build());
 
     @Autowired
     private UserPrefRepository userPrefRepository;
@@ -61,7 +62,7 @@ public class UserListControllerTest {
                 .setProfileImagePath("a");
         user.addRoles(UserRole.STUDENT);
 
-        when(PrincipalAttributes.getUserFromPrincipal(principal, mockClientService)).thenReturn(user.build());
+        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), mockClientService)).thenReturn(user.build());
         addUsersToExpectedList(0,201);
         userPrefRepository.deleteAll();
         userListController.setPrefRepository(userPrefRepository);
