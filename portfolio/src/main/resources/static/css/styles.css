@@ -677,3 +677,8 @@ section {
 .membersContainerTitle {
     text-align: center;
 }
+
+.tableRowGroups:hover {
+    background-color: var(--main-border-colour);
+    cursor: pointer;
+}
