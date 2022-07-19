@@ -613,6 +613,11 @@ section {
 
 
 /*Groups*/
+
+.createGroupButtonDiv {
+    padding-top: 0.5rem;
+    padding-left: 0.5rem;
+}
 .groupsContainer {
     display: flex;
     flex-direction: column;

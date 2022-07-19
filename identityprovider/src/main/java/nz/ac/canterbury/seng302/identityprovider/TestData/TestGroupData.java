@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TestGroupData {
@@ -79,19 +80,23 @@ public class TestGroupData {
         groupFourMembers.add(userRepository.findById(3));
         groupFourMembers.add(userRepository.findById(4));
 
-        Group group3 = groupRepository.getGroupById(3);
-        group3.addGroupMembers(groupThreeMembers);
-        groupRepository.save(group3);
+        Optional<Group> group3 = groupRepository.findByShortName("Team 100");
+        if (group3.isPresent()){
+            Group actualG3 = group3.get();
+            actualG3.addGroupMembers(groupThreeMembers);
+            groupRepository.save(actualG3);
+        }
 
-        Group group4 = groupRepository.getGroupById(4);
-        group4.addGroupMembers(groupFourMembers);
-        groupRepository.save(group4);
+        Optional<Group> group4 = groupRepository.findByShortName("Team 200");
+        if (group4.isPresent()){
+            Group actualG4 = group4.get();
+            actualG4.addGroupMembers(groupFourMembers);
+            groupRepository.save(actualG4);
+        }
     }
 
     public void setInitialTeachersAndMWAGGroupMembers() {
         logger.info("Adding Teacher and Members without a group to default groups");
-        Group teachingGroup = groupRepository.getGroupById(0);
-        Group nonGroupGroup = groupRepository.getGroupById(1);
 
         List<User> everyUserList = (List<User>) userRepository.findAll();
         List<User> teachers = new ArrayList<>();
@@ -106,11 +111,20 @@ public class TestGroupData {
             }
         }
 
-        teachingGroup.addGroupMembers(teachers);
-        nonGroupGroup.addGroupMembers(nonGroupUsers);
+        Optional<Group> tg = groupRepository.findByShortName("Teachers");
+        if (tg.isPresent()){
+            Group teachingGroup = tg.get();
+            teachingGroup.addGroupMembers(teachers);
+            groupRepository.save(teachingGroup);
+        }
 
-        groupRepository.save(teachingGroup);
-        groupRepository.save(nonGroupGroup);
+        Optional<Group> ng = groupRepository.findByShortName("Teachers");
+        if (ng.isPresent()){
+            Group nonGroupGroup = ng.get();
+            nonGroupGroup.addGroupMembers(nonGroupUsers);
+            groupRepository.save(nonGroupGroup);
+        }
+
         logger.info("Finished adding teacher and MWAG to default groups");
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,7 +36,6 @@ public class ImageController {
         if (!image.exists()) {
             logger.info("profile image does not exist using default image");
             image = new File(photoLocation + "default.png");
-            System.out.println(image.getAbsolutePath());
         }
 
         InputStream in = new FileInputStream(image);

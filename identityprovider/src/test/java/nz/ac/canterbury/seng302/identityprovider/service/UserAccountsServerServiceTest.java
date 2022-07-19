@@ -536,7 +536,6 @@ class UserAccountsServerServiceTest {
         repository.deleteAll();
         newUser.addRole(UserRole.TEACHER);
         User newSavedUser = repository.save(newUser);
-        System.out.println(newSavedUser);
         Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
 
         List<User> usersToAdd = new ArrayList<>();

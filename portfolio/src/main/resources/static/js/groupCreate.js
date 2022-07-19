@@ -22,7 +22,7 @@ $(document).ready(() => {
             type: "post",
             data: groupData,
             success: function () {
-                location.href = "/account" // On success reloads page
+                location.href = "/groups" // On success reloads page
             },
             error: function (error) {//Displays error in box on failure
                 errorMessage.text(error.responseText)
