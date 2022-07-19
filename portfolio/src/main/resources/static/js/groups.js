@@ -52,8 +52,8 @@ $(document).on("click", ".group", function () {
 
     selectedUserIds = [];
     $("#confirmationForm").slideUp();
-
     $(this).closest(".group").addClass("focusOnGroup");
+    updateNumberSelectedDisplay()
 })
 
 
@@ -83,7 +83,7 @@ $(document).on("click", ".selectUserCheckboxGroups", function () {
         $("#selectAllCheckboxGroups").prop("checked", false);
     }
 
-    updateNumberSelectedDisplay(selectedUserIds.length);
+    updateNumberSelectedDisplay();
 })
 
 
@@ -119,7 +119,7 @@ $(document).on("click", "#selectAllCheckboxGroups", function () {
         })
     }
 
-    updateNumberSelectedDisplay(selectedUserIds.length);
+    updateNumberSelectedDisplay();
 })
 
 
@@ -152,8 +152,8 @@ $(document).on("click", ".deleteButton", function () {
  *
  * @param value The number of users currently selected.
  */
-function updateNumberSelectedDisplay(value) {
-    $(".numSelected").text(value + " Selected")
+function updateNumberSelectedDisplay() {
+    $(".numSelected").text(selectedUserIds.length + " Selected")
 }
 
 
