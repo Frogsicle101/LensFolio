@@ -1,7 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.DTO;
 
 
-
 public class SprintRequest {
     private String sprintId;
     private String sprintName;

@@ -3,6 +3,7 @@ package cucumber;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.DeadlineController;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
@@ -67,7 +68,9 @@ public class OccasionFeature {
         }
 
         @Override
-        public Deadline getById(String s) {return null;}
+        public Deadline getById(String s) {
+            return null;
+        }
 
         @Override
         public boolean existsById(String s) {
@@ -141,7 +144,7 @@ public class OccasionFeature {
                 .setEmail("steve@example.com")
                 .setProfileImagePath("a");
         user.addRoles(UserRole.STUDENT);
-        if (isAuthenticated){
+        if (isAuthenticated) {
             user.addRoles(UserRole.TEACHER);
         }
         when(PrincipalAttributes.getUserFromPrincipal(principal, clientService)).thenReturn(user.build());
@@ -164,7 +167,7 @@ public class OccasionFeature {
         if (deadlineName.equals("left blank")) {
             deadlineName = null;
         }
-        ResponseEntity<Object> stat = deadlineController.addDeadline(principal, project.getId(), deadlineName, dateTime, 1);
+        ResponseEntity<Object> stat = deadlineController.addDeadline(new Authentication(principal), project.getId(), deadlineName, dateTime, 1);
     }
 
     @When("a user creates a milestone for {string} with name {string} and type {int}")
@@ -187,6 +190,7 @@ public class OccasionFeature {
         boolean deadlineExists = Boolean.parseBoolean(deadlineExistsString);
         assertEquals(deadlineExists, deadlineRepository.countDeadlineByProjectId(project.getId()) == 1);
     }
+
     @Then("The milestone exists: {string}")
     public void the_milestone_exists(String milestoneExistsString) {
         boolean deadlineExists = Boolean.parseBoolean(milestoneExistsString);

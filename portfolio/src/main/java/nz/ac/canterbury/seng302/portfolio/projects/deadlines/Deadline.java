@@ -19,7 +19,6 @@ import java.time.LocalTime;
 @Entity
 public class Deadline extends Milestone {
 
-//    @Column(nullable = false) //FIXME this should be uncommented but it breaks something:(
     private LocalTime endTime;
     private LocalDateTime dateTime;
 
@@ -35,11 +34,11 @@ public class Deadline extends Milestone {
      * Constructs an instance of the deadline object.
      *
      * @param project The project in which the deadline occurs.
-     * @param name The name of the deadline.
+     * @param name    The name of the deadline.
      * @param endDate The end date of the deadline.
      * @param endTime The end time of the deadline.
-     * @param type The type of the deadline.
-     * @throws DateTimeException If the deadline's date does not occur between the project's start and end dates.
+     * @param type    The type of the deadline.
+     * @throws DateTimeException    If the deadline's date does not occur between the project's start and end dates.
      * @throws InvalidNameException If the deadline's name is null or has length greater than fifty characters.
      */
     public Deadline(Project project, String name, LocalDate endDate, LocalTime endTime, int type) throws DateTimeException, InvalidNameException {
@@ -51,6 +50,7 @@ public class Deadline extends Milestone {
 
     /**
      * Formats the object's date to the form "hh:mma E d MMMM y"
+     *
      * @return The formatted date.
      */
     @Override
@@ -63,7 +63,9 @@ public class Deadline extends Milestone {
         this.endTime = endTime;
     }
 
-    public LocalTime getEndTime() { return this.endTime;}
+    public LocalTime getEndTime() {
+        return this.endTime;
+    }
 
     public LocalDateTime getDateTime() {
         return this.dateTime;

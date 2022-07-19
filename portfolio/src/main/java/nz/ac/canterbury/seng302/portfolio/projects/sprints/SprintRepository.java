@@ -26,6 +26,4 @@ public interface SprintRepository extends CrudRepository<Sprint, String> {
     List<Sprint> getAllByProjectOrderByStartDateAsc(Project project);
 
 
-
-
 }

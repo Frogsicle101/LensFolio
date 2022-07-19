@@ -17,10 +17,14 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class RoleBasedIntercepter implements HandlerInterceptor {
 
-    /** To get the users information */
+    /**
+     * To get the users information
+     */
     public AuthenticateClientService authenticateClientService;
 
-    /** To log when the checks are made */
+    /**
+     * To log when the checks are made
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -31,7 +35,7 @@ public class RoleBasedIntercepter implements HandlerInterceptor {
      * @return the AuthenticateClientService instance
      */
     private AuthenticateClientService getAuthenticateClientService(HttpServletRequest request) {
-        if(authenticateClientService == null){
+        if (authenticateClientService == null) {
             ServletContext servletContext = request.getServletContext();
             WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
             authenticateClientService = webApplicationContext.getBean(AuthenticateClientService.class);
@@ -43,10 +47,9 @@ public class RoleBasedIntercepter implements HandlerInterceptor {
     /**
      * Checks that a user has the teacher or course administrator role
      *
-     * @param request - The httpServlet request
+     * @param request  - The httpServlet request
      * @param response - The httpServlet response
-     * @param handler - Required parameter for override
-     *
+     * @param handler  - Required parameter for override
      * @return trues if the user has the teacher or administrator role, else false
      * @throws Exception - If the AuthenticateClientService can't be found.
      */

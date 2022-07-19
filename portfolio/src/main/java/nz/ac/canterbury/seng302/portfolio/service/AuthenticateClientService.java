@@ -31,7 +31,7 @@ public class AuthenticateClientService {
      * @param password - the password attribute to be passed in the request
      * @return authenticationResponse - the servers response to the authentication, following the AuthenticationResponse contract
      */
-    public AuthenticateResponse authenticate(final String username, final String password)  {
+    public AuthenticateResponse authenticate(final String username, final String password) {
         logger.info("SERVICE - send authentication request to server");
         AuthenticateRequest authRequest = AuthenticateRequest.newBuilder()
                 .setUsername(username)

@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
@@ -31,7 +32,7 @@ import java.util.Map;
 public class GroupsController {
 
     /**
-     * For logging the requests related to groups.
+     * For logging the requests related to groups
      */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -58,10 +59,10 @@ public class GroupsController {
      * @return a response entity containing the list of GroupDetailsResponse object, and a response status.
      */
     @GetMapping("/groups")
-    public ModelAndView groups(@AuthenticationPrincipal AuthState principal) {
+    public ModelAndView groups(@AuthenticationPrincipal Authentication principal) {
         logger.info("GET REQUEST /groups - attempt to get all groups");
 
-        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("groups");
 
         // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
@@ -94,9 +95,14 @@ public class GroupsController {
     }
 
 
+    /**
+     * Gets an individual group by the group Id.
+     *
+     * @param groupId - The id group whose information is being retrieved
+     * @return a Response entity containing the HTTPStatus and the groups information.
+     */
     @GetMapping("/group")
-    public ResponseEntity<Object> getGroup(@AuthenticationPrincipal AuthState principal,
-                                   @RequestParam Integer groupId) {
+    public ResponseEntity<Object> getGroup(@RequestParam Integer groupId) {
         logger.info("GET REQUEST /group - attempt to get group {}", groupId);
         try {
             GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
@@ -140,9 +146,9 @@ public class GroupsController {
      * @return ResponseEntity A response entity containing either OK or NOT FOUND (for now).
      */
     @DeleteMapping("/groups/edit")
-    public ResponseEntity<String> deleteGroup(@AuthenticationPrincipal AuthState principal,
+    public ResponseEntity<String> deleteGroup(@AuthenticationPrincipal Authentication principal,
                                               @RequestParam Integer groupId) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
         logger.info("DELETE REQUEST /groups - attempt to delete group {} by user: {}", groupId, userId);
         try {
             DeleteGroupRequest request = DeleteGroupRequest.newBuilder()
@@ -169,9 +175,9 @@ public class GroupsController {
      * @return ResponseEntity - a response entity containing either CREATED or BAD_REQUEST (for now)
      */
     @PostMapping("/groups/edit")
-    public ResponseEntity<String> createGroup(@AuthenticationPrincipal AuthState principal,
+    public ResponseEntity<String> createGroup(@AuthenticationPrincipal Authentication principal,
                                               @ModelAttribute(name="editDetailsForm") GroupRequest createInfo) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
         logger.info("POST REQUEST /groups/edit - attempt to create group {} by user: {}", createInfo.getShortName(), userId);
         try {
             CreateGroupRequest request = CreateGroupRequest.newBuilder()
@@ -200,12 +206,12 @@ public class GroupsController {
      * @return ResponseEntity A response entity containing either Modified or BAD_REQUEST (for now).
      */
     @PostMapping("/groups/edit/details")
-    public ResponseEntity<String> modifyGroupDetails (@AuthenticationPrincipal AuthState principal,
-                                                      @RequestParam Integer groupId,
-                                                      @RequestParam String shortName,
-                                                      @RequestParam String longName) {
-        int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}",groupId, userId);
+    public ResponseEntity<String> modifyGroupDetails(@AuthenticationPrincipal Authentication principal,
+                                                     @RequestParam Integer groupId,
+                                                     @RequestParam String shortName,
+                                                     @RequestParam String longName) {
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
+        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}", groupId, userId);
         try {
             ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)
@@ -268,7 +274,6 @@ public class GroupsController {
     public ResponseEntity<String> removeUsersFromGroup(
             @RequestParam(value = "groupId") Integer groupId,
             @RequestParam(value = "userIds") ArrayList<Integer> userIds
-
     ) {
         logger.info("DELETE REQUEST /groups/removeUsers");
 

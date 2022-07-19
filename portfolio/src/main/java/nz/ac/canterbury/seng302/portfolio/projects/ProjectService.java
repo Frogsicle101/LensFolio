@@ -11,7 +11,7 @@ public class ProjectService {
     @Autowired
     private ProjectRepository repo;
 
-    public void updateTimeDeactivated( Long id, DateTime timeDeactivated) {
+    public void updateTimeDeactivated(Long id, DateTime timeDeactivated) {
         repo.deactivateProject(id, timeDeactivated);
     }
 }

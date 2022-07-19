@@ -48,13 +48,13 @@ $(document).ready(() => {
 
 
     //When the submit button is clicked on the form.
-    $(".projectEditForm").submit(function(event){
+    $(".projectEditForm").submit(function (event) {
         event.preventDefault()
 
         let dataToSend = {
             "projectId": projectId.val(),
             "projectName": projectName.val(),
-            "projectStartDate" : projectStart.val(),
+            "projectStartDate": projectStart.val(),
             "projectEndDate": projectEnd.val(),
             "projectDescription": projectDescription.val()
         }
@@ -62,10 +62,10 @@ $(document).ready(() => {
             url: "projectEdit",
             data: dataToSend,
             type: "post",
-            success: function() {
+            success: function () {
                 location.href = "portfolio?projectId=" + projectId.val()
             },
-            error: function(error) {
+            error: function (error) {
                 console.log(error.responseText)
                 $(".errorMessage").text(error.responseText)
                 $(".errorMessageParent").slideUp()

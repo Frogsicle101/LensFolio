@@ -15,14 +15,12 @@ section {
     margin-top: 4rem;
 }
 
-.center{
+.center {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-
-
 
 
 /*Colours*/
@@ -153,7 +151,7 @@ section {
 }
 
 .required:after {
-    content:"*";
+    content: "*";
     color: red;
 }
 
@@ -210,11 +208,6 @@ section {
 /*Portfolio Project*/
 
 
-
-
-
-
-
 /*Porfolio - Events*/
 
 .eventContainer {
@@ -265,17 +258,17 @@ section {
     right: 2.5rem;
 }
 
-.editButton:hover{
+.editButton:hover {
     color: var(--select-green);
 }
 
-.deleteButton{
+.deleteButton {
     position: absolute;
     top: 1rem;
     right: 1rem;
 }
 
-.deleteButton:hover{
+.deleteButton:hover {
     color: var(--select-red);
 }
 
@@ -289,7 +282,7 @@ section {
     padding: 1rem;
 }
 
-.addEventSvg, .addMilestoneSvg, .addDeadlineSvg{
+.addEventSvg, .addMilestoneSvg, .addDeadlineSvg {
     vertical-align: baseline;
     transition: transform 200ms;
 }
@@ -351,7 +344,7 @@ section {
 }
 
 
-.beingEdited{
+.beingEdited {
     border: solid 1px blue;
 }
 
@@ -531,14 +524,13 @@ section {
 }
 
 
-
 /*Calendar*/
 
-.calendar, .calendarDetails{
+.calendar, .calendarDetails {
     width: 60em;
 }
 
-.fc-event-title{
+.fc-event-title {
     display: none;
 }
 
@@ -569,7 +561,7 @@ section {
 }
 
 
-.calendarOccasion{
+.calendarOccasion {
     color: black;
 }
 
@@ -585,15 +577,15 @@ section {
     visibility: visible;
     width: 120px;
     background-color: black;
-    color:darkred;
+    color: darkred;
     text-align: center;
     padding: 5px 0;
     border-radius: 6px;
-    position:absolute;
+    position: absolute;
     white-space: pre-line;
 }
 
-.tooltip:hover .tooltiptext{
+.tooltip:hover .tooltiptext {
     visibility: visible;
     white-space: pre-line;
 
@@ -636,7 +628,7 @@ section {
     margin-left: 1rem;
 }
 
-.group:hover{
+.group:hover {
     cursor: pointer;
 }
 
@@ -654,7 +646,7 @@ section {
 }
 
 
-.selected{
+.selected {
     background-color: var(--main-border-colour);
 }
 
@@ -667,18 +659,20 @@ section {
     flex-direction: row;
     justify-content: space-around;
 }
-#groupInformationLongName{
+
+#groupInformationLongName {
     margin-left: auto;
 }
 
-.groupLongName, #groupInformationLongName{
+.groupLongName, #groupInformationLongName {
     color: var(--secondary-text-colour-darker);
     font-weight: lighter;
 }
 
-.groupShortName, #groupInformationShortName{
+.groupShortName, #groupInformationShortName {
     color: var(--main-text-color);
 }
+
 .membersContainerTitle {
     text-align: center;
 }

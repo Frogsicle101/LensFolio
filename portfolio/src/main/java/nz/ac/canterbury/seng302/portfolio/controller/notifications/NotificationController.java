@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller.notifications;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.IncomingNotification;
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.OutgoingNotification;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,22 +23,28 @@ import java.util.Objects;
 
 /**
  * Controls sending and subscribing to event notifications, such as editing of events.
- *
+ * <p>
  * This controller interacts with the Notification Service class which deals with the sending and subscribing functions
  */
 @RestController
 public class NotificationController {
 
-    /** Notification service which provides the logic for sending notifications to subscribed users */
+    /**
+     * Notification service which provides the logic for sending notifications to subscribed users
+     */
     private final static NotificationService notificationService = NotificationUtil.getNotificationService();
 
-    /** For logging */
+    /**
+     * For logging
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     /**
      * A method that will run whenever a client subscribes to the notifications/sending/occasions
      * Asks the notification service for all of our stored notifications, and then returns them.
      * By default, returning will send a message back to the user that subscribed.
+     *
      * @return All stored notifications, in JSON form.
      */
     @SubscribeMapping("/sending/occasions")
@@ -45,6 +53,7 @@ public class NotificationController {
         return notificationService.sendStoredNotifications();
     }
 
+
     /**
      * A message-mapping method that will:
      * receive a IncomingNotification object that was sent to /notifications/message
@@ -52,8 +61,9 @@ public class NotificationController {
      * Make a string that will be the content of our editing notification
      * Put it into a OutgoingNotification object
      * Send it off to /notifications/receiving/occasions, for any and all STOMP clients subscribed to that endpoint
-     *     *
+     * <p>
      * Don't call this method directly. This is a spring method; it'll call itself when the time is right.
+     *
      * @param message A model for the edit details
      * @return A messenger object containing a type, occasion, id and content
      */
@@ -64,7 +74,8 @@ public class NotificationController {
 
         // Spring's websocket handling doesn't support our AuthState type, so we typecast from java.security.Principal;
         PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
-        AuthState state = (AuthState) auth.getPrincipal();
+        Authentication authentication = (Authentication) auth.getPrincipal();
+        AuthState state = authentication.getAuthState();
         String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
         OutgoingNotification notification = new OutgoingNotification(editorId, state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
         //If we want to notify other users,

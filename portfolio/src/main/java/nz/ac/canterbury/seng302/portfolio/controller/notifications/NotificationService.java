@@ -1,8 +1,10 @@
 package nz.ac.canterbury.seng302.portfolio.controller.notifications;
+
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.OutgoingNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 
 
@@ -12,7 +14,9 @@ import java.util.*;
 @Service
 public class NotificationService {
 
-    /** For logging */
+    /**
+     * For logging
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
@@ -29,7 +33,7 @@ public class NotificationService {
      * the notifications they have made.
      * I.E. the set contains the keys for every notification in activeEditNotifications
      * where the editorId is the same as the key for this index
-     *
+     * <p>
      * Keys are the editorIds with no formatting.
      */
     private HashMap<String, HashSet<String>> editorIdIndex = new HashMap<>();
@@ -40,6 +44,7 @@ public class NotificationService {
      * e.g. an edit action.
      * Something like a delete action would NOT need to be stored, because its effects
      * happen (more or less) instantaneously.
+     *
      * @param notification The notification to be stored. Must have a type and ID.
      */
     public void storeOutgoingNotification(OutgoingNotification notification) {
@@ -55,6 +60,7 @@ public class NotificationService {
     /**
      * Removes the outgoing notification from storage. If the notification exists in storage,
      * it will be removed; otherwise nothing will happen.
+     *
      * @param notification The notification to be removed. Must have a type and ID.
      */
     public void removeOutgoingNotification(OutgoingNotification notification) {
@@ -71,6 +77,7 @@ public class NotificationService {
      * returns a collection of all the active edit notifications.
      * This should be used to then send these notifications,
      * for example, to a user who has just subscribed to the socket.
+     *
      * @return a Collection of all the stored notifications.
      */
     public Collection<OutgoingNotification> sendStoredNotifications() {
@@ -81,6 +88,7 @@ public class NotificationService {
     /**
      * Will remove all the outgoing notifications that have the provided editor id from storage
      * and then return a list of those removed notifications
+     *
      * @param editorId The id of the editor to remove by
      * @return A list (in no particular order) of all the removed notifications
      */

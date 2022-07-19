@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -86,17 +87,16 @@ class CalendarControllerTest {
 
     @Test
     void testGetCalendar() {
-        ModelAndView model = calendarController.getCalendar(principal, 1L);
+        ModelAndView model = calendarController.getCalendar(new Authentication(principal), 1L);
         Assertions.assertEquals("monthlyCalendar", model.getViewName());
 
     }
 
     @Test
     void testGetCalendarWrongProjectId() {
-        ModelAndView model = calendarController.getCalendar(principal, 2L);
+        ModelAndView model = calendarController.getCalendar(new Authentication(principal), 2L);
         Assertions.assertEquals("errorPage", model.getViewName());
     }
-
 
 
     @Test
@@ -146,7 +146,7 @@ class CalendarControllerTest {
 
 
     @Test
-    void testGetProjectSprintsWithDatesWithBadDates(){
+    void testGetProjectSprintsWithDatesWithBadDates() {
         Project project = new Project("Testing");
         ResponseEntity<Object> returnValue = calendarController.getProjectSprintsWithDates(project.getId(), "cheese", "grommit");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, returnValue.getStatusCode());
@@ -154,7 +154,7 @@ class CalendarControllerTest {
     }
 
     @Test
-    void testGetProjectSprintsWithDatesThrowsException(){
+    void testGetProjectSprintsWithDatesThrowsException() {
         Project project = new Project("Testing");
         ZonedDateTime start = ZonedDateTime.now().minusMonths(1);
         ZonedDateTime end = ZonedDateTime.now().plusMonths(1);
@@ -166,7 +166,7 @@ class CalendarControllerTest {
     }
 
     @Test
-    void testGetProjectSprintsWithDatesInsideOfSprintDates(){
+    void testGetProjectSprintsWithDatesInsideOfSprintDates() {
         Project project = new Project("Testing");
         ZonedDateTime start = ZonedDateTime.now().minusDays(1);
         ZonedDateTime end = ZonedDateTime.now().plusDays(1);
@@ -214,11 +214,6 @@ class CalendarControllerTest {
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, returnValue.getStatusCode());
 
     }
-
-
-
-
-
 
 
 }
