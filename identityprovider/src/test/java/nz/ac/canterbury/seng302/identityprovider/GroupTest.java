@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
+import nz.ac.canterbury.seng302.identityprovider.TestData.TestGroupData;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
@@ -22,9 +23,9 @@ class GroupTest {
     private UserRepository repository;
 
     @InjectMocks
-    private IdentityProviderApplication identityProviderApplication = Mockito.spy(IdentityProviderApplication.class);
+    private TestGroupData testGroupData = Mockito.spy(TestGroupData.class);
 
-    private List<User> userList = new ArrayList<>();
+    private final List<User> userList = new ArrayList<>();
 
 
     @BeforeEach
@@ -103,19 +104,21 @@ class GroupTest {
         userList.add(test3);
         userList.add(test4);
         userList.add(test5);
-
     }
 
 
     @Test
     void TestAddDefaultGroups() {
         Mockito.when(repository.findAll()).thenReturn(userList);
+        Mockito.when(groupRepository.getGroupById(0)).thenReturn(new Group(0, "Teachers", "Teaching Staff"));
+        Mockito.when(groupRepository.getGroupById(1)).thenReturn(new Group(1, "Non-Group", "Members Without A Group"));
         ArgumentCaptor<Group> groupArgumentCaptor = ArgumentCaptor.forClass(Group.class);
-        identityProviderApplication.addDefaultGroups();
+        testGroupData.addDefaultGroups();
+        testGroupData.setInitialTeachersAndMWAGGroupMembers();
         Mockito.verify(groupRepository, Mockito.atLeast(2)).save(groupArgumentCaptor.capture());
         List<Group> groups = groupArgumentCaptor.getAllValues();
-        Group teachingGroup = groups.get(0);
-        Group nonMemberGroup = groups.get(1);
+        Group teachingGroup = groups.get(2);
+        Group nonMemberGroup = groups.get(3);
         Assertions.assertEquals("Teachers", teachingGroup.getShortName());
         Assertions.assertEquals(3, teachingGroup.getMembersNumber());
         Assertions.assertEquals("Non-Group", nonMemberGroup.getShortName());

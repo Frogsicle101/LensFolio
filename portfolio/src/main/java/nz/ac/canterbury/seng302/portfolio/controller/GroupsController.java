@@ -1,7 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,11 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The controller for managing requests to edit groups and their user's memberships.
@@ -32,6 +36,76 @@ public class GroupsController {
      */
     @Autowired
     private GroupsClientService groupsClientService;
+
+    /**
+     * For requesting user information form the IdP.
+     */
+    @Autowired
+    private UserAccountsClientService userAccountsClientService;
+
+    private final int offset = 0;
+    private final String orderBy = "shortname-increasing";
+    private final int limit = 20;
+
+
+    /**
+     * This endpoint retrieves all groups as a paginated list.
+     *
+     * @return a response entity containing the list of GroupDetailsResponse object, and a response status.
+     */
+    @GetMapping("/groups")
+    public ModelAndView groups(@AuthenticationPrincipal AuthState principal) {
+        logger.info("GET REQUEST /groups - attempt to get all groups");
+
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        ModelAndView modelAndView = new ModelAndView("groups");
+
+        // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
+        List<UserRole> roles = user.getRolesList();
+        if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
+            modelAndView.addObject("userCanEdit", true);
+        } else {
+            modelAndView.addObject("userCanEdit", false);
+        }
+
+        //to populate groups page with groups
+        try {
+            GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
+                    .setOffset(offset)
+                    .setOrderBy(orderBy)
+                    .setLimit(limit)
+                    .build();
+            PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
+
+            modelAndView.addObject("groups", response.getGroupsList());
+            modelAndView.addObject("user", user);
+
+        } catch (Exception e) {
+            logger.error("ERROR /groups - an error occurred while retrieving groups");
+            logger.error(e.getMessage());
+            return new ModelAndView("errorPage").addObject(e.getMessage(), e);
+        }
+
+        return modelAndView;
+    }
+
+
+    @GetMapping("/group")
+    public ResponseEntity<Object> getGroup(@AuthenticationPrincipal AuthState principal,
+                                   @RequestParam Integer groupId) {
+        logger.info("GET REQUEST /group - attempt to get group {}", groupId);
+        try {
+            GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
+                    .setGroupId(groupId)
+                    .build();
+            GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
+            return new ResponseEntity<>(new GroupDTO(response), HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.error("ERROR /groups - an error occurred while retrieving group {}", groupId);
+            logger.error(exception.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 
 
     /**
