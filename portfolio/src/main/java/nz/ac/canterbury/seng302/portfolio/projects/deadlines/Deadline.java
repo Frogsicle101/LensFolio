@@ -5,9 +5,7 @@ import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 
 import javax.naming.InvalidNameException;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

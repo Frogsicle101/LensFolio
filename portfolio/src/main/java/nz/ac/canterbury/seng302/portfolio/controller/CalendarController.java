@@ -1,19 +1,17 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import com.google.type.DateTime;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
@@ -32,7 +30,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +44,7 @@ public class CalendarController {
     private final DeadlineRepository deadlineRepository;
     private final MilestoneRepository milestoneRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final int tooltipLength = 20;
+    private static final int TOOLTIP_LENGTH = 20;
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
@@ -231,8 +228,6 @@ public class CalendarController {
             @RequestParam(value = "projectId") long projectId) {
         try {
             logger.info("GET REQUEST /getEventsAsFeed");
-            Project project = projectRepository.getProjectById(projectId);
-
             List<HashMap<String, String>> eventsList = new ArrayList<>();
             HashMap<LocalDate, Integer> eventsCount = new HashMap<>();
             HashMap<LocalDate, String> eventsNames = new HashMap<>();
@@ -250,15 +245,15 @@ public class CalendarController {
                     Integer countByDate = eventsCount.get(date);
                     String namesByDate = eventsNames.get(date);
                     String lineEnd = "\r";
-                    if (event.getName().length() > tooltipLength) {
+                    if (event.getName().length() > TOOLTIP_LENGTH) {
                         lineEnd = "...\r";
                     }
                     if (countByDate == null) {
                         eventsCount.put(date, 1); //add date to map as key
-                        eventsNames.put(date, event.getName().substring(0, Math.min(event.getName().length(), tooltipLength)) + lineEnd);
+                        eventsNames.put(date, event.getName().substring(0, Math.min(event.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
                     } else {
                         countByDate++;
-                        namesByDate += (event.getName().substring(0, Math.min(event.getName().length(), tooltipLength)) + lineEnd);
+                        namesByDate += (event.getName().substring(0, Math.min(event.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
                         eventsNames.replace(date, namesByDate);
                         eventsCount.replace(date, countByDate);
                     }
@@ -295,7 +290,6 @@ public class CalendarController {
             @RequestParam(value = "projectId") long projectId) {
         try {
             logger.info("GET REQUEST /getDeadlinesAsFeed");
-            Project project = projectRepository.getProjectById(projectId);
 
             List<HashMap<String, String>> deadlinesList = new ArrayList<>();
             HashMap<LocalDate, Integer> deadlinesCount = new HashMap<>();
@@ -306,17 +300,17 @@ public class CalendarController {
                 Integer countByDate = deadlinesCount.get(deadline.getEndDate());
                 String namesByDate = deadlinesNames.get(deadline.getEndDate());
                 String lineEnd = "\r";
-                if (deadline.getName().length() > tooltipLength) {
+                if (deadline.getName().length() > TOOLTIP_LENGTH) {
                     lineEnd = "...\r";
                 }
                 if (countByDate == null) {
                     deadlinesCount.put(deadline.getEndDate(), 1); //add date to map as key
-                    deadlinesNames.put(deadline.getEndDate(), deadline.getName().substring(0, Math.min(deadline.getName().length(), tooltipLength)) + lineEnd);
+                    deadlinesNames.put(deadline.getEndDate(), deadline.getName().substring(0, Math.min(deadline.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
                 } else {
 
                     countByDate++;
                     deadlinesCount.replace(deadline.getEndDate(), countByDate);
-                    namesByDate += (deadline.getName().substring(0, Math.min(deadline.getName().length(), tooltipLength)) + lineEnd);
+                    namesByDate += (deadline.getName().substring(0, Math.min(deadline.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
                     deadlinesNames.replace(deadline.getEndDate(), namesByDate);
                 }
             }
@@ -351,7 +345,6 @@ public class CalendarController {
             @RequestParam(value = "projectId") long projectId) {
         try {
             logger.info("GET REQUEST /getMilestonesAsFeed");
-            Project project = projectRepository.getProjectById(projectId);
 
             List<HashMap<String, String>> milestonesList = new ArrayList<>();
             HashMap<LocalDate, Integer> milestonesCount = new HashMap<>();
@@ -362,16 +355,16 @@ public class CalendarController {
                 Integer countByDate = milestonesCount.get(milestone.getEndDate());
                 String namesByDate = milestonesNames.get(milestone.getEndDate());
                 String lineEnd = "\r";
-                if (milestone.getName().length() > tooltipLength) {
+                if (milestone.getName().length() > TOOLTIP_LENGTH) {
                     lineEnd = "...\r";
                 }
                 if (countByDate == null) {
                     milestonesCount.put(milestone.getEndDate(), 1); //add date to map as key
-                    milestonesNames.put(milestone.getEndDate(), milestone.getName().substring(0, Math.min(milestone.getName().length(), tooltipLength)) + lineEnd);
+                    milestonesNames.put(milestone.getEndDate(), milestone.getName().substring(0, Math.min(milestone.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
                 } else {
                     countByDate++;
                     milestonesCount.replace(milestone.getEndDate(), countByDate);
-                    namesByDate += (milestone.getName().substring(0, Math.min(milestone.getName().length(), tooltipLength)) + lineEnd);
+                    namesByDate += (milestone.getName().substring(0, Math.min(milestone.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
                     milestonesNames.replace(milestone.getEndDate(), namesByDate);
                 }
             }

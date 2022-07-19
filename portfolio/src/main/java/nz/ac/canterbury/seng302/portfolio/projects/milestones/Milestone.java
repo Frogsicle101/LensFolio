@@ -3,11 +3,12 @@ package nz.ac.canterbury.seng302.portfolio.projects.milestones;
 import com.sun.istack.NotNull;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 
 import javax.naming.InvalidNameException;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -29,7 +30,7 @@ public class Milestone {
     private LocalDate endDate;
     private String endDateColour;
     private int type;
-    private static final int nameLengthRestriction = 50;
+    private static final int NAME_LENGTH_RESTRICTION = 50;
 
 
     /**
@@ -77,7 +78,7 @@ public class Milestone {
     }
 
     public static int getNameLengthRestriction() {
-        return nameLengthRestriction;
+        return NAME_LENGTH_RESTRICTION;
     }
 
     /**

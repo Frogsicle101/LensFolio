@@ -2,7 +2,6 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -10,7 +9,6 @@ import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +21,7 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 
-public class MilestoneControllerTest {
+class MilestoneControllerTest {
 
     private final ProjectRepository mockProjectRepository = mock(ProjectRepository.class);
     private final MilestoneRepository mockMilestoneRepository = mock(MilestoneRepository.class);
@@ -32,10 +30,9 @@ public class MilestoneControllerTest {
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
 
 
-    private MilestoneController milestoneController = new MilestoneController(mockProjectRepository, mockMilestoneRepository);
+    private final MilestoneController milestoneController = new MilestoneController(mockProjectRepository, mockMilestoneRepository);
 
-    private Project project = new Project("test");
-    ;
+    private final Project project = new Project("test");
 
 
     @BeforeEach

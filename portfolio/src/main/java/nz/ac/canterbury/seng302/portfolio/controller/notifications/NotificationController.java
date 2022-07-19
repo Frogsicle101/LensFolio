@@ -7,16 +7,14 @@ import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -70,16 +68,14 @@ public class NotificationController {
     @MessageMapping("/message")
     @SendTo("notifications/sending/occasions")
     public Collection<OutgoingNotification> receiveIncomingNotification(@AuthenticationPrincipal Principal principal, IncomingNotification message) {
-        logger.info("Received " + message.getAction() + " message");
-
-        // Spring's websocket handling doesn't support our AuthState type, so we typecast from java.security.Principal;
+        logger.info("Received {} message", message.getAction() );
         PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
         Authentication authentication = (Authentication) auth.getPrincipal();
         AuthState state = authentication.getAuthState();
         String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
         OutgoingNotification notification = new OutgoingNotification(editorId, state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
         //If we want to notify other users,
-        logger.info("Received message " + message.getAction());
+        logger.info("Received message {}", message.getAction());
         if (Objects.equals(message.getAction(), "edit")) {
             notificationService.storeOutgoingNotification(notification);
         } else if (Objects.equals(message.getAction(), "stop")) {

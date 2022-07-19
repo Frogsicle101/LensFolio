@@ -7,10 +7,6 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
-import nz.ac.canterbury.seng302.shared.identityprovider.DeleteGroupResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetGroupDetailsRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked") // Suppresses intelliJ's warning for testing with mock StreamObservers
@@ -399,20 +394,6 @@ class GroupServerServiceTest {
     }
 
 
-    @Test
-    void removeGroupMembersTestFail() {
-        StreamObserver<RemoveGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
-        ArgumentCaptor<RemoveGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(RemoveGroupMembersResponse.class);
-        RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().build();
-
-        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
-        Mockito.doNothing().when(responseObserver).onCompleted();
-
-        groupsServerService.removeGroupMembers(request, responseObserver);
-        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
-        RemoveGroupMembersResponse response = responseCaptor.getValue();
-        Assertions.assertFalse(response.getIsSuccess());
-    }
 
     @Test
     void removeGroupMembersTestException() {
