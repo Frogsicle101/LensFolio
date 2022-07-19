@@ -124,7 +124,7 @@ public class GroupService {
      * @param userId The id of the user to be removed from the group
      */
     @Transactional
-    public void removeGroupMembersByGroupShortName(String shortname, Integer userId) {
+    public void removeGroupMembersByGroupShortName(String shortname, Integer userId) throws Exception {
         logger.info("Retrieving group with shortname {}", shortname);
         Optional<Group> optionalGroup = groupRepository.findByShortName(shortname);
         if (optionalGroup.isPresent()) {
@@ -145,7 +145,7 @@ public class GroupService {
      * @param userId The id of the user being added to the group
      */
     @Transactional
-    public void addGroupMemberByGroupShortName(String shortname, Integer userId){
+    public void addGroupMemberByGroupShortName(String shortname, Integer userId) throws Exception {
         logger.info("Retrieving group with shortname {}", shortname);
         Optional<Group> optionalGroup = groupRepository.findByShortName(shortname);
         if (optionalGroup.isPresent()) {

@@ -11,10 +11,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
@@ -397,7 +394,7 @@ class GroupServerServiceTest {
 
 
     @Test
-    void removeGroupMembersTestException() {
+    void removeGroupMembersTestException() throws Exception {
         StreamObserver<RemoveGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<RemoveGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(RemoveGroupMembersResponse.class);
         RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().build();
@@ -414,7 +411,7 @@ class GroupServerServiceTest {
 
 
     @Test
-    void removeGroupMembersTest() {
+    void removeGroupMembersTest() throws Exception {
         StreamObserver<RemoveGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<RemoveGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(RemoveGroupMembersResponse.class);
         RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().build();
@@ -431,7 +428,7 @@ class GroupServerServiceTest {
 
 
     @Test
-    void addGroupMembersTestException() {
+    void addGroupMembersTestException() throws Exception {
         StreamObserver<AddGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<AddGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(AddGroupMembersResponse.class);
         AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().build();
@@ -448,7 +445,7 @@ class GroupServerServiceTest {
 
 
     @Test
-    void addGroupMembersTest() {
+    void addGroupMembersTest() throws Exception {
         StreamObserver<AddGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<AddGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(AddGroupMembersResponse.class);
         AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().build();

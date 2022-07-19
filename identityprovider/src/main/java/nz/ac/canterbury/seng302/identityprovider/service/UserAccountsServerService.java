@@ -107,7 +107,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             if (repository.findByUsername(user.getUsername()) == null) {
                 logger.info("Registration Success - for new user " + request.getUsername());
                 repository.save(user);
-                addUserToGroup(user, "Non-Group");
+                groupService.addGroupMemberByGroupShortName("Non-Group",user.getId());
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())
                         .setMessage("Account has successfully been registered");
