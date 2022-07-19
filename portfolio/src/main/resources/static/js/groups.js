@@ -13,6 +13,16 @@ function checkPrivilege() {
 
 
 /**
+ * On page load, removes user selection header if th logged-in user does not have editing permissions.
+ */
+$(document).ready(() => {
+    if (!checkPrivilege()) {
+        document.getElementById("selectAllCheckboxHeader").remove()
+    }
+})
+
+
+/**
  * When group div is clicked, the members for that group are retrieved and any existing group member selections are
  * removed.
  */
