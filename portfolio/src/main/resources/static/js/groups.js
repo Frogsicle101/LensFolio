@@ -11,6 +11,7 @@ function checkPrivilege() {
     return userRoles.includes('COURSE_ADMINISTRATOR') || userRoles.includes('TEACHER');
 }
 
+
 /**
  * On page load, removes user selection header if th logged-in user does not have editing permissions.
  */
@@ -72,11 +73,13 @@ $(document).on("click", "#groupRemoveUser", function () {
     $("#confirmationForm").slideDown();
 })
 
+
 $(document).on("click", "#selectAllCheckboxGroups", function () {
     $(".selectUserCheckboxGroups").prop("checked", $("#selectAllCheckboxGroups").prop("checked"))
     updateNumberSelectedDisplay($("input[type=checkbox]").length)
 
 })
+
 
 $(document).on("change","input[type=checkbox]", function() {
     let tableRow = $(this).closest("tr")
