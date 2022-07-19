@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 
@@ -72,6 +73,9 @@ public class Sprint {
         this.endDate = (startDate).plusWeeks(3);
         this.description = "No description";
         this.colour = "#f554f5";
+        Random random = new Random();
+        int nextInt = random.nextInt(0xffffff + 1);
+        this.colour = String.format("#%06x", nextInt);
     }
 
 
@@ -83,7 +87,9 @@ public class Sprint {
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = "No description";
-        this.colour = "#f554f5";
+        Random random = new Random();
+        int nextInt = random.nextInt(0xffffff + 1);
+        this.colour = String.format("#%06x", nextInt);
     }
 
     public void addEvent(Event event) {

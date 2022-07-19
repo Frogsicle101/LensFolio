@@ -83,14 +83,18 @@ public class TestGroupData {
         Optional<Group> optionalGroup3 = groupRepository.findByShortName("Team 100");
         if (optionalGroup3.isPresent()){
             Group group3 = optionalGroup3.get();
-            group3.addGroupMembers(groupThreeMembers);
+            for (User member: groupThreeMembers){
+                group3.addGroupMember(member);
+            }
             groupRepository.save(group3);
         }
 
         Optional<Group> optionalGroup4 = groupRepository.findByShortName("Team 200");
         if (optionalGroup4.isPresent()){
             Group group4 = optionalGroup4.get();
-            group4.addGroupMembers(groupFourMembers);
+            for (User member: groupFourMembers){
+                group4.addGroupMember(member);
+            }
             groupRepository.save(group4);
         }
     }
@@ -114,14 +118,18 @@ public class TestGroupData {
         Optional<Group> optionalTeachersGroup = groupRepository.findByShortName("Teachers");
         if (optionalTeachersGroup.isPresent()){
             Group teachingGroup = optionalTeachersGroup.get();
-            teachingGroup.addGroupMembers(teachers);
+            for (User member: teachers){
+                teachingGroup.addGroupMember(member);
+            }
             groupRepository.save(teachingGroup);
         }
 
         Optional<Group> optionalNonGroup = groupRepository.findByShortName("Non-Group");
         if (optionalNonGroup.isPresent()){
             Group nonGroupGroup = optionalNonGroup.get();
-            nonGroupGroup.addGroupMembers(nonGroupUsers);
+            for (User member: nonGroupUsers){
+                nonGroupGroup.addGroupMember(member);
+            }
             groupRepository.save(nonGroupGroup);
         }
 

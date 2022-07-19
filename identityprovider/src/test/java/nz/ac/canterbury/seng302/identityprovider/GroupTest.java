@@ -22,7 +22,6 @@ class GroupTest {
     @Mock
     private UserRepository repository;
 
-
     @InjectMocks
     private TestGroupData testGroupData = Mockito.spy(TestGroupData.class);
 
@@ -100,7 +99,6 @@ class GroupTest {
         test5.addRole(UserRole.TEACHER);
 
 
-
         userList.add(test1);
         userList.add(test2);
         userList.add(test3);
@@ -123,4 +121,5 @@ class GroupTest {
         Assertions.assertEquals("Teachers", teachingGroup.getShortName());
         Assertions.assertEquals("Non-Group", nonMemberGroup.getShortName());
     }
+
 }
