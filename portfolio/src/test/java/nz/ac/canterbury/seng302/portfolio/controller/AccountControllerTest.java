@@ -35,7 +35,9 @@ class AccountControllerTest {
     @InjectMocks
     private final AccountController accountController = spy(AccountController.class);
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
-    private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
+    private final Authentication principal = new Authentication(
+            AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build()
+    );
 
     @BeforeEach
     public void beforeAll() {
@@ -52,7 +54,7 @@ class AccountControllerTest {
         userBuilder.addRoles(UserRole.STUDENT);
         UserResponse user = userBuilder.build();
 
-        when(PrincipalAttributes.getUserFromPrincipal(principal, mockClientService)).thenReturn(user);
+        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), mockClientService)).thenReturn(user);
         GetUserByIdRequest userByIdRequest = GetUserByIdRequest.newBuilder().setId(1).build();
         when(mockClientService.getUserAccountById(userByIdRequest)).thenReturn(user);
 
@@ -885,7 +887,7 @@ class AccountControllerTest {
 
     @Test
     void testGetAccount() {
-        ModelAndView modelAndView = accountController.account(new Authentication(principal));
+        ModelAndView modelAndView = accountController.account(principal);
 
         Assertions.assertTrue(modelAndView.hasView());
         Assertions.assertTrue(modelAndView.getModel().containsKey("alphaSpacesRegex"));

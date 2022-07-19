@@ -1,5 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import io.cucumber.java.bs.A;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
@@ -125,7 +127,7 @@ public class DeadlineControllerTest {
     private static ProjectRepository mockProjectRepository = mock(ProjectRepository.class);
     private static PrincipalAttributes mockPrincipal = mock(PrincipalAttributes.class);
     private static UserAccountsClientService clientService = mock(UserAccountsClientService.class);
-    private AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
+    private Authentication principal = new Authentication(AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build());
 
     private DeadlineController deadlineController = new DeadlineController(mockProjectRepository,deadlineRepository);
     private ArrayList<Deadline> deadlines = new ArrayList<>();
@@ -154,7 +156,7 @@ public class DeadlineControllerTest {
                 .setProfileImagePath("a");
         user.addRoles(UserRole.STUDENT);
 
-        when(PrincipalAttributes.getUserFromPrincipal(principal, clientService)).thenReturn(user.build());
+        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), clientService)).thenReturn(user.build());
     }
 
     private void createAuthorisedUser() {
@@ -171,7 +173,7 @@ public class DeadlineControllerTest {
                 .setProfileImagePath("a");
         user.addRoles(UserRole.TEACHER);
 
-        when(PrincipalAttributes.getUserFromPrincipal(principal, clientService)).thenReturn(user.build());
+        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), clientService)).thenReturn(user.build());
     }
 
     // These tests are for the create method
