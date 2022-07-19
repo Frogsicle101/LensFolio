@@ -15,10 +15,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -43,13 +40,13 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** Name Comparator */
-    Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
+    Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName().toLowerCase() + user.getMiddleName().toLowerCase() + user.getLastName().toLowerCase()));
 
     /** Username Comparator */
-    Comparator<User> compareByUsername = Comparator.comparing(User::getUsername);
+    Comparator<User> compareByUsername = Comparator.comparing(user -> user.getUsername().toLowerCase());
 
     /** alias Comparator */
-    Comparator<User> compareByAlias = Comparator.comparing(User::getNickname);
+    Comparator<User> compareByAlias = Comparator.comparing(user -> user.getNickname().toLowerCase());
 
     /** role Comparator */
     Comparator<User> compareByRole = (userOne, userTwo) -> {
