@@ -2,7 +2,7 @@
  * Functions to be run when page has finished loading.
  * https://learn.jquery.com/using-jquery-core/document-ready/
  */
-$(document).ready(function() {
+$(document).ready(function () {
     /**
      * Binds an event handler to the "click".
      * https://api.jquery.com/click/

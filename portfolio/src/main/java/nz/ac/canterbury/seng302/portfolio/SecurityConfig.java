@@ -14,20 +14,19 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
-    protected void configure(HttpSecurity security) throws Exception
-    {
+    protected void configure(HttpSecurity security) throws Exception {
         // Force authentication for all endpoints except /login
         security
-            .addFilterBefore(new JwtAuthenticationFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(), BasicAuthenticationFilter.class)
                 .authorizeRequests()
-                    .antMatchers(HttpMethod.GET, "/login")
-                    .permitAll()
-                    .antMatchers(HttpMethod.GET, "/register")
-                    .permitAll()
-                    .and()
+                .antMatchers(HttpMethod.GET, "/login")
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/register")
+                .permitAll()
+                .and()
                 .authorizeRequests()
-                    .anyRequest()
-                    .authenticated();
+                .anyRequest()
+                .authenticated();
 
 
         security.cors();
@@ -42,7 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // Disable basic http security
         security
-            .httpBasic().disable();
+                .httpBasic().disable();
 
 
         // Tells spring where our login page is, so it redirects users there if they are not authenticated
@@ -50,8 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web)
-    {
+    public void configure(WebSecurity web) {
         web.ignoring().antMatchers("/login");
         web.ignoring().antMatchers("/register");
         web.ignoring().antMatchers("/bootstrap/**");

@@ -10,7 +10,9 @@ public class PasswordRequest {
     private String newPassword;
     private String confirmPassword;
 
-    public PasswordRequest() {super();}
+    public PasswordRequest() {
+        super();
+    }
 
     public PasswordRequest(String oldPassword, String newPassword, String confirmPassword) {
         super();

@@ -292,4 +292,17 @@ public class User {
 
         return response.build();
     }
+
+    @Override
+    public boolean equals(Object o){
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof User u)) {
+            return false;
+        }
+
+        return CharSequence.compare(username, u.username) == 0;
+    }
 }

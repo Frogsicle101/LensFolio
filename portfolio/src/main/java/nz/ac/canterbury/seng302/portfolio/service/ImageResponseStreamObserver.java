@@ -13,8 +13,6 @@ import java.util.List;
 /**
  * Defines the StreamObserver<FileUploadStatusResponse> implementation used by the UserAccountsClientService for
  * uploading images.
- *
- * @author Sam Clark
  */
 public class ImageResponseStreamObserver implements StreamObserver<FileUploadStatusResponse> {
 
@@ -27,12 +25,13 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
 
     /**
      * Takes the response from the previous chunks sending to the server, and takes the correct next action. That is:
-     *  <br> - if the status was FAILED a message is logged and the upload is scrapped.
-     *  <br> - if the status was IN_PROGRESS, the client either sends the next chunk, or if no chunks are left calls
-     *         onComplete on the requestObserver.
-     *  <br> - if the status was PENDING, the client checks only metadata is sent and send the next chunk.
-     *  <br> - if the status was SUCCESS, onComplete is called on this to finish the cycle
+     * <br> - if the status was FAILED a message is logged and the upload is scrapped.
+     * <br> - if the status was IN_PROGRESS, the client either sends the next chunk, or if no chunks are left calls
+     * onComplete on the requestObserver.
+     * <br> - if the status was PENDING, the client checks only metadata is sent and send the next chunk.
+     * <br> - if the status was SUCCESS, onComplete is called on this to finish the cycle
      * <br>
+     *
      * @param status - the FileUploadStatusResponse sent by the server side after successful reception of previous chunk
      */
     @Override
@@ -41,7 +40,7 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
             case FileUploadStatus.FAILED_VALUE -> logger.error("Transfer failed");
             case FileUploadStatus.IN_PROGRESS_VALUE -> {
                 if (currentChunk < numChunks) {
-                    logger.info("Sending next chunk: " + currentChunk);
+                    logger.info("Sending next chunk: {}", currentChunk);
                     requestObserver.onNext(requestChunks.get(currentChunk++));
                 } else {
                     logger.info("Sent all image chunks calling onComplete() for server");
@@ -50,7 +49,7 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
             }
             case FileUploadStatus.PENDING_VALUE -> {
                 if (currentChunk == 1) {
-                    logger.info("Sending next chunk: " + currentChunk);
+                    logger.info("Sending next chunk: {}", currentChunk);
                     requestObserver.onNext(requestChunks.get(currentChunk++));
                 } else {
                     logger.error("Got code PENDING but expected code IN_PROGRESS");
@@ -66,13 +65,12 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
     /**
      * Prints an error message and cancels the image transfer.
      * <br>
+     *
      * @param throwable - the error that occurred
      */
     @Override
     public void onError(Throwable throwable) {
-        logger.error("Image transfer failure for user "  +
-                requestChunks.get(0).getMetaData().getUserId() +
-                ":\n" + throwable.getMessage());
+        logger.error("Image transfer failure for user {} :\n {}", requestChunks.get(0).getMetaData().getUserId(), throwable.getMessage());
     }
 
     /**
@@ -80,12 +78,13 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
      */
     @Override
     public void onCompleted() {
-        logger.info("Image transfer successful for user " + requestChunks.get(0).getMetaData().getUserId());
+        logger.info("Image transfer successful for user {}", requestChunks.get(0).getMetaData().getUserId());
     }
 
     /**
      * Sets the request observer for the communication.
      * <br>
+     *
      * @param requestObserver - used to make the calls and tell the Server what to do.
      */
     public void initialise(StreamObserver<UploadUserProfilePhotoRequest> requestObserver) {
@@ -95,6 +94,7 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
     /**
      * Starts the image transfer, called once the request observer has been set.
      * <br>
+     *
      * @param requestChunks - a List of UploadUserProfilePhotoRequest chunks that collectively make up an image.
      */
     public void sendImage(List<UploadUserProfilePhotoRequest> requestChunks) {

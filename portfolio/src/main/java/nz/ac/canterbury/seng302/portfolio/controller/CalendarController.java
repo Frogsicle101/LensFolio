@@ -1,19 +1,17 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import com.google.type.DateTime;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
+import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
@@ -32,7 +30,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +44,7 @@ public class CalendarController {
     private final DeadlineRepository deadlineRepository;
     private final MilestoneRepository milestoneRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final int tooltipLength = 20;
+    private static final int TOOLTIP_LENGTH = 20;
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
@@ -72,8 +69,8 @@ public class CalendarController {
     public ModelAndView getCalendar(
             @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "projectId") Long projectId
-            ) {
-        try{
+    ) {
+        try {
             // Gets the project that the request is referring to.
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Event with id " + projectId + " was not found"
@@ -91,7 +88,7 @@ public class CalendarController {
             model.addObject("user", user);
             return model;
 
-        } catch (EntityNotFoundException err){
+        } catch (EntityNotFoundException err) {
             logger.error("GET REQUEST /calendar", err);
             return new ModelAndView("errorPage").addObject("errorMessage", err.getMessage());
         }
@@ -103,15 +100,15 @@ public class CalendarController {
      *
      * @param projectId the project to look for the sprints in
      * @param startDate start date to look for
-     * @param endDate end date to look for
+     * @param endDate   end date to look for
      * @return ResponseEntity with status, and List of hashmaps.
      */
     @GetMapping("/getProjectSprintsWithDatesAsFeed")
     public ResponseEntity<Object> getProjectSprintsWithDates(
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "start") String startDate,
-            @RequestParam(value = "end") String endDate){
-        try{
+            @RequestParam(value = "end") String endDate) {
+        try {
             logger.info("GET REQUEST /getProjectSprintsWithDatesAsFeed");
 
 
@@ -127,8 +124,8 @@ public class CalendarController {
             List<Sprint> sprints = sprintRepository.findAllByProjectId(projectId);
             List<HashMap<String, Object>> sprintsToSend = new ArrayList<>();
 
-            for (Sprint sprint:sprints)  {
-                if(sprint.getStartDate().equals(sprintStartDate)
+            for (Sprint sprint : sprints) {
+                if (sprint.getStartDate().equals(sprintStartDate)
                         || sprint.getStartDate().isAfter(sprintStartDate) && sprint.getStartDate().isBefore(sprintEndDate)
                         || sprint.getEndDate().equals(sprintEndDate)
                         || sprint.getEndDate().isBefore(sprintEndDate)
@@ -149,10 +146,10 @@ public class CalendarController {
             }
 
             return new ResponseEntity<>(sprintsToSend, HttpStatus.OK);
-        } catch(DateTimeParseException err) {
+        } catch (DateTimeParseException err) {
             logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
             return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
-        } catch (Exception err){
+        } catch (Exception err) {
             logger.error("GET REQUEST /getProjectSprintsWithDatesAsFeed", err);
             return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -168,8 +165,8 @@ public class CalendarController {
      */
     @GetMapping("/getProjectAsFeed")
     public ResponseEntity<Object> getProject(
-            @RequestParam(value = "projectId") Long projectId){
-        try{
+            @RequestParam(value = "projectId") Long projectId) {
+        try {
             logger.info("GET REQUEST /getProjectAsFeed");
 
             // Gets the project that the request is referring to.
@@ -189,10 +186,10 @@ public class CalendarController {
 
             return new ResponseEntity<>(projectToSend, HttpStatus.OK);
 
-        } catch(EntityNotFoundException err) {
+        } catch (EntityNotFoundException err) {
             logger.warn(err.getMessage());
             return new ResponseEntity<>(err.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception err){
+        } catch (Exception err) {
             logger.error("GET REQUEST /getProjectAsFeed", err);
             return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -207,7 +204,7 @@ public class CalendarController {
      */
     @GetMapping("/getProjectDetails")
     public ResponseEntity<Object> getProject(
-            @RequestParam(value="projectId") long projectId) {
+            @RequestParam(value = "projectId") long projectId) {
         try {
             logger.info("GET REQUEST /getProjectDetails");
 
@@ -228,17 +225,15 @@ public class CalendarController {
      */
     @GetMapping("getEventsAsFeed")
     public ResponseEntity<Object> getEventsAsFeed(
-            @RequestParam(value="projectId") long projectId){
-        try{
+            @RequestParam(value = "projectId") long projectId) {
+        try {
             logger.info("GET REQUEST /getEventsAsFeed");
-            Project project = projectRepository.getProjectById(projectId);
-
             List<HashMap<String, String>> eventsList = new ArrayList<>();
             HashMap<LocalDate, Integer> eventsCount = new HashMap<>();
             HashMap<LocalDate, String> eventsNames = new HashMap<>();
             List<Event> allEvents = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
 
-            for (Event event : allEvents)  {
+            for (Event event : allEvents) {
                 List<LocalDate> dates = new ArrayList<>();
                 LocalDateTime current = event.getStartDate();
                 while (current.isBefore(LocalDateTime.of(event.getEndDate(), event.getEndTime()))) {
@@ -246,19 +241,19 @@ public class CalendarController {
                     current = current.plusDays(1);
                 }
 
-                for (LocalDate date: dates) {
+                for (LocalDate date : dates) {
                     Integer countByDate = eventsCount.get(date);
                     String namesByDate = eventsNames.get(date);
                     String lineEnd = "\r";
-                    if (event.getName().length() > tooltipLength) {
+                    if (event.getName().length() > TOOLTIP_LENGTH) {
                         lineEnd = "...\r";
                     }
                     if (countByDate == null) {
                         eventsCount.put(date, 1); //add date to map as key
-                        eventsNames.put(date,event.getName().substring(0, Math.min(event.getName().length(), tooltipLength)) + lineEnd);
+                        eventsNames.put(date, event.getName().substring(0, Math.min(event.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
                     } else {
                         countByDate++;
-                        namesByDate += (event.getName().substring(0, Math.min(event.getName().length(), tooltipLength))+ lineEnd);
+                        namesByDate += (event.getName().substring(0, Math.min(event.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
                         eventsNames.replace(date, namesByDate);
                         eventsCount.replace(date, countByDate);
                     }
@@ -268,7 +263,7 @@ public class CalendarController {
             for (Map.Entry<LocalDate, Integer> entry : eventsCount.entrySet()) {
                 HashMap<String, String> jsonedEvent = new HashMap<>();
                 jsonedEvent.put("title", String.valueOf(entry.getValue()));
-                jsonedEvent.put("occasionTitles",eventsNames.get(entry.getKey()));
+                jsonedEvent.put("occasionTitles", eventsNames.get(entry.getKey()));
                 jsonedEvent.put("classNames", "eventCalendar");
                 jsonedEvent.put("content", "");
                 jsonedEvent.put("start", entry.getKey().toString());
@@ -277,10 +272,10 @@ public class CalendarController {
             }
 
             return new ResponseEntity<>(eventsList, HttpStatus.OK);
-        } catch(DateTimeParseException err) {
+        } catch (DateTimeParseException err) {
             logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
             return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
-        } catch (Exception err){
+        } catch (Exception err) {
             logger.error("GET REQUEST /getEventsAsFeed", err);
             return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -292,10 +287,9 @@ public class CalendarController {
      */
     @GetMapping("getDeadlinesAsFeed")
     public ResponseEntity<Object> getDeadlinesAsFeed(
-            @RequestParam(value="projectId") long projectId) {
+            @RequestParam(value = "projectId") long projectId) {
         try {
             logger.info("GET REQUEST /getDeadlinesAsFeed");
-            Project project = projectRepository.getProjectById(projectId);
 
             List<HashMap<String, String>> deadlinesList = new ArrayList<>();
             HashMap<LocalDate, Integer> deadlinesCount = new HashMap<>();
@@ -306,17 +300,17 @@ public class CalendarController {
                 Integer countByDate = deadlinesCount.get(deadline.getEndDate());
                 String namesByDate = deadlinesNames.get(deadline.getEndDate());
                 String lineEnd = "\r";
-                if (deadline.getName().length() > tooltipLength) {
+                if (deadline.getName().length() > TOOLTIP_LENGTH) {
                     lineEnd = "...\r";
                 }
                 if (countByDate == null) {
                     deadlinesCount.put(deadline.getEndDate(), 1); //add date to map as key
-                    deadlinesNames.put(deadline.getEndDate(), deadline.getName().substring(0, Math.min(deadline.getName().length(), tooltipLength)) + lineEnd);
-                }else {
+                    deadlinesNames.put(deadline.getEndDate(), deadline.getName().substring(0, Math.min(deadline.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
+                } else {
 
                     countByDate++;
                     deadlinesCount.replace(deadline.getEndDate(), countByDate);
-                    namesByDate += (deadline.getName().substring(0, Math.min(deadline.getName().length(), tooltipLength)) + lineEnd);
+                    namesByDate += (deadline.getName().substring(0, Math.min(deadline.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
                     deadlinesNames.replace(deadline.getEndDate(), namesByDate);
                 }
             }
@@ -333,10 +327,10 @@ public class CalendarController {
             }
 
             return new ResponseEntity<>(deadlinesList, HttpStatus.OK);
-        } catch(DateTimeParseException err) {
+        } catch (DateTimeParseException err) {
             logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
             return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
-        } catch (Exception err){
+        } catch (Exception err) {
             logger.error("GET REQUEST /getDeadlinesAsFeed", err);
             return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -348,10 +342,9 @@ public class CalendarController {
      */
     @GetMapping("getMilestonesAsFeed")
     public ResponseEntity<Object> getMilestonesAsFeed(
-            @RequestParam(value="projectId") long projectId) {
+            @RequestParam(value = "projectId") long projectId) {
         try {
             logger.info("GET REQUEST /getMilestonesAsFeed");
-            Project project = projectRepository.getProjectById(projectId);
 
             List<HashMap<String, String>> milestonesList = new ArrayList<>();
             HashMap<LocalDate, Integer> milestonesCount = new HashMap<>();
@@ -362,16 +355,16 @@ public class CalendarController {
                 Integer countByDate = milestonesCount.get(milestone.getEndDate());
                 String namesByDate = milestonesNames.get(milestone.getEndDate());
                 String lineEnd = "\r";
-                if (milestone.getName().length() > tooltipLength) {
+                if (milestone.getName().length() > TOOLTIP_LENGTH) {
                     lineEnd = "...\r";
                 }
                 if (countByDate == null) {
                     milestonesCount.put(milestone.getEndDate(), 1); //add date to map as key
-                    milestonesNames.put(milestone.getEndDate(), milestone.getName().substring(0,Math.min(milestone.getName().length(), tooltipLength))+ lineEnd);
-                }else {
+                    milestonesNames.put(milestone.getEndDate(), milestone.getName().substring(0, Math.min(milestone.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
+                } else {
                     countByDate++;
                     milestonesCount.replace(milestone.getEndDate(), countByDate);
-                    namesByDate += (milestone.getName().substring(0,Math.min(milestone.getName().length(), tooltipLength)) + lineEnd);
+                    namesByDate += (milestone.getName().substring(0, Math.min(milestone.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
                     milestonesNames.replace(milestone.getEndDate(), namesByDate);
                 }
             }
@@ -389,10 +382,10 @@ public class CalendarController {
             }
 
             return new ResponseEntity<>(milestonesList, HttpStatus.OK);
-        } catch(DateTimeParseException err) {
+        } catch (DateTimeParseException err) {
             logger.warn("Date parameter(s) are not parsable {}", err.getMessage());
             return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
-        } catch (Exception err){
+        } catch (Exception err) {
             logger.error("GET REQUEST /getMilestonesAsFeed", err);
             return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -401,6 +394,7 @@ public class CalendarController {
 
     /**
      * For testing
+     *
      * @param service service
      */
     public void setUserAccountsClientService(UserAccountsClientService service) {

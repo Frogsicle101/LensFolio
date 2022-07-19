@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
  * This class is a global interceptor for all gRPC clients used by this application. What this means, is that
  * any time a gRPC client sends a request (e.g to the IdentityProvider), the message is 'intercepted' before it
  * actually leaves this application, and we can modify the content of the request here.
- *
+ * <p>
  * In this instance, the modification we are making to the intercepted method, is to add in an authentication header
  * using a value that we may or may not have stored in a cookie in the browser. This means that every request we
  * send via a gRPC client will automatically have any authentication session token included, without any need
@@ -24,12 +24,12 @@ public class AuthenticationClientInterceptor implements ClientInterceptor {
 
     /**
      * For every call that a client sends, perform the following actions before it is sent:
-     *  1.  Attempt to retrieve some information about the HTTP session between this application and the user's browser
-     *  2.  Look for a cookie with the name 'lens-session-token' and find its value. If the cookie is not found, the
-     *      value will be null
-     *  3.  Add a new HTTP header to the gRPC request, of the following format
-     *      Header name: "X-Authorization"
-     *      Header value: "Bearer {value of cookie, or blank if null}"
+     * 1.  Attempt to retrieve some information about the HTTP session between this application and the user's browser
+     * 2.  Look for a cookie with the name 'lens-session-token' and find its value. If the cookie is not found, the
+     * value will be null
+     * 3.  Add a new HTTP header to the gRPC request, of the following format
+     * Header name: "X-Authorization"
+     * Header value: "Bearer {value of cookie, or blank if null}"
      */
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {

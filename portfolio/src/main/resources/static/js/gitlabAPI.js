@@ -4,7 +4,7 @@
  * @param accessToken Personal/Project access token
  */
 function getBranches(repoID, accessToken) {
-    $.get("https://eng-git.canterbury.ac.nz/api/v4/projects/" + repoID + "/repository/branches?access_token=" + accessToken, function(data, status){
+    $.get("https://eng-git.canterbury.ac.nz/api/v4/projects/" + repoID + "/repository/branches?access_token=" + accessToken, function (data, status) {
         return data;
     });
 }
@@ -16,7 +16,7 @@ function getBranches(repoID, accessToken) {
  * @param accessToken Personal/Project access token
  */
 function getCommits(repoID, accessToken) {
-    $.get("https://eng-git.canterbury.ac.nz/api/v4/projects/" + repoID + "/repository/commits?access_token=" + accessToken, function(data, status){
+    $.get("https://eng-git.canterbury.ac.nz/api/v4/projects/" + repoID + "/repository/commits?access_token=" + accessToken, function (data, status) {
         return data;
     });
 }
@@ -29,7 +29,7 @@ function getCommits(repoID, accessToken) {
  * @param commitSha ID of commit to get JSON data for
  */
 function getCommit(repoID, accessToken, commitSha) {
-    $.get("https://eng-git.canterbury.ac.nz/api/v4/projects/" + repoID + "/repository/commits/" + commitSha + "?access_token=" + accessToken, function(data, status){
+    $.get("https://eng-git.canterbury.ac.nz/api/v4/projects/" + repoID + "/repository/commits/" + commitSha + "?access_token=" + accessToken, function (data, status) {
         return data;
     });
 }
@@ -41,7 +41,7 @@ function getCommit(repoID, accessToken, commitSha) {
  * @param accessToken Personal/Project access token
  */
 function getMembers(repoID, accessToken) {
-    $.get("https://eng-git.canterbury.ac.nz/api/v4/projects/" + repoID + "/members?access_token=" + accessToken, function(data, status){
+    $.get("https://eng-git.canterbury.ac.nz/api/v4/projects/" + repoID + "/members?access_token=" + accessToken, function (data, status) {
         return data;
     });
 }

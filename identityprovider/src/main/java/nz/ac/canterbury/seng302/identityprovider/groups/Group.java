@@ -13,21 +13,19 @@ import java.util.List;
  * Object representation of a group of users.
  */
 @Entity
-@Table(name = "group_table")// had to add this, as I think Group can't be a table name in H2 as it's a reserved keyword?
+@Table(name = "group_table")
 public class Group {
 
     /** The unique ID of the Group. */
     @Id
     private Integer id;
 
-    /** The ID's of the group's members. */
+    /** A list of the users in the group. */
     @ManyToMany
     @Fetch(FetchMode.JOIN)
     @JoinTable(name = "group_members",
             joinColumns = @JoinColumn(name = "groupId"),
             inverseJoinColumns = @JoinColumn(name = "userId"))
-
-    /** A list of the users in the group. */
     private List<User> userList = new ArrayList<>();
 
     /** The group's short name. */
@@ -45,9 +43,9 @@ public class Group {
      * The default constructor for a group, which automatically generates a unique ID.
      *
      * @param shortName The group's short name.
-     * @param longName  The group's long name.
+     * @param longName The group's long name.
      */
-    public Group(String shortName, String longName) {
+    public Group (String shortName, String longName) {
         this.shortName = shortName;
         this.longName = longName;
     }
@@ -113,6 +111,16 @@ public class Group {
 
 
     /**
+     * Removes a user from the group
+     *
+     * @param user the user to be removed
+     */
+    public void removeGroupMember(User user) {
+        userList.remove(user);
+    }
+
+
+    /**
      * Adds users from a list to the group object. Each user is only added if the user is not already present.
      *
      * @param users A list of the users to be added.
@@ -122,6 +130,18 @@ public class Group {
             if (!userList.contains(user)) {
                 userList.add(user);
             }
+        }
+    }
+
+
+    /**
+     * Adds a user to the group if the user is not already present
+     *
+     * @param user The user to be added
+     */
+    public void addGroupMember(User user) {
+        if (!userList.contains(user)) {
+            userList.add(user);
         }
     }
 

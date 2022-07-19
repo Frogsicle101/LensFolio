@@ -1,13 +1,13 @@
-
-$(document).ready(function() {
+$(document).ready(function () {
     // Checks to see if there is an error message to be displayed
-    if (!$(".errorMessage").is(':empty'))  {
+    if (!$(".errorMessage").is(':empty')) {
         $(".errorMessageParent").show();
     }
-    if (!$(".infoMessage").is(':empty'))  {
+    if (!$(".infoMessage").is(':empty')) {
         $(".infoMessageParent").show();
     }
-    if (!$(".successMessage").is(':empty'))  {
+
+    if (!$(".successMessage").is(':empty')) {
         $(".successMessageParent").show();
     }
 
@@ -18,12 +18,12 @@ $(document).ready(function() {
     })
 
     removeElementIfNotAuthorized()
+
 });
 
 
 /**
  * Checks if a user has a role above student.
- *
  * @returns {boolean} returns true if userRole is above student.
  */
 function checkPrivilege() {
@@ -35,3 +35,5 @@ function removeElementIfNotAuthorized() {
         $(".hasTeacherOrAbove").remove()
     }
 }
+
+

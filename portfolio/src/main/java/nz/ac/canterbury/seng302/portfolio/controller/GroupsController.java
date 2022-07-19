@@ -1,7 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -12,13 +12,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The controller for managing requests to edit groups and their user's memberships.
@@ -26,20 +27,26 @@ import java.util.Map;
 @Controller
 public class GroupsController {
 
-    /** For logging the requests related to groups */
+    /**
+     * For logging the requests related to groups
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** For making gRpc requests to the IdP. */
+    /**
+     * For making gRpc requests to the IdP.
+     */
     @Autowired
     private GroupsClientService groupsClientService;
 
-    /** For requesting user information form the IdP. */
+    /**
+     * For requesting user information form the IdP.
+     */
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    private final int offset = 0;
-    private final String orderBy = "shortname-increasing";
-    private final int limit = 20;
+    private static final int OFFSET = 0;
+    private static final String ORDER_BY = "shortname-increasing";
+    private static final int LIMIT = 20;
 
 
     /**
@@ -65,9 +72,9 @@ public class GroupsController {
         //to populate groups page with groups
         try {
             GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
-                    .setOffset(offset)
-                    .setOrderBy(orderBy)
-                    .setLimit(limit)
+                    .setOffset(OFFSET)
+                    .setOrderBy(ORDER_BY)
+                    .setLimit(LIMIT)
                     .build();
             PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
 
@@ -177,12 +184,12 @@ public class GroupsController {
      * @return ResponseEntity A response entity containing either Modified or BAD_REQUEST (for now).
      */
     @PostMapping("/groups/edit/details")
-    public ResponseEntity<String> modifyGroupDetails (@AuthenticationPrincipal Authentication principal,
-                                                      @RequestParam Integer groupId,
-                                                      @RequestParam String shortName,
-                                                      @RequestParam String longName) {
+    public ResponseEntity<String> modifyGroupDetails(@AuthenticationPrincipal Authentication principal,
+                                                     @RequestParam Integer groupId,
+                                                     @RequestParam String shortName,
+                                                     @RequestParam String longName) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
-        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}",groupId, userId);
+        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}", groupId, userId);
         try {
             ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)
@@ -211,8 +218,8 @@ public class GroupsController {
      */
     @PostMapping("/groups/addUsers")
     public ResponseEntity<String> addUsersToGroup(
-            @RequestParam(value = "groupId") Integer groupId,
-            @RequestParam(value = "userIds") ArrayList<Integer> userIds
+            @RequestParam Integer groupId,
+            @RequestParam List<Integer> userIds
     ) {
         logger.info("POST REQUEST /groups/addUsers");
 
