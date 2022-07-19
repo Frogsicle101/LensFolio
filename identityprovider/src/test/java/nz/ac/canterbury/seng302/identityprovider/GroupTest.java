@@ -22,7 +22,6 @@ class GroupTest {
     @Mock
     private UserRepository repository;
 
-
     @InjectMocks
     private TestGroupData testGroupData = Mockito.spy(TestGroupData.class);
 
@@ -98,7 +97,6 @@ class GroupTest {
         test3.addRole(UserRole.TEACHER);
         test4.addRole(UserRole.TEACHER);
         test5.addRole(UserRole.TEACHER);
-
 
 
         userList.add(test1);
