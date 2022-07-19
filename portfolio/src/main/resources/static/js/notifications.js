@@ -21,7 +21,7 @@ function connect() {
  * We don't need to add our ID as the server can get it from the websocket authentication
  *
  * @param occasionType The type of the object being edited (milestone, deadline, event)
- * @param occasionId The ID of our the object being edited
+ * @param occasionId The ID of the object being edited
  * @param action What action the user has performed to create this message
  */
 function sendNotification(occasionType, occasionId, action) {

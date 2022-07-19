@@ -160,6 +160,7 @@ public class PortfolioController {
             if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
                 defaultOccasionDate = LocalDate.now();
             }
+
             modelAndView.addObject("project", project);
             modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
             modelAndView.addObject("events", eventList);
