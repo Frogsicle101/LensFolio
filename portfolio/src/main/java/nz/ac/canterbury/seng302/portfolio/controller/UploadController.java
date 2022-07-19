@@ -23,8 +23,10 @@ public class UploadController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
+
     /**
      * Shows the form to upload a profile image if the user is logged in
+     *
      * @return The Thymeleaf upload html template.
      */
     @GetMapping("/uploadImage")
@@ -38,8 +40,10 @@ public class UploadController {
         return modelAndView;
     }
 
+
     /**
      * Endpoint that sends the given file to the identity provider
+     *
      * @param file The file sent in the body of the post request
      */
     @PostMapping("/upload")
@@ -56,5 +60,4 @@ public class UploadController {
         modelAndView.addObject("user", user);
         return modelAndView;
     }
-
 }

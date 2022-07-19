@@ -18,6 +18,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      *
      * It also sets up a broker to carry messages back to the client
      * on destinations prefixed with /notifications/receiving
+     *
      * @param config A configuration.
      */
     @Override
@@ -25,6 +26,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.enableSimpleBroker("notifications/sending");
         config.setApplicationDestinationPrefixes("notifications/");
     }
+
 
     /**
      * This enables a fallback option in case websockets aren't available.

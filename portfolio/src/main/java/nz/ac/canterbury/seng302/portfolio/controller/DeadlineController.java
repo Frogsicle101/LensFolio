@@ -6,7 +6,6 @@ import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
@@ -37,6 +36,7 @@ public class DeadlineController {
     private final ProjectRepository projectRepository;
     private final DeadlineRepository deadlineRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     public DeadlineController(ProjectRepository projectRepository, DeadlineRepository deadlineRepository) {
         this.projectRepository = projectRepository;
@@ -229,8 +229,7 @@ public class DeadlineController {
     /**
      * Mapping for deleting an existing deadline.
      * The method attempts to get the deadline from the repository and if it cannot it will throw an EntityNotFoundException
-     *
-     * Otherwise it will delete the deadline from the repository
+     * Otherwise it will delete the deadline from the repository.
      *
      * @param principal The Authentication of the user making the request, for authentication
      * @param deadlineId The UUID of the deadline to be deleted
@@ -311,12 +310,11 @@ public class DeadlineController {
         }
     }
 
+
     /**
      * Used to set a userAccountClientService if not using the autowired one. Useful for testing and mocking
+     *
      * @param service The userAccountClientService to be used
      */
     public void setUserAccountsClientService(UserAccountsClientService service) { this.userAccountsClientService = service;}
-
-
-
 }

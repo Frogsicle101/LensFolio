@@ -34,6 +34,7 @@ public class NotificationController {
     /** For logging */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
     /**
      * A method that will run whenever a client subscribes to the notifications/sending/occasions
      * Asks the notification service for all of our stored notifications, and then returns them.
@@ -46,6 +47,7 @@ public class NotificationController {
         return notificationService.sendStoredNotifications();
     }
 
+
     /**
      * A message-mapping method that will:
      * receive a IncomingNotification object that was sent to /notifications/message
@@ -53,7 +55,7 @@ public class NotificationController {
      * Make a string that will be the content of our editing notification
      * Put it into a OutgoingNotification object
      * Send it off to /notifications/receiving/occasions, for any and all STOMP clients subscribed to that endpoint
-     *     *
+     *
      * Don't call this method directly. This is a spring method; it'll call itself when the time is right.
      * @param message A model for the edit details
      * @return A messenger object containing a type, occasion, id and content

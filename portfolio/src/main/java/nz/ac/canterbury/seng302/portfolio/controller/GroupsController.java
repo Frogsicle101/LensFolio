@@ -26,20 +26,14 @@ import java.util.Map;
 @Controller
 public class GroupsController {
 
-    /**
-     * For logging the requests related to groups.
-     */
+    /** For logging the requests related to groups */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * For making gRpc requests to the IdP.
-     */
+    /** For making gRpc requests to the IdP. */
     @Autowired
     private GroupsClientService groupsClientService;
 
-    /**
-     * For requesting user information form the IdP.
-     */
+    /** For requesting user information form the IdP. */
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
@@ -54,10 +48,10 @@ public class GroupsController {
      * @return a response entity containing the list of GroupDetailsResponse object, and a response status.
      */
     @GetMapping("/groups")
-    public ModelAndView groups(@AuthenticationPrincipal AuthState principal) {
+    public ModelAndView groups(@AuthenticationPrincipal Authentication principal) {
         logger.info("GET REQUEST /groups - attempt to get all groups");
 
-        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("groups");
 
         // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
@@ -90,9 +84,14 @@ public class GroupsController {
     }
 
 
+    /**
+     * Gets an individual group by the group Id.
+     *
+     * @param groupId - The id group whose information is being retrieved
+     * @return a Response entity containing the HTTPStatus and the groups information.
+     */
     @GetMapping("/group")
-    public ResponseEntity<Object> getGroup(@AuthenticationPrincipal AuthState principal,
-                                   @RequestParam Integer groupId) {
+    public ResponseEntity<Object> getGroup(@RequestParam Integer groupId) {
         logger.info("GET REQUEST /group - attempt to get group {}", groupId);
         try {
             GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
@@ -246,7 +245,6 @@ public class GroupsController {
     public ResponseEntity<String> removeUsersFromGroup(
             @RequestParam(value = "groupId") Integer groupId,
             @RequestParam(value = "userIds") ArrayList<Integer> userIds
-
     ) {
         logger.info("DELETE REQUEST /groups/removeUsers");
 
