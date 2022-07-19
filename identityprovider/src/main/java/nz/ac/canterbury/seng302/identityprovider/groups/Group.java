@@ -2,6 +2,8 @@ package nz.ac.canterbury.seng302.identityprovider.groups;
 
 import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -22,25 +24,20 @@ public class Group {
      * The User's in the group.
      */
     @ManyToMany
+    @Fetch(FetchMode.JOIN)
     @JoinTable(name = "group_members",
             joinColumns = @JoinColumn(name = "groupId"),
             inverseJoinColumns = @JoinColumn(name = "userId"))
     private final List<User> userList = new ArrayList<>();
 
-    /**
-     * The group's short name.
-     */
+    /** The group's short name. */
     private String shortName;
 
-    /**
-     * The group's long name.
-     */
+    /** The group's long name. */
     private String longName;
 
 
-    /**
-     * The Group constructor required by JPA.
-     */
+    /** The Group constructor required by JPA. */
     protected Group() {}
 
 

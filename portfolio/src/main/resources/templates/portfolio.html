@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Lensfolio | Portfolio</title>
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
@@ -35,7 +35,7 @@
     <div th:insert="fragments/general.html :: infoBox"></div>
     <div class="projectDetails">
         <div id="project-details">
-            <h1 id="projectId" th:text="${project.getId()}" style="display: none"></h1>
+            <h1 id="projectId" style="display: none" th:text="${project.getId()}"></h1>
             <div class="mb3">
                 <h1 id="projectName" th:text="${project.getName()}"></h1>
             </div>
@@ -59,33 +59,34 @@
             <button class="btn btn-outline-success project-add-sprint-button authenticated-user" id="projectEditSprint">
                 Edit Project
             </button>
-            <button class="btn btn-outline-success project-add-sprint-button authenticated-user addSprint" id="projectAddSprint"  data-bs-toggle="tooltip" data-bs-placement="top" title="Add Sprint!">
+            <button class="btn btn-outline-success project-add-sprint-button authenticated-user addSprint"
+                    data-bs-placement="top" data-bs-toggle="tooltip" id="projectAddSprint" title="Add Sprint!">
                 Add Sprint
             </button>
             <div id="sprintAddInformationBar">
             </div>
         </div>
-
-
     </div>
+
+
     <div class="projectContainer">
         <div class="eventContainer">
-            <div id="informationBar" class="infoMessageParent alert alert-primary alert-dismissible fade show"
+            <div class="infoMessageParent alert alert-primary alert-dismissible fade show" id="informationBar"
                  role="alert" style="display: none">
             </div>
             <ul class="nav nav-tabs">
                 <li class="nav-item">
-                    <button class="nav-link active" id="eventsTab" data-bs-toggle="tab" data-bs-target="#events"
+                    <button class="nav-link active" data-bs-target="#events" data-bs-toggle="tab" id="eventsTab"
                             role="tab">Events
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link" id="deadlinesTab" data-bs-toggle="tab" data-bs-target="#deadlines"
+                    <button class="nav-link" data-bs-target="#deadlines" data-bs-toggle="tab" id="deadlinesTab"
                             role="tab">Deadlines
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link" id="milestonesTab" data-bs-toggle="tab" data-bs-target="#milestones"
+                    <button class="nav-link" data-bs-target="#milestones" data-bs-toggle="tab" id="milestonesTab"
                             role="tab">Milestones
                     </button>
                 </li>
@@ -97,11 +98,11 @@
                 <!---------------------------------------- Events tab  ------------------------------------------>
                 <div class="tab-pane fade show active" id="events" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button type="button" class="addOccasionButton addEventButton noStyleButton"
-                                th:if="${userCanEdit == true}"
-                                data-bs-toggle="tooltip" data-bs-placement="right" title="Create Event">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                 class="bi bi-plus-circle addEventSvg" viewBox="0 0 16 16">
+                        <button class="addOccasionButton addEventButton noStyleButton" data-bs-placement="right"
+                                data-bs-toggle="tooltip"
+                                th:if="${userCanEdit == true}" title="Create Event" type="button">
+                            <svg class="bi bi-plus-circle addEventSvg" fill="currentColor" height="20" viewBox="0 0 16 16"
+                                 width="20" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                             </svg>
@@ -111,18 +112,18 @@
                     <div class="eventForm" style="display: none" th:if="${userCanEdit == true}">
                         <form id="addEventForm">
                             <div class="mb-1">
-                                <label for="eventName" class="form-label">Event name</label>
-                                <input type="text" class="form-control form-control-sm"
-                                       th:pattern="${titleRegex}" th:maxlength="${eventNameLengthRestriction}"
-                                       name="eventName"
-                                       id="eventName"
-                                       required>
+                                <label class="form-label" for="eventName">Event name</label>
+                                <input class="form-control form-control-sm" id="eventName"
+                                       name="eventName" required
+                                       th:maxlength="${eventNameLengthRestriction}"
+                                       th:pattern="${titleRegex}"
+                                       type="text">
                                 <small class="form-text text-muted countChar">0 characters remaining</small>
                             </div>
                             <div class="mb-3">
-                                <label for="exampleFormControlInput1" class="form-label">Type of event</label>
+                                <label class="form-label" for="exampleFormControlInput1">Type of event</label>
                                 <select class="form-select typeOfEvent" id="exampleFormControlInput1">
-                                    <option value="1" selected>Event</option>
+                                    <option selected value="1">Event</option>
                                     <option value="2">Test</option>
                                     <option value="3">Meeting</option>
                                     <option value="4">Workshop</option>
@@ -132,26 +133,26 @@
                             </div>
                             <div class="row mb-1">
                                 <div class="col">
-                                    <label for="eventStart" class="form-label">Start</label>
-                                    <input type="datetime-local"
-                                           class="form-control form-control-sm eventInputStartDate"
-                                           th:value="${project.getStartDateAsLocalDateTime()}"
-                                           th:min="${project.getStartDateAsLocalDateTime()}"
-                                           th:max="${project.getEndDateAsLocalDateTime()}" name="eventStart"
+                                    <label class="form-label" for="eventStart">Start</label>
+                                    <input class="form-control form-control-sm eventInputStartDate"
                                            id="eventStart"
-                                           required>
+                                           name="eventStart"
+                                           required
+                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:value="${project.getStartDateAsLocalDateTime()}"
+                                           type="datetime-local">
                                 </div>
                                 <div class="col">
-                                    <label for="eventEnd" class="form-label">End</label>
-                                    <input type="datetime-local" class="form-control form-control-sm eventInputEndDate"
-                                           th:value="${project.getStartDateAsLocalDateTime()}"
-                                           th:min="${project.getStartDateAsLocalDateTime()}"
-                                           th:max="${project.getEndDateAsLocalDateTime()}" name="eventEnd" id="eventEnd"
-                                           required>
+                                    <label class="form-label" for="eventEnd">End</label>
+                                    <input class="form-control form-control-sm eventInputEndDate" id="eventEnd"
+                                           name="eventEnd"
+                                           required
+                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}" th:value="${project.getStartDateAsLocalDateTime()}"
+                                           type="datetime-local">
                                 </div>
                             </div>
                             <div class="mb-1">
-                                <button type="submit" class="btn btn-primary" id="eventSubmit">Submit</button>
+                                <button class="btn btn-primary" id="eventSubmit" type="submit">Submit</button>
                             </div>
                         </form>
                     </div>
@@ -164,10 +165,10 @@
                 <!--------------------------------------- Deadlines tab  ---------------------------------------->
                 <div class="tab-pane fade show" id="deadlines" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button type="button" class="addDeadlineButton noStyleButton" th:if="${userCanEdit == true}"
-                                data-bs-toggle="tooltip" data-bs-placement="right" title="Create Deadline">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                 class="bi bi-plus-circle addDeadlineSvg" viewBox="0 0 16 16">
+                        <button class="addDeadlineButton noStyleButton" data-bs-placement="right" data-bs-toggle="tooltip"
+                                th:if="${userCanEdit == true}" title="Create Deadline" type="button">
+                            <svg class="bi bi-plus-circle addDeadlineSvg" fill="currentColor" height="20" viewBox="0 0 16 16"
+                                 width="20" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                             </svg>
@@ -177,17 +178,18 @@
                     <div class="deadlineForm" style="display: none" th:if="${userCanEdit == true}">
                         <form id="addDeadlineForm">
                             <div class="mb-1">
-                                <label for="deadlineName" class="form-label">Deadline name</label>
-                                <input type="text" class="form-control form-control-sm"
-                                       th:pattern="${titleRegex}" th:maxlength="${eventNameLengthRestriction}" name="occasionName"
-                                       id="deadlineName"
-                                       required>
+                                <label class="form-label" for="deadlineName">Deadline name</label>
+                                <input class="form-control form-control-sm" id="deadlineName"
+                                       name="occasionName" required
+                                       th:maxlength="${eventNameLengthRestriction}"
+                                       th:pattern="${titleRegex}"
+                                       type="text">
                                 <small class="form-text text-muted countChar">0 characters remaining</small>
                             </div>
                             <div class="mb-3">
-                                <label for="exampleFormControlInput3" class="form-label">Type of deadline</label>
+                                <label class="form-label" for="exampleFormControlInput3">Type of deadline</label>
                                 <select class="form-select typeOfDeadline" id="exampleFormControlInput3">
-                                    <option value="1" selected>Event</option>
+                                    <option selected value="1">Event</option>
                                     <option value="2">Test</option>
                                     <option value="3">Meeting</option>
                                     <option value="4">Workshop</option>
@@ -197,18 +199,18 @@
                             </div>
                             <div class="row mb-1">
                                 <div class="col">
-                                    <label for="deadlineEnd" class="form-label">End</label>
-                                    <input type="datetime-local"
-                                           class="form-control form-control-sm deadlineInputEndDate"
-                                           th:value="${project.getStartDateAsLocalDateTime()}"
-                                           th:min="${project.getStartDateAsLocalDateTime()}"
-                                           th:max="${project.getEndDateAsLocalDateTime()}" name="deadlineEnd"
+                                    <label class="form-label" for="deadlineEnd">End</label>
+                                    <input class="form-control form-control-sm deadlineInputEndDate"
                                            id="deadlineEnd"
-                                           required>
+                                           name="deadlineEnd"
+                                           required
+                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:value="${project.getStartDateAsLocalDateTime()}"
+                                           type="datetime-local">
                                 </div>
                             </div>
                             <div class="mb-1">
-                                <button type="submit" class="btn btn-primary" id="deadlineSubmit">Submit</button>
+                                <button class="btn btn-primary" id="deadlineSubmit" type="submit">Submit</button>
                             </div>
                         </form>
                     </div>
@@ -219,11 +221,11 @@
                 <!--------------------------------------- Milestones tab  --------------------------------------->
                 <div class="tab-pane fade show" id="milestones" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button type="button" class="addOccasionButton addMilestoneButton noStyleButton"
-                                th:if="${userCanEdit == true}"
-                                data-bs-toggle="tooltip" data-bs-placement="right" title="Create Milestone">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                 class="bi bi-plus-circle addMilestoneSvg" viewBox="0 0 16 16">
+                        <button class="addOccasionButton addMilestoneButton noStyleButton" data-bs-placement="right"
+                                data-bs-toggle="tooltip"
+                                th:if="${userCanEdit == true}" title="Create Milestone" type="button">
+                            <svg class="bi bi-plus-circle addMilestoneSvg" fill="currentColor" height="20" viewBox="0 0 16 16"
+                                 width="20" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                             </svg>
@@ -233,19 +235,21 @@
                     <div class="milestoneForm" style="display: none" th:if="${userCanEdit == true}">
                         <form>
                             <div class="mb-1">
-                                <label for="milestoneName" class="form-label">Milestone name</label>
-                                <input type="text" class="form-control form-control-sm"
-                                       th:pattern="${titleRegex}"
-                                       th:maxlength="${eventNameLengthRestriction}" name="milestoneName" data-nextNumber="${nextMilestoneNumber}"
-                                       th:placeholder="${'Milestone ' + nextMilestoneNumber}" th:value="${'Milestone ' + nextMilestoneNumber}"
+                                <label class="form-label" for="milestoneName">Milestone name</label>
+                                <input class="form-control form-control-sm" data-nextNumber="${nextMilestoneNumber}"
                                        id="milestoneName"
-                                       required>
+                                       name="milestoneName" required
+                                       th:maxlength="${eventNameLengthRestriction}"
+                                       th:pattern="${titleRegex}"
+                                       th:placeholder="${'Milestone ' + nextMilestoneNumber}"
+                                       th:value="${'Milestone ' + nextMilestoneNumber}"
+                                       type="text">
                                 <small class="form-text text-muted countChar">0 characters remaining</small>
                             </div>
                             <div class="mb-3">
-                                <label for="exampleFormControlInput2" class="form-label">Type of milestone</label>
+                                <label class="form-label" for="exampleFormControlInput2">Type of milestone</label>
                                 <select class="form-select typeOfMilestone" id="exampleFormControlInput2">
-                                    <option value="1" selected>Event</option>
+                                    <option selected value="1">Event</option>
                                     <option value="2">Test</option>
                                     <option value="3">Meeting</option>
                                     <option value="4">Workshop</option>
@@ -255,19 +259,19 @@
                             </div>
                             <div class="row mb-1">
                                 <div class="col">
-                                    <label for="milestoneEnd" class="form-label">End</label>
-                                    <input type="date"
-                                           class="form-control form-control-sm milestoneInputEndDate"
-                                           th:value="${defaultOccasionDate}"
-                                           th:min="${project.getStartDateAsLocalDateTime().toLocalDate()}"
-                                           th:max="${project.getEndDateAsLocalDateTime().toLocalDate()}"
-                                           name="milestoneEnd"
+                                    <label class="form-label" for="milestoneEnd">End</label>
+                                    <input class="form-control form-control-sm milestoneInputEndDate"
                                            id="milestoneEnd"
-                                           required>
+                                           name="milestoneEnd"
+                                           required
+                                           th:max="${project.getEndDateAsLocalDateTime().toLocalDate()}"
+                                           th:min="${project.getStartDateAsLocalDateTime().toLocalDate()}"
+                                           th:value="${defaultOccasionDate}"
+                                           type="date">
                                 </div>
                             </div>
                             <div class="mb-1">
-                                <button type="submit" class="btn btn-primary" id="milestoneSubmit">Submit</button>
+                                <button class="btn btn-primary" id="milestoneSubmit" type="submit">Submit</button>
                             </div>
                         </form>
                     </div>
@@ -277,19 +281,16 @@
             </div>
         </div>
 
-
         <div class="sprintsContainer" style="display: none">
-
         </div>
-
     </div>
 </section>
 
 
 </body>
 
-<script type="application/javascript" th:src="@{js/notifications.js}"></script>
-<script type="application/javascript" th:src="@{js/events.js}"></script>
-<script type="application/javascript" th:src="@{js/project.js}"></script>
+<script th:src="@{js/notifications.js}" type="application/javascript"></script>
+<script th:src="@{js/events.js}" type="application/javascript"></script>
+<script th:src="@{js/project.js}" type="application/javascript"></script>
 
 </html>

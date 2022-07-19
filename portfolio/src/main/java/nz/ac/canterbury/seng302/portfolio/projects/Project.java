@@ -14,24 +14,27 @@ import java.time.LocalTime;
 @Entity // Maps Project object to a table in the database called "Project"
 public class Project {
 
-    private @Id @GeneratedValue long id; // @Id lets JPA know it's the objects ID
+    private @Id
+    @GeneratedValue
+    long id; // @Id lets JPA know it's the objects ID
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
     private DateTime timeDeactivated;
 
-    protected Project() {}
+    protected Project() {
+    }
 
     /**
      * Constructor for Project.
      *
      * @param name        Name of project.
-     * @param startDate  Start date of project.
-     * @param endDate    End date of project.
+     * @param startDate   Start date of project.
+     * @param endDate     End date of project.
      * @param description description of project.
      */
-    public Project( String name, LocalDate startDate, LocalDate endDate, String description) {
+    public Project(String name, LocalDate startDate, LocalDate endDate, String description) {
 
         this.name = name;
         this.startDate = startDate;
@@ -56,6 +59,7 @@ public class Project {
 
     /**
      * Converts from projects LocalDate start date to LocalDateTime
+     *
      * @return LocalDateTime version of start date.
      */
     public LocalDateTime getStartDateAsLocalDateTime() {
@@ -64,6 +68,7 @@ public class Project {
 
     /**
      * Converts from projects LocalDate end date to LocalDateTime
+     *
      * @return LocalDateTime version of end date.
      */
     public LocalDateTime getEndDateAsLocalDateTime() {
@@ -72,12 +77,12 @@ public class Project {
 
     /**
      * Gets the minimum start date for a project which is now minus a year.
+     *
      * @return LocalDate set a year in the past.
      */
     public LocalDate getMinStartDateAsLocalDateTime() {
         return LocalDate.now().minusYears(1);
     }
-
 
 
     /**
@@ -97,7 +102,6 @@ public class Project {
     public void setId(Long id) {
         this.id = id;
     }
-
 
 
     /**
@@ -127,7 +131,7 @@ public class Project {
         return startDate;
     }
 
-    public String getStartDateFormatted(){
+    public String getStartDateFormatted() {
         return startDate.format(DateTimeFormat.dayDateMonthYear());
     }
 
@@ -149,7 +153,7 @@ public class Project {
         return endDate;
     }
 
-    public String getEndDateFormatted(){
+    public String getEndDateFormatted() {
         return endDate.format(DateTimeFormat.dayDateMonthYear());
     }
 

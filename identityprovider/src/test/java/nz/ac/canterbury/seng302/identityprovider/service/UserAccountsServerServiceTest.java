@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class UserAccountsServerServiceTest {
 
     @Autowired
@@ -73,10 +75,6 @@ class UserAccountsServerServiceTest {
         user.addRole(UserRole.STUDENT);
         user.addRole(UserRole.TEACHER);
 
-        groupRepository.deleteAll();
-        groupRepository.saveAll(defaultGroups);
-
-        repository.deleteAll();
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -108,8 +106,6 @@ class UserAccountsServerServiceTest {
         user.addRole(UserRole.STUDENT);
         user.addRole(UserRole.TEACHER);
 
-        groupRepository.deleteAll();
-        repository.deleteAll();
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -140,8 +136,6 @@ class UserAccountsServerServiceTest {
         //Add some roles to the user
         user.addRole(UserRole.STUDENT);
 
-        groupRepository.deleteAll();
-        repository.deleteAll();
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -201,8 +195,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void registerNewUserUsernameInUse() {
-        groupRepository.deleteAll();
-        repository.deleteAll();
         repository.save(user);
 
         UserRegisterRequest.Builder request = UserRegisterRequest.newBuilder();
@@ -235,8 +227,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void getUserAccountById() {
-        groupRepository.deleteAll();
-        repository.deleteAll();
         repository.save(user);
 
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
@@ -307,8 +297,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void editUserNoUserOfThatId() {
-        groupRepository.deleteAll();
-        repository.deleteAll();
         repository.save(user);
 
         EditUserRequest.Builder request = EditUserRequest.newBuilder();
@@ -340,8 +328,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void changeUserPassword() {
-        groupRepository.deleteAll();
-        repository.deleteAll();
         repository.save(user);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
@@ -371,8 +357,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void changeUserPasswordIncorrectCurrentPassword() {
-        groupRepository.deleteAll();
-        repository.deleteAll();
         repository.save(user);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
@@ -401,8 +385,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void changeUserPasswordNoUserOfThatId() {
-        groupRepository.deleteAll();
-        repository.deleteAll();
         repository.save(user);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
@@ -431,9 +413,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUser() {
-        groupRepository.deleteAll();
-        groupRepository.saveAll(defaultGroups);
-        repository.deleteAll();
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -460,8 +439,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUserNoUserOfThatId() {
-        groupRepository.deleteAll();
-        repository.deleteAll();
         repository.save(user);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -489,8 +466,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUserAlreadyHasThatRole() {
-        groupRepository.deleteAll();
-        repository.deleteAll();
         user.addRole(UserRole.TEACHER);
         repository.save(user);
 

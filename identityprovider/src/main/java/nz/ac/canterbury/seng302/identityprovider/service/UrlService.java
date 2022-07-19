@@ -2,20 +2,33 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 
 import nz.ac.canterbury.seng302.identityprovider.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-@Component
+/**
+ * Provides access to the endpoint for retrieving profile images.
+ * A singleton instance of this class is accessible through the UrlUtil class.
+ *
+ * @see UrlUtil
+ */
+@Service
 public class UrlService {
 
+    /** Retrieves the environment variables which contain image path components */
     @Autowired
     private Environment env;
 
+    /**
+     * Gets the absolute image path based off the users image name and the environment variables
+     * for the protocol, endpoint, port and image root path.
+     * Note: this method is required to provide the correct path for images independent of the server host.
+     *
+     * @param user - The user whose profile image is being retrieved
+     * @return - A URL object that contains the profile image path.
+     */
     public URL getProfileURL(User user) {
 
         String protocol = env.getProperty("protocol", "http");
