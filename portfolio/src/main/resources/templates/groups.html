@@ -38,23 +38,23 @@
                 </button>
             </div>
             <hr>
-            <div id="groupDisplayOptions">
+            <div id="groupDisplayOptions" class="hasTeacherOrAbove">
+                <input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label>
                 <p class="numSelected">0 Selected</p>
                 <button class="btn btn-danger">Delete</button>
-                <div>
-                    <p>Move to..</p>
-                    <select id="newGroupSelector"class="form-select">
-                        <option th:each="group : ${groups}" th:text="${group.shortName}"></option>
+                <div class="moveToDiv">
+                    <label for="newGroupSelector">Move to..</label>
+                    <select id="newGroupSelector" class="form-select moveToSelect">
+                        <option th:each="group : ${groups}" th:text="${group.shortName}" th:value="${group.getGroupId()}"></option>
                     </select>
+                    <button class="btn btn-primary moveToButton" id="moveUsersButton" >Move</button>
                 </div>
 
             </div>
-            <hr>
             <div class="membersContainer"></div>
             <table id="groupTable" class="table">
                 <thead>
                 <tr class="tableHeader">
-                    <th><input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label></th>
                     <th scope="col">Id</th>
                     <th scope="col">Image</th>
                     <th scope="col">First</th>

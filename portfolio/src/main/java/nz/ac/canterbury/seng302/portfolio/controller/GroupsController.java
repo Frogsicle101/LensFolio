@@ -218,8 +218,8 @@ public class GroupsController {
      */
     @PostMapping("/groups/addUsers")
     public ResponseEntity<String> addUsersToGroup(
-            @RequestParam(value = "groupId") Integer groupId,
-            @RequestParam(value = "userIds") ArrayList<Integer> userIds
+            @RequestParam Integer groupId,
+            @RequestParam List<Integer> userIds
     ) {
         logger.info("POST REQUEST /groups/addUsers");
 

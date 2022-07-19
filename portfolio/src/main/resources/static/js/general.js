@@ -35,3 +35,5 @@ function removeElementIfNotAuthorized() {
         $(".hasTeacherOrAbove").remove()
     }
 }
+
+
