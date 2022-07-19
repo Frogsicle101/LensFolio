@@ -47,7 +47,7 @@ $(document).on("click", ".group", function () {
 
     if (!checkPrivilege()) {
         $("#selectAllCheckboxHeader").hide();
-        $("#groupRemoveUser").hide();
+        $("#groupDisplayOptions").hide();
     }
 
     selectedUserIds = [];
