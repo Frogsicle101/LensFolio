@@ -8,7 +8,6 @@
 <body>
 <header th:insert="fragments/general.html :: header"></header>
 <section>
-
     <div class="row">
         <div class="col groupsContainer">
             <div class="group" th:each="group : ${groups}">
@@ -22,7 +21,6 @@
         <div class="col" id="groupInformationContainer" style="display: none">
             <h2 id="groupInformationShortName"></h2>
             <h3 id="groupInformationLongName"></h3>
-            <hr>
             <div class="controlButtons">
                 <button class="editButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Group">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
@@ -48,6 +46,7 @@
                     </select>
                 </div>
             </div>
+            <hr>
             <div class="form-popup border rounded w-25" id="confirmationForm" style="display: none">
                 <h6>Confirm removal of selected users from this group?</h6>
                 <table>
@@ -57,14 +56,13 @@
                     </tr>
                 </table>
             </div>
-            <hr>
             <div class="membersContainer"></div>
 
             <table id="groupTable" class="table">
                 <thead>
                 <tr class="tableHeader">
                     <th id="selectAllCheckboxHeader">
-                        <input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label>
+                        <input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> &nbsp;Select All </label>
                     </th>
                     <th scope="col">Id</th>
                     <th scope="col">Image</th>
@@ -73,13 +71,9 @@
                     <th scope="col">Username</th>
                 </tr>
                 </thead>
-                <tbody id="groupTableBody">
-
-
-                </tbody>
+                <tbody id="groupTableBody"></tbody>
             </table>
         </div>
-
     </div>
 </section>
 </body>
