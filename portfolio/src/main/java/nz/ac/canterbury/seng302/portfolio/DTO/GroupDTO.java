@@ -10,10 +10,14 @@ public class GroupDTO {
 
     private final Integer id;
 
-    /** The group's short name. */
+    /**
+     * The group's short name.
+     */
     private final String shortName;
 
-    /** The group's long name. */
+    /**
+     * The group's long name.
+     */
     private final String longName;
 
     private final List<UserDTO> userList = new ArrayList<>();

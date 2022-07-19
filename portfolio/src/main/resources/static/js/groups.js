@@ -19,6 +19,7 @@ function showOptions(show) {
     $(".numSelected").text($(".selected").length + " Selected")
 }
 
+
 /**
  * Helper function that uses the amount of selected users to determine if to call the showOptions function
  */
@@ -30,6 +31,20 @@ function checkToSeeIfHideOrShowOptions() {
         showOptions(false)
     }
 }
+
+
+
+/**
+ * When group div is clicked, the members for that group are retrieved.
+ */
+$(document).on("click", ".group", function () {
+    $(".group").removeClass("focusOnGroup")
+    let groupId = $(this).closest(".group").find(".groupId").text();
+    displayGroupUsersList(groupId);
+
+    $(this).closest(".group").addClass("focusOnGroup")
+})
+
 
 /**
  * Makes an ajax get call to the server and gets all the information for a particular group.
@@ -67,7 +82,10 @@ function displayGroupUsersList(groupId) {
             $("#groupInformationContainer").slideDown()
         },
         error: (error) => {
-            console.log(error);
+            $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                       ${error.responseText}
+                                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                     </div>`)
         }
     })
 

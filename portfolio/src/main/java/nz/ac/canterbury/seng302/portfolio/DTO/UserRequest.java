@@ -28,7 +28,6 @@ public class UserRequest {
     }
 
 
-
     public String getUsername() {
         return username;
     }
