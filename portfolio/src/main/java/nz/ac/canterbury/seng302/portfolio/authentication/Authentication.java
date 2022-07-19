@@ -7,7 +7,7 @@ import java.security.Principal;
 public class Authentication implements Principal {
 
 
-    private AuthState authState;
+    private final AuthState authState;
 
     public Authentication(AuthState authState) {
         this.authState = authState;
@@ -15,7 +15,6 @@ public class Authentication implements Principal {
 
     @Override
     public String getName() {
-        System.out.println(authState.getName());
         return authState.getName();
     }
 

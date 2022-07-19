@@ -249,7 +249,7 @@ public class AccountController {
     /**
      * Entry point for editing account details
      * This also handle the logic for changing the account details\
-     * @param principal The authentication state
+     * @param authentication The authentication state
      * @param editInfo The thymeleaf-created form object
      * @return a redirect to the main /edit endpoint
      */
@@ -305,7 +305,7 @@ public class AccountController {
      * Entry point for editing the password
      * This also handle the logic for changing the password
      * Note: this injects an attribute called "passwordchangemessage" into the template it redirects to
-     * @param principal The authentication state
+     * @param authentication The authentication state
      * @param editInfo the thymeleaf-created form object
      * @return a redirect to the main /edit endpoint
      */
