@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = GroupsController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class GroupsControllerTest {
+class GroupsControllerTest {
 
     private AuthState principal;
 
