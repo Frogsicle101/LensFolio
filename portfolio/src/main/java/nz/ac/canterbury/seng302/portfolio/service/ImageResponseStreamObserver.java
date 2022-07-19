@@ -13,8 +13,6 @@ import java.util.List;
 /**
  * Defines the StreamObserver<FileUploadStatusResponse> implementation used by the UserAccountsClientService for
  * uploading images.
- *
- * @author Sam Clark
  */
 public class ImageResponseStreamObserver implements StreamObserver<FileUploadStatusResponse> {
 
@@ -42,7 +40,7 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
             case FileUploadStatus.FAILED_VALUE -> logger.error("Transfer failed");
             case FileUploadStatus.IN_PROGRESS_VALUE -> {
                 if (currentChunk < numChunks) {
-                    logger.info("Sending next chunk: " + currentChunk);
+                    logger.info("Sending next chunk: {}", currentChunk);
                     requestObserver.onNext(requestChunks.get(currentChunk++));
                 } else {
                     logger.info("Sent all image chunks calling onComplete() for server");
@@ -51,7 +49,7 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
             }
             case FileUploadStatus.PENDING_VALUE -> {
                 if (currentChunk == 1) {
-                    logger.info("Sending next chunk: " + currentChunk);
+                    logger.info("Sending next chunk: {}", currentChunk);
                     requestObserver.onNext(requestChunks.get(currentChunk++));
                 } else {
                     logger.error("Got code PENDING but expected code IN_PROGRESS");
@@ -72,9 +70,7 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
      */
     @Override
     public void onError(Throwable throwable) {
-        logger.error("Image transfer failure for user " +
-                requestChunks.get(0).getMetaData().getUserId() +
-                ":\n" + throwable.getMessage());
+        logger.error("Image transfer failure for user {} :\n {}", requestChunks.get(0).getMetaData().getUserId(), throwable.getMessage());
     }
 
     /**
@@ -82,7 +78,7 @@ public class ImageResponseStreamObserver implements StreamObserver<FileUploadSta
      */
     @Override
     public void onCompleted() {
-        logger.info("Image transfer successful for user " + requestChunks.get(0).getMetaData().getUserId());
+        logger.info("Image transfer successful for user {}", requestChunks.get(0).getMetaData().getUserId());
     }
 
     /**

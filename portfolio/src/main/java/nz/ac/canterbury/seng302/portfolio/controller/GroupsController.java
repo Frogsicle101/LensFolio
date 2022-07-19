@@ -4,6 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -14,16 +15,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The controller for managing requests to edit groups and their user's memberships.
@@ -48,9 +50,9 @@ public class GroupsController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    private final int offset = 0;
-    private final String orderBy = "shortname-increasing";
-    private final int limit = 20;
+    private static final int OFFSET = 0;
+    private static final String ORDER_BY = "shortname-increasing";
+    private static final int LIMIT = 20;
 
 
     /**
@@ -76,9 +78,9 @@ public class GroupsController {
         //to populate groups page with groups
         try {
             GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
-                    .setOffset(offset)
-                    .setOrderBy(orderBy)
-                    .setLimit(limit)
+                    .setOffset(OFFSET)
+                    .setOrderBy(ORDER_BY)
+                    .setLimit(LIMIT)
                     .build();
             PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
 
@@ -137,6 +139,7 @@ public class GroupsController {
             return new ModelAndView("error");
         }
     }
+
 
     /**
      * Restricted to teachers and course administrators, This endpoint deletes an existing group.

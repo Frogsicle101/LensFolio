@@ -3,7 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
-
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
@@ -18,10 +18,6 @@ import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-
-import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-
-
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
@@ -70,9 +66,8 @@ public class PortfolioController {
     private final MilestoneRepository milestoneRepository;
 
     //Selectors for the error/info/success boxes.
-    private static final String errorMessage = "errorMessage";
-    private static final String infoMessage = "infoMessage";
-    private static final String successMessage = "successMessage";
+    private static final String ERROR_MESSAGE = "errorMessage";
+
 
     private final CheckDateService checkDateService = new CheckDateService();
 
@@ -179,10 +174,10 @@ public class PortfolioController {
 
         } catch (EntityNotFoundException err) {
             logger.error("GET REQUEST /portfolio", err);
-            return new ModelAndView("errorPage").addObject(errorMessage, err.getMessage());
+            return new ModelAndView("errorPage").addObject(ERROR_MESSAGE, err.getMessage());
         } catch (Exception err) {
             logger.error("GET REQUEST /portfolio", err);
-            return new ModelAndView("errorPage").addObject(errorMessage, err);
+            return new ModelAndView("errorPage").addObject(ERROR_MESSAGE, err);
         }
     }
 
@@ -223,7 +218,7 @@ public class PortfolioController {
 
         } catch (EntityNotFoundException err) {
             logger.error("GET REQUEST /editProject", err);
-            return new ModelAndView("errorPage").addObject(errorMessage, err);
+            return new ModelAndView("errorPage").addObject(ERROR_MESSAGE, err);
         } catch (Exception err) {
             logger.error("GET REQUEST /editProject", err);
             return new ModelAndView("errorPage");
@@ -448,7 +443,7 @@ public class PortfolioController {
             return modelAndView;
         } catch (Exception err) {
             logger.error("GET REQUEST /sprintEdit", err);
-            attributes.addFlashAttribute(errorMessage, err);
+            attributes.addFlashAttribute(ERROR_MESSAGE, err);
             return new ModelAndView("redirect:/portfolio?projectId=" + projectId);
         }
     }

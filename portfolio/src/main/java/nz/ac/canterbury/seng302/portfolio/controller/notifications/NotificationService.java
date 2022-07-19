@@ -25,7 +25,7 @@ public class NotificationService {
      * occasionType + ":" + occasionId
      * where the type and id are taken from the notification stored.
      */
-    private HashMap<String, OutgoingNotification> activeEditNotifications = new HashMap<>();
+    private final HashMap<String, OutgoingNotification> activeEditNotifications = new HashMap<>();
 
     /**
      * An index on activeEditNotifications
@@ -36,7 +36,7 @@ public class NotificationService {
      * <p>
      * Keys are the editorIds with no formatting.
      */
-    private HashMap<String, HashSet<String>> editorIdIndex = new HashMap<>();
+    private final HashMap<String, HashSet<String>> editorIdIndex = new HashMap<>();
 
     /**
      * Stores the outgoing notification, to be later sent to other users.
@@ -49,7 +49,7 @@ public class NotificationService {
      */
     public void storeOutgoingNotification(OutgoingNotification notification) {
         String key = notification.getOccasionType() + ":" + notification.getOccasionId();
-        logger.info("SERVICE - Storing notification: " + key);
+        logger.info("SERVICE - Storing notification: {}", key);
         activeEditNotifications.put(key, notification);
         //Update our index for editor ids
         HashSet<String> keychain = editorIdIndex.getOrDefault(notification.getEditorId(), new HashSet<>());
@@ -65,7 +65,7 @@ public class NotificationService {
      */
     public void removeOutgoingNotification(OutgoingNotification notification) {
         String key = notification.getOccasionType() + ":" + notification.getOccasionId();
-        logger.info("SERVICE - Removing notification: " + key);
+        logger.info("SERVICE - Removing notification: {}", key);
         activeEditNotifications.remove(key);
         //Update our index for editor ids
         HashSet<String> keychain = editorIdIndex.getOrDefault(notification.getEditorId(), new HashSet<>());

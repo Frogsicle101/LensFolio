@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationUtil {
 
-    private final static NotificationService notificationService = new NotificationService();
+    private static final NotificationService notificationService = new NotificationService();
 
     @Autowired
     private NotificationUtil() {

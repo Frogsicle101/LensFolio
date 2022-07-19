@@ -6,9 +6,9 @@ import io.cucumber.java.en.When;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.DeadlineController;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
+import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -23,19 +23,18 @@ import javax.naming.InvalidNameException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class OccasionFeature {
 
 
-    private DeadlineRepository deadlineRepository = new DeadlineRepository() {
+    private final DeadlineRepository deadlineRepository = new DeadlineRepository() {
         @Override
         public List<Deadline> findAllByProjectId(Long projectId) {
             return null;
@@ -119,14 +118,14 @@ public class OccasionFeature {
         }
     };
 
-    private static ProjectRepository mockProjectRepository = mock(ProjectRepository.class);
-    private static PrincipalAttributes mockPrincipal = mock(PrincipalAttributes.class);
-    private static UserAccountsClientService clientService = mock(UserAccountsClientService.class);
-    private AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
+    private static final ProjectRepository mockProjectRepository = mock(ProjectRepository.class);
+    private static final PrincipalAttributes mockPrincipal = mock(PrincipalAttributes.class);
+    private static final UserAccountsClientService clientService = mock(UserAccountsClientService.class);
+    private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
 
-    private ArrayList<Deadline> deadlines = new ArrayList<>();
+    private final ArrayList<Deadline> deadlines = new ArrayList<>();
     private Project project;
-    private DeadlineController deadlineController = new DeadlineController(mockProjectRepository, deadlineRepository);
+    private final DeadlineController deadlineController = new DeadlineController(mockProjectRepository, deadlineRepository);
     private Milestone milestone;
 
     @Given("the user is authenticated: {string}")

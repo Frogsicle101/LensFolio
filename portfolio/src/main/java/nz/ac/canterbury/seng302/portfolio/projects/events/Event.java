@@ -7,12 +7,10 @@ import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAccessor;
 
 /**
  * Represents an Event entity.
