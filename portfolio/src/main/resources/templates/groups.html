@@ -40,28 +40,26 @@
             <hr>
             <div id="groupDisplayOptions">
                 <p class="numSelected">0 Selected</p>
-                <button class="btn btn-danger">Delete</button>
+                <button class="btn btn-danger" id="groupRemoveUser">Remove User</button>
                 <div>
                     <p>Move to..</p>
-                    <select id="newGroupSelector"class="form-select">
+                    <select id="newGroupSelector" class="form-select">
                         <option th:each="group : ${groups}" th:text="${group.shortName}"></option>
                     </select>
                 </div>
-
+            </div>
+            <div class="form-popup border rounded w-25" id="confirmationForm" style="display: none">
+                <h6>Confirm removal of selected users from this group?</h6>
+                <table>
+                    <tr class="buttonsRow">
+                        <button type="button" class="btn btn-success" id="confirmRemoval">Yes</button>
+                        <button type="button" class="btn btn-secondary" id="cancelRemoval">No</button>
+                    </tr>
+                </table>
             </div>
             <hr>
             <div class="membersContainer"></div>
-            <button type="button" class="btn btn-danger" id="groupRemoveUser" style="visibility: hidden">Remove</button>
 
-            <div class="form-popup border rounded w-25" id="confirmationForm" style="display: none">
-                <h6>Remove selected users from this group?</h6>
-                <table>
-                    <row>
-                        <button type="button" class="btn btn-success" id="confirmRemoval">Yes</button>
-                        <button type="button" class="btn btn-secondary" id="cancelRemoval">No</button>
-                    </row>
-                </table>
-            </div>
             <table id="groupTable" class="table">
                 <thead>
                 <tr class="tableHeader">

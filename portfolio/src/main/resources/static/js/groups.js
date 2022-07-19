@@ -37,7 +37,6 @@ $(document).on("click", ".group", function () {
         $(".controlButtons").show()
     }
     selectedUserIds = [];
-    document.getElementById("groupRemoveUser").style.visibility = "hidden";
     $("#confirmationForm").slideUp();
 
     $(this).closest(".group").addClass("focusOnGroup");
@@ -61,15 +60,6 @@ $(document).on("click", ".selectUserCheckboxGroups", function () {
         if (indexOfId > -1) {
             selectedUserIds.splice(indexOfId, 1);
         }
-    }
-
-    let group = document.getElementsByClassName("focusOnGroup").item(0);
-    let groupId = group.getElementsByClassName("groupId").item(0).innerHTML;
-
-    if (selectedUserIds.length > 0 && groupId !== "0" && groupId !== "1") { //toggles "Remove" button visibility based on whether any users are selected
-        document.getElementById("groupRemoveUser").style.visibility = "visible";
-    } else {
-        document.getElementById("groupRemoveUser").style.visibility = "hidden";
     }
 })
 
@@ -140,7 +130,6 @@ $(document).on("click", "#confirmRemoval", function () {
         }
     })
     $("#confirmationForm").slideUp();
-    document.getElementById("groupRemoveUser").style.visibility = "hidden";
 })
 
 
