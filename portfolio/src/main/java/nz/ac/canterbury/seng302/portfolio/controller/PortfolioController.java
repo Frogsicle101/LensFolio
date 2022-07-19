@@ -75,7 +75,7 @@ public class PortfolioController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // For testing
-    private final boolean includeTestValues = true;
+    private static final boolean INCLUDE_TEST_VALUES = true;
 
 
     /**
@@ -97,7 +97,7 @@ public class PortfolioController {
         this.deadlineRepository = deadlineRepository;
 
         //Below are only for testing purposes.
-        if (includeTestValues) {
+        if (INCLUDE_TEST_VALUES) {
             Project defaultProject = projectRepository.save(new Project("Project Seng302",
                     LocalDate.parse("2022-02-25"),
                     LocalDate.parse("2022-09-30"),
@@ -163,7 +163,7 @@ public class PortfolioController {
             modelAndView.addObject("events", eventList);
             modelAndView.addObject("milestones", milestoneList);
             modelAndView.addObject("nextMilestoneNumber", nextMilestoneNumber);
-            modelAndView.addObject("eventNameLengthRestriction", Event.getNameLengthRestriction());
+            modelAndView.addObject("eventNameLengthRestriction", Milestone.getNameLengthRestriction());
             modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
             modelAndView.addObject("user", user);
             modelAndView.addObject("projectId", projectId);
