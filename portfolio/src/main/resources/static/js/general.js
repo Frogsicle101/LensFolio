@@ -7,7 +7,6 @@ $(document).ready(function() {
     if (!$(".infoMessage").is(':empty'))  {
         $(".infoMessageParent").show();
     }
-
     if (!$(".successMessage").is(':empty'))  {
         $(".successMessageParent").show();
     }
@@ -19,12 +18,12 @@ $(document).ready(function() {
     })
 
     removeElementIfNotAuthorized()
-
 });
 
 
 /**
  * Checks if a user has a role above student.
+ *
  * @returns {boolean} returns true if userRole is above student.
  */
 function checkPrivilege() {

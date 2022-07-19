@@ -17,7 +17,7 @@ function checkPrivilege() {
  */
 $(document).ready(() => {
     if (!checkPrivilege()) {
-        document.getElementById("selectAllCheckboxHeader").remove()
+        document.getElementById("selectAllCheckboxHeader").remove();
     }
 })
 
@@ -29,25 +29,25 @@ $(document).ready(() => {
 $(document).on("click", ".group", function () {
     $(".group").removeClass("focusOnGroup");
     let groupId = $(this).closest(".group").find(".groupId").text();
-    $("#selectAllCheckboxGroups").prop("checked", false)
+    $("#selectAllCheckboxGroups").prop("checked", false);
 
     displayGroupUsersList(groupId);
 
     $(this).closest(".group").addClass("focusOnGroup")
     if (parseInt(groupId) === 0) {
-        $(".controlButtons").hide()
-        $("#groupRemoveUser").show()
+        $("#groupRemoveUser").show();
+        $(".controlButtons").hide();
     } else if (parseInt(groupId) === 1) {
-        $("#groupRemoveUser").hide()
-        $(".controlButtons").hide()
+        $("#groupRemoveUser").hide();
+        $(".controlButtons").hide();
     } else {
-        $("#groupRemoveUser").show()
-        $(".controlButtons").show()
+        $("#groupRemoveUser").show();
+        $(".controlButtons").show();
     }
 
     if (!checkPrivilege()) {
-        document.getElementById("selectAllCheckboxHeader").remove()
-        $("#groupDisplayOptions").hide()
+        $("#selectAllCheckboxHeader").hide();
+        $("#groupRemoveUser").hide();
     }
 
     selectedUserIds = [];

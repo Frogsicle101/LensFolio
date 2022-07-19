@@ -14,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -54,8 +52,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /** role Comparator */
     Comparator<User> compareByRole = (userOne, userTwo) -> {
-        ArrayList<UserRole> userOneRoles = userOne.getRoles();
-        ArrayList<UserRole> userTwoRoles = userTwo.getRoles();
+        List<UserRole> userOneRoles = userOne.getRoles();
+        List<UserRole> userTwoRoles = userTwo.getRoles();
         Collections.sort(userOneRoles);
         Collections.sort(userTwoRoles);
         return userOneRoles.toString().compareTo(userTwoRoles.toString());

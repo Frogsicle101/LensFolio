@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
@@ -20,18 +19,23 @@ import java.io.*;
 @Controller
 public class ImageController {
 
-    /** For logging the requests related to image endpoints. */
+    /**
+     * For logging the requests related to image endpoints.
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** Retrieves the environment variables at runtime. */
+    /**
+     * Retrieves the environment variables at runtime.
+     */
     @Autowired
     Environment env;
+
 
     /**
      * Processes requests to the profile/{name} endpoint. Creates an image file if one does not already exist.
      * Retrieves the image at the user's location.
      *
-     * @param name The name of the file to be retrieved - the same as the user's ID number.
+     * @param name     The name of the file to be retrieved - the same as the user's ID number.
      * @param response The response which returns the image to the requester.
      */
     @RequestMapping("/profile/{name}")

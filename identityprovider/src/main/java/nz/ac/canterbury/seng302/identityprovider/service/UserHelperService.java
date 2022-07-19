@@ -4,7 +4,7 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class UserHelperService {
 
@@ -28,7 +28,7 @@ public class UserHelperService {
                 .setId(user.getId());
 
         // To add all the users roles to the response
-        ArrayList<UserRole> roles = user.getRoles();
+        List<UserRole> roles = user.getRoles();
         for (UserRole role : roles) {
             response.addRoles(role);
         }

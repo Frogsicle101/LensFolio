@@ -20,13 +20,14 @@ import org.springframework.web.servlet.ModelAndView;
 
 
 /**
- * Controller class for the account page
+ * Controller class for the account page.
  *
- * This page is responsible for displaying user information
+ * This page is responsible for displaying user information.
  */
 @Controller
 public class AccountController {
 
+    /** The client service allowing requests to be made to the IdP. */
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
@@ -39,14 +40,13 @@ public class AccountController {
     private static final String pronounRegex = "([a-zA-Z/]*)+";
 
 
-
     /**
      * This method is responsible for populating the account page template
      * It adds in variables to the html template, as well as the values of those variables
      * It then returns the 'filled in' html template, to be displayed in a web browser
-     * <br>
+     *
      * Once a user class is created, we will want to supply this page with the specific user that is viewing it
-     * <br>
+     *
      * @param principal the principal
      * @return ModelAndView of accounts page
      */
@@ -75,13 +75,13 @@ public class AccountController {
             logger.error("GET /account: {}", err.getMessage());
             return new ModelAndView("error");
         }
-
     }
 
 
     /**
-     * Returns the template for the register page
-     * @return Thymeleaf template for the register screen
+     * Returns the template for the register page.
+     *
+     * @return Thymeleaf template for the register screen.
      */
     @GetMapping("/register")
     public ModelAndView register() {
@@ -101,17 +101,15 @@ public class AccountController {
      * Called when a user attempts to register a new account, if the registration is successful forwards a user to
      * their account page, otherwise informs the user why their attempt was unsuccessful.
      *
-     * @param userRequest - A UserRequest object used to retrieve user input from the html.
-     * @return view - the html page redirected to, either account details on successful registration or register on failure.
+     * @param userRequest A UserRequest object used to retrieve user input from the html.
+     * @return view The html page redirected to, either account details on successful registration or register on failure.
      */
     @PostMapping("/register")
     public ResponseEntity<Object> attemptRegistration(
             @ModelAttribute(name="registerForm") UserRequest userRequest
     ) {
         logger.info("POST REQUEST /register - attempt to register new user");
-        try{
-
-
+        try {
             ResponseEntity<Object> checkUserRequest = checkUserRequest(userRequest); // Checks that the userRequest object passes all checks
             if (checkUserRequest.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 logger.warn("Registration Failed: {}", checkUserRequest.getBody());
@@ -134,15 +132,14 @@ public class AccountController {
             logger.error("Registration Failed: {}",err.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
     }
 
 
     /**
-     * Checks that the UserRequest follows the required patterns and contains everything needed
-     * @param userRequest the UserRequest
-     * @return ResponseEntity, either an accept, or a not accept with message as to what went wrong
+     * Checks that the UserRequest follows the required patterns and contains everything needed.
+     *
+     * @param userRequest the UserRequest to be checked.
+     * @return ResponseEntity, either an accept, or a not accept with message as to what went wrong.
      */
     private ResponseEntity<Object> checkUserRequest(UserRequest userRequest) {
         String firstname = userRequest.getFirstname();
@@ -155,7 +152,6 @@ public class AccountController {
         String pronouns = userRequest.getPersonalPronouns();
         String bio = userRequest.getBio();
 
-
         if (firstname == null // Checks that all necessary information is there.
                 || lastname == null
                 || username == null
@@ -165,7 +161,7 @@ public class AccountController {
 
         }
 
-        if(middlename == null){
+        if (middlename == null){
             userRequest.setMiddlename("");
         }
         if (nickname == null) {
@@ -196,9 +192,10 @@ public class AccountController {
 
 
     /**
-     * Checks that the UserRequest follows the required patterns and contains everything needed
-     * @param userRequest the UserRequest without password
-     * @return ResponseEntity, either an accept, or a not accept with message as to what went wrong
+     * Checks that the UserRequest follows the required patterns and contains everything needed.
+     *
+     * @param userRequest the UserRequest without password.
+     * @return ResponseEntity, either an accept, or a not accept with message as to what went wrong.
      */
     private ResponseEntity<Object> checkUserRequestNoPasswordOrUser(UserRequest userRequest) {
         String firstname = userRequest.getFirstname();
@@ -209,7 +206,6 @@ public class AccountController {
         String pronouns = userRequest.getPersonalPronouns();
         String bio = userRequest.getBio();
 
-
         if (firstname == null // Checks that all necessary information is there.
                 || lastname == null
                 || email == null) {
@@ -217,7 +213,7 @@ public class AccountController {
 
         }
 
-        if(middlename == null){
+        if (middlename == null){
             userRequest.setMiddlename("");
         }
         if (nickname == null) {
@@ -246,18 +242,19 @@ public class AccountController {
 
 
     /**
-     * Entry point for editing account details
-     * This also handle the logic for changing the account details\
-     * @param principal The authentication state
-     * @param editInfo The thymeleaf-created form object
-     * @return a redirect to the main /edit endpoint
+     * Entry point for editing account details,
+     * This also handle the logic for changing the account details,
+     *
+     * @param principal The authentication state.
+     * @param editInfo The thymeleaf-created form object.
+     * @return a redirect to the main /edit endpoint.
      */
     @PostMapping("/edit/details")
     public ResponseEntity<Object> editDetails(
             @AuthenticationPrincipal AuthState principal,
             @ModelAttribute(name="editDetailsForm") UserRequest editInfo
     ) {
-        try{
+        try {
             ResponseEntity<Object> checkUserRequest = checkUserRequestNoPasswordOrUser(editInfo); // Checks that the userRequest object passes all checks
             if (checkUserRequest.getStatusCode() != HttpStatus.ACCEPTED) {
                 logger.warn("Editing Failed: {}",checkUserRequest.getBody());
@@ -300,12 +297,13 @@ public class AccountController {
 
 
     /**
-     * Entry point for editing the password
-     * This also handle the logic for changing the password
-     * Note: this injects an attribute called "passwordchangemessage" into the template it redirects to
-     * @param principal The authentication state
-     * @param editInfo the thymeleaf-created form object
-     * @return a redirect to the main /edit endpoint
+     * Entry point for editing the password.
+     * This also handle the logic for changing the password.
+     * Note: this injects an attribute called "passwordchangemessage" into the template it redirects to.
+     *
+     * @param principal The authentication state.
+     * @param editInfo the thymeleaf-created form object.
+     * @return a redirect to the main /edit endpoint.
      */
     @PostMapping("/edit/password")
     public ResponseEntity<Object> editPassword(
@@ -332,7 +330,6 @@ public class AccountController {
                     return new ResponseEntity<>(changePasswordResponse.getMessage(), HttpStatus.NOT_ACCEPTABLE);
                 }
 
-
             } else {
                 logger.info("Confirm password does not match new password. Cancelling password change for {}",userId);
                 // Tell the user to confirm their passwords match
@@ -345,15 +342,14 @@ public class AccountController {
             logger.error("/edit/password Error {}", err.getMessage());
             return new ResponseEntity<>(err.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
 
     /**
-     * Takes a UserRequest object populated from a registration form and returns a UserRegisterRequest to send to the server
+     * Takes a UserRequest object populated from a registration form and returns a UserRegisterRequest to send to the server.
      *
-     * @param userRequest - A UserRequest object populated from a accountRegister.html form
-     * @return userRegisterRequest - a populated userRegisterRequest from the user_accounts.proto format
+     * @param userRequest - A UserRequest object populated from a accountRegister.html form.
+     * @return userRegisterRequest - a populated userRegisterRequest from the user_accounts.proto format.
      */
     private UserRegisterRequest createUserRegisterRequest(UserRequest userRequest) {
         // Used to trim off leading and training spaces
@@ -377,6 +373,12 @@ public class AccountController {
     }
 
 
+    /**
+     * Processes a request to delete the profile image of the currently logged-in user.
+     *
+     * @param principal The authentication state containing the ID of the user currently logged in.
+     * @return a response entity indicating the completion of the request processing.
+     */
     @DeleteMapping("/deleteProfileImg")
     public ResponseEntity<String> deleteProfilePhoto(
             @AuthenticationPrincipal AuthState principal
@@ -394,11 +396,4 @@ public class AccountController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
-
 }
-
-
-
-
