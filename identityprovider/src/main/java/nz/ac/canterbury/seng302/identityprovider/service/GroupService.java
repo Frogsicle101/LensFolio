@@ -163,6 +163,7 @@ public class GroupService {
      * @param user user to be removed from all groups
      */
     private void removeUserFromAllGroups(User user){
+        logger.info("Removing user {} from all groups", user.getId());
         List<Group> usersCurrentGroups = user.getGroups();
         for (Group group: usersCurrentGroups){
             group.removeGroupMember(user);
@@ -177,6 +178,7 @@ public class GroupService {
      * @param MwagGroup The Members Without A Group group to add the users to
      */
     private void addUsersToMWAG(List<User> usersToAdd, Group MwagGroup) {
+        logger.info("Adding users {} to Members Without A Group", usersToAdd);
         for (User user: usersToAdd) {
             removeUserFromAllGroups(user);
             MwagGroup.addGroupMember(user);
@@ -193,6 +195,7 @@ public class GroupService {
     private void checkIfUserInNoGroup(User user) throws Exception {
         Group group = getMWAG();
         if (group == (null)) {
+            logger.info("Failed to retrieve MWAG");
             throw new Exception("An error occurred getting the MWAG group");
         } else {
             if (user.getGroups().size() == 0) { // user in no other groups
@@ -210,6 +213,7 @@ public class GroupService {
      */
     private void removeUserFromMWAG(User user, Group MwagGroup) throws Exception {
         if (MwagGroup == (null)){
+            logger.info("Failed to retrieve MWAG");
             throw new Exception("An error occurred getting the MWAG group");
         } else {
             MwagGroup.removeGroupMember(user);
@@ -223,6 +227,7 @@ public class GroupService {
      * @return The Member Without A Group group
      */
     public Group getMWAG() {
+        logger.info("Retrieving Members Without A Group");
         Optional<Group> group = groupRepository.findByShortName("Non-Group");
         return group.orElse(null);
     }
