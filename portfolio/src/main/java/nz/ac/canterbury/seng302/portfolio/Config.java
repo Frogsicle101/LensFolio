@@ -22,7 +22,6 @@ public class Config implements WebMvcConfigurer
     {
         List<String> pathsToInterceptForRoleBased = new ArrayList<>();
 
-
         // User Roles
         pathsToInterceptForRoleBased.add("/editUserRole");
 
@@ -52,6 +51,12 @@ public class Config implements WebMvcConfigurer
         pathsToInterceptForRoleBased.add("/addDeadline");
         pathsToInterceptForRoleBased.add("/editDeadline");
         pathsToInterceptForRoleBased.add("/deleteDeadline");
+
+
+        //Groups
+        pathsToInterceptForRoleBased.add("/groups/addUser");
+        pathsToInterceptForRoleBased.add("/groups/removeUser");
+        pathsToInterceptForRoleBased.add("/groups/edit");
 
         registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToInterceptForRoleBased);
     }
