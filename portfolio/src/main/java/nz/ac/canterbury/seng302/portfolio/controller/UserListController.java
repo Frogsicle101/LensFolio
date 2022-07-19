@@ -264,14 +264,6 @@ public class UserListController {
         }
     }
 
-    /**
-     * Used to set a userAccountClientService if not using the autowired one. Useful for testing and mocking
-     *
-     * @param service The userAccountClientService to be used
-     */
-    public void setUserAccountsClientService(UserAccountsClientService service) {
-        this.userAccountsClientService = service;
-    }
 
     /**
      * To get the list of users for the specific page number

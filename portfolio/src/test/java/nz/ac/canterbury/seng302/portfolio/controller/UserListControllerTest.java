@@ -7,20 +7,22 @@ import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.ui.Model;
 
 import java.util.*;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class UserListControllerTest {
 
-    private static final UserListController userListController = new UserListController();
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
+
+    @InjectMocks
+    private static final UserListController userListController = spy(UserListController.class);
     private final ArrayList<UserResponse> expectedUsersList = new ArrayList<>();
     private final Authentication principal = new Authentication(AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build());
 
@@ -71,7 +73,7 @@ public class UserListControllerTest {
     @BeforeEach
     public void beforeAll() {
         expectedUsersList.clear();
-        userListController.setUserAccountsClientService(mockClientService);
+        //userListController.setUserAccountsClientService(mockClientService);
         UserResponse.Builder user = UserResponse.newBuilder();
         user.setUsername("steve")
                 .setFirstName("Steve")
@@ -84,7 +86,7 @@ public class UserListControllerTest {
                 .setProfileImagePath("a");
         user.addRoles(UserRole.STUDENT);
 
-        when(PrincipalAttributes.getUserFromPrincipal(principal, mockClientService)).thenReturn(user.build());
+        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), mockClientService)).thenReturn(user.build());
         addUsersToExpectedList(0, usersPerPage * 4 + 1);
         userPrefRepository.deleteAll();
         userListController.setPrefRepository(userPrefRepository);
