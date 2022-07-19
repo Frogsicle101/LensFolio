@@ -12,10 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Implements the server side functionality of the services defined by the groups.proto gRpc contracts.
@@ -71,8 +68,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                     .setIsSuccess(false)
                     .setMessage("Error: A group short name has to be between " + MIN_LENGTH + " and " +
                             MAX_SHORT_NAME_LENGTH + " characters");
-        }
-        if (longNameLength < MIN_LENGTH || longNameLength > MAX_LONG_NAME_LENGTH) {
+        } else if (longNameLength < MIN_LENGTH || longNameLength > MAX_LONG_NAME_LENGTH) {
             response.addValidationErrors(ValidationError.newBuilder()
                             .setFieldName("Long name")
                             .setErrorText("Group long name has to be between " + MIN_LENGTH + " and " +
@@ -81,16 +77,14 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                     .setIsSuccess(false)
                     .setMessage("Error: A group long name has to be between " + MIN_LENGTH + " and " +
                             MAX_LONG_NAME_LENGTH + " characters");
-        }
-        if (groupRepository.findByShortName(request.getShortName()).isPresent()) {
+        }else if (groupRepository.findByShortName(request.getShortName()).isPresent()) {
             response.addValidationErrors(ValidationError.newBuilder()
                             .setFieldName("Short name")
                             .setErrorText("A group exists with the shortName " + request.getShortName())
                             .build())
                     .setIsSuccess(false)
                     .setMessage("Error: A group already exists with the short name " + request.getShortName());
-        }
-        if (groupRepository.findByLongName(request.getLongName()).isPresent()) {
+        }else if (groupRepository.findByLongName(request.getLongName()).isPresent()) {
             response.addValidationErrors(ValidationError.newBuilder()
                             .setFieldName("Long name")
                             .setErrorText("A group exists with the longName " + request.getLongName())
