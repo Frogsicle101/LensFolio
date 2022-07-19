@@ -14,6 +14,8 @@ public class UserPrefs {
 
     private String listSortPref;
 
+    private boolean isAscending;
+
     /**
      * Constructs a UserPrefs object to be stored in the database.
      *
@@ -21,9 +23,10 @@ public class UserPrefs {
      * @param listSortPref The sorting preference of the user. This should take the form of 'field-order',
      *                     e.g. 'name-decreasing' or 'aliases-ascending'
      */
-    public UserPrefs(int userId, String listSortPref) {
+    public UserPrefs(int userId, String listSortPref, boolean isAscending) {
         this.userId = userId;
         this.listSortPref = listSortPref;
+        this.isAscending = isAscending;
     }
 
     /**
@@ -36,8 +39,8 @@ public class UserPrefs {
     @Override
     public String toString() {
         return String.format(
-                "User[id=%d, listSortPref='%s']",
-                userId, listSortPref);
+                "User[id=%d, listSortPref='%s', isAscending='%b']",
+                userId, listSortPref,isAscending);
     }
 
 
@@ -52,6 +55,8 @@ public class UserPrefs {
     public String getListSortPref() {
         return listSortPref;
     }
+
+    public boolean getIsAscending() { return isAscending;}
 
     public void setListSortPref(String listSortPref) {
         this.listSortPref = listSortPref;

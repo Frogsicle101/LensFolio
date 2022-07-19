@@ -39,16 +39,37 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** Name Comparator */
-    Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName().toLowerCase() + user.getMiddleName().toLowerCase() + user.getLastName().toLowerCase()));
+
+    /** First Name Comparator, has other name fields after to decide order if first names are the same*/
+    Comparator<User> compareByFirstName = Comparator.comparing((User user) ->
+            (user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
+
+    /** Middle Name Comparator, has other name fields after to decide order if middle names are the same */
+    Comparator<User> compareByMiddleName = Comparator.comparing((User user) ->
+            (user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
+
+    /** Last Name Comparator, has other name fields after to decide order if last names are the same */
+    Comparator<User> compareByLastName = Comparator.comparing((User user) ->
+            (user.getLastName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT)));
 
     /** Username Comparator */
-    Comparator<User> compareByUsername = Comparator.comparing(user -> user.getUsername().toLowerCase());
+    Comparator<User> compareByUsername = Comparator.comparing((User user) ->
+            (user.getUsername().toLowerCase(Locale.ROOT)));
 
-    /** alias Comparator */
-    Comparator<User> compareByAlias = Comparator.comparing(user -> user.getNickname().toLowerCase());
+    /** Alias Comparator, has name fields afterwards to decide order if the aliases are the same */
+    Comparator<User> compareByAlias = Comparator.comparing((User user) ->
+            (user.getNickname().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
 
-    /** role Comparator */
+    /** Role Comparator */
     Comparator<User> compareByRole = (userOne, userTwo) -> {
         ArrayList<UserRole> userOneRoles = userOne.getRoles();
         ArrayList<UserRole> userTwoRoles = userTwo.getRoles();
@@ -388,27 +409,18 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
-            case "roles-increasing" -> allUsers.sort(compareByRole);
-            case "roles-decreasing" -> {
-                allUsers.sort(compareByRole);
-                Collections.reverse(allUsers);
-            }
-            case "username-increasing" -> allUsers.sort(compareByUsername);
-            case "username-decreasing" -> {
-                allUsers.sort(compareByUsername);
-                Collections.reverse(allUsers);
-            }
-            case "aliases-increasing" -> allUsers.sort(compareByAlias);
-            case "aliases-decreasing" -> {
-                allUsers.sort(compareByAlias);
-                Collections.reverse(allUsers);
-            }
-            case "name-decreasing" -> {
-                allUsers.sort(compareByName);
-                Collections.reverse(allUsers);
-            }
-            default -> allUsers.sort(compareByName);
+            case "roles" -> allUsers.sort(compareByRole);
+            case "username" -> allUsers.sort(compareByUsername);
+            case "aliases" -> allUsers.sort(compareByAlias);
+            case "middlename" -> allUsers.sort(compareByMiddleName);
+            case "lastname" -> allUsers.sort(compareByLastName);
+            default -> allUsers.sort(compareByFirstName);
         }
+
+        if (!request.getIsAscendingOrder()){
+            Collections.reverse(allUsers);
+        }
+
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
             reply.addUsers(allUsers.get(i).userResponse());
