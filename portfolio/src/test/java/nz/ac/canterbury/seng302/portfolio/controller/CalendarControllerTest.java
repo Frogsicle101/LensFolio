@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -86,14 +87,14 @@ class CalendarControllerTest {
 
     @Test
     void testGetCalendar() {
-        ModelAndView model = calendarController.getCalendar(principal, 1L);
+        ModelAndView model = calendarController.getCalendar(new Authentication(principal), 1L);
         Assertions.assertEquals("monthlyCalendar", model.getViewName());
 
     }
 
     @Test
     void testGetCalendarWrongProjectId() {
-        ModelAndView model = calendarController.getCalendar(principal, 2L);
+        ModelAndView model = calendarController.getCalendar(new Authentication(principal), 2L);
         Assertions.assertEquals("errorPage", model.getViewName());
     }
 

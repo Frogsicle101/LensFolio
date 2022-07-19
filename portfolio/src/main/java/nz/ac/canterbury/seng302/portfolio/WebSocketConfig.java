@@ -18,13 +18,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      *
      * It also sets up a broker to carry messages back to the client
      * on destinations prefixed with /notifications/receiving
+     *
      * @param config A configuration.
      */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("notifications/sending");
-        config.setApplicationDestinationPrefixes("notifications/receiving");
+        config.setApplicationDestinationPrefixes("notifications/");
     }
+
 
     /**
      * This enables a fallback option in case websockets aren't available.
@@ -32,7 +34,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/gs-guide-websocket").setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint("/websocket").setAllowedOriginPatterns("*");
     }
 
 }

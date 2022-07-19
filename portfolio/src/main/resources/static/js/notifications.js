@@ -1,4 +1,5 @@
 /** The STOMP client that connects to the server for sending and receiving notifications */
+
 let stompClient = null
 
 
@@ -7,12 +8,29 @@ let stompClient = null
  * and designates handleNotification to run whenever we get a message
  */
 function connect() {
-    let socket = new SockJS('gs-guide-websocket');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
+
+    stompClient = new StompJs.Client();
+    stompClient.configure({
+        brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
+        reconnectDelay: 5000,
+        debug: function (str) {
+            console.log(str);
+        },
+        heartbeatIncoming: 4000,
+        heartbeatOutgoing: 4000,
+        onStompError: function (frame) {
+            console.log('Broker reported error: ' + frame.headers['message']);
+            console.log('Additional details: ' + frame.body);
+        },
+        connectionTimeout: 1000
+    });
+
+    stompClient.onConnect = (frame) => {
         console.log('Connected: ' + frame);
         stompClient.subscribe('notifications/sending/occasions', handleNotification);
-    });
+    }
+
+    stompClient.activate();
 }
 
 
@@ -25,11 +43,14 @@ function connect() {
  * @param action What action the user has performed to create this message
  */
 function sendNotification(occasionType, occasionId, action) {
-    stompClient.send("notifications/receiving/message", {}, JSON.stringify({
-        'occasionType': occasionType,
-        'occasionId': occasionId,
-        'action': action
-    }));
+    stompClient.publish({
+        destination: "notifications/message",
+        body: JSON.stringify({
+            'occasionType': occasionType,
+            'occasionId': occasionId,
+            'action': action
+        })
+    });
 }
 
 
@@ -42,27 +63,30 @@ function sendNotification(occasionType, occasionId, action) {
  */
 function handleNotification(notification) {
     const content = JSON.parse(notification.body);
-    const action = content.action;
+    console.log(content)
+    for (let message of content) {
+        const action = message.action;
 
-    switch (action) {
-        case 'create' :
-            handleCreateEvent(content);
-            break;
-        case 'update' :
-            handleUpdateEvent(content);
-            break;
-        case 'delete' :
-            handleDeleteEvent(content);
-            break;
-        case 'edit' :
-            handleNotifyEvent(content);
-            break;
-        case 'stop' :
-            handleStopEvent(content);
-            break;
-        default :
-            // Do nothing, unknown message format
-            break;
+        switch (action) {
+            case 'create' :
+                handleCreateEvent(message);
+                break;
+            case 'update' :
+                handleUpdateEvent(message);
+                break;
+            case 'delete' :
+                handleDeleteEvent(message);
+                break;
+            case 'edit' :
+                handleNotifyEvent(message);
+                break;
+            case 'stop' :
+                handleStopEvent(message);
+                break;
+            default :
+                // Do nothing, unknown message format
+                break;
+        }
     }
 }
 
@@ -86,7 +110,7 @@ function handleCreateEvent( notification ) {
             addDeadline(occasionId)
             break
         default :
-            console.log("WARNING: un-supported occasion type receieved. Ignoring message")
+            console.log("WARNING: un-supported occasion type received. Ignoring message")
             break
     }
 }

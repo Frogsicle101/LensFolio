@@ -74,7 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // If we get here, then the IdP has returned 'some' auth state, so we configure our auth token with whatever
         // the IdP has said about the authentication status of the user that provided this token
-        authToken = new PreAuthenticatedAuthenticationToken(authState, lensSessionCookieJwtString);
+        authToken = new PreAuthenticatedAuthenticationToken(new Authentication(authState), lensSessionCookieJwtString);
         authToken.setAuthenticated(authState.getIsAuthenticated());
         return authToken;
     }
