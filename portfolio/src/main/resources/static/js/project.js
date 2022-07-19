@@ -9,7 +9,7 @@ $(document).ready(() => {
      * Redirect page.
      */
     $("#projectEditSprint").click(() => {
-        location.href = "editProject?projectId=" + projectId ;
+        location.href = "editProject?projectId=" + projectId;
     })
 
     /**
@@ -19,15 +19,15 @@ $(document).ready(() => {
     $("#projectAddSprint").click(function () {
         $.ajax({
             url: "portfolio/addSprint?projectId=" + projectId,
-            success: function (){
+            success: function () {
 
-                $(".sprintsContainer").slideUp(400, function() {
+                $(".sprintsContainer").slideUp(400, function () {
                     $(".sprintsContainer").empty()
                     getSprints()
                 })
 
             },
-            error: function(error){
+            error: function (error) {
 
                 $("#sprintAddInformationBar").append(`
                     <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert">
@@ -39,13 +39,13 @@ $(document).ready(() => {
 
     })
 
-    $(".collapseAlert").click(function(){
+    $(".collapseAlert").click(function () {
         $(this).parent().slideUp();
     })
 
     let addSprint = $(".addSprint")
     addSprint.css("left", $(".eventContainer").width() + "px")
-    addSprint.css("bottom",0 -  $(".addSprintSvg").height()/2 + "px")
+    addSprint.css("bottom", 0 - $(".addSprintSvg").height() / 2 + "px")
 })
 
 
@@ -55,7 +55,7 @@ $(document).ready(() => {
  */
 $(document).on("click", ".editSprint", function () {
     let sprintId = $(this).closest(".sprint").find(".sprintId").text();
-    location.href = "sprintEdit?sprintId=" + sprintId +"&projectId=" + projectId;
+    location.href = "sprintEdit?sprintId=" + sprintId + "&projectId=" + projectId;
 })
 
 
@@ -64,7 +64,7 @@ $(document).on("click", ".editSprint", function () {
  * Sends ajax delete request.
  * Then reloads page.
  */
-$(document).on("click", ".deleteSprint", function() {
+$(document).on("click", ".deleteSprint", function () {
     let sprintId = $(this).closest(".sprint").find(".sprintId").text();
     $.ajax({
         url: "deleteSprint",
@@ -80,10 +80,10 @@ function getSprints() {
     $.ajax({
         url: 'getSprintList',
         type: 'GET',
-        data: {"projectId" : projectId},
+        data: {"projectId": projectId},
         success: function (response) {
             let sprintContainer = $(".sprintsContainer")
-            for (let index in response){
+            for (let index in response) {
                 sprintContainer.append(appendSprint(response[index], index));
             }
             sprintContainer.slideDown(400)
@@ -140,7 +140,6 @@ function appendSprint(springObject, index) {
                 </div>
             </div>`;
 }
-
 
 
 function removeElementIfNotAuthorized() {

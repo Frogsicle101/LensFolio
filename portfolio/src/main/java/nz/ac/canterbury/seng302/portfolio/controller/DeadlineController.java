@@ -1,11 +1,11 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
@@ -37,6 +37,7 @@ public class DeadlineController {
     private final DeadlineRepository deadlineRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
     public DeadlineController(ProjectRepository projectRepository, DeadlineRepository deadlineRepository) {
         this.projectRepository = projectRepository;
         this.deadlineRepository = deadlineRepository;
@@ -47,10 +48,10 @@ public class DeadlineController {
      * Mapping for a put request to add a deadline.
      * The method first parses a date and time string that is passed as a request parameter.
      * The parser converts it to the standard LocalDate format and a LocalTime format
-     *
+     * <p>
      * The project is then grabbed from the repository by its ID.
      * If the project can't be found, it throws an EntityNotFoundException
-     *
+     * <p>
      * The deadline is then created with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -62,14 +63,14 @@ public class DeadlineController {
      */
     @PutMapping("/addDeadline")
     public ResponseEntity<Object> addDeadline(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "deadlineName") String name,
             @RequestParam(value = "deadlineEnd") String end,
             @RequestParam(defaultValue = "1", value = "typeOfOccasion") int typeOfOccasion
     ) {
         logger.info("PUT /addDeadline");
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
@@ -102,7 +103,7 @@ public class DeadlineController {
                 deadlineEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
             }
             //Check to see if the dates are within the correct range
-            if (deadlineEnd.isAfter(project.getEndDateAsLocalDateTime()) || deadlineEnd.isBefore(project.getStartDateAsLocalDateTime())){
+            if (deadlineEnd.isAfter(project.getEndDateAsLocalDateTime()) || deadlineEnd.isBefore(project.getStartDateAsLocalDateTime())) {
                 String returnMessage = "Date(s) exist outside of project dates";
                 logger.warn("PUT /addDeadline: {}", returnMessage);
                 return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
@@ -135,25 +136,25 @@ public class DeadlineController {
     /**
      * Mapping for a post request to edit a deadline.
      * The method first gets the deadline from the repository. If the deadline cannot be retrieved, it throws an EntityNotFound exception.
-     *
+     * <p>
      * The method then parses a date string and a time string that is passed as a request parameter.
      * The parser converts it to the standard LocalDate format.
-     *
+     * <p>
      * The deadline is then edited with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
-     * @param principal The AuthState of the user making the request, for authentication
-     * @param deadlineId the ID of the deadline being edited.
-     * @param projectId id of project to add deadline to.
-     * @param name the new name of the deadline.
-     * @param dateEnd the new date of the deadline.
-     * @param timeEnd the new time of the deadline
+     * @param principal      The Authentication of the user making the request, for authentication
+     * @param deadlineId     the ID of the deadline being edited.
+     * @param projectId      id of project to add deadline to.
+     * @param name           the new name of the deadline.
+     * @param dateEnd        the new date of the deadline.
+     * @param timeEnd        the new time of the deadline
      * @param typeOfOccasion the new type of the deadline.
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @PostMapping("/editDeadline")
     public ResponseEntity<String> editDeadline(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "deadlineId") String deadlineId,
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "deadlineName") String name,
@@ -162,7 +163,7 @@ public class DeadlineController {
             @RequestParam(value = "typeOfOccasion") Integer typeOfOccasion
     ) {
         logger.info("PUT /editDeadline");
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
@@ -192,18 +193,18 @@ public class DeadlineController {
             LocalTime deadlineEndTime;
             if (dateEnd != null) {  // if the date is empty then keep it as it is
                 deadlineEndDate = LocalDate.parse(dateEnd);
-                if (deadlineEndDate.isAfter(project.getEndDate()) || deadlineEndDate.isBefore(project.getStartDate())){
+                if (deadlineEndDate.isAfter(project.getEndDate()) || deadlineEndDate.isBefore(project.getStartDate())) {
                     throw new DateTimeException("The deadline date cannot be outside of the project");
                 }
                 deadline.setEndDate(deadlineEndDate);
             }
 
-            if (timeEnd != null){ // if the time is empty then keep it as it is
+            if (timeEnd != null) { // if the time is empty then keep it as it is
                 deadlineEndTime = LocalTime.parse(timeEnd);
                 deadline.setEndTime(deadlineEndTime);
             }
             if (typeOfOccasion != null) {
-                if (typeOfOccasion < 1){
+                if (typeOfOccasion < 1) {
                     throw new IllegalArgumentException("The type of the deadline is not a valid");
                 }
                 deadline.setType(typeOfOccasion);
@@ -228,19 +229,18 @@ public class DeadlineController {
     /**
      * Mapping for deleting an existing deadline.
      * The method attempts to get the deadline from the repository and if it cannot it will throw an EntityNotFoundException
+     * Otherwise it will delete the deadline from the repository.
      *
-     * Otherwise it will delete the deadline from the repository
-     *
-     * @param principal The AuthState of the user making the request, for authentication
+     * @param principal  The Authentication of the user making the request, for authentication
      * @param deadlineId The UUID of the deadline to be deleted
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @DeleteMapping("/deleteDeadline")
     public ResponseEntity<Object> deleteDeadline(
-            @AuthenticationPrincipal AuthState principal,
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "deadlineId") String deadlineId) {
         logger.info("PUT /deleteDeadline");
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
+        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
         // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
         List<UserRole> roles = userResponse.getRolesList();
@@ -273,15 +273,15 @@ public class DeadlineController {
      */
     @GetMapping("/getDeadlinesList")
     public ResponseEntity<Object> getDeadlinesList(
-            @RequestParam(value="projectId") Long projectId
-    ){
+            @RequestParam(value = "projectId") Long projectId
+    ) {
         try {
             logger.info("GET /getDeadlinesList");
             List<Deadline> deadlineList = deadlineRepository.findAllByProjectId(projectId);
             deadlineList.sort(Comparator.comparing(Deadline::getDateTime));
             return new ResponseEntity<>(deadlineList, HttpStatus.OK);
-        } catch(Exception err){
-            logger.error("GET /getDeadlineList: {}", err.getMessage() );
+        } catch (Exception err) {
+            logger.error("GET /getDeadlineList: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -295,27 +295,28 @@ public class DeadlineController {
      */
     @GetMapping("/getDeadline")
     public ResponseEntity<Object> getDeadline(
-            @RequestParam(value="deadlineId") String deadlineId
-    ){
+            @RequestParam(value = "deadlineId") String deadlineId
+    ) {
         try {
             logger.info("GET /getDeadline");
             Deadline deadline = deadlineRepository.findById(deadlineId).orElseThrow();
             return new ResponseEntity<>(deadline, HttpStatus.OK);
-        } catch(NoSuchElementException err) {
-            logger.error("GET /getDeadline: {}", err.getMessage() );
+        } catch (NoSuchElementException err) {
+            logger.error("GET /getDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch(Exception err){
-            logger.error("GET /getDeadline: {}", err.getMessage() );
+        } catch (Exception err) {
+            logger.error("GET /getDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+
     /**
      * Used to set a userAccountClientService if not using the autowired one. Useful for testing and mocking
+     *
      * @param service The userAccountClientService to be used
      */
-    public void setUserAccountsClientService(UserAccountsClientService service) { this.userAccountsClientService = service;}
-
-
-
+    public void setUserAccountsClientService(UserAccountsClientService service) {
+        this.userAccountsClientService = service;
+    }
 }

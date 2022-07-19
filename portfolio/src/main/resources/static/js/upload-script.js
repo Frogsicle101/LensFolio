@@ -1,5 +1,5 @@
-$(document).ready(()=>{
-    $(".backButton").click(function(){
+$(document).ready(() => {
+    $(".backButton").click(function () {
         location.href = "account"
     })
 })
@@ -58,7 +58,7 @@ async function processImage() {
     if (imageSize <= MAX_FILE_SIZE) {
         quality = 0.9;
     } else {
-        quality = MAX_FILE_SIZE/imageSize;
+        quality = MAX_FILE_SIZE / imageSize;
     }
 
     // Find smaller dimension of image for making square
@@ -107,7 +107,7 @@ async function sendImagePostRequest() {
     await fetch("upload", {
         method: "POST",
         body: formData
-    }).then(function(){
+    }).then(function () {
         $(".successBox").append(`
                             <div class="alert alert-info alert-dismissible fade show" role="alert">
                                  Your profile image is being uploaded, you can click <a href="account">here</a> to go back to account's page.

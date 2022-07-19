@@ -52,7 +52,7 @@ public class PrincipalAttributes {
     /**
      * Specific use of the getClaim method for returning a UserResponse from their AuthState.
      *
-     * @param principal - The AuthState gRPC message.
+     * @param principal                 - The AuthState gRPC message.
      * @param userAccountsClientService - requires passing as the classes calling this method have it Autowired
      * @return userId (UserResponse) - a User response object containing user details.
      */

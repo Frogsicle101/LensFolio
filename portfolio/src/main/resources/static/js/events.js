@@ -95,7 +95,7 @@ $(document).on('submit', "#addEventForm", function (event) {
             url: "addEvent",
             type: "put",
             data: eventData,
-            success: function(response) {
+            success: function (response) {
 
                 $(".eventForm").slideUp();
                 $(".addEventSvg").toggleClass('rotated');
@@ -129,7 +129,7 @@ $(document).on("submit", ".milestoneForm", function (event) {
         url: "addMilestone",
         type: "PUT",
         data: milestoneData,
-        success: function(response) {
+        success: function (response) {
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
             sendNotification("milestone", response.id, "create");
@@ -156,7 +156,7 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
         url: "addDeadline",
         type: "put",
         data: deadlineData,
-        success: function(response) {
+        success: function (response) {
 
             $(".deadlineForm").slideUp();
             $(".addDeadlineSvg").toggleClass('rotated');
@@ -187,7 +187,7 @@ $(document).on("submit", "#editEventForm", function (event) {
         "typeOfEvent": $(this).find(".typeOfEvent").val()
     }
 
-    if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0){
+    if (eventData.eventName.toString().length === 0 || eventData.eventName.toString().trim().length === 0) {
         $(this).closest(".existingEventForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You probably should enter an event name!
@@ -204,7 +204,7 @@ $(document).on("submit", "#editEventForm", function (event) {
             url: "editEvent",
             type: "POST",
             data: eventData,
-            success: function() {
+            success: function () {
                 sendNotification("event", eventId, "stop") // Let the server know the event is no longer being edited
                 sendNotification("event", eventId, "update") //Let the server know that other clients should update the element
             }
@@ -233,7 +233,7 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         url: "editMilestone",
         type: "POST",
         data: milestoneData,
-        success: function() {
+        success: function () {
             sendNotification("milestone", milestoneId, "stop") // Let the server know the milestone is no longer being edited
             sendNotification("milestone", milestoneId, "update") //Let the server know that other clients should update the element
         }
@@ -248,7 +248,7 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
  * Also sends notifications to other clients to update that deadline
  * and unlock it so others can edit it again
  */
-$(document).on("submit", "#editDeadlineForm", function(event){
+$(document).on("submit", "#editDeadlineForm", function (event) {
     event.preventDefault()
     let deadlineId = $(this).parent().find(".deadlineId").text()
     let deadlineDate = $(this).find(".deadlineEnd").val()
@@ -257,14 +257,14 @@ $(document).on("submit", "#editDeadlineForm", function(event){
 
     let deadlineData = {
         "projectId": projectId,
-        "deadlineId" : deadlineId,
+        "deadlineId": deadlineId,
         "deadlineName": $(this).find(".deadlineName").val(),
         "deadlineDate": returnDate,
         "deadlineTime": deadlineTime,
         "typeOfOccasion": $(this).find(".typeOfDeadline").val()
     }
     //Check that the name isn't empty
-    if (deadlineData.deadlineName.toString().length === 0 || deadlineData.deadlineName.toString().trim().length === 0){
+    if (deadlineData.deadlineName.toString().length === 0 || deadlineData.deadlineName.toString().trim().length === 0) {
         $(this).closest(".existingDeadlineForm").append(`
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <strong>Oh no!</strong> You probably should enter a deadline name!
@@ -275,7 +275,7 @@ $(document).on("submit", "#editDeadlineForm", function(event){
             url: "editDeadline",
             type: "POST",
             data: deadlineData,
-            success: function() {
+            success: function () {
                 sendNotification("deadline", deadlineId, "stop") // Let the server know the deadline is no longer being edited
                 sendNotification("deadline", deadlineId, "update") //Let the server know that other clients should update the element
             }
@@ -310,7 +310,7 @@ $(document).on('click', '.addMilestoneButton', function () {
  * Listens for when add milestone button is clicked.
  * Rotates the button and shows the milestone form via a slide-down transition
  */
-$(document).on('click', '.addDeadlineButton', function() {
+$(document).on('click', '.addDeadlineButton', function () {
 
     $(".addDeadlineSvg").toggleClass('rotated');
     $(".deadlineForm").slideToggle();
@@ -330,7 +330,7 @@ $(document).on("click", ".deleteButton", function () {
             url: "deleteEvent",
             type: "DELETE",
             data: eventData,
-            success: function() {
+            success: function () {
                 sendNotification("event", eventData.eventId, "delete");
             }
         })
@@ -340,7 +340,7 @@ $(document).on("click", ".deleteButton", function () {
             url: 'deleteMilestone',
             type: "DELETE",
             data: milestoneData,
-            success: function() {
+            success: function () {
                 sendNotification("milestone", milestoneData.milestoneId, "delete");
             }
         })
@@ -350,7 +350,7 @@ $(document).on("click", ".deleteButton", function () {
             url: 'deleteDeadline',
             type: "DELETE",
             data: deadlineData,
-            success: function() {
+            success: function () {
                 sendNotification("deadline", deadlineData.deadlineId, "delete");
             }
         })
@@ -420,7 +420,7 @@ $(document).on("click", ".cancelEdit", function () {
  * Adds Events to the sprints
  * Displays the events in the sprints in which the dates overlap.
  */
-function addEventsToSprints(){
+function addEventsToSprints() {
     $.ajax({
         url: 'getEventsList',
         type: 'get',
@@ -434,7 +434,7 @@ function addEventsToSprints(){
             for (let index in response) {
                 let event = response[index]
 
-                sprint.each(function(index, element) {
+                sprint.each(function (index, element) {
 
                     let eventStart = Date.parse(event.startDate)
                     let eventEnd = Date.parse(event.endDate)
@@ -449,7 +449,7 @@ function addEventsToSprints(){
                     }
                 })
 
-                sprint.each(function(index, element) {
+                sprint.each(function (index, element) {
 
                     let eventStart = Date.parse(event.startDate)
                     let eventEnd = Date.parse(event.endDate)
@@ -458,14 +458,14 @@ function addEventsToSprints(){
                     let eventInSprint = $(".eventInSprint" + event.id);
                     let sprintName = $(element).find(".sprintName").text()
 
-                    if(eventStart >= sprintStart && eventStart <= sprintEnd) {
+                    if (eventStart >= sprintStart && eventStart <= sprintEnd) {
                         eventInSprint.find(".sprintEventStart").css("color", $(element).find(".sprintColour").text())
                         eventInSprint.find(".sprintEventStart").attr("data-bs-toggle", "tooltip")
                         eventInSprint.find(".sprintEventStart").attr("data-bs-placement", "top")
                         eventInSprint.find(".sprintEventStart").attr("title", sprintName)
                         $('#' + event.id).find(".eventStart").css("color", $(element).find(".sprintColour").text())
                     }
-                    if ( sprintStart <= eventEnd && eventEnd <= sprintEnd) {
+                    if (sprintStart <= eventEnd && eventEnd <= sprintEnd) {
                         eventInSprint.find(".sprintEventEnd").css("color", $(element).find(".sprintColour").text())
                         eventInSprint.find(".sprintEventEnd").attr("data-bs-toggle", "tooltip")
                         eventInSprint.find(".sprintEventEnd").attr("data-bs-placement", "top")
@@ -668,7 +668,7 @@ function appendEventForm(element) {
                 </form>`)
 
     let eventType = $(element).find(".typeOfEvent")
-    $("#exampleFormControlInput1 > option").each(function() {
+    $("#exampleFormControlInput1 > option").each(function () {
         if (this.value === eventType.text().split(" ")[0].trim()) {
             this.setAttribute("selected", "selected")
         }
@@ -722,7 +722,7 @@ function appendMilestoneForm(element) {
                     </div>
                 </form>`)
     let milestoneType = $(element).find(".typeOfMilestone")
-    $("#exampleFormControlInput2 > option").each(function() {
+    $("#exampleFormControlInput2 > option").each(function () {
         if (this.value === milestoneType.text().split(" ")[0].trim()) {
             this.setAttribute("selected", "selected")
         }
@@ -740,9 +740,9 @@ function appendMilestoneForm(element) {
  *
  * @param element the element to append the form too.
  */
-function appendDeadlineForm(element){
+function appendDeadlineForm(element) {
     let deadlineName = $(element).find(".deadlineName").text();
-    let deadlineEnd = $(element).find(".deadlineEndDateNilFormat").text().slice(0,16);
+    let deadlineEnd = $(element).find(".deadlineEndDateNilFormat").text().slice(0, 16);
 
     $(element).append(`
                 <form class="existingDeadlineForm" id="editDeadlineForm" style="display: none">
@@ -774,7 +774,7 @@ function appendDeadlineForm(element){
                     </div>
                 </form>`)
     let deadlineType = $(element).find(".typeOfDeadline")
-    $("#exampleFormControlInput3 > option").each(function() {
+    $("#exampleFormControlInput3 > option").each(function () {
         if (this.value === deadlineType.text().split(" ")[0].trim()) {
             this.setAttribute("selected", "selected")
         }
@@ -929,7 +929,7 @@ function createMilestoneDiv(milestoneObject) {
 function createDeadlineDiv(deadlineObject) {
 
     let iconElement;
-    switch(deadlineObject.type) {
+    switch (deadlineObject.type) {
         case 1:
             iconElement = `<svg data-bs-toggle="tooltip" data-bs-placement="top" title="Event" th:case="'1'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event" viewBox="0 0 16 16"><path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>`
             break;
@@ -1065,7 +1065,7 @@ function refreshMilestones(projectId) {
  * Refreshes the deadline div section of the page
  * @param projectId
  */
-function refreshDeadlines(projectId){
+function refreshDeadlines(projectId) {
     let deadlineContainer = $("#deadlineContainer")
     deadlineContainer.find(".occasion").remove() // Finds all deadline divs are removes them
     deadlineContainer.append(`<div id="infoDeadlineContainer" class="infoMessageParent alert alert-primary alert-dismissible fade show" role="alert" style="display: none">
@@ -1075,9 +1075,9 @@ function refreshDeadlines(projectId){
         type: 'GET',
         data: {'projectId': projectId},
 
-        success: function(response) {
+        success: function (response) {
 
-            for(let deadline in response){ // Goes through all the data from the server and creates an eventObject
+            for (let deadline in response) { // Goes through all the data from the server and creates an eventObject
                 let deadlineObject = response[deadline];
                 $("#deadlineContainer").append(createDeadlineDiv(deadlineObject)) // Passes the deadlineObject to the createDiv function
 
@@ -1086,7 +1086,7 @@ function refreshDeadlines(projectId){
             removeElementIfNotAuthorized()
             addDeadlinesToSprints()
         },
-        error: function(error) {
+        error: function (error) {
             console.log(error)
         }
     })
@@ -1106,7 +1106,7 @@ function reloadElement(id) {
             url: 'getEvent',
             type: 'get',
             data: {'eventId': id},
-            success: function(response) {
+            success: function (response) {
 
                 let eventObject = {
                     "id": response.id,
@@ -1132,8 +1132,8 @@ function reloadElement(id) {
         $.ajax({
             url: 'getMilestone',
             type: 'get',
-            data: {'milestoneId' : id},
-            success: function(response) {
+            data: {'milestoneId': id},
+            success: function (response) {
 
                 elementToReload.replaceWith(createMilestoneDiv(response))
                 elementToReload.slideDown()
@@ -1149,8 +1149,8 @@ function reloadElement(id) {
         $.ajax({
             url: 'getDeadline',
             type: 'get',
-            data: {'deadlineId' : id},
-            success: function(response) {
+            data: {'deadlineId': id},
+            success: function (response) {
 
                 elementToReload.replaceWith(createDeadlineDiv(response))
                 elementToReload.slideDown()
@@ -1158,7 +1158,7 @@ function reloadElement(id) {
                 sortElementsByDate("#deadlineContainer", ".occasion", ".deadlineEndDateNilFormat")
                 removeElementIfNotAuthorized()
             },
-            error: function() {
+            error: function () {
                 location.href = "/error" // Moves the user to the error page
             }
         })
@@ -1177,7 +1177,7 @@ function addEvent(eventId) {
         url: 'getEvent',
         type: 'get',
         data: {'eventId': eventId},
-        success: function(response) {
+        success: function (response) {
 
             let eventObject = {
                 "id": response.id,
@@ -1242,7 +1242,7 @@ function addDeadline(deadlineId) {
         url: 'getDeadline',
         type: 'get',
         data: {'deadlineId': deadlineId},
-        success: function(response) {
+        success: function (response) {
 
 
             $("#deadlineContainer").append(createDeadlineDiv(response)) // Passes the eventObject to the createDiv function
@@ -1251,7 +1251,7 @@ function addDeadline(deadlineId) {
             removeElementIfNotAuthorized()
 
         },
-        error: function() {
+        error: function () {
             location.href = "/error" // Moves the user to the error page
         }
     })

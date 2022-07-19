@@ -2,6 +2,8 @@ package nz.ac.canterbury.seng302.identityprovider.groups;
 
 import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -18,29 +20,22 @@ public class Group {
     @Id
     private Integer id;
 
-    /**
-    * The ID's of the group's members.
-    */
+    /** The ID's of the group's members. */
     @ManyToMany
+    @Fetch(FetchMode.JOIN)
     @JoinTable(name = "group_members",
             joinColumns = @JoinColumn(name = "groupId"),
             inverseJoinColumns = @JoinColumn(name = "userId"))
     private final List<User> userList = new ArrayList<>();
 
-    /**
-    * The group's short name.
-    */
+    /** The group's short name. */
     private String shortName;
 
-    /**
-    * The group's long name.
-    */
+    /** The group's long name. */
     private String longName;
 
 
-    /**
-    * The Group constructor required by JPA.
-    */
+    /** The Group constructor required by JPA. */
     protected Group() {}
 
 
@@ -106,7 +101,7 @@ public class Group {
     /**
      * Removes users from a group
      *
-     * @param users the users to be removed
+     * @param users a list of the users to be removed
      */
     public void removeGroupMembers(List<User> users) {
         for (User user : users)  {
@@ -118,7 +113,7 @@ public class Group {
     /**
      * Adds a user to the group object if the user is not already present
      *
-     * @param users The users to be added
+     * @param users A list of the users to be added
      */
     public void addGroupMembers(List<User> users) {
         for (User user : users) {

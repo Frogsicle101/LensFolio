@@ -2,10 +2,10 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.*;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -34,7 +34,9 @@ class AccountControllerTest {
     @InjectMocks
     private final AccountController accountController = spy(AccountController.class);
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
-    private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
+    private final Authentication principal = new Authentication(
+            AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build()
+    );
 
     @BeforeEach
     public void beforeAll() {
@@ -51,7 +53,7 @@ class AccountControllerTest {
         userBuilder.addRoles(UserRole.STUDENT);
         UserResponse user = userBuilder.build();
 
-        when(PrincipalAttributes.getUserFromPrincipal(principal, mockClientService)).thenReturn(user);
+        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), mockClientService)).thenReturn(user);
         GetUserByIdRequest userByIdRequest = GetUserByIdRequest.newBuilder().setId(1).build();
         when(mockClientService.getUserAccountById(userByIdRequest)).thenReturn(user);
 
@@ -877,11 +879,6 @@ class AccountControllerTest {
     }
 
 
-
-
-
-
-
     @Test
     void testGetAccount() {
         ModelAndView modelAndView = accountController.account(principal);
@@ -900,7 +897,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testEditAccount(){
+    void testEditAccount() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -915,7 +912,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadNickname(){
+    void testEditAccountBadNickname() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -932,7 +929,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadMiddlename(){
+    void testEditAccountBadMiddlename() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -949,7 +946,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadPronouns(){
+    void testEditAccountBadPronouns() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -966,7 +963,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadRequest(){
+    void testEditAccountBadRequest() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -974,7 +971,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testEditAccountFailToChange(){
+    void testEditAccountFailToChange() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -990,7 +987,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testEditPassword(){
+    void testEditPassword() {
         PasswordRequest passwordRequest = new PasswordRequest();
         passwordRequest.setNewPassword("password");
         passwordRequest.setConfirmPassword("password");
@@ -1004,7 +1001,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditPasswordFailToChange(){
+    void testEditPasswordFailToChange() {
         PasswordRequest passwordRequest = new PasswordRequest();
         passwordRequest.setNewPassword("password");
         passwordRequest.setConfirmPassword("password");
@@ -1018,7 +1015,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditPasswordPasswordsDontMatch(){
+    void testEditPasswordPasswordsDontMatch() {
         PasswordRequest passwordRequest = new PasswordRequest();
         passwordRequest.setNewPassword("password");
         passwordRequest.setConfirmPassword("password2");
@@ -1034,7 +1031,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testDeleteProfileImg(){
+    void testDeleteProfileImg() {
 
         DeleteUserProfilePhotoResponse.Builder delete = DeleteUserProfilePhotoResponse.newBuilder();
         delete.setIsSuccess(true);
@@ -1043,8 +1040,6 @@ class AccountControllerTest {
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
     }
-
-
 
 
 }

@@ -1,7 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
 import com.google.protobuf.Empty;
-import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
@@ -12,7 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Implements the server side functionality of the services defined by the groups.proto gRpc contracts.
@@ -135,49 +137,55 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
      */
     @Override
     public void modifyGroupDetails(ModifyGroupDetailsRequest request, StreamObserver<ModifyGroupDetailsResponse> responseObserver) {
-        logger.info("SERVICE - modify group details for group with group id " + request.getGroupId());
+        logger.info("SERVICE - modify group details for group with group id {}", request.getGroupId());
         ModifyGroupDetailsResponse.Builder response = ModifyGroupDetailsResponse.newBuilder();
-        Optional<Group> optionalGroup = groupRepository.findById(request.getGroupId());
-        if (optionalGroup.isPresent()) {
-            try {
+        try {
+            Optional<Group> optionalGroup = groupRepository.findById(request.getGroupId());
+            if (optionalGroup.isPresent()) {
                 Group group = optionalGroup.get();
-                logger.info("Group Modify Success - updated group details for group " + request.getGroupId());
-
-                if (groupRepository.findByShortName(request.getShortName()).isPresent()) {
+                Optional<Group> checkIfExistsShortName = groupRepository.findByShortName(request.getShortName());
+                Optional<Group> checkIfExistsLongName = groupRepository.findByLongName(request.getShortName());
+                if (checkIfExistsShortName.isPresent() && checkIfExistsShortName.get().getId() != request.getGroupId()) {
                     response.addValidationErrors(ValidationError.newBuilder()
                                     .setFieldName("Short name")
                                     .setErrorText("A group exists with the shortName " + request.getShortName())
                                     .build())
                             .setIsSuccess(false);
-                }
-                if (groupRepository.findByLongName(request.getLongName()).isPresent()) {
+                    logger.warn("Group Modify - trying to update group details for group {}: {}",request.getGroupId(), "A group exists with the shortName " + request.getShortName());
+                } else if (checkIfExistsLongName.isPresent() && checkIfExistsLongName.get().getId() != request.getGroupId()) {
                     response.addValidationErrors(ValidationError.newBuilder()
-                                    .setFieldName("Long name")
-                                    .setErrorText("A group exists with the longName " + request.getLongName())
-                                    .build())
-                            .setIsSuccess(false);
-                }
-                if (response.getIsSuccess()) {
+                                .setFieldName("Long name")
+                                .setErrorText("A group exists with the longName " + request.getLongName())
+                                .build())
+                        .setIsSuccess(false);
+                    logger.warn("Group Modify - trying to update group details for group {}: {}",request.getGroupId(), "A group exists with the longName " + request.getLongName());
+                } else {
                     group.setShortName(request.getShortName());
                     group.setLongName(request.getLongName());
                     groupRepository.save(group);
                     response.setIsSuccess(true)
                             .setMessage("Successfully updated details for " + group.getShortName());
+                    logger.info("Group Modify Success - updated group details for group {}", request.getGroupId());
                 }
-            } catch (StatusRuntimeException e) {
-                logger.error("An error occurred editing group from request: " + request + "\n See stack trace below \n");
-                logger.error(e.getMessage());
+            } else {
+                logger.warn("Group Edit Failure - could not find group with id {}", request.getGroupId());
                 response.setIsSuccess(false)
-                        .setMessage("Incorrect current password provided");
+                        .setMessage("Could not find group to modify");
             }
-        } else {
-            logger.info("Group Edit Failure - could not find group with id " + request.getGroupId());
+            responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
+
+        } catch (Exception err) {
+            logger.error("An error occurred editing modify group request: {} \n See stack trace below \n", request );
+            logger.error(err.getMessage());
             response.setIsSuccess(false)
-                    .setMessage("Could not find group to modify");
+                    .setMessage("An error occurred editing modify group request");
+
         }
-        responseObserver.onNext(response.build());
-        responseObserver.onCompleted();
+
+
     }
+
 
 
     /**
@@ -240,9 +248,8 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
      */
     @Override
     public void getPaginatedGroups(GetPaginatedGroupsRequest request, StreamObserver<PaginatedGroupsResponse> responseObserver) {
-        super.getPaginatedGroups(request, responseObserver);
-
         PaginatedGroupsResponse.Builder reply = PaginatedGroupsResponse.newBuilder();
+
         List<Group> allGroups = (List<Group>) groupRepository.findAll();
         String sortMethod = request.getOrderBy();
 

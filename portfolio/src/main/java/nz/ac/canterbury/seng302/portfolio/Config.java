@@ -9,19 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-public class Config implements WebMvcConfigurer
-{
+public class Config implements WebMvcConfigurer {
 
     /**
      * This will intercept all the endpoints that we specify in the method and run them through RoleBasedInterceptor
      * first. The RoleBasedInterceptor only allows users to continue if they are a teacher or admin
+     *
      * @param registry Registry
      */
     @Override
-    public void addInterceptors(InterceptorRegistry registry)
-    {
+    public void addInterceptors(InterceptorRegistry registry) {
         List<String> pathsToInterceptForRoleBased = new ArrayList<>();
-
 
         // User Roles
         pathsToInterceptForRoleBased.add("/editUserRole");
@@ -52,6 +50,7 @@ public class Config implements WebMvcConfigurer
         pathsToInterceptForRoleBased.add("/addDeadline");
         pathsToInterceptForRoleBased.add("/editDeadline");
         pathsToInterceptForRoleBased.add("/deleteDeadline");
+
 
         //Groups
         pathsToInterceptForRoleBased.add("/groups/addUser");

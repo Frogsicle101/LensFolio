@@ -7,10 +7,6 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
-import nz.ac.canterbury.seng302.shared.identityprovider.DeleteGroupResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.GetGroupDetailsRequest;
-import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +29,10 @@ class GroupServerServiceTest {
 
     @InjectMocks
     private GroupsServerService groupsServerService = new GroupsServerService();
+
+
+    @Mock
+    private GroupService groupService = new GroupService(groupRepository, userRepository);
 
     @BeforeEach
     public void setUp() {
@@ -325,7 +325,148 @@ class GroupServerServiceTest {
     }
 
 
+
+    @Test
+    void testModifyGroupNoGroup() {
+        ModifyGroupDetailsRequest modifyGroupDetailsRequest = ModifyGroupDetailsRequest.newBuilder().setGroupId(0).setLongName("test").setShortName("test").build();
+        StreamObserver<ModifyGroupDetailsResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<ModifyGroupDetailsResponse> responseCaptor = ArgumentCaptor.forClass(ModifyGroupDetailsResponse.class);
+        when(groupRepository.findById(0)).thenReturn(Optional.empty());
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+        groupsServerService.modifyGroupDetails(modifyGroupDetailsRequest, responseObserver);
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        ModifyGroupDetailsResponse response = responseCaptor.getValue();
+        Assertions.assertEquals("Could not find group to modify", response.getMessage());
+
+    }
+
+    @Test
+    void testModifyGroup() {
+        Group NonGroup = new Group(1, "Non-Group", "Non-Group");
+        ModifyGroupDetailsRequest modifyGroupDetailsRequest = ModifyGroupDetailsRequest.newBuilder().setGroupId(1).setLongName("new long name").setShortName("Non-Group").build();
+        StreamObserver<ModifyGroupDetailsResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<ModifyGroupDetailsResponse> responseCaptor = ArgumentCaptor.forClass(ModifyGroupDetailsResponse.class);
+        when(groupRepository.findById(1)).thenReturn(Optional.of(NonGroup));
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+        groupsServerService.modifyGroupDetails(modifyGroupDetailsRequest, responseObserver);
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        ModifyGroupDetailsResponse response = responseCaptor.getValue();
+        Assertions.assertEquals("Successfully updated details for Non-Group", response.getMessage());
+    }
+
+
+    @Test
+    void testModifyGroupSameShortName() {
+        Group NonGroup = new Group(1, "Non-Group", "Non-Group");
+        Group NonGroup2 = new Group(2, "Non-Group2", "Non-Group2");
+
+        ModifyGroupDetailsRequest modifyGroupDetailsRequest = ModifyGroupDetailsRequest.newBuilder().setGroupId(1).setLongName("new long name").setShortName("Non-Group changes").build();
+        StreamObserver<ModifyGroupDetailsResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<ModifyGroupDetailsResponse> responseCaptor = ArgumentCaptor.forClass(ModifyGroupDetailsResponse.class);
+        when(groupRepository.findById(1)).thenReturn(Optional.of(NonGroup));
+        when(groupRepository.findByShortName("Non-Group changes")).thenReturn(Optional.of(NonGroup2));
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+        groupsServerService.modifyGroupDetails(modifyGroupDetailsRequest, responseObserver);
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        ModifyGroupDetailsResponse response = responseCaptor.getValue();
+        Assertions.assertEquals("A group exists with the shortName Non-Group changes", response.getValidationErrors(0).getErrorText());
+    }
+
+    @Test
+    void testModifyGroupSameLongName() {
+        Group NonGroup = new Group(1, "Non-Group", "Non-Group");
+        Group NonGroup2 = new Group(2, "Non-Group2", "Non-Group2");
+
+        ModifyGroupDetailsRequest modifyGroupDetailsRequest = ModifyGroupDetailsRequest.newBuilder().setGroupId(1).setLongName("Non-Group").setShortName("Non-Group").build();
+        StreamObserver<ModifyGroupDetailsResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<ModifyGroupDetailsResponse> responseCaptor = ArgumentCaptor.forClass(ModifyGroupDetailsResponse.class);
+        when(groupRepository.findById(1)).thenReturn(Optional.of(NonGroup));
+        when(groupRepository.findByLongName("Non-Group")).thenReturn(Optional.of(NonGroup2));
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+        groupsServerService.modifyGroupDetails(modifyGroupDetailsRequest, responseObserver);
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        ModifyGroupDetailsResponse response = responseCaptor.getValue();
+        Assertions.assertEquals("A group exists with the longName Non-Group", response.getValidationErrors(0).getErrorText());
+    }
+
+
+
+    @Test
+    void removeGroupMembersTestException() {
+        StreamObserver<RemoveGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<RemoveGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(RemoveGroupMembersResponse.class);
+        RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().build();
+
+        Mockito.doThrow(new RuntimeException("Broke")).when(groupService).removeGroupMembers(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+
+        groupsServerService.removeGroupMembers(request, responseObserver);
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        RemoveGroupMembersResponse response = responseCaptor.getValue();
+        Assertions.assertFalse(response.getIsSuccess());
+    }
+
+
+    @Test
+    void removeGroupMembersTest() {
+        StreamObserver<RemoveGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<RemoveGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(RemoveGroupMembersResponse.class);
+        RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().build();
+
+        Mockito.doNothing().when(groupService).removeGroupMembers(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+
+        groupsServerService.removeGroupMembers(request, responseObserver);
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        RemoveGroupMembersResponse response = responseCaptor.getValue();
+        Assertions.assertTrue(response.getIsSuccess());
+    }
+
+
+    @Test
+    void addGroupMembersTestException() {
+        StreamObserver<AddGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<AddGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(AddGroupMembersResponse.class);
+        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().build();
+
+        Mockito.doThrow(new RuntimeException("Broke")).when(groupService).addGroupMembers(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+
+        groupsServerService.addGroupMembers(request, responseObserver);
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        AddGroupMembersResponse response = responseCaptor.getValue();
+        Assertions.assertFalse(response.getIsSuccess());
+    }
+
+
+    @Test
+    void addGroupMembersTest() {
+        StreamObserver<AddGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<AddGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(AddGroupMembersResponse.class);
+        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().build();
+
+        Mockito.doNothing().when(groupService).removeGroupMembers(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+
+        groupsServerService.addGroupMembers(request, responseObserver);
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        AddGroupMembersResponse response = responseCaptor.getValue();
+        Assertions.assertTrue(response.getIsSuccess());
+    }
     // ----------------------------------------- Test runner helpers -------------------------------------------------
+
+
+
+
+
 
     /**
      * Helper function for running tests for creating groups
