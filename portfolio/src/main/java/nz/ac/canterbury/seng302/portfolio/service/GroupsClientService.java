@@ -58,11 +58,48 @@ public class GroupsClientService {
     /**
      * The grpc service to request the removal of users from a group on the Idp
      *
-     * @param request The request to remove users from a group, following the AddGroupMembersRequest message format
+     * @param request The request to remove users from a group, following the RemoveGroupMembersRequest message format
      * @return The IdP's response following the RemoveGroupMembersResponse message format
      */
     public RemoveGroupMembersResponse removeGroupMembers (RemoveGroupMembersRequest request) {
         logger.info("SERVICE - send deleteGroupMembersRequest request to server");
         return groupsStub.removeGroupMembers(request);
+    }
+
+    /**
+     * The grpc service to request modify a group details on the Idp
+     *
+     * @param request The request to modify a group details, following the ModifyGroupDetailsRequest message format
+     * @return The IdP's response following the ModifyGroupDetailsResponse message format
+     */
+    public ModifyGroupDetailsResponse modifyGroupDetails (ModifyGroupDetailsRequest request) {
+        logger.info("SERVICE - send modifyGroupDetailsRequest request to server");
+        return groupsStub.modifyGroupDetails(request);
+    }
+
+
+    /**
+     * Sends a request to the GroupsServerService to get a specific group by their group ID
+     *
+     * @param request the GetGroupDetailsRequest passed through from the controller, with the groupId
+     * @return response - a GroupDetailsResponse, a response with the given groups details
+     */
+    public GroupDetailsResponse getGroupDetails(GetGroupDetailsRequest request) {
+        logger.info("SERVICE - send getGroupDetailsRequest request to server");
+        return groupsStub.getGroupDetails(request);
+    }
+
+
+    /**
+     * Sends a request to the GroupsServerService to get a specific page for the groups list, through a
+     * GetPaginatedGroupsRequest
+     *
+     * @param request the GetPaginatedGroupsRequest passed through from the controller, with the page, size of the list
+     *                and the sort order
+     * @return response - a GetPaginatedGroupsResponse, a response with a list of groups and the total amount of groups
+     */
+    public PaginatedGroupsResponse getPaginatedGroups(GetPaginatedGroupsRequest request) {
+        logger.info("SERVICE - send getPaginatedGroupsRequest request to server");
+        return groupsStub.getPaginatedGroups(request);
     }
 }
