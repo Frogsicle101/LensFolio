@@ -1,4 +1,4 @@
-let selectedUserIds = [] // Group members who have been selected
+let selectedUserIds = [] // IDs of selected group members
 let group;
 
 
@@ -32,12 +32,12 @@ $(document).on("click", ".group", function () {
     $("#selectAllCheckboxGroups").prop("checked", false);
 
     displayGroupUsersList(groupId);
-
     $(this).closest(".group").addClass("focusOnGroup")
-    if (parseInt(groupId) === 0) {
+
+    if (parseInt(groupId) === 0) { // teacher group
         $("#groupRemoveUser").show();
         $(".controlButtons").hide();
-    } else if (parseInt(groupId) === 1) {
+    } else if (parseInt(groupId) === 1) { // non-group group
         $("#groupRemoveUser").hide();
         $(".controlButtons").hide();
     } else {
@@ -45,7 +45,7 @@ $(document).on("click", ".group", function () {
         $(".controlButtons").show();
     }
 
-    if (!checkPrivilege()) {
+    if (!checkPrivilege()) { //if not a teacher or admin role
         $("#selectAllCheckboxHeader").hide();
         $("#groupDisplayOptions").hide();
     }
@@ -58,38 +58,32 @@ $(document).on("click", ".group", function () {
 
 
 /**
- * When at least one user is selected, the removal button appears and the selected user is added to the list of selected
- * users.
- * When there are no users selected, the "Remove" button is hidden.
+ * On the checkbox selection of a user, the user's ID is added to the list of selected users.
+ * When there are no users selected, the "select all" checkbox is unchecked. When all users in the group are selected,
+ * the "select all" checkbox is selected by default.
+ * Then, calls a method to update the displayed number of selected users.
  */
 $(document).on("click", ".selectUserCheckboxGroups", function () {
-    // if checkbox is now selected (i.e., selected == true)
-    //     add the userid to the selectedUsersList
-    //     if the number of checked boxes is the same as the number of rows (i.e., all rows selected)
-    //         check the select All button
-    // else
-    //     remove the userid from the selectedUsersList
-    //     remove the selected class/prop from the selected box (if not done by default)
-    //     remove the selected class/prop from the selectAll button
-    // update the number selected using the selected users list
-    let row = $(this).parent().parent();
-    let userId = row.find(".userId")[0].innerHTML;
-    let isSelected = row[0].querySelector("#selectUserCheckboxGroups").checked;
+    let thisRow = $(this).parent().parent();
+    let userId = parseInt(thisRow.find(".userId")[0].innerHTML);
+    let isSelected = thisRow[0].querySelector("#selectUserCheckboxGroups").checked;
 
-    if (isSelected) { // adds the selected user is to the list of selected users
-        selectedUserIds.push(parseInt(userId));
-        $(this).closest("tr").addClass("selected")
+    if (isSelected && selectedUserIds.indexOf(userId) === -1) {
+        selectedUserIds.push(userId);
+        let numRows = thisRow.parent()[0].rows.length
+        if (selectedUserIds.length === numRows) {
+            $("#selectAllCheckboxGroups").prop("checked", true);
+        }
+
     } else { // removes the user id from the list of selected users
-        $(this).closest("tr").removeClass("selected")
-        $("#selectAllCheckboxGroups").prop("checked", false);
-        let indexOfId = selectedUserIds.indexOf(parseInt(userId));
+        let indexOfId = selectedUserIds.indexOf(userId);
         if (indexOfId > -1) {
             selectedUserIds.splice(indexOfId, 1);
         }
+        $("#selectAllCheckboxGroups").prop("checked", false);
     }
-    console.log("individualClick")
-    console.log(selectedUserIds)
-    updateNumberSelectedDisplay(selectedUserIds.length)
+
+    updateNumberSelectedDisplay(selectedUserIds.length);
 })
 
 
@@ -103,51 +97,30 @@ $(document).on("click", "#groupRemoveUser", function () {
 
 
 /**
- * Toggles the member selection for the current group. makes either all members selected, or all unselected.
+ * Toggles the member selection for the current group. Makes either all members selected, or all unselected, then calls
+ * a method to update the displayed number of selected users.
  */
 $(document).on("click", "#selectAllCheckboxGroups", function () {
-    // if the box is now selected
-    //     foreach table row thats not the header
-    //         add the userId to the selectedUsersList
-    //         add the checked prop/class to all rows
-    //     add the selected class/prop from the select all box (if not done by default)
-    // else
-    //     empty the selected users list (i.e., set it to an empty list)
-    //     foreach table row thats not the header
-    //         remove the checked prop/class from all rows
-    //     remove the selected class/prop from the select all box (if not done by default)
-    // update the selected rows count using the selectedUserList length
-    $(".selectUserCheckboxGroups").prop("checked", $("#selectAllCheckboxGroups").prop("checked"))
-    selectedUserIds = []
-    if ($("#selectAllCheckboxGroups").prop("checked")) {
-        $(".userId").each((id) => {
-            selectedUserIds.push($(".userId")[id].innerHTML)
-            $(this).closest("tr").addClass("selected")
+    let table = $("#groupTableBody tr")
+    if ($("#selectAllCheckboxGroups").prop("checked")) { // if all are selected
+        table.each((i) => {
+            let userId = parseInt(table[i].getElementsByTagName("td")[0].innerHTML);
+
+            if (selectedUserIds.indexOf(userId) === -1) {
+                selectedUserIds.push(userId)
+                table[i].getElementsByTagName("th")[0].firstChild.checked = true // sets checkbox to checked
+            }
         })
-    } else {
-        $(".userId").each((id) => {
-            $(this).closest("tr").remove("selected")
+
+    } else { // if all are unselected
+        selectedUserIds = []
+        table.each((i) => {
+            table[i].getElementsByTagName("th")[0].firstChild.checked = false // sets checkbox to unchecked
         })
     }
-    console.log("called")
-    console.log(selectedUserIds)
+
     updateNumberSelectedDisplay(selectedUserIds.length);
 })
-
-
-// /**
-//  * When a checkbox is toggled, the row is given the "selected" status, and the number of selected members is updated.
-//  */
-// $(document).on("change","input[type=checkbox]", function() {
-//     let tableRow = $(this).closest("tr")
-//     if (!tableRow.hasClass("tableHeader")) {
-//         $(this).closest("tr").toggleClass("selected")
-//     }
-//     console.log("called but other")
-//     console.log(selectedUserIds)
-//
-//
-// })
 
 
 /**
@@ -161,12 +134,13 @@ $(document).on("click", ".deleteButton", function () {
             type: "delete",
             success: function () {
                 window.location.reload()
-            }, error: function (err) {
-                $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                       ${error.responseText}
-                                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                     </div>`)
-
+            }, error: function () {
+                $("#groupInformationContainer").append(
+                    `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                     ${error.responseText}
+                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`
+                )
             }
         })
     }
@@ -179,7 +153,6 @@ $(document).on("click", ".deleteButton", function () {
  * @param value The number of users currently selected.
  */
 function updateNumberSelectedDisplay(value) {
-    console.log(value + " Selected")
     $(".numSelected").text(value + " Selected")
 }
 
@@ -276,10 +249,12 @@ function displayGroupUsersList(groupId) {
             appendMembersToList(response, membersContainer)
         },
         error: (error) => {
-            $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                       ${error.responseText}
-                                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                     </div>`)
+            $("#groupInformationContainer").append(
+                `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                 ${error.responseText}
+                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                 </div>`
+            )
         }
     })
     $("#groupInformationContainer").slideDown()
