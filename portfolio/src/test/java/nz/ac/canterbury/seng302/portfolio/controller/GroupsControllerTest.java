@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
+import nz.ac.canterbury.seng302.portfolio.service.GroupService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -47,6 +48,9 @@ class GroupsControllerTest {
 
     @MockBean
     UserAccountsClientService userAccountsClientService;
+
+    @MockBean
+    GroupService groupService;
 
 
     @Test
@@ -193,14 +197,13 @@ class GroupsControllerTest {
             params.addAll("userIds", Collections.singletonList(userId.toString()));
 
         }
-        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(Integer.parseInt(groupId)).addAllUserIds(userIds).build();
 
         AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
                 .setIsSuccess(true)
                 .setMessage("Successfully added users to group")
                 .build();
 
-        Mockito.when(groupsClientService.addGroupMembers(request)).thenReturn(response);
+        Mockito.when(groupService.addUsersToGroup(Integer.parseInt(groupId), userIds)).thenReturn(response);
 
         mockMvc.perform(post("/groups/addUsers")
                         .param("groupId", groupId)
@@ -253,14 +256,12 @@ class GroupsControllerTest {
             params.addAll("userIds", Collections.singletonList(userId.toString()));
         }
 
-        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(Integer.parseInt(groupId)).addAllUserIds(userIds).build();
-
         AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
                 .setIsSuccess(false)
                 .setMessage(groupId + " does not refer to a valid group")
                 .build();
 
-        Mockito.when(groupsClientService.addGroupMembers(request)).thenReturn(response);
+        Mockito.when(groupService.addUsersToGroup(Integer.parseInt(groupId), userIds)).thenReturn(response);
 
         mockMvc.perform(post("/groups/addUsers")
                         .param("groupId", groupId)
@@ -282,14 +283,12 @@ class GroupsControllerTest {
             params.addAll("userIds", Collections.singletonList(userId.toString()));
         }
 
-        AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().setGroupId(Integer.parseInt(groupId)).addAllUserIds(userIds).build();
-
         AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
                 .setIsSuccess(false)
                 .setMessage("1 does not refer to a valid user")
                 .build();
 
-        Mockito.when(groupsClientService.addGroupMembers(request)).thenReturn(response);
+        Mockito.when(groupService.addUsersToGroup(Integer.parseInt(groupId), userIds)).thenReturn(response);
 
         mockMvc.perform(post("/groups/addUsers")
                         .param("groupId", groupId)
