@@ -1,17 +1,12 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,13 +21,18 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.persistence.EntityNotFoundException;
-
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -99,7 +99,6 @@ class CalendarControllerTest {
     }
 
 
-
     @Test
     void testGetProjectDetails() throws Exception {
         ResultActions result = this.mockMvc.perform(get("/getProjectDetails").param("projectId", "1"));
@@ -147,7 +146,7 @@ class CalendarControllerTest {
 
 
     @Test
-    void testGetProjectSprintsWithDatesWithBadDates(){
+    void testGetProjectSprintsWithDatesWithBadDates() {
         Project project = new Project("Testing");
         ResponseEntity<Object> returnValue = calendarController.getProjectSprintsWithDates(project.getId(), "cheese", "grommit");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, returnValue.getStatusCode());
@@ -155,7 +154,7 @@ class CalendarControllerTest {
     }
 
     @Test
-    void testGetProjectSprintsWithDatesThrowsException(){
+    void testGetProjectSprintsWithDatesThrowsException() {
         Project project = new Project("Testing");
         ZonedDateTime start = ZonedDateTime.now().minusMonths(1);
         ZonedDateTime end = ZonedDateTime.now().plusMonths(1);
@@ -167,7 +166,7 @@ class CalendarControllerTest {
     }
 
     @Test
-    void testGetProjectSprintsWithDatesInsideOfSprintDates(){
+    void testGetProjectSprintsWithDatesInsideOfSprintDates() {
         Project project = new Project("Testing");
         ZonedDateTime start = ZonedDateTime.now().minusDays(1);
         ZonedDateTime end = ZonedDateTime.now().plusDays(1);
@@ -215,11 +214,6 @@ class CalendarControllerTest {
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, returnValue.getStatusCode());
 
     }
-
-
-
-
-
 
 
 }

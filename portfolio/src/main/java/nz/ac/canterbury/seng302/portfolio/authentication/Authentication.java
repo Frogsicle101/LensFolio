@@ -10,7 +10,9 @@ import java.security.Principal;
  */
 public class Authentication implements Principal {
 
-    /** The internal AuthState object */
+    /**
+     * The internal AuthState object
+     */
     private final AuthState authState;
 
     /**

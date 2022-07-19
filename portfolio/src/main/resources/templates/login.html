@@ -6,25 +6,26 @@
 
 </head>
 <body>
-    <div class="loginSection">
-        <div class="logoBox">
-            <h1 class="logo">Lensfolio</h1>
-        </div>
-        <div class="loginBox">
-            <div th:replace="fragments/general.html :: errorBox"></div>
-            <form th:action="@{login}" th:object="${loginForm}" method="post">
-                <h1 class="signIn">Sign In</h1>
+<div class="loginSection">
+    <div class="logoBox">
+        <h1 class="logo">Lensfolio</h1>
+    </div>
+    <div class="loginBox">
+        <div th:replace="fragments/general.html :: errorBox"></div>
+        <form method="post" th:action="@{login}" th:object="${loginForm}">
+            <h1 class="signIn">Sign In</h1>
 
             <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control canDisable" name="username" id="username" maxlength="50" required>
+                <label class="form-label" for="username">Username</label>
+                <input class="form-control canDisable" id="username" maxlength="50" name="username" required
+                       type="text">
             </div>
             <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" name="password" id="password" maxlength="100" required>
+                <label class="form-label" for="password">Password</label>
+                <input class="form-control" id="password" maxlength="100" name="password" required type="password">
             </div>
 
-            <button type="submit" class="btn btn-primary canDisable" >Submit</button>
+            <button class="btn btn-primary canDisable" type="submit">Submit</button>
 
         </form>
         <hr>
@@ -33,5 +34,5 @@
 
 </div>
 
-    </body>
+</body>
 </html>
