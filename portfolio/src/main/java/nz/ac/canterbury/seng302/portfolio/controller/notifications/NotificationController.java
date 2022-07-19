@@ -14,6 +14,7 @@ import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,16 +23,20 @@ import java.util.Objects;
 
 /**
  * Controls sending and subscribing to event notifications, such as editing of events.
- *
+ * <p>
  * This controller interacts with the Notification Service class which deals with the sending and subscribing functions
  */
 @RestController
 public class NotificationController {
 
-    /** Notification service which provides the logic for sending notifications to subscribed users */
+    /**
+     * Notification service which provides the logic for sending notifications to subscribed users
+     */
     private final static NotificationService notificationService = NotificationUtil.getNotificationService();
 
-    /** For logging */
+    /**
+     * For logging
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -39,6 +44,7 @@ public class NotificationController {
      * A method that will run whenever a client subscribes to the notifications/sending/occasions
      * Asks the notification service for all of our stored notifications, and then returns them.
      * By default, returning will send a message back to the user that subscribed.
+     *
      * @return All stored notifications, in JSON form.
      */
     @SubscribeMapping("/sending/occasions")
@@ -55,8 +61,9 @@ public class NotificationController {
      * Make a string that will be the content of our editing notification
      * Put it into a OutgoingNotification object
      * Send it off to /notifications/receiving/occasions, for any and all STOMP clients subscribed to that endpoint
-     *
+     * <p>
      * Don't call this method directly. This is a spring method; it'll call itself when the time is right.
+     *
      * @param message A model for the edit details
      * @return A messenger object containing a type, occasion, id and content
      */

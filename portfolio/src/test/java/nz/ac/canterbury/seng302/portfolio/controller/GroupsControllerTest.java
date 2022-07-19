@@ -66,8 +66,8 @@ class GroupsControllerTest {
         setUpContext();
 
         mockMvc.perform(post("/groups/edit")
-                .param("shortName", "short")
-                .param("longName", "long"))
+                        .param("shortName", "short")
+                        .param("longName", "long"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -80,9 +80,9 @@ class GroupsControllerTest {
         String longName = "Test Name But Longer";
         CreateGroupRequest request = buildCreateRequest(shortName, longName);
         CreateGroupResponse response = CreateGroupResponse.newBuilder()
-                                                          .setIsSuccess(true)
-                                                          .setNewGroupId(3)
-                                                          .build();
+                .setIsSuccess(true)
+                .setNewGroupId(3)
+                .build();
         Mockito.when(groupsClientService.createGroup(request)).thenReturn(response);
 
         mockMvc.perform(post("/groups/edit")
@@ -90,7 +90,6 @@ class GroupsControllerTest {
                         .param("longName", longName))
                 .andExpect(status().isCreated());
     }
-
 
 
     @Test
@@ -268,7 +267,7 @@ class GroupsControllerTest {
         mockMvc.perform(post("/groups/addUsers")
                         .param("groupId", groupId)
                         .params(params))
-                        .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
 

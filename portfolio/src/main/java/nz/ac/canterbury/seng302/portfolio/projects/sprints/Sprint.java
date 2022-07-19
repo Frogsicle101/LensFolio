@@ -1,4 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.projects.sprints;
+
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
@@ -86,9 +87,13 @@ public class Sprint {
         eventList.add(event);
     }
 
-    public void addDeadline(Deadline deadline) { deadlineList.add(deadline); }
+    public void addDeadline(Deadline deadline) {
+        deadlineList.add(deadline);
+    }
 
-    public void addMilestone(Milestone milestone) { milestoneList.add(milestone); }
+    public void addMilestone(Milestone milestone) {
+        milestoneList.add(milestone);
+    }
 
     public List<Event> getEventList() {
         return eventList;
@@ -98,13 +103,21 @@ public class Sprint {
         this.eventList = eventList;
     }
 
-    public List<Deadline> getDeadlineList() { return deadlineList; }
+    public List<Deadline> getDeadlineList() {
+        return deadlineList;
+    }
 
-    public void setDeadlineList(List<Deadline> deadlineList) { this.deadlineList = deadlineList; }
+    public void setDeadlineList(List<Deadline> deadlineList) {
+        this.deadlineList = deadlineList;
+    }
 
-    public List<Milestone> getMilestoneList() { return milestoneList; }
+    public List<Milestone> getMilestoneList() {
+        return milestoneList;
+    }
 
-    public void setMilestoneList(List<Milestone> milestoneList) { this.milestoneList = milestoneList; }
+    public void setMilestoneList(List<Milestone> milestoneList) {
+        this.milestoneList = milestoneList;
+    }
 
 
     public LocalDate getStartDate() {

@@ -95,7 +95,7 @@ function handleNotification(notification) {
  * Processes a create notification by adding boxes for that notification to the DOM
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
-function handleCreateEvent( notification ) {
+function handleCreateEvent(notification) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
     console.log("Handle create event: Adding occasion of type: " + occasionType + " and ID: " + occasionId);
@@ -122,7 +122,7 @@ function handleCreateEvent( notification ) {
  *
  * @param notification The update notification, from which we extract the ID (and also the type for logging)
  */
-function handleUpdateEvent( notification ) {
+function handleUpdateEvent(notification) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
     console.log("Handle Update event: Reloading occasion of type: " + occasionType + " and ID: " + occasionId);
@@ -136,7 +136,7 @@ function handleUpdateEvent( notification ) {
  *
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
-function handleDeleteEvent( notification ) {
+function handleDeleteEvent(notification) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
 
@@ -164,7 +164,7 @@ function handleDeleteEvent( notification ) {
  *
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
-function handleNotifyEvent( notification ) {
+function handleNotifyEvent(notification) {
 
     const editorId = notification.editorId;
     const editorName = notification.editorName;
@@ -195,7 +195,7 @@ function handleNotifyEvent( notification ) {
  * Reverts all the changes made by handleNotifyEvent
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
-function handleStopEvent( notification ) {
+function handleStopEvent(notification) {
 
     const occasionId = notification.occasionId;
     const editorId = notification.editorId

@@ -11,21 +11,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class GroupsClientService {
 
-    /** The gRpc stub to make calls to the server service */
+    /**
+     * For logging the grpc requests related to groups
+     */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    /**
+     * The gRpc stub to make calls to the server service
+     */
     @GrpcClient("identity-provider-grpc-server")
     private GroupsServiceGrpc.GroupsServiceBlockingStub groupsStub;
-
-    /** For logging the grpc requests related to groups */
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     /**
      * The grpc service to request the deletion of a group from the IdP
      * <br>
+     *
      * @param request - The request to delete a group following the DeleteGroupRequest message format
      * @return response - The IdP's response following the DeleteGroupResponse message format
      */
-    public DeleteGroupResponse deleteGroup (DeleteGroupRequest request) {
+    public DeleteGroupResponse deleteGroup(DeleteGroupRequest request) {
         logger.info("SERVICE - send deleteGroupRequest request to server");
         return groupsStub.deleteGroup(request);
     }
@@ -34,10 +37,11 @@ public class GroupsClientService {
     /**
      * The grpc service to request the creation of a group on the IdP
      * <br>
+     *
      * @param request - The request to create a group following the CreateGroupRequest message format
      * @return response - The IdP's response following the CreateGroupResponse message format
      */
-    public CreateGroupResponse createGroup (CreateGroupRequest request) {
+    public CreateGroupResponse createGroup(CreateGroupRequest request) {
         logger.info("SERVICE - send createGroupRequest request to server");
         return groupsStub.createGroup(request);
     }
@@ -49,7 +53,7 @@ public class GroupsClientService {
      * @param request The request to add users to a group, following the AddGroupMembersRequest message format
      * @return The IdP's response following the AddGroupMembersResponse message format
      */
-    public AddGroupMembersResponse addGroupMembers (AddGroupMembersRequest request) {
+    public AddGroupMembersResponse addGroupMembers(AddGroupMembersRequest request) {
         logger.info("SERVICE - send addGroupMembersRequest request to server");
         return groupsStub.addGroupMembers(request);
     }
@@ -61,7 +65,7 @@ public class GroupsClientService {
      * @param request The request to remove users from a group, following the RemoveGroupMembersRequest message format
      * @return The IdP's response following the RemoveGroupMembersResponse message format
      */
-    public RemoveGroupMembersResponse removeGroupMembers (RemoveGroupMembersRequest request) {
+    public RemoveGroupMembersResponse removeGroupMembers(RemoveGroupMembersRequest request) {
         logger.info("SERVICE - send deleteGroupMembersRequest request to server");
         return groupsStub.removeGroupMembers(request);
     }
@@ -72,7 +76,7 @@ public class GroupsClientService {
      * @param request The request to modify a group details, following the ModifyGroupDetailsRequest message format
      * @return The IdP's response following the ModifyGroupDetailsResponse message format
      */
-    public ModifyGroupDetailsResponse modifyGroupDetails (ModifyGroupDetailsRequest request) {
+    public ModifyGroupDetailsResponse modifyGroupDetails(ModifyGroupDetailsRequest request) {
         logger.info("SERVICE - send modifyGroupDetailsRequest request to server");
         return groupsStub.modifyGroupDetails(request);
     }

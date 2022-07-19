@@ -22,7 +22,7 @@ public class Milestone {
 
     @ManyToOne()
     private Project project;
-    @Column(length=50, nullable = false)
+    @Column(length = 50, nullable = false)
     private String name;
     @Column(nullable = false)
     @NotNull
@@ -42,13 +42,12 @@ public class Milestone {
      * Constructs an instance of the milestone object.s
      *
      * @param project The project in which the milestone occurs.
-     * @param name The name of the milestone.
+     * @param name    The name of the milestone.
      * @param endDate The end date of the milestone.
-     * @param type The type of the milestone.
+     * @param type    The type of the milestone.
      * @throws InvalidNameException If the milestone name is null or has length greater than fifty characters.
      */
     public Milestone(Project project, String name, LocalDate endDate, int type) throws InvalidNameException {
-
 
 
         if (name == null || name.length() > 50) { //useful for creating default milestones, but project.js includes validations for frontend milestone editing
@@ -83,11 +82,14 @@ public class Milestone {
 
     /**
      * This sets the ID
-     *
+     * <p>
      * SHOULD ONLY BE USED FOR TESTING PURPOSES
+     *
      * @param id the UUID to be set
      */
-    public void setUuid(String id) { this.id = id; }
+    public void setUuid(String id) {
+        this.id = id;
+    }
 
     public String getId() {
         return this.id;
@@ -97,19 +99,26 @@ public class Milestone {
         return name;
     }
 
-    public void setName(String name) { this.name = name; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public void setEndDate(LocalDate endDate) {
         this.validateDate(this.getProject(), endDate);
-        this.endDate = endDate; }
+        this.endDate = endDate;
+    }
 
-    public void setEndDateColour(String colour) { this.endDateColour = colour; }
+    public void setEndDateColour(String colour) {
+        this.endDateColour = colour;
+    }
 
     public String getEndDateColour() {
         return endDateColour;
     }
 
-    public LocalDate getEndDate() { return this.endDate; }
+    public LocalDate getEndDate() {
+        return this.endDate;
+    }
 
     public String getEndDateFormatted() {
         return getEndDate().format(DateTimeFormat.dayDateMonthYear());
@@ -119,7 +128,7 @@ public class Milestone {
         return type;
     }
 
-    public Project getProject(){
+    public Project getProject() {
         return this.project;
     }
 

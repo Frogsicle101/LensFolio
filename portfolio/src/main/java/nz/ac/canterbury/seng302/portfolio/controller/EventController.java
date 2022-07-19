@@ -46,10 +46,10 @@ public class EventController {
      * The method first parses the two date strings that are passed as request parameters.
      * They are being passed in, in a format called ISO_DATE_TIME, the parsers converts them from that to the standard
      * LocalDateTime format that we use.
-     *
+     * <p>
      * The project is then grabbed from the repository by its ID.
      * If the project can't be found, it throws an EntityNotFoundException
-     *
+     * <p>
      * The Event is then created with the parameters passed, and saved to the event repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -93,7 +93,7 @@ public class EventController {
                 return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
             }
 
-            if (eventStart.isAfter(eventEnd)){
+            if (eventStart.isAfter(eventEnd)) {
                 String returnMessage = "Start date cannot be before end date";
                 logger.warn("PUT /addEvent: {}", returnMessage);
                 return new ResponseEntity<>("Start date cannot be before end date", HttpStatus.BAD_REQUEST);
@@ -131,7 +131,7 @@ public class EventController {
     public ResponseEntity<String> deleteEvent(
             @RequestParam(value = "eventId") String eventId
     ) {
-        try{
+        try {
             logger.info("DELETE: /deleteEvent");
             Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(
                     "Event with id " + eventId + " was not found"
@@ -140,24 +140,23 @@ public class EventController {
             logger.info("DELETE: /deleteEvent: Success");
             return new ResponseEntity<>(HttpStatus.OK);
 
-        } catch(EntityNotFoundException err) {
+        } catch (EntityNotFoundException err) {
             logger.warn("DELETE: /deleteEvent: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch(Exception err){
+        } catch (Exception err) {
             logger.error("DELETE: /deleteEvent: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
-
     /**
      * Mapping for a post request to edit an event.
      * The method first gets the event from the repository. If the event cannot be retrieved, it throws an EntityNotFound exception.
-     *
+     * <p>
      * The method then parses the date strings that is passed as a request parameter.
      * The parsers convert the dates to the standard LocalDateTime format.
-     *
+     * <p>
      * The Event is then edited with the parameters passed, and saved to the event repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -214,7 +213,7 @@ public class EventController {
         } catch (DateTimeException err) {
             logger.warn("POST /editEvent: {}", err.getMessage());
             return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
-        } catch(Exception err) {
+        } catch (Exception err) {
             logger.error("POST /editEvent: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 
@@ -230,16 +229,16 @@ public class EventController {
      */
     @GetMapping("/getEventsList")
     public ResponseEntity<Object> getEventsList(
-            @RequestParam(value="projectId") Long projectId
-    ){
+            @RequestParam(value = "projectId") Long projectId
+    ) {
         try {
             logger.info("GET /getEventsList");
             List<Event> eventList = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
             eventList.sort(Comparator.comparing(Event::getStartDate));
             logger.info("GET /getEventsList: Success");
             return new ResponseEntity<>(eventList, HttpStatus.OK);
-        } catch(Exception err){
-            logger.error("GET /getEventsList: {}", err.getMessage() );
+        } catch (Exception err) {
+            logger.error("GET /getEventsList: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -253,18 +252,18 @@ public class EventController {
      */
     @GetMapping("/getEvent")
     public ResponseEntity<Object> getEvent(
-            @RequestParam(value="eventId") String eventId
-    ){
+            @RequestParam(value = "eventId") String eventId
+    ) {
         try {
             logger.info("GET /getEventsList");
             Event event = eventRepository.findById(eventId).orElseThrow();
             logger.info("GET /getEventsList: Success");
             return new ResponseEntity<>(event, HttpStatus.OK);
-        } catch(NoSuchElementException err){
+        } catch (NoSuchElementException err) {
             logger.warn("GET /getEventsList: {}", err.getMessage());
-          return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch(Exception err){
-            logger.error("GET /getEventsList: {}", err.getMessage() );
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception err) {
+            logger.error("GET /getEventsList: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

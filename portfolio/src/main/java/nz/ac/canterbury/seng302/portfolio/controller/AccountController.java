@@ -19,10 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 
-
 /**
  * Controller class for the account page
- *
+ * <p>
  * This page is responsible for displaying user information
  */
 @Controller
@@ -40,12 +39,11 @@ public class AccountController {
     private static final String pronounRegex = "([a-zA-Z/]*)+";
 
 
-
     /**
      * This method is responsible for populating the account page template
      * It adds in variables to the html template, as well as the values of those variables
      * It then returns the 'filled in' html template, to be displayed in a web browser
-     *
+     * <p>
      * Once a user class is created, we will want to supply this page with the specific user that is viewing it
      *
      * @param principal the principal
@@ -108,10 +106,10 @@ public class AccountController {
      */
     @PostMapping("/register")
     public ResponseEntity<Object> attemptRegistration(
-            @ModelAttribute(name="registerForm") UserRequest userRequest
+            @ModelAttribute(name = "registerForm") UserRequest userRequest
     ) {
         logger.info("POST REQUEST /register - attempt to register new user");
-        try{
+        try {
             ResponseEntity<Object> checkUserRequest = checkUserRequest(userRequest); // Checks that the userRequest object passes all checks
             if (checkUserRequest.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 logger.warn("Registration Failed: {}", checkUserRequest.getBody());
@@ -131,7 +129,7 @@ public class AccountController {
                 return new ResponseEntity<>(registerReply.getMessage(), HttpStatus.NOT_ACCEPTABLE);
             }
         } catch (Exception err) {
-            logger.error("Registration Failed: {}",err.toString());
+            logger.error("Registration Failed: {}", err.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -163,7 +161,7 @@ public class AccountController {
 
         }
 
-        if(middlename == null){
+        if (middlename == null) {
             userRequest.setMiddlename("");
         }
         if (nickname == null) {
@@ -172,7 +170,7 @@ public class AccountController {
         if (bio == null) {
             userRequest.setBio("");
         }
-        if (pronouns == null){
+        if (pronouns == null) {
             userRequest.setPersonalPronouns("");
         }
 
@@ -185,8 +183,8 @@ public class AccountController {
                 // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
                 || nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)
                 || middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)
-                || pronouns != null && !pronouns.matches(pronounRegex)){
-            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+                || pronouns != null && !pronouns.matches(pronounRegex)) {
+            return new ResponseEntity<>("Field(s) not matching patterns", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -215,7 +213,7 @@ public class AccountController {
 
         }
 
-        if(middlename == null){
+        if (middlename == null) {
             userRequest.setMiddlename("");
         }
         if (nickname == null) {
@@ -224,7 +222,7 @@ public class AccountController {
         if (bio == null) {
             userRequest.setBio("");
         }
-        if (pronouns == null){
+        if (pronouns == null) {
             userRequest.setPersonalPronouns("");
         }
 
@@ -236,7 +234,7 @@ public class AccountController {
                 || nickname != null && !nickname.matches(alphaSpacesRegexCanBeEmpty)
                 || middlename != null && !middlename.matches(alphaSpacesRegexCanBeEmpty)
                 || pronouns != null && !pronouns.matches(pronounRegex)) {
-            return new ResponseEntity<>("Field(s) not matching patterns",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Field(s) not matching patterns", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -248,25 +246,25 @@ public class AccountController {
      * This also handle the logic for changing the account details
      *
      * @param authentication The authentication state
-     * @param editInfo The thymeleaf-created form object
+     * @param editInfo       The thymeleaf-created form object
      * @return a redirect to the main /edit endpoint
      */
     @PostMapping("/edit/details")
     public ResponseEntity<Object> editDetails(
             @AuthenticationPrincipal Authentication authentication,
-            @ModelAttribute(name="editDetailsForm") UserRequest editInfo
+            @ModelAttribute(name = "editDetailsForm") UserRequest editInfo
     ) {
         try {
             ResponseEntity<Object> checkUserRequest = checkUserRequestNoPasswordOrUser(editInfo); // Checks that the userRequest object passes all checks
             if (checkUserRequest.getStatusCode() != HttpStatus.ACCEPTED) {
-                logger.warn("Editing Failed: {}",checkUserRequest.getBody());
+                logger.warn("Editing Failed: {}", checkUserRequest.getBody());
                 return checkUserRequest;
             }
 
             EditUserRequest.Builder editRequest = EditUserRequest.newBuilder();
             AuthState principal = authentication.getAuthState();
             int userId = PrincipalAttributes.getIdFromPrincipal(principal);
-            logger.info(" POST REQUEST /edit/details - update account details for user {}",userId);
+            logger.info(" POST REQUEST /edit/details - update account details for user {}", userId);
 
             // Used to trim off leading and training spaces
             String firstname = editInfo.getFirstname().trim();
@@ -290,8 +288,8 @@ public class AccountController {
                 return new ResponseEntity<>(reply.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            return new ResponseEntity<>(reply.getMessage() ,HttpStatus.OK);
-        } catch (Exception err){
+            return new ResponseEntity<>(reply.getMessage(), HttpStatus.OK);
+        } catch (Exception err) {
             logger.error("/edit/details ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -305,13 +303,13 @@ public class AccountController {
      * Note: this injects an attribute called "passwordchangemessage" into the template it redirects to
      *
      * @param authentication The authentication state
-     * @param editInfo the thymeleaf-created form object
+     * @param editInfo       the thymeleaf-created form object
      * @return a redirect to the main /edit endpoint
      */
     @PostMapping("/edit/password")
     public ResponseEntity<Object> editPassword(
             @AuthenticationPrincipal Authentication authentication,
-            @ModelAttribute(name="editPasswordForm") PasswordRequest editInfo
+            @ModelAttribute(name = "editPasswordForm") PasswordRequest editInfo
     ) {
         try {
             int userId = PrincipalAttributes.getIdFromPrincipal(authentication.getAuthState());
@@ -320,22 +318,22 @@ public class AccountController {
 
             ChangePasswordResponse changePasswordResponse;
             if (editInfo.getNewPassword().equals(editInfo.getConfirmPassword())) {
-                logger.info("New password and confirm password match, requesting change password service ({})",userId);
+                logger.info("New password and confirm password match, requesting change password service ({})", userId);
                 //Create request
                 changePasswordRequest.setUserId(userId)
                         .setCurrentPassword(editInfo.getOldPassword())
                         .setNewPassword(editInfo.getNewPassword());
                 changePasswordResponse = userAccountsClientService.changeUserPassword(changePasswordRequest.build());
                 if (changePasswordResponse.getIsSuccess()) {
-                    logger.info("Password change success: {}",changePasswordResponse.getMessage());
+                    logger.info("Password change success: {}", changePasswordResponse.getMessage());
                 } else {
-                    logger.warn("Password change failed: {}",changePasswordResponse.getMessage());
+                    logger.warn("Password change failed: {}", changePasswordResponse.getMessage());
                     return new ResponseEntity<>(changePasswordResponse.getMessage(), HttpStatus.NOT_ACCEPTABLE);
                 }
 
 
             } else {
-                logger.info("Confirm password does not match new password. Cancelling password change for {}",userId);
+                logger.info("Confirm password does not match new password. Cancelling password change for {}", userId);
                 // Tell the user to confirm their passwords match
                 return new ResponseEntity<>("Confirm password does not match new password.", HttpStatus.NOT_ACCEPTABLE);
             }

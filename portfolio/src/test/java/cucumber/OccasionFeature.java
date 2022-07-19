@@ -68,7 +68,9 @@ public class OccasionFeature {
         }
 
         @Override
-        public Deadline getById(String s) {return null;}
+        public Deadline getById(String s) {
+            return null;
+        }
 
         @Override
         public boolean existsById(String s) {
@@ -142,7 +144,7 @@ public class OccasionFeature {
                 .setEmail("steve@example.com")
                 .setProfileImagePath("a");
         user.addRoles(UserRole.STUDENT);
-        if (isAuthenticated){
+        if (isAuthenticated) {
             user.addRoles(UserRole.TEACHER);
         }
         when(PrincipalAttributes.getUserFromPrincipal(principal, clientService)).thenReturn(user.build());
@@ -188,6 +190,7 @@ public class OccasionFeature {
         boolean deadlineExists = Boolean.parseBoolean(deadlineExistsString);
         assertEquals(deadlineExists, deadlineRepository.countDeadlineByProjectId(project.getId()) == 1);
     }
+
     @Then("The milestone exists: {string}")
     public void the_milestone_exists(String milestoneExistsString) {
         boolean deadlineExists = Boolean.parseBoolean(milestoneExistsString);

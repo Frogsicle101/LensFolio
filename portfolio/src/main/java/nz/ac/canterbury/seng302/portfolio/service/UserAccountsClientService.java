@@ -98,8 +98,9 @@ public class UserAccountsClientService {
      * This function is the server side of a bidirctional stream for sending the photos over gRPC. It calls a function
      * in UserAccountServerService which returns a StreamObserver, that is then used to send the file data.
      * <br>
-     * @param photo - A File object containing a photo
-     * @param userId - The id of the user
+     *
+     * @param photo    - A File object containing a photo
+     * @param userId   - The id of the user
      * @param fileType - The file extension of the photo
      * @throws IOException if reading the photo fails
      */
@@ -121,9 +122,9 @@ public class UserAccountsClientService {
 
         byte[] bytes = new byte[4096];
         int size;
-        while ((size = photo.read(bytes)) > 0){
+        while ((size = photo.read(bytes)) > 0) {
             UploadUserProfilePhotoRequest uploadRequest = UploadUserProfilePhotoRequest.newBuilder()
-                    .setFileContent(ByteString.copyFrom(bytes, 0 , size))
+                    .setFileContent(ByteString.copyFrom(bytes, 0, size))
                     .build();
             requestChunks.add(uploadRequest);
         }
@@ -136,7 +137,7 @@ public class UserAccountsClientService {
 
     }
 
-    public DeleteUserProfilePhotoResponse deleteUserProfilePhoto (DeleteUserProfilePhotoRequest request) {
+    public DeleteUserProfilePhotoResponse deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request) {
         return userAccountStub.deleteUserProfilePhoto(request);
     }
 

@@ -12,7 +12,7 @@ public interface ProjectRepository extends CrudRepository<Project, Long> {
 
     @Modifying
     @Query("update Project p set p.timeDeactivated = :timeDeactivated where p.id = :id")
-    void deactivateProject(@Param(value = "id") long id, @Param(value= "timeDeactivated") DateTime timeDeactivated);
+    void deactivateProject(@Param(value = "id") long id, @Param(value = "timeDeactivated") DateTime timeDeactivated);
 
     @Query
     Project getProjectById(Long projectId);

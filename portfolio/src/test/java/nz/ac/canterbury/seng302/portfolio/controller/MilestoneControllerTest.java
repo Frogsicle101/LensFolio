@@ -34,7 +34,8 @@ public class MilestoneControllerTest {
 
     private MilestoneController milestoneController = new MilestoneController(mockProjectRepository, mockMilestoneRepository);
 
-    private Project project =  new Project("test");;
+    private Project project = new Project("test");
+    ;
 
 
     @BeforeEach
@@ -103,9 +104,6 @@ public class MilestoneControllerTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         Assertions.assertEquals("Could not parse date(s)", response.getBody());
     }
-
-
-
 
 
     @Test
@@ -200,10 +198,6 @@ public class MilestoneControllerTest {
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
     }
-
-
-
-
 
 
 }

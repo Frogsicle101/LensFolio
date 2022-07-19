@@ -880,11 +880,6 @@ class AccountControllerTest {
     }
 
 
-
-
-
-
-
     @Test
     void testGetAccount() {
         ModelAndView modelAndView = accountController.account(principal);
@@ -903,7 +898,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testEditAccount(){
+    void testEditAccount() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -918,7 +913,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadNickname(){
+    void testEditAccountBadNickname() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -935,7 +930,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadMiddlename(){
+    void testEditAccountBadMiddlename() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -952,7 +947,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadPronouns(){
+    void testEditAccountBadPronouns() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -969,7 +964,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadRequest(){
+    void testEditAccountBadRequest() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -977,7 +972,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testEditAccountFailToChange(){
+    void testEditAccountFailToChange() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -993,7 +988,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testEditPassword(){
+    void testEditPassword() {
         PasswordRequest passwordRequest = new PasswordRequest();
         passwordRequest.setNewPassword("password");
         passwordRequest.setConfirmPassword("password");
@@ -1007,7 +1002,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditPasswordFailToChange(){
+    void testEditPasswordFailToChange() {
         PasswordRequest passwordRequest = new PasswordRequest();
         passwordRequest.setNewPassword("password");
         passwordRequest.setConfirmPassword("password");
@@ -1021,7 +1016,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditPasswordPasswordsDontMatch(){
+    void testEditPasswordPasswordsDontMatch() {
         PasswordRequest passwordRequest = new PasswordRequest();
         passwordRequest.setNewPassword("password");
         passwordRequest.setConfirmPassword("password2");
@@ -1037,7 +1032,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testDeleteProfileImg(){
+    void testDeleteProfileImg() {
 
         DeleteUserProfilePhotoResponse.Builder delete = DeleteUserProfilePhotoResponse.newBuilder();
         delete.setIsSuccess(true);
@@ -1046,8 +1041,6 @@ class AccountControllerTest {
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
     }
-
-
 
 
 }

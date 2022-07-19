@@ -44,10 +44,10 @@ public class MilestoneController {
      * Mapping for a put request to add a milestone.
      * The method first parses a date string that is passed as a request parameter.
      * The parser converts it to the standard LocalDate format.
-     *
+     * <p>
      * The project is then grabbed from the repository by its ID.
      * If the project can't be found, it throws an EntityNotFoundException
-     *
+     * <p>
      * The Milestone is then created with the parameters passed, and saved to the milestone repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -99,16 +99,16 @@ public class MilestoneController {
     /**
      * Mapping for a post request to edit a milestone.
      * The method first gets the milestone from the repository. If the milestone cannot be retrieved, it throws an EntityNotFound exception.
-     *
+     * <p>
      * The method then parses a date string that is passed as a request parameter.
      * The parser converts it to the standard LocalDateTime format.
-     *
+     * <p>
      * The Milestone is then edited with the parameters passed, and saved to the milestone repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
-     * @param milestoneId the ID of the milestone being edited.
-     * @param name the new name of the milestone.
-     * @param date the new date of the milestone.
+     * @param milestoneId    the ID of the milestone being edited.
+     * @param name           the new name of the milestone.
+     * @param date           the new date of the milestone.
      * @param typeOfOccasion the new type of the milestone.
      * @return A response indicating either success, or an error-code as to why it failed.
      */
@@ -134,11 +134,11 @@ public class MilestoneController {
             milestoneRepository.save(milestone);
 
             logger.info("PUT /editMilestone: Success");
-            return new ResponseEntity<>(milestone.getId(),HttpStatus.OK);
+            return new ResponseEntity<>(milestone.getId(), HttpStatus.OK);
         } catch (EntityNotFoundException err) {
             logger.warn("PUT /editMilestone: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch(DateTimeParseException err) {
+        } catch (DateTimeParseException err) {
             logger.warn("PUT /editMilestone: {}", err.getMessage());
             return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
         } catch (DateTimeException err) {
@@ -160,15 +160,15 @@ public class MilestoneController {
      */
     @GetMapping("/getMilestonesList")
     public ResponseEntity<Object> getMilestonesList(
-            @RequestParam(value="projectId") Long projectId
-    ){
+            @RequestParam(value = "projectId") Long projectId
+    ) {
         try {
             logger.info("GET /getMilestoneList");
             List<Milestone> milestoneList = milestoneRepository.findAllByProjectIdOrderByEndDate(projectId);
             milestoneList.sort(Comparator.comparing(Milestone::getEndDate));
             return new ResponseEntity<>(milestoneList, HttpStatus.OK);
-        } catch(Exception err){
-            logger.error("GET /getMilestoneList: {}", err.getMessage() );
+        } catch (Exception err) {
+            logger.error("GET /getMilestoneList: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -181,16 +181,16 @@ public class MilestoneController {
      */
     @GetMapping("/getMilestone")
     public ResponseEntity<Object> getMilestone(
-            @RequestParam(value="milestoneId") String milestoneId
-    ){
+            @RequestParam(value = "milestoneId") String milestoneId
+    ) {
         try {
             logger.info("GET /getMilestone");
             Milestone milestone = milestoneRepository.findById(milestoneId).orElseThrow();
             return new ResponseEntity<>(milestone, HttpStatus.OK);
-        } catch(NoSuchElementException err) {
+        } catch (NoSuchElementException err) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch(Exception err){
-            logger.error("GET /getMilestone: {}", err.getMessage() );
+        } catch (Exception err) {
+            logger.error("GET /getMilestone: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -206,7 +206,7 @@ public class MilestoneController {
     public ResponseEntity<Object> deleteMilestone(
             @RequestParam(value = "milestoneId") String milestoneId
     ) {
-        try{
+        try {
             logger.info("DELETE: /deleteMilestone");
             Milestone milestone = milestoneRepository.findById(milestoneId).orElseThrow(() -> new EntityNotFoundException(
                     "Milestone with id " + milestoneId + " was not found"
@@ -215,10 +215,10 @@ public class MilestoneController {
             logger.info("DELETE: /deleteMilestone: Success");
             return new ResponseEntity<>(HttpStatus.OK);
 
-        } catch(EntityNotFoundException err) {
+        } catch (EntityNotFoundException err) {
             logger.warn("DELETE: /deleteMilestone: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch(Exception err){
+        } catch (Exception err) {
             logger.error("DELETE: /deleteMilestone: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

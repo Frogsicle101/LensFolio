@@ -26,14 +26,20 @@ import java.util.Map;
 @Controller
 public class GroupsController {
 
-    /** For logging the requests related to groups */
+    /**
+     * For logging the requests related to groups
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** For making gRpc requests to the IdP. */
+    /**
+     * For making gRpc requests to the IdP.
+     */
     @Autowired
     private GroupsClientService groupsClientService;
 
-    /** For requesting user information form the IdP. */
+    /**
+     * For requesting user information form the IdP.
+     */
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
@@ -177,12 +183,12 @@ public class GroupsController {
      * @return ResponseEntity A response entity containing either Modified or BAD_REQUEST (for now).
      */
     @PostMapping("/groups/edit/details")
-    public ResponseEntity<String> modifyGroupDetails (@AuthenticationPrincipal Authentication principal,
-                                                      @RequestParam Integer groupId,
-                                                      @RequestParam String shortName,
-                                                      @RequestParam String longName) {
+    public ResponseEntity<String> modifyGroupDetails(@AuthenticationPrincipal Authentication principal,
+                                                     @RequestParam Integer groupId,
+                                                     @RequestParam String shortName,
+                                                     @RequestParam String longName) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
-        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}",groupId, userId);
+        logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}", groupId, userId);
         try {
             ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)

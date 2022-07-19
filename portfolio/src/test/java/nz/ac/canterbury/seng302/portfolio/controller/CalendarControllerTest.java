@@ -99,7 +99,6 @@ class CalendarControllerTest {
     }
 
 
-
     @Test
     void testGetProjectDetails() throws Exception {
         ResultActions result = this.mockMvc.perform(get("/getProjectDetails").param("projectId", "1"));
@@ -147,7 +146,7 @@ class CalendarControllerTest {
 
 
     @Test
-    void testGetProjectSprintsWithDatesWithBadDates(){
+    void testGetProjectSprintsWithDatesWithBadDates() {
         Project project = new Project("Testing");
         ResponseEntity<Object> returnValue = calendarController.getProjectSprintsWithDates(project.getId(), "cheese", "grommit");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, returnValue.getStatusCode());
@@ -155,7 +154,7 @@ class CalendarControllerTest {
     }
 
     @Test
-    void testGetProjectSprintsWithDatesThrowsException(){
+    void testGetProjectSprintsWithDatesThrowsException() {
         Project project = new Project("Testing");
         ZonedDateTime start = ZonedDateTime.now().minusMonths(1);
         ZonedDateTime end = ZonedDateTime.now().plusMonths(1);
@@ -167,7 +166,7 @@ class CalendarControllerTest {
     }
 
     @Test
-    void testGetProjectSprintsWithDatesInsideOfSprintDates(){
+    void testGetProjectSprintsWithDatesInsideOfSprintDates() {
         Project project = new Project("Testing");
         ZonedDateTime start = ZonedDateTime.now().minusDays(1);
         ZonedDateTime end = ZonedDateTime.now().plusDays(1);
@@ -215,11 +214,6 @@ class CalendarControllerTest {
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, returnValue.getStatusCode());
 
     }
-
-
-
-
-
 
 
 }
