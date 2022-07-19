@@ -63,18 +63,33 @@ $(document).on("click", ".group", function () {
  * When there are no users selected, the "Remove" button is hidden.
  */
 $(document).on("click", ".selectUserCheckboxGroups", function () {
+    // if checkbox is now selected (i.e., selected == true)
+    //     add the userid to the selectedUsersList
+    //     if the number of checked boxes is the same as the number of rows (i.e., all rows selected)
+    //         check the select All button
+    // else
+    //     remove the userid from the selectedUsersList
+    //     remove the selected class/prop from the selected box (if not done by default)
+    //     remove the selected class/prop from the selectAll button
+    // update the number selected using the selected users list
     let row = $(this).parent().parent();
     let userId = row.find(".userId")[0].innerHTML;
     let isSelected = row[0].querySelector("#selectUserCheckboxGroups").checked;
 
     if (isSelected) { // adds the selected user is to the list of selected users
         selectedUserIds.push(parseInt(userId));
+        $(this).closest("tr").addClass("selected")
     } else { // removes the user id from the list of selected users
+        $(this).closest("tr").removeClass("selected")
+        $("#selectAllCheckboxGroups").prop("checked", false);
         let indexOfId = selectedUserIds.indexOf(parseInt(userId));
         if (indexOfId > -1) {
             selectedUserIds.splice(indexOfId, 1);
         }
     }
+    console.log("individualClick")
+    console.log(selectedUserIds)
+    updateNumberSelectedDisplay(selectedUserIds.length)
 })
 
 
@@ -91,28 +106,48 @@ $(document).on("click", "#groupRemoveUser", function () {
  * Toggles the member selection for the current group. makes either all members selected, or all unselected.
  */
 $(document).on("click", "#selectAllCheckboxGroups", function () {
+    // if the box is now selected
+    //     foreach table row thats not the header
+    //         add the userId to the selectedUsersList
+    //         add the checked prop/class to all rows
+    //     add the selected class/prop from the select all box (if not done by default)
+    // else
+    //     empty the selected users list (i.e., set it to an empty list)
+    //     foreach table row thats not the header
+    //         remove the checked prop/class from all rows
+    //     remove the selected class/prop from the select all box (if not done by default)
+    // update the selected rows count using the selectedUserList length
     $(".selectUserCheckboxGroups").prop("checked", $("#selectAllCheckboxGroups").prop("checked"))
+    selectedUserIds = []
     if ($("#selectAllCheckboxGroups").prop("checked")) {
         $(".userId").each((id) => {
             selectedUserIds.push($(".userId")[id].innerHTML)
+            $(this).closest("tr").addClass("selected")
+        })
+    } else {
+        $(".userId").each((id) => {
+            $(this).closest("tr").remove("selected")
         })
     }
-
-    updateNumberSelectedDisplay($("input[type=checkbox]").length);
+    console.log("called")
+    console.log(selectedUserIds)
+    updateNumberSelectedDisplay(selectedUserIds.length);
 })
 
 
-/**
- * When a checkbox is toggled, the row is given the "selected" status, and the number of selected members is updated.
- */
-$(document).on("change","input[type=checkbox]", function() {
-    let tableRow = $(this).closest("tr")
-    if (!tableRow.hasClass("tableHeader")) {
-        $(this).closest("tr").toggleClass("selected")
-    }
-    updateNumberSelectedDisplay($(".selected").length)
-
-})
+// /**
+//  * When a checkbox is toggled, the row is given the "selected" status, and the number of selected members is updated.
+//  */
+// $(document).on("change","input[type=checkbox]", function() {
+//     let tableRow = $(this).closest("tr")
+//     if (!tableRow.hasClass("tableHeader")) {
+//         $(this).closest("tr").toggleClass("selected")
+//     }
+//     console.log("called but other")
+//     console.log(selectedUserIds)
+//
+//
+// })
 
 
 /**
@@ -144,6 +179,7 @@ $(document).on("click", ".deleteButton", function () {
  * @param value The number of users currently selected.
  */
 function updateNumberSelectedDisplay(value) {
+    console.log(value + " Selected")
     $(".numSelected").text(value + " Selected")
 }
 
