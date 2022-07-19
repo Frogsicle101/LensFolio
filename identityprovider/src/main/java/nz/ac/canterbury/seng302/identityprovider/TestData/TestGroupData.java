@@ -118,7 +118,7 @@ public class TestGroupData {
             groupRepository.save(teachingGroup);
         }
 
-        Optional<Group> optionalNonGroup = groupRepository.findByShortName("Teachers");
+        Optional<Group> optionalNonGroup = groupRepository.findByShortName("Non-Group");
         if (optionalNonGroup.isPresent()){
             Group nonGroupGroup = optionalNonGroup.get();
             nonGroupGroup.addGroupMembers(nonGroupUsers);
