@@ -109,6 +109,10 @@ function handleCreateEvent(notification) {
         case 'deadline' :
             addDeadline(occasionId)
             break
+        case "sprint" :
+            $(".sprintsContainer").empty()
+            getSprints()
+            break
         default :
             console.log("WARNING: un-supported occasion type received. Ignoring message")
             break
@@ -126,8 +130,24 @@ function handleUpdateEvent(notification) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
     console.log("Handle Update event: Reloading occasion of type: " + occasionType + " and ID: " + occasionId);
-
-    reloadElement(occasionId)
+    switch (occasionType) {
+        case 'event' :
+            reloadElement(occasionId)
+            break
+        case 'milestone' :
+            reloadElement(occasionId)
+            break
+        case 'deadline' :
+            reloadElement(occasionId)
+            break
+        case "sprint" :
+            $(".sprintsContainer").empty()
+            getSprints()
+            break
+        default :
+            console.log("WARNING: un-supported occasion type received. Ignoring message")
+            break
+    }
 }
 
 
@@ -154,6 +174,10 @@ function handleDeleteEvent(notification) {
         case "deadline":
             removeClass(`deadlineInSprint${occasionId}`);
             break;
+        case "sprint" :
+            $(".sprintsContainer").empty()
+            getSprints()
+            break
     }
 }
 

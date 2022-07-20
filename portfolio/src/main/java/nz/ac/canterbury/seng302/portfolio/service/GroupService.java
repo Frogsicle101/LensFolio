@@ -14,7 +14,7 @@ import java.util.List;
 public class GroupService {
 
     /** The ID of the default teacher group */
-    private final int TEACHER_GROUP_ID = 0;
+    private final int TEACHER_GROUP_ID = 1;
 
     /** Used to add / remove users from groups */
     private final GroupsClientService groupsClientService;

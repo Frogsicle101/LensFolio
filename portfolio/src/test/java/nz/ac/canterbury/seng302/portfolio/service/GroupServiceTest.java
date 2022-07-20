@@ -14,7 +14,7 @@ import static org.mockito.Mockito.*;
 
 class GroupServiceTest {
 
-    private final int TEACHER_GROUP_ID = 0;
+    private final int TEACHER_GROUP_ID = 1;
 
     private GroupService groupService;
     private final GroupsClientService groupsClientService = Mockito.mock(GroupsClientService.class);

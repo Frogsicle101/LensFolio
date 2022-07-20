@@ -38,7 +38,7 @@
                 <p class="numSelected">0 Selected</p>
                 <button class="btn btn-danger" id="groupRemoveUser">Remove User</button>
                 <div class="moveToDiv">
-                    <label for="newGroupSelector">Move to..</label>
+                    <label for="newGroupSelector">Copy to..</label>
                     <select id="newGroupSelector" class="form-select moveToSelect">
                         <option th:each="group : ${groups}" th:text="${group.shortName}" th:value="${group.getGroupId()}"></option>
                     </select>

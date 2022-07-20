@@ -19,13 +19,13 @@ $(document).ready(() => {
     $("#projectAddSprint").click(function () {
         $.ajax({
             url: "portfolio/addSprint?projectId=" + projectId,
-            success: function () {
+            success: function (response) {
 
                 $(".sprintsContainer").slideUp(400, function () {
                     $(".sprintsContainer").empty()
                     getSprints()
                 })
-
+                sendNotification("sprint", response.id, "create")
             },
             error: function (error) {
 
@@ -70,6 +70,9 @@ $(document).on("click", ".deleteSprint", function () {
         url: "deleteSprint",
         type: "DELETE",
         data: {"sprintId": sprintId},
+        success: function () {
+            sendNotification("sprint", sprintId, "delete")
+        },
     }).done(function () {
         location.href = "portfolio?projectId=" + projectId
     })
