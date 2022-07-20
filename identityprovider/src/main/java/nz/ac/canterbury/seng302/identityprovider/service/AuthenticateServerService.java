@@ -49,7 +49,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
         AuthenticateResponse.Builder reply = AuthenticateResponse.newBuilder();
 
         User foundUser = repository.findByUsername(request.getUsername());
-
+        logger.info("Found user to authenticate, database username = {}", foundUser.getUsername());
         LoginService service = new LoginService();
         LoginService.LoginStatus status = service.checkLogin(foundUser, request);
 

@@ -241,32 +241,70 @@ $(document).ready(function () {
 // -------------------------------------- Notification Source and listeners --------------------------------------------
 
 
-    /** The source of notifications used to provide updates to the user such as events being edited */
-    let eventSource = new EventSource("notifications");
+    /**
+     * Connects via websockets to the server, listening to all messages from /notifications/sending/occasions
+     * and designates handleNotification to run whenever we get a message
+     */
+    function connect() {
 
+        stompClient = new StompJs.Client();
+        stompClient.configure({
+            brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
+            reconnectDelay: 5000,
+            debug: function (str) {
+                console.log(str);
+            },
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+            onStompError: function (frame) {
+                console.log('Broker reported error: ' + frame.headers['message']);
+                console.log('Additional details: ' + frame.body);
+            },
+            connectionTimeout: 1000
+        });
+
+        stompClient.onConnect = (frame) => {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('notifications/sending/occasions', handleCalendarNotification);
+        }
+
+        stompClient.activate();
+    }
 
     /**
-     * This event listener listens for a notification that an element should be reloaded.
-     * This happens if another user has changed an element.
-     * It removes the class that shows the border and then calls ReloadEvent()
+     * Whenever we receive a message from the /notifications/sending/occasions, this function will run.
+     * This takes the notification, checks what type it is, then calls the relevant helper function
+     * to handle that notification.
+     *
+     * @param notification The notification to handle. (modeled by OutgoingNotification)
      */
-    eventSource.addEventListener("reloadElement", function (event) {
-        calendar.refetchEvents();
-    })
+    function handleCalendarNotification(notification) {
+        const content = JSON.parse(notification.body);
+        for (let message of content) {
+            const action = message.action;
 
+            switch (action) {
+                case 'create' :
+                    calendar.refetchEvents();
+                    break;
+                case 'update' :
+                    calendar.refetchEvents();
+                    break;
+                case 'delete' :
+                    calendar.refetchEvents();
+                    break;
+                case 'edit' :
+                    // Do nothing, we don't handle edit
+                    break;
+                case 'stop' :
+                    // Do nothing, we don't handle edit
+                    break;
+                default :
+                    // Do nothing, unknown message format
+                    break;
+            }
+        }
+    }
 
-    /**
-     * Listens for a notification to remove an element (happens if another client deletes an element)
-     */
-    eventSource.addEventListener("notifyRemoveEvent", function (event) {
-        calendar.refetchEvents();
-    })
-
-
-    /**
-     * Listens for a notification to add a new element that another client has created
-     */
-    eventSource.addEventListener("notifyNewElement", function (event) {
-        calendar.refetchEvents();
-    })
+    connect(); // Start the websocket connection
 })

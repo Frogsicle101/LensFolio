@@ -59,7 +59,7 @@ public class LoginController {
             @ModelAttribute(name = "loginForm") UserRequest userRequest,
             Model model
     ) {
-        logger.info("POST REQUEST /login - attempt to log in user");
+        logger.info("POST REQUEST /login - attempt to log in username: {}", userRequest.getUsername());
         AuthenticateResponse loginReply;
         //This try/catch block is the login attempt
         try {
@@ -98,6 +98,7 @@ public class LoginController {
         AuthenticateResponse authenticateResponse;
         //This try/catch block is the login attempt
         try {
+            logger.info("Sending authentication request for username {}", userRequest.getUsername());
             authenticateResponse = authenticateClientService.authenticate(userRequest.getUsername(), userRequest.getPassword());
         } catch (StatusRuntimeException e) {
             logger.error("Error connecting to Identity Provider");

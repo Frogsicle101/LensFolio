@@ -32,7 +32,7 @@ public class AuthenticateClientService {
      * @return authenticationResponse - the servers response to the authentication, following the AuthenticationResponse contract
      */
     public AuthenticateResponse authenticate(final String username, final String password) {
-        logger.info("SERVICE - send authentication request to server");
+        logger.info("SERVICE - send authentication request to server, {}", username);
         AuthenticateRequest authRequest = AuthenticateRequest.newBuilder()
                 .setUsername(username)
                 .setPassword(password)

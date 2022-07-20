@@ -8,6 +8,9 @@
 <body>
 <header th:insert="fragments/general.html :: header"></header>
 <section>
+    <div class="createGroupButtonDiv">
+        <a class="btn btn-primary" th:href="@{groupsCreate}">Create New Group</a>
+    </div>
     <div class="row">
         <div class="col groupsContainer">
             <div class="group" th:each="group : ${groups}">
@@ -30,12 +33,12 @@
                     </svg>
                 </button>
             </div>
-            <div id="groupDisplayOptions" class="hasTeacherOrAbove">
+            <div id="groupDisplayOptions" class="hasTeacherOrAbove" style="display: none">
                 <input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label>
                 <p class="numSelected">0 Selected</p>
                 <button class="btn btn-danger" id="groupRemoveUser">Remove User</button>
                 <div class="moveToDiv">
-                    <label for="newGroupSelector">Move to..</label>
+                    <label for="newGroupSelector">Copy to..</label>
                     <select id="newGroupSelector" class="form-select moveToSelect">
                         <option th:each="group : ${groups}" th:text="${group.shortName}" th:value="${group.getGroupId()}"></option>
                     </select>

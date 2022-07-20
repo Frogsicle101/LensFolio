@@ -31,13 +31,12 @@ public class TestGroupData {
 
     /**
      * Creates the two default groups, members without groups and teaching staff.
-     * Loops through a list that contains every user and filters them into either nonGroupUsers or Teachers.
      * Saves both the groups to the repository.
      */
     public void addDefaultGroups() {
         logger.info("Creating default groups");
-        Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
-        Group nonGroupGroup = new Group(1, "Non-Group", "Members Without A Group");
+        Group teachingGroup = new Group( "Teachers", "Teaching Staff");
+        Group nonGroupGroup = new Group( "Non-Group", "Members Without A Group");
 
         groupRepository.save(teachingGroup);
         groupRepository.save(nonGroupGroup);
@@ -72,13 +71,13 @@ public class TestGroupData {
      */
     public void addUsersToTestGroups() {
         ArrayList<User> groupThreeMembers = new ArrayList<>();
-        groupThreeMembers.add(userRepository.findById(1));
-        groupThreeMembers.add(userRepository.findById(2));
         groupThreeMembers.add(userRepository.findById(3));
+        groupThreeMembers.add(userRepository.findById(4));
+        groupThreeMembers.add(userRepository.findById(5));
 
         ArrayList<User> groupFourMembers = new ArrayList<>();
-        groupFourMembers.add(userRepository.findById(3));
-        groupFourMembers.add(userRepository.findById(4));
+        groupFourMembers.add(userRepository.findById(5));
+        groupFourMembers.add(userRepository.findById(6));
 
         Optional<Group> optionalGroup3 = groupRepository.findByShortName("Team 100");
         if (optionalGroup3.isPresent()){
@@ -99,6 +98,9 @@ public class TestGroupData {
         }
     }
 
+    /**
+     * Loops through a list that contains every user and filters them into either nonGroupUsers or Teachers.
+     */
     public void setInitialTeachersAndMWAGGroupMembers() {
         logger.info("Adding Teacher and Members without a group to default groups");
 

@@ -4,6 +4,8 @@ let selectedGroupId;
 let lastSelectedRow;
 let group;
 
+const TEACHER_GROUP_ID = 1
+
 // ******************************* Functions *******************************
 
 /**
@@ -11,7 +13,7 @@ let group;
  * @param show a boolean of if to show or hide
  */
 function showOptions(show) {
-    if (show) {
+    if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
         $("#groupDisplayOptions").slideDown()
     } else {
         $("#groupDisplayOptions").slideUp()
@@ -39,6 +41,7 @@ function checkToSeeIfHideOrShowOptions() {
  * @param groupId the id of the group to fetch
  */
 function displayGroupUsersList(groupId) {
+
 
     let membersContainer = $("#groupTableBody")
     $.ajax({
@@ -78,6 +81,7 @@ function displayGroupUsersList(groupId) {
                                                      </div>`)
         }
     })
+
 }
 
 
@@ -87,15 +91,16 @@ function displayGroupUsersList(groupId) {
 $(document).on("click", ".group", function () {
     $(".group").removeClass("focusOnGroup")
     let groupId = $(this).closest(".group").find(".groupId").text();
+    let groupShortname = $(this).closest(".group").find(".groupShortName").text();
     $("#selectAllCheckboxGroups").prop("checked", false);
     displayGroupUsersList(groupId);
 
     $(this).closest(".group").addClass("focusOnGroup")
 
-    if (parseInt(groupId) === 0) { // teacher group
+    if (groupShortname === "Teachers") { // teacher group
         $("#groupRemoveUser").show();
         $(".controlButtons").hide();
-    } else if (parseInt(groupId) === 1) { // non-group group
+    } else if (groupShortname === "Non-Group") { // non-group group
         $("#groupRemoveUser").hide();
         $(".controlButtons").hide();
     } else {
@@ -228,6 +233,7 @@ $(document).on("click", "#selectAllCheckboxGroups", function() {
  * Allows for using shift+click and ctrl+click functionality.
  */
 $(document).on("click", ".userRow", function() {
+
     if (!controlDown && !shiftDown) {
         $(".selected").each(function() {
             $(this).removeClass("selected")

@@ -1,6 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
+import nz.ac.canterbury.seng302.portfolio.service.GroupService;
+import nz.ac.canterbury.seng302.portfolio.DTO.GroupRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -12,10 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
@@ -37,6 +36,10 @@ public class GroupsController {
      */
     @Autowired
     private GroupsClientService groupsClientService;
+
+    /** For performing more complicated operations on groups */
+    @Autowired
+    private GroupService groupService;
 
     /**
      * For requesting user information form the IdP.
@@ -115,6 +118,27 @@ public class GroupsController {
 
 
     /**
+     * The get request to get the create group html
+     * @param principal - The user who made the request
+     * @return ModelAndView - the model and view of the group creation page
+     */
+    @GetMapping("/groupsCreate")
+    public ModelAndView getCreatePage(@AuthenticationPrincipal Authentication principal) {
+        try {
+            logger.info("GET REQUEST /groups/create - get group creation page");
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+
+            ModelAndView model = new ModelAndView("groupCreation");
+            model.addObject("user", user);
+            return model;
+        } catch (Exception err) {
+            logger.error("GET /groups/create: {}", err.getMessage());
+            return new ModelAndView("error");
+        }
+    }
+
+
+    /**
      * Restricted to teachers and course administrators, This endpoint deletes an existing group.
      *
      * @param principal The user who made the request.
@@ -146,21 +170,19 @@ public class GroupsController {
     /**
      * Restricted to teachers and course administrators, This endpoint creates a new group.
      *
-     * @param principal The user who made the request.
-     * @param shortName The short name of the group.
-     * @param longName  The full name of the group.
-     * @return ResponseEntity A response entity containing either CREATED or BAD_REQUEST (for now).
+     * @param principal - The user who made the request
+     * @param createInfo the group request that contains the short and long name
+     * @return ResponseEntity - a response entity containing either CREATED or BAD_REQUEST (for now)
      */
     @PostMapping("/groups/edit")
     public ResponseEntity<String> createGroup(@AuthenticationPrincipal Authentication principal,
-                                              @RequestParam String shortName,
-                                              @RequestParam String longName) {
+                                              @ModelAttribute(name="editDetailsForm") GroupRequest createInfo) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
-        logger.info("POST REQUEST /groups/edit - attempt to create group {} by user: {}", shortName, userId);
+        logger.info("POST REQUEST /groups/edit - attempt to create group {} by user: {}", createInfo.getShortName(), userId);
         try {
             CreateGroupRequest request = CreateGroupRequest.newBuilder()
-                    .setShortName(shortName)
-                    .setLongName(longName)
+                    .setShortName(createInfo.getShortName())
+                    .setLongName(createInfo.getLongName())
                     .build();
             CreateGroupResponse response = groupsClientService.createGroup(request);
             if (response.getIsSuccess()) {
@@ -224,11 +246,7 @@ public class GroupsController {
         logger.info("POST REQUEST /groups/addUsers");
 
         try {
-            AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder()
-                    .setGroupId(groupId)
-                    .addAllUserIds(userIds)
-                    .build();
-            AddGroupMembersResponse response = groupsClientService.addGroupMembers(request);
+            AddGroupMembersResponse response = groupService.addUsersToGroup(groupId, userIds);
             if (response.getIsSuccess()) {
                 return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
             }
@@ -256,11 +274,7 @@ public class GroupsController {
         logger.info("DELETE REQUEST /groups/removeUsers");
 
         try {
-            RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder()
-                    .setGroupId(groupId)
-                    .addAllUserIds(userIds)
-                    .build();
-            RemoveGroupMembersResponse response = groupsClientService.removeGroupMembers(request);
+            RemoveGroupMembersResponse response = groupService.removeUsersFromGroup(groupId, userIds);
             if (response.getIsSuccess()) {
                 return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
             }
