@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A utility class for more complex actions involving groups, abstracted to make it more testable
@@ -33,7 +34,7 @@ public class GroupService {
      * @param userIds The users to add to the group
      * @return A response message as defined in the protobuf
      */
-    public AddGroupMembersResponse addUsersToGroup(int groupId, ArrayList<Integer> userIds) {
+    public AddGroupMembersResponse addUsersToGroup(int groupId, List<Integer> userIds) {
         if (groupId == TEACHER_GROUP_ID) {
             for (Integer userId: userIds) {
                 ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
@@ -49,6 +50,7 @@ public class GroupService {
                 .build();
         return groupsClientService.addGroupMembers(request);
     }
+
 
     /**
      * Removes users from the given group, assigning roles as needed

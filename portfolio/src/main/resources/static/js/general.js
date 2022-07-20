@@ -30,6 +30,15 @@ function checkPrivilege() {
     return userRoles.includes('COURSE_ADMINISTRATOR') || userRoles.includes('TEACHER');
 }
 
+
+/**
+ * Returns true if the user has the Admin role
+ */
+function isAdmin() {
+    return userRoles.includes('COURSE_ADMINISTRATOR')
+}
+
+
 function removeElementIfNotAuthorized() {
     if (!checkPrivilege()) {
         $(".hasTeacherOrAbove").remove()
