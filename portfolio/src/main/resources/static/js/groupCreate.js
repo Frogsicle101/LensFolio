@@ -18,7 +18,7 @@ $(document).ready(() => {
         }
 
         $.ajax({
-            url: "edit",
+            url: "/groups/edit",
             type: "post",
             data: groupData,
             success: function () {

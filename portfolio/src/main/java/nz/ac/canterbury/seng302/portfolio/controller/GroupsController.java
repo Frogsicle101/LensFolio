@@ -117,7 +117,7 @@ public class GroupsController {
      * @param principal - The user who made the request
      * @return ModelAndView - the model and view of the group creation page
      */
-    @GetMapping("/groups/create")
+    @GetMapping("/groupsCreate")
     public ModelAndView getCreatePage(@AuthenticationPrincipal Authentication principal) {
         try {
             logger.info("GET REQUEST /groups/create - get group creation page");
