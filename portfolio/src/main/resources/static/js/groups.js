@@ -2,6 +2,7 @@ let controlDown = false;
 let shiftDown = false;
 let selectedGroupId;
 let lastSelectedRow;
+let group;
 
 // ******************************* Functions *******************************
 
@@ -48,6 +49,7 @@ function displayGroupUsersList(groupId) {
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
             selectedGroupId = response.id;
+            group = response;
             for (let member in response.userList) {
                 let imageSource;
                 if (response.userList[member].imagePath.length === 0) {
@@ -85,15 +87,16 @@ function displayGroupUsersList(groupId) {
 $(document).on("click", ".group", function () {
     $(".group").removeClass("focusOnGroup")
     let groupId = $(this).closest(".group").find(".groupId").text();
+    let groupShortname = $(this).closest(".group").find(".groupShortName").text();
     $("#selectAllCheckboxGroups").prop("checked", false);
     displayGroupUsersList(groupId);
 
     $(this).closest(".group").addClass("focusOnGroup")
 
-    if (parseInt(groupId) === 0) { // teacher group
+    if (groupShortname === "Teachers") { // teacher group
         $("#groupRemoveUser").show();
         $(".controlButtons").hide();
-    } else if (parseInt(groupId) === 1) { // non-group group
+    } else if (groupShortname === "Non-Group") { // non-group group
         $("#groupRemoveUser").hide();
         $(".controlButtons").hide();
     } else {
@@ -122,7 +125,7 @@ $(document).on("click", "#groupRemoveUser", function () {
 $(document).on("click", ".deleteButton", function () {
     if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
         $.ajax({
-            url: `/groups/edit?groupId=${group.id}`,
+            url: `groups/edit?groupId=${group.id}`,
             type: "delete",
             success: function () {
                 window.location.reload()

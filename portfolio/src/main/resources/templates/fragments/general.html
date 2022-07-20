@@ -32,11 +32,11 @@
           rel="stylesheet">
 
     <!--Style Sheet-->
-    <link rel="stylesheet" th:href="@{css/styles.css}">
+    <link rel="stylesheet" th:href="@{~/css/styles.css}">
 
     <!--Script files-->
-    <script th:src="@{js/header.js}" type="application/javascript"></script>
-    <script th:src="@{js/general.js}" type="application/javascript"></script>
+    <script th:src="@{~/js/header.js}" type="application/javascript"></script>
+    <script th:src="@{~/js/general.js}" type="application/javascript"></script>
 
     <!--WEBSOCKET SCRIPTS-->
     <script src="webjars/sockjs-client/sockjs.min.js"></script>
@@ -65,11 +65,11 @@
         </div>
         <div>
             <div class="dropdown-content" id="dropdownContent" style="display: none">
-                <a class="account" th:href="@{account}">Account</a>
-                <a class="portfolio" th:href="@{portfolio?projectId=1}">Portfolio</a>
-                <a th:href="@{calendar?projectId=1}">Calendar</a>
-                <a th:href="@{groups}">Groups</a>
-                <a th:href="@{user-list}">View Users</a>
+                <a class="account" th:href="@{~/account}">Account</a>
+                <a class="portfolio" th:href="@{~/portfolio?projectId=1}" >Portfolio</a>
+                <a th:href="@{~/calendar?projectId=1}">Calendar</a>
+                <a th:href="@{~/groups}">Groups</a>
+                <a th:href="@{~/user-list}">View Users</a>
                 <a class="logout" href="logout">Log Out</a><br>
             </div>
         </div>

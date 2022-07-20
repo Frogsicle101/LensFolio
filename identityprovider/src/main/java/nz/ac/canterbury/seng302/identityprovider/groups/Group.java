@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider.groups;
 
+import javax.persistence.*;
 import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
 import org.hibernate.annotations.Fetch;
@@ -18,6 +19,7 @@ public class Group {
 
     /** The unique ID of the Group. */
     @Id
+    @GeneratedValue
     private Integer id;
 
     /** A list of the users in the group. */
@@ -115,8 +117,8 @@ public class Group {
      *
      * @param user the user to be removed
      */
-    public void removeGroupMember(User user) {
-        userList.remove(user);
+    public boolean removeGroupMember(User user) {
+        return userList.remove(user);
     }
 
 

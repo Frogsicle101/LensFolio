@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lensfolio | Create Group</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
+</head>
+<body>
+<header th:insert="fragments/general.html :: header"> </header>
+<section class="createGroupBody">
+    <div class="createGroupDiv">
+        <form id="createGroupForm" th:action="@{groups/edit}" method="post">
+
+            <div th:insert="fragments/general.html :: errorBox"> </div>
+            <div th:insert="fragments/general.html :: successBox"> </div>
+            <div th:insert="fragments/general.html :: infoBox"> </div>
+
+            <h1>Create Group</h1>
+
+            <div>
+                <label for="shortName" class="form-label">Short Name</label>
+                <input type="text" class="form-control canDisable" name="shortName" id="shortName" maxlength="50" required/>
+                <small class="form-text text-muted countChar">0 characters remaining</small>
+            </div>
+            <div class="longNameDiv">
+                <label for="longName" class="form-label">Long Name</label>
+                <input type="text" class="form-control canDisable" name="longName" id="longName" maxlength="100" required/>
+                <small class="form-text text-muted countChar">0 characters remaining</small>
+            </div>
+            <div class="groupButtons">
+                <button type="submit" id="groupCreateButton" class="btn btn-primary">Create Group</button>
+                <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script type="application/javascript" th:src="@{~/js/groupCreate.js}"></script>
+</body>
+</html>
+
+
