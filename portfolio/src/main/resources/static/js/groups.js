@@ -2,6 +2,7 @@ let controlDown = false;
 let shiftDown = false;
 let selectedGroupId;
 let lastSelectedRow;
+let group;
 
 // ******************************* Functions *******************************
 
@@ -48,6 +49,7 @@ function displayGroupUsersList(groupId) {
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
             selectedGroupId = response.id;
+            group = response;
             for (let member in response.userList) {
                 let imageSource;
                 if (response.userList[member].imagePath.length === 0) {
@@ -122,7 +124,7 @@ $(document).on("click", "#groupRemoveUser", function () {
 $(document).on("click", ".deleteButton", function () {
     if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
         $.ajax({
-            url: `/groups/edit?groupId=${group.id}`,
+            url: `groups/edit?groupId=${group.id}`,
             type: "delete",
             success: function () {
                 window.location.reload()

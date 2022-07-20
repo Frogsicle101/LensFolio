@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.GeneratedValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -105,8 +106,11 @@ public class GroupService {
         try {
             List<User> usersToRemove = (List<User>) userRepository.findAllById(userIds);
             for (User user : usersToRemove) {
-                group.removeGroupMember(user);
-                checkIfUserInNoGroup(user);
+                int initialNumGroups = user.getGroups().size();
+                boolean removed = group.removeGroupMember(user);
+                if (initialNumGroups == 1 && removed) {
+                    addUserToMWAG(user);
+                }
             }
             logger.info("Successfully removed users from group {}", groupId);
             groupRepository.save(group);
@@ -168,6 +172,12 @@ public class GroupService {
         for (Group group: usersCurrentGroups){
             group.removeGroupMember(user);
         }
+    }
+
+
+    private void addUserToMWAG(User user) {
+        Group MwagGroup = getMWAG();
+        MwagGroup.addGroupMember(user);
     }
 
 

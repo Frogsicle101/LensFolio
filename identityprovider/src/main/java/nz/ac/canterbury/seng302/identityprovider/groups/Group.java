@@ -117,8 +117,8 @@ public class Group {
      *
      * @param user the user to be removed
      */
-    public void removeGroupMember(User user) {
-        userList.remove(user);
+    public boolean removeGroupMember(User user) {
+        return userList.remove(user);
     }
 
 
