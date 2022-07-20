@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -7,7 +8,6 @@ import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.ValidationError;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class GroupsControllerTest {
 
-    private AuthState principal;
+    private Authentication principal;
 
     @Autowired
     private MockMvc mockMvc;
@@ -64,7 +64,9 @@ class GroupsControllerTest {
         setUserToStudent();
         setUpContext();
 
-        mockMvc.perform(post("/groups/edit"))
+        mockMvc.perform(post("/groups/edit")
+                        .param("shortName", "short")
+                        .param("longName", "long"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -77,9 +79,9 @@ class GroupsControllerTest {
         String longName = "Test Name But Longer";
         CreateGroupRequest request = buildCreateRequest(shortName, longName);
         CreateGroupResponse response = CreateGroupResponse.newBuilder()
-                                                          .setIsSuccess(true)
-                                                          .setNewGroupId(3)
-                                                          .build();
+                .setIsSuccess(true)
+                .setNewGroupId(3)
+                .build();
         Mockito.when(groupsClientService.createGroup(request)).thenReturn(response);
 
         mockMvc.perform(post("/groups/edit")
@@ -87,7 +89,6 @@ class GroupsControllerTest {
                         .param("longName", longName))
                 .andExpect(status().isCreated());
     }
-
 
 
     @Test
@@ -265,7 +266,7 @@ class GroupsControllerTest {
         mockMvc.perform(post("/groups/addUsers")
                         .param("groupId", groupId)
                         .params(params))
-                        .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
 
@@ -340,29 +341,29 @@ class GroupsControllerTest {
 
 
     private void setUserToStudent() {
-        principal = AuthState.newBuilder()
+        principal = new Authentication(AuthState.newBuilder()
                 .setIsAuthenticated(true)
                 .setNameClaimType("name")
                 .setRoleClaimType("role")
                 .addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build())
                 .addClaims(ClaimDTO.newBuilder().setType("role").setValue("student").build())
-                .build();
+                .build());
     }
 
 
     private void setUserToTeacher() {
-        principal = AuthState.newBuilder()
+        principal = new Authentication(AuthState.newBuilder()
                 .setIsAuthenticated(true)
                 .setNameClaimType("name")
                 .setRoleClaimType("role")
                 .addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build())
                 .addClaims(ClaimDTO.newBuilder().setType("role").setValue("course_administrator").build())
-                .build();
+                .build());
     }
 
 
     private void setUpContext() {
-        Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal);
+        Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal.getAuthState());
 
         SecurityContext mockedSecurityContext = Mockito.mock(SecurityContext.class);
 

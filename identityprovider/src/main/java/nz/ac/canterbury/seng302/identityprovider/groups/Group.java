@@ -13,20 +13,20 @@ import java.util.List;
  * Object representation of a group of users.
  */
 @Entity
-@Table(name = "group_table") // had to add this, as I think Group can't be a table name in H2 as it's a reserved keyword?
+@Table(name = "group_table")
 public class Group {
 
     /** The unique ID of the Group. */
     @Id
     private Integer id;
 
-    /** The ID's of the group's members. */
+    /** A list of the users in the group. */
     @ManyToMany
     @Fetch(FetchMode.JOIN)
     @JoinTable(name = "group_members",
             joinColumns = @JoinColumn(name = "groupId"),
             inverseJoinColumns = @JoinColumn(name = "userId"))
-    private final List<User> userList = new ArrayList<>();
+    private List<User> userList = new ArrayList<>();
 
     /** The group's short name. */
     private String shortName;
@@ -40,11 +40,11 @@ public class Group {
 
 
     /**
-    * The default constructor for a group, which automatically generates a unique ID.
-    *
-    * @param shortName The group's short name.
-    * @param longName The group's long name.
-    */
+     * The default constructor for a group, which automatically generates a unique ID.
+     *
+     * @param shortName The group's short name.
+     * @param longName The group's long name.
+     */
     public Group (String shortName, String longName) {
         this.shortName = shortName;
         this.longName = longName;
@@ -54,11 +54,11 @@ public class Group {
     /**
      * The constructor for a group with a specified group ID.
      *
-     * @param id The ID of the group to be created.
+     * @param id        The ID of the group to be created.
      * @param shortName The short name of the group to be created.
-     * @param longName The long name of the group to be created.
+     * @param longName  The long name of the group to be created.
      */
-    public Group (Integer id, String shortName, String longName) {
+    public Group(Integer id, String shortName, String longName) {
         this.id = id;
         this.shortName = shortName;
         this.longName = longName;
@@ -75,7 +75,7 @@ public class Group {
     }
 
 
-    public Integer getMembersNumber(){return this.userList.size();}
+    public Integer getMembersNumber() { return this.userList.size(); }
 
 
     public String getShortName() {
@@ -99,21 +99,31 @@ public class Group {
 
 
     /**
-     * Removes users from a group
+     * Removes a list of users from a group.
      *
-     * @param users a list of the users to be removed
+     * @param users a list of the users to be removed.
      */
     public void removeGroupMembers(List<User> users) {
-        for (User user : users)  {
+        for (User user : users) {
             userList.remove(user);
         }
     }
 
 
     /**
-     * Adds a user to the group object if the user is not already present
+     * Removes a user from the group
      *
-     * @param users A list of the users to be added
+     * @param user the user to be removed
+     */
+    public void removeGroupMember(User user) {
+        userList.remove(user);
+    }
+
+
+    /**
+     * Adds users from a list to the group object. Each user is only added if the user is not already present.
+     *
+     * @param users A list of the users to be added.
      */
     public void addGroupMembers(List<User> users) {
         for (User user : users) {
@@ -125,9 +135,21 @@ public class Group {
 
 
     /**
-     * Converts this group to a GroupDetailsResponse
+     * Adds a user to the group if the user is not already present
      *
-     * @return GroupDetailsResponse - the GroupDetailsResponse equivalent of this group
+     * @param user The user to be added
+     */
+    public void addGroupMember(User user) {
+        if (!userList.contains(user)) {
+            userList.add(user);
+        }
+    }
+
+
+    /**
+     * Converts this group to a GroupDetailsResponse.
+     *
+     * @return GroupDetailsResponse - the GroupDetailsResponse equivalent of this group.
      */
     public GroupDetailsResponse groupDetailsResponse() {
         GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder()

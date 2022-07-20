@@ -8,10 +8,6 @@ public class EventRequest {
     private String eventEndDate;
 
 
-    public EventRequest() {
-        super();
-    }
-
     public EventRequest(Long projectId, String eventName, String eventStartDate, String eventEndDate) {
         super();
         this.projectId = projectId;

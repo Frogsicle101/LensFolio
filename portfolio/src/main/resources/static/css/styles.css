@@ -15,14 +15,12 @@ section {
     margin-top: 4rem;
 }
 
-.center{
+.center {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-
-
 
 
 /*Colours*/
@@ -142,18 +140,13 @@ section {
     border-radius: 100%;
 }
 
-.profilePicGroupsList {
-    max-width: 3rem;
-    height: auto;
-    border-radius: 100%;
-}
 
 #accountPageImage {
     height: 15rem;
 }
 
 .required:after {
-    content:"*";
+    content: "*";
     color: red;
 }
 
@@ -210,11 +203,6 @@ section {
 /*Portfolio Project*/
 
 
-
-
-
-
-
 /*Porfolio - Events*/
 
 .eventContainer {
@@ -265,17 +253,17 @@ section {
     right: 2.5rem;
 }
 
-.editButton:hover{
+.editButton:hover {
     color: var(--select-green);
 }
 
-.deleteButton{
+.deleteButton {
     position: absolute;
     top: 1rem;
     right: 1rem;
 }
 
-.deleteButton:hover{
+.deleteButton:hover {
     color: var(--select-red);
 }
 
@@ -289,7 +277,7 @@ section {
     padding: 1rem;
 }
 
-.addEventSvg, .addMilestoneSvg, .addDeadlineSvg{
+.addEventSvg, .addMilestoneSvg, .addDeadlineSvg {
     vertical-align: baseline;
     transition: transform 200ms;
 }
@@ -351,7 +339,7 @@ section {
 }
 
 
-.beingEdited{
+.beingEdited {
     border: solid 1px blue;
 }
 
@@ -469,17 +457,17 @@ section {
 
 /*User-list*/
 
-.listTable, .listTableFooter {
-    width: 70rem;
-}
-
 .listTableDiv {
     display: flex;
     width: 100%;
     flex-direction: column;
-    align-items: center;
+    padding: 1rem;
+    word-break: break-word;
 }
 
+.title {
+    align-self: center;
+}
 
 .listTableFooter {
     align-self: center;
@@ -494,13 +482,19 @@ section {
 .roleButtonsContainer {
     display: flex;
     flex-direction: row;
+    min-width: 25rem;
 }
 
 .tableStyled {
     border-collapse: collapse;
     font-size: 1rem;
     min-width: 60rem;
+    table-layout: fixed;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.tableHead {
+    width: 15%;
 }
 
 .tableStyled th, .tableStyled td {
@@ -531,14 +525,13 @@ section {
 }
 
 
-
 /*Calendar*/
 
-.calendar, .calendarDetails{
+.calendar, .calendarDetails {
     width: 60em;
 }
 
-.fc-event-title{
+.fc-event-title {
     display: none;
 }
 
@@ -569,7 +562,7 @@ section {
 }
 
 
-.calendarOccasion{
+.calendarOccasion {
     color: black;
 }
 
@@ -585,20 +578,19 @@ section {
     visibility: visible;
     width: 120px;
     background-color: black;
-    color:darkred;
+    color: darkred;
     text-align: center;
     padding: 5px 0;
     border-radius: 6px;
-    position:absolute;
+    position: absolute;
     white-space: pre-line;
 }
 
-.tooltip:hover .tooltiptext{
+.tooltip:hover .tooltiptext {
     visibility: visible;
     white-space: pre-line;
 
 }
-
 
 .hover-end {
     padding: 0;
@@ -611,12 +603,12 @@ section {
     opacity: .8
 }
 
-
 /*Groups*/
 .groupsContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: auto;
 }
 
 .group {
@@ -631,10 +623,9 @@ section {
     margin-left: 1rem;
 }
 
-.group:hover{
+.group:hover {
     cursor: pointer;
 }
-
 
 #groupInformationContainer {
     position: relative;
@@ -648,8 +639,7 @@ section {
     box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
 }
 
-
-.selected{
+.selected {
     background-color: var(--main-border-colour);
 }
 
@@ -661,24 +651,57 @@ section {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+    align-items: center;
 }
+
 #groupInformationLongName{
     margin-left: auto;
 }
 
-.groupLongName, #groupInformationLongName{
+.groupLongName, #groupInformationLongName {
     color: var(--secondary-text-colour-darker);
     font-weight: lighter;
 }
 
-.groupShortName, #groupInformationShortName{
+.groupShortName, #groupInformationShortName {
     color: var(--main-text-color);
 }
+
 .membersContainerTitle {
     text-align: center;
+}
+
+.profilePicGroupsList {
+    max-width: 3rem;
+    height: auto;
+    border-radius: 100%;
+}
+
+#confirmationForm {
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    align-content: center;
+}
+
+
+.moveToDiv{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#newGroupSelector{
+    margin: 1rem;
+}
+
+.userRow:hover{
+    cursor: pointer;
 }
 
 .tableRowGroups:hover {
     background-color: var(--main-border-colour);
     cursor: pointer;
 }
+

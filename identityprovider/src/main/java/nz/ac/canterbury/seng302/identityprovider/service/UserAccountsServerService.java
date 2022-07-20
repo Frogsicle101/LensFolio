@@ -14,12 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -43,19 +39,40 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** Name Comparator */
-    Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
+
+    /** First Name Comparator, has other name fields after to decide order if first names are the same*/
+    Comparator<User> compareByFirstName = Comparator.comparing((User user) ->
+            (user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
+
+    /** Middle Name Comparator, has other name fields after to decide order if middle names are the same */
+    Comparator<User> compareByMiddleName = Comparator.comparing((User user) ->
+            (user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
+
+    /** Last Name Comparator, has other name fields after to decide order if last names are the same */
+    Comparator<User> compareByLastName = Comparator.comparing((User user) ->
+            (user.getLastName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT)));
 
     /** Username Comparator */
-    Comparator<User> compareByUsername = Comparator.comparing(User::getUsername);
+    Comparator<User> compareByUsername = Comparator.comparing((User user) ->
+            (user.getUsername().toLowerCase(Locale.ROOT)));
 
-    /** alias Comparator */
-    Comparator<User> compareByAlias = Comparator.comparing(User::getNickname);
+    /** Alias Comparator, has name fields afterwards to decide order if the aliases are the same */
+    Comparator<User> compareByAlias = Comparator.comparing((User user) ->
+            (user.getNickname().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
 
-    /** role Comparator */
+    /** Role Comparator */
     Comparator<User> compareByRole = (userOne, userTwo) -> {
-        ArrayList<UserRole> userOneRoles = userOne.getRoles();
-        ArrayList<UserRole> userTwoRoles = userTwo.getRoles();
+        List<UserRole> userOneRoles = userOne.getRoles();
+        List<UserRole> userTwoRoles = userTwo.getRoles();
         Collections.sort(userOneRoles);
         Collections.sort(userTwoRoles);
         return userOneRoles.toString().compareTo(userTwoRoles.toString());
@@ -108,6 +125,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             if (repository.findByUsername(user.getUsername()) == null) {
                 logger.info("Registration Success - for new user " + request.getUsername());
                 repository.save(user);
+                groupService.addGroupMemberByGroupShortName("Non-Group",user.getId());
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())
                         .setMessage("Account has successfully been registered");
@@ -122,6 +140,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             reply.setMessage("An error occurred registering user from request");
             logger.error("An error occurred registering user from request: " + request + "\n see stack trace below \n");
             logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.info("An unexpected error occurred when trying to add the new user:\n" + e.getMessage());
+            reply.setIsSuccess(false)
+                    .setMessage("An Unexpected error occurred");
         }
 
         responseObserver.onNext(reply.build());
@@ -146,6 +168,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         EditUserResponse.Builder response = EditUserResponse.newBuilder();
         // Try to find user by ID
         User userToEdit = repository.findById(request.getUserId());
+
         if (userToEdit != null) {
             try {
                 logger.info("User Edit Success - updated user details for user " + request.getUserId());
@@ -287,18 +310,24 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
         User userToUpdate = repository.findById(request.getUserId());
         if (userToUpdate != null) {
-            if (!userToUpdate.getRoles().contains(request.getRole())) {
-                userToUpdate.addRole(request.getRole());
-                repository.save(userToUpdate);
-                if (request.getRole() == UserRole.TEACHER){
-                    groupService.addGroupMemberByGroupShortName("Teachers", userToUpdate.getId());
+            try {
+                if (!userToUpdate.getRoles().contains(request.getRole())) {
+                    userToUpdate.addRole(request.getRole());
+                    repository.save(userToUpdate);
+                    if (request.getRole() == UserRole.TEACHER) {
+                        groupService.addGroupMemberByGroupShortName("Teachers", userToUpdate.getId());
+                    }
+                    response.setIsSuccess(true)
+                            .setMessage(MessageFormat.format("Successfully added role {0} to user {1}",
+                                    request.getRole(), userToUpdate.getId()));
+                } else {
+                    response.setIsSuccess(false)
+                            .setMessage("User already has that role");
                 }
-                response.setIsSuccess(true)
-                        .setMessage(MessageFormat.format("Successfully added role {0} to user {1}",
-                                request.getRole(), userToUpdate.getId()));
-            } else {
+            } catch (Exception e){
+                logger.info("An unexpected error occurred when trying to add a role to user:\n" + e.getMessage());
                 response.setIsSuccess(false)
-                        .setMessage("User already has that role");
+                        .setMessage("An Unexpected error occurred");
             }
         } else {
             response.setIsSuccess(false)
@@ -338,7 +367,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 repository.save(userToUpdate);
                 logger.info("Role Removal Success - removed " + request.getRole()
                         + " from user " + request.getUserId());
-                if (request.getRole() == UserRole.TEACHER){
+                if (request.getRole().equals(UserRole.TEACHER)){
                     groupService.removeGroupMembersByGroupShortName("Teachers", userToUpdate.getId());
                 }
                 response.setIsSuccess(true)
@@ -350,6 +379,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                         + " has 1 role. Users cannot have 0 roles");
                 response.setIsSuccess(false)
                         .setMessage("The user can't have zero roles");
+            } catch (Exception e) {
+                logger.info(e.getMessage());
+                response.setIsSuccess(false)
+                        .setMessage("An Unexpected error occurred");
             }
         } else {
             //Here, we couldn't find the user, so we do not succeed.
@@ -376,27 +409,18 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
-            case "roles-increasing" -> allUsers.sort(compareByRole);
-            case "roles-decreasing" -> {
-                allUsers.sort(compareByRole);
-                Collections.reverse(allUsers);
-            }
-            case "username-increasing" -> allUsers.sort(compareByUsername);
-            case "username-decreasing" -> {
-                allUsers.sort(compareByUsername);
-                Collections.reverse(allUsers);
-            }
-            case "aliases-increasing" -> allUsers.sort(compareByAlias);
-            case "aliases-decreasing" -> {
-                allUsers.sort(compareByAlias);
-                Collections.reverse(allUsers);
-            }
-            case "name-decreasing" -> {
-                allUsers.sort(compareByName);
-                Collections.reverse(allUsers);
-            }
-            default -> allUsers.sort(compareByName);
+            case "roles" -> allUsers.sort(compareByRole);
+            case "username" -> allUsers.sort(compareByUsername);
+            case "aliases" -> allUsers.sort(compareByAlias);
+            case "middlename" -> allUsers.sort(compareByMiddleName);
+            case "lastname" -> allUsers.sort(compareByLastName);
+            default -> allUsers.sort(compareByFirstName);
         }
+
+        if (!request.getIsAscendingOrder()){
+            Collections.reverse(allUsers);
+        }
+
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
             reply.addUsers(allUsers.get(i).userResponse());

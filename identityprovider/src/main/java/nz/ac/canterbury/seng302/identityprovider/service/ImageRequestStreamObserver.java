@@ -11,12 +11,10 @@ import nz.ac.canterbury.seng302.shared.util.FileUploadStatus;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 
 /**
  * Defines the StreamObserver<UploadUserProfilePhotoRequest> implementation used by the UserAccountsServerService for

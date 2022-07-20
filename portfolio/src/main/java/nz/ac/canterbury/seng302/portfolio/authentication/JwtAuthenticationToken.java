@@ -11,7 +11,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     User principal;
     String token;
 
-    public JwtAuthenticationToken(String token, User principal, Collection<? extends GrantedAuthority> authorities ) {
+    public JwtAuthenticationToken(String token, User principal, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.token = token;
         this.principal = principal;
@@ -27,7 +27,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         return principal;
     }
 
-    public void setToken( String token ) {
+    public void setToken(String token) {
         this.token = token;
     }
 

@@ -24,7 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private AuthenticateClientService authenticateClientService;
 
     private AuthenticateClientService getAuthenticateClientService(HttpServletRequest request) {
-        if(authenticateClientService == null){
+        if (authenticateClientService == null) {
             ServletContext servletContext = request.getServletContext();
             WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
             authenticateClientService = webApplicationContext.getBean(AuthenticateClientService.class);
@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         PreAuthenticatedAuthenticationToken authentication = getAuthentication(req);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        if(!authentication.isAuthenticated()) {
+        if (!authentication.isAuthenticated()) {
             CookieUtil.clear(res, "lens-session-token");
         }
 
@@ -74,7 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // If we get here, then the IdP has returned 'some' auth state, so we configure our auth token with whatever
         // the IdP has said about the authentication status of the user that provided this token
-        authToken = new PreAuthenticatedAuthenticationToken(authState, lensSessionCookieJwtString);
+        authToken = new PreAuthenticatedAuthenticationToken(new Authentication(authState), lensSessionCookieJwtString);
         authToken.setAuthenticated(authState.getIsAuthenticated());
         return authToken;
     }
