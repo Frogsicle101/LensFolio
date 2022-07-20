@@ -65,6 +65,7 @@ $(document).ready(function () {
             type: "post",
             data: dataToSend,
             success: function () {
+                sendNotification("sprint", sprintId.val(), "update")
                 window.history.back();
             },
             error: function (error) {
@@ -75,4 +76,24 @@ $(document).ready(function () {
             }
         })
     })
+
+    //Websocket Connection
+    //Create, configure, and then activate the websocket connection.
+    stompClient = new StompJs.Client();
+    stompClient.configure({
+        brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
+        reconnectDelay: 5000,
+        debug: function (str) {
+            console.log(str);
+        },
+        heartbeatIncoming: 4000,
+        heartbeatOutgoing: 4000,
+        onStompError: function (frame) {
+            console.log('Broker reported error: ' + frame.headers['message']);
+            console.log('Additional details: ' + frame.body);
+        },
+        connectionTimeout: 1000
+    });
+    //We don't need to subscribe for anything on this page.
+    stompClient.activate();
 })
