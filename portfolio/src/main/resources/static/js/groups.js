@@ -202,7 +202,7 @@ $(document).on("click", "#moveUsersButton", function() {
         arrayOfIds.push($(this).attr("userId"))
     })
     $.ajax({
-        url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
+        url: `groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
         success: function() {
             displayGroupUsersList(selectedGroupId)
