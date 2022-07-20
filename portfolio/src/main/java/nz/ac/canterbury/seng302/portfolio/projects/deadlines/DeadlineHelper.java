@@ -15,15 +15,15 @@ public class DeadlineHelper {
 
         List<Deadline> deadlineList = deadlineRepository.findAllByProjectId(projectId);
         List<Sprint> sprintList = sprintRepository.findAllByProjectId(projectId);
-        for(Deadline deadline: deadlineList) {
-            for (Sprint sprint: sprintList) {
+        for (Deadline deadline : deadlineList) {
+            for (Sprint sprint : sprintList) {
                 LocalDate eEnd = LocalDate.from(deadline.getEndDate());
                 LocalDate sStart = sprint.getStartDate();
                 LocalDate sEnd = sprint.getEndDate();
-                if ((eEnd.isAfter(sStart) || eEnd.isEqual(sStart)) && (eEnd.isBefore(sEnd) || eEnd.isEqual(sEnd))){
+                if ((eEnd.isAfter(sStart) || eEnd.isEqual(sStart)) && (eEnd.isBefore(sEnd) || eEnd.isEqual(sEnd))) {
                     //Event end date is between or equal to sprint start and end dates.
                     deadline.setEndDateColour(sprint.getColour());
-                    if(!sprint.getDeadlineList().contains(deadline)) {
+                    if (!sprint.getDeadlineList().contains(deadline)) {
                         sprint.addDeadline(deadline);
                     }
                 }

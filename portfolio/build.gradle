@@ -5,6 +5,8 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'se.thinkcode.cucumber-runner' version '0.0.8'
     id 'java'
+    id 'jacoco'
+    id "org.sonarqube" version "3.3"
 }
 
 ext {
@@ -41,7 +43,7 @@ dependencies {
      */
     implementation 'org.webjars:webjars-locator-core'
     implementation 'org.webjars:sockjs-client:1.5.1'
-    implementation 'org.webjars:stomp-websocket:2.3.4'
+    implementation 'org.webjars.npm:stomp__stompjs:6.1.2'
 
 
     implementation 'net.devh:grpc-client-spring-boot-starter:2.13.1.RELEASE' // GRPC client dependencies
@@ -108,6 +110,7 @@ test {
     }
 
     systemProperties(project.gradle.startParameter.systemPropertiesArgs)
+    finalizedBy jacocoTestReport
 }
 
 
@@ -116,3 +119,32 @@ tasks.named('test') {
 
 
 }
+
+
+// Jacoco test coverage configuration
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+// select what reports Jacoco generates and where to put them
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        xml.destination file("${buildDir}/jacoco/test-report.xml")
+        csv.enabled false
+        html.destination file("${buildDir}/jacoco/html")
+    }
+}
+
+// Sonarqube specific configuration (task)
+sonarqube {
+    properties {
+        property "sonar.projectKey", "team-600-portfolio"
+        property "sonar.projectName", "team 600 - portfolio"
+        property "sonar.sourceEncoding", "UTF-8"
+        property "sonar.host.url", "https://sonarqube.csse.canterbury.ac.nz"
+        property "sonar.login", "75aa849c70fb6805df04e63e7f42b1b93e9207cb"
+    }
+}
+
+

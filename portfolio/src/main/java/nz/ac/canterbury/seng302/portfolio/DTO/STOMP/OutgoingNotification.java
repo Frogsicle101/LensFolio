@@ -5,30 +5,40 @@ package nz.ac.canterbury.seng302.portfolio.DTO.STOMP;
  */
 public class OutgoingNotification {
 
-    /** The ID of the person making the edit */
+    /**
+     * The ID of the person making the edit
+     */
     private final String editorId;
 
-    /** The name of the editor (firstname lastname) */
+    /**
+     * The name of the editor (firstname lastname)
+     */
     private final String editorName;
 
-    /** The subtype of occasion. One of 'event', 'milestone', or 'deadline' */
+    /**
+     * The subtype of occasion. One of 'event', 'milestone', or 'deadline'
+     */
     private final String occasionType;
 
-    /** The ID of the edited occasion */
+    /**
+     * The ID of the edited occasion
+     */
     private final String occasionId;
 
-    /** The type of message */
+    /**
+     * The type of message
+     */
     private final String action;
 
 
     /**
      * Constructor for OutgoingNotifications
      *
-     * @param editorId The id of the user making changes
-     * @param editorName The name of the user making changes
+     * @param editorId     The id of the user making changes
+     * @param editorName   The name of the user making changes
      * @param occasionType The type of occasion we are editing
-     * @param occasionId The ID of that occasion
-     * @param action The action that has been performed. One of create, delete, edit, or stop.
+     * @param occasionId   The ID of that occasion
+     * @param action       The action that has been performed. One of create, delete, edit, or stop.
      */
     public OutgoingNotification(String editorId, String editorName, String occasionType, String occasionId, String action) {
         this.editorId = editorId;

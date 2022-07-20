@@ -29,8 +29,9 @@ class GroupServiceTest {
         groupService = new GroupService(groupRepository, userRepository);
     }
 
+
     @Test
-    void testAddUser() {
+    void testAddUser() throws Exception {
         User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
         User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
         List<User> userList = new ArrayList<>();
@@ -52,8 +53,9 @@ class GroupServiceTest {
         assertEquals(userList, group.getUserList());
     }
 
+
     @Test
-    void testAddAlreadyPresentUser() {
+    void testAddAlreadyPresentUser() throws Exception {
         User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
         User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
         List<User> userList = new ArrayList<>();
@@ -75,18 +77,20 @@ class GroupServiceTest {
         assertEquals(userList, group.getUserList());
     }
 
+
     @Test
-    void testDeleteUser() {
+    void testDeleteUser() throws Exception {
         User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
         User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
         List<User> userList = new ArrayList<>();
         userList.add(user);
         userList.add(user2);
 
-
         Group group = new Group(1, "Short", "Long");
+        Group MwagGroup = new Group(2, "Non-Group", "Members Without A Group");
         ReflectionTestUtils.setField(group, "userList", new ArrayList<>());
         when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        when(groupRepository.findByShortName(MwagGroup.getShortName())).thenReturn(Optional.of(MwagGroup));
         when(userRepository.findAllById(Mockito.any())).thenReturn(userList);
         ArrayList<Integer> userIds = new ArrayList<>();
         userIds.add(1);
@@ -100,4 +104,71 @@ class GroupServiceTest {
     }
 
 
+    @Test
+    void testRemoveUserFromLastGroup() throws Exception {
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        List<User> userList = new ArrayList<>();
+        userList.add(user);
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+
+        Group group = new Group(1, "Short", "Long");
+        group.addGroupMember(user);
+        Group MwagGroup = new Group(2, "Non-Group", "Members Without A Group");
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        when(groupRepository.findByShortName(MwagGroup.getShortName())).thenReturn(Optional.of(MwagGroup));
+        when(userRepository.findAllById(Mockito.any())).thenReturn(userList);
+
+        groupService.removeGroupMembers(group.getId(), userIds);
+
+        assertEquals(0, group.getMembersNumber());
+    }
+
+
+    @Test
+    void testAddUserToNewGroupRemovedFromMwag() throws Exception {
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        List<User> userList = new ArrayList<>();
+        userList.add(user);
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+
+        Group group = new Group(1, "Short", "Long");
+        Group MwagGroup = new Group(2, "Non-Group", "Members Without A Group");
+        MwagGroup.addGroupMember(user);
+        user.getGroups().add(MwagGroup);
+
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        when(groupRepository.findByShortName(MwagGroup.getShortName())).thenReturn(Optional.of(MwagGroup));
+        when(userRepository.findAllById(Mockito.any())).thenReturn(userList);
+
+        groupService.addGroupMembers(group.getId(), userIds);
+
+        assertEquals(0, MwagGroup.getMembersNumber());
+        assertEquals(userList, group.getUserList());
+    }
+
+    @Test
+    void testUserAddedToMwagRemovedFromOtherGroups() throws Exception {
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        List<User> userList = new ArrayList<>();
+        userList.add(user);
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+
+        Group group = new Group(1, "Short", "Long");
+        Group MwagGroup = new Group(2, "Non-Group", "Members Without A Group");
+        user.getGroups().add(group);
+        group.addGroupMember(user);
+
+        when(groupRepository.findById(group.getId())).thenReturn(Optional.of(group));
+        when(groupRepository.findById(MwagGroup.getId())).thenReturn(Optional.of(MwagGroup));
+        when(groupRepository.findByShortName(MwagGroup.getShortName())).thenReturn(Optional.of(MwagGroup));
+        when(userRepository.findAllById(Mockito.any())).thenReturn(userList);
+
+        groupService.addGroupMembers(MwagGroup.getId(), userIds);
+
+        assertEquals(0, group.getMembersNumber());
+        assertEquals(userList, MwagGroup.getUserList());
+    }
 }

@@ -5,7 +5,7 @@ package nz.ac.canterbury.seng302.portfolio.authentication;
  *
  * @author Sam Clark
  */
-public class AuthenticationException extends  Exception{
+public class AuthenticationException extends Exception {
 
     /**
      * Authenticate exception to be thrown when an error occurs attempting to Authenticate (ie ipd connection errors)

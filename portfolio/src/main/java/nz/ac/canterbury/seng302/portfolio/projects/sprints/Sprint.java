@@ -1,13 +1,18 @@
 package nz.ac.canterbury.seng302.portfolio.projects.sprints;
+
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 
@@ -68,6 +73,9 @@ public class Sprint {
         this.endDate = (startDate).plusWeeks(3);
         this.description = "No description";
         this.colour = "#f554f5";
+        Random random = new Random();
+        int nextInt = random.nextInt(0xffffff + 1);
+        this.colour = String.format("#%06x", nextInt);
     }
 
 
@@ -79,16 +87,22 @@ public class Sprint {
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = "No description";
-        this.colour = "#f554f5";
+        Random random = new Random();
+        int nextInt = random.nextInt(0xffffff + 1);
+        this.colour = String.format("#%06x", nextInt);
     }
 
     public void addEvent(Event event) {
         eventList.add(event);
     }
 
-    public void addDeadline(Deadline deadline) { deadlineList.add(deadline); }
+    public void addDeadline(Deadline deadline) {
+        deadlineList.add(deadline);
+    }
 
-    public void addMilestone(Milestone milestone) { milestoneList.add(milestone); }
+    public void addMilestone(Milestone milestone) {
+        milestoneList.add(milestone);
+    }
 
     public List<Event> getEventList() {
         return eventList;
@@ -98,13 +112,21 @@ public class Sprint {
         this.eventList = eventList;
     }
 
-    public List<Deadline> getDeadlineList() { return deadlineList; }
+    public List<Deadline> getDeadlineList() {
+        return deadlineList;
+    }
 
-    public void setDeadlineList(List<Deadline> deadlineList) { this.deadlineList = deadlineList; }
+    public void setDeadlineList(List<Deadline> deadlineList) {
+        this.deadlineList = deadlineList;
+    }
 
-    public List<Milestone> getMilestoneList() { return milestoneList; }
+    public List<Milestone> getMilestoneList() {
+        return milestoneList;
+    }
 
-    public void setMilestoneList(List<Milestone> milestoneList) { this.milestoneList = milestoneList; }
+    public void setMilestoneList(List<Milestone> milestoneList) {
+        this.milestoneList = milestoneList;
+    }
 
 
     public LocalDate getStartDate() {

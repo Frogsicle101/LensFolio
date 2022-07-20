@@ -10,14 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -27,15 +25,22 @@ import java.util.List;
 @Component
 public class SocketCloseListener implements ApplicationListener<SessionDisconnectEvent> {
 
-    /** Provides methods for sending STOMP messages */
+    /**
+     * Provides methods for sending STOMP messages
+     */
     @Autowired
     private SimpMessagingTemplate template;
 
-    /** For logging when disconnection events occur */
+    /**
+     * For logging when disconnection events occur
+     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** Notification service which provides the logic for sending notifications to subscribed users */
+    /**
+     * Notification service which provides the logic for sending notifications to subscribed users
+     */
     private final static NotificationService notificationService = NotificationUtil.getNotificationService();
+
 
     /**
      * Spring publishes a SessionDisconnectEvent when a websocket goes down. This method listens for that event and
@@ -62,6 +67,7 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
     /**
      * Helper method that removes all active notifications with the editor id given
      * and then informs the listeners subscribed to the notifications/sending/occasions endpoint
+     *
      * @param editorId The id of the person disconnected
      */
     private void removeAndInform(String editorId) {
@@ -70,7 +76,7 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
         List<OutgoingNotification> removedNotifications = notificationService.removeAllOutgoingNotificationByEditorId(editorId);
         ArrayList<OutgoingNotification> stopNotifications = new ArrayList<>();
         for (OutgoingNotification notification : removedNotifications) {
-            stopNotifications.add( new OutgoingNotification(
+            stopNotifications.add(new OutgoingNotification(
                     editorId,
                     notification.getEditorName(),
                     notification.getOccasionType(),

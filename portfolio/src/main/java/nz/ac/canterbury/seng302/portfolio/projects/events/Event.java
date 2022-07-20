@@ -7,12 +7,10 @@ import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAccessor;
 
 /**
  * Represents an Event entity.
@@ -32,13 +30,13 @@ public class Event extends Deadline {
     /**
      * Constructs an instance of the event object.
      *
-     * @param project The project in which the event occurs.
-     * @param name The name of the event.
+     * @param project   The project in which the event occurs.
+     * @param name      The name of the event.
      * @param startDate The start date and time of the event
-     * @param endDate The end date of the event.
-     * @param endTime The end time of the event.
-     * @param type The type of the event.
-     * @throws DateTimeException If the event's date does not occur between the project's start and end dates.
+     * @param endDate   The end date of the event.
+     * @param endTime   The end time of the event.
+     * @param type      The type of the event.
+     * @throws DateTimeException    If the event's date does not occur between the project's start and end dates.
      * @throws InvalidNameException If the event's name is null or has length greater than fifty characters.
      */
     public Event(Project project, String name, LocalDateTime startDate, LocalDate endDate, LocalTime endTime, int type) throws DateTimeException, InvalidNameException {
@@ -46,9 +44,13 @@ public class Event extends Deadline {
         this.startDate = startDate;
     }
 
-    public String getStartDateFormatted() { return getStartDate().format(DateTimeFormat.timeDateMonthYear()); }
+    public String getStartDateFormatted() {
+        return getStartDate().format(DateTimeFormat.timeDateMonthYear());
+    }
 
-    public LocalDateTime getStartDate() { return startDate; }
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
 
     public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;

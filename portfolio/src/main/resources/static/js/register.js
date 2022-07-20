@@ -1,6 +1,3 @@
-
-
-
 $(document).ready(() => {
     let username = $("#username")
     let password = $("#password")
@@ -15,7 +12,7 @@ $(document).ready(() => {
     let errorMessage = $(".errorMessage")
 
 
-    $("#registerForm").submit(function(event) {
+    $("#registerForm").submit(function (event) {
         event.preventDefault();
         let registerData = {
             "username": username.val(),
@@ -33,10 +30,10 @@ $(document).ready(() => {
             url: "register",
             type: "post",
             data: registerData,
-            success: function(){
+            success: function () {
                 location.href = "account"
             },
-            error: function(error){
+            error: function (error) {
                 errorMessage.text(error.responseText)
                 errorMessageParent.slideUp()
                 errorMessageParent.slideDown()
