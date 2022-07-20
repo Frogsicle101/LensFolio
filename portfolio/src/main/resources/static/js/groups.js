@@ -3,7 +3,6 @@ let shiftDown = false;
 let selectedGroupId;
 let lastSelectedRow;
 
-
 // ******************************* Functions *******************************
 
 /**
@@ -33,13 +32,13 @@ function checkToSeeIfHideOrShowOptions() {
 }
 
 
-
 /**
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
  * @param groupId the id of the group to fetch
  */
 function displayGroupUsersList(groupId) {
+
     let membersContainer = $("#groupTableBody")
     $.ajax({
         url: `group?groupId=${groupId}`,
@@ -68,6 +67,7 @@ function displayGroupUsersList(groupId) {
                 </tr>`
                 )}
             $("#groupInformationContainer").slideDown()
+            checkToSeeIfHideOrShowOptions()
         },
         error: (error) => {
             $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -76,7 +76,6 @@ function displayGroupUsersList(groupId) {
                                                      </div>`)
         }
     })
-
 }
 
 
@@ -104,38 +103,7 @@ $(document).on("click", ".group", function () {
 
     $("#confirmationForm").slideUp();
     $(this).closest(".group").addClass("focusOnGroup");
-    updateNumberSelectedDisplay()
 })
-
-
-// /**
-//  * On the checkbox selection of a user, the user's ID is added to the list of selected users.
-//  * When there are no users selected, the "select all" checkbox is unchecked. When all users in the group are selected,
-//  * the "select all" checkbox is selected by default.
-//  * Then, calls a method to update the displayed number of selected users.
-//  */
-// $(document).on("click", ".selectUserCheckboxGroups", function () {
-//     let thisRow = $(this).parent().parent();
-//     let userId = parseInt(thisRow.find(".userId")[0].innerHTML);
-//     let isSelected = thisRow[0].querySelector("#selectUserCheckboxGroups").checked;
-//
-//     if (isSelected && selectedUserIds.indexOf(userId) === -1) {
-//         selectedUserIds.push(userId);
-//         let numRows = thisRow.parent()[0].rows.length
-//         if (selectedUserIds.length === numRows) {
-//             $("#selectAllCheckboxGroups").prop("checked", true);
-//         }
-//
-//     } else { // removes the user id from the list of selected users
-//         let indexOfId = selectedUserIds.indexOf(userId);
-//         if (indexOfId > -1) {
-//             selectedUserIds.splice(indexOfId, 1);
-//         }
-//         $("#selectAllCheckboxGroups").prop("checked", false);
-//     }
-//
-//     updateNumberSelectedDisplay();
-// })
 
 
 /**
@@ -145,33 +113,6 @@ $(document).on("click", "#groupRemoveUser", function () {
     document.getElementById("confirmationForm").style.visibility = "visible"
     $("#confirmationForm").slideDown();
 })
-
-//
-// /**
-//  * Toggles the member selection for the current group. Makes either all members selected, or all unselected, then calls
-//  * a method to update the displayed number of selected users.
-//  */
-// $(document).on("click", "#selectAllCheckboxGroups", function () {
-//     let table = $("#groupTableBody tr")
-//     if ($("#selectAllCheckboxGroups").prop("checked")) { // if all are selected
-//         table.each((i) => {
-//             let userId = parseInt(table[i].getElementsByTagName("td")[0].innerHTML);
-//
-//             if (selectedUserIds.indexOf(userId) === -1) {
-//                 selectedUserIds.push(userId)
-//                 table[i].getElementsByTagName("th")[0].firstChild.checked = true // sets checkbox to checked
-//             }
-//         })
-//
-//     } else { // if all are unselected
-//         selectedUserIds = []
-//         table.each((i) => {
-//             table[i].getElementsByTagName("th")[0].firstChild.checked = false // sets checkbox to unchecked
-//         })
-//     }
-//
-//     updateNumberSelectedDisplay();
-// })
 
 
 /**
@@ -198,28 +139,20 @@ $(document).on("click", ".deleteButton", function () {
 })
 
 
-/**
- * Updates the display showing the number of users currently selected in the group.
- *
- * @param value The number of users currently selected.
- */
-function updateNumberSelectedDisplay() {
-    $(".numSelected").text(selectedUserIds.length + " Selected")
-}
-
 
 /**
  * When member removal is confirmed, a request is made to remove the selected users from the group.
  */
 $(document).on("click", "#confirmRemoval", function () {
-    let group = document.getElementsByClassName("focusOnGroup").item(0);
-    let groupId = group.getElementsByClassName("groupId").item(0).innerHTML;
-
+    let arrayOfIds = [];
+    $(".selected").each(function() {
+        arrayOfIds.push($(this).attr("userId"))
+    })
     $.ajax({
-        url: `groups/removeUsers?groupId=${groupId}&userIds=${selectedUserIds}`,
+        url: `groups/removeUsers?groupId=${selectedGroupId}&userIds=${arrayOfIds}`,
         type: "DELETE",
         success: () => {
-            displayGroupUsersList(groupId)
+            displayGroupUsersList(selectedGroupId)
         },
         error: (error) => {
             console.log(error);
@@ -237,79 +170,6 @@ $(document).on("click", "#cancelRemoval", function () {
 })
 
 
-/**
- * Appends each member's ID, name, username, and profile image to the members container.
- *
- * @param response The list of users to be appended to the members container.
- * @param membersContainer The container which displays the members of each group.
- */
-function appendMembersToList(response, membersContainer) {
-    for (let member in response.userList) {
-        let imageSource;
-        if (response.userList[member].imagePath.length === 0) {
-            imageSource = "defaultProfile.png"
-        } else {
-            imageSource = response.userList[member].imagePath;
-        }
-        let userRow;
-
-        if (checkPrivilege()) {
-            userRow = `<tr class="tableRowGroups">
-                    <th scope="row"><input id="selectUserCheckboxGroups" class="selectUserCheckboxGroups" type="checkbox"/></th>
-                    <td class="userId">${response.userList[member].id}</td>
-                    <td>
-                        <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
-                    </td>
-                    <td>${response.userList[member].firstName}</td>
-                    <td>${response.userList[member].lastName}</td>
-                    <td>${response.userList[member].username}</td>
-                </tr>`
-        } else {
-            userRow = `<tr class="tableRowGroups">
-                    <td class="userId">${response.userList[member].id}</td>
-                    <td>
-                        <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
-                    </td>
-                    <td>${response.userList[member].firstName}</td>
-                    <td>${response.userList[member].lastName}</td>
-                    <td>${response.userList[member].username}</td>
-                </tr>`
-        }
-        membersContainer.append(userRow)
-    }
-}
-
-
-/**
- * Retrieves and displays info for each member of the group with the given ID, by appending a row for each user to the
- * table of group members.
- *
- * @param groupId The ID of the group for which users are being displayed.
- */
-function displayGroupUsersList(groupId) {
-    let membersContainer = $("#groupTableBody")
-
-    $.ajax({
-        url: `group?groupId=${groupId}`,
-        type: "GET",
-        success: (response) => {
-            $("#groupTableBody").empty();
-            $("#groupInformationShortName").text(response.shortName);
-            $("#groupInformationLongName").text(response.longName);
-            group = response
-            appendMembersToList(response, membersContainer)
-        },
-        error: (error) => {
-            $("#groupInformationContainer").append(
-                `<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                 ${error.responseText}
-                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                 </div>`
-            )
-        }
-    })
-    $("#groupInformationContainer").slideDown()
-}
 
 
 
@@ -338,7 +198,7 @@ $(document).on("click", "#moveUsersButton", function() {
         url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
         success: function() {
-            window.location.reload()
+            displayGroupUsersList(selectedGroupId)
         },
         error: function(response) {
             console.log(response)
