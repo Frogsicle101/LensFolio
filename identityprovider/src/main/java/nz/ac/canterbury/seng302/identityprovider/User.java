@@ -213,18 +213,6 @@ public class User {
     }
 
 
-    public void setRoles(ArrayList<UserRole> roles) {
-        for (UserRole role : roles) {
-            addRole(role);
-        }
-        for (UserRole role : getRoles()) {
-            if (!roles.contains(role)) {
-                deleteRole(role);
-            }
-        }
-    }
-
-
     public void addRole(UserRole role) {
         if (! roles.contains(role)) {
             roles.add(role);
@@ -285,8 +273,7 @@ public class User {
                 .setProfileImagePath(UrlUtil.getUrlService().getProfileURL(this).toString());
 
         // To add all the users roles to the response
-        List<UserRole> roles = this.getRoles();
-        for (UserRole role : roles) {
+        for (UserRole role : this.getRoles()) {
             response.addRoles(role);
         }
 

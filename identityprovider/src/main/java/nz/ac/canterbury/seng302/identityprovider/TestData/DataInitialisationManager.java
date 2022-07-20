@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 public class DataInitialisationManager {
 
     /** Turn on (true) to create the default admin account */
-    private final boolean includeAdminAccount = true;
+    private static final boolean includeAdminAccount = true;
 
     /** Turn on (true) to create the 1000 test accounts */
-    private final boolean includeTestUsers = true;
+    private static final boolean includeTestUsers = true;
 
     /** Turn on (true) to create the test groups */
-    private final boolean includeTestGroups = true;
+    private static final boolean includeTestGroups = true;
 
     /** To add test users. */
     @Autowired
