@@ -140,11 +140,6 @@ section {
     border-radius: 100%;
 }
 
-.profilePicGroupsList {
-    max-width: 3rem;
-    height: auto;
-    border-radius: 100%;
-}
 
 #accountPageImage {
     height: 15rem;
@@ -462,17 +457,17 @@ section {
 
 /*User-list*/
 
-.listTable, .listTableFooter {
-    width: 70rem;
-}
-
 .listTableDiv {
     display: flex;
     width: 100%;
     flex-direction: column;
-    align-items: center;
+    padding: 1rem;
+    word-break: break-word;
 }
 
+.title {
+    align-self: center;
+}
 
 .listTableFooter {
     align-self: center;
@@ -487,13 +482,19 @@ section {
 .roleButtonsContainer {
     display: flex;
     flex-direction: row;
+    min-width: 25rem;
 }
 
 .tableStyled {
     border-collapse: collapse;
     font-size: 1rem;
     min-width: 60rem;
+    table-layout: fixed;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.tableHead {
+    width: 15%;
 }
 
 .tableStyled th, .tableStyled td {
@@ -591,7 +592,6 @@ section {
 
 }
 
-
 .hover-end {
     padding: 0;
     margin: 0;
@@ -603,7 +603,6 @@ section {
     opacity: .8
 }
 
-
 /*Groups*/
 
 .createGroupButtonDiv {
@@ -614,6 +613,7 @@ section {
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: auto;
 }
 
 .group {
@@ -632,7 +632,6 @@ section {
     cursor: pointer;
 }
 
-
 #groupInformationContainer {
     position: relative;
     width: 45rem;
@@ -644,7 +643,6 @@ section {
     margin-right: 1rem;
     box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
 }
-
 
 .selected {
     background-color: var(--main-border-colour);
@@ -677,6 +675,21 @@ section {
 .membersContainerTitle {
     text-align: center;
 }
+
+.profilePicGroupsList {
+    max-width: 3rem;
+    height: auto;
+    border-radius: 100%;
+}
+
+#confirmationForm {
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    align-content: center;
+}
+
 
 .moveToDiv{
     display: flex;

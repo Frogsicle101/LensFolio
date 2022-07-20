@@ -22,15 +22,13 @@ public class Group {
     @GeneratedValue
     private Integer id;
 
-    /**
-     * The User's in the group.
-     */
+    /** A list of the users in the group. */
     @ManyToMany
     @Fetch(FetchMode.JOIN)
     @JoinTable(name = "group_members",
             joinColumns = @JoinColumn(name = "groupId"),
             inverseJoinColumns = @JoinColumn(name = "userId"))
-    private final List<User> userList = new ArrayList<>();
+    private List<User> userList = new ArrayList<>();
 
     /** The group's short name. */
     private String shortName;
@@ -58,11 +56,11 @@ public class Group {
     /**
      * The constructor for a group with a specified group ID.
      *
-     * @param id The ID of the group to be created.
+     * @param id        The ID of the group to be created.
      * @param shortName The short name of the group to be created.
-     * @param longName The long name of the group to be created.
+     * @param longName  The long name of the group to be created.
      */
-    public Group (Integer id, String shortName, String longName) {
+    public Group(Integer id, String shortName, String longName) {
         this.id = id;
         this.shortName = shortName;
         this.longName = longName;
@@ -79,7 +77,7 @@ public class Group {
     }
 
 
-    public Integer getMembersNumber(){return this.userList.size();}
+    public Integer getMembersNumber() { return this.userList.size(); }
 
 
     public String getShortName() {
@@ -103,12 +101,38 @@ public class Group {
 
 
     /**
+     * Removes a list of users from a group.
+     *
+     * @param users a list of the users to be removed.
+     */
+    public void removeGroupMembers(List<User> users) {
+        for (User user : users) {
+            userList.remove(user);
+        }
+    }
+
+
+    /**
      * Removes a user from the group
      *
      * @param user the user to be removed
      */
     public void removeGroupMember(User user) {
         userList.remove(user);
+    }
+
+
+    /**
+     * Adds users from a list to the group object. Each user is only added if the user is not already present.
+     *
+     * @param users A list of the users to be added.
+     */
+    public void addGroupMembers(List<User> users) {
+        for (User user : users) {
+            if (!userList.contains(user)) {
+                userList.add(user);
+            }
+        }
     }
 
 
@@ -125,9 +149,9 @@ public class Group {
 
 
     /**
-     * Converts this group to a GroupDetailsResponse
+     * Converts this group to a GroupDetailsResponse.
      *
-     * @return GroupDetailsResponse - the GroupDetailsResponse equivalent of this group
+     * @return GroupDetailsResponse - the GroupDetailsResponse equivalent of this group.
      */
     public GroupDetailsResponse groupDetailsResponse() {
         GroupDetailsResponse.Builder response = GroupDetailsResponse.newBuilder()

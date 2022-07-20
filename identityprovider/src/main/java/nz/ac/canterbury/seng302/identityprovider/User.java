@@ -32,6 +32,7 @@ public class User {
     @Column(unique = true)
     private String username;
 
+    /** A hash of the user's password. */
     private String pwhash;
     private String firstName;
     private String middleName;
@@ -41,16 +42,17 @@ public class User {
     private String pronouns;
     private String email;
     private String salt;
+
     @Column(length = 100000)
     private Timestamp accountCreatedTime;
+
     private final ArrayList<UserRole> roles = new ArrayList<>();
 
     private String imagePath;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "userList", fetch = FetchType.EAGER)
-    private List<Group> groups = new ArrayList<>();
-
+    private final List<Group> groups = new ArrayList<>();
 
 
     /**
@@ -152,12 +154,7 @@ public class User {
     }
 
 
-    public List<Group> getGroups() {
-        return groups;
-    }
-
-
-    public ArrayList<UserRole> getRoles() { return roles; }
+    public List<UserRole> getRoles() { return roles; }
 
 
     public String getRolesCsv() {
@@ -268,6 +265,10 @@ public class User {
         imagePath = path;
     }
 
+    public List<Group> getGroups() {
+        return groups;
+    }
+
 
     public UserResponse userResponse() {
         UserResponse.Builder response = UserResponse.newBuilder();
@@ -284,7 +285,7 @@ public class User {
                 .setProfileImagePath(UrlUtil.getUrlService().getProfileURL(this).toString());
 
         // To add all the users roles to the response
-        ArrayList<UserRole> roles = this.getRoles();
+        List<UserRole> roles = this.getRoles();
         for (UserRole role : roles) {
             response.addRoles(role);
         }

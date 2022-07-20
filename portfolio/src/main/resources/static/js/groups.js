@@ -3,7 +3,6 @@ let shiftDown = false;
 let selectedGroupId;
 let lastSelectedRow;
 
-
 // ******************************* Functions *******************************
 
 /**
@@ -33,25 +32,13 @@ function checkToSeeIfHideOrShowOptions() {
 }
 
 
-
-/**
- * When group div is clicked, the members for that group are retrieved.
- */
-$(document).on("click", ".group", function () {
-    $(".group").removeClass("focusOnGroup")
-    let groupId = $(this).closest(".group").find(".groupId").text();
-    displayGroupUsersList(groupId);
-
-    $(this).closest(".group").addClass("focusOnGroup")
-})
-
-
 /**
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
  * @param groupId the id of the group to fetch
  */
 function displayGroupUsersList(groupId) {
+
     let membersContainer = $("#groupTableBody")
     $.ajax({
         url: `group?groupId=${groupId}`,
@@ -80,6 +67,7 @@ function displayGroupUsersList(groupId) {
                 </tr>`
                 )}
             $("#groupInformationContainer").slideDown()
+            checkToSeeIfHideOrShowOptions()
         },
         error: (error) => {
             $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -88,8 +76,102 @@ function displayGroupUsersList(groupId) {
                                                      </div>`)
         }
     })
-
 }
+
+
+/**
+ * When group div is clicked, the members for that group are retrieved.
+ */
+$(document).on("click", ".group", function () {
+    $(".group").removeClass("focusOnGroup")
+    let groupId = $(this).closest(".group").find(".groupId").text();
+    $("#selectAllCheckboxGroups").prop("checked", false);
+    displayGroupUsersList(groupId);
+
+    $(this).closest(".group").addClass("focusOnGroup")
+
+    if (parseInt(groupId) === 0) { // teacher group
+        $("#groupRemoveUser").show();
+        $(".controlButtons").hide();
+    } else if (parseInt(groupId) === 1) { // non-group group
+        $("#groupRemoveUser").hide();
+        $(".controlButtons").hide();
+    } else {
+        $("#groupRemoveUser").show();
+        $(".controlButtons").show();
+    }
+
+    $("#confirmationForm").slideUp();
+    $(this).closest(".group").addClass("focusOnGroup");
+})
+
+
+/**
+ * When the remove button is clicked, a popup prompts confirmation of the action.
+ */
+$(document).on("click", "#groupRemoveUser", function () {
+    document.getElementById("confirmationForm").style.visibility = "visible"
+    $("#confirmationForm").slideDown();
+})
+
+
+/**
+ * Fires off when a click is detected on the delete button for the group. Sends an endpoint request to delete the
+ * currently selected group.
+ */
+$(document).on("click", ".deleteButton", function () {
+    if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
+        $.ajax({
+            url: `/groups/edit?groupId=${group.id}`,
+            type: "delete",
+            success: function () {
+                window.location.reload()
+            }, error: function () {
+                $("#groupInformationContainer").append(
+                    `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                     ${error.responseText}
+                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`
+                )
+            }
+        })
+    }
+})
+
+
+
+/**
+ * When member removal is confirmed, a request is made to remove the selected users from the group.
+ */
+$(document).on("click", "#confirmRemoval", function () {
+    let arrayOfIds = [];
+    $(".selected").each(function() {
+        arrayOfIds.push($(this).attr("userId"))
+    })
+    $.ajax({
+        url: `groups/removeUsers?groupId=${selectedGroupId}&userIds=${arrayOfIds}`,
+        type: "DELETE",
+        success: () => {
+            displayGroupUsersList(selectedGroupId)
+        },
+        error: (error) => {
+            console.log(error);
+        }
+    })
+    $("#confirmationForm").slideUp();
+})
+
+
+/**
+ * When removal is cancelled, the confirmation popup form is hidden.
+ */
+$(document).on("click", "#cancelRemoval", function () {
+    $("#confirmationForm").slideUp();
+})
+
+
+
+
 
 // ******************************* Click listeners *******************************
 
@@ -116,7 +198,7 @@ $(document).on("click", "#moveUsersButton", function() {
         url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
         success: function() {
-            window.location.reload()
+            displayGroupUsersList(selectedGroupId)
         },
         error: function(response) {
             console.log(response)
@@ -214,11 +296,3 @@ $(document).on("change","input[type=checkbox]", function() {
     checkToSeeIfHideOrShowOptions()
 
 })
-
-
-
-
-
-
-
-
