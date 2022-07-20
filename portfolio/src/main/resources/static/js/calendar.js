@@ -246,12 +246,29 @@ $(document).ready(function () {
      * and designates handleNotification to run whenever we get a message
      */
     function connect() {
-        let socket = new SockJS('gs-guide-websocket');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
+
+        stompClient = new StompJs.Client();
+        stompClient.configure({
+            brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
+            reconnectDelay: 5000,
+            debug: function (str) {
+                console.log(str);
+            },
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+            onStompError: function (frame) {
+                console.log('Broker reported error: ' + frame.headers['message']);
+                console.log('Additional details: ' + frame.body);
+            },
+            connectionTimeout: 1000
+        });
+
+        stompClient.onConnect = (frame) => {
             console.log('Connected: ' + frame);
             stompClient.subscribe('notifications/sending/occasions', handleCalendarNotification);
-        });
+        }
+
+        stompClient.activate();
     }
 
     /**
