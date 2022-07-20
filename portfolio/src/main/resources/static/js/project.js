@@ -25,7 +25,6 @@ $(document).ready(() => {
                     $(".sprintsContainer").empty()
                     getSprints()
                 })
-                sendNotification("sprint", response.id, "create")
             },
             error: function (error) {
 
@@ -71,7 +70,7 @@ $(document).on("click", ".deleteSprint", function () {
         type: "DELETE",
         data: {"sprintId": sprintId},
         success: function () {
-            sendNotification("sprint", sprintId, "delete")
+            location.reload();
         },
     }).done(function () {
         location.href = "portfolio?projectId=" + projectId

@@ -106,7 +106,7 @@ $(document).on('submit', "#addEventForm", function (event) {
                 Then this will break on the VM, and you'll have no idea why.
                 Now you do.
                  */
-                sendNotification("event", response.id, "create");
+                location.reload();
             }
         })
     }
@@ -132,7 +132,7 @@ $(document).on("submit", ".milestoneForm", function (event) {
         success: function (response) {
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
-            sendNotification("milestone", response.id, "create");
+            location.reload();
         }
     })
 })
@@ -161,7 +161,7 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
             $(".deadlineForm").slideUp();
             $(".addDeadlineSvg").toggleClass('rotated');
 
-            sendNotification("deadline", response.id, "create");
+            location.reload();
         }
     })
 })
@@ -205,8 +205,7 @@ $(document).on("submit", "#editEventForm", function (event) {
             type: "POST",
             data: eventData,
             success: function () {
-                sendNotification("event", eventId, "stop") // Let the server know the event is no longer being edited
-                sendNotification("event", eventId, "update") //Let the server know that other clients should update the element
+                location.reload();
             }
         })
     }
@@ -234,8 +233,7 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         type: "POST",
         data: milestoneData,
         success: function () {
-            sendNotification("milestone", milestoneId, "stop") // Let the server know the milestone is no longer being edited
-            sendNotification("milestone", milestoneId, "update") //Let the server know that other clients should update the element
+            location.reload();
         }
     })
 })
@@ -276,8 +274,7 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
             type: "POST",
             data: deadlineData,
             success: function () {
-                sendNotification("deadline", deadlineId, "stop") // Let the server know the deadline is no longer being edited
-                sendNotification("deadline", deadlineId, "update") //Let the server know that other clients should update the element
+                location.reload();
             }
         })
     }
@@ -334,7 +331,7 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: eventData,
             success: function () {
-                sendNotification("event", eventData.eventId, "delete");
+                location.reload();
             }
         })
     } else if (parent.hasClass('milestone')) {
@@ -344,7 +341,7 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: milestoneData,
             success: function () {
-                sendNotification("milestone", milestoneData.milestoneId, "delete");
+                location.reload();
             }
         })
     } else if (parent.hasClass('deadline')) {
@@ -354,7 +351,7 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: deadlineData,
             success: function () {
-                sendNotification("deadline", deadlineData.deadlineId, "delete");
+                location.reload();
             }
         })
     }
@@ -379,13 +376,10 @@ $(document).on("click", ".editButton", function () {
     let parent = $(this).closest(".occasion")
     let id = parent.attr("id")
     if (parent.hasClass("event")) {
-        sendNotification("event", id, "edit");
         appendEventForm(parent)
     } else if (parent.hasClass("milestone")) {
-        sendNotification("milestone", id, "edit");
         appendMilestoneForm(parent)
     } else if (parent.hasClass("deadline")) {
-        sendNotification("deadline", id, "edit");
         appendDeadlineForm(parent)
     }
     addOccasionButton.show()
@@ -410,13 +404,6 @@ $(document).on("click", ".cancelEdit", function () {
         form.remove();
     })
 
-    if (parent.hasClass("event")) {
-        sendNotification("event", id, "stop");
-    } else if (parent.hasClass("milestone")) {
-        sendNotification("milestone", id, "stop");
-    } else if (parent.hasClass("deadline")) {
-        sendNotification("deadline", id, "stop");
-    }
 })
 
 
