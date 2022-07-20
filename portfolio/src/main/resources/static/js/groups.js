@@ -87,15 +87,16 @@ function displayGroupUsersList(groupId) {
 $(document).on("click", ".group", function () {
     $(".group").removeClass("focusOnGroup")
     let groupId = $(this).closest(".group").find(".groupId").text();
+    let groupShortname = $(this).closest(".group").find(".groupShortName").text();
     $("#selectAllCheckboxGroups").prop("checked", false);
     displayGroupUsersList(groupId);
 
     $(this).closest(".group").addClass("focusOnGroup")
 
-    if (parseInt(groupId) === 0) { // teacher group
+    if (groupShortname === "Teachers") { // teacher group
         $("#groupRemoveUser").show();
         $(".controlButtons").hide();
-    } else if (parseInt(groupId) === 1) { // non-group group
+    } else if (groupShortname === "Non-Group") { // non-group group
         $("#groupRemoveUser").hide();
         $(".controlButtons").hide();
     } else {
