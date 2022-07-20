@@ -121,10 +121,10 @@ jacocoTestReport {
 // Sonarqube specific configuration (task)
 sonarqube {
     properties {
-        property "sonar.projectKey", "team-XX-portfolio"
-        property "sonar.projectName", "team XX - portfolio"
+        property "sonar.projectKey", "team-600-identityprovider"
+        property "sonar.projectName", "team 600 - identityprovider"
         property "sonar.sourceEncoding", "UTF-8"
         property "sonar.host.url", "https://sonarqube.csse.canterbury.ac.nz"
-        property "sonar.login", "YOUR_SONARQUBE_API_TOKEN_CREATED_IN_2"
+        property "sonar.login", "75aa849c70fb6805df04e63e7f42b1b93e9207cb"
     }
 }
