@@ -4,7 +4,7 @@ let selectedGroupId;
 let lastSelectedRow;
 let group;
 
-const TEACHER_GROUP_ID = 0
+const TEACHER_GROUP_ID = 1
 
 // ******************************* Functions *******************************
 
