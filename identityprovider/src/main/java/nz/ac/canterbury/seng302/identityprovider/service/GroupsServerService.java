@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -200,6 +201,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         DeleteGroupResponse.Builder response = DeleteGroupResponse.newBuilder();
         if (groupRepository.existsById(request.getGroupId())) {
             logger.info("SERVICE - Successfully deleted the group with Id: {}", request.getGroupId());
+            groupService.removeGroupMembers(request.getGroupId(), groupRepository.getGroupById(request.getGroupId()).getUserList().stream().map(User::getId).toList());
             groupRepository.deleteById(request.getGroupId());
             response.setIsSuccess(true)
                     .setMessage("Successfully deleted the group with Id: " + request.getGroupId());

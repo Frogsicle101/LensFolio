@@ -88,10 +88,9 @@ public class GroupService {
      *
      * @param groupId The id of the group from which users will be removed.
      * @param userIds The id of the users to be removed.
-     * @throws Exception If the group ID or user IDs are invalid.
      */
     @Transactional
-    public void removeGroupMembers(Integer groupId, List<Integer> userIds) throws Exception {
+    public void removeGroupMembers(Integer groupId, List<Integer> userIds) {
         logger.info("Removing users from group {}", groupId);
         Optional<Group> optionalGroup = groupRepository.findById(groupId);
         if (optionalGroup.isEmpty()) {
@@ -128,7 +127,7 @@ public class GroupService {
      * @param userId The id of the user to be removed from the group
      */
     @Transactional
-    public void removeGroupMembersByGroupShortName(String shortname, Integer userId) throws Exception {
+    public void removeGroupMembersByGroupShortName(String shortname, Integer userId){
         logger.info("Retrieving group with shortname {}", shortname);
         Optional<Group> optionalGroup = groupRepository.findByShortName(shortname);
         if (optionalGroup.isPresent()) {
