@@ -8,6 +8,9 @@
 <body>
 <header th:insert="fragments/general.html :: header"></header>
 <section>
+    <div class="createGroupButtonDiv">
+        <a class="btn btn-primary" th:href="@{~/groups/create}">Create New Group</a>
+    </div>
     <div class="row">
         <div class="col groupsContainer">
             <div class="group" th:each="group : ${groups}">
