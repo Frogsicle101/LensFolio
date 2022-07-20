@@ -250,7 +250,7 @@ $(document).ready(function () {
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('notifications/sending/occasions', handleNotification);
+            stompClient.subscribe('notifications/sending/occasions', handleCalendarNotification);
         });
     }
 
@@ -261,29 +261,31 @@ $(document).ready(function () {
      *
      * @param notification The notification to handle. (modeled by OutgoingNotification)
      */
-    function handleNotification(notification) {
+    function handleCalendarNotification(notification) {
         const content = JSON.parse(notification.body);
-        const action = content.action;
+        for (let message of content) {
+            const action = message.action;
 
-        switch (action) {
-            case 'create' :
-                calendar.refetchEvents();
-                break;
-            case 'update' :
-                calendar.refetchEvents();
-                break;
-            case 'delete' :
-                calendar.refetchEvents();
-                break;
-            case 'edit' :
-                // Do nothing, we don't handle edit
-                break;
-            case 'stop' :
-                // Do nothing, we don't handle edit
-                break;
-            default :
-                // Do nothing, unknown message format
-                break;
+            switch (action) {
+                case 'create' :
+                    calendar.refetchEvents();
+                    break;
+                case 'update' :
+                    calendar.refetchEvents();
+                    break;
+                case 'delete' :
+                    calendar.refetchEvents();
+                    break;
+                case 'edit' :
+                    // Do nothing, we don't handle edit
+                    break;
+                case 'stop' :
+                    // Do nothing, we don't handle edit
+                    break;
+                default :
+                    // Do nothing, unknown message format
+                    break;
+            }
         }
     }
 
