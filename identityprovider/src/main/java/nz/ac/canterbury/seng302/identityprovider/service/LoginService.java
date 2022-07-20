@@ -39,7 +39,7 @@ public class LoginService {
      */
     public LoginStatus checkLogin(User foundUser, AuthenticateRequest request) {
 
-        if (foundUser == null) {
+        if (foundUser == null || !foundUser.getUsername().equals(request.getUsername())) {
             logger.info("Authentication failure - could not find user");
             return LoginStatus.USER_INVALID;
 
