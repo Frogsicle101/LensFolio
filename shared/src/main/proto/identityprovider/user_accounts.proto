@@ -69,7 +69,6 @@ message UserResponse {
    repeated UserRole Roles = 11;
    int32 Id = 12;
 }
-
 enum UserRole {
    STUDENT = 0;
    TEACHER = 1;
@@ -85,7 +84,7 @@ message ProfilePhotoUploadMetadata {
    int32 UserId = 1;
    string FileType = 2;
 }
-message UploadUserProfilePhotoRequest { 
+message UploadUserProfilePhotoRequest {
    oneof UploadData {
       ProfilePhotoUploadMetadata MetaData = 1;
       bytes FileContent = 2;
@@ -98,13 +97,14 @@ message DeleteUserProfilePhotoRequest {
 
 message DeleteUserProfilePhotoResponse {
    bool IsSuccess = 1;
-   bool Message = 2; // I think this should be a string - SAM
+   string Message = 2;
 }
 
 message GetPaginatedUsersRequest {
    int32 Offset = 1; // How many results to skip (offset of 0 means start at beginning, i.e page 1)
    int32 Limit = 2; // Max results to get - "results per page"
    string OrderBy = 3; // When paginating, we must sort on the server, not the frontend (why is this?)
+   bool IsAscendingOrder = 4;
 }
 message PaginatedUsersResponse {
    repeated UserResponse Users = 1;
@@ -112,12 +112,12 @@ message PaginatedUsersResponse {
 }
 
 message ModifyRoleOfUserRequest {
-   int32 UserId = 1; // Does this need to be userName because we cannot get the userID with paginated users - SAM
+   int32 UserId = 1;
    UserRole Role = 2;
 }
 message UserRoleChangeResponse {
    bool IsSuccess = 1;
-   bool Message = 2; // I think this should be a string - SAM
+   string Message = 2;
 }
 
 

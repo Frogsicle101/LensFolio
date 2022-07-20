@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Lensfolio | Register</title>
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
@@ -7,67 +7,87 @@
 </head>
 <body style="width: 50%; margin: auto;">
 
-    <h1>Register account</h1>
-    <p>Mandatory fields are marked with *</p>
-    <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
-        <p class="errorMessage"></p>
+<h1>Register account</h1>
+<p class="required">Mandatory fields are marked with </p>
+<div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
+    <p class="errorMessage"></p>
+</div>
+<form id="registerForm" method="post" th:action="@{register}" th:object="${registerForm}">
+
+    <div class="row mb-3">
+        <div class="col">
+            <label class="required form-label" for="firstname">First name(s)</label>
+            <input class="form-control canDisable" id="firstname" maxlength="50" name="firstname"
+                   required
+                   th:pattern="${alphaSpacesRegex}"
+                   title="Only letters A-Z upper or lowercase and , . ' or - allowed, names must be seperated by a space" type="text">
+        </div>
+        <div class="col">
+            <label class="form-label" for="middlename">Middle name(s)</label>
+            <input class="form-control canDisable" id="middlename" maxlength="50" name="middlename"
+                   th:pattern="${alphaSpacesRegexCanBeEmpty}"
+                   title="Only letters A-Z upper or lowercase and , . ' or - allowed, names must be seperated by a space"
+                   type="text">
+        </div>
+        <div class="col">
+            <label class="required form-label" for="lastname">Last name(s)</label>
+            <input class="form-control canDisable" id="lastname" maxlength="50" name="lastname"
+                   required
+                   th:pattern="${alphaSpacesRegex}"
+                   title="Only letters A-Z upper or lowercase and , . ' or - allowed, names must be seperated by a space" type="text">
+        </div>
     </div>
-    <form method="post" th:action="@{register}" th:object="${registerForm}" id="registerForm">
-
-        <div class="row mb-3">
-            <div class="col">
-                <label for="firstname" class="form-label">First name(s)*</label>
-                <input type="text" class="form-control canDisable" name="firstname" id="firstname" pattern="([a-zA-Z]+\s?)+" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50" required>
-            </div>
-            <div class="col">
-                <label for="middlename" class="form-label">Middle name(s)</label>
-                <input type="text" class="form-control canDisable" name="middlename" id="middlename" pattern="([a-zA-Z]+\s?)+" title="Only letters A-Z upper or lowercase, names must be seperated by a space"  maxlength="50">
-            </div>
-            <div class="col">
-                <label for="lastname" class="form-label">Last name(s)*</label>
-                <input type="text" class="form-control canDisable" name="lastname" id="lastname" pattern="([a-zA-Z]+\s?)+" title="Only letters A-Z upper or lowercase, names must be seperated by a space" maxlength="50" required>
-            </div>
+    <div class="row mb-3">
+        <div class="col">
+            <label class="required form-label" for="username">Username</label>
+            <input class="form-control" id="username" maxlength="50" name="username" required
+                   th:pattern="${userNameRegex}" title="Cannot contain spaces or special characters other than !#$%&'*+-/=?^_`{|}~.,"
+                   type="text">
         </div>
-        <div class="row mb-3">
-            <div class="col">
-                <label for="username" class="form-label">Username*</label>
-                <input type="text" class="form-control" name="username" id="username" pattern="([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)" title="Cannot contain spaces or special characters other than !#$%&'*+-/=?^_`{|}~" maxlength="50" required>
-            </div>
-            <div class="col">
-                <label for="password" class="form-label">Password*</label>
-                <input type="password" class="form-control canDisable" name="password" id="password"  maxlength="50" minlength="5"  pattern="([a-zA-Z0-9!#$%&'*+/=?^_`{|}~]+)" title="Must be between 5 and 50 characters long, cannot contain spaces or special characters other than !#$%&'*+-/=?^_`{|}~" required>
-            </div>
-
-        </div>
-        <div class="mb3">
-            <label for="email" class="form-label">Email address*</label>
-            <input type="email" class="form-control canDisable" name="email" id="email" maxlength="100"
-                   pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"
-                   title="Cannot contain spaces, must match email conventions like 'name@something.something'" required>
+        <div class="col">
+            <label class="required form-label" for="password">Password</label>
+            <input class="form-control canDisable" id="password" maxlength="50" minlength="5" name="password"
+                   required
+                   th:pattern="${passwordRegex}"
+                   title="Must be between 5 and 50 characters long, cannot contain special characters other than !#$%&'*+-/=?^_`{|}~.,"
+                   type="password">
         </div>
 
-        <div class="row mb-3">
-            <div class="col">
-                <label for="nickname" class="form-label">Nickname</label>
-                <input type="text" class="form-control canDisable" name="nickname" id="nickname" pattern="([a-zA-Z]+\s?)+" title="Only letters A-Z upper or lowercase, with words seperated by a space" maxlength="50">
-            </div>
-            <div class="col">
-                <label for="personalPronouns" class="form-label">Pronouns</label>
-                <input type="text" class="form-control canDisable" name="personalPronouns" id="personalPronouns" pattern="([a-zA-Z/]+\s?)+" title="Only letters A-Z upper or lowercase, pronouns must be seperated by a space" maxlength="50" >
-            </div>
+    </div>
+    <div class="mb3">
+        <label class="required form-label" for="email">Email address</label>
+        <input class="form-control canDisable" id="email" maxlength="100" name="email" required
+               th:pattern="${emailRegex}"
+               title="Cannot contain spaces, must match email conventions like 'name@something.something'" type="email">
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <label class="form-label" for="nickname">Nickname</label>
+            <input class="form-control canDisable" id="nickname" maxlength="50" name="nickname"
+                   th:pattern="${alphaSpacesRegexCanBeEmpty}"
+                   title="Only letters A-Z upper or lowercase and , . ' or - allowed, with words seperated by a space"
+                   type="text">
         </div>
-        <div class="mb-3">
-            <label for="bio" class="form-label">Bio</label>
-            <!-- The max length for fields in our database is, by default, somewhere around 250
-            So going beyond 250 characters, even for a bio, runs the risk of errors -->
-            <textarea class="form-control canDisable" id="bio"  name="bio" maxlength="250" ></textarea>
+        <div class="col">
+            <label class="form-label" for="personalPronouns">Pronouns</label>
+            <input class="form-control canDisable" id="personalPronouns" maxlength="50" name="personalPronouns"
+                   th:pattern="${pronounRegex}"
+                   title="Only letters A-Z upper or lowercase, pronouns must be seperated by a '/'" type="text">
         </div>
-        <button type="submit" id="registerSubmitButton" class="btn btn-primary ">Submit</button>
-        <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="bio">Bio</label>
+        <!-- The max length for fields in our database is, by default, somewhere around 250
+        So going beyond 250 characters, even for a bio, runs the risk of errors -->
+        <textarea class="form-control canDisable" contenteditable id="bio" maxlength="250" name="bio"></textarea>
+    </div>
+    <button class="btn btn-primary " id="registerSubmitButton" type="submit">Submit</button>
+    <button class="btn btn-secondary" onclick="history.back()" type="button">Back</button>
 
 
-    </form>
+</form>
 
-    <script type="application/javascript" th:src="@{js/register.js}"></script>
+<script th:src="@{js/register.js}" type="application/javascript"></script>
 </body>
 </html>

@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lensfolio | Groups</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
+</head>
+<body>
+<header th:insert="fragments/general.html :: header"></header>
+<section>
+    <div class="row">
+        <div class="col groupsContainer">
+            <div class="group" th:each="group : ${groups}">
+                <div class="mb3">
+                    <p class="groupId" style="display: none" th:text="${group.groupId}"></p>
+                    <h2 class="groupShortName" th:text="${group.shortName}"></h2>
+                    <h3 class="groupLongName" th:text="${group.longName}"></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col" id="groupInformationContainer" style="display: none">
+            <h2 id="groupInformationShortName"></h2>
+            <h3 id="groupInformationLongName"></h3>
+            <hr>
+            <div class="controlButtons">
+                <button type="button" class="deleteButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Group">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="groupDisplayOptions" class="hasTeacherOrAbove">
+                <input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label>
+                <p class="numSelected">0 Selected</p>
+                <button class="btn btn-danger" id="groupRemoveUser">Remove User</button>
+                <div class="moveToDiv">
+                    <label for="newGroupSelector">Move to..</label>
+                    <select id="newGroupSelector" class="form-select moveToSelect">
+                        <option th:each="group : ${groups}" th:text="${group.shortName}" th:value="${group.getGroupId()}"></option>
+                    </select>
+                    <button class="btn btn-primary moveToButton" id="moveUsersButton" >Move</button>
+                </div>
+                <hr>
+            </div>
+            <div class="form-popup border rounded w-25" id="confirmationForm" style="display: none">
+                <h6>Confirm removal of selected users from this group?</h6>
+                <table>
+                    <tr class="buttonsRow">
+                        <button type="button" class="btn btn-success" id="confirmRemoval">Yes</button>
+                        <button type="button" class="btn btn-secondary" id="cancelRemoval">No</button>
+                    </tr>
+                </table>
+            </div>
+            <div class="membersContainer"></div>
+            <table id="groupTable" class="table">
+                <thead>
+                <tr class="tableHeader">
+                    <th scope="col">Id</th>
+                    <th scope="col">Image</th>
+                    <th scope="col">First</th>
+                    <th scope="col">Last</th>
+                    <th scope="col">Username</th>
+                </tr>
+                </thead>
+                <tbody id="groupTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+<script th:src="@{js/groups.js}" type="application/javascript"></script>
+</html>

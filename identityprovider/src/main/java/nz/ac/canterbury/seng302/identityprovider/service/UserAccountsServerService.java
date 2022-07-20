@@ -14,17 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
  * user_accounts.proto rpc contracts.
- *
- * @author Sam Clark
  */
 @GrpcService
 public class UserAccountsServerService extends UserAccountServiceImplBase {
@@ -39,21 +34,45 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Autowired
     private Environment env;
 
+    @Autowired
+    private GroupService groupService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** Name Comparator */
-    Comparator<User> compareByName = Comparator.comparing((User user) -> (user.getFirstName() + user.getMiddleName() + user.getLastName()));
+
+    /** First Name Comparator, has other name fields after to decide order if first names are the same*/
+    Comparator<User> compareByFirstName = Comparator.comparing((User user) ->
+            (user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
+
+    /** Middle Name Comparator, has other name fields after to decide order if middle names are the same */
+    Comparator<User> compareByMiddleName = Comparator.comparing((User user) ->
+            (user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
+
+    /** Last Name Comparator, has other name fields after to decide order if last names are the same */
+    Comparator<User> compareByLastName = Comparator.comparing((User user) ->
+            (user.getLastName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT)));
 
     /** Username Comparator */
-    Comparator<User> compareByUsername = Comparator.comparing(User::getUsername);
+    Comparator<User> compareByUsername = Comparator.comparing((User user) ->
+            (user.getUsername().toLowerCase(Locale.ROOT)));
 
-    /** alias Comparator */
-    Comparator<User> compareByAlias = Comparator.comparing(User::getNickname);
+    /** Alias Comparator, has name fields afterwards to decide order if the aliases are the same */
+    Comparator<User> compareByAlias = Comparator.comparing((User user) ->
+            (user.getNickname().toLowerCase(Locale.ROOT) + ' ' +
+             user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getMiddleName().toLowerCase(Locale.ROOT) + ' ' +
+             user.getLastName().toLowerCase(Locale.ROOT)));
 
-    /** role Comparator */
+    /** Role Comparator */
     Comparator<User> compareByRole = (userOne, userTwo) -> {
-        ArrayList<UserRole> userOneRoles = userOne.getRoles();
-        ArrayList<UserRole> userTwoRoles = userTwo.getRoles();
+        List<UserRole> userOneRoles = userOne.getRoles();
+        List<UserRole> userTwoRoles = userTwo.getRoles();
         Collections.sort(userOneRoles);
         Collections.sort(userTwoRoles);
         return userOneRoles.toString().compareTo(userTwoRoles.toString());
@@ -70,32 +89,14 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Override
     public void getUserAccountById(GetUserByIdRequest request, StreamObserver<UserResponse> responseObserver) {
         logger.info("SERVICE - Getting user details by Id: " + request.getId());
-        UserResponse.Builder reply = UserResponse.newBuilder();
         User user = repository.findById(request.getId());
         logger.info("Sending user details for " + user.getUsername());
-        //Build UserResponse (proto) from User
-        reply.setUsername(user.getUsername())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setNickname(user.getNickname())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime())
-                .setProfileImagePath(urlService.getProfileURL(user).toString()
-        );
+        UserResponse reply = user.userResponse();
 
-
-        // To add all the users roles to the response
-        ArrayList<UserRole> roles = user.getRoles();
-        for (UserRole role : roles) {
-            reply.addRoles(role);
-        }
-
-        responseObserver.onNext(reply.build());
+        responseObserver.onNext(reply);
         responseObserver.onCompleted();
     }
+
 
     /**
      * Follows the gRPC contract and provides the server side service for registering new users, adding them to the database
@@ -107,10 +108,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     public void register(UserRegisterRequest request, StreamObserver<UserRegisterResponse> responseObserver) {
         logger.info("SERVICE - Registering new user with username " + request.getUsername());
         UserRegisterResponse.Builder reply = UserRegisterResponse.newBuilder();
-        // Untested
 
         try {
-
             User user = new User(
                     request.getUsername(),
                     request.getPassword(),
@@ -123,10 +122,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     request.getEmail(),
                     TimeService.getTimeStamp());
 
-
             if (repository.findByUsername(user.getUsername()) == null) {
                 logger.info("Registration Success - for new user " + request.getUsername());
                 repository.save(user);
+                groupService.addGroupMemberByGroupShortName("Non-Group",user.getId());
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())
                         .setMessage("Account has successfully been registered");
@@ -141,6 +140,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             reply.setMessage("An error occurred registering user from request");
             logger.error("An error occurred registering user from request: " + request + "\n see stack trace below \n");
             logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.info("An unexpected error occurred when trying to add the new user:\n" + e.getMessage());
+            reply.setIsSuccess(false)
+                    .setMessage("An Unexpected error occurred");
         }
 
         responseObserver.onNext(reply.build());
@@ -150,9 +153,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * Follows the gRPC contract for editing users, this method attempts to edit the details of a user.
-     * <br>
-     * This service first attempts to find the user by their id so that they can have their details edited <br>
-     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *
+     * This service first attempts to find the user by their id so that they can have their details edited
+     *  - If the user can't be found a response message is set to send a failure message to the client
      *  - Otherwise the users details are updated as according to the request.
      *
      * @param request - The gRPC EditUserRequest passed from the client
@@ -165,6 +168,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         EditUserResponse.Builder response = EditUserResponse.newBuilder();
         // Try to find user by ID
         User userToEdit = repository.findById(request.getUserId());
+
         if (userToEdit != null) {
             try {
                 logger.info("User Edit Success - updated user details for user " + request.getUserId());
@@ -194,13 +198,14 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+
     /**
      * Follows the gRPC contract for editing users, this method attempts to change the password of a User
-     * <br>
-     * This service first attempts to find the user by their id so that they can have their password changed <br>
-     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *
+     * This service first attempts to find the user by their id so that they can have their password changed
+     *  - If the user can't be found a response message is set to send a failure message to the client
      *  - Otherwise the oldPassword is checked against the database to make sure the user knows their old password
-     *  before changing <br>
+     *  before changing
      *    - If this password is correct the password is updated to the new password, otherwise the user is informed
      *    that they have used an incorrect old password.
      *
@@ -250,12 +255,13 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+
     /**
      * The gRPC implementation of bidirectional streaming used to receive uploaded user profile images.
      * <br>
      * The server creates a stream observer and defines its actions when the client calls the OnNext, onError and
      * onComplete methods.
-     * <br>
+     *
      * @param responseObserver - Contains an observer, which the Client side defines the implementation for. This allows
      *                           client side actions to be called from the server side. E.g., if bytes have been
      *                           received from the client successfully, the server will call
@@ -268,6 +274,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     public StreamObserver<UploadUserProfilePhotoRequest> uploadUserProfilePhoto(StreamObserver<FileUploadStatusResponse> responseObserver) {
         return new ImageRequestStreamObserver(responseObserver, repository, env);
     }
+
 
     @Override
     public void deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request, StreamObserver<DeleteUserProfilePhotoResponse> responseObserver) {
@@ -284,9 +291,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         responseObserver.onCompleted();
     }
 
+
     /**
      * Follows the gRPC contract for editing users, this method attempts to add a role to a User.
-     * <br>
+     *
      * This service first attempts to find the user by their id so that they can have their role changed <br>
      *  - If the user can't be found a response message is set to send a failure message to the client <br>
      *  - Otherwise the role to be added is checked against the user's current roles to prevent duplication, then the
@@ -302,30 +310,43 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
         User userToUpdate = repository.findById(request.getUserId());
         if (userToUpdate != null) {
-            if (!userToUpdate.getRoles().contains(request.getRole())) {
-                userToUpdate.addRole(request.getRole());
-                repository.save(userToUpdate);
-                response.setIsSuccess(true)
-                        .setMessage(true);
-            } else {
+            try {
+                if (!userToUpdate.getRoles().contains(request.getRole())) {
+                    userToUpdate.addRole(request.getRole());
+                    repository.save(userToUpdate);
+                    if (request.getRole() == UserRole.TEACHER) {
+                        groupService.addGroupMemberByGroupShortName("Teachers", userToUpdate.getId());
+                    }
+                    response.setIsSuccess(true)
+                            .setMessage(MessageFormat.format("Successfully added role {0} to user {1}",
+                                    request.getRole(), userToUpdate.getId()));
+                } else {
+                    response.setIsSuccess(false)
+                            .setMessage("User already has that role");
+                }
+            } catch (Exception e){
+                logger.info("An unexpected error occurred when trying to add a role to user:\n" + e.getMessage());
                 response.setIsSuccess(false)
-                        .setMessage(false);
+                        .setMessage("An Unexpected error occurred");
             }
         } else {
             response.setIsSuccess(false)
-                    .setMessage(false);
+                    .setMessage("Could not find user");
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
 
+
     /**
      * Follows the gRPC contract for editing users, this method attempts to remove a role from a User.
-     * <br>
-     * This service first attempts to find the user by their id so that they can have their role changed <br>
-     *  - If the user can't be found a response message is set to send a failure message to the client <br>
+     *
+     * This service first attempts to find the user by their id so that they can have their role changed
+     *  - If the user can't be found a response message is set to send a failure message to the client
+     *
      *  - Otherwise the role to be removed is checked against the user's current roles to prevent deleting a role
-     *  that doesn't exist. <br>
+     *  that doesn't exist.
+     *
      *  - Finally, we attempt to delete the role. If the user has 1 - or somehow no roles (which should not happen) -
      *  then an exception gets thrown, because a user should always have at least 1 role. We catch this exception
      *  and send a failure message.
@@ -346,24 +367,34 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 repository.save(userToUpdate);
                 logger.info("Role Removal Success - removed " + request.getRole()
                         + " from user " + request.getUserId());
+                if (request.getRole().equals(UserRole.TEACHER)){
+                    groupService.removeGroupMembersByGroupShortName("Teachers", userToUpdate.getId());
+                }
                 response.setIsSuccess(true)
-                        .setMessage(true);
+                        .setMessage(MessageFormat.format("Successfully removed role {0} from user {1}",
+                                request.getRole(), userToUpdate.getId()));
             } catch (IllegalStateException e) {
                 //The user has only one role - we can't delete it!
                 logger.info("Role Removal Failure - user " + request.getUserId()
                         + " has 1 role. Users cannot have 0 roles");
                 response.setIsSuccess(false)
-                        .setMessage(false);
+                        .setMessage("The user can't have zero roles");
+            } catch (Exception e) {
+                logger.info(e.getMessage());
+                response.setIsSuccess(false)
+                        .setMessage("An Unexpected error occurred");
             }
         } else {
             //Here, we couldn't find the user, so we do not succeed.
             logger.info("Role Removal Failure - could not find user " + request.getUserId());
             response.setIsSuccess(false)
-                    .setMessage(false);
+                    .setMessage("Could not find user");
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
+
+
     /**
      * Follows the gRPC contract for retrieving the paginated users. Does this by sorting a list of all the users based
      * on what was requested and then looping through to add the specific page of users to the response
@@ -378,61 +409,24 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
-            case "roles-increasing" -> allUsers.sort(compareByRole);
-            case "roles-decreasing" -> {
-                allUsers.sort(compareByRole);
-                Collections.reverse(allUsers);
-            }
-            case "username-increasing" -> allUsers.sort(compareByUsername);
-            case "username-decreasing" -> {
-                allUsers.sort(compareByUsername);
-                Collections.reverse(allUsers);
-            }
-            case "aliases-increasing" -> allUsers.sort(compareByAlias);
-            case "aliases-decreasing" -> {
-                allUsers.sort(compareByAlias);
-                Collections.reverse(allUsers);
-            }
-            case "name-decreasing" -> {
-                allUsers.sort(compareByName);
-                Collections.reverse(allUsers);
-            }
-            default -> allUsers.sort(compareByName);
+            case "roles" -> allUsers.sort(compareByRole);
+            case "username" -> allUsers.sort(compareByUsername);
+            case "aliases" -> allUsers.sort(compareByAlias);
+            case "middlename" -> allUsers.sort(compareByMiddleName);
+            case "lastname" -> allUsers.sort(compareByLastName);
+            default -> allUsers.sort(compareByFirstName);
         }
+
+        if (!request.getIsAscendingOrder()){
+            Collections.reverse(allUsers);
+        }
+
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
-            reply.addUsers(retrieveUser(allUsers.get(i)));
+            reply.addUsers(allUsers.get(i).userResponse());
         }
         reply.setResultSetSize(allUsers.size());
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
-    }
-
-    /**
-     * Helper function to grab all the info from a specific user and add it to a UserResponse
-     *
-     * @param user User passed through from the getPaginatedUsers method
-     * @return UserResponse - a response with all the info about the user passed through
-     */
-    private UserResponse retrieveUser(User user) {
-        UserResponse.Builder response = UserResponse.newBuilder();
-        response.setUsername(user.getUsername())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setNickname(user.getNickname())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime())
-                .setId(user.getId());
-
-        // To add all the users roles to the response
-        ArrayList<UserRole> roles = user.getRoles();
-        for (UserRole role : roles) {
-            response.addRoles(role);
-        }
-
-        return response.build();
     }
 }

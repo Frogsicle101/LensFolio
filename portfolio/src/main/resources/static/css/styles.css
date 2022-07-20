@@ -15,14 +15,12 @@ section {
     margin-top: 4rem;
 }
 
-.center{
+.center {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-
-
 
 
 /*Colours*/
@@ -142,8 +140,14 @@ section {
     border-radius: 100%;
 }
 
+
 #accountPageImage {
     height: 15rem;
+}
+
+.required:after {
+    content: "*";
+    color: red;
 }
 
 
@@ -199,11 +203,6 @@ section {
 /*Portfolio Project*/
 
 
-
-
-
-
-
 /*Porfolio - Events*/
 
 .eventContainer {
@@ -254,17 +253,17 @@ section {
     right: 2.5rem;
 }
 
-.editButton:hover{
+.editButton:hover {
     color: var(--select-green);
 }
 
-.deleteButton{
+.deleteButton {
     position: absolute;
     top: 1rem;
     right: 1rem;
 }
 
-.deleteButton:hover{
+.deleteButton:hover {
     color: var(--select-red);
 }
 
@@ -278,7 +277,7 @@ section {
     padding: 1rem;
 }
 
-.addEventSvg, .addMilestoneSvg, .addDeadlineSvg{
+.addEventSvg, .addMilestoneSvg, .addDeadlineSvg {
     vertical-align: baseline;
     transition: transform 200ms;
 }
@@ -340,7 +339,7 @@ section {
 }
 
 
-.beingEdited{
+.beingEdited {
     border: solid 1px blue;
 }
 
@@ -414,7 +413,7 @@ section {
 }
 
 .sprintButton:hover {
-    transform: scale(120%);
+    transform: scale(1.2);
 
 }
 
@@ -458,17 +457,17 @@ section {
 
 /*User-list*/
 
-.listTable, .listTableFooter {
-    width: 70rem;
-}
-
 .listTableDiv {
     display: flex;
     width: 100%;
     flex-direction: column;
-    align-items: center;
+    padding: 1rem;
+    word-break: break-word;
 }
 
+.title {
+    align-self: center;
+}
 
 .listTableFooter {
     align-self: center;
@@ -483,13 +482,19 @@ section {
 .roleButtonsContainer {
     display: flex;
     flex-direction: row;
+    min-width: 25rem;
 }
 
 .tableStyled {
     border-collapse: collapse;
     font-size: 1rem;
     min-width: 60rem;
+    table-layout: fixed;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.tableHead {
+    width: 15%;
 }
 
 .tableStyled th, .tableStyled td {
@@ -520,14 +525,13 @@ section {
 }
 
 
-
 /*Calendar*/
 
-.calendar, .calendarDetails{
+.calendar, .calendarDetails {
     width: 60em;
 }
 
-.fc-event-title{
+.fc-event-title {
     display: none;
 }
 
@@ -537,12 +541,167 @@ section {
 
 .milestoneCalendar, .deadlineCalendar, .eventCalendar {
     background: white;
-    width: 40px;
-    height: 20px;
+    border-color: white;
+    position: absolute;
+    width: 30px;
+    height: 18px;
     line-height: 17px;
+    left: 0;
+}
+
+.milestoneCalendar {
+    bottom: -44px;
+}
+
+.deadlineCalendar {
+    bottom: -61.5px;
+}
+
+.eventCalendar {
+    bottom: -77px;
 }
 
 
-.hover-end{padding:0;margin:0;font-size:75%;text-align:center;position:absolute;bottom:0;width:100%;opacity:.8}
+.calendarOccasion {
+    color: black;
+}
 
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+    white-space: pre-line;
+
+}
+
+.tooltip .tooltiptext {
+    visibility: visible;
+    width: 120px;
+    background-color: black;
+    color: darkred;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    white-space: pre-line;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    white-space: pre-line;
+
+}
+
+.hover-end {
+    padding: 0;
+    margin: 0;
+    font-size: 75%;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    opacity: .8
+}
+
+/*Groups*/
+.groupsContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+}
+
+.group {
+    position: relative;
+    width: 40rem;
+    padding: 2rem;
+    border: solid 1px var(--main-border-colour);
+    background-color: var(--background-colour-white);
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+    margin-left: 1rem;
+}
+
+.group:hover {
+    cursor: pointer;
+}
+
+#groupInformationContainer {
+    position: relative;
+    width: 45rem;
+    padding: 2rem;
+    border: solid 1px var(--main-border-colour);
+    background-color: var(--background-colour-white);
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    margin-right: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+}
+
+.selected {
+    background-color: var(--main-border-colour);
+}
+
+.focusOnGroup {
+    background-color: var(--main-border-colour);
+}
+
+#groupDisplayOptions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#groupInformationLongName{
+    margin-left: auto;
+}
+
+.groupLongName, #groupInformationLongName {
+    color: var(--secondary-text-colour-darker);
+    font-weight: lighter;
+}
+
+.groupShortName, #groupInformationShortName {
+    color: var(--main-text-color);
+}
+
+.membersContainerTitle {
+    text-align: center;
+}
+
+.profilePicGroupsList {
+    max-width: 3rem;
+    height: auto;
+    border-radius: 100%;
+}
+
+#confirmationForm {
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    align-content: center;
+}
+
+
+.moveToDiv{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#newGroupSelector{
+    margin: 1rem;
+}
+
+.userRow:hover{
+    cursor: pointer;
+}
+
+.tableRowGroups:hover {
+    background-color: var(--main-border-colour);
+    cursor: pointer;
+}
 

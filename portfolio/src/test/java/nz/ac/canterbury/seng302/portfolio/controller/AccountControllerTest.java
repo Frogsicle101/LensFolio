@@ -2,29 +2,26 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.*;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @SpringBootTest
@@ -34,9 +31,12 @@ class AccountControllerTest {
 
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
 
-    private final AccountController accountController = new AccountController();
+    @InjectMocks
+    private final AccountController accountController = spy(AccountController.class);
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
-    private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
+    private final Authentication principal = new Authentication(
+            AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build()
+    );
 
     @BeforeEach
     public void beforeAll() {
@@ -53,14 +53,13 @@ class AccountControllerTest {
         userBuilder.addRoles(UserRole.STUDENT);
         UserResponse user = userBuilder.build();
 
-        when(PrincipalAttributes.getUserFromPrincipal(principal, mockClientService)).thenReturn(user);
+        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), mockClientService)).thenReturn(user);
         GetUserByIdRequest userByIdRequest = GetUserByIdRequest.newBuilder().setId(1).build();
         when(mockClientService.getUserAccountById(userByIdRequest)).thenReturn(user);
 
         UserRegisterResponse userRegisterResponse = UserRegisterResponse.newBuilder().setIsSuccess(true).build();
         when(mockClientService.register(any(UserRegisterRequest.class))).thenReturn(userRegisterResponse);
 
-        accountController.setUserAccountsClientService(mockClientService);
         Project project = new Project("test");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
@@ -68,19 +67,27 @@ class AccountControllerTest {
 
     @Test
     void testGetRegister() {
-        String model = accountController.register();
-        Assertions.assertEquals("accountRegister", model);
+        ModelAndView model = accountController.register();
+
+        Assertions.assertTrue(model.hasView());
+        Assertions.assertTrue(model.getModel().containsKey("alphaSpacesRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("alphaSpacesRegexCanBeEmpty"));
+        Assertions.assertTrue(model.getModel().containsKey("userNameRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("emailRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("passwordRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("pronounRegex"));
     }
 
     @Test
-    void testAttemptRegistrationNotAcceptable() {
+    void testAttemptRegistrationNotAllMandatoryFields() {
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Missing fields", response.getBody().toString());
     }
 
     @Test
-    void testAttemptRegistrationIncorrectPatternEmail() {
+    void testAttemptRegistrationIncorrectPatternEmailNoAtSign() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         userRequest.setEmail("test");
@@ -91,13 +98,76 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternEmailNothingBeforeAtSign() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void testAttemptRegistrationIncorrectPatternFirstname() {
+    void testAttemptRegistrationIncorrectPatternEmailNothingAfterAtSign() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternEmailNoDotSomething() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationValidEmail() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternFirstnameInvalidSymbol() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         userRequest.setEmail("test@test.com");
@@ -108,12 +178,108 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternFirstnameWithNumber() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test9000");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
+
     @Test
-    void testAttemptRegistrationIncorrectPatternMiddlename() {
+    void testAttemptRegistrationIncorrectPatternFirstnameAsSpace() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname(" ");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectFirstnameWithComma() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Te,st");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectFirstnameWithHyphen() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Mary-Jane");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectFirstnameWithApostrophe() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Mc'Gregor");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectFirstnameWithPeriod() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Jr.");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternMiddlenameInvalidSymbol() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         userRequest.setEmail("test@test.com");
@@ -124,13 +290,108 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename("Mcgregor gregorich!");
 
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternMiddlenameWithNumber() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename("Mcgregor gregorich the 13th");
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void testAttemptRegistrationIncorrectPatternLastname() {
+    void testAttemptRegistrationCorrectPatternMiddlenameWithComma() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename("Luth, the great");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectPatternMiddlenameWithHyphen() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename("Jade-Rose");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectPatternMiddlenameWithApostrophe() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename("Mc'Gregor");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectPatternMiddlenameWithPeriod() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename("Luth. the great");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternMiddlenameAsSpace() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(" ");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternLastnameInvalidSymbol() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         userRequest.setEmail("test@test.com");
@@ -141,13 +402,108 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternLastnameWithNumber() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("test");
+        userRequest.setLastname("Testing1");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void testAttemptRegistrationIncorrectPatternUsername() {
+    void testAttemptRegistrationIncorrectPatternLastnameAsSpace() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("test");
+        userRequest.setLastname(" ");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectLastnameWithComma() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("test");
+        userRequest.setLastname("Test,ing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectLastnameWithHyphen() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("test");
+        userRequest.setLastname("Test-ing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectLastnameWithApostrophe() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("test");
+        userRequest.setLastname("O'Reilly");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectLastnameWithPeriod() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("test");
+        userRequest.setLastname("Jr.");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternUsernameWithSpaceInIt() {
 
         UserRequest userRequest = new UserRequest("TestCase CaseTest", "Password");
         userRequest.setEmail("test@test.com");
@@ -158,13 +514,76 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternUsernameWithOnlySpace() {
+
+        UserRequest userRequest = new UserRequest(" ", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void testAttemptRegistrationIncorrectPatternPassword() {
+    void testAttemptRegistrationCorrectPatternUsernameWithUnusualChars() {
+
+        UserRequest userRequest = new UserRequest("TestCase900!^_^", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternPasswordWithOnlyFiveSpaces() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "     ");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectPatternPasswordWithUnusualChars() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password9057#!$%^&*_=");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternPasswordWithSpacesInIt() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password Not Correct");
         userRequest.setEmail("test@test.com");
@@ -175,30 +594,12 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void testAttemptRegistrationIncorrectPatternBio() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("Testing");
-        userRequest.setBio("!!!@#! @!@# ASD");
-        userRequest.setNickname(null);
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename(null);
-
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    void testAttemptRegistrationIncorrectPatternNickname() {
+    void testAttemptRegistrationIncorrectPatternNicknameInvalidSymbol() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         userRequest.setEmail("test@test.com");
@@ -209,13 +610,108 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternNicknameWithNumber() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname("hello90");
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void testAttemptRegistrationIncorrectPatternPronouns() {
+    void testAttemptRegistrationIncorrectPatternNicknameAsSpace() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(" ");
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectNicknameWithComma() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname("jim, the best");
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectNicknameWithHyphen() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname("jim-bo");
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectNicknameWithApostrophe() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname("Mc'Gregor");
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationCorrectNicknameWithPeriod() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname("Jr.");
+        userRequest.setPersonalPronouns(null);
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationIncorrectPatternPronounsWithSpace() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         userRequest.setEmail("test@test.com");
@@ -223,34 +719,144 @@ class AccountControllerTest {
         userRequest.setLastname("Testing");
         userRequest.setBio(null);
         userRequest.setNickname(null);
-        userRequest.setPersonalPronouns("He/Him Them!");
+        userRequest.setPersonalPronouns("He/Him Them");
         userRequest.setMiddlename(null);
-
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    void testAttemptRegistrationMissingFields() {
+    void testAttemptRegistrationIncorrectPatternPronounsWithSymbols() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+        userRequest.setBio(null);
+        userRequest.setNickname(null);
+        userRequest.setPersonalPronouns("He/Him!");
+        userRequest.setMiddlename(null);
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationBlankUsernameField() {
 
         UserRequest userRequest = new UserRequest("", "Password");
         userRequest.setEmail("test@test.com");
         userRequest.setFirstname("Test");
         userRequest.setLastname("Testing");
 
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationBlankPasswordField() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
+
     @Test
-    void testAttemptRegistrationRequiredNullFields() {
+    void testAttemptRegistrationBlankEmailField() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationBlankFirstnameField() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("");
+        userRequest.setLastname("Testing");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationBlankLastnameField() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationRequiredUsernameNullField() {
 
         UserRequest userRequest = new UserRequest(null, "Password");
         userRequest.setEmail("test@test.com");
         userRequest.setFirstname("Test");
         userRequest.setLastname("Testing");
 
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationRequiredPasswordNullField() {
+
+        UserRequest userRequest = new UserRequest("TestCase", null);
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationRequiredEmailNullField() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail(null);
+        userRequest.setFirstname("Test");
+        userRequest.setLastname("Testing");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationRequiredFirstnameNullField() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname(null);
+        userRequest.setLastname("Testing");
+
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testAttemptRegistrationRequiredLastnameNullFields() {
+
+        UserRequest userRequest = new UserRequest("TestCase", "Password");
+        userRequest.setEmail("test@test.com");
+        userRequest.setFirstname("Test");
+        userRequest.setLastname(null);
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -268,15 +874,9 @@ class AccountControllerTest {
         userRequest.setBio(null);
         userRequest.setPersonalPronouns(null);
 
-
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
-
-
-
-
-
 
 
     @Test
@@ -288,7 +888,6 @@ class AccountControllerTest {
         Assertions.assertTrue(modelAndView.getModel().containsKey("alphaSpacesRegexCanBeEmpty"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("userNameRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("emailRegex"));
-        Assertions.assertTrue(modelAndView.getModel().containsKey("bioRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("passwordRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("pronounRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("user"));
@@ -298,7 +897,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testEditAccount(){
+    void testEditAccount() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -313,7 +912,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadNickname(){
+    void testEditAccountBadNickname() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -330,7 +929,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadMiddlename(){
+    void testEditAccountBadMiddlename() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -347,7 +946,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadPronouns(){
+    void testEditAccountBadPronouns() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -364,24 +963,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditAccountBadBio(){
-        UserRequest userRequest = new UserRequest("testUser", "password");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("User");
-        userRequest.setEmail("Test@Test.com");
-        userRequest.setBio("@");
-        EditUserResponse.Builder editUserResponse = EditUserResponse.newBuilder();
-        editUserResponse.setIsSuccess(true);
-        editUserResponse.build();
-        Mockito.when(mockClientService.editUser(Mockito.any())).thenReturn(editUserResponse.build());
-        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Field(s) not matching patterns", response.getBody());
-
-    }
-
-    @Test
-    void testEditAccountBadRequest(){
+    void testEditAccountBadRequest() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -389,7 +971,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testEditAccountFailToChange(){
+    void testEditAccountFailToChange() {
         UserRequest userRequest = new UserRequest("testUser", "password");
         userRequest.setFirstname("Test");
         userRequest.setLastname("User");
@@ -405,7 +987,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testEditPassword(){
+    void testEditPassword() {
         PasswordRequest passwordRequest = new PasswordRequest();
         passwordRequest.setNewPassword("password");
         passwordRequest.setConfirmPassword("password");
@@ -419,7 +1001,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditPasswordFailToChange(){
+    void testEditPasswordFailToChange() {
         PasswordRequest passwordRequest = new PasswordRequest();
         passwordRequest.setNewPassword("password");
         passwordRequest.setConfirmPassword("password");
@@ -433,7 +1015,7 @@ class AccountControllerTest {
     }
 
     @Test
-    void testEditPasswordPasswordsDontMatch(){
+    void testEditPasswordPasswordsDontMatch() {
         PasswordRequest passwordRequest = new PasswordRequest();
         passwordRequest.setNewPassword("password");
         passwordRequest.setConfirmPassword("password2");
@@ -449,7 +1031,7 @@ class AccountControllerTest {
 
 
     @Test
-    void testDeleteProfileImg(){
+    void testDeleteProfileImg() {
 
         DeleteUserProfilePhotoResponse.Builder delete = DeleteUserProfilePhotoResponse.newBuilder();
         delete.setIsSuccess(true);
@@ -458,8 +1040,6 @@ class AccountControllerTest {
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
     }
-
-
 
 
 }

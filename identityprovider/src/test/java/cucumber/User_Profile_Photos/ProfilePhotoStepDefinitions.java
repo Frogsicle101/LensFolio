@@ -13,12 +13,14 @@ import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.identityprovider.service.UrlService;
 import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetadata;
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -35,7 +37,7 @@ public class ProfilePhotoStepDefinitions {
     @MockBean
     UserRepository repository = mock(UserRepository.class);
 
-    private MockImageResponseStreamObserver mockImageResponseStreamObserver = new MockImageResponseStreamObserver();
+    private final MockImageResponseStreamObserver mockImageResponseStreamObserver = new MockImageResponseStreamObserver();
 
     private Environment mockEnv;
 

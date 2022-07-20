@@ -1,11 +1,10 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
 import nz.ac.canterbury.seng302.identityprovider.User;
+import nz.ac.canterbury.seng302.identityprovider.service.LoginService.LoginStatus;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import nz.ac.canterbury.seng302.identityprovider.service.LoginService.LoginStatus;
 
 import static org.junit.jupiter.api.Assertions.*;
 
