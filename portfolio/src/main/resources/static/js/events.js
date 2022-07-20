@@ -324,6 +324,9 @@ $(document).on('click', '.addDeadlineButton', function () {
  */
 $(document).on("click", ".deleteButton", function () {
     let parent = $(this).closest(".occasion")
+    //Hide edit and delete button tooltips
+    $(".editButton").tooltip('hide')
+    $(".deleteButton").tooltip('hide')
     if (parent.hasClass('event')) { // Checks if the button belongs to an event
         let eventData = {"eventId": $(this).closest(".occasion").find(".eventId").text()}
         $.ajax({
@@ -370,6 +373,9 @@ $(document).on("click", ".editButton", function () {
     addOccasionButton.hide()
     $(".editButton").hide()
     $(".deleteButton").hide()
+    //Hide edit and delete button tooltips
+    $(".editButton").tooltip('hide')
+    $(".deleteButton").tooltip('hide')
     let parent = $(this).closest(".occasion")
     let id = parent.attr("id")
     if (parent.hasClass("event")) {
