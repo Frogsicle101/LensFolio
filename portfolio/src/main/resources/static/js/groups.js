@@ -4,6 +4,8 @@ let selectedGroupId;
 let lastSelectedRow;
 let group;
 
+const TEACHER_GROUP_ID = 0
+
 // ******************************* Functions *******************************
 
 /**
@@ -11,7 +13,7 @@ let group;
  * @param show a boolean of if to show or hide
  */
 function showOptions(show) {
-    if (show && (selectedGroupId !== 0 || isAdmin())) {
+    if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
         $("#groupDisplayOptions").slideDown()
     } else {
         $("#groupDisplayOptions").slideUp()
