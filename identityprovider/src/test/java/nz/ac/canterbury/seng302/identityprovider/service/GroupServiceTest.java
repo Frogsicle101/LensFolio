@@ -122,7 +122,6 @@ class GroupServiceTest {
         groupService.removeGroupMembers(group.getId(), userIds);
 
         assertEquals(0, group.getMembersNumber());
-        assertEquals(userList, MwagGroup.getUserList());
     }
 
 
