@@ -32,6 +32,7 @@ class LoginServiceTest {
     @Test
     void testValidLogin() {
         LoginStatus status = service.checkLogin(user, AuthenticateRequest.newBuilder()
+                .setUsername("test")
                 .setPassword("password")
                 .build());
         assertEquals(LoginStatus.VALID, status);
@@ -40,6 +41,7 @@ class LoginServiceTest {
     @Test
     void testInvalidUser() {
         LoginStatus status = service.checkLogin(null, AuthenticateRequest.newBuilder()
+                .setUsername("test")
                 .setPassword("password")
                 .build());
         assertEquals(LoginStatus.USER_INVALID, status);
@@ -48,6 +50,7 @@ class LoginServiceTest {
     @Test
     void testInvalidPassword() {
         LoginStatus status = service.checkLogin(user, AuthenticateRequest.newBuilder()
+                .setUsername("test")
                 .setPassword("wrong-password")
                 .build());
         assertEquals(LoginStatus.PASSWORD_INVALID, status);

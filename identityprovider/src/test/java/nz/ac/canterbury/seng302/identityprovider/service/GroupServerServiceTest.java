@@ -105,6 +105,7 @@ class GroupServerServiceTest {
 
         StreamObserver<DeleteGroupResponse> responseObserver = Mockito.mock(StreamObserver.class);
         Mockito.when(groupRepository.existsById(1)).thenReturn(true);
+        Mockito.when(groupRepository.getGroupById(Mockito.any())).thenReturn(new Group("Test", "Test"));
         Mockito.doNothing().when(groupRepository).deleteById(1);
         ArgumentCaptor<DeleteGroupResponse> responseCaptor = ArgumentCaptor.forClass(DeleteGroupResponse.class);
 
@@ -394,7 +395,7 @@ class GroupServerServiceTest {
 
 
     @Test
-    void removeGroupMembersTestException() throws Exception {
+    void removeGroupMembersTestException() {
         StreamObserver<RemoveGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<RemoveGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(RemoveGroupMembersResponse.class);
         RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().build();
@@ -411,7 +412,7 @@ class GroupServerServiceTest {
 
 
     @Test
-    void removeGroupMembersTest() throws Exception {
+    void removeGroupMembersTest() {
         StreamObserver<RemoveGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<RemoveGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(RemoveGroupMembersResponse.class);
         RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().build();
@@ -445,7 +446,7 @@ class GroupServerServiceTest {
 
 
     @Test
-    void addGroupMembersTest() throws Exception {
+    void addGroupMembersTest() {
         StreamObserver<AddGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<AddGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(AddGroupMembersResponse.class);
         AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().build();
