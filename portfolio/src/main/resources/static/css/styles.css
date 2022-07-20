@@ -457,17 +457,17 @@ section {
 
 /*User-list*/
 
-.listTable, .listTableFooter {
-    width: 70rem;
-}
-
 .listTableDiv {
     display: flex;
     width: 100%;
     flex-direction: column;
-    align-items: center;
+    padding: 1rem;
+    word-break: break-word;
 }
 
+.title {
+    align-self: center;
+}
 
 .listTableFooter {
     align-self: center;
@@ -482,13 +482,19 @@ section {
 .roleButtonsContainer {
     display: flex;
     flex-direction: row;
+    min-width: 25rem;
 }
 
 .tableStyled {
     border-collapse: collapse;
     font-size: 1rem;
     min-width: 60rem;
+    table-layout: fixed;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.tableHead {
+    width: 15%;
 }
 
 .tableStyled th, .tableStyled td {

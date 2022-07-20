@@ -32,10 +32,11 @@ public class UserListController {
 
     private int pageNum = 1;
     private int totalPages = 1;
-    private final int usersPerPageLimit = 50;
+    private final int usersPerPageLimit = 20;
     private int offset = 0;
     private int totalNumUsers = 0;
-    private String sortOrder = "name-increasing";
+    private String sortOrder = "name";
+    private boolean isAscending = true;
     private final ArrayList<Integer> footerNumberSequence = new ArrayList<>();
     private List<UserResponse> userResponseList;
     private final HashMap<String, UserRole> stringToRole = setUserRolesDict();
@@ -55,8 +56,17 @@ public class UserListController {
             @AuthenticationPrincipal Authentication principal,
             Model model,
             @RequestParam(name = "page", required = false) Integer page,
-            @RequestParam(name = "sortField", required = false) String order) {
+            @RequestParam(name = "sortField", required = false) String order,
+            @RequestParam(name = "isAscending", required = false) String isAscending)
+    {
         logger.info("GET REQUEST /user-list - retrieve paginated users for the user list");
+
+        if (Objects.equals(isAscending, "true")){
+            this.isAscending = true;
+        } else if (Objects.equals(isAscending, "false")){
+            this.isAscending = false;
+        }
+
         selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal.getAuthState()), Objects.requireNonNullElse(order, ""));
         if (page != null) {
             pageNum = page;
@@ -99,7 +109,7 @@ public class UserListController {
         if (!Objects.equals(order, "")) {
             logger.info("VIEWING USERS - ID: " + userId + " : order provided, saving preferences");
             sortOrder = order;
-            prefRepository.save(new UserPrefs(userId, order));
+            prefRepository.save(new UserPrefs(userId, order, isAscending));
             logger.info("VIEWING USERS - ID: " + userId + " : preferences saved successfully");
         } else {
             //The request doesn't come with a sort order (it's null), so use the one saved
@@ -109,10 +119,12 @@ public class UserListController {
             if (user != null) {
                 logger.info("VIEWING USERS - ID: " + userId + " : user found, fetching preferences...");
                 sortOrder = user.getListSortPref();
+                isAscending = user.getIsAscending();
             } else {
                 logger.warn("VIEWING USERS - ID: " + userId + " : The user is null, saving them to the database");
-                sortOrder = "name-increasing";
-                user = new UserPrefs(userId, sortOrder);
+                sortOrder = "firstname";
+                isAscending = true;
+                user = new UserPrefs(userId, sortOrder, isAscending);
                 prefRepository.save(user);
             }
         }
@@ -145,6 +157,7 @@ public class UserListController {
         model.addAttribute("footerNumberSequence", footerNumberSequence);
         model.addAttribute("possibleRoles", possibleRoles);
         model.addAttribute("sortOrder", sortOrder);
+        model.addAttribute("isAscending", isAscending);
     }
 
 
@@ -157,7 +170,6 @@ public class UserListController {
      * @param roleString The role being deleted from the user, in a string format.
      * @return The success status of the deletion.
      */
-
     @DeleteMapping("/editUserRole")
     public ResponseEntity<String> deleteUserRole(
             @RequestParam(value = "userId") String userId,
@@ -179,7 +191,6 @@ public class UserListController {
      * @param roleString The role being added to the user, in a string format.
      * @return The success status of the addition.
      */
-
     @PutMapping("/editUserRole")
     public ResponseEntity<String> addUserRole(
             @ModelAttribute(value = "userId") String userId,
@@ -195,7 +206,7 @@ public class UserListController {
     /**
      * Helper method for adding and deleting user roles end points. This method extracts the common request formation
      * as both adding and deleting requests use the same message format.
-     * <br>
+     *
      *
      * @param userId     - The userId of the user whose roles are being edited
      * @param roleString - A string representation of the role of the user to be added. converted with a dict to a UserRole
@@ -217,10 +228,11 @@ public class UserListController {
      */
     private PaginatedUsersResponse getPaginatedUsersFromServer() {
         GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
-                .setOffset(offset)
-                .setLimit(usersPerPageLimit)
-                .setOrderBy(sortOrder)
-                .build();
+                                                                   .setOffset(offset)
+                                                                   .setLimit(usersPerPageLimit)
+                                                                   .setOrderBy(sortOrder)
+                                                                   .setIsAscendingOrder(isAscending)
+                                                                   .build();
         return userAccountsClientService.getPaginatedUsers(request);
     }
 
@@ -252,14 +264,6 @@ public class UserListController {
         }
     }
 
-    /**
-     * Used to set a userAccountClientService if not using the autowired one. Useful for testing and mocking
-     *
-     * @param service The userAccountClientService to be used
-     */
-    public void setUserAccountsClientService(UserAccountsClientService service) {
-        this.userAccountsClientService = service;
-    }
 
     /**
      * To get the list of users for the specific page number
@@ -289,8 +293,13 @@ public class UserListController {
     }
 
     /**
+     * To get the boolean describing how if the data should be sorted ascending or descending
+     * @return a boolean of if data is ascending or descending
+     */
+    public boolean getIsAscending() { return this.isAscending; }
+
+    /**
      * Defines the value roles a user can have, and maps them to their string representation.
-     * <br>
      *
      * @return A hashmap which maps string reprs to their UserRole enum element
      */
