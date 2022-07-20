@@ -37,4 +37,16 @@ class GroupServiceTest {
         verify(userAccountsClientService, times(1)).addRoleToUser(request);
 
     }
+
+    @Test
+    void removeUserFromTeacherGroup() {
+        int userId = 0;
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(userId);
+
+        groupService.removeUsersFromGroup(TEACHER_GROUP_ID, list);
+        ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder().setRole(UserRole.TEACHER).setUserId(userId).build();
+        verify(userAccountsClientService, times(1)).removeRoleFromUser(request);
+
+    }
 }

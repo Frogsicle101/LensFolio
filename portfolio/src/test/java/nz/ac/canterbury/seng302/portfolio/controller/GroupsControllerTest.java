@@ -226,14 +226,12 @@ class GroupsControllerTest {
             params.addAll("userIds", Collections.singletonList(userId.toString()));
         }
 
-        RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().setGroupId(Integer.parseInt(groupId)).addAllUserIds(userIds).build();
-
         RemoveGroupMembersResponse response = RemoveGroupMembersResponse.newBuilder()
                 .setIsSuccess(true)
                 .setMessage("Successfully removed users from group")
                 .build();
 
-        Mockito.when(groupsClientService.removeGroupMembers(request)).thenReturn(response);
+        Mockito.when(groupService.removeUsersFromGroup(Integer.parseInt(groupId), userIds)).thenReturn(response);
 
         mockMvc.perform(delete("/groups/removeUsers")
                         .param("groupId", groupId)
@@ -311,14 +309,12 @@ class GroupsControllerTest {
             params.addAll("userIds", Collections.singletonList(userId.toString()));
         }
 
-        RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().setGroupId(Integer.parseInt(groupId)).addAllUserIds(userIds).build();
-
         RemoveGroupMembersResponse response = RemoveGroupMembersResponse.newBuilder()
                 .setIsSuccess(false)
                 .setMessage(groupId + " does not refer to a valid group")
                 .build();
 
-        Mockito.when(groupsClientService.removeGroupMembers(request)).thenReturn(response);
+        Mockito.when(groupService.removeUsersFromGroup(Integer.parseInt(groupId), userIds)).thenReturn(response);
 
         mockMvc.perform(delete("/groups/removeUsers")
                         .param("groupId", groupId)

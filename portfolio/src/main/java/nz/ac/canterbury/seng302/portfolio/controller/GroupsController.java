@@ -251,11 +251,7 @@ public class GroupsController {
         logger.info("DELETE REQUEST /groups/removeUsers");
 
         try {
-            RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder()
-                    .setGroupId(groupId)
-                    .addAllUserIds(userIds)
-                    .build();
-            RemoveGroupMembersResponse response = groupsClientService.removeGroupMembers(request);
+            RemoveGroupMembersResponse response = groupService.removeUsersFromGroup(groupId, userIds);
             if (response.getIsSuccess()) {
                 return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
             }
