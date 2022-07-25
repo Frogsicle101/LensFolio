@@ -49,7 +49,6 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
         AuthenticateResponse.Builder reply = AuthenticateResponse.newBuilder();
 
         User foundUser = repository.findByUsername(request.getUsername());
-        logger.info("Found user to authenticate, database username = {}", foundUser.getUsername());
         LoginService service = new LoginService();
         LoginService.LoginStatus status = service.checkLogin(foundUser, request);
 
@@ -112,7 +111,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
      */
     private void setNoUserReply(String username, AuthenticateResponse.Builder reply) {
         reply
-                .setMessage("Log in attempt failed: could not find user: " + username)
+                .setMessage("Log in attempt failed: could not find user " + username)
                 .setSuccess(false)
                 .setToken("");
     }
