@@ -77,6 +77,17 @@ gradlew bootRun
 
 By default, the Portfolio will run on local port 9000 (`http://localhost:9000`)
 
+## Login Details
+### Admin Account:
+    username: admin
+    password: password
+### Teacher Account:
+    username: steve
+    password: password
+### Student Account:
+    username: Robert.abe1989
+    password: thib2eCuTh
+
 ## Contributors
 
 - Frederik Markwell (fma107)
