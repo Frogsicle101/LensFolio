@@ -80,14 +80,12 @@ $(document).ready(function() {
     for (let i = 0; i < listOfGroupDivs.length; i++) {
         $(listOfGroupDivs[i]).droppable({
             over: function(event, ui) {
-                console.log($(this))
                 $(this).effect("shake")
 
             },
             drop: function(event) {
-                console.log(event)
-                $(this).addClass("ui-state-highlight")
                 addUsers($(this).attr("id"))
+                $(".group").removeClass("ui-state-highlight")
             }
         })
     }
