@@ -15,7 +15,20 @@ $(document).ready(function() {
 
 
         selected: function( e, ui ) {
-            $( ui.selected ).addClass( "selected" );
+            let currentlySelected = $(ui.selected)
+            currentlySelected.addClass("selected")
+
+            if (shiftDown) { // Checks if the shift key is currently pressed
+                if (parseInt(currentlySelected.attr("id")) > parseInt(lastSelectedRow.attr("id"))) {
+                    currentlySelected.prevUntil(lastSelectedRow).addClass("selected")
+                } else if (currentlySelected.attr("id") < parseInt(lastSelectedRow.attr("id"))) {
+                    currentlySelected.nextUntil(lastSelectedRow).addClass("selected")
+                }
+                lastSelectedRow.addClass("selected")
+                currentlySelected.addClass( "selected" );
+            }
+
+            lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
             checkToSeeIfHideOrShowOptions()
 
         },
@@ -23,8 +36,12 @@ $(document).ready(function() {
         unselected: function( e, ui ) {
             $( ui.unselected ).removeClass( "selected" );
             checkToSeeIfHideOrShowOptions()
+
         }
     });
+
+
+
 })
 
 // ******************************* Functions *******************************
@@ -82,7 +99,7 @@ function displayGroupUsersList(groupId) {
                     imageSource = response.userList[member].imagePath
                 }
                 membersContainer.append(
-                    `<tr class="userRow" userId=${response.userList[member].id}>
+                    `<tr class="userRow" userId=${response.userList[member].id} id="${member}">
                     <td>${response.userList[member].id}</td>
                     <td>
                         <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
@@ -255,12 +272,6 @@ $(document).on("click", "#selectAllCheckboxGroups", function() {
 //  */
 // $(document).on("click", ".userRow", function() {
 //
-//     if (!controlDown && !shiftDown) {
-//         $(".selected").each(function() {
-//             $(this).removeClass("selected")
-//             $(this).find("input[type=checkbox]").prop("checked", false)
-//         })
-//     }
 //     if (shiftDown) {
 //         let boundaries = []; // Boundaries in this case are the first user, and the last user, used to select everything between.
 //         boundaries.push(lastSelectedRow)
@@ -274,14 +285,6 @@ $(document).on("click", "#selectAllCheckboxGroups", function() {
 //                 $(this).find("input[type=checkbox]").prop("checked", true)
 //             }
 //         })
-//     } else {
-//         if ($(this).hasClass("selected")) {
-//             $(this).removeClass("selected")
-//             $(this).find("input[type=checkbox]").prop("checked", false)
-//         } else {
-//             $(this).addClass("selected")
-//             $(this).find("input[type=checkbox]").prop("checked", true)
-//         }
 //     }
 //     lastSelectedRow = $(this).attr("userId")
 //     checkToSeeIfHideOrShowOptions()
