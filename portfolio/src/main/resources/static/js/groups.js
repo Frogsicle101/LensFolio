@@ -3,6 +3,7 @@ let shiftDown = false;
 let selectedGroupId;
 let lastSelectedRow;
 let group;
+let singleClick = true;
 
 const TEACHER_GROUP_ID = 1
 
@@ -18,7 +19,9 @@ $(document).ready(function() {
             let currentlySelected = $(ui.selected)
             currentlySelected.addClass("selected")
 
+            singleClick = !e.ctrlKey
             if (shiftDown) { // Checks if the shift key is currently pressed
+                singleClick = false
                 if (parseInt(currentlySelected.attr("id")) > parseInt(lastSelectedRow.attr("id"))) {
                     currentlySelected.prevUntil(lastSelectedRow).addClass("selected")
                 } else if (currentlySelected.attr("id") < parseInt(lastSelectedRow.attr("id"))) {
@@ -31,6 +34,12 @@ $(document).ready(function() {
             lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
             checkToSeeIfHideOrShowOptions()
 
+        },
+        stop: function() {
+            if (singleClick) {
+                $(".selected").removeClass("selected")
+                lastSelectedRow.addClass("selected")
+            }
         },
 
         unselected: function( e, ui ) {
