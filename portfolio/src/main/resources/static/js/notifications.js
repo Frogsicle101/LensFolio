@@ -3,8 +3,12 @@
 let stompClient = null
 
 
+/**
+ * Called by STOMPJS whenever the websocket needs to reconnect
+ * @returns A new instance of SockJS.
+ */
 function mySocketFactory() {
-    return new SockJS("/websocket")
+    return new SockJS(window.location.pathname + "/../websocket")
 }
 
 

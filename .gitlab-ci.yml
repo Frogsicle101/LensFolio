@@ -5,7 +5,6 @@ stages:
   - test
   - sonarqube
   - deploy
-  - sonarqube
 
 sonarqube-report:
   stage: sonarqube
@@ -17,15 +16,6 @@ sonarqube-report:
   only:
     - master
 
-
-sonarqube-report:
-  stage: sonarqube
-  script:
-    - cd identityprovider
-    - ./gradlew sonarqube
-    - cd ../portfolio
-    - ./gradlew sonarqube
-    
 tag-checker:
   stage: tagChecking
   script:
@@ -42,6 +32,7 @@ junit-porfolio:
     - dev
     - master
     - tags
+    - S5_UR3_sockJSSpike
 
 junit-identityprovider:
   stage: test
@@ -52,6 +43,7 @@ junit-identityprovider:
     - dev
     - master
     - tags
+    - S5_UR3_sockJSSpike
 
 
 publish-protos-to-maven-local:
@@ -77,6 +69,7 @@ branch-build:
     - tags
     - master
     - dev
+    - S5_UR3_sockJSSpike
 
 deploy-staging-identityprovider:
   stage: deploy
@@ -98,6 +91,7 @@ deploy-staging-identityprovider:
       - identityprovider/build/libs
   only:
     - dev
+    - S5_UR3_sockJSSpike
 
 deploy-staging-portfolio:
   stage: deploy
@@ -117,6 +111,7 @@ deploy-staging-portfolio:
       - portfolio/build/libs
   only:
     - dev
+    - S5_UR3_sockJSSpike
 
 deploy-production-identityprovider:
   stage: deploy
@@ -138,7 +133,6 @@ deploy-production-identityprovider:
       - identityprovider/build/libs
   only:
     - tags
-    - master
 
 deploy-production-portfolio:
   stage: deploy
@@ -158,4 +152,3 @@ deploy-production-portfolio:
       - portfolio/build/libs
   only:
     - tags
-    - master
