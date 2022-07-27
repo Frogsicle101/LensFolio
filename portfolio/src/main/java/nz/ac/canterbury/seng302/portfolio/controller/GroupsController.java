@@ -230,6 +230,39 @@ public class GroupsController {
         }
     }
 
+    /**
+     * Endpoint for students to edit their own groups longname.
+     * Students have access for this endpoint, but can only modify the longname of a group they are in.
+     *
+     * @param principal The user who made the request.
+     * @param groupId The id of the group they wish to modify.
+     * @param longName  The new long name of the group.
+     * @return ResponseEntity A response entity containing either Modified or BAD_REQUEST (for now).
+     */
+    @PatchMapping("/groups/edit/longName")
+    public ResponseEntity<String> modifyGroupLongName(@AuthenticationPrincipal Authentication principal,
+                                                     @RequestParam Integer groupId,
+                                                     @RequestParam String longName) {
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
+        logger.info("PATCH REQUEST /groups/edit/longName - attempt to modify details of group {} by user: {}", groupId, userId);
+        try {
+            ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()
+                    .setGroupId(groupId)
+                    .setShortName("") //A blank shortname should be ignored (i.e. no changes made)
+                    .setLongName(longName)
+                    .build();
+            ModifyGroupDetailsResponse response = groupsClientService.modifyGroupDetails(request);
+            if (response.getIsSuccess()) {
+                return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            logger.error("ERROR /groups/edit/longName - an error occurred while modifying a group's long name");
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     /**
      * Post mapping for a user to be added to a group. Restricted to course administrators and teachers.

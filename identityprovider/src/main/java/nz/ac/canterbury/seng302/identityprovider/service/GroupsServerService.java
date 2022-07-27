@@ -191,7 +191,9 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                         .setIsSuccess(false);
                     logger.warn("Group Modify - trying to update group details for group {}: {}",request.getGroupId(), "A group exists with the longName " + request.getLongName());
                 } else {
-                    group.setShortName(request.getShortName());
+                    if (!request.getShortName().equals("")) { //If the shortname isn't blank, change it
+                        group.setShortName(request.getShortName());
+                    }
                     group.setLongName(request.getLongName());
                     groupRepository.save(group);
                     response.setIsSuccess(true)
