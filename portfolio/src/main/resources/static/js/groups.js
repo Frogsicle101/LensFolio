@@ -6,6 +6,27 @@ let group;
 
 const TEACHER_GROUP_ID = 1
 
+$(document).ready(function() {
+
+    $( "table > tbody" ).selectable({
+
+        // Don't allow individual table cell selection.
+        filter: ":not(td)",
+
+
+        selected: function( e, ui ) {
+            $( ui.selected ).addClass( "selected" );
+            checkToSeeIfHideOrShowOptions()
+
+        },
+
+        unselected: function( e, ui ) {
+            $( ui.unselected ).removeClass( "selected" );
+            checkToSeeIfHideOrShowOptions()
+        }
+    });
+})
+
 // ******************************* Functions *******************************
 
 /**
@@ -228,44 +249,45 @@ $(document).on("click", "#selectAllCheckboxGroups", function() {
 
 })
 
-/**
- * handles all the functionality for selecting users.
- * Allows for using shift+click and ctrl+click functionality.
- */
-$(document).on("click", ".userRow", function() {
-
-    if (!controlDown && !shiftDown) {
-        $(".selected").each(function() {
-            $(this).removeClass("selected")
-            $(this).find("input[type=checkbox]").prop("checked", false)
-        })
-    }
-    if (shiftDown) {
-        let boundaries = []; // Boundaries in this case are the first user, and the last user, used to select everything between.
-        boundaries.push(lastSelectedRow)
-        boundaries.push($(this).attr("userId"));
-        boundaries[0] = parseInt(boundaries[0])
-        boundaries[1] = parseInt(boundaries[1])
-        boundaries = boundaries.sort()
-        $(".userRow").each(function() {
-            if ($(this).attr("userId") >= boundaries[0] && $(this).attr("userId") <= boundaries[1]) {
-                $(this).addClass("selected")
-                $(this).find("input[type=checkbox]").prop("checked", true)
-            }
-        })
-    } else {
-        if ($(this).hasClass("selected")) {
-            $(this).removeClass("selected")
-            $(this).find("input[type=checkbox]").prop("checked", false)
-        } else {
-            $(this).addClass("selected")
-            $(this).find("input[type=checkbox]").prop("checked", true)
-        }
-    }
-    lastSelectedRow = $(this).attr("userId")
-    checkToSeeIfHideOrShowOptions()
-
-})
+// /**
+//  * handles all the functionality for selecting users.
+//  * Allows for using shift+click and ctrl+click functionality.
+//  */
+// $(document).on("click", ".userRow", function() {
+//
+//     if (!controlDown && !shiftDown) {
+//         $(".selected").each(function() {
+//             $(this).removeClass("selected")
+//             $(this).find("input[type=checkbox]").prop("checked", false)
+//         })
+//     }
+//     if (shiftDown) {
+//         let boundaries = []; // Boundaries in this case are the first user, and the last user, used to select everything between.
+//         boundaries.push(lastSelectedRow)
+//         boundaries.push($(this).attr("userId"));
+//         boundaries[0] = parseInt(boundaries[0])
+//         boundaries[1] = parseInt(boundaries[1])
+//         boundaries = boundaries.sort()
+//         $(".userRow").each(function() {
+//             if ($(this).attr("userId") >= boundaries[0] && $(this).attr("userId") <= boundaries[1]) {
+//                 $(this).addClass("selected")
+//                 $(this).find("input[type=checkbox]").prop("checked", true)
+//             }
+//         })
+//     } else {
+//         if ($(this).hasClass("selected")) {
+//             $(this).removeClass("selected")
+//             $(this).find("input[type=checkbox]").prop("checked", false)
+//         } else {
+//             $(this).addClass("selected")
+//             $(this).find("input[type=checkbox]").prop("checked", true)
+//         }
+//     }
+//     lastSelectedRow = $(this).attr("userId")
+//     checkToSeeIfHideOrShowOptions()
+//
+//
+// })
 
 // ******************************* Keydown listeners *******************************
 
