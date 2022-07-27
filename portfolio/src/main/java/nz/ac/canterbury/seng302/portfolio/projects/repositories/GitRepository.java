@@ -62,7 +62,6 @@ public class GitRepository {
         return id;
     }
 
-
     public Integer getGroupId() {
         return groupId;
     }
