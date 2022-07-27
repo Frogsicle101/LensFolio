@@ -9,16 +9,23 @@ const TEACHER_GROUP_ID = 1
 
 $(document).ready(function() {
 
-    $( "table > tbody" ).selectable({
+    /**
+     * JQuery UI Selectable interaction
+     * https://api.jqueryui.com/selectable/
+     */
+    $( "table > tbody" ).selectable({ //
 
         // Don't allow individual table cell selection.
         filter: ":not(td)",
 
-
-        selected: function( e, ui ) {
+        /**
+         * Runs a function over every selected element
+         * @param e event
+         * @param ui the selectable item that has been selected
+         */
+        selected: function(e, ui) {
             let currentlySelected = $(ui.selected)
             currentlySelected.addClass("selected")
-
             singleClick = !e.ctrlKey
             if (shiftDown) { // Checks if the shift key is currently pressed
                 singleClick = false
@@ -30,11 +37,14 @@ $(document).ready(function() {
                 lastSelectedRow.addClass("selected")
                 currentlySelected.addClass( "selected" );
             }
-
             lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
             checkToSeeIfHideOrShowOptions()
 
         },
+
+        /**
+         * Triggered at the end of the select operation.
+         */
         stop: function() {
             if (singleClick) {
                 $(".selected").removeClass("selected")
@@ -42,14 +52,17 @@ $(document).ready(function() {
             }
         },
 
-        unselected: function( e, ui ) {
+        /**
+         * Triggered at the end of the select operation, on each element removed from the selection.
+         * @param e event
+         * @param ui The selectable item that has been unselected.
+         */
+        unselected: function(e, ui) {
             $( ui.unselected ).removeClass( "selected" );
             checkToSeeIfHideOrShowOptions()
 
         }
     });
-
-
 
 })
 
