@@ -3,6 +3,11 @@
 let stompClient = null
 
 
+function mySocketFactory() {
+    return new SockJS("/websocket")
+}
+
+
 /**
  * Connects via websockets to the server, listening to all messages from /notifications/sending/occasions
  * and designates handleNotification to run whenever we get a message
@@ -11,7 +16,8 @@ function connect() {
 
     stompClient = new StompJs.Client();
     stompClient.configure({
-        brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
+        // brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
+        webSocketFactory: mySocketFactory,
         reconnectDelay: 5000,
         debug: function (str) {
             console.log(str);

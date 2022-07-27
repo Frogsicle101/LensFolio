@@ -42,7 +42,7 @@ dependencies {
     added by oliver for story UR3 19/05/21
      */
     implementation 'org.webjars:webjars-locator-core'
-    implementation 'org.webjars:sockjs-client:1.5.1'
+    implementation 'org.webjars.npm:sockjs-client:1.6.1'
     implementation 'org.webjars.npm:stomp__stompjs:6.1.2'
 
 
