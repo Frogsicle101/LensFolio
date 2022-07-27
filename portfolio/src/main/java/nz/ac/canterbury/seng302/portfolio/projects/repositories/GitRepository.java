@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.projects.repositories;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
@@ -14,6 +15,7 @@ import javax.persistence.Id;
  *  - The alias (name) of the repository
  *  - The accessToken to access the GitLab API information
  */
+@Entity
 public class GitRepository {
 
     /** An automatically generated repository ID to be the primary key of the repo. */
@@ -32,6 +34,12 @@ public class GitRepository {
 
     /** The access token to retrieve repository information from the GitLab API */
     private String accessToken;
+
+
+    /**
+     * Required default constructor for JPA
+     */
+    protected GitRepository() {}
 
 
     /**
