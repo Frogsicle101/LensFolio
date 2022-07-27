@@ -38,6 +38,17 @@ $(document).ready(function() {
                 currentlySelected.addClass( "selected" );
             }
             lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
+            $(".selected").draggable({
+                revert: true,
+                start: function(){
+
+
+                },
+
+                stop: function() {
+
+                }
+            })
             checkToSeeIfHideOrShowOptions()
 
         },
@@ -59,14 +70,53 @@ $(document).ready(function() {
          */
         unselected: function(e, ui) {
             $( ui.unselected ).removeClass( "selected" );
+            $( ui.unselected ).removeClass("ui-draggable")
             checkToSeeIfHideOrShowOptions()
 
         }
     });
 
+    let listOfGroupDivs = $(".group")
+    for (let i = 0; i < listOfGroupDivs.length; i++) {
+        $(listOfGroupDivs[i]).droppable({
+            over: function(event, ui) {
+                console.log($(this))
+                $(this).effect("shake")
+
+            },
+            drop: function(event) {
+                console.log(event)
+                $(this).addClass("ui-state-highlight")
+                addUsers($(this).attr("id"))
+            }
+        })
+    }
+
+
 })
 
 // ******************************* Functions *******************************
+
+/**
+ * Ajax post request to the server for moving users from one group to another
+ */
+function addUsers(groupId) {
+    let arrayOfIds = [];
+    $(".selected").each(function() {
+        arrayOfIds.push($(this).attr("userId"))
+    })
+    $.ajax({
+        url: `/groups/addUsers?groupId=${groupId}&userIds=${arrayOfIds}`,
+        type: "post",
+        success: function() {
+            displayGroupUsersList(selectedGroupId)
+        },
+        error: function(response) {
+            console.log(response)
+        }
+    })
+}
+
 
 /**
  * Displays the options for what to do with selected users.
@@ -101,8 +151,6 @@ function checkToSeeIfHideOrShowOptions() {
  * @param groupId the id of the group to fetch
  */
 function displayGroupUsersList(groupId) {
-
-
     let membersContainer = $("#groupTableBody")
     $.ajax({
         url: `group?groupId=${groupId}`,
@@ -133,6 +181,7 @@ function displayGroupUsersList(groupId) {
                 )}
             $("#groupInformationContainer").slideDown()
             checkToSeeIfHideOrShowOptions()
+
         },
         error: (error) => {
             $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -257,20 +306,7 @@ $(document).on("click", ".group", function () {
  * Ajax post request to the server for moving users from one group to another
  */
 $(document).on("click", "#moveUsersButton", function() {
-    let arrayOfIds = [];
-    $(".selected").each(function() {
-        arrayOfIds.push($(this).attr("userId"))
-    })
-    $.ajax({
-        url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
-        type: "post",
-        success: function() {
-            displayGroupUsersList(selectedGroupId)
-        },
-        error: function(response) {
-            console.log(response)
-        }
-    })
+    addUsers($("#newGroupSelector").val())
 })
 
 /**
