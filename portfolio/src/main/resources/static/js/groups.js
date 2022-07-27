@@ -204,11 +204,12 @@ $(document).on("click", "#moveUsersButton", function() {
     $.ajax({
         url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
-        success: function() {
-            displayGroupUsersList(selectedGroupId)
+        success: function(event) {
+            displayGroupUsersList(selectedGroupId, false)
+            createAlert(event, false)
         },
         error: function(response) {
-            console.log(response)
+            createAlert("Error moving users", true)
         }
     })
 })
