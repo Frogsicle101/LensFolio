@@ -31,8 +31,7 @@ function connect() {
         onStompError: function (frame) {
             console.log('Broker reported error: ' + frame.headers['message']);
             console.log('Additional details: ' + frame.body);
-        },
-        connectionTimeout: 20000
+        }
     });
 
     stompClient.onConnect = (frame) => {
