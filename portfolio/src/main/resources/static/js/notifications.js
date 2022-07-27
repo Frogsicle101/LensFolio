@@ -32,7 +32,7 @@ function connect() {
             console.log('Broker reported error: ' + frame.headers['message']);
             console.log('Additional details: ' + frame.body);
         },
-        connectionTimeout: 5000
+        connectionTimeout: 20000
     });
 
     stompClient.onConnect = (frame) => {
