@@ -22,7 +22,7 @@ function connect() {
     stompClient.configure({
         // brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
         webSocketFactory: mySocketFactory,
-        reconnectDelay: 5000,
+        reconnectDelay: 60000,
         debug: function (str) {
             console.log(str);
         },
