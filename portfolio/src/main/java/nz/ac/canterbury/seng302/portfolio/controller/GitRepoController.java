@@ -19,21 +19,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class GitRepoController {
 
-    /**
-     * For logging the requests related to git repositories.
-     */
+    /** For logging the requests related to git repositories. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * The repository in which group git repositories are stored.
-     */
+    /** The repository in which group git repositories are stored. */
+    @Autowired
     private final GitRepoRepository gitRepoRepository;
 
-    /**
-     * For making gRpc requests to the IdP.
-     */
+    /** For making gRpc requests to the IdP. */
     @Autowired
     private GroupsClientService groupsClientService;
+
+    /** Required regex for the git repository access token. */
+    private final String accessTokenRegex = "^[0-9a-f]{40}$";
 
 
     /**
@@ -74,6 +72,10 @@ public class GitRepoController {
                     .setGroupId(groupId)
                     .build();
             groupsClientService.getGroupDetails(request); //check that group exists
+
+            if (alias.isBlank() || !accessToken.matches(accessTokenRegex)) {
+                throw new Exception("Required regex not matched by parameters");
+            }
 
             GitRepository gitRepository = new GitRepository(groupId, projectId, alias, accessToken);
             gitRepoRepository.save(gitRepository);
