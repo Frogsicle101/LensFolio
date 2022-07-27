@@ -33,10 +33,6 @@ $(document).ready(function() {
 
         },
 
-        stop: function(e , ui) {
-
-        },
-
         unselected: function( e, ui ) {
             $( ui.unselected ).removeClass( "selected" );
             checkToSeeIfHideOrShowOptions()
@@ -44,85 +40,7 @@ $(document).ready(function() {
         }
     });
 
-    // This functionality was taken from https://stackoverflow.com/questions/54585638/enable-shift-multiselect-in-jquery-ui-selectable-for-div-elements#comment95968633_54585965
-    $(function() {
-        $.widget("custom.shiftSelect", $.ui.selectable, {
-            _mouseStart: function(event) {
-                var that = this,
-                    options = this.options;
 
-                this.opos = [event.pageX, event.pageY];
-                this.elementPos = $(this.element[0]).offset();
-
-                if (this.options.disabled) {
-                    return;
-                }
-
-                this.selectees = $(options.filter, this.element[0]);
-
-                this._trigger("start", event);
-
-                $(options.appendTo).append(this.helper);
-
-                // position helper (lasso)
-                this.helper.css({
-                    "left": event.pageX,
-                    "top": event.pageY,
-                    "width": 0,
-                    "height": 0
-                });
-
-                if (options.autoRefresh) {
-                    this.refresh();
-                }
-
-                this.selectees.filter(".ui-selected").each(function() {
-                    var selectee = $.data(this, "selectable-item");
-                    selectee.startselected = true;
-                    if (!event.metaKey && !event.ctrlKey && !event.shiftKey) {
-                        that._removeClass(selectee.$element, "ui-selected");
-                        selectee.selected = false;
-                        that._addClass(selectee.$element, "ui-unselecting");
-                        selectee.unselecting = true;
-
-                        // selectable UNSELECTING callback
-                        that._trigger("unselecting", event, {
-                            unselecting: selectee.element
-                        });
-                    }
-                });
-
-                $(event.target).parents().addBack().each(function() {
-                    var doSelect,
-                        selectee = $.data(this, "selectable-item");
-                    if (selectee) {
-                        doSelect = (!event.metaKey && !event.ctrlKey) ||
-                            !selectee.$element.hasClass("ui-selected");
-                        that._removeClass(selectee.$element, doSelect ? "ui-unselecting" : "ui-selected")
-                            ._addClass(selectee.$element, doSelect ? "ui-selecting" : "ui-unselecting");
-                        selectee.unselecting = !doSelect;
-                        selectee.selecting = doSelect;
-                        selectee.selected = doSelect;
-
-                        // selectable (UN)SELECTING callback
-                        if (doSelect) {
-                            that._trigger("selecting", event, {
-                                selecting: selectee.element
-                            });
-                        } else {
-                            that._trigger("unselecting", event, {
-                                unselecting: selectee.element
-                            });
-                        }
-                        return false;
-                    }
-                });
-
-            }
-        });
-
-        $("#selectable").shiftSelect();
-    });
 
 })
 
