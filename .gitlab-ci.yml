@@ -68,6 +68,7 @@ branch-build:
     - tags
     - master
     - dev
+    - S5_UR3_sockJS
 
 deploy-staging-identityprovider:
   stage: deploy
@@ -89,6 +90,7 @@ deploy-staging-identityprovider:
       - identityprovider/build/libs
   only:
     - dev
+    - S5_UR3_sockJS
 
 deploy-staging-portfolio:
   stage: deploy
@@ -108,6 +110,7 @@ deploy-staging-portfolio:
       - portfolio/build/libs
   only:
     - dev
+    - S5_UR3_sockJS
 
 deploy-production-identityprovider:
   stage: deploy
