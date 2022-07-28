@@ -8,6 +8,7 @@ import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetGroupDetailsRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class GitRepoController {
 
 
     /**
-     * Mapping for a post request to add a git repository to a group. Restricted to group members.
+     * Mapping for a post request to add a git repository to a group. Restricted to group members,teachers, and admin.
      * The method checks that the given group Id is valid, and then creates a git repository object using the provided
      * group Id, project Id (the Id of the git project), git repository alias, and git repository access token. The
      * created repository is then saved to the git repository repository: the repository which stores git repositories.
@@ -75,7 +76,7 @@ public class GitRepoController {
 
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
-            if (!response.getMembersList().contains(user)) {
+            if (!response.getMembersList().contains(user) && !user.getRolesList().contains(UserRole.COURSE_ADMINISTRATOR) && !user.getRolesList().contains(UserRole.TEACHER)) {
                 logger.error("User not authorised to edit this group");
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }

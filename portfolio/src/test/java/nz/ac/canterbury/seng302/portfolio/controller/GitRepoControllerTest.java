@@ -21,7 +21,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,37 +52,44 @@ public class GitRepoControllerTest {
 
     @BeforeEach
     public void beforeAll() {
-        principal = new Authentication(AuthState.newBuilder()
-                .setIsAuthenticated(true)
-                .setNameClaimType("name")
-                .setRoleClaimType("role")
-                .addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build())
-                .addClaims(ClaimDTO.newBuilder().setType("role").setValue("course_administrator").build())
-                .build());
 
-        UserResponse.Builder userBuilder = UserResponse.newBuilder()
-                .setUsername("steve")
-                .setFirstName("Steve")
-                .setMiddleName("McSteve")
-                .setLastName("Steveson")
-                .setNickname("Stev")
-                .setBio("kdsflkdjf")
-                .setPersonalPronouns("Steve/Steve")
-                .setEmail("steve@example.com")
-                .setProfileImagePath("a");
-        userBuilder.addRoles(UserRole.STUDENT);
-        userResponse = userBuilder.build();
-
-        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService)).thenReturn(userResponse);
-        Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal.getAuthState());
-
-        setupContext();
     }
 
 
     @Test
     void testAddGitRepoValid() throws Exception {
+        setUserRoleToStudent();
         setUserToGroupMember();
+        setupContext();
+
+        mockMvc.perform(post("/addGitRepo")
+                        .param("groupId", "1")
+                        .param("projectId", "1")
+                        .param("alias", "repo alias")
+                        .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testAddGitRepoValidTeacher() throws Exception {
+        setUserRoleToTeacher();
+        setUserToNotGroupMember();
+        setupContext();
+
+        mockMvc.perform(post("/addGitRepo")
+                        .param("groupId", "1")
+                        .param("projectId", "1")
+                        .param("alias", "repo alias")
+                        .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void testAddGitRepoValidAdmin() throws Exception {
+        setUserRoleToAdmin();
+        setUserToNotGroupMember();
+        setupContext();
 
         mockMvc.perform(post("/addGitRepo")
                         .param("groupId", "1")
@@ -96,7 +102,9 @@ public class GitRepoControllerTest {
 
     @Test
     void testAddGitRepoInvalidUser() throws Exception {
+        setUserRoleToStudent();
         setUserToNotGroupMember();
+        setupContext();
 
         mockMvc.perform(post("/addGitRepo")
                         .param("groupId", "1")
@@ -109,7 +117,9 @@ public class GitRepoControllerTest {
 
     @Test
     void testAddGitRepoInvalidGroupId() throws Exception {
+        setUserRoleToStudent();
         setUserToGroupMember();
+        setupContext();
 
         mockMvc.perform(post("/addGitRepo")
                         .param("groupId", "invalid")
@@ -122,7 +132,9 @@ public class GitRepoControllerTest {
 
     @Test
     void testAddGitRepoInvalidProjectId() throws Exception {
+        setUserRoleToStudent();
         setUserToGroupMember();
+        setupContext();
 
         mockMvc.perform(post("/addGitRepo")
                         .param("groupId", "1")
@@ -135,7 +147,9 @@ public class GitRepoControllerTest {
 
     @Test
     void testAddGitRepoInvalidAlias() throws Exception {
+        setUserRoleToStudent();
         setUserToGroupMember();
+        setupContext();
 
         mockMvc.perform(post("/addGitRepo")
                         .param("groupId", "1")
@@ -148,7 +162,9 @@ public class GitRepoControllerTest {
 
     @Test
     void testAddGitRepoNoAccessToken() throws Exception {
+        setUserRoleToStudent();
         setUserToGroupMember();
+        setupContext();
 
         mockMvc.perform(post("/addGitRepo")
                         .param("groupId", "1")
@@ -161,7 +177,9 @@ public class GitRepoControllerTest {
 
     @Test
     void testAddGitRepoInvalidAccessTokenCharacters() throws Exception {
+        setUserRoleToStudent();
         setUserToGroupMember();
+        setupContext();
 
         mockMvc.perform(post("/addGitRepo")
                         .param("groupId", "1")
@@ -187,6 +205,87 @@ public class GitRepoControllerTest {
                 .addMembers(emptyUserResponse).build();
 
         Mockito.when(groupsClientService.getGroupDetails(any())).thenReturn(response);
+    }
+
+
+    private void setUserRoleToStudent() {
+        principal = new Authentication(AuthState.newBuilder()
+                .setIsAuthenticated(true)
+                .setNameClaimType("name")
+                .setRoleClaimType("role")
+                .addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build())
+                .addClaims(ClaimDTO.newBuilder().setType("role").setValue("student").build())
+                .build());
+
+        UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setUsername("steve")
+                .setFirstName("Steve")
+                .setMiddleName("McSteve")
+                .setLastName("Steveson")
+                .setNickname("Stev")
+                .setBio("kdsflkdjf")
+                .setPersonalPronouns("Steve/Steve")
+                .setEmail("steve@example.com")
+                .setProfileImagePath("a");
+        userBuilder.addRoles(UserRole.STUDENT);
+        userResponse = userBuilder.build();
+
+        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService)).thenReturn(userResponse);
+        Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal.getAuthState());
+    }
+
+
+    private void setUserRoleToTeacher() {
+        principal = new Authentication(AuthState.newBuilder()
+                .setIsAuthenticated(true)
+                .setNameClaimType("name")
+                .setRoleClaimType("role")
+                .addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build())
+                .addClaims(ClaimDTO.newBuilder().setType("role").setValue("teacher").build())
+                .build());
+
+        UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setUsername("steve")
+                .setFirstName("Steve")
+                .setMiddleName("McSteve")
+                .setLastName("Steveson")
+                .setNickname("Stev")
+                .setBio("kdsflkdjf")
+                .setPersonalPronouns("Steve/Steve")
+                .setEmail("steve@example.com")
+                .setProfileImagePath("a");
+        userBuilder.addRoles(UserRole.TEACHER);
+        userResponse = userBuilder.build();
+
+        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService)).thenReturn(userResponse);
+        Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal.getAuthState());
+    }
+
+
+    private void setUserRoleToAdmin() {
+        principal = new Authentication(AuthState.newBuilder()
+                .setIsAuthenticated(true)
+                .setNameClaimType("name")
+                .setRoleClaimType("role")
+                .addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build())
+                .addClaims(ClaimDTO.newBuilder().setType("role").setValue("course_administrator").build())
+                .build());
+
+        UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setUsername("steve")
+                .setFirstName("Steve")
+                .setMiddleName("McSteve")
+                .setLastName("Steveson")
+                .setNickname("Stev")
+                .setBio("kdsflkdjf")
+                .setPersonalPronouns("Steve/Steve")
+                .setEmail("steve@example.com")
+                .setProfileImagePath("a");
+        userBuilder.addRoles(UserRole.COURSE_ADMINISTRATOR);
+        userResponse = userBuilder.build();
+
+        when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService)).thenReturn(userResponse);
+        Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal.getAuthState());
     }
 
 
