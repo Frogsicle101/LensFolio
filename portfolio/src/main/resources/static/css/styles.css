@@ -736,11 +736,13 @@ section {
     padding-top: 1rem;
 }
 
-#group-settings-page {
+.git-commit-info {
     border: solid 1px var(--main-border-colour);
     background-color: var(--background-colour-white);
     border-radius: var(--border-radius);
     padding: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+    margin-top: 1rem;
 }
 
 .margin-sides-1 {
@@ -755,4 +757,8 @@ section {
 .inline-text {
     display: flex;
     justify-content: left;
+}
+
+#group-settings-repo-information-section {
+    margin-bottom: 2rem;
 }
