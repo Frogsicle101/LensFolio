@@ -123,10 +123,14 @@ public class GitRepoController {
 
 
         try {
+            //check groupId is correct
             GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)
                     .build();
-            groupsClientService.getGroupDetails(request); //check that group exists
+            groupsClientService.getGroupDetails(request);
+
+            //ToDo: check the projectId is correct
+            //ToDo: check the accessToken is correct
 
             logger.info("GET /getRepo");
             List<GitRepository> gitRepos = gitRepoRepository.findAllByGroupId(projectId);
