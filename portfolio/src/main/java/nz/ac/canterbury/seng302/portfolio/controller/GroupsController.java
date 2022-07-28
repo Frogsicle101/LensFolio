@@ -230,6 +230,7 @@ public class GroupsController {
         }
     }
 
+
     /**
      * Endpoint for students to edit their own groups longname.
      * Students have access for this endpoint, but can only modify the longname of a group they are in.
