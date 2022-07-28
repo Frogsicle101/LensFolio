@@ -6,6 +6,8 @@ let group;
 let singleClick = true;
 const TEACHER_GROUP_ID = 1
 
+
+
 $(document).ready(function() {
 
     /**
@@ -51,6 +53,7 @@ $(document).ready(function() {
                 $(".selected").removeClass("selected")
                 lastSelectedRow.addClass("selected")
             }
+            checkToSeeIfHideOrShowOptions()
         },
 
         /**
@@ -75,7 +78,7 @@ $(document).ready(function() {
  */
 function showOptions(show) {
     if ($("#groupDisplayOptions").is(':hidden')) {
-        console.log($("#groupDisplayOptions").is(':visible'))
+
         if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
             $("#groupDisplayOptions").slideDown()
         } else {
@@ -93,7 +96,6 @@ function showOptions(show) {
  */
 function checkToSeeIfHideOrShowOptions() {
     let amountSelected = $(".selected").length
-    console.log(amountSelected)
     if (amountSelected > 0) {
         showOptions(true)
     } else {
@@ -322,6 +324,7 @@ $(document).keyup(function(event) {
         shiftDown = false;
     }
 })
+
 
 // ******************************* Change listeners *******************************
 
