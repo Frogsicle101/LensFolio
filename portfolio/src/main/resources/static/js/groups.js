@@ -38,15 +38,22 @@ $(document).ready(function() {
                 currentlySelected.addClass( "selected" );
             }
             lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
+            /**
+             * Makes the selected elements able to  be draggable with the mouse
+             * https://api.jqueryui.com/draggable/
+             */
             $(".selected").draggable({
                 revert: true,
+                /**
+                 * Triggered when dragging starts.
+                 */
                 start: function(){
-
-
                 },
 
+                /**
+                 * Triggered when the draggon stops
+                 */
                 stop: function() {
-
                 }
             })
             checkToSeeIfHideOrShowOptions()
@@ -76,13 +83,30 @@ $(document).ready(function() {
         }
     });
 
-    let listOfGroupDivs = $(".group")
-    for (let i = 0; i < listOfGroupDivs.length; i++) {
+
+    let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
+    for (let i = 0; i < listOfGroupDivs.length; i++) { // Loops over each div
+        /**
+         * Adds the droppable pluggin to each element that it loops over
+         * https://api.jqueryui.com/droppable/
+         */
         $(listOfGroupDivs[i]).droppable({
+            /**
+             * Triggered when an accepted draggable is dragged over the droppable (based on the tolerance option).
+             * https://api.jqueryui.com/droppable/#event-over
+             * @param event
+             * @param ui
+             */
             over: function(event, ui) {
                 $(this).effect("shake")
-
+                //https://api.jqueryui.com/category/effects/
             },
+
+            /**
+             * Triggered when an accepted draggable is dropped on the droppable (based on thetolerance option).
+             * https://api.jqueryui.com/droppable/#event-drop
+             * @param event
+             */
             drop: function(event) {
                 addUsers($(this).attr("id"))
                 $(".group").removeClass("ui-state-highlight")
