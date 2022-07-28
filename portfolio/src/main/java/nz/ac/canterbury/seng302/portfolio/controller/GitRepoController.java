@@ -13,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 /**
  * The controller for managing requests to edit git repositories and their settings.
  */
@@ -99,12 +101,11 @@ public class GitRepoController {
      *
      * @param groupId     The Id of the group to which the created git repository belongs.
      * @param projectId   The project Id of the git repository.
-     * @param alias       The user-defined alias for the git repository.
      * @param accessToken The access token of the git repository.
      * @return A response entity indicating success or an error. On success, also return the created git repository.
      */
-    @PostMapping("/retrievGitRepo")
-    public ResponseEntity<Object> addGitRepo(
+    @PostMapping("/retrieveGitRepo")
+    public ResponseEntity<Object> retrieveGitRepo(
             @RequestParam Integer groupId,
             @RequestParam Integer projectId,
             @RequestParam String accessToken) {
@@ -126,4 +127,6 @@ public class GitRepoController {
             logger.error(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
 }
+
