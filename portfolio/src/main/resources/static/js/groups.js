@@ -3,12 +3,13 @@ let shiftDown = false;
 let selectedGroupId;
 let lastSelectedRow;
 let group;
-let singleClick = true;
+let notCtrlClick = true;
 const TEACHER_GROUP_ID = 1
 
 
 
 $(document).ready(function() {
+    let arrayOfSelected = []
 
     /**
      * JQuery UI Selectable interaction
@@ -26,17 +27,28 @@ $(document).ready(function() {
          */
         selected: function(e, ui) {
             let currentlySelected = $(ui.selected)
-            currentlySelected.addClass("selected")
-            singleClick = !e.ctrlKey
+            notCtrlClick = !e.ctrlKey
             if (shiftDown) { // Checks if the shift key is currently pressed
-                singleClick = false
+                notCtrlClick = false
                 if (parseInt(currentlySelected.attr("id")) > parseInt(lastSelectedRow.attr("id"))) {
-                    currentlySelected.prevUntil(lastSelectedRow).addClass("selected")
+                    currentlySelected.prevUntil(lastSelectedRow).each(function() {
+                        $(this).addClass("selected")
+                        arrayOfSelected.push($(this))
+                    })
+
                 } else if (currentlySelected.attr("id") < parseInt(lastSelectedRow.attr("id"))) {
-                    currentlySelected.nextUntil(lastSelectedRow).addClass("selected")
+                    currentlySelected.nextUntil(lastSelectedRow).each(function() {
+                        $(this).addClass("selected")
+                        arrayOfSelected.push($(this))
+                    })
+
                 }
                 lastSelectedRow.addClass("selected")
                 currentlySelected.addClass( "selected" );
+                arrayOfSelected.push(lastSelectedRow)
+                arrayOfSelected.push(currentlySelected)
+            } else {
+                arrayOfSelected.push(ui)
             }
             lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
             checkToSeeIfHideOrShowOptions()
@@ -48,12 +60,20 @@ $(document).ready(function() {
         /**
          * Triggered at the end of the select operation.
          */
-        stop: function() {
-            if (singleClick) {
+        stop: function(event, ui) {
+            if (arrayOfSelected.length === 1) {
+                if ($(arrayOfSelected[0].selected).hasClass("selected")) {
+                    $(arrayOfSelected[0].selected).removeClass("selected")
+                } else {
+                    $(arrayOfSelected[0].selected).addClass("selected")
+                }
+            }
+            if (notCtrlClick) {
                 $(".selected").removeClass("selected")
                 lastSelectedRow.addClass("selected")
             }
             checkToSeeIfHideOrShowOptions()
+            arrayOfSelected = []
         },
 
         /**
@@ -62,11 +82,15 @@ $(document).ready(function() {
          * @param ui The selectable item that has been unselected.
          */
         unselected: function(e, ui) {
-            $( ui.unselected ).removeClass( "selected" );
+            if (notCtrlClick) {
+                $(ui.unselected).removeClass("selected");
+            }
             checkToSeeIfHideOrShowOptions()
 
         }
     });
+
+
 
 })
 
@@ -96,6 +120,7 @@ function showOptions(show) {
  */
 function checkToSeeIfHideOrShowOptions() {
     let amountSelected = $(".selected").length
+
     if (amountSelected > 0) {
         showOptions(true)
     } else {
