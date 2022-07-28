@@ -69,18 +69,6 @@ public class GitRepoController {
         logger.info("POST REQUEST /gitRepo/add - attempt to add git repo {} to group {}", alias, groupId);
 
         try {
-            GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
-                    .setGroupId(groupId)
-                    .build();
-            GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
-
-            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-
-            if (!response.getMembersList().contains(user) && !user.getRolesList().contains(UserRole.COURSE_ADMINISTRATOR) && !user.getRolesList().contains(UserRole.TEACHER)) {
-                logger.error("User not authorised to edit this group");
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-
             if (alias.isBlank() || !accessToken.matches(accessTokenRegex)) {
                 throw new Exception("Required regex not matched by parameters");
             }

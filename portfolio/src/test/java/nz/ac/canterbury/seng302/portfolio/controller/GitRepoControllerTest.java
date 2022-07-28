@@ -64,6 +64,21 @@ public class GitRepoControllerTest {
                 .andExpect(status().isOk());
     }
 
+
+    @Test
+    void testAddGitRepoGroupDoesntExist() throws Exception {
+        setUserRoleToStudent();
+        setUserToGroupMember();
+        setupContext();
+
+        mockMvc.perform(post("/addGitRepo")
+                        .param("groupId", "2")
+                        .param("projectId", "1")
+                        .param("alias", "repo alias")
+                        .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
+                .andExpect(status().isUnauthorized());
+    }
+
     @Test
     void testAddGitRepoValidTeacher() throws Exception {
         setUserRoleToTeacher();
@@ -188,10 +203,15 @@ public class GitRepoControllerTest {
 
 
     private void setUserToGroupMember() {
-        response = GroupDetailsResponse.newBuilder()
+        GroupDetailsResponse groupExistsResponse = GroupDetailsResponse.newBuilder()
                 .addMembers(userResponse).build();
 
-        Mockito.when(groupsClientService.getGroupDetails(any())).thenReturn(response);
+        GroupDetailsResponse groupDoesntExistResponse = GroupDetailsResponse.newBuilder().setGroupId(-1).build();
+
+        when(groupsClientService.getGroupDetails(GetGroupDetailsRequest.newBuilder()
+                .setGroupId(1).build())).thenReturn(groupExistsResponse);
+        when(groupsClientService.getGroupDetails(GetGroupDetailsRequest.newBuilder()
+                .setGroupId(2).build())).thenReturn(groupDoesntExistResponse);
     }
 
 

@@ -65,37 +65,36 @@ public class GroupSettingsInterceptor implements HandlerInterceptor {
             HttpServletResponse response,
             Object handler) throws Exception {
         logger.info("GroupSettingsIntercepter: GroupSettingsIntercepter has been called for this endpoint: {}", request.getRequestURI());
-        ServletContext servletContext = request.getServletContext();
-        WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-        authenticateClientService = webApplicationContext.getBean(AuthenticateClientService.class);
-        AuthState authState = getAuthenticateClientService(request).checkAuthState();
-
-        groupsClientService = webApplicationContext.getBean(GroupsClientService.class);
-        int groupId;
 
         try {
-            groupId = Integer.parseInt(request.getParameter("groupId"));
-        } catch (Exception e){
-            logger.error("Group id {} is invalid", request.getParameter("groupId"));
-            response.sendError(400);
-            return false;
-        }
+            ServletContext servletContext = request.getServletContext();
+            WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+            authenticateClientService = webApplicationContext.getBean(AuthenticateClientService.class);
+            AuthState authState = getAuthenticateClientService(request).checkAuthState();
 
-        GetGroupDetailsRequest getGroupDetailsRequest = GetGroupDetailsRequest.newBuilder().setGroupId(groupId).build();
-        List<UserResponse> userResponse = groupsClientService.getGroupDetails(getGroupDetailsRequest).getMembersList();
-        int userId = PrincipalAttributes.getIdFromPrincipal(authState);
-        logger.info(String.valueOf(userResponse));
-        for (UserResponse user : userResponse) {
-            if (user.getId() == userId) {
-                return true;
+            groupsClientService = webApplicationContext.getBean(GroupsClientService.class);
+
+            int groupId = Integer.parseInt(request.getParameter("groupId"));
+
+            GetGroupDetailsRequest getGroupDetailsRequest = GetGroupDetailsRequest.newBuilder().setGroupId(groupId).build();
+            List<UserResponse> userResponse = groupsClientService.getGroupDetails(getGroupDetailsRequest).getMembersList();
+            int userId = PrincipalAttributes.getIdFromPrincipal(authState);
+            logger.info(String.valueOf(userResponse));
+            for (UserResponse user : userResponse) {
+                if (user.getId() == userId) {
+                    return true;
+                }
             }
-        }
 
-        String roles = PrincipalAttributes.getClaim(authState, "role");
-        if (roles.contains("teacher") || roles.contains("course_administrator")) {
-            return true;
-        } else {
-            response.sendError(401);
+            String roles = PrincipalAttributes.getClaim(authState, "role");
+            if (roles.contains("teacher") || roles.contains("course_administrator")) {
+                return true;
+            } else {
+                response.sendError(401);
+                return false;
+            }
+        } catch (Exception e) {
+            response.sendError(400);
             return false;
         }
     }
