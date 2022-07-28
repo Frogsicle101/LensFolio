@@ -36,13 +36,33 @@ function checkToSeeIfHideOrShowOptions() {
 
 
 /**
+ * Called when a group page is opened. This function sets the visibility of the group settings tab.
+ * The visibility is true only if the user is in the group or is a teacher or admin.
+ *
+ * @param groupMembers - The members of the group.
+ */
+function checkEditRights(groupMembers) {
+    let groupSettingsTab = $("#group-settings-tab")
+    groupSettingsTab.hide()
+    if (checkPrivilege()) {
+        groupSettingsTab.show()
+        return
+    }
+    for (let member in groupMembers) {
+        if (groupMembers[member].id === userIdent) {
+            groupSettingsTab.show()
+            return
+        }
+    }
+}
+
+
+/**
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
  * @param groupId the id of the group to fetch
  */
 function displayGroupUsersList(groupId) {
-
-
     let membersContainer = $("#groupTableBody")
     $.ajax({
         url: `group?groupId=${groupId}`,
@@ -73,6 +93,7 @@ function displayGroupUsersList(groupId) {
                 )}
             $("#groupInformationContainer").slideDown()
             checkToSeeIfHideOrShowOptions()
+            checkEditRights(response.userList)
         },
         error: (error) => {
             $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
