@@ -202,6 +202,46 @@ public class GitRepoControllerTest {
     }
 
 
+//    @Test
+//    void testRetrieveGitRepoInvalidGroupId() throws InvalidNameException {
+//        ResponseEntity<Object> response = GitRepoController.retrieveGitRepo("100000");
+//        List<GitRepository> gitRepos = (List<GitRepository>) response.getBody();
+//        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+//        Assertions.assertEquals(0, gitRepos.size());
+//    }
+
+    @Test
+    void testRetrieveGitRepoInvalidGroupId() throws Exception {
+        setUserRoleToStudent();
+        setUserToGroupMember();
+        setupContext();
+
+        mockMvc.perform(post("/getRepo")
+                        .param("groupId", "involid group id"))
+                .andExpect(status().isBadRequest());
+    }
+
+
+//    @Test
+//    void testRetrieveGitRepo() throws InvalidNameException {
+//        ResponseEntity<Object> response = GitRepoController.retrieveGitRepo("1");
+//        List<GitRepository> gitRepos = (List<GitRepository>) response.getBody();
+//        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+//        Assertions.assertEquals(1, gitRepos.size());
+//    }
+
+    @Test
+    void testRetrieveGitRepo() throws Exception {
+        setUserRoleToStudent();
+        setUserToGroupMember();
+        setupContext();
+
+        mockMvc.perform(post("/getRepo")
+                        .param("groupId", "1"))
+                .andExpect(status().isOk());
+    }
+
+
     private void setUserToGroupMember() {
         response = GroupDetailsResponse.newBuilder()
                 .addMembers(userResponse).build();
@@ -312,36 +352,5 @@ public class GitRepoControllerTest {
         SecurityContextHolder.setContext(mockedSecurityContext);
     }
 
-    @Test
-    void testRetrieveGitRepoInvalidAccessToken() throws InvalidNameException {
-        ResponseEntity<Object> response = GitRepoController.retrieveGitRepo("1", "1", "this is a incorrect accessToken for test");
-        List<GitRepository> gitRepos = (List<GitRepository>) response.getBody();
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals(0, gitRepos.size());
-    }
-
-    @Test
-    void testRetrieveGitRepoInvalidGroupId() throws InvalidNameException {
-        ResponseEntity<Object> response = GitRepoController.retrieveGitRepo("100000", "1", "this is a incorrect accessToken for test");
-        List<GitRepository> gitRepos = (List<GitRepository>) response.getBody();
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals(0, gitRepos.size());
-    }
-
-    @Test
-    void testRetrieveGitRepoInvalidProjectId() throws InvalidNameException {
-        ResponseEntity<Object> response = GitRepoController.retrieveGitRepo("1", "100000", "this is a incorrect accessToken for test");
-        List<GitRepository> gitRepos = (List<GitRepository>) response.getBody();
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals(0, gitRepos.size());
-    }
-
-    @Test
-    void testRetrieveGitRepo() throws InvalidNameException {
-        ResponseEntity<Object> response = GitRepoController.retrieveGitRepo("1", "1", "abcdef0123456789abcdef0123456789abcdef01");
-        List<GitRepository> gitRepos = (List<GitRepository>) response.getBody();
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(1, gitRepos.size());
-    }
 
 }

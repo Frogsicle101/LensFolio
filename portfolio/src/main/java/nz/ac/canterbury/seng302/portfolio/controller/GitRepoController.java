@@ -110,16 +110,12 @@ public class GitRepoController {
      * If the group Id is not valid, an exception is thrown and an HTTP response with a BAD REQUEST status is returned.
      *
      * @param groupId     The Id of the group to which the created git repository belongs.
-     * @param projectId   The project Id of the git repository.
-     * @param accessToken The access token of the git repository.
      * @return A response entity indicating success or an error. On success, also return the created git repository.
      */
-    @PostMapping("/retrieveGitRepo")
-    public ResponseEntity<Object> retrieveGitRepo(
-            @RequestParam Integer groupId,
-            @RequestParam Integer projectId,
-            @RequestParam String accessToken) {
-        logger.info("GET REQUEST /gitRepo/retrieve - attempt to retriev git repo on group {}", groupId);
+    @PostMapping("/getRepo")
+    public ResponseEntity<Object> getGitRepo(
+            @RequestParam Integer groupId) {
+        logger.info("GET REQUEST /gitRepo - attempt to get git repo on group {}", groupId);
 
 
         try {
@@ -128,16 +124,12 @@ public class GitRepoController {
                     .setGroupId(groupId)
                     .build();
             groupsClientService.getGroupDetails(request);
-
-            //ToDo: check the projectId is correct
-            //ToDo: check the accessToken is correct
-
             logger.info("GET /getRepo");
-            List<GitRepository> gitRepos = gitRepoRepository.findAllByGroupId(projectId);
+            List<GitRepository> gitRepos = gitRepoRepository.findAllByGroupId(groupId);
             logger.info("GET /getRepo: Success");
             return new ResponseEntity<>(gitRepos, HttpStatus.OK);
         } catch (Exception exception) {
-            logger.error("GET REQUEST /gitRepo/retrieve - attempt to retriev git repo on group {}", groupId);
+            logger.error("GET REQUEST /gitRepo/retrieve - attempt to get git repo on group {}", groupId);
             logger.error(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
