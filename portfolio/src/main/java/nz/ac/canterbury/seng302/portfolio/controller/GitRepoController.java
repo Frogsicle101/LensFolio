@@ -1,14 +1,20 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepoRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepository;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetGroupDetailsRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,41 +27,33 @@ import java.util.List;
 @Controller
 public class GitRepoController {
 
-    /**
-     * For logging the requests related to git repositories.
-     */
+    /** For logging the requests related to git repositories. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * The repository in which group git repositories are stored.
-     */
-    private final GitRepoRepository gitRepoRepository;
+    /** The repository in which group git repositories are stored. */
+    @Autowired
+    private GitRepoRepository gitRepoRepository;
 
-    /**
-     * For making gRpc requests to the IdP.
-     */
+    /** For making gRpc requests to the IdP. */
     @Autowired
     private GroupsClientService groupsClientService;
 
+    @Autowired
+    private UserAccountsClientService userAccountsClientService;
 
-    /**
-     * Constructor for the git repo controller.
-     *
-     * @param gitRepoRepository The git repo repository in which git repositories will be managed.
-     */
-    public GitRepoController(GitRepoRepository gitRepoRepository) {
-        this.gitRepoRepository = gitRepoRepository;
-    }
+    /** Required regex for the git repository access token. */
+    private final String accessTokenRegex = "^[0-9a-f]{40}$";
 
 
     /**
-     * Mapping for a post request to add a git repository to a group.
+     * Mapping for a post request to add a git repository to a group. Restricted to group members,teachers, and admin.
      * The method checks that the given group Id is valid, and then creates a git repository object using the provided
      * group Id, project Id (the Id of the git project), git repository alias, and git repository access token. The
      * created repository is then saved to the git repository repository: the repository which stores git repositories.
      * The created git repository is then returned, with an OK message.
      * <p>
-     * If the group Id is not valid, an exception is thrown and an HTTP response with a BAD REQUEST status is returned.
+     * If the group Id is not valid or the user is not a member of the group, an exception is thrown and an HTTP
+     * response with a BAD REQUEST status is returned.
      *
      * @param groupId     The Id of the group to which the created git repository belongs.
      * @param projectId   The project Id of the git repository.
@@ -65,6 +63,7 @@ public class GitRepoController {
      */
     @PostMapping("/addGitRepo")
     public ResponseEntity<Object> addGitRepo(
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam Integer groupId,
             @RequestParam Integer projectId,
             @RequestParam String alias,
@@ -75,7 +74,18 @@ public class GitRepoController {
             GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)
                     .build();
-            groupsClientService.getGroupDetails(request); //check that group exists
+            GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
+
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+
+            if (!response.getMembersList().contains(user) && !user.getRolesList().contains(UserRole.COURSE_ADMINISTRATOR) && !user.getRolesList().contains(UserRole.TEACHER)) {
+                logger.error("User not authorised to edit this group");
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+
+            if (alias.isBlank() || !accessToken.matches(accessTokenRegex)) {
+                throw new Exception("Required regex not matched by parameters");
+            }
 
             GitRepository gitRepository = new GitRepository(groupId, projectId, alias, accessToken);
             gitRepoRepository.save(gitRepository);
