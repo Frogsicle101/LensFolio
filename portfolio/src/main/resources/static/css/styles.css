@@ -742,3 +742,17 @@ section {
     border-radius: var(--border-radius);
     padding: 1rem;
 }
+
+.margin-sides-1 {
+    margin-right: 1rem;
+    margin-left: 1rem;
+}
+
+.grey-text {
+    color: var(--secondary-text-colour-darker);
+}
+
+.inline-text {
+    display: flex;
+    justify-content: left;
+}
