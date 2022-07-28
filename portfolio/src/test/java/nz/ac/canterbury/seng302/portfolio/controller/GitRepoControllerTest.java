@@ -50,12 +50,6 @@ public class GitRepoControllerTest {
     private MockMvc mockMvc;
 
 
-    @BeforeEach
-    public void beforeAll() {
-
-    }
-
-
     @Test
     void testAddGitRepoValid() throws Exception {
         setUserRoleToStudent();
@@ -190,6 +184,9 @@ public class GitRepoControllerTest {
     }
 
 
+    // -------------------------------------------------------------------
+
+
     private void setUserToGroupMember() {
         response = GroupDetailsResponse.newBuilder()
                 .addMembers(userResponse).build();
@@ -218,6 +215,7 @@ public class GitRepoControllerTest {
                 .build());
 
         UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setId(1)
                 .setUsername("steve")
                 .setFirstName("Steve")
                 .setMiddleName("McSteve")
@@ -245,6 +243,7 @@ public class GitRepoControllerTest {
                 .build());
 
         UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setId(1)
                 .setUsername("steve")
                 .setFirstName("Steve")
                 .setMiddleName("McSteve")
@@ -272,6 +271,7 @@ public class GitRepoControllerTest {
                 .build());
 
         UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setId(1)
                 .setUsername("steve")
                 .setFirstName("Steve")
                 .setMiddleName("McSteve")

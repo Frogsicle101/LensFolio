@@ -23,16 +23,13 @@ import java.util.List;
  */
 public class GroupSettingsInterceptor implements HandlerInterceptor {
 
-    /**
-     * To get the users information
-     */
+    /** To get the users information */
     public AuthenticateClientService authenticateClientService;
 
+    /** The client side service to request groups information from the IdP */
     private GroupsClientService groupsClientService;
 
-    /**
-     * To log when the checks are made
-     */
+    /** To log when the checks are made */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -53,7 +50,8 @@ public class GroupSettingsInterceptor implements HandlerInterceptor {
 
 
     /**
-     * Checks that a user has the teacher or course administrator role
+     * Checks that a user has the teacher or course administrator role, or is a member of the group for which the id is
+     * given in the request.
      *
      * @param request  - The httpServlet request
      * @param response - The httpServlet response
@@ -73,18 +71,25 @@ public class GroupSettingsInterceptor implements HandlerInterceptor {
         AuthState authState = getAuthenticateClientService(request).checkAuthState();
 
         groupsClientService = webApplicationContext.getBean(GroupsClientService.class);
-        String groupIdString = request.getParameterMap().get("groupId").toString();
-        int groupId = Integer.valueOf(groupIdString);
+        int groupId;
+
+        try {
+            groupId = Integer.parseInt(request.getParameter("groupId"));
+        } catch (Exception e){
+            logger.error("Group id {} is invalid", request.getParameter("groupId"));
+            response.sendError(400);
+            return false;
+        }
 
         GetGroupDetailsRequest getGroupDetailsRequest = GetGroupDetailsRequest.newBuilder().setGroupId(groupId).build();
         List<UserResponse> userResponse = groupsClientService.getGroupDetails(getGroupDetailsRequest).getMembersList();
-
-        for (UserResponse user : userResponse) {
-            if
-        }
         int userId = PrincipalAttributes.getIdFromPrincipal(authState);
-
-
+        logger.info(String.valueOf(userResponse));
+        for (UserResponse user : userResponse) {
+            if (user.getId() == userId) {
+                return true;
+            }
+        }
 
         String roles = PrincipalAttributes.getClaim(authState, "role");
         if (roles.contains("teacher") || roles.contains("course_administrator")) {

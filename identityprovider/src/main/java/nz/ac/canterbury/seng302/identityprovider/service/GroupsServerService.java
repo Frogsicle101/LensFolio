@@ -259,7 +259,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         if (groupRepository.existsById(request.getGroupId())) {
             Group group = groupRepository.getGroupById(request.getGroupId());
             response = group.groupDetailsResponse();
-
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } else {
