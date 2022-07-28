@@ -735,3 +735,10 @@ section {
 .groupButtons {
     padding-top: 1rem;
 }
+
+#group-settings-page {
+    border: solid 1px var(--main-border-colour);
+    background-color: var(--background-colour-white);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
