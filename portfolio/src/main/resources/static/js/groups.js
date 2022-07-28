@@ -4,7 +4,6 @@ let selectedGroupId;
 let lastSelectedRow;
 let group;
 let singleClick = true;
-
 const TEACHER_GROUP_ID = 1
 
 $(document).ready(function() {
@@ -40,6 +39,8 @@ $(document).ready(function() {
             lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
             checkToSeeIfHideOrShowOptions()
 
+
+
         },
 
         /**
@@ -73,12 +74,17 @@ $(document).ready(function() {
  * @param show a boolean of if to show or hide
  */
 function showOptions(show) {
-    if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
-        $("#groupDisplayOptions").slideDown()
-    } else {
-        $("#groupDisplayOptions").slideUp()
+    if ($("#groupDisplayOptions").is(':hidden')) {
+        console.log($("#groupDisplayOptions").is(':visible'))
+        if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
+            $("#groupDisplayOptions").slideDown()
+        } else {
+            $("#groupDisplayOptions").slideUp()
+        }
+
     }
     $(".numSelected").text($(".selected").length + " Selected")
+
 }
 
 
@@ -87,6 +93,7 @@ function showOptions(show) {
  */
 function checkToSeeIfHideOrShowOptions() {
     let amountSelected = $(".selected").length
+    console.log(amountSelected)
     if (amountSelected > 0) {
         showOptions(true)
     } else {
