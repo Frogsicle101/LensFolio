@@ -161,7 +161,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     /**
      * Follows the gRPC contract and provides the server side service for modifying group details.
      * If the group exists and the new names (short and long) don't match existing names, the group
-     * is updated and the response isSuccess is try, otherwise it is false.
+     * is updated and the response isSuccess is true, otherwise it is false.
      *
      * @param request A ModifyGroupDetailsRequest formatted to satisfy the groups.proto contract.
      * @param responseObserver Used to return the response to the client side.
