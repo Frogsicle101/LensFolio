@@ -26,7 +26,7 @@ function connect() {
         debug: function (str) {
             console.log(str);
         },
-        heartbeatIncoming: 30000,
+        heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000,
         onStompError: function (frame) {
             console.log('Broker reported error: ' + frame.headers['message']);
