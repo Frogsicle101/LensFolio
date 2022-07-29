@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -100,10 +101,10 @@ public class GitRepoController {
      * @param groupId     The Id of the group to which the created git repository belongs.
      * @return A response entity indicating success or an error. On success, also return the created git repository.
      */
-    @PostMapping("/getRepo")
+    @GetMapping("/getRepo")
     public ResponseEntity<Object> getGitRepo(
             @RequestParam Integer groupId) {
-        logger.info("GET REQUEST /gitRepo - attempt to get git repo on group {}", groupId);
+        logger.info("GET REQUEST /getRepo - attempt to get git repo on group {}", groupId);
 
 
         try {
@@ -112,7 +113,6 @@ public class GitRepoController {
                     .setGroupId(groupId)
                     .build();
             groupsClientService.getGroupDetails(request);
-            logger.info("GET /getRepo");
             List<GitRepository> gitRepos = gitRepoRepository.findAllByGroupId(groupId);
             logger.info("GET /getRepo: Success");
             return new ResponseEntity<>(gitRepos, HttpStatus.OK);

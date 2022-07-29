@@ -34,6 +34,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -211,33 +212,17 @@ public class GitRepoControllerTest {
     }
 
 
-//    @Test
-//    void testRetrieveGitRepoInvalidGroupId() throws InvalidNameException {
-//        ResponseEntity<Object> response = GitRepoController.retrieveGitRepo("100000");
-//        List<GitRepository> gitRepos = (List<GitRepository>) response.getBody();
-//        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-//        Assertions.assertEquals(0, gitRepos.size());
-//    }
-
     @Test
     void testRetrieveGitRepoInvalidGroupId() throws Exception {
         setUserRoleToStudent();
         setUserToGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/getRepo")
+        mockMvc.perform(get("/getRepo")
                         .param("groupId", "involid group id"))
                 .andExpect(status().isBadRequest());
     }
 
-
-//    @Test
-//    void testRetrieveGitRepo() throws InvalidNameException {
-//        ResponseEntity<Object> response = GitRepoController.retrieveGitRepo("1");
-//        List<GitRepository> gitRepos = (List<GitRepository>) response.getBody();
-//        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-//        Assertions.assertEquals(1, gitRepos.size());
-//    }
 
     @Test
     void testRetrieveGitRepo() throws Exception {
@@ -245,9 +230,30 @@ public class GitRepoControllerTest {
         setUserToGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/getRepo")
+        mockMvc.perform(get("/getRepo")
                         .param("groupId", "1"))
                 .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void testRetrieveGitRepoWithoutGroupId() throws Exception {
+        setUserRoleToStudent();
+        setupContext();
+
+        mockMvc.perform(get("/getRepo"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRetrieveGitRepoStudentNotInGroup() throws Exception {
+        setUserRoleToStudent();
+        setUserToNotGroupMember();
+        setupContext();
+
+        mockMvc.perform(get("/getRepo")
+                        .param("groupId", "1"))
+                .andExpect(status().isUnauthorized());
     }
 
 
@@ -273,7 +279,12 @@ public class GitRepoControllerTest {
         response = GroupDetailsResponse.newBuilder()
                 .addMembers(emptyUserResponse).build();
 
-        Mockito.when(groupsClientService.getGroupDetails(any())).thenReturn(response);
+        GroupDetailsResponse groupDoesntExistResponse = GroupDetailsResponse.newBuilder().setGroupId(-1).build();
+
+        when(groupsClientService.getGroupDetails(GetGroupDetailsRequest.newBuilder()
+                .setGroupId(1).build())).thenReturn(response);
+        when(groupsClientService.getGroupDetails(GetGroupDetailsRequest.newBuilder()
+                .setGroupId(2).build())).thenReturn(groupDoesntExistResponse);
     }
 
 
