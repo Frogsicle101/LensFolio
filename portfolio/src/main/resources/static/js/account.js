@@ -9,15 +9,12 @@ $(document).ready(() => {
     let bio = $("#bio")
     let personalPronouns = $("#personalPronouns")
     let email = $("#email")
-    let errorMessageParent = $(".errorMessageParent")
-    let errorMessage = $(".errorMessage")
-    let errorMessageParentPassword = $(".errorMessageParentPassword")
-    let errorMessagePassword = $(".errorMessagePassword")
 
 
     //On Edit Account button click
     editUserButton.click(function () {
-        $(".canDisable").prop("disabled", !$(".canDisable").prop("disabled"));
+        let canDisable = $(".canDisable")
+        canDisable.prop("disabled", !canDisable.prop("disabled"));
         $(".editUserSubmit").slideToggle() // Show submit button
         $(".passwordChangeDiv").slideToggle() // Show password change form
         if (editUserButton.text() === "Edit Account") { //Toggle text change
@@ -68,9 +65,7 @@ $(document).ready(() => {
                 location.href = "account" // On success reloads page
             },
             error: function (error) {//Displays error in box on failure
-                errorMessage.text(error.responseText)
-                errorMessageParent.slideUp()
-                errorMessageParent.slideDown()
+                createAlert(error.responseText, true)
             }
         })
     })
@@ -94,9 +89,7 @@ $(document).ready(() => {
                 location.href = "account" // Reload page on success
             },
             error: function (error) { // Display errors in box on failure
-                errorMessagePassword.text(error.responseText)
-                errorMessageParentPassword.slideUp()
-                errorMessageParentPassword.slideDown()
+                createAlert(error.responseText, true)
             }
         })
     })

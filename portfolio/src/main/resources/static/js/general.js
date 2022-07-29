@@ -65,8 +65,22 @@ function removeAlert() {
  * @param isRed
  */
 function createAlert(alertMessage, isRed) {
+    let CheckAlert = $("#alertPopUp")
+    if (CheckAlert.is(":visible")) {
+        CheckAlert.hide("slide", 100, function() {
+            CheckAlert.remove();
+        }).promise().done(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
+            alert(alertMessage, isRed)
+        })
+    } else {
+        alert(alertMessage, isRed)
+    }
 
 
+
+}
+
+function alert(alertMessage, isRed) {
     let alertDiv = `<div id="alertPopUp" style="display: none">
                      <p id="alertPopUpMessage">${alertMessage}</p>
                      <button id="alertPopUpCloseButton" onclick="removeAlert()" class="noStyleButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x-circle" viewBox="0 0 16 16">
@@ -78,6 +92,7 @@ function createAlert(alertMessage, isRed) {
 
     $("body").append(alertDiv)
     let alert = $("#alertPopUp")
+
     if(isRed) {
         alert.removeClass("backgroundGreen")
         alert.addClass("backgroundRed")
@@ -86,9 +101,5 @@ function createAlert(alertMessage, isRed) {
         alert.removeClass("backgroundRed")
     }
     alert.show("slide", 100)
-
-
-
-
 }
 
