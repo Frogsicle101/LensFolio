@@ -2,8 +2,6 @@ $(document).ready(() => {
     //Jquery selectors to remove duplicity
     let shortName = $("#shortName")
     let longName = $("#longName")
-    let errorMessageParent = $(".errorMessageParent")
-    let errorMessage = $(".errorMessage")
     let formControl = $(".form-control");
     formControl.each(countCharacters)
     formControl.keyup(countCharacters)
@@ -25,9 +23,7 @@ $(document).ready(() => {
                 location.href = "groups" // On success reloads page
             },
             error: function (error) {//Displays error in box on failure
-                errorMessage.text(error.responseText)
-                errorMessageParent.slideUp()
-                errorMessageParent.slideDown()
+                createAlert(error.responseText, true)
             }
         })
     })
