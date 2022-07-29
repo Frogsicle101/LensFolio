@@ -245,6 +245,7 @@ public class GitRepoControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+
     @Test
     void testRetrieveGitRepoStudentNotInGroup() throws Exception {
         setUserRoleToStudent();
@@ -256,6 +257,22 @@ public class GitRepoControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void testRetrieveGitRepoGroupDoesntExistOnIDP() throws Exception {
+        setUserRoleToAdmin();
+        setUserToGroupMember();
+        setupContext();
+
+        // This is the response sent when a group cant be found.
+        GroupDetailsResponse response = GroupDetailsResponse.newBuilder().setGroupId(-1).build();
+        GitRepository repository = new GitRepository(1, 1, "Test alias", "xxx");
+
+        Mockito.when(groupsClientService.getGroupDetails(any())).thenReturn(response);
+        Mockito.when(gitRepoRepository.findAllByGroupId(1)).thenReturn(List.of(repository));
+        mockMvc.perform(get("/getRepo")
+                        .param("groupId", "1"))
+                .andExpect(status().isBadRequest());
+    }
 
     // -------------------------------------------------------------------
 
