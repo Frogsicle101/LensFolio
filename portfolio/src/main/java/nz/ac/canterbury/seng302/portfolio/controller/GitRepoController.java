@@ -16,8 +16,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 /**
  * The controller for managing requests to edit git repositories and their settings.
@@ -49,7 +52,7 @@ public class GitRepoController {
      * group Id, project Id (the Id of the git project), git repository alias, and git repository access token. The
      * created repository is then saved to the git repository repository: the repository which stores git repositories.
      * The created git repository is then returned, with an OK message.
-     * <p>
+     *
      * If the group Id is not valid or the user is not a member of the group, an exception is thrown and an HTTP
      * response with a BAD REQUEST status is returned.
      *
@@ -84,4 +87,42 @@ public class GitRepoController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+
+
+    /**
+     * Mapping for a get request to retrieving git repositories from a group by group ID.
+     * The method checks that the given group Id is valid, and then search for the git repo by group ID.
+     * The method does not change anything about git repository.
+     *
+     * If the group Id is not valid, an exception is thrown and an HTTP response with a BAD REQUEST status is returned.
+     *
+     * @param groupId     The Id of the group to which the created git repository belongs.
+     * @return A response entity indicating success or an error. On success, also return the created git repository.
+     */
+    @GetMapping("/getRepo")
+    public ResponseEntity<Object> getGitRepo(
+            @RequestParam Integer groupId) {
+        logger.info("GET REQUEST /getRepo - attempt to get git repo on group {}", groupId);
+        try {
+            //check groupId is correct
+            GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
+                    .setGroupId(groupId)
+                    .build();
+            GroupDetailsResponse groupExistsConfirmation = groupsClientService.getGroupDetails(request);
+            if (groupExistsConfirmation.getGroupId() == -1) {
+                logger.warn("GET REQUEST /getRepo - group {} not found on the IDP", groupId);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            List<GitRepository> gitRepos = gitRepoRepository.findAllByGroupId(groupId);
+            logger.info("GET /getRepo: Success");
+            return new ResponseEntity<>(gitRepos, HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.error("GET REQUEST /getRepo - error occurred getting repo for group {}", groupId);
+            logger.error(exception.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }
+

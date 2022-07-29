@@ -79,6 +79,7 @@ public class GroupSettingsInterceptor implements HandlerInterceptor {
             GetGroupDetailsRequest getGroupDetailsRequest = GetGroupDetailsRequest.newBuilder().setGroupId(groupId).build();
             List<UserResponse> userResponse = groupsClientService.getGroupDetails(getGroupDetailsRequest).getMembersList();
             int userId = PrincipalAttributes.getIdFromPrincipal(authState);
+            logger.info("Checking user {} is in group {}", userId, groupId);
             logger.info(String.valueOf(userResponse));
             for (UserResponse user : userResponse) {
                 if (user.getId() == userId) {
@@ -95,6 +96,7 @@ public class GroupSettingsInterceptor implements HandlerInterceptor {
             }
         } catch (Exception e) {
             response.sendError(400);
+            logger.error(e.getMessage());
             return false;
         }
     }
