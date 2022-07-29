@@ -5,6 +5,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a Evidence entity
+ */
 @Entity
 public class Evidence {
 
@@ -17,6 +20,13 @@ public class Evidence {
     private LocalDateTime date;
     private String description;
 
+    /**
+     * Constructs an instance of the evidence object
+     * @param userId the user associated with the evidence
+     * @param title the title of the evidence
+     * @param date the date of the evidence creation
+     * @param description the description of the evidence
+     */
     public Evidence(int userId, String title, LocalDateTime date, String description) {
         this.userId = userId;
         this.title = title;
@@ -24,6 +34,9 @@ public class Evidence {
         this.description = description;
     }
 
+    /**
+     * Default JPA Evidence constructor
+     */
     public Evidence() {
     }
 
