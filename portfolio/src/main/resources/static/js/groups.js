@@ -86,7 +86,12 @@ function checkEditRights(group) {
         $(".controlButtons").show();
     }
 
-    if (groupId !== MWAG_GROUP_ID  && (checkPrivilege() || group.userList.some(member => member.id === userIdent))) {
+    // only show settings page if the active page is not MWAG or Teachers & if the user has read access
+    // i.e., the user is an admin, teacher or member of the group.
+    if (groupId !== MWAG_GROUP_ID  &&
+        groupId !== TEACHER_GROUP_ID &&
+        (checkPrivilege() || group.userList.some(member => member.id === userIdent)))
+    {
         groupSettingsTab.show()
     } else {
         changeToUsersTab()
