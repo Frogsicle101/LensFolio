@@ -782,20 +782,22 @@ section {
 /* Evidence Page */
 
 .evidenceContainer {
-    margin: 2rem;
+    padding: 2rem;
 }
 
 .evidenceListContainer, .evidenceDetailsContainer, .evidenceContainer {
-    border-color: var(--main-border-colour);
+    border: solid var(--main-border-colour) 1px;
 }
 
 .evidenceDetailsContainer {
+    padding-top: 1rem;
     display: flex;
     width: 100%;
     flex-direction: column;
 }
 
 .evidenceListContainer {
+    padding-top: 1rem;
     display: flex;
     width: 100%;
     flex-direction: column;
@@ -803,13 +805,12 @@ section {
  }
 
 .createEvidenceButton {
-    justify-self: end;
     max-width: 50%;
 }
 
 .evidenceListTitle {
     text-align: center;
-    margin: inherit;
+    padding: inherit;
 }
 
 .evidenceDate {
