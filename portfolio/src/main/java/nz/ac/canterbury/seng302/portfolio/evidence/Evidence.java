@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import java.time.LocalDateTime;
 
 /**
- * Represents a Evidence entity
+ * Represents an Evidence entity
  */
 @Entity
 public class Evidence {

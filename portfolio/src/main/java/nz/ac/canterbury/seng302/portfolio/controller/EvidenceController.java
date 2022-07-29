@@ -30,16 +30,13 @@ import java.util.Optional;
 @Controller
 public class EvidenceController {
 
-    /**
-     * For logging the requests related to groups
-     */
+    /** For logging the requests related to groups */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * For requesting user information form the IdP.
-     */
+    /** For requesting user information form the IdP.*/
     @Autowired
     private UserAccountsClientService userAccountsClientService;
+
 
     @Autowired
     private EvidenceRepository evidenceRepository;
@@ -50,6 +47,7 @@ public class EvidenceController {
 
     /**
      * Entrypoint for creating an evidence object
+     *
      * @param principal The authentication principal
      * @param title The title of the evidence
      * @param date The date of the evidence
@@ -68,11 +66,11 @@ public class EvidenceController {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
         try{
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-            Optional<Project> projectOpt = projectRepository.findById(projectId);
-            if (projectOpt.isEmpty()) {
+            Optional<Project> optionalProject = projectRepository.findById(projectId);
+            if (optionalProject.isEmpty()) {
                 throw new CheckException("Project Id does not match any project");
             }
-            Project project = projectOpt.get();
+            Project project = optionalProject.get();
             LocalDateTime localDateTime = LocalDateTime.parse(date);
             if (localDateTime.isBefore(project.getStartDateAsLocalDateTime())
                     || localDateTime.isAfter(project.getEndDateAsLocalDateTime())) {

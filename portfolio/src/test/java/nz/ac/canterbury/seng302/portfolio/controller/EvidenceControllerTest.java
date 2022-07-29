@@ -112,7 +112,7 @@ class EvidenceControllerTest {
     }
 
     @Test
-    void testAddEvidenceTitle() throws Exception {
+    void testAddEvidenceTitleEmpty() throws Exception {
         setUserToStudent();
         setUpContext();
         String title = "";
@@ -126,42 +126,65 @@ class EvidenceControllerTest {
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
-        title = "This should almost definitely be past 50 characters in length?";
-        mockMvc.perform(post("/evidence")
-                .param("title", title)
-                .param("date", date)
-                .param("description", description)
-                .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
+    }
 
-        title = "@@@";
-        mockMvc.perform(post("/evidence")
-                .param("title", title)
-                .param("date", date)
-                .param("description", description)
-                .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
-
-        title = "@#!@#&(*&!@#(&*!@(*&#(*!@&#(&(*&!@(*#&!@#asdasd";
+    @Test
+    void testAddEvidenceTitleMixed() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "@#!@#&(*&!@#(&*!@(*&#(*!@&#(&(*&!@(*#&!@#asdasd";
+        String date = LocalDateTime.now().plusDays(2).toString();
+        String description = "testing";
+        long projectId = 1;
+        Project project = new Project("Testing");
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         mockMvc.perform(post("/evidence")
                 .param("title", title)
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isOk());
+    }
 
-        title = "123123123";
+    @Test
+    void testAddEvidenceTitleLength() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "This should almost definitely be past 50 characters in length?";
+        String date = LocalDateTime.now().plusDays(2).toString();
+        String description = "testing";
+        long projectId = 1;
+        Project project = new Project("Testing");
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         mockMvc.perform(post("/evidence")
                 .param("title", title)
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
+    }
 
+    @Test
+    void testAddEvidenceTitleNoAlpha() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "@@@";
+        String date = LocalDateTime.now().plusDays(2).toString();
+        String description = "testing";
+        long projectId = 1;
+        Project project = new Project("Testing");
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        mockMvc.perform(post("/evidence")
+                .param("title", title)
+                .param("date", date)
+                .param("description", description)
+                .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
     }
 
 
     @Test
-    void testAddEvidenceDescription() throws Exception {
+    void testAddEvidenceDescriptionEmpty() throws Exception {
         setUserToStudent();
         setUpContext();
-        String title = "title";
+        String title = "testing";
         String date = LocalDateTime.now().plusDays(2).toString();
         String description = "";
         long projectId = 1;
@@ -172,34 +195,75 @@ class EvidenceControllerTest {
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
+    }
 
-        description = "This should almost definitely be past 500 characters in length?                                                                                                                                                                                                                                                                      This should almost definitely be past 500 characters in length?                                                                                                                                                                                                                                                                      ";
-        mockMvc.perform(post("/evidence")
-                .param("title", title)
-                .param("date", date)
-                .param("description", description)
-                .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
-
-        description = "@@@";
-        mockMvc.perform(post("/evidence")
-                .param("title", title)
-                .param("date", date)
-                .param("description", description)
-                .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
-
-        description = "@#!@#&(*&!@#(&*!@(*&#(*!@&#(&(*&!@(*#&!@#asdasd";
+    @Test
+    void testAddEvidenceDescriptionMixed() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "test";
+        String date = LocalDateTime.now().plusDays(2).toString();
+        String description = "@#!@#&(*&!@#(&*!@(*&#(*!@&#(&(*&!@(*#&!@#asdasd";;
+        long projectId = 1;
+        Project project = new Project("Testing");
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         mockMvc.perform(post("/evidence")
                 .param("title", title)
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isOk());
+    }
 
-        description = "123123123";
+    @Test
+    void testAddEvidenceDescriptionLength() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "test";
+        String date = LocalDateTime.now().plusDays(2).toString();
+        String description = "This should almost definitely be past 500 characters in length?                                                                                                                                                                                                                                                                      This should almost definitely be past 500 characters in length?                                                                                                                                                                                                                                                                      ";
+        long projectId = 1;
+        Project project = new Project("Testing");
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         mockMvc.perform(post("/evidence")
                 .param("title", title)
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testAddEvidenceDescriptionNoAlpha() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "Test";
+        String date = LocalDateTime.now().plusDays(2).toString();
+        String description = "@@@";
+        long projectId = 1;
+        Project project = new Project("Testing");
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        mockMvc.perform(post("/evidence")
+                .param("title", title)
+                .param("date", date)
+                .param("description", description)
+                .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testAddEvidenceDescription() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "title";
+        String date = LocalDateTime.now().plusDays(2).toString();
+        String description = "Description";
+        long projectId = 1;
+        Project project = new Project("Testing");
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        mockMvc.perform(post("/evidence")
+                .param("title", title)
+                .param("date", date)
+                .param("description", description)
+                .param("projectId", String.valueOf(projectId))).andExpect(status().isOk());
 
     }
 
@@ -237,12 +301,24 @@ class EvidenceControllerTest {
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
-        date = "";
+    }
+
+    @Test
+    void testAddEvidenceDateNoDate() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "test";
+        String date = "";
+        String description = "testing";
+        long projectId = 1;
+        Project project = new Project("Testing");
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         mockMvc.perform(post("/evidence")
                 .param("title", title)
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
+
     }
 
     @Test
