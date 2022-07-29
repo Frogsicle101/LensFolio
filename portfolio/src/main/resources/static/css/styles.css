@@ -33,8 +33,8 @@ section {
     --secondary-text-colour-darker: #696969;
     --select-green: #95fd97;
     --select-red: #ff0000;
-    --alert-red: #de7979;
-    --alert-green: #8cde79;
+    --alert-red: rgba(222, 121, 121, 0.5);
+    --alert-green: rgba(140, 222, 121, 0.5);
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
@@ -741,10 +741,10 @@ section {
 
 
 #alertPopUp {
-    font-weight: bold;
+
     position: fixed;
-    bottom: 50px;
-    left: 50px;
+    bottom: 10px;
+    left: 10px;
 
     min-width: 10rem;
     min-height: 5rem;
@@ -757,6 +757,13 @@ section {
     align-items: center;
     padding-left: 1rem;
     padding-right: 1rem;
+    text-align: center;
+    z-index: 1000;
+}
+
+#alertPopUp p {
+    margin: auto;
+    font-size: 0.8rem;
 }
 
 .backgroundGreen{
