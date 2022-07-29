@@ -232,7 +232,12 @@ public class GroupsController {
                                                      @RequestParam String longName) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
         logger.info("PATCH REQUEST /groups/edit/longName - attempt to modify details of group {} by user: {}", groupId, userId);
-        return groupEdit(groupId, "", longName);
+        // Firstly, we have to find the shortname of the group
+        GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
+                .setGroupId(groupId)
+                .build();
+        GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
+        return groupEdit(groupId, response.getShortName(), longName);
     }
 
 
