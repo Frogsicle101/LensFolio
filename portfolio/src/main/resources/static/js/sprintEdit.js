@@ -10,7 +10,7 @@ $(document).ready(function () {
 
 
     // Checks when the start date changes that its not past the end date.
-    $("#sprintStartDate").on("change", function () {
+    sprintStartDate.on("change", function () {
         let sprintStart = $(this).val()
         let sprintEnd = $("#sprintEndDate").val()
         if (sprintStart >= sprintEnd) {
@@ -29,7 +29,7 @@ $(document).ready(function () {
 
 
     // Checks when the sprint end date changes that its not before the start date.
-    $("#sprintEndDate").on("change", function () {
+    sprintEndDate.on("change", function () {
         let sprintStart = $("#sprintStartDate").val()
         let sprintEnd = $(this).val()
         if (sprintStart >= sprintEnd) {
@@ -69,10 +69,7 @@ $(document).ready(function () {
                 window.history.back();
             },
             error: function (error) {
-                console.log(error.responseText)
-                $(".errorMessage").text(error.responseText)
-                $(".errorMessageParent").slideUp()
-                $(".errorMessageParent").slideDown()
+                createAlert(error.responseText, true)
             }
         })
     })
