@@ -1,5 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.evidence;
 
+import nz.ac.canterbury.seng302.portfolio.CheckException;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -28,10 +30,17 @@ public class Evidence {
      * @param description the description of the evidence
      */
     public Evidence(int userId, String title, LocalDateTime date, String description) {
+        if (title.length() > 50) {
+            throw new CheckException("Title cannot be more than 50 characters");
+        }
+        if (description.length() > 500) {
+            throw new CheckException("description cannot be more than 500 characters");
+        }
         this.userId = userId;
         this.title = title;
         this.date = date;
         this.description = description;
+
     }
 
     /**
@@ -61,7 +70,12 @@ public class Evidence {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        if (title.length() > 50) {
+            throw new CheckException("Title cannot be more than 50 characters");
+        } else {
+            this.title = title;
+        }
+
     }
 
     public LocalDateTime getDate() {
@@ -73,7 +87,12 @@ public class Evidence {
     }
 
     public String getDescription() {
-        return description;
+        if (description.length() > 500) {
+            throw new CheckException("description cannot be more than 500 characters");
+        } else {
+            return description;
+        }
+
     }
 
     public void setDescription(String description) {
