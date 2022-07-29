@@ -75,10 +75,7 @@ function displayGroupUsersList(groupId) {
             checkToSeeIfHideOrShowOptions()
         },
         error: (error) => {
-            $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                       ${error.responseText}
-                                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                     </div>`)
+            createAlert(error.responseText, true)
         }
     })
 
@@ -133,13 +130,8 @@ $(document).on("click", ".deleteButton", function () {
             type: "delete",
             success: function () {
                 window.location.reload()
-            }, error: function () {
-                $("#groupInformationContainer").append(
-                    `<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                     ${error.responseText}
-                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>`
-                )
+            }, error: function (error) {
+                createAlert(error.responseText, true)
             }
         })
     }
@@ -160,6 +152,7 @@ $(document).on("click", "#confirmRemoval", function () {
         type: "DELETE",
         success: () => {
             displayGroupUsersList(selectedGroupId)
+            createAlert("User removed", false)
         },
         error: (error) => {
             console.log(error);
@@ -204,11 +197,12 @@ $(document).on("click", "#moveUsersButton", function() {
     $.ajax({
         url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
-        success: function() {
-            displayGroupUsersList(selectedGroupId)
+        success: function(event) {
+            displayGroupUsersList(selectedGroupId, false)
+            createAlert(event, false)
         },
-        error: function(response) {
-            console.log(response)
+        error: function() {
+            createAlert("Error moving users", true)
         }
     })
 })
