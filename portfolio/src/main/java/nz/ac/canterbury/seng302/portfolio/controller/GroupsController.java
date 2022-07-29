@@ -110,7 +110,7 @@ public class GroupsController {
             GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
             return new ResponseEntity<>(new GroupDTO(response), HttpStatus.OK);
         } catch (Exception exception) {
-            logger.error("ERROR /groups - an error occurred while retrieving group {}", groupId);
+            logger.error("ERROR /group - an error occurred while retrieving group {}", groupId);
             logger.error(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
