@@ -27,12 +27,12 @@ function showOptions(show) {
  * Makes all the logic changes bootstrap does when changing the tab from settings to users.
  */
 function changeToUsersTab() {
-    let groupSettingsTab = $("#group-settings-tab")
-    let groupUsersTab = $("#group-users-tab")
-    let groupUsersButton = $("#pills-users-tab")
-    let groupSettingsButton = $("#pills-settings-tab")
-    let groupUsersPage = $("#pills-users")
-    let GroupSettingsPage = $("#pills-settings")
+    let groupSettingsTab = $("#groupSettingsTab")
+    let groupUsersTab = $("#groupUsersTab")
+    let groupUsersButton = $("#pillsUsersTab")
+    let groupSettingsButton = $("#pillsSettingsTab")
+    let groupUsersPage = $("#pillsUsers")
+    let GroupSettingsPage = $("#pillsSettings")
 
     groupUsersTab.attr("aria-selected", true)
     groupSettingsTab.attr("aria-selected", false)
@@ -71,7 +71,7 @@ function checkToSeeIfHideOrShowOptions() {
  * @param group - The newly selected group.
  */
 function checkEditRights(group) {
-    let groupSettingsTab = $("#group-settings-tab")
+    let groupSettingsTab = $("#groupSettingsTab")
     let groupId = group.id
     groupSettingsTab.hide()
 
