@@ -62,12 +62,6 @@ public class GitRepoControllerTest {
     private MockMvc mockMvc;
 
 
-    @BeforeEach
-    public void beforeAll() {
-
-    }
-
-
     @Test
     void testAddGitRepoValid() throws Exception {
         setUserRoleToStudent();
@@ -80,6 +74,21 @@ public class GitRepoControllerTest {
                         .param("alias", "repo alias")
                         .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
                 .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void testAddGitRepoGroupDoesntExist() throws Exception {
+        setUserRoleToStudent();
+        setUserToGroupMember();
+        setupContext();
+
+        mockMvc.perform(post("/addGitRepo")
+                        .param("groupId", "2")
+                        .param("projectId", "1")
+                        .param("alias", "repo alias")
+                        .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -242,11 +251,19 @@ public class GitRepoControllerTest {
     }
 
 
+    // -------------------------------------------------------------------
+
+
     private void setUserToGroupMember() {
-        response = GroupDetailsResponse.newBuilder()
+        GroupDetailsResponse groupExistsResponse = GroupDetailsResponse.newBuilder()
                 .addMembers(userResponse).build();
 
-        Mockito.when(groupsClientService.getGroupDetails(any())).thenReturn(response);
+        GroupDetailsResponse groupDoesntExistResponse = GroupDetailsResponse.newBuilder().setGroupId(-1).build();
+
+        when(groupsClientService.getGroupDetails(GetGroupDetailsRequest.newBuilder()
+                .setGroupId(1).build())).thenReturn(groupExistsResponse);
+        when(groupsClientService.getGroupDetails(GetGroupDetailsRequest.newBuilder()
+                .setGroupId(2).build())).thenReturn(groupDoesntExistResponse);
     }
 
 
@@ -270,6 +287,7 @@ public class GitRepoControllerTest {
                 .build());
 
         UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setId(1)
                 .setUsername("steve")
                 .setFirstName("Steve")
                 .setMiddleName("McSteve")
@@ -297,6 +315,7 @@ public class GitRepoControllerTest {
                 .build());
 
         UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setId(1)
                 .setUsername("steve")
                 .setFirstName("Steve")
                 .setMiddleName("McSteve")
@@ -324,6 +343,7 @@ public class GitRepoControllerTest {
                 .build());
 
         UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setId(1)
                 .setUsername("steve")
                 .setFirstName("Steve")
                 .setMiddleName("McSteve")
