@@ -25,7 +25,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
 /**
- * Controller for all this Evidence based
+ * Controller for all the Evidence based entry points
  */
 @Controller
 public class EvidenceController {
