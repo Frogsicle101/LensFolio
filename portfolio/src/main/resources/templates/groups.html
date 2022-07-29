@@ -25,8 +25,8 @@
             <h2 id="groupInformationShortName"></h2>
             <h3 id="groupInformationLongName"></h3>
             <hr>
-            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                <li class="nav-item" role="presentation">
+            <ul class="nav nav-tabs mb-3" id="pills-tab" role="tablist">
+                <li id="group-users-tab" class="nav-item" role="presentation">
                     <button aria-controls="pills-users" aria-selected="true" class="nav-link active"
                             data-bs-target="#pills-users" data-bs-toggle="pill" id="pills-users-tab" role="tab"
                             type="button">Users
@@ -39,9 +39,8 @@
                     </button>
                 </li>
             </ul>
-            <hr>
             <div class="tab-content" id="pills-tabContent">
-                <div aria-labelledby="pills-users-tab" class="tab-pane fade show active" id="pills-users"
+                <div id="pills-users" aria-labelledby="pills-users-tab" class="tab-pane fade show active"
                      role="tabpanel">
 
                         <div class="controlButtons">
@@ -88,7 +87,7 @@
                         <tbody id="groupTableBody"></tbody>
                     </table>
                 </div>
-                <div aria-labelledby="pills-settings-tab" class="tab-pane fade" id="pills-settings" role="tabpanel">
+                <div id="pills-settings" aria-labelledby="pills-settings-tab" class="tab-pane fade" role="tabpanel">
                     <div id="group-settings-page">
                         <div id="group-settings-repo-information-section" class="row">
                             <h3 id="group-settings-page-repo-name">Group Repo name</h3>
