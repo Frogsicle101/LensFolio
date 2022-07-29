@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lensfolio | Evidence</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
+</head>
+<body>
+<header th:insert="fragments/general.html :: header"></header>
+<section>
+    <div class="row evidenceContainer">
+        <div class="col evidenceListContainer">
+            <div class="row evidenceListMenu">
+                <button class="btn btn-primary createEvidenceButton" type="button">Create</button>
+            </div>
+            <hr>
+            <div class="row evidenceListTitle">
+                <h3 class="title">Evidence</h3>
+            </div>
+            <hr>
+            <div class="row evidenceList">List of evidence here...</div>
+        </div>
+
+        <div class="col evidenceDetailsContainer">
+            <div class="row evidenceDetailsHeader title">
+                <p class="evidenceDate">31/7/22</p>
+                <h2>Name of Evidence</h2>
+            </div>
+            <div class="evidenceDetails">
+                Spicy jalapeno bacon ipsum dolor amet flank spare ribs pancetta do laboris.
+                Sausage meatball duis sunt. Landjaeger velit ham alcatra fugiat ribeye. Fugiat enim meatloaf, kielbasa
+                magna exercitation labore.
+            </div>
+        </div>
+
+    </div>
+</section>
+</body>
+</html>

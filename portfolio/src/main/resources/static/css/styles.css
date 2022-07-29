@@ -260,6 +260,8 @@ section {
     color: var(--select-green);
 }
 
+
+
 .deleteButton {
     position: absolute;
     top: 1rem;
@@ -352,7 +354,6 @@ section {
     width: 100%;
     flex-direction: column;
     align-items: center;
-
 }
 
 .sprint {
@@ -450,7 +451,6 @@ section {
     display: flex;
     flex-direction: column;
     align-items: center;
-
 }
 
 .sprintEditForm, .projectEditForm {
@@ -741,7 +741,6 @@ section {
 
 
 #alertPopUp {
-
     position: fixed;
     bottom: 10px;
     left: 10px;
@@ -766,15 +765,54 @@ section {
     font-size: 0.8rem;
 }
 
-.backgroundGreen{
+.backgroundGreen {
     background-color: var(--alert-green);
 }
 
-.backgroundRed{
+.backgroundRed {
     background-color: var(--alert-red);
 }
-#alertPopUpCloseButton{
+
+#alertPopUpCloseButton {
     position: absolute;
     top: 0.1rem;
     right: 0.1rem;
 }
+
+/* Evidence Page */
+
+.evidenceContainer {
+    margin: 2rem;
+}
+
+.evidenceListContainer, .evidenceDetailsContainer, .evidenceContainer {
+    border-color: var(--main-border-colour);
+}
+
+.evidenceDetailsContainer {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+}
+
+.evidenceListContainer {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+     max-width: 25%;
+ }
+
+.createEvidenceButton {
+    justify-self: end;
+    max-width: 50%;
+}
+
+.evidenceListTitle {
+    text-align: center;
+    margin: inherit;
+}
+
+.evidenceDate {
+    color: var(--secondary-text-colour)
+}
+
