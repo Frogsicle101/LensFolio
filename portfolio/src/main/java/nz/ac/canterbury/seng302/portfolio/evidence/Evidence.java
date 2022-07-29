@@ -24,6 +24,7 @@ public class Evidence {
 
     /**
      * Constructs an instance of the evidence object
+     *
      * @param userId the user associated with the evidence
      * @param title the title of the evidence
      * @param date the date of the evidence creation
