@@ -5,36 +5,35 @@ import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepoRepository;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
-import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -203,7 +202,7 @@ class EvidenceControllerTest {
         setUpContext();
         String title = "test";
         String date = LocalDateTime.now().plusDays(2).toString();
-        String description = "@#!@#&(*&!@#(&*!@(*&#(*!@&#(&(*&!@(*#&!@#asdasd";;
+        String description = "@#!@#&(*&!@#(&*!@(*&#(*!@&#(&(*&!@(*#&!@#asdasd";
         long projectId = 1;
         Project project = new Project("Testing");
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -338,6 +337,115 @@ class EvidenceControllerTest {
     }
 
 
+    // ------------------------------------ GET evidence tests -------------------------------------
+
+    @Test
+    void TestGetEvidenceWhenUserExistsAndHasNoEvidence() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String existingUserId = "1";
+        String expectedContent = "[]";
+
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(new ArrayList<>());
+
+        MvcResult result = mockMvc.perform(get("/evidence")
+                .queryParam("userId", existingUserId))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedContent, responseContent);
+    }
+
+
+    @Test
+    void TestGetEvidenceWhenUserExistsAndHasOneEvidence() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String existingUserId = "1";
+
+        ArrayList<Evidence> usersEvidence = new ArrayList<>();
+        Evidence evidence = new Evidence(1, 2, "Title", LocalDateTime.now(), "description");
+        usersEvidence.add(evidence);
+
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(usersEvidence);
+
+        MvcResult result = mockMvc.perform(get("/evidence")
+                        .queryParam("userId", existingUserId))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String expectedContent = "[" + evidence.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedContent, responseContent);
+    }
+
+
+    @Test
+    void TestGetEvidenceWhenUserExistsAndHasMultipleEvidence() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String existingUserId = "1";
+
+        ArrayList<Evidence> usersEvidence = new ArrayList<>();
+        Evidence evidence1 = new Evidence(1, 2, "Title", LocalDateTime.now(), "description");
+        Evidence evidence2 = new Evidence(3, 4, "Title 2", LocalDateTime.now(), "description 2");
+        usersEvidence.add(evidence1);
+        usersEvidence.add(evidence2);
+
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(usersEvidence);
+
+        MvcResult result = mockMvc.perform(get("/evidence")
+                        .queryParam("userId", existingUserId))
+                .andReturn();
+
+        String expectedContent = "[" + evidence1.toJsonString() + "," + evidence2.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedContent, responseContent);
+    }
+
+
+    @Test
+    void TestGetEvidenceWhenUserDoesntExistsReturnsStatusNotFound() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String notExistingUserId = "2";
+
+        mockMvc.perform(get("/evidence")
+                        .queryParam("userId", notExistingUserId))
+                .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    void TestGetEvidenceWhenBadUserIdReturnsStatusBadRequest() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String illegalUserId = "IllegalId";
+
+        mockMvc.perform(get("/evidence")
+                        .queryParam("userId", illegalUserId))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void TestGetEvidenceReturnsBadRequestWhenNoIdIncluded() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+
+        mockMvc.perform(get("/evidence"))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    // -------------- Helper context functions ----------------------------------------------------
 
 
     private void setUpContext() {
@@ -348,6 +456,7 @@ class EvidenceControllerTest {
 
         SecurityContextHolder.setContext(mockedSecurityContext);
     }
+
 
     private void setUserToStudent() {
         principal = new Authentication(AuthState.newBuilder()
@@ -375,5 +484,16 @@ class EvidenceControllerTest {
         when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService)).thenReturn(userResponse);
         Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal.getAuthState());
 
+    }
+
+
+    private void initialiseGetRequestMocks() {
+        GetUserByIdRequest existingUserRequest = GetUserByIdRequest.newBuilder().setId(1).build();
+        UserResponse userResponse = UserResponse.newBuilder().setId(1).build();
+        Mockito.when(userAccountsClientService.getUserAccountById(existingUserRequest)).thenReturn(userResponse);
+
+        GetUserByIdRequest nonExistentUserRequest = GetUserByIdRequest.newBuilder().setId(2).build();
+        UserResponse notFoundResponse = UserResponse.newBuilder().setId(-1).build();
+        Mockito.when(userAccountsClientService.getUserAccountById(nonExistentUserRequest)).thenReturn(notFoundResponse);
     }
 }
