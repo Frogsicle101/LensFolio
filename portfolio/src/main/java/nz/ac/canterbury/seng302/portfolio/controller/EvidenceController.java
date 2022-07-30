@@ -8,6 +8,7 @@ import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,16 +17,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Optional;
 
 /**
- * Controller for all the Evidence based entry points
+ * Controller for all the Evidence based end points
  */
 @Controller
 public class EvidenceController {
@@ -37,12 +40,45 @@ public class EvidenceController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-
+    /** The repository containing users pieces of evidence. */
     @Autowired
     private EvidenceRepository evidenceRepository;
 
+    /** The repository containing the projects. */
     @Autowired
     private ProjectRepository projectRepository;
+
+
+    /**
+     * Gets all the pieces of evidence for a requested user.
+     *
+     * Response codes: NOT_FOUND means the user does not exist
+     *                 OK means the user exists and an evidence list is returned  (an empty list if no evidence exists)
+     *                 BAD_REQUEST when the user doesnt interact with the endpoint correctly, i.e., no or invalid userId
+     *
+     * @param userId - The userId of the user whose evidence is wanted
+     * @return A response entity with the required response code. Response body is the evidence is the status is OK
+     */
+    @GetMapping("/evidence")
+    public ResponseEntity<Object> getAllEvidence(@RequestParam("userId") Integer userId) {
+        logger.info("GET REQUEST /evidence - attempt to get evidence for user {}", userId);
+        try {
+            List<Evidence> evidence = evidenceRepository.findAllByUserIdOrderByDateDesc(userId);
+            if (evidence.isEmpty()) {
+                GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
+                UserResponse userExistsResponse = userAccountsClientService.getUserAccountById(request);
+                if (userExistsResponse.getId() == -1) {
+                    logger.info("GET REQUEST /evidence - user {} does not exist", userId);
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+            }
+            return new ResponseEntity<>(evidence, HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.warn(exception.getClass().getName());
+            logger.warn(exception.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 
 
     /**
