@@ -476,7 +476,6 @@ section {
     align-self: center;
 }
 
-
 .listTable a {
     text-decoration: none;
     color: var(--main-text-color);
@@ -694,7 +693,6 @@ section {
     align-content: center;
 }
 
-
 .moveToDiv{
     display: flex;
     flex-direction: row;
@@ -796,24 +794,43 @@ section {
     flex-direction: column;
 }
 
+.evidenceDetailsDate {
+    color: var(--secondary-text-colour)
+}
+
 .evidenceListContainer {
-    padding-top: 1rem;
     display: flex;
     width: 100%;
     flex-direction: column;
-     max-width: 25%;
+    max-width: 25%;
  }
 
 .createEvidenceButton {
     max-width: 50%;
+    margin-top: 1rem;
+    margin-right: 0.7rem;
+    margin-left: auto;
 }
 
 .evidenceListTitle {
     text-align: center;
     padding: inherit;
+    margin-bottom: 0;
 }
 
-.evidenceDate {
-    color: var(--secondary-text-colour)
+.evidenceListItem {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: solid 1px var(--secondary-text-colour);
+    border-radius: var(--border-radius);
 }
 
+.evidenceListItemTitle {
+    font-weight: bold;
+}
+
+.evidenceListItemDate {
+    color: var(--secondary-text-colour-darker);
+    font-weight: lighter;
+    text-align: end;
+}
