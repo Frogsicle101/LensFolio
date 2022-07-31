@@ -7,15 +7,14 @@ let notCtrlClick = true;
 const TEACHER_GROUP_ID = 1
 
 
-
-$(document).ready(function() {
+$(document).ready(function () {
     let arrayOfSelected = []
 
     /**
      * JQuery UI Selectable interaction
      * https://api.jqueryui.com/selectable/
      */
-    $( "table > tbody" ).selectable({ //
+    $("table > tbody").selectable({ //
 
         // Don't allow individual table cell selection.
         filter: ":not(td)",
@@ -25,26 +24,26 @@ $(document).ready(function() {
          * @param e event
          * @param ui the selectable item that has been selected
          */
-        selected: function(e, ui) {
+        selected: function (e, ui) {
             let currentlySelected = $(ui.selected)
             notCtrlClick = !e.ctrlKey
             if (shiftDown) { // Checks if the shift key is currently pressed
                 notCtrlClick = false
                 if (parseInt(currentlySelected.attr("id")) > parseInt(lastSelectedRow.attr("id"))) {
-                    currentlySelected.prevUntil(lastSelectedRow).each(function() {
+                    currentlySelected.prevUntil(lastSelectedRow).each(function () {
                         $(this).addClass("selected")
                         arrayOfSelected.push($(this))
                     })
 
                 } else if (currentlySelected.attr("id") < parseInt(lastSelectedRow.attr("id"))) {
-                    currentlySelected.nextUntil(lastSelectedRow).each(function() {
+                    currentlySelected.nextUntil(lastSelectedRow).each(function () {
                         $(this).addClass("selected")
                         arrayOfSelected.push($(this))
                     })
 
                 }
                 lastSelectedRow.addClass("selected")
-                currentlySelected.addClass( "selected" );
+                currentlySelected.addClass("selected");
                 arrayOfSelected.push(lastSelectedRow)
                 arrayOfSelected.push(currentlySelected)
             } else {
@@ -52,15 +51,12 @@ $(document).ready(function() {
             }
             lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
             checkToSeeIfHideOrShowOptions()
-
-
-
         },
 
         /**
          * Triggered at the end of the select operation.
          */
-        stop: function(event, ui) {
+        stop: function (event, ui) {
             if (arrayOfSelected.length === 1) {
                 if ($(arrayOfSelected[0].selected).hasClass("selected")) {
                     $(arrayOfSelected[0].selected).removeClass("selected")
@@ -81,15 +77,13 @@ $(document).ready(function() {
          * @param e event
          * @param ui The selectable item that has been unselected.
          */
-        unselected: function(e, ui) {
+        unselected: function (e, ui) {
             if (notCtrlClick) {
                 $(ui.unselected).removeClass("selected");
             }
             checkToSeeIfHideOrShowOptions()
-
         }
     });
-
 
 
 })
@@ -120,7 +114,6 @@ function showOptions(show) {
  */
 function checkToSeeIfHideOrShowOptions() {
     let amountSelected = $(".selected").length
-
     if (amountSelected > 0) {
         showOptions(true)
     } else {
@@ -135,8 +128,6 @@ function checkToSeeIfHideOrShowOptions() {
  * @param groupId the id of the group to fetch
  */
 function displayGroupUsersList(groupId) {
-
-
     let membersContainer = $("#groupTableBody")
     $.ajax({
         url: `group?groupId=${groupId}`,
@@ -164,7 +155,8 @@ function displayGroupUsersList(groupId) {
                     <td>${response.userList[member].lastName}</td>
                     <td>${response.userList[member].username}</td>
                 </tr>`
-                )}
+                )
+            }
             $("#groupInformationContainer").slideDown()
             checkToSeeIfHideOrShowOptions()
         },
@@ -198,7 +190,6 @@ $(document).on("click", ".group", function () {
         $("#groupRemoveUser").show();
         $(".controlButtons").show();
     }
-
     $("#confirmationForm").slideUp();
     $(this).closest(".group").addClass("focusOnGroup");
 })
@@ -232,13 +223,12 @@ $(document).on("click", ".deleteButton", function () {
 })
 
 
-
 /**
  * When member removal is confirmed, a request is made to remove the selected users from the group.
  */
 $(document).on("click", "#confirmRemoval", function () {
     let arrayOfIds = [];
-    $(".selected").each(function() {
+    $(".selected").each(function () {
         arrayOfIds.push($(this).attr("userId"))
     })
     $.ajax({
@@ -264,9 +254,6 @@ $(document).on("click", "#cancelRemoval", function () {
 })
 
 
-
-
-
 // ******************************* Click listeners *******************************
 
 /**
@@ -283,19 +270,19 @@ $(document).on("click", ".group", function () {
 /**
  * Ajax post request to the server for moving users from one group to another
  */
-$(document).on("click", "#moveUsersButton", function() {
+$(document).on("click", "#moveUsersButton", function () {
     let arrayOfIds = [];
-    $(".selected").each(function() {
+    $(".selected").each(function () {
         arrayOfIds.push($(this).attr("userId"))
     })
     $.ajax({
         url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
-        success: function(event) {
+        success: function (event) {
             displayGroupUsersList(selectedGroupId, false)
             createAlert(event, false)
         },
-        error: function() {
+        error: function () {
             createAlert("Error moving users", true)
         }
     })
@@ -304,7 +291,7 @@ $(document).on("click", "#moveUsersButton", function() {
 /**
  * selects every single user in the group when the button is clicked.
  */
-$(document).on("click", "#selectAllCheckboxGroups", function() {
+$(document).on("click", "#selectAllCheckboxGroups", function () {
     let isChecked = $("#selectAllCheckboxGroups").prop("checked")
     $(".selectUserCheckboxGroups").prop("checked", isChecked)
     if (isChecked) {
@@ -319,26 +306,26 @@ $(document).on("click", "#selectAllCheckboxGroups", function() {
 
 // ******************************* Keydown listeners *******************************
 
-$(document).keydown(function(event) {
+$(document).keydown(function (event) {
     if (event.key === "Control") {
         controlDown = true;
     }
 })
 
-$(document).keyup(function(event) {
+$(document).keyup(function (event) {
     if (event.key === "Control") {
         controlDown = false;
     }
 })
 
 
-$(document).keydown(function(event) {
+$(document).keydown(function (event) {
     if (event.key === "Shift") {
         shiftDown = true;
     }
 })
 
-$(document).keyup(function(event) {
+$(document).keyup(function (event) {
     if (event.key === "Shift") {
         shiftDown = false;
     }
@@ -347,7 +334,7 @@ $(document).keyup(function(event) {
 
 // ******************************* Change listeners *******************************
 
-$(document).on("change","input[type=checkbox]", function() {
+$(document).on("change", "input[type=checkbox]", function () {
     let tableRow = $(this).closest("tr")
     if (!tableRow.hasClass("tableHeader")) {
         $(this).closest("tr").toggleClass("selected")
