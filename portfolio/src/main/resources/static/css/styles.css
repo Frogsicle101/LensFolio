@@ -845,3 +845,14 @@ section {
     font-weight: lighter;
     text-align: end;
 }
+
+.evidenceControl {
+    align-self: end;
+    align-items: end;
+}
+
+.evidenceDeleteButton {
+    position: absolute;
+    display: flex;
+    justify-content: flex-end;
+}
