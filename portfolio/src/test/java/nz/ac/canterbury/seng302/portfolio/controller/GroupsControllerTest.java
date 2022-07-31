@@ -149,11 +149,19 @@ class GroupsControllerTest {
         setUpContext();
         String longName = "Test Name But Longer";
         String groupId = "2";
-        ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"", longName);
+        ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"a short name", longName);
         ModifyGroupDetailsResponse response = ModifyGroupDetailsResponse.newBuilder()
                 .setIsSuccess(true)
                 .build();
         Mockito.when(groupsClientService.modifyGroupDetails(request)).thenReturn(response);
+
+        GetGroupDetailsRequest groupRequest = GetGroupDetailsRequest.newBuilder()
+                                                                    .setGroupId(2)
+                                                                    .build();
+        GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
+                                                                    .setShortName("a short name")
+                                                                    .build();
+        Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
 
         mockMvc.perform(patch("/groups/edit/longName")
                         .param("groupId", groupId)
@@ -167,7 +175,7 @@ class GroupsControllerTest {
         setUpContext();
         String longName = "Test Name But Longer";
         String groupId = "2";
-        ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"", longName);
+        ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"a short name", longName);
         ModifyGroupDetailsResponse response = ModifyGroupDetailsResponse.newBuilder()
                 .addValidationErrors(ValidationError.newBuilder()
                         .setFieldName("Long name")
@@ -176,6 +184,14 @@ class GroupsControllerTest {
                 .setIsSuccess(false)
                 .build();
         Mockito.when(groupsClientService.modifyGroupDetails(request)).thenReturn(response);
+
+        GetGroupDetailsRequest groupRequest = GetGroupDetailsRequest.newBuilder()
+                .setGroupId(2)
+                .build();
+        GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
+                .setShortName("a short name")
+                .build();
+        Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
 
         mockMvc.perform(patch("/groups/edit/longName")
                         .param("groupId", groupId)
@@ -189,7 +205,7 @@ class GroupsControllerTest {
         setUpContext();
         String longName = "Test Name But Longer";
         String groupId = "9000";
-        ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"", longName);
+        ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"a short name", longName);
         ModifyGroupDetailsResponse response = ModifyGroupDetailsResponse.newBuilder()
                 .addValidationErrors(ValidationError.newBuilder()
                         .setFieldName("Group Id")
@@ -198,6 +214,14 @@ class GroupsControllerTest {
                 .setIsSuccess(false)
                 .build();
         Mockito.when(groupsClientService.modifyGroupDetails(request)).thenReturn(response);
+
+        GetGroupDetailsRequest groupRequest = GetGroupDetailsRequest.newBuilder()
+                .setGroupId(9000)
+                .build();
+        GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
+                .setShortName("a short name")
+                .build();
+        Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
 
         mockMvc.perform(patch("/groups/edit/longName")
                         .param("groupId", groupId)
