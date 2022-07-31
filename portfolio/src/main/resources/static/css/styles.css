@@ -779,37 +779,41 @@ section {
 
 /* Evidence Page */
 
-.evidenceContainer {
-    padding: 2rem;
-}
-
 .evidenceListContainer, .evidenceDetailsContainer, .evidenceContainer {
     border: solid var(--main-border-colour) 1px;
 }
 
 .evidenceDetailsContainer {
-    padding-top: 1rem;
+    padding: 1rem 2rem 2rem;
     display: flex;
     width: 100%;
     flex-direction: column;
 }
 
 .evidenceDetailsDate {
-    color: var(--secondary-text-colour)
+    color: var(--secondary-text-colour-darker);
+    font-weight: lighter;
+}
+
+.evidenceDetailsHeader {
+    margin-bottom: 1rem;
 }
 
 .evidenceListContainer {
     display: flex;
     width: 100%;
     flex-direction: column;
-    max-width: 25%;
+    max-width: 35%;
+    padding-right: 0;
+    padding-left: 0;
  }
 
+.evidenceListMenu, .evidenceList {
+    align-self: center;
+}
+
 .createEvidenceButton {
-    max-width: 50%;
     margin-top: 1rem;
-    margin-right: 0.7rem;
-    margin-left: auto;
 }
 
 .evidenceListTitle {
@@ -818,11 +822,18 @@ section {
     margin-bottom: 0;
 }
 
+.evidenceList {
+    overflow: auto;
+    height: 65vh;
+    margin: 0.5rem;
+}
+
 .evidenceListItem {
-    margin-bottom: 1rem;
-    padding: 0.5rem;
+    margin: 1rem;
+    padding: 1rem;
     border: solid 1px var(--secondary-text-colour);
     border-radius: var(--border-radius);
+    max-width: 95%;
 }
 
 .evidenceListItemTitle {
