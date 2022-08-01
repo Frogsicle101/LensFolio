@@ -50,28 +50,37 @@ function addEvidencePreviews(response) {
 /**
  * Saves the evidence input during creating a new piece of evidence
  */
-$(document).on("click", "#evidenceSaveButton", function () {
-    const title = $("#evidenceName").val()
-    const date = $("#evidenceDate").val()
-    const description = $("#evidenceDescription").val()
-    const projectId = 1
-    $.ajax({
-        url: "evidence",
-        type: "POST",
-        data: {
-            title,
-            date,
-            description,
-            projectId
-        },
-        success: function() {
-            getAndAddEvidenceData()
-            createAlert("Created evidence")
-        },
-        error: function (error) {
-            createAlert(error.message, true)
-        }
-    })
+$(document).on("click", "#evidenceSaveButton", function (event) {
+    event.preventDefault()
+     if (!$("#evidenceCreationForm")[0].checkValidity()){
+         $("#evidenceCreationForm")[0].reportValidity()
+     } else {
+         const title = $("#evidenceName").val()
+         const date = $("#evidenceDate").val()
+         const description = $("#evidenceDescription").val()
+         const projectId = 1
+         if(title.length < 2 || date.length === 0 || description.length === 0) {
+
+         }
+         $.ajax({
+             url: "evidence",
+             type: "POST",
+             data: {
+                 title,
+                 date,
+                 description,
+                 projectId
+             },
+             success: function() {
+                 getAndAddEvidenceData()
+                 createAlert("Created evidence")
+             },
+             error: function (error) {
+                 createAlert(error.message, true)
+             }
+         })
+     }
+
 })
 
 
