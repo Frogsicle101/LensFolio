@@ -29,13 +29,11 @@ $(document).ready(function () {
             let currentlySelected = $(ui.selected)
             notCtrlClick = !e.ctrlKey
             if (shiftDown) { // Checks if the shift key is currently pressed
-                console.log("yee")
                 notCtrlClick = false
                 if (parseInt(currentlySelected.attr("userId")) > parseInt(lastSelectedRow.attr("userId"))) {
                     currentlySelected.prevUntil(lastSelectedRow).each(function () {
                         $(this).addClass("selected")
                         arrayOfSelected.push($(this))
-                        console.log(arrayOfSelected)
                     })
 
                 } else if (currentlySelected.attr("userId") < parseInt(lastSelectedRow.attr("userId"))) {
