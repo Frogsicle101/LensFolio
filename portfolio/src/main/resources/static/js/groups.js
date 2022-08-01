@@ -300,6 +300,48 @@ $(document).on("click", ".userRow", function() {
 
 })
 
+/**
+ * Handles retrieving recent commits from the specified gitlab repo.
+ */
+$(document).on("click", "#pillsSettingsTab", function () {
+    const repoID = $(".groupSettingsPageProjectId").text()
+    const accessToken = $(".groupSettingsPageAccessToken").text();
+    getCommits(repoID, accessToken, (data) => {
+
+        const firstThree = data.slice(0, 3);
+
+        const commitContainer = $("#groupSettingsCommitContainer");
+        commitContainer.empty();
+        for (let commit of firstThree) {
+            let commitText =
+                `<div class="gitCommitInfo">
+                <div class="row">
+                    <div class="inlineText">
+                        <p>Commit:&nbsp;</p>
+                        <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <p>${sanitise(commit.message)}</p>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p class="greyText">${sanitise(commit.author_name)}</p>
+                    </div>
+                    <div class="col commitDate">
+                        <p class="greyText">${commit.committed_date.split("T")[0]}</p>
+                    </div>
+                </div>
+            </div>`
+            commitContainer.append(commitText)
+        }
+
+
+
+
+    });
+})
+
 // ******************************* Keydown listeners *******************************
 
 $(document).keydown(function(event) {
