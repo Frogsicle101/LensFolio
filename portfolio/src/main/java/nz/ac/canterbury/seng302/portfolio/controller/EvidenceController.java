@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
@@ -126,14 +126,14 @@ public class EvidenceController {
                 throw new CheckException("Project Id does not match any project");
             }
             Project project = optionalProject.get();
-            LocalDateTime localDateTime = LocalDateTime.parse(date);
-            if (localDateTime.isBefore(project.getStartDateAsLocalDateTime())
-                    || localDateTime.isAfter(project.getEndDateAsLocalDateTime())) {
+            LocalDate localDate = LocalDate.parse(date);
+            if (localDate.isBefore(project.getStartDateAsLocalDateTime().toLocalDate())
+                    || localDate.isAfter(project.getEndDateAsLocalDateTime().toLocalDate())) {
                 return new ResponseEntity<>("Date is outside project dates", HttpStatus.BAD_REQUEST);
             }
             EvidenceService.checkString(title);
             EvidenceService.checkString(description);
-            Evidence evidence = new Evidence(user.getId(), title, localDateTime, description);
+            Evidence evidence = new Evidence(user.getId(), title, localDate, description);
             evidenceRepository.save(evidence);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(CheckException err) {
