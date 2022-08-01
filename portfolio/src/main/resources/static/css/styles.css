@@ -845,3 +845,8 @@ section {
     font-weight: lighter;
     text-align: end;
 }
+
+.evidenceDeleteButton {
+    display: flex;
+    justify-content: flex-end;
+}

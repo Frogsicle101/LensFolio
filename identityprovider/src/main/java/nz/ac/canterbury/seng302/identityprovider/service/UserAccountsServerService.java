@@ -90,9 +90,14 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     public void getUserAccountById(GetUserByIdRequest request, StreamObserver<UserResponse> responseObserver) {
         logger.info("SERVICE - Getting user details by Id: " + request.getId());
         User user = repository.findById(request.getId());
-        logger.info("Sending user details for " + user.getUsername());
-        UserResponse reply = user.userResponse();
-
+        UserResponse reply;
+        if (user == null) {
+            logger.warn("Could not find user with id {}, -1 responded", request.getId());
+            reply = UserResponse.newBuilder().setId(-1).build();
+        } else {
+            logger.info("Sending user details for " + user.getUsername());
+            reply = user.userResponse();
+        }
         responseObserver.onNext(reply);
         responseObserver.onCompleted();
     }
