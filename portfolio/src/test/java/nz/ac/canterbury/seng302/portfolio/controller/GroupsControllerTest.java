@@ -25,8 +25,7 @@ import org.springframework.util.MultiValueMap;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -140,6 +139,95 @@ class GroupsControllerTest {
 
         mockMvc.perform(post("/groups/edit")
                         .param("shortName", shortName)
+                        .param("longName", longName))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testEditLongNameValidLongNameAndGroupId() throws Exception {
+        setUserToTeacher();
+        setUpContext();
+        String longName = "Test Name But Longer";
+        String groupId = "2";
+        ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"a short name", longName);
+        ModifyGroupDetailsResponse response = ModifyGroupDetailsResponse.newBuilder()
+                .setIsSuccess(true)
+                .build();
+        Mockito.when(groupsClientService.modifyGroupDetails(request)).thenReturn(response);
+
+        GetGroupDetailsRequest groupRequest = GetGroupDetailsRequest.newBuilder()
+                                                                    .setGroupId(2)
+                                                                    .build();
+        GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
+                                                                    .setShortName("a short name")
+                                                                    .build();
+        Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
+
+        mockMvc.perform(patch("/groups/edit/longName")
+                        .param("groupId", groupId)
+                        .param("longName", longName))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void testEditLongNameInvalidLongName() throws Exception {
+        setUserToTeacher();
+        setUpContext();
+        String longName = "Test Name But Longer";
+        String groupId = "2";
+        ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"a short name", longName);
+        ModifyGroupDetailsResponse response = ModifyGroupDetailsResponse.newBuilder()
+                .addValidationErrors(ValidationError.newBuilder()
+                        .setFieldName("Long name")
+                        .setErrorText("A group exists with the longName " + request.getLongName())
+                        .build())
+                .setIsSuccess(false)
+                .build();
+        Mockito.when(groupsClientService.modifyGroupDetails(request)).thenReturn(response);
+
+        GetGroupDetailsRequest groupRequest = GetGroupDetailsRequest.newBuilder()
+                .setGroupId(2)
+                .build();
+        GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
+                .setShortName("a short name")
+                .build();
+        Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
+
+        mockMvc.perform(patch("/groups/edit/longName")
+                        .param("groupId", groupId)
+                        .param("longName", longName))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testEditLongNameInvalidGroupId() throws Exception {
+        setUserToTeacher();
+        setUpContext();
+        String longName = "Test Name But Longer";
+        String groupId = "9000";
+        ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"a short name", longName);
+        ModifyGroupDetailsResponse response = ModifyGroupDetailsResponse.newBuilder()
+                .addValidationErrors(ValidationError.newBuilder()
+                        .setFieldName("Group Id")
+                        .setErrorText("No group exists with the group id: " + request.getGroupId())
+                        .build())
+                .setIsSuccess(false)
+                .build();
+        Mockito.when(groupsClientService.modifyGroupDetails(request)).thenReturn(response);
+
+        GetGroupDetailsRequest groupRequest = GetGroupDetailsRequest.newBuilder()
+                .setGroupId(9000)
+                .build();
+        GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
+                .setShortName("a short name")
+                .build();
+        Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
+
+        mockMvc.perform(patch("/groups/edit/longName")
+                        .param("groupId", groupId)
                         .param("longName", longName))
                 .andExpect(status().isBadRequest());
     }
@@ -329,6 +417,15 @@ class GroupsControllerTest {
 
     private CreateGroupRequest buildCreateRequest(String shortName, String longName) {
         return CreateGroupRequest.newBuilder()
+                .setShortName(shortName)
+                .setLongName(longName)
+                .build();
+    }
+
+
+    private ModifyGroupDetailsRequest buildModifyRequest(int id, String shortName, String longName) {
+        return ModifyGroupDetailsRequest.newBuilder()
+                .setGroupId(id)
                 .setShortName(shortName)
                 .setLongName(longName)
                 .build();

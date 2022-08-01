@@ -161,7 +161,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     /**
      * Follows the gRPC contract and provides the server side service for modifying group details.
      * If the group exists and the new names (short and long) don't match existing names, the group
-     * is updated and the response isSuccess is try, otherwise it is false.
+     * is updated and the response isSuccess is true, otherwise it is false.
      *
      * @param request A ModifyGroupDetailsRequest formatted to satisfy the groups.proto contract.
      * @param responseObserver Used to return the response to the client side.
@@ -169,13 +169,15 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     @Override
     public void modifyGroupDetails(ModifyGroupDetailsRequest request, StreamObserver<ModifyGroupDetailsResponse> responseObserver) {
         logger.info("SERVICE - modify group details for group with group id {}", request.getGroupId());
-        ModifyGroupDetailsResponse.Builder response = ModifyGroupDetailsResponse.newBuilder();
+        int shortNameLength = request.getShortName().trim().length();
+        int longNameLength = request.getLongName().trim().length();
+        ModifyGroupDetailsResponse.Builder response = ModifyGroupDetailsResponse.newBuilder().setIsSuccess(true);
         try {
             Optional<Group> optionalGroup = groupRepository.findById(request.getGroupId());
             if (optionalGroup.isPresent()) {
                 Group group = optionalGroup.get();
                 Optional<Group> checkIfExistsShortName = groupRepository.findByShortName(request.getShortName());
-                Optional<Group> checkIfExistsLongName = groupRepository.findByLongName(request.getShortName());
+                Optional<Group> checkIfExistsLongName = groupRepository.findByLongName(request.getLongName());
                 if (checkIfExistsShortName.isPresent() && checkIfExistsShortName.get().getId() != request.getGroupId()) {
                     response.addValidationErrors(ValidationError.newBuilder()
                                     .setFieldName("Short name")
@@ -183,14 +185,36 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                                     .build())
                             .setIsSuccess(false);
                     logger.warn("Group Modify - trying to update group details for group {}: {}",request.getGroupId(), "A group exists with the shortName " + request.getShortName());
-                } else if (checkIfExistsLongName.isPresent() && checkIfExistsLongName.get().getId() != request.getGroupId()) {
+                }
+                if (checkIfExistsLongName.isPresent() && checkIfExistsLongName.get().getId() != request.getGroupId()) {
                     response.addValidationErrors(ValidationError.newBuilder()
                                 .setFieldName("Long name")
                                 .setErrorText("A group exists with the longName " + request.getLongName())
                                 .build())
                         .setIsSuccess(false);
                     logger.warn("Group Modify - trying to update group details for group {}: {}",request.getGroupId(), "A group exists with the longName " + request.getLongName());
-                } else {
+                }
+                if (shortNameLength < MIN_LENGTH || shortNameLength > MAX_SHORT_NAME_LENGTH) {
+                    response.addValidationErrors(ValidationError.newBuilder()
+                                    .setFieldName("Short name")
+                                    .setErrorText("Group short name has to be between " + MIN_LENGTH + " and " +
+                                            MAX_SHORT_NAME_LENGTH + " characters")
+                                    .build())
+                            .setIsSuccess(false)
+                            .setMessage("Error: A group short name has to be between " + MIN_LENGTH + " and " +
+                                    MAX_SHORT_NAME_LENGTH + " characters");
+                }
+                if (longNameLength < MIN_LENGTH || longNameLength > MAX_LONG_NAME_LENGTH) {
+                    response.addValidationErrors(ValidationError.newBuilder()
+                                    .setFieldName("Long name")
+                                    .setErrorText("Group long name has to be between " + MIN_LENGTH + " and " +
+                                            MAX_LONG_NAME_LENGTH + " characters")
+                                    .build())
+                            .setIsSuccess(false)
+                            .setMessage("Error: A group long name has to be between " + MIN_LENGTH + " and " +
+                                    MAX_LONG_NAME_LENGTH + " characters");
+                }
+                if (response.getIsSuccess()) {
                     group.setShortName(request.getShortName());
                     group.setLongName(request.getLongName());
                     groupRepository.save(group);
