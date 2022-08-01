@@ -174,10 +174,9 @@ function checkEditRights(group) {
 
     // only show settings page if the active page is not MWAG or Teachers & if the user has read access
     // i.e., the user is an admin, teacher or member of the group.
-    if (groupId !== MWAG_GROUP_ID  &&
+    if (groupId !== MWAG_GROUP_ID &&
         groupId !== TEACHER_GROUP_ID &&
-        (checkPrivilege() || group.userList.some(member => member.id === userIdent)))
-    {
+        (checkPrivilege() || group.userList.some(member => member.id === userIdent))) {
         groupSettingsTab.show()
     } else {
         changeToUsersTab()
@@ -323,7 +322,6 @@ $(document).on("click", "#cancelRemoval", function () {
 // ******************************* Click listeners *******************************
 
 
-
 /**
  * Ajax post request to the server for moving users from one group to another
  */
@@ -335,7 +333,7 @@ $(document).on("click", "#moveUsersButton", function () {
     $.ajax({
         url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
-        success: function(event) {
+        success: function (event) {
             displayGroupUsersList(selectedGroupId)
             createAlert(event, false)
         },
