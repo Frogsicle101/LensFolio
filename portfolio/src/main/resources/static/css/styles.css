@@ -650,6 +650,10 @@ section {
     background-color: var(--main-border-colour);
 }
 
+.colourForDrag {
+    background-color: var(--main-border-colour);
+}
+
 .focusOnGroup {
     background-color: var(--main-border-colour);
 }
@@ -735,3 +739,5 @@ section {
 .groupButtons {
     padding-top: 1rem;
 }
+
+

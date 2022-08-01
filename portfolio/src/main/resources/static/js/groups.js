@@ -43,6 +43,11 @@ $(document).ready(function() {
              * https://api.jqueryui.com/draggable/
              */
             $(".selected").draggable({
+                helper: function(event){
+                    let helper = $("<table class='table colourForDrag'/>")
+                    return helper.append($(".selected").clone())
+
+                },
                 revert: true,
                 /**
                  * Triggered when dragging starts.
@@ -51,7 +56,7 @@ $(document).ready(function() {
                 },
 
                 /**
-                 * Triggered when the draggon stops
+                 * Triggered when the dragging stops
                  */
                 stop: function() {
                 }
