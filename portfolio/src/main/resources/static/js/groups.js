@@ -27,12 +27,12 @@ function showOptions(show) {
  * Makes all the logic changes bootstrap does when changing the tab from settings to users.
  */
 function changeToUsersTab() {
-    let groupSettingsTab = $("#group-settings-tab")
-    let groupUsersTab = $("#group-users-tab")
-    let groupUsersButton = $("#pills-users-tab")
-    let groupSettingsButton = $("#pills-settings-tab")
-    let groupUsersPage = $("#pills-users")
-    let GroupSettingsPage = $("#pills-settings")
+    let groupSettingsTab = $("#groupSettingsTab")
+    let groupUsersTab = $("#groupUsersTab")
+    let groupUsersButton = $("#pillsUsersTab")
+    let groupSettingsButton = $("#pillsSettingsTab")
+    let groupUsersPage = $("#pillsUsers")
+    let GroupSettingsPage = $("#pillsSettings")
 
     groupUsersTab.attr("aria-selected", true)
     groupSettingsTab.attr("aria-selected", false)
@@ -71,7 +71,7 @@ function checkToSeeIfHideOrShowOptions() {
  * @param group - The newly selected group.
  */
 function checkEditRights(group) {
-    let groupSettingsTab = $("#group-settings-tab")
+    let groupSettingsTab = $("#groupSettingsTab")
     let groupId = group.id
     groupSettingsTab.hide()
 
@@ -104,7 +104,7 @@ function checkEditRights(group) {
  * Loops through the groups members and adds them to the table.
  * @param groupId the id of the group to fetch
  */
-function displayGroupsPage(groupId) {
+function displayGroupUsersList(groupId) {
     let membersContainer = $("#groupTableBody")
     $.ajax({
         url: `group?groupId=${groupId}`,
@@ -140,10 +140,7 @@ function displayGroupsPage(groupId) {
             checkEditRights(response)
         },
         error: (error) => {
-            $("#groupInformationContainer").append(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                       ${error.responseText}
-                                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                     </div>`)
+            createAlert(error.responseText, true)
         }
     })
 }
@@ -169,13 +166,8 @@ $(document).on("click", ".deleteButton", function () {
             type: "delete",
             success: function () {
                 window.location.reload()
-            }, error: function () {
-                $("#groupInformationContainer").append(
-                    `<div class="alert alert-danger alert-dismissible fade show" role="alert">
-                     ${error.responseText}
-                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>`
-                )
+            }, error: function (error) {
+                createAlert(error.responseText, true)
             }
         })
     }
@@ -195,7 +187,8 @@ $(document).on("click", "#confirmRemoval", function () {
         url: `groups/removeUsers?groupId=${selectedGroupId}&userIds=${arrayOfIds}`,
         type: "DELETE",
         success: () => {
-            displayGroupsPage(selectedGroupId)
+            displayGroupUsersList(selectedGroupId)
+            createAlert("User removed", false)
         },
         error: (error) => {
             console.log(error);
@@ -227,7 +220,7 @@ $(document).on("click", ".group", function () {
     let groupId = newFocusOnGroup.find(".groupId").text();
 
     $("#selectAllCheckboxGroups").prop("checked", false);
-    displayGroupsPage(groupId);
+    displayGroupUsersList(groupId)
     $("#confirmationForm").slideUp();
 })
 
@@ -243,11 +236,12 @@ $(document).on("click", "#moveUsersButton", function() {
     $.ajax({
         url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
-        success: function() {
-            displayGroupsPage(selectedGroupId)
+        success: function(event) {
+            displayGroupUsersList(selectedGroupId)
+            createAlert(event, false)
         },
-        error: function(response) {
-            console.log(response)
+        error: function() {
+            createAlert("Error moving users", true)
         }
     })
 })

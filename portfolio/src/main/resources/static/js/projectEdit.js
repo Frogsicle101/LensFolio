@@ -66,10 +66,7 @@ $(document).ready(() => {
                 location.href = "portfolio?projectId=" + projectId.val()
             },
             error: function (error) {
-                console.log(error.responseText)
-                $(".errorMessage").text(error.responseText)
-                $(".errorMessageParent").slideUp()
-                $(".errorMessageParent").slideDown()
+                createAlert(error.responseText, true)
             }
         })
     })
