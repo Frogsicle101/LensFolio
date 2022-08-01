@@ -806,3 +806,7 @@ section {
     top: 0.1rem;
     right: 0.1rem;
 }
+
+.commitDate {
+    text-align: right;
+}
