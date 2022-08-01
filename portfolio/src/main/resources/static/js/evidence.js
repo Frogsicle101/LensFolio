@@ -5,9 +5,12 @@ $(document).on("click", ".userRoleRow", function() {
     let userId = $(this).find(".userId").text()
     $.ajax({
         url: "evidenceData?userId=" + userId,
-        success: function(response) {
+        success: function() {
             $.ajax({
             url: "evidence?userId=" + userId,
+                success: function() {
+                window.location.href = "/evidence?userId=" + userId //redirect to the user's evidence page
+                }
             })
         },
         error: function (error) {
