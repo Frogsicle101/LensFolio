@@ -416,6 +416,7 @@ $(document).on("click", "#moveUsersButton", function () {
             createAlert("Error moving users", true)
         }
     })
+})
 $(document).on("click", "#moveUsersButton", function() {
     addUsers($("#newGroupSelector").val())
 })
