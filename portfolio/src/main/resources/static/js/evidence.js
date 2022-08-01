@@ -1,21 +1,27 @@
+/** the user id of the user whose evidence page if being viewed */
+let userBeingViewedId;
+
+
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
  */
 $(document).ready(function () {
-    let userBeingViewedId;
     let urlParams = new URLSearchParams(window.location.search)
     if (urlParams.has("userId")) {
         userBeingViewedId = urlParams.get('sent')
     } else {
         userBeingViewedId = userIdent
     }
-    populateEvidencePage(userBeingViewedId)
+    getAndAddEvidenceData()
 })
 
 
-function populateEvidencePage(userId) {
+/**
+ * Gets the evidence data for the chosen user and adds it to the page.
+ */
+function getAndAddEvidenceData() {
     $.ajax({
-        url: "evidenceData?userId=" + userId,
+        url: "evidenceData?userId=" + userBeingViewedId,
         success: function(response) {
             addEvidencePreviews(response)
         },
@@ -26,8 +32,15 @@ function populateEvidencePage(userId) {
 }
 
 
+/**
+ * Takes the response from an evidence list get request and adds the evidence previews to the left
+ * side of the page.
+ *
+ * @param response - The response from GET /evidenceData
+ */
 function addEvidencePreviews(response) {
     let evidencePreviewsContainer = $("#evidenceList")
+    evidencePreviewsContainer.empty()
     for (let pieceOfEvidence in response) {
         evidencePreviewsContainer.append(createEvidencePreview(response[pieceOfEvidence]))
     }
@@ -52,29 +65,8 @@ $(document).on("click", "#evidenceSaveButton", function () {
             projectId
         },
         success: function() {
+            getAndAddEvidenceData()
             createAlert("Created evidence")
-        },
-        error: function (error) {
-            createAlert(error.message, true)
-        }
-    })
-})
-
-
-/**
- * When a user is clicked, a call is made to retrieve the user's evidence page.
- */
-$(document).on("click", ".userRoleRow", function() {
-    let userId = $(this).find(".userId").text()
-    $.ajax({
-        url: "evidenceData?userId=" + userId,
-        success: function() {
-            $.ajax({
-            url: "evidence?userId=" + userId,
-                success: function() {
-                window.location.href = "/evidence?userId=" + userId //redirect to the user's evidence page
-                }
-            })
         },
         error: function (error) {
             createAlert(error.message, true)
@@ -97,6 +89,5 @@ function createEvidencePreview(evidence) {
                 <p class="col evidenceListItemDate">${evidence.date}</p>
             </div>
             <p class="evidenceListItemInfo">${evidence.description}</p>
-        </div>
-    `
+        </div>`
 }

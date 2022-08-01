@@ -7,8 +7,7 @@
 </head>
 <body>
 <header th:insert="fragments/general.html :: header"></header>
-<section>
-    <div class="row evidenceContainer">
+<section class="evidencePage">
         <div class="col evidenceListContainer">
             <div class="row evidenceListMenu">
                 <button class="btn btn-primary createEvidenceButton" data-bs-toggle="modal"
@@ -18,9 +17,9 @@
             </div>
             <hr>
             <h3 class="evidenceListTitle">Evidence</h3>
-            <hr>
+            <hr style="margin-bottom: 0">
             <!-- The evidence holding container, pieces are added through JS -->
-            <div id="evidenceList" class="row evidenceList"></div>
+            <div id="evidenceList"></div>
         </div>
         <div class="col evidenceDetailsContainer">
             <div class="row evidenceDetailsHeader">
@@ -41,7 +40,6 @@
                 magna exercitation labore.
             </div>
         </div>
-    </div>
     <!-- Add evidence Modal -->
     <div class="modal fade" id="addEvidenceModal" tabindex="-1" role="dialog" aria-labelledby="addEvidenceTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
