@@ -1,14 +1,38 @@
-
+/**
+ * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
+ */
 $(document).ready(function () {
-    let userBeingViewed;
+    let userBeingViewedId;
     let urlParams = new URLSearchParams(window.location.search)
     if (urlParams.has("userId")) {
-        userBeingViewed = urlParams.get('sent')
+        userBeingViewedId = urlParams.get('sent')
     } else {
-        userBeingViewed = userIdent
+        userBeingViewedId = userIdent
     }
-
+    populateEvidencePage(userBeingViewedId)
 })
+
+
+function populateEvidencePage(userId) {
+    $.ajax({
+        url: "evidenceData?userId=" + userId,
+        success: function(response) {
+            addEvidencePreviews(response)
+        },
+        error: function (error) {
+            createAlert(error.message, true)
+        }
+    })
+}
+
+
+function addEvidencePreviews(response) {
+    let evidencePreviewsContainer = $("#evidenceList")
+    for (let pieceOfEvidence in response) {
+        evidencePreviewsContainer.append(createEvidencePreview(response[pieceOfEvidence]))
+    }
+}
+
 
 /**
  * Saves the evidence input during creating a new piece of evidence
@@ -18,7 +42,6 @@ $(document).on("click", "#evidenceSaveButton", function () {
     const date = $("#evidenceDate").val()
     const description = $("#evidenceDescription").val()
     const projectId = 1
-    console.log(date)
     $.ajax({
         url: "evidence",
         type: "POST",
@@ -29,12 +52,10 @@ $(document).on("click", "#evidenceSaveButton", function () {
             projectId
         },
         success: function() {
-            console.log("hello?")
             createAlert("Created evidence")
         },
         error: function (error) {
-            console.log("goodbye?")
-            createAlert(error.message)
+            createAlert(error.message, true)
         }
     })
 })
@@ -56,7 +77,7 @@ $(document).on("click", ".userRoleRow", function() {
             })
         },
         error: function (error) {
-            console.log(error)
+            createAlert(error.message, true)
         }
     })
 })
@@ -71,7 +92,6 @@ $(document).on("click", ".userRoleRow", function() {
 function createEvidencePreview(evidence) {
     return `
         <div class="evidenceListItem">
-            <p class="evidenceListItemId" style="display: none">${evidence.id}</p>
             <div class="row evidenceListItemHeader">
                 <p class="col evidenceListItemTitle">${evidence.title}</p>
                 <p class="col evidenceListItemDate">${evidence.date}</p>
