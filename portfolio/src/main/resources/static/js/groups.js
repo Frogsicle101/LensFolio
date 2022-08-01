@@ -210,18 +210,25 @@ $(document).on("click", "#cancelRemoval", function () {
  * Loops through the groups members and adds them to the table.
  * @param groupId the id of the group to fetch
  */
-function displayRepo(groupId) {
+$(document).on("click", "#pillsSettingsTab", function () {
     let membersContainer = $("#gitRepo")
     $.ajax({
-        url: `getRepo?groupId=${groupId}`,
+        url: `getRepo?groupId=${selectedGroupId}`,
         type: "GET",
         success: (response) => {
-            $("#repoInformationName").text(response.name);
-            $("#repoInformationId").text(response.id);
-            $("#repoInformationToken").text(response.token);
-            repo = response;
-            membersContainer.append(`
-                    <div class="group" th:each="gitRepository : ${gitRepos}">
+            if (response.length === 0){
+                membersContainer.append(`
+                    <h3 id="groupSettingsPageRepoName">No Repository</h3>`
+                )
+            }
+            else {
+                $("#repoInformationName").text(response.name);
+                $("#repoInformationId").text(response.id);
+                $("#repoInformationToken").text(response.token);
+                repo = response;
+                console.log(repo)
+                membersContainer.append(`
+                    <div class="group" th:each="gitRepository : ${gitRepo}">
                         <h3 id="the-group-settings-page-repo-name"  th:text="${gitRepository.repoName}"></h3>
                              <div class="row margin-sides-1">
                                 <div class="inline-text col">
@@ -234,15 +241,14 @@ function displayRepo(groupId) {
                                 </div>
                              </div>
                     </div>`
-            )
+                )
+            }
         },
         error: (error) => {
-            membersContainer.append(`
-                    <h3 id="groupSettingsPageRepoName">No Repository</h3>`
-            )
+
         },
     })
-}
+})
 
 
 // ******************************* Click listeners *******************************
