@@ -143,6 +143,7 @@ class GroupsControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+
     @Test
     void testEditLongNameValidLongNameAndGroupId() throws Exception {
         setUserToTeacher();
@@ -168,6 +169,7 @@ class GroupsControllerTest {
                         .param("longName", longName))
                 .andExpect(status().isOk());
     }
+
 
     @Test
     void testEditLongNameInvalidLongName() throws Exception {
@@ -198,6 +200,7 @@ class GroupsControllerTest {
                         .param("longName", longName))
                 .andExpect(status().isBadRequest());
     }
+
 
     @Test
     void testEditLongNameInvalidGroupId() throws Exception {
@@ -418,6 +421,7 @@ class GroupsControllerTest {
                 .setLongName(longName)
                 .build();
     }
+
 
     private ModifyGroupDetailsRequest buildModifyRequest(int id, String shortName, String longName) {
         return ModifyGroupDetailsRequest.newBuilder()
