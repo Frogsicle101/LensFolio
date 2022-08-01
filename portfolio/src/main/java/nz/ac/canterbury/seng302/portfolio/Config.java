@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio;
 
+import nz.ac.canterbury.seng302.portfolio.service.GroupSettingsInterceptor;
 import nz.ac.canterbury.seng302.portfolio.service.RoleBasedIntercepter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -20,6 +21,8 @@ public class Config implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         List<String> pathsToInterceptForRoleBased = new ArrayList<>();
+        List<String> pathsToInterceptForGroupSettings = new ArrayList<>();
+
 
         // User Roles
         pathsToInterceptForRoleBased.add("/editUserRole");
@@ -57,6 +60,12 @@ public class Config implements WebMvcConfigurer {
         pathsToInterceptForRoleBased.add("/groups/removeUsers");
         pathsToInterceptForRoleBased.add("/groups/edit");
 
+
+        //GitSettings
+        pathsToInterceptForGroupSettings.add("/addGitRepo");
+        pathsToInterceptForGroupSettings.add("/getRepo");
+
         registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToInterceptForRoleBased);
+        registry.addInterceptor(new GroupSettingsInterceptor()).addPathPatterns(pathsToInterceptForGroupSettings);
     }
 }

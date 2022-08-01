@@ -738,7 +738,34 @@ section {
     padding-top: 1rem;
 }
 
+.gitCommitInfo {
+    border: solid 1px var(--main-border-colour);
+    background-color: var(--background-colour-white);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+    margin-top: 1rem;
+}
 
+.marginSides1 {
+    margin-right: 1rem;
+    margin-left: 1rem;
+}
+
+.greyText {
+    color: var(--secondary-text-colour-darker);
+}
+
+.inlineText {
+    display: flex;
+    justify-content: left;
+}
+
+#groupSettingsRepoInformationSection {
+    margin-bottom: 2rem;
+}
+
+/* Alerts */
 
 #alertPopUp {
 
@@ -773,7 +800,8 @@ section {
 .backgroundRed{
     background-color: var(--alert-red);
 }
-#alertPopUpCloseButton{
+
+#alertPopUpCloseButton {
     position: absolute;
     top: 0.1rem;
     right: 0.1rem;
