@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
  * any time a gRPC client sends a request (e.g to the IdentityProvider), the message is 'intercepted' before it
  * actually leaves this application, and we can modify the content of the request here.
  * <p>
- * In this instance, the modification we are making to the intercepted method, is to add in an authentication header
+ * In this instance, the modification we are making to the intercepted method is to add in an authentication header
  * using a value that we may or may not have stored in a cookie in the browser. This means that every request we
  * send via a gRPC client will automatically have any authentication session token included, without any need
  * for adding this in ourselves - wonderful!
