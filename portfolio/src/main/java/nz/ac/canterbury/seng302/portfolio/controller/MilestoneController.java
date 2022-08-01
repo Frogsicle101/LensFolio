@@ -21,14 +21,19 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * The controller for managing requests to access and edit milestones.
+ */
 @RestController
 public class MilestoneController {
+    /**
+     * For logging the requests related to milestones.
+     */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ProjectRepository projectRepository;
     private final MilestoneRepository milestoneRepository;
 
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final RegexPatterns regexPatterns = new RegexPatterns();
 
     @Autowired

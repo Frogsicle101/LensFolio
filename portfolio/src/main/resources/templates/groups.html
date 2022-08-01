@@ -26,49 +26,130 @@
             <h2 id="groupInformationShortName"></h2>
             <h3 id="groupInformationLongName"></h3>
             <hr>
-            <div class="controlButtons">
-                <button type="button" class="deleteButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Group">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
-                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                    </svg>
-                </button>
-            </div>
-            <div id="groupDisplayOptions" class="hasTeacherOrAbove" style="display: none">
-                <input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label>
-                <p class="numSelected">0 Selected</p>
-                <button class="btn btn-danger" id="groupRemoveUser">Remove User</button>
-                <div class="moveToDiv">
-                    <label for="newGroupSelector">Copy to..</label>
-                    <select id="newGroupSelector" class="form-select moveToSelect">
-                        <option th:each="group : ${groups}" th:text="${group.shortName}" th:value="${group.getGroupId()}"></option>
-                    </select>
-                    <button class="btn btn-primary moveToButton" id="moveUsersButton" >Move</button>
+            <ul class="nav nav-tabs mb-3" id="pillsTab" role="tablist">
+                <li id="groupUsersTab" class="nav-item" role="presentation">
+                    <button aria-controls="pillsUsers" aria-selected="true" class="nav-link active"
+                            data-bs-target="#pillsUsers" data-bs-toggle="pill" id="pillsUsersTab" role="tab"
+                            type="button">Users
+                    </button>
+                </li>
+                <li id="groupSettingsTab" class="nav-item" role="presentation" style="display: none">
+                    <button aria-controls="pillsSettings" aria-selected="false" class="nav-link"
+                            data-bs-target="#pillsSettings" data-bs-toggle="pill" id="pillsSettingsTab" role="tab"
+                            type="button">Repository
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content" id="pillsTabContent">
+                <div id="pillsUsers" aria-labelledby="pillsUsersTab" class="tab-pane fade show active"
+                     role="tabpanel">
+
+                        <div class="controlButtons">
+                        <button type="button" class="deleteButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Group">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="groupDisplayOptions" class="hasTeacherOrAbove" style="display: none">
+                        <input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label>
+                        <p class="numSelected">0 Selected</p>
+                        <button class="btn btn-danger" id="groupRemoveUser">Remove User</button>
+                        <div class="moveToDiv">
+                            <label for="newGroupSelector">Copy to..</label>
+                            <select id="newGroupSelector" class="form-select moveToSelect">
+                                <option th:each="group : ${groups}" th:text="${group.shortName}" th:value="${group.getGroupId()}"></option>
+                            </select>
+                            <button class="btn btn-primary moveToButton" id="moveUsersButton" >Move</button>
+                        </div>
+                        <hr>
+                    </div>
+                    <div class="form-popup border rounded w-25" id="confirmationForm" style="display: none">
+                        <h6>Confirm removal of selected users from this group?</h6>
+                        <table>
+                            <tr class="buttonsRow">
+                                <button type="button" class="btn btn-success" id="confirmRemoval">Yes</button>
+                                <button type="button" class="btn btn-secondary" id="cancelRemoval">No</button>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="membersContainer"></div>
+                    <table id="groupTable" class="table">
+                        <thead>
+                        <tr class="tableHeader">
+                            <th scope="col">Id</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">First</th>
+                            <th scope="col">Last</th>
+                            <th scope="col">Username</th>
+                        </tr>
+                        </thead>
+                        <tbody id="groupTableBody"></tbody>
+                    </table>
                 </div>
-                <hr>
+                <div id="pillsSettings" aria-labelledby="pillsSettingsTab" class="tab-pane fade" role="tabpanel">
+                    <div id="groupSettingsPage">
+                        <div id="groupSettingsRepoInformationSection" class="row">
+                            <h3 id="groupSettingsPageRepoName">Group Repo name</h3>
+                            <div class="row marginSides1">
+                                <div class="inlineText col">
+                                    <p>Project Id:&nbsp;</p>
+                                    <p class="groupSettingsPageProjectId greyText">Repo Project Id</p>
+                                </div>
+                                <div class="inlineText col">
+                                    <p>Access Token:&nbsp;</p>
+                                    <p class="groupSettingsPageAccessToken greyText">3xAm91e-AcC355-t0k3n</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="groupSettingsCommitSection">
+                            <h5>Recent Commits:</h5>
+                            <div id="groupSettingsCommitContainer" class="marginSides1">
+                                <div class="gitCommitInfo">
+                                    <div class="row">
+                                        <div class="inlineText">
+                                            <p>Commit:&nbsp;</p>
+                                            <p class="greyText">commit code here</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>This is the paragraph to display the commit message. It is longer than the page allows for to text that text wrapping works as expected</p>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <p class="greyText">Sam Clark</p>
+                                        </div>
+                                        <div class="col">
+                                        <p class="greyText">27/07/2022 3:44:53 pm</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="gitCommitInfo">
+                                    <div class="row">
+                                        <div class="inlineText">
+                                            <p>Commit:&nbsp;</p>
+                                            <p class="greyText">commit code here</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>This is the paragraph to display the commit message. It is longer than the page allows for to text that text wrapping works as expected</p>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <p class="greyText">Sam Clark</p>
+                                        </div>
+                                        <div class="col">
+                                            <p class="greyText">27/07/2022 3:44:53 pm</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-popup border rounded w-25" id="confirmationForm" style="display: none">
-                <h6>Confirm removal of selected users from this group?</h6>
-                <table>
-                    <tr class="buttonsRow">
-                        <button type="button" class="btn btn-success" id="confirmRemoval">Yes</button>
-                        <button type="button" class="btn btn-secondary" id="cancelRemoval">No</button>
-                    </tr>
-                </table>
-            </div>
-            <div class="membersContainer"></div>
-            <table id="groupTable" class="table">
-                <thead>
-                <tr class="tableHeader">
-                    <th scope="col">Id</th>
-                    <th scope="col">Image</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Username</th>
-                </tr>
-                </thead>
-                <tbody id="groupTableBody"></tbody>
-            </table>
         </div>
     </div>
 </section>

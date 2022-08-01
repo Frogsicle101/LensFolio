@@ -18,13 +18,8 @@ $(document).ready(function () {
             success: function () {
                 location.reload()
             },
-            error: function (response) {
-                console.log(response);
-                $(".title").append(`
-                            <div class="alert alert-danger alert-dismissible fade show in text-center" style="position:fixed; top:50%; left: 38%; font-size: 1rem" role="alert">
-                                ` + response.responseText + `
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`)
+            error: function (error) {
+                createAlert(error.responseText, true)
             }
 
         })
@@ -51,12 +46,8 @@ $(document).ready(function () {
             success: function () {
                 location.reload()
             },
-            error: function (response) {
-                $(".title").append(`
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                ` + response.toString() + `
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`)
+            error: function (error) {
+                createAlert(error.responseText, true)
             }
         })
     });

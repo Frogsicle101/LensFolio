@@ -22,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * <br>
  * This class was initially
  * provided by the university of canterbury and was then built upon.
- *
- * @author Sam Clark, Frederik Markwell
  */
 @GrpcService
 public class AuthenticateServerService extends AuthenticationServiceImplBase{
