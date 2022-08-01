@@ -59,7 +59,7 @@ public class EvidenceController {
      * @param userId - The userId of the user whose evidence is wanted
      * @return A response entity with the required response code. Response body is the evidence is the status is OK
      */
-    @GetMapping("/evidence")
+    @GetMapping("/evidenceData")
     public ResponseEntity<Object> getAllEvidence(@RequestParam("userId") Integer userId) {
         logger.info("GET REQUEST /evidence - attempt to get evidence for user {}", userId);
         try {
