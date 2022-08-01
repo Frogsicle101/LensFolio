@@ -5,6 +5,7 @@ let lastSelectedRow;
 let group;
 
 const TEACHER_GROUP_ID = 1
+const MWAG_GROUP_ID = 2
 
 // ******************************* Functions *******************************
 
@@ -23,6 +24,34 @@ function showOptions(show) {
 
 
 /**
+ * Makes all the logic changes bootstrap does when changing the tab from settings to users.
+ */
+function changeToUsersTab() {
+    let groupSettingsTab = $("#groupSettingsTab")
+    let groupUsersTab = $("#groupUsersTab")
+    let groupUsersButton = $("#pillsUsersTab")
+    let groupSettingsButton = $("#pillsSettingsTab")
+    let groupUsersPage = $("#pillsUsers")
+    let GroupSettingsPage = $("#pillsSettings")
+
+    groupUsersTab.attr("aria-selected", true)
+    groupSettingsTab.attr("aria-selected", false)
+
+    groupUsersButton.attr("aria-selected", true)
+    groupUsersButton.addClass("active")
+    groupSettingsButton.attr("aria-selected", false)
+    groupSettingsButton.removeClass("active")
+
+    groupUsersTab.addClass('active')
+    groupSettingsTab.removeClass('active')
+    groupUsersPage.addClass('show')
+    groupUsersPage.addClass('active')
+    GroupSettingsPage.removeClass('show')
+    GroupSettingsPage.removeClass('active')
+}
+
+
+/**
  * Helper function that uses the amount of selected users to determine if to call the showOptions function
  */
 function checkToSeeIfHideOrShowOptions() {
@@ -36,13 +65,46 @@ function checkToSeeIfHideOrShowOptions() {
 
 
 /**
+ * Called when a group page is opened. This function sets the visibility of the group settings tab.
+ * The visibility is true only if the user is in the group or is a teacher or admin.
+ *
+ * @param group - The newly selected group.
+ */
+function checkEditRights(group) {
+    let groupSettingsTab = $("#groupSettingsTab")
+    let groupId = group.id
+    groupSettingsTab.hide()
+
+    if (groupId === TEACHER_GROUP_ID) {
+        $("#groupRemoveUser").show();
+        $(".controlButtons").hide();
+    } else if (groupId === MWAG_GROUP_ID) {
+        $("#groupRemoveUser").hide();
+        $(".controlButtons").hide();
+    } else {
+        $("#groupRemoveUser").show();
+        $(".controlButtons").show();
+    }
+
+    // only show settings page if the active page is not MWAG or Teachers & if the user has read access
+    // i.e., the user is an admin, teacher or member of the group.
+    if (groupId !== MWAG_GROUP_ID  &&
+        groupId !== TEACHER_GROUP_ID &&
+        (checkPrivilege() || group.userList.some(member => member.id === userIdent)))
+    {
+        groupSettingsTab.show()
+    } else {
+        changeToUsersTab()
+    }
+}
+
+
+/**
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
  * @param groupId the id of the group to fetch
  */
 function displayGroupUsersList(groupId) {
-
-
     let membersContainer = $("#groupTableBody")
     $.ajax({
         url: `group?groupId=${groupId}`,
@@ -55,59 +117,33 @@ function displayGroupUsersList(groupId) {
             group = response;
             for (let member in response.userList) {
                 let imageSource;
-                if (response.userList[member].imagePath.length === 0) {
+                let user = response.userList[member]
+                if (user.imagePath.length === 0) {
                     imageSource = "defaultProfile.png"
                 } else {
-                    imageSource = response.userList[member].imagePath
+                    imageSource = user.imagePath
                 }
-                membersContainer.append(
-                    `<tr class="userRow" userId=${response.userList[member].id}>
-                    <td>${response.userList[member].id}</td>
-                    <td>
-                        <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
-                    </td>
-                    <td>${response.userList[member].firstName}</td>
-                    <td>${response.userList[member].lastName}</td>
-                    <td>${response.userList[member].username}</td>
-                </tr>`
-                )}
+                membersContainer.append(`
+                    <tr class="userRow" userId=${user.id}>
+                        <td>${user.id}</td>
+                        <td>
+                            <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
+                        </td>
+                        <td>${user.firstName}</td>
+                        <td>${user.lastName}</td>
+                        <td>${user.username}</td>
+                    </tr>`
+                )
+            }
             $("#groupInformationContainer").slideDown()
             checkToSeeIfHideOrShowOptions()
+            checkEditRights(response)
         },
         error: (error) => {
             createAlert(error.responseText, true)
         }
     })
-
 }
-
-
-/**
- * When group div is clicked, the members for that group are retrieved.
- */
-$(document).on("click", ".group", function () {
-    $(".group").removeClass("focusOnGroup")
-    let groupId = $(this).closest(".group").find(".groupId").text();
-    let groupShortname = $(this).closest(".group").find(".groupShortName").text();
-    $("#selectAllCheckboxGroups").prop("checked", false);
-    displayGroupUsersList(groupId);
-
-    $(this).closest(".group").addClass("focusOnGroup")
-
-    if (groupShortname === "Teachers") { // teacher group
-        $("#groupRemoveUser").show();
-        $(".controlButtons").hide();
-    } else if (groupShortname === "Non-Group") { // non-group group
-        $("#groupRemoveUser").hide();
-        $(".controlButtons").hide();
-    } else {
-        $("#groupRemoveUser").show();
-        $(".controlButtons").show();
-    }
-
-    $("#confirmationForm").slideUp();
-    $(this).closest(".group").addClass("focusOnGroup");
-})
 
 
 /**
@@ -170,21 +206,24 @@ $(document).on("click", "#cancelRemoval", function () {
 })
 
 
-
-
-
 // ******************************* Click listeners *******************************
+
 
 /**
  * When group div is clicked, the members for that group are retrieved.
  */
 $(document).on("click", ".group", function () {
     $(".group").removeClass("focusOnGroup")
-    let groupId = $(this).closest(".group").find(".groupId").text();
-    displayGroupUsersList(groupId);
+    let newFocusOnGroup = $(this).closest(".group")
 
-    $(this).closest(".group").addClass("focusOnGroup")
+    newFocusOnGroup.addClass("focusOnGroup")
+    let groupId = newFocusOnGroup.find(".groupId").text();
+
+    $("#selectAllCheckboxGroups").prop("checked", false);
+    displayGroupUsersList(groupId)
+    $("#confirmationForm").slideUp();
 })
+
 
 /**
  * Ajax post request to the server for moving users from one group to another
@@ -198,7 +237,7 @@ $(document).on("click", "#moveUsersButton", function() {
         url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
         success: function(event) {
-            displayGroupUsersList(selectedGroupId, false)
+            displayGroupUsersList(selectedGroupId)
             createAlert(event, false)
         },
         error: function() {
