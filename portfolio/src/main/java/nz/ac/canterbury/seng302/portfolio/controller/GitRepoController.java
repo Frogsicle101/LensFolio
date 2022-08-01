@@ -87,7 +87,6 @@ public class GitRepoController {
     }
 
 
-
     /**
      * Mapping for a get request to retrieving git repositories from a group by group ID.
      * The method checks that the given group Id is valid, and then search for the git repo by group ID.
