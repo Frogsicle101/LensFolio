@@ -205,6 +205,45 @@ $(document).on("click", "#cancelRemoval", function () {
     $("#confirmationForm").slideUp();
 })
 
+/**
+ * Makes an ajax get call to the server and gets all the information for a particular group.
+ * Loops through the groups members and adds them to the table.
+ * @param groupId the id of the group to fetch
+ */
+function displayRepo(groupId) {
+    let membersContainer = $("#gitRepo")
+    $.ajax({
+        url: `getRepo?groupId=${groupId}`,
+        type: "GET",
+        success: (response) => {
+            $("#repoInformationName").text(response.name);
+            $("#repoInformationId").text(response.id);
+            $("#repoInformationToken").text(response.token);
+            repo = response;
+            membersContainer.append(`
+                    <div class="group" th:each="gitRepository : ${gitRepos}">
+                        <h3 id="the-group-settings-page-repo-name"  th:text="${gitRepository.repoName}"></h3>
+                             <div class="row margin-sides-1">
+                                <div class="inline-text col">
+                                    <p>Project Id:&nbsp;</p>
+                                    <p class="group-settings-page-projectId grey-text" th:text="${gitRepository.id}"></p>
+                                </div>
+                                <div class="inline-text col">
+                                    <p>Access Token:&nbsp;</p>
+                                    <p class="group-settings-page-access_token grey-text" th:text="${gitRepository.token}">3xAm91e-AcC355-t0k3n</p>
+                                </div>
+                             </div>
+                    </div>`
+            )
+        },
+        error: (error) => {
+            membersContainer.append(`
+                    <h3 id="groupSettingsPageRepoName">No Repository</h3>`
+            )
+        },
+    })
+}
+
 
 // ******************************* Click listeners *******************************
 

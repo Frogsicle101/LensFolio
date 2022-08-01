@@ -87,30 +87,6 @@
                         <tbody id="groupTableBody"></tbody>
                     </table>
                 </div>
-                <div id="pills-settings" aria-labelledby="pills-settings-tab" class="tab-pane fade" role="tabpanel">
-                    <div id="group-settings-page">
-                        <div id="group-settings-repo-information-section" class="row">
-
-
-
-                            <div class="group" th:each="gitRepository : ${gitRepos}">
-                                <h3 id="the-group-settings-page-repo-name"  th:text="${gitRepository.name}"></h3>
-                                <div class="row margin-sides-1">
-                                    <div class="inline-text col">
-                                        <p>Project Id:&nbsp;</p>
-                                        <p class="group-settings-page-projectId grey-text" th:text="${gitRepository.id}"></p>
-                                    </div>
-                                    <div class="inline-text col">
-                                        <p>Access Token:&nbsp;</p>
-                                        <p class="group-settings-page-access_token grey-text" th:text="${gitRepository.token}">3xAm91e-AcC355-t0k3n</p>
-                            </div>
-
-
-
-
-                            <h3 id="group-settings-page-repo-name">Group Repo name</h3>
-                            <div class="row margin-sides-1">
-                                <div class="inline-text col">
                 <div id="pillsSettings" aria-labelledby="pillsSettingsTab" class="tab-pane fade" role="tabpanel">
                     <div id="groupSettingsPage">
                         <div id="groupSettingsRepoInformationSection" class="row">
@@ -118,6 +94,7 @@
                             <div class="row marginSides1">
                                 <div class="inlineText col">
                                     <p>Project Id:&nbsp;</p>
+
                                     <p class="groupSettingsPageProjectId greyText">Repo Project Id</p>
                                 </div>
                                 <div class="inlineText col">
