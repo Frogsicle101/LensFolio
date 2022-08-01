@@ -29,14 +29,16 @@ $(document).ready(function () {
             let currentlySelected = $(ui.selected)
             notCtrlClick = !e.ctrlKey
             if (shiftDown) { // Checks if the shift key is currently pressed
+                console.log("yee")
                 notCtrlClick = false
-                if (parseInt(currentlySelected.attr("id")) > parseInt(lastSelectedRow.attr("id"))) {
+                if (parseInt(currentlySelected.attr("userId")) > parseInt(lastSelectedRow.attr("userId"))) {
                     currentlySelected.prevUntil(lastSelectedRow).each(function () {
                         $(this).addClass("selected")
                         arrayOfSelected.push($(this))
+                        console.log(arrayOfSelected)
                     })
 
-                } else if (currentlySelected.attr("id") < parseInt(lastSelectedRow.attr("id"))) {
+                } else if (currentlySelected.attr("userId") < parseInt(lastSelectedRow.attr("userId"))) {
                     currentlySelected.nextUntil(lastSelectedRow).each(function () {
                         $(this).addClass("selected")
                         arrayOfSelected.push($(this))
@@ -322,21 +324,6 @@ $(document).on("click", "#cancelRemoval", function () {
 
 // ******************************* Click listeners *******************************
 
-
-/**
- * When group div is clicked, the members for that group are retrieved.
- */
-$(document).on("click", ".group", function () {
-    $(".group").removeClass("focusOnGroup")
-    let newFocusOnGroup = $(this).closest(".group")
-
-    newFocusOnGroup.addClass("focusOnGroup")
-    let groupId = newFocusOnGroup.find(".groupId").text();
-
-    $("#selectAllCheckboxGroups").prop("checked", false);
-    displayGroupUsersList(groupId)
-    $("#confirmationForm").slideUp();
-})
 
 
 /**
