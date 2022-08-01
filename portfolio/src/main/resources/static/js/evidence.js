@@ -18,3 +18,23 @@ $(document).on("click", ".userRoleRow", function() {
         }
     })
 })
+
+
+/**
+ * Creates and returns an HTML element for an evidence preview
+ *
+ * @param evidence - A json object for a piece of evidence
+ * @return the HTML component for previewing evidence of class evidenceListItem
+ */
+function createEvidencePreview(evidence) {
+    return `
+        <div class="evidenceListItem">
+            <p class="evidenceListItemId" style="display: none">${evidence.id}</p>
+            <div class="row evidenceListItemHeader">
+                <p class="col evidenceListItemTitle">${evidence.title}</p>
+                <p class="col evidenceListItemDate">${evidence.date}</p>
+            </div>
+            <p class="evidenceListItemInfo">${evidence.description}</p>
+        </div>
+    `
+}
