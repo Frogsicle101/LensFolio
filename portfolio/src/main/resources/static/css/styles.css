@@ -260,6 +260,8 @@ section {
     color: var(--select-green);
 }
 
+
+
 .deleteButton {
     position: absolute;
     top: 1rem;
@@ -352,7 +354,6 @@ section {
     width: 100%;
     flex-direction: column;
     align-items: center;
-
 }
 
 .sprint {
@@ -450,7 +451,6 @@ section {
     display: flex;
     flex-direction: column;
     align-items: center;
-
 }
 
 .sprintEditForm, .projectEditForm {
@@ -475,7 +475,6 @@ section {
 .listTableFooter {
     align-self: center;
 }
-
 
 .listTable a {
     text-decoration: none;
@@ -694,7 +693,6 @@ section {
     align-content: center;
 }
 
-
 .moveToDiv{
     display: flex;
     flex-direction: row;
@@ -741,7 +739,6 @@ section {
 
 
 #alertPopUp {
-
     position: fixed;
     bottom: 10px;
     left: 10px;
@@ -766,15 +763,90 @@ section {
     font-size: 0.8rem;
 }
 
-.backgroundGreen{
+.backgroundGreen {
     background-color: var(--alert-green);
 }
 
-.backgroundRed{
+.backgroundRed {
     background-color: var(--alert-red);
 }
-#alertPopUpCloseButton{
+
+#alertPopUpCloseButton {
     position: absolute;
     top: 0.1rem;
     right: 0.1rem;
+}
+
+/* Evidence Page */
+
+.evidenceListContainer, .evidenceDetailsContainer, .evidenceContainer {
+    border: solid var(--main-border-colour) 1px;
+}
+
+.evidenceDetailsContainer {
+    padding: 1rem 2rem 2rem;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+}
+
+.evidenceDetailsDate {
+    color: var(--secondary-text-colour-darker);
+    font-weight: lighter;
+}
+
+.evidenceDetailsHeader {
+    margin-bottom: 1rem;
+}
+
+.evidenceListContainer {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    max-width: 35%;
+    padding-right: 0;
+    padding-left: 0;
+ }
+
+.evidenceListMenu, .evidenceList {
+    align-self: center;
+}
+
+.createEvidenceButton {
+    margin-top: 1rem;
+}
+
+.evidenceListTitle {
+    text-align: center;
+    padding: inherit;
+    margin-bottom: 0;
+}
+
+.evidenceList {
+    overflow: auto;
+    height: 65vh;
+    margin: 0.5rem;
+}
+
+.evidenceListItem {
+    margin: 1rem;
+    padding: 1rem;
+    border: solid 1px var(--secondary-text-colour);
+    border-radius: var(--border-radius);
+    max-width: 95%;
+}
+
+.evidenceListItemTitle {
+    font-weight: bold;
+}
+
+.evidenceListItemDate {
+    color: var(--secondary-text-colour-darker);
+    font-weight: lighter;
+    text-align: end;
+}
+
+.evidenceDeleteButton {
+    display: flex;
+    justify-content: flex-end;
 }

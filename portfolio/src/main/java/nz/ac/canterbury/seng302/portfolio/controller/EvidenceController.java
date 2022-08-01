@@ -20,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 
 import java.time.LocalDateTime;
@@ -50,11 +51,29 @@ public class EvidenceController {
 
 
     /**
+     * Gets the evidence page for the logged-in user.
+     *
+     * @param principal The principal containing the logged-in user's Id.
+     * @return A modelAndView object of the page.
+     */
+    @GetMapping("/myEvidence")
+    public ModelAndView getEvidence(@AuthenticationPrincipal Authentication principal) {
+        logger.info("GET REQUEST /groups - attempt to get all groups");
+
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+
+        ModelAndView modelAndView = new ModelAndView("evidence");
+        modelAndView.addObject("user", user);
+
+        return modelAndView;
+    }
+
+    /**
      * Gets all the pieces of evidence for a requested user.
      *
      * Response codes: NOT_FOUND means the user does not exist
      *                 OK means the user exists and an evidence list is returned  (an empty list if no evidence exists)
-     *                 BAD_REQUEST when the user doesnt interact with the endpoint correctly, i.e., no or invalid userId
+     *                 BAD_REQUEST when the user doesn't interact with the endpoint correctly, i.e., no or invalid userId
      *
      * @param userId - The userId of the user whose evidence is wanted
      * @return A response entity with the required response code. Response body is the evidence is the status is OK
