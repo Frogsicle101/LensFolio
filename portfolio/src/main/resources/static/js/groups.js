@@ -157,7 +157,7 @@ function addUsers(groupId) {
         type: "post",
         success: function () {
             displayGroupUsersList(selectedGroupId)
-            createAlert(arrayOfIds.length + " users moved to " + $("#" + groupId).find(".groupShortName").text(), false)
+            createAlert("User(s) moved", false)
         },
         error: function (response) {
             console.log(response)
