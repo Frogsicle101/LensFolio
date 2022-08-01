@@ -1,3 +1,15 @@
+
+$(document).ready(function () {
+    let userBeingViewed;
+    let urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.has("userId")) {
+        userBeingViewed = urlParams.get('sent')
+    } else {
+        userBeingViewed = userIdent
+    }
+
+})
+
 /**
  * Saves the evidence input during creating a new piece of evidence
  */
