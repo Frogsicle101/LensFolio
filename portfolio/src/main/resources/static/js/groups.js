@@ -56,7 +56,7 @@ $(document).ready(function () {
         /**
          * Triggered at the end of the select operation.
          */
-        stop: function (event, ui) {
+        stop: function () {
             if (arrayOfSelected.length === 1) {
                 if ($(arrayOfSelected[0].selected).hasClass("selected")) {
                     $(arrayOfSelected[0].selected).removeClass("selected")
@@ -89,7 +89,6 @@ $(document).ready(function () {
         unselected: function (e, ui) {
             if (notCtrlClick) {
                 $(ui.unselected).removeClass("selected");
-
             }
             checkToSeeIfHideOrShowOptions()
         }
@@ -106,22 +105,18 @@ $(document).ready(function () {
             /**
              * Triggered when an accepted draggable is dragged over the droppable (based on the tolerance option).
              * https://api.jqueryui.com/droppable/#event-over
-             * @param event
-             * @param ui
              */
-            over: function (event, ui) {
+            over: function () {
                 $(this).effect("shake")
                 //https://api.jqueryui.com/category/effects/
             },
 
             /**
-             * Triggered when an accepted draggable is dropped on the droppable (based on thetolerance option).
+             * Triggered when an accepted draggable is dropped on the droppable (based on the tolerance option).
              * https://api.jqueryui.com/droppable/#event-drop
-             * @param event
              */
-            drop: function (event) {
+            drop: function () {
                 addUsers($(this).attr("id"))
-                $(".group").removeClass("ui-state-highlight")
             }
         })
     }
@@ -138,23 +133,11 @@ $(document).ready(function () {
  */
 function addDraggable() {
     $(".selected").draggable({
-        helper: function (event) {
+        helper: function () {
             let helper = $("<table class='table colourForDrag'/>")
             return helper.append($(".selected").clone())
-
         },
         revert: true,
-        /**
-         * Triggered when dragging starts.
-         */
-        start: function () {
-        },
-
-        /**
-         * Triggered when the dragging stops
-         */
-        stop: function () {
-        }
     })
 }
 
@@ -163,12 +146,12 @@ function addDraggable() {
  */
 function addUsers(groupId) {
     let arrayOfIds = [];
-
-    $(".selected").each(function () {
+    let selected = $(".selected")
+    selected.each(function () {
         arrayOfIds.push($(this).attr("userId"))
     })
     arrayOfIds = Array.from(new Set(arrayOfIds))
-    $(".selected").removeClass("selected")
+    selected.removeClass("selected")
     $.ajax({
         url: `/groups/addUsers?groupId=${groupId}&userIds=${arrayOfIds}`,
         type: "post",
@@ -189,7 +172,6 @@ function addUsers(groupId) {
  */
 function showOptions(show) {
     if ($("#groupDisplayOptions").is(':hidden')) {
-
         if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
             $("#groupDisplayOptions").slideDown()
         } else {
