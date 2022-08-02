@@ -57,7 +57,7 @@ public class EvidenceController {
      * @return A modelAndView object of the page.
      */
     @GetMapping("/myEvidence")
-    public ModelAndView getEvidence(@AuthenticationPrincipal Authentication principal) {
+    public ModelAndView getEvidencePage(@AuthenticationPrincipal Authentication principal) {
         logger.info("GET REQUEST /groups - attempt to get all groups");
 
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
@@ -66,6 +66,34 @@ public class EvidenceController {
         modelAndView.addObject("user", user);
 
         return modelAndView;
+    }
+
+
+    /**
+     * Gets the details for a piece of evidence with the given id
+     *
+     * Response codes: NOT_FOUND means the piece of evidence does not exist
+     *                 OK means the evidence exists and an evidence details are returned.
+     *                 BAD_REQUEST when the user doesn't interact with the endpoint correctly, i.e., no or invalid evidenceId
+     *
+     * @param evidenceId - The ID of the piece of evidence
+     * @return A response entity with the required response code. Response body is the evidence is the status is OK
+     */
+    @GetMapping("/evidencePiece")
+    public ResponseEntity<Object> getOneEvidence(@RequestParam("evidenceId") Integer evidenceId) {
+        logger.info("GET REQUEST /evidence - attempt to get evidence with Id {}", evidenceId);
+        try {
+            Optional<Evidence> evidence = evidenceRepository.findById(evidenceId);
+            if (evidence.isEmpty()) {
+                logger.info("GET REQUEST /evidence - evidence {} does not exist", evidenceId);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(evidence, HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.warn(exception.getClass().getName());
+            logger.warn(exception.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
 
@@ -109,7 +137,7 @@ public class EvidenceController {
      * @param date The date of the evidence
      * @param description The description of the evidence
      * @param projectId The project id
-     * @return returns a ResponseEntity
+     * @return returns a ResponseEntity, this entity included the new piece of evidence if successful.
      */
     @PostMapping("/evidence")
     public ResponseEntity<Object> addEvidence(
@@ -134,9 +162,8 @@ public class EvidenceController {
             }
             EvidenceService.checkString(title);
             EvidenceService.checkString(description);
-            Evidence evidence = new Evidence(user.getId(), title, localDate, description);
-            evidenceRepository.save(evidence);
-            return new ResponseEntity<>(HttpStatus.OK);
+            Evidence evidence = evidenceRepository.save(new Evidence(user.getId(), title, localDate, description));
+            return new ResponseEntity<>(evidence, HttpStatus.OK);
         } catch(CheckException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad input: {}", err.getMessage());
             return new ResponseEntity<>( err.getMessage(), HttpStatus.BAD_REQUEST);

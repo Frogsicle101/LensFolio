@@ -23,7 +23,7 @@
         </div>
         <div class="col evidenceDetailsContainer">
             <div class="row evidenceDetailsHeader">
-                <p class="col evidenceDetailsDate">31/7/22</p>
+                <p id="evidenceDetailsDate" class="col evidenceDetailsDate"></p>
                 <div class="col evidenceDeleteButton">
                     <button type="button" class=" noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="left" title="Delete Evidence">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
@@ -32,13 +32,9 @@
                         </svg>
                     </button>
                 </div>
-                <h2 class="evidenceDetailsTitle">Name of Evidence</h2>
+                <h2 id="evidenceDetailsTitle" class="evidenceDetailsTitle"></h2>
             </div>
-            <div class="evidenceDetails">
-                Spicy jalapeno bacon ipsum dolor amet flank spare ribs pancetta do laboris.
-                Sausage meatball duis sunt. Landjaeger velit ham alcatra fugiat ribeye. Fugiat enim meatloaf, kielbasa
-                magna exercitation labore.
-            </div>
+            <div id="evidenceDetailsDescription" class="evidenceDetails"></div>
         </div>
     <!-- Add evidence Modal -->
     <div class="modal fade" id="addEvidenceModal" tabindex="-1" role="dialog" aria-labelledby="addEvidenceTitle" aria-hidden="true">
