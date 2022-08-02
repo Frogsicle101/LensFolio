@@ -11,4 +11,8 @@ public class DateTimeFormat {
     public static DateTimeFormatter timeDateMonthYear() {
         return DateTimeFormatter.ofPattern("hh:mma E d MMMM y");
     }
+
+    public static DateTimeFormatter yearMonthDay() {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    }
 }

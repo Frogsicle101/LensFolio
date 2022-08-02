@@ -881,3 +881,13 @@ section {
     display: flex;
     justify-content: flex-end;
 }
+
+.evidenceFormName, .evidenceFormDate, .evidenceFormDescription{
+    padding-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.invalid {
+    border-color: red;
+}

@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
@@ -24,7 +25,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +67,9 @@ public class EvidenceController {
 
         ModelAndView modelAndView = new ModelAndView("evidence");
         modelAndView.addObject("user", user);
+        modelAndView.addObject("currentDate", LocalDate.now().format(DateTimeFormat.yearMonthDay()));
+        modelAndView.addObject("projectStartDate", projectRepository.getProjectById(1L).getStartDate().format(DateTimeFormat.yearMonthDay()));
+        modelAndView.addObject("projectEndDate", projectRepository.getProjectById(1L).getEndDate().format(DateTimeFormat.yearMonthDay()));
 
         return modelAndView;
     }

@@ -1,6 +1,9 @@
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
 
+
+const regExp = new RegExp('[A-Za-z]');
+
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
@@ -16,7 +19,13 @@ $(document).ready(function () {
         userBeingViewedId = userIdent
     }
     getAndAddEvidencePreviews()
+    let textInput = $(".text-input");
+    textInput.each(countCharacters)
+    textInput.keyup(countCharacters)
+
 })
+
+
 
 
 /**
@@ -104,29 +113,39 @@ function addEvidencePreviews(response) {
 /**
  * Saves the evidence input during creating a new piece of evidence
  */
-$(document).on("click", "#evidenceSaveButton", function() {
-    const title = $("#evidenceName").val()
-    const date = $("#evidenceDate").val()
-    const description = $("#evidenceDescription").val()
-    const projectId = 1
-    $.ajax({
-        url: "evidence",
-        type: "POST",
-        data: {
-            title,
-            date,
-            description,
-            projectId
-        },
-        success: function(response) {
-            selectedEvidenceId = response.id
-            getAndAddEvidencePreviews()
-            createAlert("Created evidence")
-        },
-        error: function (error) {
-            createAlert(error.message, true)
-        }
-    })
+$(document).on("click", "#evidenceSaveButton", function (event) {
+    event.preventDefault()
+     if (!$("#evidenceCreationForm")[0].checkValidity()){
+         $("#evidenceCreationForm")[0].reportValidity()
+     } else {
+         const title = $("#evidenceName").val()
+         const date = $("#evidenceDate").val()
+         const description = $("#evidenceDescription").val()
+         const projectId = 1
+         if(title.length < 2 || date.length === 0 || description.length === 0) {
+
+         }
+         $.ajax({
+             url: "evidence",
+             type: "POST",
+             data: {
+                 title,
+                 date,
+                 description,
+                 projectId
+             },
+             success: function() {
+                 selectedEvidenceId = response.id
+                 getAndAddEvidencePreviews()
+                 createAlert("Created evidence")
+                $("#addEvidenceModal").modal('hide')
+             },
+             error: function (error) {
+                 createAlert(error.message, true)
+             }
+         })
+     }
+
 })
 
 // --------------------------------- Click listeners -----------------------------------------
@@ -209,3 +228,73 @@ function createEvidencePreview(evidence) {
             <p class="evidenceListItemInfo">${evidence.description}</p>
         </div>`
 }
+
+// -------------------------------------- Validation -----------------------------------
+
+/**
+ * Function that gets the maxlength of an input and lets the user know how many characters they have left.
+ */
+function countCharacters() {
+    let maxlength = $(this).attr("maxLength")
+    let lengthOfCurrentInput = $(this).val().length;
+    let counter = maxlength - lengthOfCurrentInput;
+    let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
+
+    //If one character remains, changes from "characters remaining" to "character remaining"
+    if (counter !== 1) {
+        helper.text(counter + " characters remaining")
+    } else {
+        helper.text(counter + " character remaining")
+    }
+}
+
+/**
+ * Checks the form is valid, enables or disables the save button depending on validity.
+ */
+function disableEnableSaveButtonOnValidity() {
+    if ($("#evidenceCreationForm")[0].checkValidity()){
+        $("#evidenceSaveButton").attr("disabled", false)
+    } else {
+        $("#evidenceSaveButton").attr("disabled", true)
+    }
+}
+
+function checkTextInputRegex(){
+    let name = $("#evidenceName")
+    let description = $("#evidenceDescription")
+    let nameVal = name.val()
+    let descriptionVal = description.val()
+
+    if (!regExp.test(nameVal) || !regExp.test(descriptionVal)) {
+        $("#evidenceSaveButton").attr("disabled", true)
+    }
+
+    if (!regExp.test(nameVal) && nameVal.length > 0) {
+        name.addClass("invalid")
+    } else {
+        name.removeClass("invalid")
+    }
+
+    if (!regExp.test(descriptionVal) && descriptionVal.length > 0) {
+        description.addClass("invalid")
+
+    } else {
+        description.removeClass("invalid")
+    }
+}
+/**
+ * Calls the validity checking function on keyup of form inputs.
+ */
+$(document).on("keyup", ".text-input", function() {
+    disableEnableSaveButtonOnValidity()
+    checkTextInputRegex()
+})
+
+/**
+ * Calls the validity checking function on change of form inputs.
+ * This is different from keyup as it checks when the date changes.
+ */
+$(document).on("change", ".form-control", function() {
+    disableEnableSaveButtonOnValidity()
+    checkTextInputRegex()
+})
