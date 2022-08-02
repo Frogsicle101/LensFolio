@@ -1,6 +1,10 @@
 package nz.ac.canterbury.seng302.portfolio.service;
+
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,8 +28,22 @@ public class EvidenceService {
         Matcher matcher = alpha.matcher(string);
         if (string.length() < 2) {
             throw new CheckException("Title should be longer than 1 character");
-        } else if (!matcher.find()){
+        } else if (!matcher.find()) {
             throw new CheckException("Title shouldn't be strange");
+        }
+    }
+
+    /**
+     * Checks if the evidence date is within the project dates.
+     * Throws a checkException if it's not.
+     *
+     * @param project      the project to check dates for.
+     * @param evidenceDate the date of the evidence
+     */
+    public static void checkDate(Project project, LocalDate evidenceDate) {
+        if (evidenceDate.isBefore(project.getStartDateAsLocalDateTime().toLocalDate())
+                || evidenceDate.isAfter(project.getEndDateAsLocalDateTime().toLocalDate())) {
+            throw new CheckException("Date is outside project dates");
         }
     }
 }
