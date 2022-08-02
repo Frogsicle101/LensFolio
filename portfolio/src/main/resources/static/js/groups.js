@@ -217,30 +217,26 @@ $(document).on("click", "#pillsSettingsTab", function () {
         type: "GET",
         success: (response) => {
             if (response.length === 0){
+                membersContainer.empty();
                 membersContainer.append(`
                     <h3 id="groupSettingsPageRepoName">No Repository</h3>`
                 )
             }
             else {
-                $("#repoInformationName").text(response.name);
-                $("#repoInformationId").text(response.id);
-                $("#repoInformationToken").text(response.token);
-                repo = response;
-                console.log(repo)
+                let repo = response[0];
+                membersContainer.empty();
                 membersContainer.append(`
-                    <div class="group" th:each="gitRepository : ${gitRepo}">
-                        <h3 id="the-group-settings-page-repo-name"  th:text="${gitRepository.repoName}"></h3>
+                        <h3 id="the-group-settings-page-repo-name">${repo.alias}</h3>
                              <div class="row margin-sides-1">
                                 <div class="inline-text col">
                                     <p>Project Id:&nbsp;</p>
-                                    <p class="group-settings-page-projectId grey-text" th:text="${gitRepository.id}"></p>
+                                    <p class="group-settings-page-projectId grey-text" >${repo.projectId}</p>
                                 </div>
                                 <div class="inline-text col">
                                     <p>Access Token:&nbsp;</p>
-                                    <p class="group-settings-page-access_token grey-text" th:text="${gitRepository.token}">3xAm91e-AcC355-t0k3n</p>
+                                    <p class="group-settings-page-access_token grey-text" >${repo.accessToken}</p>
                                 </div>
-                             </div>
-                    </div>`
+                             </div>`
                 )
             }
         },

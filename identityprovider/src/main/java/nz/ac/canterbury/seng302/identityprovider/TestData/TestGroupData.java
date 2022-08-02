@@ -49,12 +49,12 @@ public class TestGroupData {
      */
     public void addTestGroups() {
         logger.info("Creating test groups");
-        Group groupOne = new Group(3, "Team 100", "Seng 302 Team 100");
-        Group groupTwo = new Group(4, "Team 200", "Seng 302 Team 200");
-        Group groupThree = new Group(5, "Team 300", "Seng 302 Team 300");
-        Group groupFour = new Group(6, "Team 400", "Seng 302 Team 400");
-        Group groupFive = new Group(7, "Team 500", "Seng 302 Team 500");
-        Group groupSix = new Group(8, "Team 600", "The Best SENG 302 Team");
+        Group groupOne = new Group( "Team 100", "Seng 302 Team 100");
+        Group groupTwo = new Group( "Team 200", "Seng 302 Team 200");
+        Group groupThree = new Group( "Team 300", "Seng 302 Team 300");
+        Group groupFour = new Group( "Team 400", "Seng 302 Team 400");
+        Group groupFive = new Group( "Team 500", "Seng 302 Team 500");
+        Group groupSix = new Group( "Team 600", "The Best SENG 302 Team");
 
         groupRepository.save(groupOne);
         groupRepository.save(groupTwo);
