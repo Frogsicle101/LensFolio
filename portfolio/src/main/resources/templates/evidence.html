@@ -51,7 +51,13 @@
                     <div class="modal-body">
                             <div class="form-group evidenceFormName">
                                 <label for="evidenceName" class="col-form-label required">Name:</label>
-                                <input type="text" class="form-control" id="evidenceName" placeholder="Name" required>
+                                <input type="text" class="form-control text-input"
+                                       id="evidenceName"
+                                       placeholder="Name"
+                                       maxlength="50"
+                                       minlength="2"
+                                       required>
+                                <small class="form-text text-muted countCharName">0 characters remaining</small>
                             </div>
                             <div class="form-group evidenceFormDate">
                                 <label class="form-label required" for="evidenceDate">Date:</label>
@@ -66,11 +72,14 @@
                             </div>
                             <div class="form-group evidenceFormDescription">
                                 <label for="evidenceDescription" class="col-form-label required">Description:</label>
-                                <textarea class="form-control"
+                                <textarea class="form-control text-input"
                                           id="evidenceDescription"
                                           rows="4"
                                           placeholder="Description"
+                                          maxlength="500"
+                                          minlength="2"
                                           required></textarea>
+                                <small class="form-text text-muted countCharDescription">0 characters remaining</small>
                             </div>
 
                     </div>
@@ -78,7 +87,7 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button id="evidenceSaveButton"
                                 type="submit"
-                                class="btn btn-primary">
+                                class="btn btn-primary" disabled>
                             Save
                         </button>
                     </div>

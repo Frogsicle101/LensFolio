@@ -13,7 +13,13 @@ $(document).ready(function () {
         userBeingViewedId = userIdent
     }
     getAndAddEvidenceData()
+    let textInput = $(".text-input");
+    textInput.each(countCharacters)
+    textInput.keyup(countCharacters)
+
 })
+
+
 
 
 /**
@@ -74,6 +80,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
              success: function() {
                  getAndAddEvidenceData()
                  createAlert("Created evidence")
+                $("#addEvidenceModal").modal('hide')
              },
              error: function (error) {
                  createAlert(error.message, true)
@@ -100,3 +107,42 @@ function createEvidencePreview(evidence) {
             <p class="evidenceListItemInfo">${evidence.description}</p>
         </div>`
 }
+
+
+/**
+ * Function that gets the maxlength of an input and lets the user know how many characters they have left.
+ */
+function countCharacters() {
+    let maxlength = $(this).attr("maxLength")
+    let lengthOfCurrentInput = $(this).val().length;
+    let counter = maxlength - lengthOfCurrentInput;
+    let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
+
+    //If one character remains, changes from "characters remaining" to "character remaining"
+    if (counter !== 1) {
+        helper.text(counter + " characters remaining")
+    } else {
+        helper.text(counter + " character remaining")
+    }
+}
+
+/**
+ * Checks the form is valid, enables or disables the save button depending on validity.
+ */
+function disableEnableSaveButtonOnValidity() {
+    if ($("#evidenceCreationForm")[0].checkValidity()){
+        $("#evidenceSaveButton").attr("disabled", false)
+    } else {
+        $("#evidenceSaveButton").attr("disabled", true)
+    }
+}
+/**
+ * Calls the validity checking function on keyup of form inputs.
+ */
+$(document).on("keyup", ".form-control", function() {
+    disableEnableSaveButtonOnValidity()
+})
+
+$(document).on("change", ".form-control", function() {
+    disableEnableSaveButtonOnValidity()
+})
