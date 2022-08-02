@@ -773,6 +773,10 @@ section {
     color: var(--select-green);
 }
 
+#repoSettingsForm {
+    display: none;
+}
+
 /* Alerts */
 
 #alertPopUp {

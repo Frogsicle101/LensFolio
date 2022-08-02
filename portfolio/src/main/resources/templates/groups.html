@@ -102,7 +102,7 @@
                                 </button>
                             </div>
 
-                            <div class="row marginSides1">
+                            <div id="repoInfo" class="row marginSides1">
                                 <div class="inlineText col">
                                     <p>Project Id:&nbsp;</p>
                                     <p class="groupSettingsPageProjectId greyText">10762</p>
@@ -112,6 +112,9 @@
                                     <p class="groupSettingsPageAccessToken greyText">vTNvf-pJysB1a51fd8Bx</p>
                                 </div>
                             </div>
+
+                            <div id="repoSettingsContainer"></div>
+
                         </div>
                         <div id="groupSettingsCommitSection">
                             <h5>Recent Commits:</h5>
@@ -165,5 +168,6 @@
 </section>
 </body>
 <script th:src="@{js/groups.js}" type="application/javascript"></script>
+<script th:src="@{js/repos.js}" type="application/javascript"></script>
 <script th:src="@{js/gitlabAPI.js}" type="application/javascript"></script>
 </html>
