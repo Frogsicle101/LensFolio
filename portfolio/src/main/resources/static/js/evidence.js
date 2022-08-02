@@ -115,8 +115,9 @@ function addEvidencePreviews(response) {
  */
 $(document).on("click", "#evidenceSaveButton", function (event) {
     event.preventDefault()
-     if (!$("#evidenceCreationForm")[0].checkValidity()){
-         $("#evidenceCreationForm")[0].reportValidity()
+    let evidenceCreationForm = $("#evidenceCreationForm")
+     if (!evidenceCreationForm[0].checkValidity()){
+         evidenceCreationForm[0].reportValidity()
      } else {
          const title = $("#evidenceName").val()
          const date = $("#evidenceDate").val()
@@ -134,7 +135,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                  description,
                  projectId
              },
-             success: function() {
+             success: function(response) {
                  selectedEvidenceId = response.id
                  getAndAddEvidencePreviews()
                  createAlert("Created evidence")
@@ -230,6 +231,7 @@ function createEvidencePreview(evidence) {
 }
 
 // -------------------------------------- Validation -----------------------------------
+
 
 /**
  * Function that gets the maxlength of an input and lets the user know how many characters they have left.
