@@ -246,6 +246,7 @@ public class GitRepoControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+
     @Test
     void testRetrieveGitRepoGroupDoesntExistOnIDP() throws Exception {
         setUserRoleToAdmin();
