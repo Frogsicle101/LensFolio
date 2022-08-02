@@ -1,10 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.evidence;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Represents an WebLink Entity
@@ -20,6 +17,10 @@ public class WebLink {
     private String name;
     private String url;
     private Boolean secured; //True if its https, false if http
+
+    @ManyToOne
+    @JoinColumn(name="evidence_id")
+    private Evidence evidence;
 
     /**
      * Constructs an instance of the WebLink Object

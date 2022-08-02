@@ -1,11 +1,11 @@
 package nz.ac.canterbury.seng302.portfolio.evidence;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Represents an Evidence entity
@@ -21,6 +21,10 @@ public class Evidence {
     private String title;
     private LocalDateTime date;
     private String description;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "evidence")
+    private List<WebLink> webLinks;
 
 
     /**
@@ -119,6 +123,18 @@ public class Evidence {
             return description;
         }
 
+    }
+
+    public List<WebLink> getWebLinks() {
+        return webLinks;
+    }
+
+    public void addWebLink(WebLink webLink){
+        this.webLinks.add(webLink);
+    }
+
+    public void addWebLinks(List<WebLink> webLinks){
+        this.webLinks.addAll(webLinks);
     }
 
     public void setDescription(String description) {
