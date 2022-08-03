@@ -86,4 +86,18 @@ public class WebLink {
     public void setIsSecured(Boolean isSecured) {
         this.isSecured = isSecured;
     }
+
+    /**
+     * This method is used to help with testing. It returns the expected JSON string created for this object.
+     *
+     * @return the Json string the represents this piece of evidence.
+     */
+    public String toJsonString() {
+        return "{" +
+                "\"id\":" + id +
+                ",\"name\":\"" + name + "\"" +
+                ",\"url\":\"" + url +
+                "\",\"isSecured\":" + isSecured +
+                "}";
+    }
 }
