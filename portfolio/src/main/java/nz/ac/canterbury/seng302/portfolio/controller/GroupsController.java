@@ -110,7 +110,7 @@ public class GroupsController {
             GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
             return new ResponseEntity<>(new GroupDTO(response), HttpStatus.OK);
         } catch (Exception exception) {
-            logger.error("ERROR /groups - an error occurred while retrieving group {}", groupId);
+            logger.error("ERROR /group - an error occurred while retrieving group {}", groupId);
             logger.error(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -201,9 +201,10 @@ public class GroupsController {
      * Restricted to teachers and course administrators, This endpoint modify a group details.
      *
      * @param principal The user who made the request.
+     * @param groupId The id of the group to be modified.
      * @param shortName The new short name of the group.
      * @param longName  The new long name of the group.
-     * @return ResponseEntity A response entity containing either Modified or BAD_REQUEST (for now).
+     * @return A response entity containing either OK, BAD_REQUEST, or INTERNAL_SERVER_ERROR.
      */
     @PostMapping("/groups/edit/details")
     public ResponseEntity<String> modifyGroupDetails(@AuthenticationPrincipal Authentication principal,
@@ -212,19 +213,56 @@ public class GroupsController {
                                                      @RequestParam String longName) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
         logger.info("POST REQUEST /groups/edit/details - attempt to modify details of group {} by user: {}", groupId, userId);
+        return groupEdit(groupId, shortName, longName);
+    }
+
+
+    /**
+     * Endpoint for students to edit their own groups longname.
+     * Students have access for this endpoint, but can only modify the longname of a group they are in.
+     *
+     * @param principal The user who made the request.
+     * @param groupId The id of the group to be modified.
+     * @param longName  The new long name of the group.
+     * @return A response entity containing either OK, BAD_REQUEST, or INTERNAL_SERVER_ERROR.
+     */
+    @PatchMapping("/groups/edit/longName")
+    public ResponseEntity<String> modifyGroupLongName(@AuthenticationPrincipal Authentication principal,
+                                                     @RequestParam Integer groupId,
+                                                     @RequestParam String longName) {
+        int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
+        logger.info("PATCH REQUEST /groups/edit/longName - attempt to modify details of group {} by user: {}", groupId, userId);
+        // Firstly, we have to find the shortname of the group
+        GetGroupDetailsRequest request = GetGroupDetailsRequest.newBuilder()
+                .setGroupId(groupId)
+                .build();
+        GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
+        return groupEdit(groupId, response.getShortName(), longName);
+    }
+
+
+    /**
+     * An extracted helper method that makes a request to the identity provider
+     * to modify a group's details.
+     * @param groupId The id of the group to be modified
+     * @param shortName The new short name of the group. Use "" to leave it unmodified.
+     * @param longName The new long name of the group.
+     * @return A response entity containing either OK, BAD_REQUEST, or INTERNAL_SERVER_ERROR.
+     */
+    private ResponseEntity<String> groupEdit(Integer groupId, String shortName, String longName) {
         try {
             ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)
-                    .setShortName(shortName)
+                    .setShortName(shortName) //A blank shortname should be ignored (i.e. no changes made)
                     .setLongName(longName)
                     .build();
             ModifyGroupDetailsResponse response = groupsClientService.modifyGroupDetails(request);
             if (response.getIsSuccess()) {
-                return new ResponseEntity<>(response.getMessage(), HttpStatus.CREATED);
+                return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
             }
             return new ResponseEntity<>(response.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            logger.error("ERROR /groups/edit/details - an error occurred while modify a group details");
+            logger.error("ERROR /groups/edit/ - an error occurred while modifying a group's details");
             logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

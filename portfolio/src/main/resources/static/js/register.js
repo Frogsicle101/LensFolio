@@ -8,8 +8,6 @@ $(document).ready(() => {
     let bio = $("#bio")
     let personalPronouns = $("#personalPronouns")
     let email = $("#email")
-    let errorMessageParent = $(".errorMessageParent")
-    let errorMessage = $(".errorMessage")
 
 
     $("#registerForm").submit(function (event) {
@@ -34,9 +32,7 @@ $(document).ready(() => {
                 location.href = "account"
             },
             error: function (error) {
-                errorMessage.text(error.responseText)
-                errorMessageParent.slideUp()
-                errorMessageParent.slideDown()
+                createAlert(error.responseText, true)
             },
         })
     })

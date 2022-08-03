@@ -12,6 +12,9 @@
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
             src="https://code.jquery.com/jquery-3.6.0.min.js">
     </script>
+    <!-- jQuery UI -->
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
     <!-- Bootstrap -->
     <script crossorigin="anonymous"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
@@ -52,6 +55,7 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         let userRoles = /*[[${user.getRolesList()}]]*/ 'default'; /*]]>*/
+        let userIdent = /*[[${user.getId()}]]*/ 'default'; /*]]>*/
     </script>
     <div class="profileNav" id="navbar">
         <div class="profileDropdown" th:object="${user}">
