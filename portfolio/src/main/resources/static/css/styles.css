@@ -885,8 +885,13 @@ section {
     justify-content: flex-end;
 }
 
-.evidenceFormName, .evidenceFormDate, .evidenceFormDescription {
+.evidenceFormName, .evidenceFormDate {
     padding-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.evidenceFormDescription{
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
@@ -915,4 +920,8 @@ section {
     padding-right: 1.5rem;
     align-self: flex-end;
     width: 60%
+}
+
+#webLinkName{
+    margin-top: 0.5rem
 }
