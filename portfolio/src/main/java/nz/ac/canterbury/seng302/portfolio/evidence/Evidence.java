@@ -5,6 +5,7 @@ import nz.ac.canterbury.seng302.portfolio.CheckException;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,9 +27,9 @@ public class Evidence {
     private LocalDate date;
     private String description;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "evidence")
-    private List<WebLink> webLinks;
+
+    @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER)
+    private final List<WebLink> webLinks = new ArrayList<>();
 
 
     /**
@@ -158,6 +159,7 @@ public class Evidence {
                 ",\"title\":\"" + title +
                 "\",\"date\":\"" + date +
                 "\",\"description\":\"" + description +
-                "\"}";
+                "\",\"webLinks\":" + "[]" +
+                "}";
     }
 }
