@@ -162,9 +162,8 @@ public class EvidenceController {
             EvidenceService.checkDate(project, localDate);
             EvidenceService.checkString(title);
             EvidenceService.checkString(description);
-            Evidence evidence = new Evidence(user.getId(), title, localDate, description);
-            evidenceRepository.save(evidence);
-            return new ResponseEntity<>(HttpStatus.OK);
+            Evidence evidence = evidenceRepository.save(new Evidence(user.getId(), title, localDate, description));
+            return new ResponseEntity<>(evidence, HttpStatus.OK);
         } catch (CheckException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad input: {}", err.getMessage());
             return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);

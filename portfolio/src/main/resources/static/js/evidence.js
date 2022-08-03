@@ -132,8 +132,10 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 description,
                 projectId
             },
-            success: function () {
-                getAndAddEvidenceData()
+            success: function (response) {
+                selectedEvidenceId = response.id
+                getAndAddEvidencePreviews()
+                showHighlightedEvidenceDetails()
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
             },
