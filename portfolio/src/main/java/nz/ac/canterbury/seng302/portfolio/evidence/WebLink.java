@@ -22,7 +22,7 @@ public class WebLink {
     private int evidenceId;
     private String name;
     private URL url;
-    private Boolean secured; //True if its https, false if http
+    private Boolean isSecured;
 
     /**
      * Constructs an instance of the WebLink Object
@@ -30,8 +30,9 @@ public class WebLink {
      * @param evidenceId the evidence associated with the weblink
      * @param name   the name of the weblink
      * @param url    the url of the weblink
+     * @throws MalformedURLException when the url string is not valid. This Weblink is not allowed to be created.
      */
-    public WebLink(int evidenceId, String name, String url) throws MalformedURLException{
+    public WebLink(int evidenceId, String name, String url) throws MalformedURLException {
         if (name.length() > 20) {
             throw new CheckException("Name should be 20 characters or less");
         }
@@ -42,8 +43,7 @@ public class WebLink {
         this.name = name;
 
         this.url = new URL(url);
-        this.secured = Objects.equals(this.url.getProtocol(), "https");
-
+        this.isSecured = Objects.equals(this.url.getProtocol(), "https");
     }
 
     /**
@@ -68,11 +68,11 @@ public class WebLink {
         return url;
     }
 
-    public Boolean getSecured() {
-        return secured;
+    public Boolean getIsSecured() {
+        return isSecured;
     }
 
-    public void setEvidenceId(int userId) {
+    public void setEvidenceId(int evidenceId) {
         this.evidenceId = evidenceId;
     }
 
@@ -84,7 +84,7 @@ public class WebLink {
         this.url = url;
     }
 
-    public void setSecured(Boolean secured) {
-        this.secured = secured;
+    public void setIsSecured(Boolean isSecured) {
+        this.isSecured = isSecured;
     }
 }
