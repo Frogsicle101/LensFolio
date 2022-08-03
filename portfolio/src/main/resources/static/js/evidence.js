@@ -14,7 +14,7 @@ let selectedEvidenceId;
 $(document).ready(function () {
     let urlParams = new URLSearchParams(window.location.search)
     if (urlParams.has("userId")) {
-        userBeingViewedId = urlParams.get('sent')
+        userBeingViewedId = urlParams.get('userId')
     } else {
         userBeingViewedId = userIdent
     }
