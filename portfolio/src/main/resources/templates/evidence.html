@@ -48,7 +48,7 @@
                     <h5 class="modal-title" id="addEvidenceTitle">Add Evidence</h5>
                 </div>
                 <div class="modal-body">
-                    <form id="evidenceCreationForm">
+                    <form id="evidenceCreationForm" class="evidenceCreationForm">
                         <div class="form-group ">
                             <label for="evidenceName" class="col-form-label required">Name:</label>
                             <input type="text" class="form-control" id="evidenceName" placeholder="Name" required>
@@ -70,6 +70,21 @@
                                       placeholder="Description"
                                       required></textarea>
                         </div>
+                        <div class="weblink-form" style="display:none">
+                            <div class="form-group ">
+                                <label for="webLinkAddress" class="col-form-label">Link:</label>
+                                <input type="text" class="form-control" id="webLinkAddress" placeholder="Link Address">
+                            </div>
+                            <div class="form-group ">
+                                <input type="text" class="form-control" id="webLinkName" placeholder="Link Name"
+                                style="margin-top: 0.5rem">
+                            </div>
+                        </div>
+                        <button id="addWebbLinkButton"
+                                type="button"
+                                class="btn btn-secondary addWebbLinkButton">
+                            Add web Link
+                        </button>
                     </form>
                 </div>
                 <div class="modal-footer">

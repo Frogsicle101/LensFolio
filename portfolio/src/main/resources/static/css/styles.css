@@ -881,3 +881,19 @@ section {
     display: flex;
     justify-content: flex-end;
 }
+
+.evidenceCreationForm {
+    display: flex;
+    flex-direction: column;
+}
+
+.addWebbLinkButton {
+    max-width: fit-content;
+    align-self: flex-end;
+    margin-top: 1rem;
+}
+
+.weblink-form {
+    align-self: flex-end;
+    width: 60%
+}

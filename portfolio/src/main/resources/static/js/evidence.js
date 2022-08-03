@@ -74,6 +74,28 @@ $(document).on("click", "#evidenceSaveButton", function () {
     })
 })
 
+/**
+ * Listens for when add web link button is clicked.
+ * Slide-toggles the web link portion of the form.
+ */
+$(document).on('click', '.addWebbLinkButton', function () {
+    $(".weblink-form").slideToggle();
+    let button = $(".addWebbLinkButton");
+    if (button.hasClass("toggled")) {
+        //Un-toggle the button
+        button.text("Add Web Link")
+        button.removeClass("toggled")
+        button.removeClass("btn-primary")
+        button.addClass("btn-secondary")
+        //TODO: Add the code for submitting the web link here
+    } else {
+        button.text("Save Web Link")
+        button.addClass("toggled")
+        button.removeClass("btn-secondary")
+        button.addClass("btn-primary")
+    }
+})
+
 
 /**
  * Creates and returns an HTML element for an evidence preview
