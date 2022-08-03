@@ -160,10 +160,10 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  */
 $(document).on("click", ".evidenceListItem", function() {
 
-    let previouslySelectedDiv = $(this).parent().find(".selected").first()
-    previouslySelectedDiv.removeClass("selected")
+    let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
+    previouslySelectedDiv.removeClass("selectedEvidence")
 
-    let newSelectedDiv = $(this).addClass("selected")
+    let newSelectedDiv = $(this).addClass("selectedEvidence")
     selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
 
     showHighlightedEvidenceDetails()
@@ -218,7 +218,7 @@ function setDetailsToNoEvidenceExists() {
  */
 function createEvidencePreview(evidence) {
     return `
-        <div class="evidenceListItem ${evidence.id === selectedEvidenceId ? 'selected' : ''}">
+        <div class="evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
             <div class="row evidenceListItemHeader">
                 <p class="evidenceId" style="display: none">${evidence.id}</p>
                 <p class="col evidenceListItemTitle">${evidence.title}</p>

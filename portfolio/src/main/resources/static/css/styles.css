@@ -891,3 +891,7 @@ section {
 .invalid {
     border-color: red;
 }
+
+.selectedEvidence {
+    background-color: #eaeaea;
+}
