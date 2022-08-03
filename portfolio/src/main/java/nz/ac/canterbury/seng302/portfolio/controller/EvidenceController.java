@@ -23,11 +23,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,7 +56,7 @@ public class EvidenceController {
      * @param principal The principal containing the logged-in user's Id.
      * @return A modelAndView object of the page.
      */
-    @GetMapping("/myEvidence")
+    @GetMapping("/evidence")
     public ModelAndView getEvidencePage(@AuthenticationPrincipal Authentication principal) {
         logger.info("GET REQUEST /groups - attempt to get all groups");
 
@@ -107,8 +104,8 @@ public class EvidenceController {
      * Gets all the pieces of evidence for a requested user.
      *
      * Response codes: NOT_FOUND means the user does not exist
-     *                 OK means the user exists and an evidence list is returned  (an empty list if no evidence exists)
-     *                 BAD_REQUEST when the user doesn't interact with the endpoint correctly, i.e., no or invalid userId
+     * OK means the user exists and an evidence list is returned  (an empty list if no evidence exists)
+     * BAD_REQUEST when the user doesn't interact with the endpoint correctly, i.e., no or invalid userId
      *
      * @param userId - The userId of the user whose evidence is wanted
      * @return A response entity with the required response code. Response body is the evidence is the status is OK
@@ -138,9 +135,9 @@ public class EvidenceController {
     /**
      * Entrypoint for creating an evidence object
      *
-     * @param principal The authentication principal
-     * @param title The title of the evidence
-     * @param date The date of the evidence
+     * @param principal   The authentication principal
+     * @param title       The title of the evidence
+     * @param date        The date of the evidence
      * @param description The description of the evidence
      * @param projectId The project id
      * @return returns a ResponseEntity, this entity included the new piece of evidence if successful.
@@ -154,7 +151,7 @@ public class EvidenceController {
             @RequestParam long projectId
     ) {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
-        try{
+        try {
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
             Optional<Project> optionalProject = projectRepository.findById(projectId);
             if (optionalProject.isEmpty()) {
@@ -162,23 +159,21 @@ public class EvidenceController {
             }
             Project project = optionalProject.get();
             LocalDate localDate = LocalDate.parse(date);
-            if (localDate.isBefore(project.getStartDateAsLocalDateTime().toLocalDate())
-                    || localDate.isAfter(project.getEndDateAsLocalDateTime().toLocalDate())) {
-                return new ResponseEntity<>("Date is outside project dates", HttpStatus.BAD_REQUEST);
-            }
+            EvidenceService.checkDate(project, localDate);
             EvidenceService.checkString(title);
             EvidenceService.checkString(description);
-            Evidence evidence = evidenceRepository.save(new Evidence(user.getId(), title, localDate, description));
-            return new ResponseEntity<>(evidence, HttpStatus.OK);
-        } catch(CheckException err) {
+            Evidence evidence = new Evidence(user.getId(), title, localDate, description);
+            evidenceRepository.save(evidence);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (CheckException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad input: {}", err.getMessage());
-            return new ResponseEntity<>( err.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch(DateTimeParseException err) {
+            return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (DateTimeParseException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad date: {}", date);
-            return new ResponseEntity<>( "Date is not in a parsable format", HttpStatus.BAD_REQUEST);
-        } catch(Exception err) {
+            return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
+        } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
-            return new ResponseEntity<>(  HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
