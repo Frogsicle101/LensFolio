@@ -135,7 +135,6 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
-                showHighlightedEvidenceDetails()
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
             },
