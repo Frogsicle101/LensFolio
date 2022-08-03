@@ -2,6 +2,9 @@ package nz.ac.canterbury.seng302.portfolio.evidence;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import javax.persistence.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Objects;
 
 /**
  * Represents an WebLink Entity
@@ -13,9 +16,9 @@ public class WebLink {
     @GeneratedValue
     private int id;
 
-    private int userId;
+    private int evidenceId;
     private String name;
-    private String url;
+    private URL url;
     private Boolean secured; //True if its https, false if http
 
     @ManyToOne
@@ -25,20 +28,23 @@ public class WebLink {
     /**
      * Constructs an instance of the WebLink Object
      *
-     * @param userId the user associated with the weblink
+     * @param evidenceId the evidence associated with the weblink
      * @param name   the name of the weblink
      * @param url    the url of the weblink
      */
-    public WebLink(int userId, String name, String url) {
+    public WebLink(int evidenceId, String name, String url) throws MalformedURLException{
         if (name.length() > 20) {
             throw new CheckException("Name should be 20 characters or less");
         }
         if (name.length() <= 2) {
             throw new CheckException("Name should be longer than 1 character");
         }
-        this.userId = userId;
+        this.evidenceId = evidenceId;
         this.name = name;
-        this.url = url;
+
+        this.url = new URL(url);
+        this.secured = Objects.equals(this.url.getProtocol(), "https");
+
     }
 
     /**
@@ -51,15 +57,15 @@ public class WebLink {
         return id;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getEvidenceId() {
+        return evidenceId;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getUrl() {
+    public URL getUrl() {
         return url;
     }
 
@@ -67,15 +73,15 @@ public class WebLink {
         return secured;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setEvidenceId(int userId) {
+        this.evidenceId = evidenceId;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setUrl(String url) {
+    public void setUrl(URL url) {
         this.url = url;
     }
 
