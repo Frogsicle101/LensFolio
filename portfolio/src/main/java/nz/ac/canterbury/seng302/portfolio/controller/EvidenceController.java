@@ -5,6 +5,8 @@ import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.evidence.WebLink;
+import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
@@ -44,6 +46,10 @@ public class EvidenceController {
     /** The repository containing users pieces of evidence. */
     @Autowired
     private EvidenceRepository evidenceRepository;
+
+    /** The repository containing web links. */
+    @Autowired
+    private WebLinkRepository webLinkRepository;
 
     /** The repository containing the projects. */
     @Autowired
@@ -102,6 +108,35 @@ public class EvidenceController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>(evidence, HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.warn(exception.getClass().getName());
+            logger.warn(exception.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    /**
+     * Gets the details for a piece of evidence with the given id
+     *
+     * Response codes: NOT_FOUND means the piece of evidence does not exist
+     *                 OK means the evidence exists and web link details are returned.
+     *                 BAD_REQUEST when the user doesn't interact with the endpoint correctly, i.e., no or invalid evidenceId
+     *
+     * @param evidenceId - The ID of the piece of evidence
+     * @return A response entity with the required response code. Response body is the evidence is the status is OK
+     */
+    @GetMapping("/evidencePieceWebLinks")
+    public ResponseEntity<Object> getEvidenceWebLinks(@RequestParam("evidenceId") Integer evidenceId) {
+        logger.info("GET REQUEST /evidencePieceWebLinks - attempt to get weblinks with evidence Id {}", evidenceId);
+        try {
+            Optional<Evidence> evidence = evidenceRepository.findById(evidenceId);
+            if (evidence.isEmpty()) {
+                logger.info("GET REQUEST /evidence - evidence {} does not exist", evidenceId);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            List<WebLink> webLinks = evidence.get().getWebLinks();
+            return new ResponseEntity<>(webLinks, HttpStatus.OK);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
