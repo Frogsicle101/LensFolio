@@ -74,7 +74,7 @@ public class EvidenceController {
         modelAndView.addObject("user", user);
         modelAndView.addObject("currentDate", LocalDate.now().format(DateTimeFormat.yearMonthDay()));
         modelAndView.addObject("projectStartDate", projectRepository.getProjectById(1L).getStartDate().format(DateTimeFormat.yearMonthDay()));
-        modelAndView.addObject("projectEndDate", projectRepository.getProjectById(1L).getEndDate().format(DateTimeFormat.yearMonthDay()));
+
 
         return modelAndView;
     }
