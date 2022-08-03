@@ -27,6 +27,12 @@ $(document).ready(function () {
     })
 
 
+    /* Prevents redirection to user evidence page on the click of the user's roles column. */
+    $(".roleButtonsContainer").click(function (event) {
+        event.stopPropagation()
+    })
+
+
     /* Toggles the list of roles that can be added. */
     $(".addRolePopUpButton").click(function (event) {
         event.stopPropagation()

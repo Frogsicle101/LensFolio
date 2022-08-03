@@ -20,7 +20,7 @@ public class WebLink {
 
     private String name;
     private URL url;
-    private Boolean secured; //True if its https, false if http
+    private Boolean isSecured;
 
     @ManyToOne
     @JsonIgnore
@@ -33,6 +33,7 @@ public class WebLink {
      *
      * @param name the name of the weblink
      * @param url  the url of the weblink
+     * @throws MalformedURLException when the url string is not valid. This Weblink is not allowed to be created.
      */
     public WebLink(Evidence evidence, String name, String url) throws MalformedURLException {
         if (name.length() > 20) {
@@ -44,8 +45,7 @@ public class WebLink {
         this.name = name;
         this.evidence = evidence;
         this.url = new URL(url);
-        this.secured = Objects.equals(this.url.getProtocol(), "https");
-
+        this.isSecured = Objects.equals(this.url.getProtocol(), "https");
     }
 
     /**
@@ -67,10 +67,9 @@ public class WebLink {
         return url;
     }
 
-    public Boolean getSecured() {
-        return secured;
+    public Boolean getIsSecured() {
+        return isSecured;
     }
-
 
     public void setName(String name) {
         this.name = name;
@@ -84,7 +83,7 @@ public class WebLink {
         this.evidence = evidence;
     }
 
-    public void setSecured(Boolean secured) {
-        this.secured = secured;
+    public void setIsSecured(Boolean isSecured) {
+        this.isSecured = isSecured;
     }
 }
