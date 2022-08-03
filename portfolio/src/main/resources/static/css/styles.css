@@ -806,7 +806,12 @@ section {
 
 /* Evidence Page */
 
-.evidenceListContainer, .evidenceDetailsContainer, .evidenceContainer {
+.evidencePage {
+    display: flex;
+    flex-direction: row
+}
+
+.evidenceListContainer, .evidenceDetailsContainer {
     border: solid var(--main-border-colour) 1px;
 }
 
@@ -830,7 +835,7 @@ section {
     display: flex;
     width: 100%;
     flex-direction: column;
-    max-width: 35%;
+    max-width: 30%;
     padding-right: 0;
     padding-left: 0;
  }
@@ -849,10 +854,9 @@ section {
     margin-bottom: 0;
 }
 
-.evidenceList {
+#evidenceList {
     overflow: auto;
-    height: 65vh;
-    margin: 0.5rem;
+    height: 38rem;
 }
 
 .evidenceListItem {
@@ -876,4 +880,14 @@ section {
 .evidenceDeleteButton {
     display: flex;
     justify-content: flex-end;
+}
+
+.evidenceFormName, .evidenceFormDate, .evidenceFormDescription{
+    padding-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.invalid {
+    border-color: red;
 }

@@ -7,8 +7,7 @@
 </head>
 <body>
 <header th:insert="fragments/general.html :: header"></header>
-<section>
-    <div class="row evidenceContainer">
+<section class="evidencePage">
         <div class="col evidenceListContainer">
             <div class="row evidenceListMenu">
                 <button class="btn btn-primary createEvidenceButton" data-bs-toggle="modal"
@@ -18,39 +17,9 @@
             </div>
             <hr>
             <h3 class="evidenceListTitle">Evidence</h3>
-            <hr>
-            <div class="row evidenceList">
-                <!-- For demonstrative purposes. Use js to populate this. -->
-                <div class="evidenceListItem">
-                    <div class="row evidenceListItemHeader">
-                        <p class="col evidenceListItemTitle">Title Here</p>
-                        <p class="col evidenceListItemDate">26/07/22</p>
-                    </div>
-                    <p class="evidenceListItemInfo">An exemplary description to show the display of evidence
-                        descriptions in the evidence list.</p>
-                </div>
-                <div class="evidenceListItem">
-                    <div class="row evidenceListItemHeader">
-                        <p class="col evidenceListItemTitle">Static Frontend</p>
-                        <p class="col evidenceListItemDate">31/07/22</p>
-                    </div>
-                    <p class="evidenceListItemInfo">Developed static frontend for the Evidence page in Lensfolio.</p>
-                </div>
-                <div class="evidenceListItem">
-                    <div class="row evidenceListItemHeader">
-                        <p class="col evidenceListItemTitle">la barre de défilement?</p>
-                        <p class="col evidenceListItemDate">26/07/22</p>
-                    </div>
-                    <p class="evidenceListItemInfo">Lest a scroll barre we forget, there need be enough evidence hardcoded to demo</p>
-                </div>
-                <div class="evidenceListItem">
-                    <div class="row evidenceListItemHeader">
-                        <p class="col evidenceListItemTitle">la barre de défilement!</p>
-                        <p class="col evidenceListItemDate">31/07/22</p>
-                    </div>
-                    <p class="evidenceListItemInfo">You have scrolled. Nice:)</p>
-                </div>
-            </div>
+            <hr style="margin-bottom: 0">
+            <!-- The evidence holding container, pieces are added through JS -->
+            <div id="evidenceList"></div>
         </div>
         <div class="col evidenceDetailsContainer">
             <div class="row evidenceDetailsHeader">
@@ -71,7 +40,6 @@
                 magna exercitation labore.
             </div>
         </div>
-    </div>
     <!-- Add evidence Modal -->
     <div class="modal fade" id="addEvidenceModal" tabindex="-1" role="dialog" aria-labelledby="addEvidenceTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -79,38 +47,58 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="addEvidenceTitle">Add Evidence</h5>
                 </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group ">
-                            <label for="evidenceName" class="col-form-label required">Name:</label>
-                            <input type="text" class="form-control" id="evidenceName" placeholder="Name" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label required" for="evidenceDate">Date:</label>
-                            <input class="form-control form-control-sm milestoneInputEndDate"
-                                   id="evidenceDate"
-                                   name="evidenceDate"
-                                   placeholder="Date"
-                                   required
-                                   type="date">
-                        </div>
-                        <div class="form-group">
-                            <label for="evidenceDescription" class="col-form-label required">Description:</label>
-                            <textarea class="form-control"
-                                      id="evidenceDescription"
-                                      rows="4"
-                                      placeholder="Description"
-                                      required></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
-                </div>
+                <form id="evidenceCreationForm">
+                    <div class="modal-body">
+                            <div class="form-group evidenceFormName">
+                                <label for="evidenceName" class="col-form-label required">Name:</label>
+                                <small class="form-text text-muted">Name must include letters. </small>
+                                <input type="text" class="form-control text-input"
+                                       id="evidenceName"
+                                       placeholder="Name"
+                                       maxlength="50"
+                                       minlength="2"
+                                       required>
+                                <small class="form-text text-muted countCharName">0 characters remaining</small>
+
+                            </div>
+                            <div class="form-group evidenceFormDate">
+                                <label class="form-label required" for="evidenceDate">Date:</label>
+                                <input class="form-control form-control-sm milestoneInputEndDate"
+                                       id="evidenceDate"
+                                       name="evidenceDate"
+                                       th:value="${currentDate}"
+                                       th:min="${projectStartDate}"
+                                       th:max="${evidenceMaxDate}"
+                                       required
+                                       type="date">
+                            </div>
+                            <div class="form-group evidenceFormDescription">
+                                <label for="evidenceDescription" class="col-form-label required">Description:</label>
+                                <small class="form-text text-muted">Description must include letters. </small>
+                                <textarea class="form-control text-input"
+                                          id="evidenceDescription"
+                                          rows="4"
+                                          placeholder="Description"
+                                          maxlength="500"
+                                          minlength="2"
+                                          required></textarea>
+                                <small class="form-text text-muted countCharDescription">0 characters remaining</small>
+                            </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button id="evidenceSaveButton"
+                                type="submit"
+                                class="btn btn-primary" disabled>
+                            Save
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </section>
 </body>
+<script th:src="@{js/evidence.js}" type="application/javascript"></script>
 </html>
