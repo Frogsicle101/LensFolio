@@ -38,4 +38,26 @@ class WebLinkTest {
 
     }
 
+
+    @Test
+    void createTestEvidenceWebLinks() throws MalformedURLException {
+        Evidence evidence = new Evidence(1, "test", LocalDate.now(), "test");
+        WebLink webLink = new WebLink(evidence, "Test", "https://www.google.co.nz");
+        WebLink webLink2 = new WebLink(evidence, "Test", "https://www.google.co.nz");
+        WebLink webLink3 = new WebLink(evidence, "Test", "https://www.google.co.nz");
+        evidence.addWebLink(webLink);
+        evidence.addWebLink(webLink2);
+        evidence.addWebLink(webLink3);
+        evidenceRepository.save(evidence);
+        webLinkRepository.save(webLink);
+        webLinkRepository.save(webLink2);
+        webLinkRepository.save(webLink3);
+
+        Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
+        Assertions.assertEquals(evidence1.getTitle(), evidence.getTitle());
+        Assertions.assertEquals(evidence1.getWebLinks().get(0).getUrl(), evidence.getWebLinks().get(0).getUrl());
+        Assertions.assertEquals(evidence1.getWebLinks().size(), evidence.getWebLinks().size());
+
+    }
+
 }
