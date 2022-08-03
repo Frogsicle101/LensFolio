@@ -1,4 +1,6 @@
-
+/**
+ * Performs all the actions required to close the repository details edit form
+ */
 function cancelRepoEdit() {
     const parent = $("#repoSettingsContainer");
     parent.slideUp(() => {
@@ -7,6 +9,9 @@ function cancelRepoEdit() {
     });
 }
 
+/**
+ * Event listener for clicking the edit repo button. Opens a form.
+ */
 $(document).on("click", ".editRepo", () => {
     const editButton = $(".editRepo");
     editButton.hide();
@@ -36,8 +41,24 @@ $(document).on("click", ".editRepo", () => {
     parent.slideDown();
 })
 
+/**
+ * Event listener for the cancel button on the form.
+ */
 $(document).on("click", ".cancelRepoEdit", cancelRepoEdit);
 
+/**
+ * Detects any click outside the group settings page and closes the form.
+ */
+$(document).click(function(event) {
+    const distance = $(event.target).closest("#groupSettingsPage").length
+    if (distance < 1) {
+        cancelRepoEdit()
+    }
+})
+
+/**
+ * Evemt listener for the submit button
+ */
 $(document).on("submit", "#editRepoForm", function (event) {
     event.preventDefault();
     alert("submitted");

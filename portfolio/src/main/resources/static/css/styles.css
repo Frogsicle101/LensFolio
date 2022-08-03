@@ -773,7 +773,7 @@ section {
     color: var(--select-green);
 }
 
-#repoSettingsForm {
+#repoSettingsContainer {
     display: none;
 }
 
