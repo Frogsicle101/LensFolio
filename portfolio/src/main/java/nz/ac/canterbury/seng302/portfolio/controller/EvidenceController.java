@@ -72,9 +72,19 @@ public class EvidenceController {
 
         ModelAndView modelAndView = new ModelAndView("evidence");
         modelAndView.addObject("user", user);
-        modelAndView.addObject("currentDate", LocalDate.now().format(DateTimeFormat.yearMonthDay()));
-        modelAndView.addObject("projectStartDate", projectRepository.getProjectById(1L).getStartDate().format(DateTimeFormat.yearMonthDay()));
 
+        Project project = projectRepository.getProjectById(1L);
+        LocalDate projectEndDate = project.getEndDate();
+        LocalDate projectStartDate = project.getStartDate();
+        LocalDate currentDate = LocalDate.now();
+        LocalDate evidenceMaxDate = LocalDate.now();
+        modelAndView.addObject("currentDate", currentDate.format(DateTimeFormat.yearMonthDay()));
+        modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeFormat.yearMonthDay()));
+
+        if (projectEndDate.isBefore(currentDate)) {
+            evidenceMaxDate = projectEndDate;
+        }
+        modelAndView.addObject("evidenceMaxDate", evidenceMaxDate.format(DateTimeFormat.yearMonthDay()));
 
         return modelAndView;
     }
@@ -82,7 +92,7 @@ public class EvidenceController {
 
     /**
      * Gets all the pieces of evidence for a requested user.
-     * <p>
+     *
      * Response codes: NOT_FOUND means the user does not exist
      * OK means the user exists and an evidence list is returned  (an empty list if no evidence exists)
      * BAD_REQUEST when the user doesn't interact with the endpoint correctly, i.e., no or invalid userId

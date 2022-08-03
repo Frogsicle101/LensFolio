@@ -79,7 +79,6 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $("#addEvidenceModal").modal('hide')
             },
             error: function (error) {
-                console.log(error)
                 createAlert(error.responseText, true)
             }
         })

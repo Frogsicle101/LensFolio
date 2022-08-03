@@ -17,6 +17,7 @@ public class EvidenceService {
 
     static Pattern alpha = Pattern.compile("[a-zA-Z]");
 
+
     /**
      * Checks if the string is too short or matches the pattern provided
      * if either of these are true then it throws an exception
@@ -33,8 +34,10 @@ public class EvidenceService {
         }
     }
 
+
     /**
      * Checks if the evidence date is within the project dates.
+     * Also checks that the date isn't in the future
      * Throws a checkException if it's not.
      *
      * @param project      the project to check dates for.
