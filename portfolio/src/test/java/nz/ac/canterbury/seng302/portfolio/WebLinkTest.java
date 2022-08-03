@@ -15,7 +15,7 @@ import java.time.LocalDate;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class WebLinkTest {
+class WebLinkTest {
 
     @Autowired
     EvidenceRepository evidenceRepository;
@@ -27,14 +27,14 @@ public class WebLinkTest {
     @Test
     void createTestEvidenceWebLink() throws MalformedURLException {
         Evidence evidence = new Evidence(1, "test", LocalDate.now(), "test");
-        WebLink webLink = new WebLink("Test", "https://www.google.co.nz");
+        WebLink webLink = new WebLink(evidence, "Test", "https://www.google.co.nz");
         evidence.addWebLink(webLink);
         evidenceRepository.save(evidence);
         webLinkRepository.save(webLink);
 
         Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
+        Assertions.assertEquals(evidence1.getTitle(), evidence.getTitle());
         Assertions.assertEquals(evidence1.getWebLinks().get(0).getUrl(), evidence.getWebLinks().get(0).getUrl());
-
 
     }
 

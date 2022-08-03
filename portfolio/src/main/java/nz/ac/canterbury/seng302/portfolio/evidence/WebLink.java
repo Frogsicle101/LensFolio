@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.evidence;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+
 import javax.persistence.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -23,16 +24,17 @@ public class WebLink {
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name="evidenceId")
+    @JoinColumn(name = "evidence")
     private Evidence evidence;
+
 
     /**
      * Constructs an instance of the WebLink Object
      *
-     * @param name   the name of the weblink
-     * @param url    the url of the weblink
+     * @param name the name of the weblink
+     * @param url  the url of the weblink
      */
-    public WebLink(String name, String url) throws MalformedURLException{
+    public WebLink(Evidence evidence, String name, String url) throws MalformedURLException {
         if (name.length() > 20) {
             throw new CheckException("Name should be 20 characters or less");
         }
@@ -40,7 +42,7 @@ public class WebLink {
             throw new CheckException("Name should be longer than 1 character");
         }
         this.name = name;
-
+        this.evidence = evidence;
         this.url = new URL(url);
         this.secured = Objects.equals(this.url.getProtocol(), "https");
 
@@ -55,7 +57,6 @@ public class WebLink {
     public int getId() {
         return id;
     }
-
 
 
     public String getName() {
@@ -77,6 +78,10 @@ public class WebLink {
 
     public void setUrl(URL url) {
         this.url = url;
+    }
+
+    public void setEvidence(Evidence evidence) {
+        this.evidence = evidence;
     }
 
     public void setSecured(Boolean secured) {
