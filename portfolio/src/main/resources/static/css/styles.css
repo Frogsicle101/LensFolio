@@ -885,8 +885,13 @@ section {
     justify-content: flex-end;
 }
 
-.evidenceFormName, .evidenceFormDate, .evidenceFormDescription{
+.evidenceFormName, .evidenceFormDate {
     padding-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.evidenceFormDescription{
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
@@ -897,4 +902,26 @@ section {
 
 .selectedEvidence {
     background-color: #eaeaea;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.addWebbLinkButton {
+    margin-right: 1.5rem;
+    max-width: fit-content;
+    align-self: flex-end;
+    margin-top: 1rem;
+}
+
+.weblink-form {
+    padding-right: 1.5rem;
+    align-self: flex-end;
+    width: 60%
+}
+
+#webLinkName{
+    margin-top: 0.5rem
 }
