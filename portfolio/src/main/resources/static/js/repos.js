@@ -22,15 +22,15 @@ $(document).on("click", ".editRepo", () => {
         `<form id="editRepoForm" class="marginSides1">
             <div class="mb-1">
                 <label class="form-label">Repository Name:</label>
-                <input type="text" class="form-control" value="${$("#groupSettingsPageRepoName").text()}">
+                <input type="text" id="repoName" class="form-control" value="${$("#groupSettingsPageRepoName").text()}">
             </div>
             <div class="mb-1">
                 <label class="form-label">Project ID:</label>
-                <input type="text" class="form-control" value="${$(".groupSettingsPageProjectId").text()}">
+                <input type="text" id="projectId" class="form-control" value="${$(".groupSettingsPageProjectId").text()}">
             </div>
             <div class="mb-1">
                 <label class="form-label">Access Token:</label>
-                <input type="text" class="form-control" value="${$(".groupSettingsPageAccessToken").text()}">
+                <input type="text" id="accessToken" class="form-control" value="${$(".groupSettingsPageAccessToken").text()}">
             </div>
             <div class="mb-3 mt-3">
                 <button type="submit" class="btn btn-primary">Save</button>
@@ -61,6 +61,22 @@ $(document).click(function(event) {
  */
 $(document).on("submit", "#editRepoForm", function (event) {
     event.preventDefault();
-    alert("submitted");
+
+    const repoData = {
+        "groupId" : selectedGroupId,
+        "projectId" : $("#projectId").val(),
+        "alias" : $("#repoName").val(),
+        "accessToken": $("#accessToken").val()
+    }
+
+    $.ajax({
+        url: "editGitRepo",
+        type: "post",
+        data: repoData,
+        success: function (response) {
+            createAlert("Changes submitted");
+            cancelRepoEdit();
+        }
+    })
 
 })

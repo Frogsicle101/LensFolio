@@ -58,7 +58,7 @@ public class GitRepoControllerTest {
         setUserToGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/addGitRepo")
+        mockMvc.perform(post("/editGitRepo")
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
@@ -87,7 +87,7 @@ public class GitRepoControllerTest {
         setUserToNotGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/addGitRepo")
+        mockMvc.perform(post("/editGitRepo")
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
@@ -102,7 +102,7 @@ public class GitRepoControllerTest {
         setUserToNotGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/addGitRepo")
+        mockMvc.perform(post("/editGitRepo")
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
@@ -117,7 +117,7 @@ public class GitRepoControllerTest {
         setUserToNotGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/addGitRepo")
+        mockMvc.perform(post("/editGitRepo")
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
@@ -132,7 +132,7 @@ public class GitRepoControllerTest {
         setUserToGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/addGitRepo")
+        mockMvc.perform(post("/editGitRepo")
                         .param("groupId", "invalid")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
@@ -147,7 +147,7 @@ public class GitRepoControllerTest {
         setUserToGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/addGitRepo")
+        mockMvc.perform(post("/editGitRepo")
                         .param("groupId", "1")
                         .param("projectId", "invalid")
                         .param("alias", "repo alias")
@@ -162,7 +162,7 @@ public class GitRepoControllerTest {
         setUserToGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/addGitRepo")
+        mockMvc.perform(post("/editGitRepo")
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "")
@@ -177,7 +177,7 @@ public class GitRepoControllerTest {
         setUserToGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/addGitRepo")
+        mockMvc.perform(post("/editGitRepo")
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
@@ -192,11 +192,11 @@ public class GitRepoControllerTest {
         setUserToGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/addGitRepo")
+        mockMvc.perform(post("/editGitRepo")
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
-                        .param("accessToken", "usingIllegalChactersInTheAccesTokenHere!"))
+                        .param("accessToken", "tooShort"))
                 .andExpect(status().isBadRequest());
     }
 
