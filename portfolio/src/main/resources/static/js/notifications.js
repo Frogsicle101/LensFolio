@@ -20,7 +20,6 @@ function connect() {
 
     stompClient = new StompJs.Client();
     stompClient.configure({
-        // brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
         webSocketFactory: mySocketFactory,
         reconnectDelay: 60000,
         debug: function (str) {
