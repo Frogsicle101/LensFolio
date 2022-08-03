@@ -27,7 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -81,7 +81,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "test";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().toString();
         String description = "testing";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -94,11 +94,28 @@ class EvidenceControllerTest {
     }
 
     @Test
+    void testAddEvidenceDateInFuture() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "test";
+        String date = LocalDate.now().plusDays(1).toString();
+        String description = "testing";
+        long projectId = 1;
+        Project project = new Project("Testing");
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        mockMvc.perform(post("/evidence")
+                .param("title", title)
+                .param("date", date)
+                .param("description", description)
+                .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
+    }
+
+    @Test
     void testAddEvidenceOutsideProjectDates() throws Exception {
         setUserToStudent();
         setUpContext();
         String title = "test";
-        String date = LocalDateTime.now().minusDays(1).toString();
+        String date = LocalDate.now().minusDays(1).toString();
         String description = "testing";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -115,7 +132,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().plusDays(2).toString();
         String description = "testing";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -132,7 +149,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "@#!@#&(*&!@#(&*!@(*&#(*!@&#(&(*&!@(*#&!@#asdasd";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().toString();
         String description = "testing";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -149,7 +166,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "This should almost definitely be past 50 characters in length?";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().plusDays(2).toString();
         String description = "testing";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -166,7 +183,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "@@@";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().plusDays(2).toString();
         String description = "testing";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -184,7 +201,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "testing";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().plusDays(2).toString();
         String description = "";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -201,7 +218,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "test";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().toString();
         String description = "@#!@#&(*&!@#(&*!@(*&#(*!@&#(&(*&!@(*#&!@#asdasd";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -218,7 +235,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "test";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().plusDays(2).toString();
         String description = "This should almost definitely be past 500 characters in length?                                                                                                                                                                                                                                                                      This should almost definitely be past 500 characters in length?                                                                                                                                                                                                                                                                      ";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -235,7 +252,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "Test";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().plusDays(2).toString();
         String description = "@@@";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -253,7 +270,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "title";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().toString();
         String description = "Description";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -272,7 +289,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "test";
-        String date = LocalDateTime.now().plusDays(2).toString();
+        String date = LocalDate.now().plusDays(2).toString();
         String description = "testing";
         long projectId = 1;
 
@@ -349,7 +366,7 @@ class EvidenceControllerTest {
 
         Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(new ArrayList<>());
 
-        MvcResult result = mockMvc.perform(get("/evidence")
+        MvcResult result = mockMvc.perform(get("/evidenceData")
                 .queryParam("userId", existingUserId))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -367,12 +384,12 @@ class EvidenceControllerTest {
         String existingUserId = "1";
 
         ArrayList<Evidence> usersEvidence = new ArrayList<>();
-        Evidence evidence = new Evidence(1, 2, "Title", LocalDateTime.now(), "description");
+        Evidence evidence = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         usersEvidence.add(evidence);
 
         Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(usersEvidence);
 
-        MvcResult result = mockMvc.perform(get("/evidence")
+        MvcResult result = mockMvc.perform(get("/evidenceData")
                         .queryParam("userId", existingUserId))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -391,14 +408,14 @@ class EvidenceControllerTest {
         String existingUserId = "1";
 
         ArrayList<Evidence> usersEvidence = new ArrayList<>();
-        Evidence evidence1 = new Evidence(1, 2, "Title", LocalDateTime.now(), "description");
-        Evidence evidence2 = new Evidence(3, 4, "Title 2", LocalDateTime.now(), "description 2");
+        Evidence evidence1 = new Evidence(1, 2, "Title", LocalDate.now(), "description");
+        Evidence evidence2 = new Evidence(3, 4, "Title 2", LocalDate.now(), "description 2");
         usersEvidence.add(evidence1);
         usersEvidence.add(evidence2);
 
         Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(usersEvidence);
 
-        MvcResult result = mockMvc.perform(get("/evidence")
+        MvcResult result = mockMvc.perform(get("/evidenceData")
                         .queryParam("userId", existingUserId))
                 .andReturn();
 
@@ -415,7 +432,7 @@ class EvidenceControllerTest {
         initialiseGetRequestMocks();
         String notExistingUserId = "2";
 
-        mockMvc.perform(get("/evidence")
+        mockMvc.perform(get("/evidenceData")
                         .queryParam("userId", notExistingUserId))
                 .andExpect(status().isNotFound());
     }
@@ -428,7 +445,7 @@ class EvidenceControllerTest {
         initialiseGetRequestMocks();
         String illegalUserId = "IllegalId";
 
-        mockMvc.perform(get("/evidence")
+        mockMvc.perform(get("/evidenceData")
                         .queryParam("userId", illegalUserId))
                 .andExpect(status().isBadRequest());
     }
@@ -440,7 +457,7 @@ class EvidenceControllerTest {
         setUpContext();
         initialiseGetRequestMocks();
 
-        mockMvc.perform(get("/evidence"))
+        mockMvc.perform(get("/evidenceData"))
                 .andExpect(status().isBadRequest());
     }
 

@@ -54,9 +54,27 @@ function removeAlert() {
     alert.hide("slide", 100, function() {
         alert.remove();
     })
-
-
 }
+
+
+
+/**
+ * Function that gets the maxlength of an input and lets the user know how many characters they have left.
+ */
+function countCharacters() {
+    let maxlength = $(this).attr("maxLength")
+    let lengthOfCurrentInput = $(this).val().length;
+    let counter = maxlength - lengthOfCurrentInput;
+    let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
+
+    //If one character remains, changes from "characters remaining" to "character remaining"
+    if (counter !== 1) {
+        helper.text(counter + " characters remaining")
+    } else {
+        helper.text(counter + " character remaining")
+    }
+}
+
 
 /**
  * Displays a dismissible alert down the bottom right of the screen.

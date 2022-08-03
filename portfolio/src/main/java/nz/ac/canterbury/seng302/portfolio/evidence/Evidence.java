@@ -6,6 +6,10 @@ import nz.ac.canterbury.seng302.portfolio.CheckException;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.time.LocalDate;
 
 /**
  * Represents an Evidence entity
@@ -19,7 +23,7 @@ public class Evidence {
 
     private int userId;
     private String title;
-    private LocalDateTime date;
+    private LocalDate date;
     private String description;
 
     @JsonIgnore
@@ -35,7 +39,7 @@ public class Evidence {
      * @param date the date of the evidence creation
      * @param description the description of the evidence
      */
-    public Evidence(int userId, String title, LocalDateTime date, String description) {
+    public Evidence(int userId, String title, LocalDate date, String description) {
         if (title.length() > 50) {
             throw new CheckException("Title cannot be more than 50 characters");
         }
@@ -58,7 +62,7 @@ public class Evidence {
      * @param date the date of the evidence creation
      * @param description the description of the evidence
      */
-    public Evidence(int evidenceId, int userId, String title, LocalDateTime date, String description) {
+    public Evidence(int evidenceId, int userId, String title, LocalDate date, String description) {
         if (title.length() > 50) {
             throw new CheckException("Title cannot be more than 50 characters");
         }
@@ -108,11 +112,11 @@ public class Evidence {
 
     }
 
-    public LocalDateTime getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
@@ -145,22 +149,14 @@ public class Evidence {
     /**
      * This method is used to help with testing. It returns the expected JSON string created for this object.
      *
-     * Note that the date string must be shortened by 2 characters as this is done implicitly when the object is
-     * Jsonified.
-     *
      * @return the Json string the represents this piece of evidence.
      */
     public String toJsonString() {
-        int trailingZeros = 0;
-        while (date.toString().charAt(date.toString().length() - (1 + trailingZeros)) == '0') {
-            trailingZeros++;
-        }
-        String correctedDate = date.toString().substring(0, date.toString().length() - trailingZeros); // see docstring
         return  "{" +
                 "\"id\":" + id +
                 ",\"userId\":" + userId +
                 ",\"title\":\"" + title +
-                "\",\"date\":\"" + correctedDate +
+                "\",\"date\":\"" + date +
                 "\",\"description\":\"" + description +
                 "\"}";
     }
