@@ -73,7 +73,7 @@ public class GitRepoControllerTest {
         setUserToGroupMember();
         setupContext();
 
-        mockMvc.perform(post("/addGitRepo")
+        mockMvc.perform(post("/editGitRepo")
                         .param("groupId", "2")
                         .param("projectId", "1")
                         .param("alias", "repo alias")

@@ -62,7 +62,7 @@ public class Config implements WebMvcConfigurer {
 
 
         //GitSettings
-        pathsToInterceptForGroupSettings.add("/addGitRepo");
+        pathsToInterceptForGroupSettings.add("/editGitRepo");
         pathsToInterceptForGroupSettings.add("/getRepo");
 
         registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToInterceptForRoleBased);
