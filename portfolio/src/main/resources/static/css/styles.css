@@ -885,7 +885,7 @@ section {
     justify-content: flex-end;
 }
 
-.evidenceFormName, .evidenceFormDate, .evidenceFormDescription{
+.evidenceFormName, .evidenceFormDate, .evidenceFormDescription {
     padding-bottom: 1.5rem;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
@@ -899,18 +899,20 @@ section {
     background-color: #eaeaea;
 }
 
-.evidenceCreationForm {
+.modal-body {
     display: flex;
     flex-direction: column;
 }
 
 .addWebbLinkButton {
+    margin-right: 1.5rem;
     max-width: fit-content;
     align-self: flex-end;
     margin-top: 1rem;
 }
 
 .weblink-form {
+    padding-right: 1.5rem;
     align-self: flex-end;
     width: 60%
 }
