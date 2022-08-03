@@ -18,11 +18,16 @@ $(document).ready(function () {
     } else {
         userBeingViewedId = userIdent
     }
+
+    if (userBeingViewedId !== userIdent) {
+        $(".evidenceDeleteButton").hide()
+        $(".createEvidenceButton").hide();
+    }
+
     getAndAddEvidencePreviews()
     let textInput = $(".text-input");
     textInput.each(countCharacters)
     textInput.keyup(countCharacters)
-
 })
 
 
@@ -186,6 +191,12 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.show()
     highlightedEvidenceDate.show()
     highlightedEvidenceDescription.show()
+
+    if (userBeingViewedId === userIdent) {
+        $(".evidenceDeleteButton").show()
+    } else {
+        $(".evidenceDeleteButton").hide()
+    }
 }
 
 
@@ -200,7 +211,7 @@ function setDetailsToNoEvidenceExists() {
     let highlightedEvidenceDescription = $("#evidenceDetailsDescription")
 
     highlightedEvidenceTitle.text("No Evidence")
-
+    $(".evidenceDeleteButton").hide()
     highlightedEvidenceTitle.show()
     highlightedEvidenceDate.hide()
     highlightedEvidenceDescription.hide()
