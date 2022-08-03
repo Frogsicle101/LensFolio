@@ -45,5 +45,9 @@ public class EvidenceService {
                 || evidenceDate.isAfter(project.getEndDateAsLocalDateTime().toLocalDate())) {
             throw new CheckException("Date is outside project dates");
         }
+
+        if (evidenceDate.isAfter(LocalDate.now())){
+            throw new CheckException("Date is in the future");
+        }
     }
 }

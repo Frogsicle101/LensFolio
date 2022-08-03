@@ -113,16 +113,14 @@ function addEvidencePreviews(response) {
  */
 $(document).on("click", "#evidenceSaveButton", function (event) {
     event.preventDefault()
-    if (!$("#evidenceCreationForm")[0].checkValidity()) {
-        $("#evidenceCreationForm")[0].reportValidity()
+    let evidenceCreationForm = $("#evidenceCreationForm")[0]
+    if (!evidenceCreationForm.checkValidity()) {
+        evidenceCreationForm.reportValidity()
     } else {
         const title = $("#evidenceName").val()
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
         const projectId = 1
-        if (title.length < 2 || date.length === 0 || description.length === 0) {
-
-        }
         $.ajax({
             url: "evidence",
             type: "POST",
@@ -139,7 +137,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $("#addEvidenceModal").modal('hide')
             },
             error: function (error) {
-                createAlert(error.message, true)
+                console.log(error)
+                createAlert(error.responseText, true)
             }
         })
     }

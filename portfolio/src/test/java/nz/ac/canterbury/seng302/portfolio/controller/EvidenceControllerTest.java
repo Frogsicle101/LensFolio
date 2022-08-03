@@ -81,7 +81,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "test";
-        String date = LocalDate.now().plusDays(2).toString();
+        String date = LocalDate.now().toString();
         String description = "testing";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -91,6 +91,23 @@ class EvidenceControllerTest {
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isOk());
+    }
+
+    @Test
+    void testAddEvidenceDateInFuture() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "test";
+        String date = LocalDate.now().plusDays(1).toString();
+        String description = "testing";
+        long projectId = 1;
+        Project project = new Project("Testing");
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
+        mockMvc.perform(post("/evidence")
+                .param("title", title)
+                .param("date", date)
+                .param("description", description)
+                .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -132,7 +149,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "@#!@#&(*&!@#(&*!@(*&#(*!@&#(&(*&!@(*#&!@#asdasd";
-        String date = LocalDate.now().plusDays(2).toString();
+        String date = LocalDate.now().toString();
         String description = "testing";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -201,7 +218,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "test";
-        String date = LocalDate.now().plusDays(2).toString();
+        String date = LocalDate.now().toString();
         String description = "@#!@#&(*&!@#(&*!@(*&#(*!@&#(&(*&!@(*#&!@#asdasd";
         long projectId = 1;
         Project project = new Project("Testing");
@@ -253,7 +270,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
         String title = "title";
-        String date = LocalDate.now().plusDays(2).toString();
+        String date = LocalDate.now().toString();
         String description = "Description";
         long projectId = 1;
         Project project = new Project("Testing");
