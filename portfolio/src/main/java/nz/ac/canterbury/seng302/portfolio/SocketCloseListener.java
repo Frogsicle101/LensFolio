@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.STOMP.OutgoingNotification;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.controller.notifications.NotificationService;
 import nz.ac.canterbury.seng302.portfolio.controller.notifications.NotificationUtil;
@@ -52,10 +53,12 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
     public void onApplicationEvent(SessionDisconnectEvent event) {
         logger.info("Got SessionDisconnectEvent");
         Principal principal = event.getUser();
-        PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
-        if (auth != null) {
+        PreAuthenticatedAuthenticationToken token = (PreAuthenticatedAuthenticationToken) principal;
+        if (token != null) {
 
-            AuthState state = (AuthState) auth.getPrincipal();
+            Authentication auth = (Authentication) token.getPrincipal();
+            AuthState state = auth.getAuthState();
+
             String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
             //Remove all the active notifications belonging to that user
             removeAndInform(editorId);

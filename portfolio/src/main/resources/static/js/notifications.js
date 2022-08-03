@@ -4,6 +4,15 @@ let stompClient = null
 
 
 /**
+ * Called by STOMPJS whenever the websocket needs to reconnect
+ * @returns A new instance of SockJS.
+ */
+function mySocketFactory() {
+    return new SockJS(window.location.pathname + "/../websocket")
+}
+
+
+/**
  * Connects via websockets to the server, listening to all messages from /notifications/sending/occasions
  * and designates handleNotification to run whenever we get a message
  */
@@ -11,22 +20,19 @@ function connect() {
 
     stompClient = new StompJs.Client();
     stompClient.configure({
-        brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
-        reconnectDelay: 5000,
+        webSocketFactory: mySocketFactory,
+        reconnectDelay: 1000,
         debug: function (str) {
-            console.log(str);
+            // Add debug logging here
         },
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000,
         onStompError: function (frame) {
-            console.log('Broker reported error: ' + frame.headers['message']);
-            console.log('Additional details: ' + frame.body);
-        },
-        connectionTimeout: 1000
+            // Add error log here
+        }
     });
 
     stompClient.onConnect = (frame) => {
-        console.log('Connected: ' + frame);
         stompClient.subscribe('notifications/sending/occasions', handleNotification);
     }
 
@@ -63,7 +69,6 @@ function sendNotification(occasionType, occasionId, action) {
  */
 function handleNotification(notification) {
     const content = JSON.parse(notification.body);
-    console.log(content)
     for (let message of content) {
         const action = message.action;
 
@@ -98,7 +103,6 @@ function handleNotification(notification) {
 function handleCreateEvent(notification) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
-    console.log("Handle create event: Adding occasion of type: " + occasionType + " and ID: " + occasionId);
     switch (occasionType) {
         case 'event' :
             addEvent(occasionId)
@@ -114,7 +118,6 @@ function handleCreateEvent(notification) {
             getSprints()
             break
         default :
-            console.log("WARNING: un-supported occasion type received. Ignoring message")
             break
     }
 }
@@ -129,7 +132,6 @@ function handleCreateEvent(notification) {
 function handleUpdateEvent(notification) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
-    console.log("Handle Update event: Reloading occasion of type: " + occasionType + " and ID: " + occasionId);
     switch (occasionType) {
         case 'event' :
             reloadElement(occasionId)
@@ -145,7 +147,7 @@ function handleUpdateEvent(notification) {
             getSprints()
             break
         default :
-            console.log("WARNING: un-supported occasion type received. Ignoring message")
+            // Add debug log here
             break
     }
 }
