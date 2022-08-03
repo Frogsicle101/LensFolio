@@ -703,7 +703,7 @@ section {
     margin: 1rem;
 }
 
-.userRow:hover{
+.userRow:hover, .evidenceListItem :hover {
     cursor: pointer;
 }
 
@@ -890,4 +890,8 @@ section {
 
 .invalid {
     border-color: red;
+}
+
+.selectedEvidence {
+    background-color: #eaeaea;
 }
