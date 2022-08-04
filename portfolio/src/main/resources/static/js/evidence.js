@@ -164,6 +164,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 getAndAddEvidencePreviews()
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
+                clearAddEvidenceModalValues()
             },
             error: function (error) {
                 createAlert(error.responseText, true)
@@ -267,19 +268,30 @@ function createEvidencePreview(evidence) {
  * Appends a new link to the list of added links in the Add Evidence form.
  */
 function submitWebLink() {
-    let alias = $("#webLinkName").val()
-    let address = $("#webLinkAddress").val()
+    let alias = $("#webLinkName")
+    let address = $("#webLinkAddress")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
 
     webLinkTitle.show()
     addedWebLinks.append(
-        webLinkElement(address, alias)
+        webLinkElement(address.val(), alias.val())
     )
 
     $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+    address.val("")
+    alias.val("")
 }
 
+
+function clearAddEvidenceModalValues() {
+    $("#evidenceName").val("")
+    $("#evidenceDescription").val("")
+    $("#webLinkAddress").val("")
+    $("#webLinkName").val("")
+    $("#addedWebLinks").empty()
+    $("#webLinkTitle").empty()
+}
 
 /**
  * Given a web address and an alias, creates and returns a web link element.

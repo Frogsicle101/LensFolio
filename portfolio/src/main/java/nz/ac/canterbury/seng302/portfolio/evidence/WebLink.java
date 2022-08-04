@@ -31,8 +31,9 @@ public class WebLink {
     /**
      * Constructs an instance of the WebLink Object
      *
-     * @param name the name of the weblink
-     * @param url  the url of the weblink
+     * @param evidence The evidence that this weblink is associated with
+     * @param name     the name of the weblink
+     * @param url      the url of the weblink
      * @throws MalformedURLException when the url string is not valid. This Weblink is not allowed to be created.
      */
     public WebLink(Evidence evidence, String name, String url) throws MalformedURLException {
@@ -85,6 +86,11 @@ public class WebLink {
 
     public void setIsSecured(Boolean isSecured) {
         this.isSecured = isSecured;
+    }
+
+
+    public Evidence getEvidence() {
+        return evidence;
     }
 
     /**
