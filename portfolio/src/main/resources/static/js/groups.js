@@ -102,12 +102,12 @@ function checkEditRights(group) {
 /**
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
- * @param groupId the id of the group to fetch
+ * @param selectedGroupId the id of the group to fetch
  */
-function displayGroupUsersList(groupId) {
+function displayGroupUsersList() {
     let membersContainer = $("#groupTableBody")
     $.ajax({
-        url: `group?groupId=${groupId}`,
+        url: `group?groupId=${selectedGroupId}`,
         type: "GET",
         success: (response) => {
             $("#groupTableBody").empty();
@@ -142,6 +142,43 @@ function displayGroupUsersList(groupId) {
         error: (error) => {
             createAlert(error.responseText, true)
         }
+    })
+}
+
+
+function displayGroupRepoInformation () {
+    let repoInformationContainer = $("#gitRepo")
+    $.ajax({
+        url: `getRepo?groupId=${selectedGroupId}`,
+        type: "GET",
+        success: (response) => {
+            if (response.length === 0){
+                repoInformationContainer.empty();
+                repoInformationContainer.append(`
+                    <h3 id="groupSettingsPageRepoName">No Repository</h3>`
+                )
+            }
+            else {
+                let repo = response[0];
+                repoInformationContainer.empty();
+                repoInformationContainer.append(`
+                        <h3 id="the-group-settings-page-repo-name">${repo.alias}</h3>
+                             <div class="row margin-sides-1">
+                                <div class="inline-text col">
+                                    <p>Project Id:&nbsp;</p>
+                                    <p class="group-settings-page-projectId grey-text" >${repo.projectId}</p>
+                                </div>
+                                <div class="inline-text col">
+                                    <p>Access Token:&nbsp;</p>
+                                    <p class="group-settings-page-access_token grey-text" >${repo.accessToken}</p>
+                                </div>
+                             </div>`
+                )
+            }
+        },
+        error: (error) => {
+            console.log(error);
+        },
     })
 }
 
@@ -211,39 +248,7 @@ $(document).on("click", "#cancelRemoval", function () {
  * @param groupId the id of the group to fetch
  */
 $(document).on("click", "#pillsSettingsTab", function () {
-    let membersContainer = $("#gitRepo")
-    $.ajax({
-        url: `getRepo?groupId=${selectedGroupId}`,
-        type: "GET",
-        success: (response) => {
-            if (response.length === 0){
-                membersContainer.empty();
-                membersContainer.append(`
-                    <h3 id="groupSettingsPageRepoName">No Repository</h3>`
-                )
-            }
-            else {
-                let repo = response[0];
-                membersContainer.empty();
-                membersContainer.append(`
-                        <h3 id="the-group-settings-page-repo-name">${repo.alias}</h3>
-                             <div class="row margin-sides-1">
-                                <div class="inline-text col">
-                                    <p>Project Id:&nbsp;</p>
-                                    <p class="group-settings-page-projectId grey-text" >${repo.projectId}</p>
-                                </div>
-                                <div class="inline-text col">
-                                    <p>Access Token:&nbsp;</p>
-                                    <p class="group-settings-page-access_token grey-text" >${repo.accessToken}</p>
-                                </div>
-                             </div>`
-                )
-            }
-        },
-        error: (error) => {
-
-        },
-    })
+    displayGroupRepoInformation()
 })
 
 
@@ -259,9 +264,11 @@ $(document).on("click", ".group", function () {
 
     newFocusOnGroup.addClass("focusOnGroup")
     let groupId = newFocusOnGroup.find(".groupId").text();
+    selectedGroupId = groupId
 
     $("#selectAllCheckboxGroups").prop("checked", false);
-    displayGroupUsersList(groupId)
+    displayGroupUsersList()
+    displayGroupRepoInformation()
     $("#confirmationForm").slideUp();
 })
 
