@@ -25,7 +25,7 @@ $(document).ready(function () {
         $(".evidenceDeleteButton").hide()
         $(".createEvidenceButton").hide();
     }
-
+    resetWeblink()
     getAndAddEvidencePreviews()
     let textInput = $(".text-input");
     textInput.each(countCharacters)
@@ -180,6 +180,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
     } else {
+        resetWeblink()
         const title = $("#evidenceName").val()
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
@@ -206,6 +207,13 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
     }
 })
 
+
+/**
+ * If the new piece of evidence been canceled, reset the weblink count.
+ */
+$(document).on("click", "#evidenceCancelButton", function (event) {
+    resetWeblink()
+})
 
 /**
  * Listens for when add web link button is clicked.
