@@ -28,8 +28,6 @@ public class SecurityConfig {
     /**
      * Registers a SecurityFilterChain Bean to handle the Spring Configuration of the authentication process.
      *
-     * Changed 04/08/2022 due to deprecation of WebSecurityConfigurerAdapter
-     *
      * @return The registered SecurityFilterChain Bean with the security configuration.
      */
     @Bean
@@ -72,8 +70,6 @@ public class SecurityConfig {
 
     /**
      * Registers a WebSecurityCustomizer Bean to declared requests which ignore the web security.
-     *
-     * Changed 04/08/2022 due to deprecation of WebSecurityConfigurerAdapter
      *
      * @return The registered WebSecurityCustomizer Bean with the paths to ignore.
      */
