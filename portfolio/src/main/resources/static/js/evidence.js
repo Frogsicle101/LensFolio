@@ -1,7 +1,7 @@
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
 
-
+/** A regex only allowing modern English letters */
 const regExp = new RegExp('[A-Za-z]');
 
 /** The id of the piece of evidence being displayed. */
@@ -90,11 +90,44 @@ function getHighlightedEvidenceDetails() {
         url: "evidencePiece?evidenceId=" + selectedEvidenceId,
         success: function(response) {
             setHighlightEvidenceAttributes(response)
+            getHighlightedEvidenceWeblinks()
         },
         error: function () {
             createAlert("Failed to receive active evidence", true)
         }
     })
+}
+
+
+/**
+ * Makes a request to the backend to retrieve all the web links for a piece of evidence. If the request is successful,
+ * a function is called to add the web links to the document.
+ */
+function getHighlightedEvidenceWeblinks() {
+     $.ajax({
+         url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId,
+         success: function (response) {
+             setHighlightedEvidenceWebLinks(response)
+         },
+         error: function (response) {
+             if (response.status !== 404) {
+                 createAlert("Failed to receive evidence links", true)
+             }
+         }
+     })
+}
+
+
+/**
+ * Adds the web links from the given request to the document.
+ *
+ * @param response The response from the backend, which contains the web links for a piece of evidence.
+ */
+function setHighlightedEvidenceWebLinks(response) {
+    let webLinksDiv = $("#evidenceWebLinks")
+    for (let webLink in response) {
+        webLinksDiv.append(null) // TODO use the web link formatting code here
+    }
 }
 
 
@@ -134,7 +167,6 @@ $(document).on("click", ".evidenceListItem", function() {
 
     showHighlightedEvidenceDetails()
 })
-
 
 
 /**
@@ -188,7 +220,6 @@ $(document).on('click', '.addWebLinkButton', function () {
         button.removeClass("btn-primary")
         button.addClass("btn-secondary")
         submitWebLink()
-        //TODO: Add the code for submitting the webF link here
     } else {
         button.text("Save Web Link")
         button.addClass("toggled")
@@ -198,13 +229,14 @@ $(document).on('click', '.addWebLinkButton', function () {
 })
 
 
+
 // --------------------------- Functional HTML Components ------------------------------------
 
 
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
- * @param evidenceDetails
+ * @param evidenceDetails The title, date, and description for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
@@ -286,6 +318,9 @@ function submitWebLink() {
 }
 
 
+/**
+ * Clears all fields (except the date field) in the "Add Evidence" form.
+ */
 function clearAddEvidenceModalValues() {
     $("#evidenceName").val("")
     $("#evidenceDescription").val("")
@@ -309,6 +344,10 @@ function disableEnableSaveButtonOnValidity() {
     }
 }
 
+
+/**
+ * Checks that the name and description of a piece of evidence match the required regex.
+ */
 function checkTextInputRegex() {
     let name = $("#evidenceName")
     let description = $("#evidenceDescription")
