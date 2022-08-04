@@ -262,16 +262,16 @@ function checkEditRights(group) {
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
  */
-function displayGroupUsersList() {
+function displayGroupUsersList(groupId) {
     let membersContainer = $("#groupTableBody")
     $.ajax({
-        url: `group?groupId=${selectedGroupId}`,
+        url: `group?groupId=${groupId}`,
         type: "GET",
         success: (response) => {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
-            selectedGroupId = response.id;
+            $(this).closest(".group").addClass("focusOnGroup");
             group = response;
             for (let member in response.userList) {
                 let imageSource;
@@ -324,15 +324,17 @@ function displayGroupRepoInformation () {
                              <div class="row margin-sides-1">
                                 <div class="inline-text col">
                                     <p>Project Id:&nbsp;</p>
-                                    <p class="group-settings-page-projectId grey-text" >${repo.projectId}</p>
+                                    <p class="groupSettingsPageProjectId greyText" >${repo.projectId}</p>
                                 </div>
                                 <div class="inline-text col">
                                     <p>Access Token:&nbsp;</p>
-                                    <p class="group-settings-page-access_token grey-text" >${repo.accessToken}</p>
+                                    <p class="groupSettingsPageAccessToken greyText" >${repo.accessToken}</p>
                                 </div>
                              </div>`
                 )
+                getRepoCommits();
             }
+
         },
         error: (error) => {
             console.log(error);
@@ -367,6 +369,42 @@ $(document).on("click", ".deleteButton", function () {
         })
     }
 })
+
+
+function getRepoCommits() {
+    const repoID = $(".groupSettingsPageProjectId").text()
+    const accessToken = $(".groupSettingsPageAccessToken").text();
+    getCommits(repoID, accessToken, (data) => {
+
+        const firstThree = data.slice(0, 3);
+
+        const commitContainer = $("#groupSettingsCommitContainer");
+        commitContainer.empty();
+        for (let commit of firstThree) {
+            let commitText =
+                `<div class="gitCommitInfo">
+                <div class="row">
+                    <div class="inlineText">
+                        <p>Commit:&nbsp;</p>
+                        <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <p>${sanitise(commit.message)}</p>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p class="greyText">${sanitise(commit.author_name)}</p>
+                    </div>
+                    <div class="col commitDate">
+                        <p class="greyText">${commit.committed_date.split("T")[0]}</p>
+                    </div>
+                </div>
+            </div>`
+            commitContainer.append(commitText)
+        }
+    })
+}
 
 
 /**
@@ -412,31 +450,10 @@ $(document).on("click", "#pillsSettingsTab", function () {
 // ******************************* Click listeners *******************************
 
 
-/**
- * Ajax post request to the server for moving users from one group to another
- */
-$(document).on("click", "#moveUsersButton", function () {
-    let arrayOfIds = [];
-    $(".selected").each(function () {
-        arrayOfIds.push($(this).attr("userId"))
-    })
-    $.ajax({
-        url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
-        type: "post",
-        success: function (event) {
-            displayGroupUsersList(selectedGroupId)
-            createAlert(event, false)
-        },
-        error: function () {
-            createAlert("Error moving users", true)
-        }
-    })
-})
-
-
 $(document).on("click", "#moveUsersButton", function () {
     addUsers($("#newGroupSelector").val())
 })
+
 
 /**
  * selects every single user in the group when the button is clicked.
@@ -455,45 +472,31 @@ $(document).on("click", "#selectAllCheckboxGroups", function () {
 
 
 /**
- * Handles retrieving recent commits from the specified gitlab repo.
+ * When group div is clicked, the members for that group are retrieved.
  */
-$(document).on("click", "#pillsSettingsTab", function () {
-    const repoID = $(".groupSettingsPageProjectId").text()
-    const accessToken = $(".groupSettingsPageAccessToken").text();
-    getCommits(repoID, accessToken, (data) => {
+$(document).on("click", ".group", function () {
+    $(".group").removeClass("focusOnGroup")
+    let groupId = $(this).closest(".group").find(".groupId").text();
+    selectedGroupId = groupId;
+    let groupShortname = $(this).closest(".group").find(".groupShortName").text();
+    $("#selectAllCheckboxGroups").prop("checked", false);
+    displayGroupUsersList(groupId);
+    displayGroupRepoInformation()
 
-        const firstThree = data.slice(0, 3);
+    //$(this).closest(".group").addClass("focusOnGroup")
 
-        const commitContainer = $("#groupSettingsCommitContainer");
-        commitContainer.empty();
-        for (let commit of firstThree) {
-            let commitText =
-                `<div class="gitCommitInfo">
-                <div class="row">
-                    <div class="inlineText">
-                        <p>Commit:&nbsp;</p>
-                        <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
-                    </div>
-                </div>
-                <div class="row">
-                    <p>${sanitise(commit.message)}</p>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <p class="greyText">${sanitise(commit.author_name)}</p>
-                    </div>
-                    <div class="col commitDate">
-                        <p class="greyText">${commit.committed_date.split("T")[0]}</p>
-                    </div>
-                </div>
-            </div>`
-            commitContainer.append(commitText)
-        }
-
-
-
-
-    });
+    if (groupShortname === "Teachers") { // teacher group
+        $("#groupRemoveUser").show();
+        $(".controlButtons").hide();
+    } else if (groupShortname === "Non-Group") { // non-group group
+        $("#groupRemoveUser").hide();
+        $(".controlButtons").hide();
+    } else {
+        $("#groupRemoveUser").show();
+        $(".controlButtons").show();
+    }
+    $("#confirmationForm").slideUp();
+    $(this).closest(".group").addClass("focusOnGroup");
 })
 
 // ******************************* Keydown listeners *******************************

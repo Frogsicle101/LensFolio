@@ -71,13 +71,13 @@ public class TestGroupData {
      */
     public void addUsersToTestGroups() {
         ArrayList<User> groupThreeMembers = new ArrayList<>();
-        groupThreeMembers.add(userRepository.findById(3));
-        groupThreeMembers.add(userRepository.findById(4));
-        groupThreeMembers.add(userRepository.findById(5));
+        groupThreeMembers.add(userRepository.findByUsername("steve"));
+        groupThreeMembers.add(userRepository.findByUsername("Robert.abe1989"));
+        groupThreeMembers.add(userRepository.findByUsername("finagle"));
 
         ArrayList<User> groupFourMembers = new ArrayList<>();
-        groupFourMembers.add(userRepository.findById(5));
-        groupFourMembers.add(userRepository.findById(6));
+        groupFourMembers.add(userRepository.findByUsername("Walter.harber"));
+        groupFourMembers.add(userRepository.findByUsername("RonnieNick"));
 
         Optional<Group> optionalGroup3 = groupRepository.findByShortName("Team 100");
         if (optionalGroup3.isPresent()){
