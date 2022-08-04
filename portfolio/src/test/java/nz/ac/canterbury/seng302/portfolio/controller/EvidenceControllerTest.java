@@ -3,6 +3,8 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.evidence.WebLink;
+import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
@@ -29,10 +31,10 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -62,6 +64,9 @@ class EvidenceControllerTest {
 
     @MockBean
     EvidenceRepository evidenceRepository;
+
+    @MockBean
+    WebLinkRepository webLinkRepository;
 
     @MockBean
     ProjectRepository projectRepository;
@@ -459,6 +464,84 @@ class EvidenceControllerTest {
 
         mockMvc.perform(get("/evidenceData"))
                 .andExpect(status().isBadRequest());
+    }
+
+
+    // -------------- WebLink Tests ---------------------------------------------------------------
+
+
+    @Test
+    void TestGetSingleWebLinkValidId() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        int evidenceId = 1;
+        Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
+        WebLink testLink = new WebLink(evidence1, "test link", "https://www.canterbury.ac.nz/");
+        evidence1.addWebLink(testLink);
+        when(evidenceRepository.findById(any())).thenReturn(Optional.of(evidence1));
+
+        MvcResult result = mockMvc.perform(get("/evidencePieceWebLinks")
+                        .queryParam("evidenceId", String.valueOf(evidenceId)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String expectedResult = "[" + testLink.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResult, responseContent);
+    }
+
+
+    @Test
+    void TestGetSingleWebLinkInvalidId() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        int evidenceId = 1;
+        Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
+        WebLink testLink = new WebLink(evidence1, "test link", "https://www.canterbury.ac.nz/");
+        evidence1.addWebLink(testLink);
+        when(evidenceRepository.findById(evidenceId)).thenReturn(Optional.of(evidence1));
+
+        mockMvc.perform(get("/evidencePieceWebLinks")
+                        .queryParam("evidenceId", "Invalid ID"))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void TestGetSingleWebLinkNoEvidence() throws Exception {
+        setUserToStudent();
+        setUpContext();
+
+        MvcResult result = mockMvc.perform(get("/evidencePieceWebLinks")
+                        .queryParam("evidenceId", "1"))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+
+    @Test
+    void TestGetMultipleWebLinkValidId() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        int evidenceId = 1;
+        Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
+        WebLink testLink1 = new WebLink(evidence1, "test link 1", "https://www.canterbury.ac.nz/");
+        WebLink testLink2 = new WebLink(evidence1, "test link 2", "https://www.canterbury.ac.nz/");
+        WebLink testLink3 = new WebLink(evidence1, "test link 3", "https://www.canterbury.ac.nz/");
+        evidence1.addWebLink(testLink1);
+        evidence1.addWebLink(testLink2);
+        evidence1.addWebLink(testLink3);
+        when(evidenceRepository.findById(any())).thenReturn(Optional.of(evidence1));
+
+        MvcResult result = mockMvc.perform(get("/evidencePieceWebLinks")
+                        .queryParam("evidenceId", String.valueOf(evidenceId)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String expectedResult = "[" + testLink1.toJsonString() + "," + testLink2.toJsonString() + ","
+                + testLink3.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResult, responseContent);
     }
 
 
