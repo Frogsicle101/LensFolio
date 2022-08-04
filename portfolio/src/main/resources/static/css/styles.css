@@ -912,16 +912,35 @@ section {
 .addWebLinkButton {
     margin-right: 1.5rem;
     max-width: fit-content;
-    align-self: flex-end;
+    align-self: self-end;
     margin-top: 1rem;
 }
 
 .weblink-form {
     padding-right: 1.5rem;
     align-self: flex-end;
-    width: 60%
 }
 
-#webLinkName{
+#webLinkName {
     margin-top: 0.5rem
+}
+
+#webLinkTitle {
+    padding-left: 1.5rem;
+    padding-top: .5rem;
+}
+
+.addedWebLinkName {
+    padding-left: 2rem;
+    padding-right: 1.5rem;
+    flex-direction: column;
+    width: inherit;
+}
+
+#addedWebLinks {
+    width: fit-content;
+}
+
+.webLinkTooltip.tooltip-arrow {
+    padding-left: 2rem;
 }

@@ -270,10 +270,12 @@ function submitWebLink() {
     let alias = $("#webLinkName").val()
     let address = $("#webLinkAddress").val()
     let addedWebLinks = $("#addedWebLinks")
+    let webLinkTitle = $("#webLinkTitle")
 
+    webLinkTitle.show()
     addedWebLinks.append(
         ` <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top"
-               data-bs-title="${address}">${alias}
+               data-bs-title="${address}" data-bs-custom-class="webLinkTooltip">${alias}
           </div>`
     )
 

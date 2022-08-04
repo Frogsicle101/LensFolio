@@ -93,23 +93,29 @@
                                           required></textarea>
                                 <small class="form-text text-muted countCharDescription">0 characters remaining</small>
                             </div>
-                        <div id="addedWebLinks">
-                                <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="test url">Test Link</div>
-                        </div>
-                        <div class="weblink-form" style="display:none">
-                            <div class="form-group ">
-                                <label for="webLinkAddress" class="col-form-label">Link:</label>
-                                <input type="text" class="form-control" id="webLinkAddress" placeholder="Link Address">
+                        <div class="row">
+                            <div class="col">
+                                <h6 id="webLinkTitle" style="display: none">Added Links:</h6>
+                                <div id="addedWebLinks"></div>
                             </div>
-                            <div class="form-group ">
-                                <input type="text" class="form-control" id="webLinkName" placeholder="Link Name">
+                            <div class="col">
+                                <div class="weblink-form" style="display:none">
+                                    <div class="form-group ">
+                                        <label for="webLinkAddress" class="col-form-label">Link:</label>
+                                        <input type="text" class="form-control" id="webLinkAddress" placeholder="Link Address">
+                                    </div>
+                                    <div class="form-group ">
+                                        <input type="text" class="form-control" id="webLinkName" placeholder="Link Name">
+                                    </div>
+                                </div>
+                                <button id="addWebLinkButton"
+                                        type="button"
+                                        class="btn btn-secondary addWebLinkButton">
+                                    Add Web Link
+                                </button>
                             </div>
+
                         </div>
-                        <button id="addWebLinkButton"
-                                type="button"
-                                class="btn btn-secondary addWebLinkButton">
-                            Add web Link
-                        </button>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
