@@ -101,6 +101,7 @@ public class NotificationService {
             removeOutgoingNotification(notification);
             removedNotifications.add(notification);
         }
+        logger.info("Removed {} notifications from existing notifications.", removedNotifications.size());
         return removedNotifications;
     }
 

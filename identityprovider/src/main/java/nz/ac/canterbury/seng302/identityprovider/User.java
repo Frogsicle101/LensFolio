@@ -23,6 +23,7 @@ import java.util.Locale;
  * contract.
  */
 @Entity
+@Table(name = "user_table")
 public class User {
 
     @Id

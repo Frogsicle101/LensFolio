@@ -3,21 +3,181 @@ let shiftDown = false;
 let selectedGroupId;
 let lastSelectedRow;
 let group;
-
+let notCtrlClick = true;
 const TEACHER_GROUP_ID = 1
 const MWAG_GROUP_ID = 2
 
+
+$(document).ready(function () {
+    let arrayOfSelected = []
+
+    /**
+     * JQuery UI Selectable interaction
+     * https://api.jqueryui.com/selectable/
+     */
+    $("table > tbody").selectable({ //
+
+        // Don't allow individual table cell selection.
+        filter: ":not(td)",
+
+        /**
+         * Runs a function over every selected element
+         * @param e event
+         * @param ui the selectable item that has been selected
+         */
+        selected: function (e, ui) {
+            let currentlySelected = $(ui.selected)
+            notCtrlClick = !e.ctrlKey
+            if (shiftDown) { // Checks if the shift key is currently pressed
+                notCtrlClick = false
+                if (parseInt(currentlySelected.attr("userId")) > parseInt(lastSelectedRow.attr("userId"))) {
+                    currentlySelected.prevUntil(lastSelectedRow).each(function () {
+                        $(this).addClass("selected")
+                        arrayOfSelected.push($(this))
+                    })
+
+                } else if (currentlySelected.attr("userId") < parseInt(lastSelectedRow.attr("userId"))) {
+                    currentlySelected.nextUntil(lastSelectedRow).each(function () {
+                        $(this).addClass("selected")
+                        arrayOfSelected.push($(this))
+                    })
+
+                }
+                lastSelectedRow.addClass("selected")
+                currentlySelected.addClass("selected");
+                arrayOfSelected.push(lastSelectedRow)
+                arrayOfSelected.push(currentlySelected)
+            } else {
+                arrayOfSelected.push(ui)
+            }
+            lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
+        },
+
+        /**
+         * Triggered at the end of the select operation.
+         */
+        stop: function () {
+            if (arrayOfSelected.length === 1) {
+                if ($(arrayOfSelected[0].selected).hasClass("selected")) {
+                    $(arrayOfSelected[0].selected).removeClass("selected")
+                } else {
+                    $(arrayOfSelected[0].selected).addClass("selected")
+                }
+            }
+            if (notCtrlClick) {
+                $(".selected").removeClass("selected")
+                lastSelectedRow.addClass("selected")
+            }
+            $(".userRow").each(function () {
+                if (!$(this).hasClass("selected") && $(this).hasClass("ui-draggable")) {
+                    try {
+                        $(this).draggable("destroy")
+                    } catch (err) {
+                    }
+                }
+            })
+            arrayOfSelected = []
+            checkToSeeIfHideOrShowOptions()
+            addDraggable()
+        },
+
+        /**
+         * Triggered at the end of the select operation, on each element removed from the selection.
+         * @param e event
+         * @param ui The selectable item that has been unselected.
+         */
+        unselected: function (e, ui) {
+            if (notCtrlClick) {
+                $(ui.unselected).removeClass("selected");
+            }
+            checkToSeeIfHideOrShowOptions()
+        }
+    });
+
+
+    let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
+    for (let i = 0; i < listOfGroupDivs.length; i++) { // Loops over each div
+        /**
+         * Adds the droppable pluggin to each element that it loops over
+         * https://api.jqueryui.com/droppable/
+         */
+        $(listOfGroupDivs[i]).droppable({
+            /**
+             * Triggered when an accepted draggable is dragged over the droppable (based on the tolerance option).
+             * https://api.jqueryui.com/droppable/#event-over
+             */
+            over: function () {
+                $(this).effect("shake")
+                //https://api.jqueryui.com/category/effects/
+            },
+
+            /**
+             * Triggered when an accepted draggable is dropped on the droppable (based on the tolerance option).
+             * https://api.jqueryui.com/droppable/#event-drop
+             */
+            drop: function () {
+                addUsers($(this).attr("id"))
+            }
+        })
+    }
+
+
+})
+
 // ******************************* Functions *******************************
+
+
+/**
+ * Makes the selected elements able to  be draggable with the mouse
+ * https://api.jqueryui.com/draggable/
+ */
+function addDraggable() {
+    $(".selected").draggable({
+        helper: function () {
+            let helper = $("<table class='table colourForDrag'/>")
+            return helper.append($(".selected").clone())
+        },
+        revert: true,
+    })
+}
+
+/**
+ * Ajax post request to the server for moving users from one group to another
+ */
+function addUsers(groupId) {
+    let arrayOfIds = [];
+    let selected = $(".selected")
+    selected.each(function () {
+        arrayOfIds.push($(this).attr("userId"))
+    })
+    arrayOfIds = Array.from(new Set(arrayOfIds))
+    selected.removeClass("selected")
+    $.ajax({
+        url: `/groups/addUsers?groupId=${groupId}&userIds=${arrayOfIds}`,
+        type: "post",
+        success: function () {
+            displayGroupUsersList(selectedGroupId)
+            createAlert("User(s) moved", false)
+        },
+        error: function (response) {
+            console.log(response)
+        }
+    })
+}
+
 
 /**
  * Displays the options for what to do with selected users.
  * @param show a boolean of if to show or hide
  */
 function showOptions(show) {
-    if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
-        $("#groupDisplayOptions").slideDown()
-    } else {
-        $("#groupDisplayOptions").slideUp()
+    if ($("#groupDisplayOptions").is(':hidden')) {
+        if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
+            $("#groupDisplayOptions").slideDown()
+        } else {
+            $("#groupDisplayOptions").slideUp()
+        }
+
     }
     $(".numSelected").text($(".selected").length + " Selected")
 }
@@ -88,10 +248,9 @@ function checkEditRights(group) {
 
     // only show settings page if the active page is not MWAG or Teachers & if the user has read access
     // i.e., the user is an admin, teacher or member of the group.
-    if (groupId !== MWAG_GROUP_ID  &&
+    if (groupId !== MWAG_GROUP_ID &&
         groupId !== TEACHER_GROUP_ID &&
-        (checkPrivilege() || group.userList.some(member => member.id === userIdent)))
-    {
+        (checkPrivilege() || group.userList.some(member => member.id === userIdent))) {
         groupSettingsTab.show()
     } else {
         changeToUsersTab()
@@ -102,7 +261,6 @@ function checkEditRights(group) {
 /**
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
- * @param selectedGroupId the id of the group to fetch
  */
 function displayGroupUsersList() {
     let membersContainer = $("#groupTableBody")
@@ -211,13 +369,12 @@ $(document).on("click", ".deleteButton", function () {
 })
 
 
-
 /**
  * When member removal is confirmed, a request is made to remove the selected users from the group.
  */
 $(document).on("click", "#confirmRemoval", function () {
     let arrayOfIds = [];
-    $(".selected").each(function() {
+    $(".selected").each(function () {
         arrayOfIds.push($(this).attr("userId"))
     })
     $.ajax({
@@ -256,48 +413,35 @@ $(document).on("click", "#pillsSettingsTab", function () {
 
 
 /**
- * When group div is clicked, the members for that group are retrieved.
- */
-$(document).on("click", ".group", function () {
-    $(".group").removeClass("focusOnGroup")
-    let newFocusOnGroup = $(this).closest(".group")
-
-    newFocusOnGroup.addClass("focusOnGroup")
-    let groupId = newFocusOnGroup.find(".groupId").text();
-    selectedGroupId = groupId
-
-    $("#selectAllCheckboxGroups").prop("checked", false);
-    displayGroupUsersList()
-    displayGroupRepoInformation()
-    $("#confirmationForm").slideUp();
-})
-
-
-/**
  * Ajax post request to the server for moving users from one group to another
  */
-$(document).on("click", "#moveUsersButton", function() {
+$(document).on("click", "#moveUsersButton", function () {
     let arrayOfIds = [];
-    $(".selected").each(function() {
+    $(".selected").each(function () {
         arrayOfIds.push($(this).attr("userId"))
     })
     $.ajax({
         url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
         type: "post",
-        success: function(event) {
+        success: function (event) {
             displayGroupUsersList(selectedGroupId)
             createAlert(event, false)
         },
-        error: function() {
+        error: function () {
             createAlert("Error moving users", true)
         }
     })
 })
 
+
+$(document).on("click", "#moveUsersButton", function () {
+    addUsers($("#newGroupSelector").val())
+})
+
 /**
  * selects every single user in the group when the button is clicked.
  */
-$(document).on("click", "#selectAllCheckboxGroups", function() {
+$(document).on("click", "#selectAllCheckboxGroups", function () {
     let isChecked = $("#selectAllCheckboxGroups").prop("checked")
     $(".selectUserCheckboxGroups").prop("checked", isChecked)
     if (isChecked) {
@@ -309,75 +453,80 @@ $(document).on("click", "#selectAllCheckboxGroups", function() {
 
 })
 
+
 /**
- * handles all the functionality for selecting users.
- * Allows for using shift+click and ctrl+click functionality.
+ * Handles retrieving recent commits from the specified gitlab repo.
  */
-$(document).on("click", ".userRow", function() {
+$(document).on("click", "#pillsSettingsTab", function () {
+    const repoID = $(".groupSettingsPageProjectId").text()
+    const accessToken = $(".groupSettingsPageAccessToken").text();
+    getCommits(repoID, accessToken, (data) => {
 
-    if (!controlDown && !shiftDown) {
-        $(".selected").each(function() {
-            $(this).removeClass("selected")
-            $(this).find("input[type=checkbox]").prop("checked", false)
-        })
-    }
-    if (shiftDown) {
-        let boundaries = []; // Boundaries in this case are the first user, and the last user, used to select everything between.
-        boundaries.push(lastSelectedRow)
-        boundaries.push($(this).attr("userId"));
-        boundaries[0] = parseInt(boundaries[0])
-        boundaries[1] = parseInt(boundaries[1])
-        boundaries = boundaries.sort()
-        $(".userRow").each(function() {
-            if ($(this).attr("userId") >= boundaries[0] && $(this).attr("userId") <= boundaries[1]) {
-                $(this).addClass("selected")
-                $(this).find("input[type=checkbox]").prop("checked", true)
-            }
-        })
-    } else {
-        if ($(this).hasClass("selected")) {
-            $(this).removeClass("selected")
-            $(this).find("input[type=checkbox]").prop("checked", false)
-        } else {
-            $(this).addClass("selected")
-            $(this).find("input[type=checkbox]").prop("checked", true)
+        const firstThree = data.slice(0, 3);
+
+        const commitContainer = $("#groupSettingsCommitContainer");
+        commitContainer.empty();
+        for (let commit of firstThree) {
+            let commitText =
+                `<div class="gitCommitInfo">
+                <div class="row">
+                    <div class="inlineText">
+                        <p>Commit:&nbsp;</p>
+                        <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <p>${sanitise(commit.message)}</p>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p class="greyText">${sanitise(commit.author_name)}</p>
+                    </div>
+                    <div class="col commitDate">
+                        <p class="greyText">${commit.committed_date.split("T")[0]}</p>
+                    </div>
+                </div>
+            </div>`
+            commitContainer.append(commitText)
         }
-    }
-    lastSelectedRow = $(this).attr("userId")
-    checkToSeeIfHideOrShowOptions()
 
+
+
+
+    });
 })
 
 // ******************************* Keydown listeners *******************************
 
-$(document).keydown(function(event) {
+$(document).keydown(function (event) {
     if (event.key === "Control") {
         controlDown = true;
     }
 })
 
-$(document).keyup(function(event) {
+$(document).keyup(function (event) {
     if (event.key === "Control") {
         controlDown = false;
     }
 })
 
 
-$(document).keydown(function(event) {
+$(document).keydown(function (event) {
     if (event.key === "Shift") {
         shiftDown = true;
     }
 })
 
-$(document).keyup(function(event) {
+$(document).keyup(function (event) {
     if (event.key === "Shift") {
         shiftDown = false;
     }
 })
 
+
 // ******************************* Change listeners *******************************
 
-$(document).on("change","input[type=checkbox]", function() {
+$(document).on("change", "input[type=checkbox]", function () {
     let tableRow = $(this).closest("tr")
     if (!tableRow.hasClass("tableHeader")) {
         $(this).closest("tr").toggleClass("selected")
