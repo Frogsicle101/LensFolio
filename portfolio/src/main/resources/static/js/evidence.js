@@ -272,16 +272,28 @@ function createEvidencePreview(evidence) {
 
 function validateWebLink() {
     let address = $("#webLinkAddress").val()
+    let alias = $("#webLinkName").val()
+    let form = $(".weblink-form")
     $.ajax({
         url: `validateWebLink?address=${address}`,
         type: "GET",
         success: () => {
-            submitWebLink()
-            webLinkButtonToggle()
+            //Do some title validation
+            if (alias.length === 0) {
+                $(".alert").alert('close') //Close any previous alerts
+                form.append(`
+                    <div class="alert alert-danger alert-dismissible show" role="alert">
+                      The name is empty!
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+            } else {
+                submitWebLink()
+                webLinkButtonToggle()
+            }
         },
         error: (error) => {
             $(".alert").alert('close') //Close any previous alerts
-            let form = $(".weblink-form")
             switch (error.status) {
                 case 400:
                     // The URL is invalid
