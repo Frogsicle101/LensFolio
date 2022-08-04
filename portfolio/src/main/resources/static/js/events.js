@@ -12,8 +12,6 @@ $(document).ready(function () {
 
     formControl.each(countCharacters)
     formControl.keyup(countCharacters) // Runs when key is pressed (well released) on form-control elements.
-
-    connect(); // Start the websocket connection
 })
 
 
@@ -1297,4 +1295,171 @@ function enableToolTips() {
     let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
+}
+
+
+//  ------------------------------- Handle the incoming websocket notifications ---------------------------------------
+
+
+/**
+ * Processes a create notification by adding boxes for that notification to the DOM
+ * @param notification The JSON object we receive (modeled by OutgoingNotification).
+ */
+function handleCreateEvent(notification) {
+    const occasionType = notification.occasionType;
+    const occasionId = notification.occasionId;
+    switch (occasionType) {
+        case 'event' :
+            addEvent(occasionId)
+            break
+        case 'milestone' :
+            addMilestone(occasionId)
+            break
+        case 'deadline' :
+            addDeadline(occasionId)
+            break
+        case "sprint" :
+            $(".sprintsContainer").empty()
+            getSprints()
+            break
+        default :
+            break
+    }
+}
+
+
+/**
+ * Helper function for handling an update event. Tells us to reload the element with the specific ID.
+ * Occasion types are handled in the reloading method, so we only need to provide it the ID
+ *
+ * @param notification The update notification, from which we extract the ID (and also the type for logging)
+ */
+function handleUpdateEvent(notification) {
+    const occasionType = notification.occasionType;
+    const occasionId = notification.occasionId;
+    switch (occasionType) {
+        case 'event' :
+            reloadElement(occasionId)
+            break
+        case 'milestone' :
+            reloadElement(occasionId)
+            break
+        case 'deadline' :
+            reloadElement(occasionId)
+            break
+        case "sprint" :
+            $(".sprintsContainer").empty()
+            getSprints()
+            break
+        default :
+            // Add debug log here
+            break
+    }
+}
+
+
+/**
+ * Processes a delete notification by removing the element from the DOM
+ *
+ * @param notification The JSON object we receive (modeled by OutgoingNotification).
+ */
+function handleDeleteEvent(notification) {
+    const occasionType = notification.occasionType;
+    const occasionId = notification.occasionId;
+
+    removeElement(occasionId) // removes specific event
+
+    removeClass()
+    //Now reload the elements, depending on what type of element was removed
+    switch (occasionType) {
+        case "event":
+            removeClass(`eventInSprint${occasionId}`);
+            break;
+        case "milestone":
+            removeClass(`milestoneInSprint${occasionId}`);
+            break;
+        case "deadline":
+            removeClass(`deadlineInSprint${occasionId}`);
+            break;
+        case "sprint" :
+            $(".sprintsContainer").empty()
+            getSprints()
+            break
+    }
+}
+
+
+/**
+ * Opens a dialog box at the top of the screen, and disables the edit buttons for the
+ * occasion that is being edited.
+ *
+ * @param notification The JSON object we receive (modeled by OutgoingNotification).
+ */
+function handleNotifyEvent(notification) {
+
+    const editorId = notification.editorId;
+    const editorName = notification.editorName;
+    const occasionId = notification.occasionId;
+
+    if (checkPrivilege()) {
+        let infoContainer = $("#informationBar");
+        let eventDiv = $("#" + occasionId)
+        let noticeSelector = $("#notice" + occasionId)
+
+        let eventName = eventDiv.find(".name").text();
+
+        if (!noticeSelector.length) {
+            let infoString = editorName + " is editing element: " + eventName
+            infoContainer.append(`<p class="infoMessage text-truncate noticeEditor${editorId}" id="notice${occasionId}"> ` + infoString + `</p>`)
+            eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
+            eventDiv.addClass("editor" + editorId)
+            if (eventDiv.hasClass("beingEdited")) {
+                eventDiv.find(".controlButtons").hide()
+            }
+            infoContainer.slideDown() // Show the notice.
+        }
+    }
+}
+
+
+/**
+ * Reverts all the changes made by handleNotifyEvent
+ * @param notification The JSON object we receive (modeled by OutgoingNotification).
+ */
+function handleStopEvent(notification) {
+
+    const occasionId = notification.occasionId;
+    const editorId = notification.editorId
+
+    if (checkPrivilege()) {
+
+        let elementDiv;
+        let notice;
+
+        if (occasionId === "*") { // A websocket disconnected, so we need to remove the element by the editorId
+            notice = $(".noticeEditor" + editorId);
+            elementDiv = $(".editor" + editorId);
+        } else {
+            elementDiv = $("#" + occasionId);
+            notice = $("#notice" + occasionId);
+        }
+
+        notice.remove();
+
+        elementDiv.removeClass("beingEdited")
+        elementDiv.removeClass("editor" + editorId);
+
+        if (!thisUserIsEditing) {
+            elementDiv.find(".controlButtons").show()
+        }
+
+        if (elementDiv.hasClass("beingEdited")) {
+            elementDiv.find(".controlButtons").hide()
+        }
+
+        let infoContainer = $("#informationBar");
+        if (isEmpty(infoContainer)) {
+            infoContainer.slideUp() // Hide the notice.
+        }
+    }
 }

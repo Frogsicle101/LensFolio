@@ -1,6 +1,11 @@
+/** The calendar so it can be accessed globally */
+let calendar;
+
+
 /**
  * Runs when a sprint is resized on the calendar, sends a message (error or success) and then sets the handles of the
  * sprints
+ *
  * @param info - the fullcalendar event information being sent to the function
  */
 function eventResize(info) {
@@ -55,6 +60,7 @@ function eventResize(info) {
  * runs when a sprint has finished resizing. Runs before the eventResize function above. This is used to fix the colours
  * when the sprint is not actually changed as the eventResize only runs if the dates change, thus causing the colours to
  * revert on the selected sprint
+ *
  * @param info - the fullcalendar event information being sent to the function
  */
 function eventResizeStop(info) {
@@ -66,6 +72,7 @@ function eventResizeStop(info) {
 
 /**
  * Function to handle event selection when clicked. Called by Full Calendar eventClick property.
+ *
  * @param info object supplied by FullCalendar contains various relevant properties
  */
 function eventClick(info) {
@@ -138,7 +145,7 @@ $(document).ready(function () {
      * Calendar functionality
      * https://fullcalendar.io/docs
      */
-    let calendar = new FullCalendar.Calendar(calendarEl, {
+    calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         eventDurationEditable: false,
         eventResizableFromStart: true,
@@ -236,75 +243,43 @@ $(document).ready(function () {
 
 
     calendar.render();
-
-
-// -------------------------------------- Notification Source and listeners --------------------------------------------
-
-
-    /**
-     * Connects via websockets to the server, listening to all messages from /notifications/sending/occasions
-     * and designates handleNotification to run whenever we get a message
-     */
-    function connect() {
-
-        stompClient = new StompJs.Client();
-        stompClient.configure({
-            brokerURL: `ws://${window.location.hostname}:${window.location.port}/websocket`,
-            reconnectDelay: 5000,
-            debug: function (str) {
-                console.log(str);
-            },
-            heartbeatIncoming: 4000,
-            heartbeatOutgoing: 4000,
-            onStompError: function (frame) {
-                console.log('Broker reported error: ' + frame.headers['message']);
-                console.log('Additional details: ' + frame.body);
-            },
-            connectionTimeout: 1000
-        });
-
-        stompClient.onConnect = (frame) => {
-            console.log('Connected: ' + frame);
-            stompClient.subscribe('notifications/sending/occasions', handleCalendarNotification);
-        }
-
-        stompClient.activate();
-    }
-
-    /**
-     * Whenever we receive a message from the /notifications/sending/occasions, this function will run.
-     * This takes the notification, checks what type it is, then calls the relevant helper function
-     * to handle that notification.
-     *
-     * @param notification The notification to handle. (modeled by OutgoingNotification)
-     */
-    function handleCalendarNotification(notification) {
-        const content = JSON.parse(notification.body);
-        for (let message of content) {
-            const action = message.action;
-
-            switch (action) {
-                case 'create' :
-                    calendar.refetchEvents();
-                    break;
-                case 'update' :
-                    calendar.refetchEvents();
-                    break;
-                case 'delete' :
-                    calendar.refetchEvents();
-                    break;
-                case 'edit' :
-                    // Do nothing, we don't handle edit
-                    break;
-                case 'stop' :
-                    // Do nothing, we don't handle edit
-                    break;
-                default :
-                    // Do nothing, unknown message format
-                    break;
-            }
-        }
-    }
-
-    connect(); // Start the websocket connection
 })
+
+
+// ---------------------------------------------- Notification Handlers ------------------------------------------------
+
+
+/**
+ * Implements the handleCreateEvent function defined in notifications.js.
+ *
+ * In this case the handling of create events refetchs the calendar events.
+ *
+ * @param message - unused but required to match function definition.
+ */
+function handleCreateEvent (message) {
+    calendar.refetchEvents();
+}
+
+
+/**
+ * Implements the handleUpdateEvent function defined in notifications.js.
+ *
+ * In this case the handling of update events refetchs the calendar events.
+ *
+ * @param message - unused but required to match function definition.
+ */
+function handleUpdateEvent (message) {
+    calendar.refetchEvents();
+}
+
+
+/**
+ * Implements the handleDeleteEvent function defined in notifications.js.
+ *
+ * In this case the handling of delete events refetchs the calendar events.
+ *
+ * @param message - unused but required to match function definition.
+ */
+function handleDeleteEvent (message) {
+    calendar.refetchEvents();
+}
