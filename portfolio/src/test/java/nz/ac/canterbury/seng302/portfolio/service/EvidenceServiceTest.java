@@ -36,8 +36,8 @@ class EvidenceServiceTest {
     void setUp() {
         evidenceService = new EvidenceService(userAccountsClientService, projectRepository, evidenceRepository);
         when(userAccountsClientService.getUserAccountById(any())).thenReturn(UserResponse.newBuilder().setId(1).build());
-
     }
+    
     @Test
     void addEvidence() throws MalformedURLException {
         setUserToStudent();

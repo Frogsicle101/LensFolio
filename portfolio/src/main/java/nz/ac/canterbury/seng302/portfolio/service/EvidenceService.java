@@ -73,14 +73,13 @@ public class EvidenceService {
         } else if (type == StringType.DESCRIPTION && string.length() > 500){
             throw new CheckException("Description cannot be more than 500 characters");
         }
-
     }
 
 
     /**
      * Checks if the evidence date is within the project dates.
      * Also checks that the date isn't in the future
-     * Throws a checkException if it's not.
+     * Throws a checkException if it's not valid.
      *
      * @param project      the project to check dates for.
      * @param evidenceDate the date of the evidence
@@ -95,6 +94,7 @@ public class EvidenceService {
             throw new CheckException("Date is in the future");
         }
     }
+
 
     /**
      * Creates a new evidence object and saves it to the repository. Adds any weblink objects to the evidence object

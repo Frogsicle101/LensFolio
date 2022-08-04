@@ -41,7 +41,7 @@ public class EvidenceController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    /** The repository containing users pieces of evidence. */
+    /** The repository containing users' pieces of evidence. */
     @Autowired
     private EvidenceRepository evidenceRepository;
 

@@ -49,7 +49,6 @@ class EvidenceControllerTest {
 
     private Authentication principal;
 
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -80,7 +79,6 @@ class EvidenceControllerTest {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-
     }
 
     @Test
@@ -288,7 +286,6 @@ class EvidenceControllerTest {
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isOk());
-
     }
 
 
@@ -345,7 +342,6 @@ class EvidenceControllerTest {
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
-
     }
 
     @Test

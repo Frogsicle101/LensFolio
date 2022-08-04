@@ -96,6 +96,7 @@ public class Evidence {
 
     /**
      * Verifies that the title is less than 500 characters, and sets the property if so.
+     *
      * @param title The title to be checked and set.
      */
     public void setTitle(String title) {
@@ -132,6 +133,7 @@ public class Evidence {
 
     /**
      * Verifies that the description is less than 500 characters, and sets the property if so.
+     *
      * @param description The description to be checked and set.
      */
     public void setDescription(String description) {
