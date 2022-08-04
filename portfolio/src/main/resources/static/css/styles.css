@@ -894,13 +894,13 @@ section {
     justify-content: flex-end;
 }
 
-.evidenceFormName, .evidenceFormDate {
+.evidenceFormName, .evidenceFormDate ,.evidenceFormDescription {
     padding-bottom: 1.5rem;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
 
-.evidenceFormDescription{
+.evidenceFormSkills{
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
@@ -939,11 +939,18 @@ section {
     padding-top: .5rem;
 }
 
-.addedWebLinkName {
+.webLinkElement {
+    display: flex;
+    flex-direction: row;
     padding-left: 2rem;
     padding-right: 1.5rem;
-    flex-direction: column;
     width: inherit;
+}
+
+.lockIcon {
+    align-self: center;
+    margin-bottom: 0.1rem;
+    margin-right: 0.5rem;
 }
 
 #addedWebLinks {
