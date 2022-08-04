@@ -88,13 +88,6 @@ public class WebLink {
         this.isSecured = isSecured;
     }
 
-    public Boolean getSecured() {
-        return isSecured;
-    }
-
-    public void setSecured(Boolean secured) {
-        isSecured = secured;
-    }
 
     public Evidence getEvidence() {
         return evidence;
