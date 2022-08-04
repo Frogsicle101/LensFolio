@@ -7,6 +7,8 @@ const regExp = new RegExp('[A-Za-z]');
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
+let webLinksCount = 0;
+
 
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
@@ -28,6 +30,8 @@ $(document).ready(function () {
     let textInput = $(".text-input");
     textInput.each(countCharacters)
     textInput.keyup(countCharacters)
+
+    resetWeblink()
 })
 
 
@@ -112,6 +116,36 @@ function addEvidencePreviews(response) {
     }
 }
 
+/**
+ * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
+ */
+function checkWeblinkCount() {
+    let addWeblinkButton = $("#addWebLinkButton")
+    let weblinkFullTab = $("#webLinkFull")
+
+    console.log("chenck the links number :")
+    console.log(webLinksCount)
+
+    if (webLinksCount > 9){
+        addWeblinkButton.hide()
+        weblinkFullTab.show()
+    }else{
+        addWeblinkButton.show()
+        weblinkFullTab.hide()
+    }
+}
+
+/**
+ * reset the weblinks count
+ */
+function resetWeblink() {
+    let addWeblinkButton = $("#addWebLinkButton")
+    let weblinkFullTab = $("#webLinkFull")
+
+    addWeblinkButton.show()
+    weblinkFullTab.hide()
+    webLinksCount = 0
+}
 
 // --------------------------------- Click listeners -----------------------------------------
 
@@ -271,12 +305,12 @@ function submitWebLink() {
     let address = $("#webLinkAddress").val()
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
-
     webLinkTitle.show()
     addedWebLinks.append(
         webLinkElement(address, alias)
     )
-
+    webLinksCount += 1
+    checkWeblinkCount()
     $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
 }
 
