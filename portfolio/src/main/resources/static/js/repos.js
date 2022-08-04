@@ -9,6 +9,7 @@ function cancelRepoEdit() {
     });
 }
 
+
 /**
  * Event listener for clicking the edit repo button. Opens a form.
  */
@@ -41,10 +42,12 @@ $(document).on("click", ".editRepo", () => {
     parent.slideDown();
 })
 
+
 /**
- * Event listener for the cancel button on the form.
+ * Event listener for the cancel button on the git repo edit form.
  */
 $(document).on("click", ".cancelRepoEdit", cancelRepoEdit);
+
 
 /**
  * Detects any click outside the group settings page and closes the form.
@@ -56,8 +59,9 @@ $(document).click(function(event) {
     }
 })
 
+
 /**
- * Evemt listener for the submit button
+ * Event listener for the submit button
  */
 $(document).on("submit", "#editRepoForm", function (event) {
     event.preventDefault();
@@ -78,5 +82,4 @@ $(document).on("submit", "#editRepoForm", function (event) {
             cancelRepoEdit();
         }
     })
-
 })

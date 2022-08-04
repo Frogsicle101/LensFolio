@@ -78,11 +78,10 @@ public class GitRepoControllerTest {
 
         ArgumentCaptor<GitRepository> argument = ArgumentCaptor.forClass(GitRepository.class);
 
-
         Mockito.verify(gitRepoRepository, Mockito.times(1)).save(argument.capture());
         assertEquals("repo alias", argument.getValue().getAlias());
-
     }
+
 
     @Test
     void testAddGitRepoValidWithoutExistingRepo() throws Exception {
@@ -101,10 +100,8 @@ public class GitRepoControllerTest {
 
         ArgumentCaptor<GitRepository> argument = ArgumentCaptor.forClass(GitRepository.class);
 
-
         Mockito.verify(gitRepoRepository, Mockito.times(1)).save(argument.capture());
         assertEquals("repo alias", argument.getValue().getAlias());
-
     }
 
 
@@ -121,6 +118,7 @@ public class GitRepoControllerTest {
                         .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
                 .andExpect(status().isUnauthorized());
     }
+
 
     @Test
     void testAddGitRepoValidTeacher() throws Exception {
