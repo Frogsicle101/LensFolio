@@ -765,8 +765,20 @@ section {
     justify-content: left;
 }
 
-#groupSettingsRepoInformationSection {
-    margin-bottom: 2rem;
+#groupSettingsRepoHeader {
+    display: flex;
+}
+
+#groupSettingsPageRepoName {
+    flex-grow: 1;
+}
+
+.editRepo:hover {
+    color: var(--select-green);
+}
+
+#repoSettingsContainer {
+    display: none;
 }
 
 /* Alerts */
