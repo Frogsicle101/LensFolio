@@ -14,11 +14,12 @@ function getBranches(repoID, accessToken) {
  * Gets JSON data for all commits in given project
  * @param repoID ID of repository
  * @param accessToken Personal/Project access token
+ * @param callback Function to be called with the commit data when the http request comes back
  */
-function getCommits(repoID, accessToken) {
-    $.get("https://eng-git.canterbury.ac.nz/api/v4/projects/" + repoID + "/repository/commits?access_token=" + accessToken, function (data, status) {
-        return data;
-    });
+function getCommits(repoID, accessToken, callback) {
+    $.get(`https://eng-git.canterbury.ac.nz/api/v4/projects/${repoID}/repository/commits?access_token=${accessToken}`,
+        (data, status) => callback(data)
+    );
 }
 
 

@@ -9,6 +9,7 @@ let calendar;
  * @param info - the fullcalendar event information being sent to the function
  */
 function eventResize(info) {
+    let fcEvent = $(".fc-event")
     // Data to send in post request to server
 
     // Add a day to returned start date due to how full calendar defines start date
@@ -30,23 +31,17 @@ function eventResize(info) {
         type: "post",
         data: dataToSend,
         success: function () {
-            $(".errorMessageParent").slideUp()
-            $(".successMessage").text("Sprint dates updated successfully")
-            $(".successMessageParent").slideUp()
-            $(".successMessageParent").slideDown()
-            $(".fc-event").css("border-right", "solid 0px #13CEE2");
-            $(".fc-event").css("border-left", "solid 0px #13CEE2");
+            createAlert("Sprint dates updated successfully", false)
+            fcEvent.css("border-right", "solid 0px #13CEE2");
+            fcEvent.css("border-left", "solid 0px #13CEE2");
             info.event.setProp("borderColor", '#c2080b');
             $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
             $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
         },
         error: function (error) {
-            console.log(error.responseText)
-            $(".errorMessage").text(error.responseText)
-            $(".errorMessageParent").slideUp()
-            $(".errorMessageParent").slideDown()
-            $(".fc-event").css("border-right", "solid 0px #13CEE2");
-            $(".fc-event").css("border-left", "solid 0px #13CEE2");
+            createAlert(error.responseText, true)
+            fcEvent.css("border-right", "solid 0px #13CEE2");
+            fcEvent.css("border-left", "solid 0px #13CEE2");
             info.revert()
             info.event.setProp("borderColor", '#c2080b');
             $(".fc-event-resizer-start").parent().css("border-left", "solid 5px red");
@@ -76,15 +71,12 @@ function eventResizeStop(info) {
  * @param info object supplied by FullCalendar contains various relevant properties
  */
 function eventClick(info) {
-
+    let fcEvent = $(".fc-event")
     let canEdit = $("#canEdit").val() === "true";
-
     if (!canEdit || !info.event.extendedProps.isSprint) {
         return;
     }
-
     let events = info.view.calendar.getEvents();
-
     if (!info.event.extendedProps.selected) {
         // Deselects all events
         for (calEvent of events) {
@@ -93,8 +85,8 @@ function eventClick(info) {
                 calEvent.setProp("durationEditable", false);
                 calEvent.setProp("backgroundColor", calEvent.extendedProps.defaultColor);
                 calEvent.setProp("borderColor", '#13CEE2');
-                $(".fc-event").css("border-right", "solid 0px #13CEE2");
-                $(".fc-event").css("border-left", "solid 0px #13CEE2");
+                fcEvent.css("border-right", "solid 0px #13CEE2");
+                fcEvent.css("border-left", "solid 0px #13CEE2");
             }
         }
 
@@ -112,8 +104,8 @@ function eventClick(info) {
         info.event.setProp("durationEditable", false);
         info.event.setProp("backgroundColor", info.event.extendedProps.defaultColor)
         info.event.setProp("borderColor", '#13CEE2');
-        $(".fc-event").css("border-right", "solid 0px #13CEE2");
-        $(".fc-event").css("border-left", "solid 0px #13CEE2");
+        fcEvent.css("border-right", "solid 0px #13CEE2");
+        fcEvent.css("border-left", "solid 0px #13CEE2");
     }
 }
 
@@ -124,7 +116,7 @@ function eventClick(info) {
  * @returns {ChildNode}
  */
 function createElementFromHTML(htmlString) {
-    var div = document.createElement('div');
+    let div = document.createElement('div');
     div.innerHTML = htmlString.trim();
 
     // Change this to div.childNodes to support multiple top-level nodes.
@@ -167,6 +159,7 @@ $(document).ready(function () {
             },
             failure: function (err) {
                 console.log(err.responseText)
+
             }
         },
             {

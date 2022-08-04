@@ -20,20 +20,16 @@ $(document).ready(() => {
         $.ajax({
             url: "portfolio/addSprint?projectId=" + projectId,
             success: function (response) {
-
                 $(".sprintsContainer").slideUp(400, function () {
                     $(".sprintsContainer").empty()
                     getSprints()
                 })
+                createAlert("Sprint created!", false)
                 sendNotification("sprint", response.id, "create")
             },
             error: function (error) {
+                createAlert(error.responseText, true)
 
-                $("#sprintAddInformationBar").append(`
-                    <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert">
-                        <p class="errorMessage">${error.responseText}</p>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>`)
             }
         })
 
@@ -71,6 +67,7 @@ $(document).on("click", ".deleteSprint", function () {
         type: "DELETE",
         data: {"sprintId": sprintId},
         success: function () {
+            createAlert("Sprint deleted!", false)
             sendNotification("sprint", sprintId, "delete")
         },
     }).done(function () {

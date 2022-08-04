@@ -41,7 +41,7 @@ public class AuthenticateClientService {
     }
 
     /**
-     * Checks to see if a client is authenticated by passing a requet to the server.
+     * Checks to see if a client is authenticated by passing a request to the server.
      *
      * @return AuthState - information about the authentication status as defined in the authentication.proto contract
      * @throws StatusRuntimeException - if error occurs authenticating
