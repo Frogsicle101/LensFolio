@@ -2,10 +2,10 @@ package nz.ac.canterbury.seng302.portfolio.evidence;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents an Evidence entity
@@ -23,12 +23,16 @@ public class Evidence {
     private String description;
 
 
+    @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER)
+    private final List<WebLink> webLinks = new ArrayList<>();
+
+
     /**
      * Constructs an instance of the evidence object
      *
-     * @param userId the user associated with the evidence
-     * @param title the title of the evidence
-     * @param date the date of the evidence creation
+     * @param userId      the user associated with the evidence
+     * @param title       the title of the evidence
+     * @param date        the date of the evidence creation
      * @param description the description of the evidence
      */
     public Evidence(int userId, String title, LocalDate date, String description) {
@@ -48,10 +52,10 @@ public class Evidence {
     /**
      * This constructor is used for testing only! Constructs an instance of the evidence object
      *
-     * @param evidenceId the ID of the evidence with is typically Generated automatically.
-     * @param userId the user associated with the evidence
-     * @param title the title of the evidence
-     * @param date the date of the evidence creation
+     * @param evidenceId  the ID of the evidence with is typically Generated automatically.
+     * @param userId      the user associated with the evidence
+     * @param title       the title of the evidence
+     * @param date        the date of the evidence creation
      * @param description the description of the evidence
      */
     public Evidence(int evidenceId, int userId, String title, LocalDate date, String description) {
@@ -121,6 +125,18 @@ public class Evidence {
 
     }
 
+    public List<WebLink> getWebLinks() {
+        return webLinks;
+    }
+
+    public void addWebLink(WebLink webLink) {
+        this.webLinks.add(webLink);
+    }
+
+    public void addWebLinks(List<WebLink> webLinks) {
+        this.webLinks.addAll(webLinks);
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -132,12 +148,13 @@ public class Evidence {
      * @return the Json string the represents this piece of evidence.
      */
     public String toJsonString() {
-        return  "{" +
+        return "{" +
                 "\"id\":" + id +
                 ",\"userId\":" + userId +
                 ",\"title\":\"" + title +
                 "\",\"date\":\"" + date +
                 "\",\"description\":\"" + description +
-                "\"}";
+                "\",\"webLinks\":" + "[]" +
+                "}";
     }
 }
