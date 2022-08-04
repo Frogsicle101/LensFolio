@@ -36,12 +36,7 @@ public class Evidence {
      * @param description the description of the evidence
      */
     public Evidence(int userId, String title, LocalDate date, String description) {
-        if (title.length() > 50) {
-            throw new CheckException("Title cannot be more than 50 characters");
-        }
-        if (description.length() > 500) {
-            throw new CheckException("description cannot be more than 500 characters");
-        }
+
         this.userId = userId;
         this.title = title;
         this.date = date;
@@ -99,13 +94,16 @@ public class Evidence {
         return title;
     }
 
+    /**
+     * Verifies that the title is less than 500 characters, and sets the property if so.
+     * @param title The title to be checked and set.
+     */
     public void setTitle(String title) {
         if (title.length() > 50) {
             throw new CheckException("Title cannot be more than 50 characters");
         } else {
             this.title = title;
         }
-
     }
 
     public LocalDate getDate() {
@@ -117,12 +115,7 @@ public class Evidence {
     }
 
     public String getDescription() {
-        if (description.length() > 500) {
-            throw new CheckException("description cannot be more than 500 characters");
-        } else {
-            return description;
-        }
-
+        return description;
     }
 
     public List<WebLink> getWebLinks() {
@@ -137,8 +130,16 @@ public class Evidence {
         this.webLinks.addAll(webLinks);
     }
 
+    /**
+     * Verifies that the description is less than 500 characters, and sets the property if so.
+     * @param description The description to be checked and set.
+     */
     public void setDescription(String description) {
-        this.description = description;
+        if (description.length() > 500) {
+            throw new CheckException("description cannot be more than 500 characters");
+        } else {
+            this.description = description;
+        }
     }
 
 
