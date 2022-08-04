@@ -939,11 +939,17 @@ section {
     padding-top: .5rem;
 }
 
-.addedWebLinkName {
+.webLinkElement {
+    display: flex;
+    flex-direction: row;
     padding-left: 2rem;
     padding-right: 1.5rem;
-    flex-direction: column;
     width: inherit;
+}
+
+.lockIcon {
+    align-self: center;
+    margin-bottom: 0.1rem;
 }
 
 #addedWebLinks {
