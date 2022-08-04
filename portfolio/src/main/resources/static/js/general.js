@@ -121,3 +121,24 @@ function alert(alertMessage, isRed) {
     alert.show("slide", 100)
 }
 
+
+/**
+ * Removes HTML tags from a string
+ * See https://stackoverflow.com/questions/2794137/sanitizing-user-input-before-adding-it-to-the-dom-in-javascript
+ *
+ * @param string The string to sanitise
+ * @returns A sanitised string
+ */
+function sanitise(string) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        "/": '&#x2F;',
+    };
+    const reg = /[&<>"'/]/ig;
+    return string.replace(reg, (match)=>(map[match]));
+}
+

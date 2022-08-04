@@ -450,6 +450,7 @@ section {
     display: flex;
     flex-direction: column;
     align-items: center;
+
 }
 
 .sprintEditForm, .projectEditForm {
@@ -654,6 +655,10 @@ section {
     background-color: var(--main-border-colour);
 }
 
+.colourForDrag {
+    background-color: var(--main-border-colour);
+}
+
 .focusOnGroup {
     background-color: var(--main-border-colour);
 }
@@ -805,6 +810,10 @@ section {
     position: absolute;
     top: 0.1rem;
     right: 0.1rem;
+}
+
+.commitDate {
+    text-align: right;
 }
 
 /* Evidence Page */

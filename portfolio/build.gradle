@@ -1,7 +1,7 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    id 'org.springframework.boot' version '2.6.3'
+    id 'org.springframework.boot' version '2.7.2'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'se.thinkcode.cucumber-runner' version '0.0.8'
     id 'java'
@@ -33,16 +33,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    // Added by oliver for story UR3 19/05/21
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    // Added by sam for event notifications 05/05/21
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-    /* Extra websocket stuff
-    added by oliver for story UR3 19/05/21
-     */
     implementation 'org.webjars:webjars-locator-core'
-    implementation 'org.webjars:sockjs-client:1.5.1'
+    implementation 'org.webjars.npm:sockjs-client:1.6.1'
     implementation 'org.webjars.npm:stomp__stompjs:6.1.2'
 
 
