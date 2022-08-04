@@ -178,23 +178,30 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '.addWebLinkButton', function () {
-    $(".weblink-form").slideToggle();
     let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
-        //Un-toggle the button
-        button.text("Add Web Link")
-        button.removeClass("toggled")
-        button.removeClass("btn-primary")
-        button.addClass("btn-secondary")
-        submitWebLink()
-        //TODO: Add the code for submitting the webF link here
+        //validate the link
+        validateWebLink()
+    } else {
+        webLinkButtonToggle()
+    }
+})
+
+function webLinkButtonToggle() {
+    let button = $(".addWebLinkButton");
+    $(".weblink-form").slideToggle();
+    if (button.hasClass("toggled")) {
+            button.text("Add Web Link")
+            button.removeClass("toggled")
+            button.removeClass("btn-primary")
+            button.addClass("btn-secondary")
     } else {
         button.text("Save Web Link")
         button.addClass("toggled")
         button.removeClass("btn-secondary")
         button.addClass("btn-primary")
     }
-})
+}
 
 
 // --------------------------- Functional HTML Components ------------------------------------
@@ -263,6 +270,43 @@ function createEvidencePreview(evidence) {
 }
 
 
+function validateWebLink() {
+    let address = $("#webLinkAddress").val()
+    $.ajax({
+        url: `validateWebLink?address=${address}`,
+        type: "GET",
+        success: () => {
+            submitWebLink()
+            webLinkButtonToggle()
+        },
+        error: (error) => {
+            $(".alert").alert('close') //Close any previous alerts
+            let form = $(".weblink-form")
+            switch (error.status) {
+                case 400:
+                    // The URL is invalid
+                    form.append(`
+                    <div class="alert alert-danger alert-dismissible show" role="alert">
+                      That address isn't valid!
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+                    break
+                default:
+                    // A regular error
+                    form.append(`
+                    <div class="alert alert-danger alert-dismissible show" role="alert">
+                      Something went wrong. Try again later.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+                    break
+            }
+        }
+    })
+}
+
+
 /**
  * Appends a new link to the list of added links in the Add Evidence form.
  */
@@ -271,6 +315,8 @@ function submitWebLink() {
     let address = $("#webLinkAddress").val()
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
+    // Validate the address
+
 
     webLinkTitle.show()
     addedWebLinks.append(

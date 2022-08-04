@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -217,6 +219,35 @@ public class EvidenceController {
             return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Validates a given address, used for checking web links.
+     *
+     * Response codes:
+     * OK means the address is valid
+     * BAD_REQUEST means the URL is invalid
+     * INTERNAL_SERVER_ERROR means some other error occurred while validating the URL
+     *
+     * @param address - the full address to be validated
+     * @return A response entity with the required response code. Response body is the evidence is the status is OK
+     */
+    @GetMapping("/validateWebLink")
+    public ResponseEntity<Object> validateWebLink(@RequestParam("address") String address) {
+        logger.info("GET REQUEST /validateWebLink - validating address {}", address);
+        try {
+            URL candidate = new URL(address); //The constructor does all the validation for us
+            //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (MalformedURLException exception) {
+            logger.info("/validateWebLink - invalid address {}", address);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception exception) {
+            logger.warn(exception.getClass().getName());
+            logger.warn(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
