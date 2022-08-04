@@ -950,6 +950,7 @@ section {
 .lockIcon {
     align-self: center;
     margin-bottom: 0.1rem;
+    margin-right: 0.5rem;
 }
 
 #addedWebLinks {
