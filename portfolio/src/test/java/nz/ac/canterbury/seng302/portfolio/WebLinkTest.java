@@ -25,7 +25,7 @@ class WebLinkTest {
 
 
     @Test
-    void createTestEvidenceWebLink() throws MalformedURLException {
+    void createTestEvidenceSingleWebLink() throws MalformedURLException {
         Evidence evidence = new Evidence(1, "test", LocalDate.now(), "test");
         WebLink webLink = new WebLink(evidence, "Test", "https://www.google.co.nz");
         evidence.addWebLink(webLink);
@@ -40,7 +40,7 @@ class WebLinkTest {
 
 
     @Test
-    void createTestEvidenceWebLinks() throws MalformedURLException {
+    void createTestEvidenceMultipleWebLinks() throws MalformedURLException {
         Evidence evidence = new Evidence(1, "test", LocalDate.now(), "test");
         WebLink webLink = new WebLink(evidence, "Test", "https://www.google.co.nz");
         WebLink webLink2 = new WebLink(evidence, "Test", "https://www.google.co.nz");
