@@ -3,10 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLink;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
@@ -25,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -54,6 +52,9 @@ public class EvidenceController {
     /** The repository containing the projects. */
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private EvidenceService evidenceService;
 
 
     /**
@@ -184,7 +185,8 @@ public class EvidenceController {
      * @param title       The title of the evidence
      * @param date        The date of the evidence
      * @param description The description of the evidence
-     * @param projectId The project id
+     * @param projectId   The project id
+     * @param webLinks    A list of weblinkDTOs to be added to the evidence
      * @return returns a ResponseEntity, this entity included the new piece of evidence if successful.
      */
     @PostMapping("/evidence")
@@ -193,21 +195,12 @@ public class EvidenceController {
             @RequestParam String title,
             @RequestParam String date,
             @RequestParam String description,
-            @RequestParam long projectId
+            @RequestParam long projectId,
+            @RequestParam(required = false) List<WebLinkDTO> webLinks
     ) {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
         try {
-            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-            Optional<Project> optionalProject = projectRepository.findById(projectId);
-            if (optionalProject.isEmpty()) {
-                throw new CheckException("Project Id does not match any project");
-            }
-            Project project = optionalProject.get();
-            LocalDate localDate = LocalDate.parse(date);
-            EvidenceService.checkDate(project, localDate);
-            EvidenceService.checkString(title);
-            EvidenceService.checkString(description);
-            Evidence evidence = evidenceRepository.save(new Evidence(user.getId(), title, localDate, description));
+            Evidence evidence = evidenceService.addEvidence(principal, title, date, description, projectId, webLinks);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
         } catch (CheckException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad input: {}", err.getMessage());
@@ -215,6 +208,9 @@ public class EvidenceController {
         } catch (DateTimeParseException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad date: {}", date);
             return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
+        } catch (MalformedURLException err) {
+            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad url {}", err.getMessage());
+            return new ResponseEntity<>("Submitted weblink URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
