@@ -51,13 +51,12 @@ $(document).ready(function () {
                 arrayOfSelected.push(ui)
             }
             lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
-            checkToSeeIfHideOrShowOptions()
         },
 
         /**
          * Triggered at the end of the select operation.
          */
-        stop: function (event, ui) {
+        stop: function () {
             if (arrayOfSelected.length === 1) {
                 if ($(arrayOfSelected[0].selected).hasClass("selected")) {
                     $(arrayOfSelected[0].selected).removeClass("selected")
@@ -69,8 +68,17 @@ $(document).ready(function () {
                 $(".selected").removeClass("selected")
                 lastSelectedRow.addClass("selected")
             }
-            checkToSeeIfHideOrShowOptions()
+            $(".userRow").each(function () {
+                if (!$(this).hasClass("selected") && $(this).hasClass("ui-draggable")) {
+                    try {
+                        $(this).draggable("destroy")
+                    } catch (err) {
+                    }
+                }
+            })
             arrayOfSelected = []
+            checkToSeeIfHideOrShowOptions()
+            addDraggable()
         },
 
         /**
@@ -87,9 +95,76 @@ $(document).ready(function () {
     });
 
 
+    let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
+    for (let i = 0; i < listOfGroupDivs.length; i++) { // Loops over each div
+        /**
+         * Adds the droppable pluggin to each element that it loops over
+         * https://api.jqueryui.com/droppable/
+         */
+        $(listOfGroupDivs[i]).droppable({
+            /**
+             * Triggered when an accepted draggable is dragged over the droppable (based on the tolerance option).
+             * https://api.jqueryui.com/droppable/#event-over
+             */
+            over: function () {
+                $(this).effect("shake")
+                //https://api.jqueryui.com/category/effects/
+            },
+
+            /**
+             * Triggered when an accepted draggable is dropped on the droppable (based on the tolerance option).
+             * https://api.jqueryui.com/droppable/#event-drop
+             */
+            drop: function () {
+                addUsers($(this).attr("id"))
+            }
+        })
+    }
+
+
 })
 
 // ******************************* Functions *******************************
+
+
+/**
+ * Makes the selected elements able to  be draggable with the mouse
+ * https://api.jqueryui.com/draggable/
+ */
+function addDraggable() {
+    $(".selected").draggable({
+        helper: function () {
+            let helper = $("<table class='table colourForDrag'/>")
+            return helper.append($(".selected").clone())
+        },
+        revert: true,
+    })
+}
+
+/**
+ * Ajax post request to the server for moving users from one group to another
+ */
+function addUsers(groupId) {
+    let arrayOfIds = [];
+    let selected = $(".selected")
+    selected.each(function () {
+        arrayOfIds.push($(this).attr("userId"))
+    })
+    arrayOfIds = Array.from(new Set(arrayOfIds))
+    selected.removeClass("selected")
+    $.ajax({
+        url: `/groups/addUsers?groupId=${groupId}&userIds=${arrayOfIds}`,
+        type: "post",
+        success: function () {
+            displayGroupUsersList(selectedGroupId)
+            createAlert("User(s) moved", false)
+        },
+        error: function (response) {
+            console.log(response)
+        }
+    })
+}
+
 
 /**
  * Displays the options for what to do with selected users.
@@ -97,7 +172,6 @@ $(document).ready(function () {
  */
 function showOptions(show) {
     if ($("#groupDisplayOptions").is(':hidden')) {
-
         if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
             $("#groupDisplayOptions").slideDown()
         } else {
@@ -190,8 +264,6 @@ function checkEditRights(group) {
  * @param groupId the id of the group to fetch
  */
 function displayGroupUsersList(groupId) {
-
-
     let membersContainer = $("#groupTableBody")
     $.ajax({
         url: `group?groupId=${groupId}`,
@@ -341,6 +413,9 @@ $(document).on("click", "#moveUsersButton", function () {
             createAlert("Error moving users", true)
         }
     })
+})
+$(document).on("click", "#moveUsersButton", function () {
+    addUsers($("#newGroupSelector").val())
 })
 
 /**

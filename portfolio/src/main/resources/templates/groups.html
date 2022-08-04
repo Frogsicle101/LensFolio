@@ -8,12 +8,13 @@
 <body>
 <header th:insert="fragments/general.html :: header"></header>
 <section>
+    <div class='ui-widget-header' style="display: none"></div>
     <div class="createGroupButtonDiv">
         <a class="btn btn-primary" th:href="@{groupsCreate}">Create New Group</a>
     </div>
     <div class="row">
         <div class="col groupsContainer">
-            <div class="group" th:each="group : ${groups}">
+            <div class="group" th:each="group : ${groups}" th:id="${group.groupId}">
                 <div class="mb3">
                     <p class="groupId" style="display: none" th:text="${group.groupId}"></p>
                     <h2 class="groupShortName" th:text="${group.shortName}"></h2>
