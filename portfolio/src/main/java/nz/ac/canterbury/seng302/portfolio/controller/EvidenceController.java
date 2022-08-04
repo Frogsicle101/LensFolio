@@ -225,7 +225,9 @@ public class EvidenceController {
 
 
     /**
-     * Validates a given address, used for checking web links.
+     * Checks if the provided web address is valid, i.e. could lead to a website.
+     * The criteria are specified by java.net.URL, and is protocol dependent.
+     * This doesn't guarantee that the website actually exists; just that it could.
      *
      * Response codes:
      * OK means the address is valid
@@ -234,6 +236,7 @@ public class EvidenceController {
      *
      * @param address - the full address to be validated
      * @return A response entity with the required response code. Response body is the evidence is the status is OK
+     * @see java.net.URL
      */
     @GetMapping("/validateWebLink")
     public ResponseEntity<Object> validateWebLink(@RequestParam("address") String address) {

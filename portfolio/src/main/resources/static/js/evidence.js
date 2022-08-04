@@ -188,21 +188,21 @@ $(document).on('click', '.addWebLinkButton', function () {
     }
 })
 
-function webLinkButtonToggle() {
-    let button = $(".addWebLinkButton");
-    $(".weblink-form").slideToggle();
-    if (button.hasClass("toggled")) {
-            button.text("Add Web Link")
-            button.removeClass("toggled")
-            button.removeClass("btn-primary")
-            button.addClass("btn-secondary")
-    } else {
-        button.text("Save Web Link")
-        button.addClass("toggled")
-        button.removeClass("btn-secondary")
-        button.addClass("btn-primary")
-    }
-}
+
+/**
+ * Listen for a keypress in the weblink address field, and closes the alert box
+ */
+$(document).on('keypress', '#webLinkAddress', function () {
+    $(".address-alert").alert('close')
+})
+
+
+/**
+ * Listen for a keypress in the weblink name field, and closes the alert box
+ */
+$(document).on('keypress', '#webLinkName', function () {
+    $(".weblink-name-alert").alert('close')
+})
 
 
 // --------------------------- Functional HTML Components ------------------------------------
@@ -271,6 +271,14 @@ function createEvidencePreview(evidence) {
 }
 
 
+/**
+ * Validates the weblink.
+ * Takes the URL and makes a call to the server to check if it's valid.
+ * Then it does some basic title validation
+ *
+ * If there's an issue, it displays an alert
+ * If it's valid, submits the weblink and toggles the form/button.
+ */
 function validateWebLink() {
     let address = $("#webLinkAddress").val()
     let alias = $("#webLinkName").val()
@@ -281,10 +289,10 @@ function validateWebLink() {
         success: () => {
             //Do some title validation
             if (alias.length === 0) {
-                $(".alert").alert('close') //Close any previous alerts
+                $(".address-alert").alert('close') //Close any previous alerts
                 form.append(`
-                    <div class="alert alert-danger alert-dismissible show" role="alert">
-                      The name is empty!
+                    <div class="alert alert-danger alert-dismissible show weblink-name-alert" role="alert">
+                      Please include a name for your web link
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
@@ -294,13 +302,13 @@ function validateWebLink() {
             }
         },
         error: (error) => {
-            $(".alert").alert('close') //Close any previous alerts
+            $(".address-alert").alert('close') //Close any previous alerts
             switch (error.status) {
                 case 400:
                     // The URL is invalid
                     form.append(`
-                    <div class="alert alert-danger alert-dismissible show" role="alert">
-                      That address isn't valid!
+                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                      Please enter a valid address, like https://www.w3.org/WWW/
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
@@ -308,7 +316,7 @@ function validateWebLink() {
                 default:
                     // A regular error
                     form.append(`
-                    <div class="alert alert-danger alert-dismissible show" role="alert">
+                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
                       Something went wrong. Try again later.
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
@@ -321,6 +329,27 @@ function validateWebLink() {
 
 
 /**
+ * Toggles the add weblink button,
+ * and slide-toggles the form
+ */
+function webLinkButtonToggle() {
+    let button = $(".addWebLinkButton");
+    $(".weblink-form").slideToggle();
+    if (button.hasClass("toggled")) {
+        button.text("Add Web Link")
+        button.removeClass("toggled")
+        button.removeClass("btn-primary")
+        button.addClass("btn-secondary")
+    } else {
+        button.text("Save Web Link")
+        button.addClass("toggled")
+        button.removeClass("btn-secondary")
+        button.addClass("btn-primary")
+    }
+}
+
+
+/**
  * Appends a new link to the list of added links in the Add Evidence form.
  */
 function submitWebLink() {
@@ -328,8 +357,6 @@ function submitWebLink() {
     let address = $("#webLinkAddress")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
-    // Validate the address
-
 
     webLinkTitle.show()
     addedWebLinks.append(
@@ -349,6 +376,7 @@ function clearAddEvidenceModalValues() {
     $("#webLinkName").val("")
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
+    $(".alert").alert('close') //Close alerts
 }
 
 /**
@@ -375,9 +403,9 @@ function webLinkElement(address, alias) {
         `
     } else {
         icon = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock lockIcon text-danger" viewBox="0 0 16 16">
-        <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"/>
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock-fill lockIcon text-danger" viewBox="0 0 16 16">
+  <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2z"/>
+</svg>
         `
     }
     let slashIndex = address.search("//") + 2
