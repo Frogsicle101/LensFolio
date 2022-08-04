@@ -113,6 +113,30 @@ function addEvidencePreviews(response) {
 }
 
 
+// --------------------------------- Click listeners -----------------------------------------
+
+
+/**
+ * When an evidence div is clicked, it becomes selected and is displayed on the main display.
+ *
+ * There are 3 steps to this:
+ *    1. remove the selected class from the previously selected div.
+ *    2. Add the selected class to the clicked div, and assign it as selected
+ *    3. Populate the display with the selected evidence details.
+ */
+$(document).on("click", ".evidenceListItem", function() {
+
+    let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
+    previouslySelectedDiv.removeClass("selectedEvidence")
+
+    let newSelectedDiv = $(this).addClass("selectedEvidence")
+    selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
+
+    showHighlightedEvidenceDetails()
+})
+
+
+
 /**
  * Saves the evidence input during creating a new piece of evidence
  */
@@ -146,45 +170,24 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             }
         })
     }
-
 })
 
-// --------------------------------- Click listeners -----------------------------------------
-
-
-/**
- * When an evidence div is clicked, it becomes selected and is displayed on the main display.
- *
- * There are 3 steps to this:
- *    1. remove the selected class from the previously selected div.
- *    2. Add the selected class to the clicked div, and assign it as selected
- *    3. Populate the display with the selected evidence details.
- */
-$(document).on("click", ".evidenceListItem", function() {
-
-    let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
-    previouslySelectedDiv.removeClass("selectedEvidence")
-
-    let newSelectedDiv = $(this).addClass("selectedEvidence")
-    selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
-
-    showHighlightedEvidenceDetails()
-})
 
 /**
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '.addWebbLinkButton', function () {
+$(document).on('click', '.addWebLinkButton', function () {
     $(".weblink-form").slideToggle();
-    let button = $(".addWebbLinkButton");
+    let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
         //Un-toggle the button
         button.text("Add Web Link")
         button.removeClass("toggled")
         button.removeClass("btn-primary")
         button.addClass("btn-secondary")
-        //TODO: Add the code for submitting the web link here
+        submitWebLink()
+        //TODO: Add the code for submitting the webF link here
     } else {
         button.text("Save Web Link")
         button.addClass("toggled")
@@ -195,6 +198,7 @@ $(document).on('click', '.addWebbLinkButton', function () {
 
 
 // --------------------------- Functional HTML Components ------------------------------------
+
 
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
@@ -257,6 +261,27 @@ function createEvidencePreview(evidence) {
             <p class="evidenceListItemInfo">${evidence.description}</p>
         </div>`
 }
+
+
+/**
+ * Appends a new link to the list of added links in the Add Evidence form.
+ */
+function submitWebLink() {
+    let alias = $("#webLinkName").val()
+    let address = $("#webLinkAddress").val()
+    let addedWebLinks = $("#addedWebLinks")
+    let webLinkTitle = $("#webLinkTitle")
+
+    webLinkTitle.show()
+    addedWebLinks.append(
+        ` <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top"
+               data-bs-title="${address}" data-bs-custom-class="webLinkTooltip">${alias}
+          </div>`
+    )
+
+    $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+}
+
 
 // -------------------------------------- Validation -----------------------------------
 
