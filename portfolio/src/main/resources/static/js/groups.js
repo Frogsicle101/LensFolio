@@ -356,7 +356,8 @@ function displayGroupRepoInformation () {
 
 /**
  * a function to get the commits from the provided git repository and display the first 3 if there are any, or change
- * the title to say that there are no commits
+ * the title to say that there are no commits. If there is a problem accessing the webpage, an error is displayed under
+ * the repo information
  */
 function getRepoCommits() {
     const commitContainer = $("#groupSettingsCommitSection");
@@ -365,41 +366,56 @@ function getRepoCommits() {
     const accessToken = $(".groupSettingsPageAccessToken").text();
 
     if (repoID.length !== 0) {
-        getCommits(repoID, accessToken, (data) => {
+        getCommits(repoID, accessToken, (data, status) => {
+            if (status === "success") {
+                if (data.length === 0) {
+                    let commitText =
+                        `<h5>No Recent Commits</h5>`
+                    commitContainer.append(commitText)
+                }
 
-            if (data.length === 0) {
-                let commitText =
-                    `<h5>No Recent Commits</h5>`
-                commitContainer.append(commitText)
-            }
+                const firstThree = data.slice(0, 3);
 
-            const firstThree = data.slice(0, 3);
-
-            for (let commit of firstThree) {
-                let commitText =
-                    `<h5>Recent Commits:</h5>
-                     <div id="groupSettingsCommitContainer" class="marginSides1">
-                        <div class="gitCommitInfo">
-                            <div class="row">
-                                <div class="inlineText">
-                                    <p>Commit:&nbsp;</p>
-                                    <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                for (let commit of firstThree) {
+                    let commitText =
+                        `<h5>Recent Commits:</h5>
+                         <div id="groupSettingsCommitContainer" class="marginSides1">
+                            <div class="gitCommitInfo">
+                                <div class="row">
+                                    <div class="inlineText">
+                                        <p>Commit:&nbsp;</p>
+                                        <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <p>${sanitise(commit.message)}</p>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <p class="greyText">${sanitise(commit.author_name)}</p>
+                                    </div>
+                                    <div class="col commitDate">
+                                        <p class="greyText">${commit.committed_date.split("T")[0]}</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <p>${sanitise(commit.message)}</p>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <p class="greyText">${sanitise(commit.author_name)}</p>
-                                </div>
-                                <div class="col commitDate">
-                                    <p class="greyText">${commit.committed_date.split("T")[0]}</p>
-                                </div>
-                            </div>
-                        </div>
-                     </div>`
-                commitContainer.append(commitText)
+                         </div>`
+                    commitContainer.append(commitText)
+                }
+            } else {
+                let repoInformationContainer = $("#gitRepo");
+                let repoProjectId = $(".groupSettingsPageProjectId");
+                let repoAccessToken = $(".groupSettingsPageAccessToken");
+
+                repoProjectId.removeClass('greyText')
+                repoProjectId.addClass("redText")
+                repoAccessToken.removeClass("greyText")
+                repoAccessToken.addClass("redText")
+
+                repoInformationContainer.append(`
+                <div>
+                    <p style="color: red">One or more repository settings are invalid</p>
+                </div>`)
             }
         })
     }
