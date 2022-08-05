@@ -222,12 +222,12 @@ public class EvidenceController {
      *Entrypoint for creating a skill to a given piece of evidence
      *
      * @param evidenceId - The ID of the piece of evidence
-     * @param evidenceName - The name of the skill
+     * @param skillName - The name of the skill
      * @return returns a ResponseEntity, this entity included the new piece of evidence if successful.
      */
     @PostMapping("/evidencePieceSkill")
     public ResponseEntity<Object> addSkill(
-            @RequestParam String evidenceName,
+            @RequestParam String skillName,
             @RequestParam long evidenceId
     ) {
         logger.info("POST REQUEST /evidencePieceSkill - attempt to create new skill");
@@ -236,14 +236,22 @@ public class EvidenceController {
             if (optionalEvidence.isEmpty()) {
                 throw new CheckException("Evidence Id does not match any evidence");
             }
-            Evidence evidence = optionalEvidence.get();
 
-            //ToDo: check the skill is exist or not, can we find a skill by name? in skill Repository
+            //Check if the skill is existed
+            //ToDo: change the name format
+            Skill skillExists = SkillRepository.findByName(skillName);
+            if (skillExists){
+                if(true) {
+                    //get all of skills by a given evidence ID???
+                    //ToDo: check if the skill is already been added to this piece of evidence
+                    return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
+                }
+                //add the skill to the evidence
+                return new ResponseEntity<>(skill, HttpStatus.OK);
+            }
+            //creat the new skill and add it to the evidence
+            Skill skill = SkillRepository.save(new Skill(evidenceName));
 
-            //ToDo: add skill to skills table
-            //ToDo: add skill and evidence to the relation table
-
-           Skill skill = SkillRepository.save(new Skill(evidenceName));
             return new ResponseEntity<>(skill, HttpStatus.OK);
         } catch (CheckException err) {
             logger.warn("POST REQUEST /evidencePieceSkill - attempt to create new skill: Bad input: {}", err.getMessage());

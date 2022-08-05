@@ -13,4 +13,10 @@ public interface SkillRepository extends CrudRepository<Skill, Integer> {
      */
     @Query
     Skill findById(int id);
+
+    /**
+     * Finds a Skill object by its name.
+     */
+    @Query
+    Skill findByName(String name);
 }
