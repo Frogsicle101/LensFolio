@@ -27,7 +27,7 @@ public class Evidence {
     private LocalDate date;
     private String description;
 
-
+    /** A list of the web links associated with a piece of Evidence */
     @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER)
     private final List<WebLink> webLinks = new ArrayList<>();
 
@@ -107,7 +107,6 @@ public class Evidence {
     public void setTitle(String title) {
         checkTitleLength(title);
         this.title = title;
-
     }
 
     public LocalDate getDate() {
@@ -120,7 +119,6 @@ public class Evidence {
 
     public String getDescription() {
         return description;
-
     }
 
     public List<WebLink> getWebLinks() {
