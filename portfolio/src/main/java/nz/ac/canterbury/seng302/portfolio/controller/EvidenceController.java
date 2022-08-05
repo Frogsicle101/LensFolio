@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -196,9 +197,10 @@ public class EvidenceController {
             @RequestParam String date,
             @RequestParam String description,
             @RequestParam long projectId,
-            @RequestParam(required = false) List<WebLinkDTO> webLinks
+            @RequestParam List<WebLinkDTO> webLinks
     ) {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
+        logger.info(webLinks.toString());
         try {
             Evidence evidence = evidenceService.addEvidence(principal, title, date, description, projectId, webLinks);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
