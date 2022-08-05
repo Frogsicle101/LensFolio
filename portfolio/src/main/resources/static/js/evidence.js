@@ -122,10 +122,6 @@ function addEvidencePreviews(response) {
 function checkWeblinkCount() {
     let addWeblinkButton = $("#addWebLinkButton")
     let weblinkFullTab = $("#webLinkFull")
-
-    console.log("chenck the links number :")
-    console.log(webLinksCount)
-
     if (webLinksCount > 9){
         addWeblinkButton.hide()
         weblinkFullTab.show()
@@ -180,7 +176,6 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
     } else {
-        resetWeblink()
         const title = $("#evidenceName").val()
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
@@ -199,6 +194,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 getAndAddEvidencePreviews()
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
+                resetWeblink()
             },
             error: function (error) {
                 createAlert(error.responseText, true)
@@ -211,7 +207,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
 /**
  * If the new piece of evidence been canceled, reset the weblink count.
  */
-$(document).on("click", "#evidenceCancelButton", function (event) {
+$(document).on("click", "#evidenceCancelButton", function () {
     resetWeblink()
 })
 
