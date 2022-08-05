@@ -1,16 +1,21 @@
 package nz.ac.canterbury.seng302.portfolio.evidence;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents an Evidence entity
  */
 @Entity
+@Table(name = "evidence_table")
 public class Evidence {
 
     @Id
@@ -22,9 +27,17 @@ public class Evidence {
     private LocalDate date;
     private String description;
 
-
+    /** A list of the web links associated with a piece of Evidence */
     @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER)
     private final List<WebLink> webLinks = new ArrayList<>();
+
+    /** A list of the skills associated with the piece of Evidence */
+    @ManyToMany
+    @Fetch(FetchMode.JOIN)
+    @JoinTable(name = "evidence_skills",
+            joinColumns = @JoinColumn(name = "evidenceId"),
+            inverseJoinColumns = @JoinColumn(name = "skillId"))
+    private final Set<Skill> skills = new HashSet<>();
 
 
     /**
@@ -36,7 +49,6 @@ public class Evidence {
      * @param description the description of the evidence
      */
     public Evidence(int userId, String title, LocalDate date, String description) {
-
         this.userId = userId;
         this.title = title;
         this.date = date;
@@ -54,12 +66,8 @@ public class Evidence {
      * @param description the description of the evidence
      */
     public Evidence(int evidenceId, int userId, String title, LocalDate date, String description) {
-        if (title.length() > 50) {
-            throw new CheckException("Title cannot be more than 50 characters");
-        }
-        if (description.length() > 500) {
-            throw new CheckException("description cannot be more than 500 characters");
-        }
+        checkTitleLength(title);
+        checkDescriptionLength(description);
         this.id = evidenceId;
         this.userId = userId;
         this.title = title;
@@ -100,11 +108,8 @@ public class Evidence {
      * @param title The title to be checked and set.
      */
     public void setTitle(String title) {
-        if (title.length() > 50) {
-            throw new CheckException("Title cannot be more than 50 characters");
-        } else {
-            this.title = title;
-        }
+        checkTitleLength(title);
+        this.title = title;
     }
 
     public LocalDate getDate() {
@@ -137,11 +142,16 @@ public class Evidence {
      * @param description The description to be checked and set.
      */
     public void setDescription(String description) {
-        if (description.length() > 500) {
-            throw new CheckException("description cannot be more than 500 characters");
-        } else {
-            this.description = description;
-        }
+        checkDescriptionLength(description);
+        this.description = description;
+    }
+
+    public Set<Skill> getSkills() {
+        return skills;
+    }
+
+    public void addSkill(Skill skill) {
+        skills.add(skill);
     }
 
 
@@ -158,6 +168,31 @@ public class Evidence {
                 "\",\"date\":\"" + date +
                 "\",\"description\":\"" + description +
                 "\",\"webLinks\":" + "[]" +
+                ",\"skills\":" + "[]" +
                 "}";
+    }
+
+
+    /**
+     * Checks that the title is less than 50 chars.
+     *
+     * @param title - the title to be checked.
+     */
+    private void checkTitleLength(String title) {
+        if (title.length() > 50) {
+            throw new CheckException("Title cannot be more than 50 characters");
+        }
+    }
+
+
+    /**
+     * Checks that the description is less than 500 chars.
+     *
+     * @param description - the description to be checked.
+     */
+    private void checkDescriptionLength(String description) {
+        if (description.length() > 500) {
+            throw new CheckException("description cannot be more than 500 characters");
+        }
     }
 }
