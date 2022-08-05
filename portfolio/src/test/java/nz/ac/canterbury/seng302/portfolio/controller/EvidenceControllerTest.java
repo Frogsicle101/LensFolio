@@ -3,6 +3,8 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.evidence.Skill;
+import nz.ac.canterbury.seng302.portfolio.evidence.SkillRepository;
 import nz.ac.canterbury.seng302.portfolio.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
@@ -69,6 +71,9 @@ class EvidenceControllerTest {
 
     @MockBean
     ProjectRepository projectRepository;
+
+    @MockBean
+    SkillRepository skillRepository;
 
     @InjectMocks
     EvidenceService evidenceService = Mockito.spy(EvidenceService.class);
@@ -539,6 +544,109 @@ class EvidenceControllerTest {
 
         String expectedResult = "[" + testLink1.toJsonString() + "," + testLink2.toJsonString() + ","
                 + testLink3.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResult, responseContent);
+    }
+
+
+    // --------------Add Skills Tests ---------------------------------------------------------------
+    
+
+    @Test
+    void testAddSkillToEvidenceWhenNoSkill() throws Exception {
+        String emptySkills = "";
+        
+        //ToDo: add the skill in emptySkills
+        //ToDo: result = get all skills by evidence Id
+
+        String expectedResult = "[]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResult, responseContent);
+    }
+
+
+    @Test
+    void testAddSkillToEvidenceWhenSkillExist() throws Exception {
+        Skill usersSkill1 = new Skill(1, "Skill_1");
+        String skillsNames = "Skill_1";
+
+        //ToDo: add the skill in skillsNames
+        //ToDo: result = get all skills by evidence Id
+
+        String expectedResult = "[" + usersSkill1.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResult, responseContent);
+    }
+
+    @Test
+    void testAddSkillToEvidenceWhenSkillExistInDiffCase() throws Exception {
+        Skill usersSkill1 = new Skill(1, "Skill_1");
+        String skillsNames = "sKILL_1";
+
+        //ToDo: add the skill in skillsNames
+        //ToDo: result = get all skills by evidence Id
+
+        String expectedResult = "[" + usersSkill1.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResult, responseContent);
+    }
+
+
+    @Test
+    void testAddMultipleSkillsToEvidenceWhenSkillsExist() throws Exception {
+        Skill usersSkill1 = new Skill(1, "Skill_1");
+        Skill usersSkill2 = new Skill(1, "Skill_2");
+        String skillsNames = "Skill_1 Skill_2";
+
+        //ToDo: add the skill in skillsNames
+        //ToDo: result = get all skills by evidence Id
+
+        String expectedResult = "[" + usersSkill1.toJsonString()  + "," + usersSkill2.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResult, responseContent);
+    }
+
+
+    @Test
+    void testAddSkillToEvidenceWhenSkillNotExist() throws Exception {
+        String skillsNames = "Skill_1";
+        
+        //ToDo: add the skill in skillsNames
+        //ToDo: result = get all skills by evidence Id
+
+        Skill usersSkill1 = skillRepository.findByNameIgnoreCase("Skill_1");
+        String expectedResult = "[" + usersSkill1.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResult, responseContent);
+        
+    }
+
+
+    @Test
+    void testAddMultipleSkillsToEvidenceWhenSkillsNotExist() throws Exception {
+        String skillsNames = "Skill_1 Skill_2";
+        
+        //ToDo: add the skill in skillsNames
+        //ToDo: result = get all skills by evidence Id
+
+        Skill usersSkill1 = skillRepository.findByNameIgnoreCase("Skill_1");
+        Skill usersSkill2 = skillRepository.findByNameIgnoreCase("Skill_2");
+        String expectedResult = "[" + usersSkill1.toJsonString()  + "," + usersSkill2.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResult, responseContent);
+    }
+
+
+    @Test
+    void testAddMultipleSkillsToEvidenceWhenSomeSkillsExistSomeNot() throws Exception {
+        Skill usersSkill1 = new Skill(1, "Skill_1");
+        String skillsNames = "Skill_1 Skill_2";
+        
+        //ToDo: add the skill in skillsNames
+        //ToDo: result = get all skills by evidence Id
+
+        Skill usersSkill2 = skillRepository.findByNameIgnoreCase("Skill_2");
+        String expectedResult = "[" + usersSkill1.toJsonString()  + "," + usersSkill2.toJsonString() + "]";
         String responseContent = result.getResponse().getContentAsString();
         Assertions.assertEquals(expectedResult, responseContent);
     }
