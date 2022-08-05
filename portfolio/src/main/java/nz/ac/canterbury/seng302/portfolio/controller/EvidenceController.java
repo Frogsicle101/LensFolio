@@ -40,23 +40,32 @@ public class EvidenceController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** For requesting user information form the IdP.*/
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
+    private final UserAccountsClientService userAccountsClientService;
 
     /** The repository containing users pieces of evidence. */
-    @Autowired
-    private EvidenceRepository evidenceRepository;
+    private final EvidenceRepository evidenceRepository;
 
     /** The repository containing web links. */
-    @Autowired
-    private WebLinkRepository webLinkRepository;
+    private final WebLinkRepository webLinkRepository;
 
     /** The repository containing the projects. */
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
+
+    private final EvidenceService evidenceService;
+
 
     @Autowired
-    private EvidenceService evidenceService;
+    public EvidenceController(UserAccountsClientService userAccountsClientService,
+                           ProjectRepository projectRepository,
+                           EvidenceRepository evidenceRepository,
+                           WebLinkRepository webLinkRepository,
+                           EvidenceService evidenceService) {
+        this.userAccountsClientService = userAccountsClientService;
+        this.projectRepository = projectRepository;
+        this.evidenceRepository = evidenceRepository;
+        this.webLinkRepository = webLinkRepository;
+        this.evidenceService = evidenceService;
+    }
 
 
     /**
@@ -157,7 +166,8 @@ public class EvidenceController {
      *
      * @param userId - The userId of the user whose evidence is wanted
      * @return A response entity with the required response code. Response body is the evidence is the status is OK
-     */
+     *///        Assertions.assertEquals(responseEntity.getStatusCode().getReasonPhrase(), 1);
+
     @GetMapping("/evidenceData")
     public ResponseEntity<Object> getAllEvidence(@RequestParam("userId") Integer userId) {
         logger.info("GET REQUEST /evidence - attempt to get evidence for user {}", userId);
@@ -172,7 +182,8 @@ public class EvidenceController {
                 }
             }
             return new ResponseEntity<>(evidence, HttpStatus.OK);
-        } catch (Exception exception) {
+        } catch (Exception exception) {//        Assertions.assertEquals(responseEntity.getStatusCode().getReasonPhrase(), 1);
+
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -192,21 +203,20 @@ public class EvidenceController {
     public ResponseEntity<Object> addEvidence(
             @AuthenticationPrincipal Authentication principal,
             @RequestBody EvidenceDTO evidenceDTO
-    ) throws IOException, ServletException {
+    ) {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
-
         try {
-            Evidence evidence = evidenceService.addEvidence(principal, evidenceDTO);
+            evidenceService.addEvidence(principal, evidenceDTO);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (CheckException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad input: {}", err.getMessage());
             return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
-//        } catch (DateTimeParseException err) {
-//            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad date: {}", date);
-//            return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
-//        } catch (MalformedURLException err) {
-//            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad url {}", err.getMessage());
-//            return new ResponseEntity<>("Submitted weblink URL is malformed", HttpStatus.BAD_REQUEST);
+        } catch (DateTimeParseException err) {
+            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad date: ");
+            return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
+        } catch (MalformedURLException err) {
+            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad url {}", err.getMessage());
+            return new ResponseEntity<>("Submitted weblink URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
