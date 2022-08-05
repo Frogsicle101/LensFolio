@@ -17,8 +17,6 @@ import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Used to differentiate the strings that are passed to the stringCheck method
@@ -34,7 +32,7 @@ enum StringType {
 @Service
 public class EvidenceService {
 
-    static Pattern alpha = Pattern.compile("[a-zA-Z]");
+    private final String stringRegex = "[a-zA-Z0-9\s]*";
 
     private final UserAccountsClientService userAccountsClientService;
 
@@ -59,12 +57,11 @@ public class EvidenceService {
      * @param string A string
      * @throws CheckException The exception to throw
      */
-    public void checkString(String string, StringType type) throws CheckException {
-        Matcher matcher = alpha.matcher(string);
+    private void checkString(String string, StringType type) throws CheckException {
 
         if (string.length() < 2) {
             throw new CheckException("Text should be longer than 1 character");
-        } else if (!matcher.find()) {
+        } else if (!string.matches(stringRegex)) {
             throw new CheckException("Text shouldn't be strange");
         }
 
@@ -84,7 +81,7 @@ public class EvidenceService {
      * @param project      the project to check dates for.
      * @param evidenceDate the date of the evidence
      */
-    public void checkDate(Project project, LocalDate evidenceDate) {
+    private void checkDate(Project project, LocalDate evidenceDate) {
         if (evidenceDate.isBefore(project.getStartDateAsLocalDateTime().toLocalDate())
                 || evidenceDate.isAfter(project.getEndDateAsLocalDateTime().toLocalDate())) {
             throw new CheckException("Date is outside project dates");
