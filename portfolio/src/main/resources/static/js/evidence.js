@@ -296,6 +296,14 @@ function validateWebLink() {
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
+            } else if (address.search("://") === -1) {
+                $(".address-alert").alert('close') //Close any previous alerts
+                form.append(`
+                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                      That address is missing a "://" - did you make a typo?
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
             } else {
                 submitWebLink()
                 webLinkButtonToggle()
