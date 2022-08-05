@@ -19,7 +19,7 @@ public class Group {
 
     /** The unique ID of the Group. */
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
 
     /** A list of the users in the group. */
