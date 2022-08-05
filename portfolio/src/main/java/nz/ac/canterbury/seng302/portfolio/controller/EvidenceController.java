@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.*;
@@ -17,17 +18,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Controller for all the Evidence based end points
@@ -183,36 +184,29 @@ public class EvidenceController {
      * Entrypoint for creating an evidence object
      *
      * @param principal   The authentication principal
-     * @param title       The title of the evidence
-     * @param date        The date of the evidence
-     * @param description The description of the evidence
-     * @param projectId   The project id
-     * @param webLinks    A list of weblinkDTOs to be added to the evidence
+
      * @return returns a ResponseEntity, this entity included the new piece of evidence if successful.
      */
-    @PostMapping("/evidence")
+    @PostMapping(value = "/evidence")
+    @ResponseBody
     public ResponseEntity<Object> addEvidence(
             @AuthenticationPrincipal Authentication principal,
-            @RequestParam String title,
-            @RequestParam String date,
-            @RequestParam String description,
-            @RequestParam long projectId,
-            @RequestParam List<WebLinkDTO> webLinks
-    ) {
+            @RequestBody EvidenceDTO evidenceDTO
+    ) throws IOException, ServletException {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
-        logger.info(webLinks.toString());
+
         try {
-            Evidence evidence = evidenceService.addEvidence(principal, title, date, description, projectId, webLinks);
-            return new ResponseEntity<>(evidence, HttpStatus.OK);
+            Evidence evidence = evidenceService.addEvidence(principal, evidenceDTO);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (CheckException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad input: {}", err.getMessage());
             return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (DateTimeParseException err) {
-            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad date: {}", date);
-            return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
-        } catch (MalformedURLException err) {
-            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad url {}", err.getMessage());
-            return new ResponseEntity<>("Submitted weblink URL is malformed", HttpStatus.BAD_REQUEST);
+//        } catch (DateTimeParseException err) {
+//            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad date: {}", date);
+//            return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
+//        } catch (MalformedURLException err) {
+//            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad url {}", err.getMessage());
+//            return new ResponseEntity<>("Submitted weblink URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
+import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
@@ -16,9 +17,7 @@ import org.mockito.Mockito;
 import java.net.MalformedURLException;
 import java.security.Principal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -47,13 +46,8 @@ class EvidenceServiceTest {
 
         String title = "title";
 
-        evidenceService.addEvidence(principal,
-                title,
-                LocalDate.now().toString(),
-                "Description",
-                1L,
-                null
-        );
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), 1L);
+        evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
 
@@ -72,15 +66,12 @@ class EvidenceServiceTest {
 
         List<WebLinkDTO> links = new ArrayList<>();
         String url = "https://www.google.com";
-        links.add(new WebLinkDTO("Link", url));
+        links.add(new WebLinkDTO("name", url));
 
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", links, 1L);
         evidenceService.addEvidence(principal,
-                title,
-                LocalDate.now().toString(),
-                "Description",
-                1L,
-                links
-        );
+                evidenceDTO);
+
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
 

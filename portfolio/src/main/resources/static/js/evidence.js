@@ -149,7 +149,7 @@ function addEvidencePreviews(response) {
 /**
  * Retrieves the added web links and creates a list of them in DTO form.
  *
- * @returns {*[]} A list of web links matching the web link DTO format.
+ * @returns {string} A list of web links matching the web link DTO format.
  */
 function getWeblinksList() {
     let weblinks = document.getElementsByClassName("webLinkElement")
@@ -164,7 +164,6 @@ function getWeblinksList() {
         }
         weblinksList.push(weblinkDTO)
     }
-
     return weblinksList
 }
 
@@ -205,18 +204,19 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
         const projectId = 1
-        let webLinks = Array.from(getWeblinksList())
-
+        let webLinks = getWeblinksList();
+        let data = JSON.stringify({
+            "title": title,
+            "date": date,
+            "description": description,
+            "projectId": projectId,
+            "webLinks": webLinks
+        })
         $.ajax({
-            url: "evidence",
+            url: `evidence`,
             type: "POST",
-            data: {
-                title,
-                date,
-                description,
-                projectId,
-                webLinks
-            },
+            contentType: "application/json",
+            data,
             success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
@@ -384,13 +384,14 @@ function webLinkElement(address, alias) {
         `
     }
     let slashIndex = address.search("//") + 2
+    let addressWithoutSlash = address
     if (slashIndex > 1) address = address.slice(slashIndex) // Cut off the http:// or whatever else it might be
     return (`
         <div class="webLinkElement ${security}" data-bs-toggle="tooltip" data-bs-placement="top" 
             data-bs-title="${address}" data-bs-custom-class="webLinkTooltip">
             ${icon}
             <div class="addedWebLinkName">${alias}</div>
-            <div class="addedWebLinkAddress" style="visibility: hidden">${address}</div>
+            <div class="addedWebLinkAddress" style="visibility: hidden">${addressWithoutSlash}</div>
         </div>
     `)
 }
