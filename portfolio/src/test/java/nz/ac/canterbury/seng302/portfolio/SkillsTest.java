@@ -29,7 +29,6 @@ class SkillsTest {
         evidence.addSkill(skill);
         evidenceRepository.save(evidence);
 
-
         Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
         Assertions.assertEquals(evidence1.getTitle(), evidence.getTitle());
         Assertions.assertEquals(evidence1.getSkills().size(), evidence.getSkills().size());

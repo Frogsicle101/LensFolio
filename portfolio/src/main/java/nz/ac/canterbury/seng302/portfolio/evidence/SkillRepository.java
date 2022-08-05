@@ -13,5 +13,4 @@ public interface SkillRepository extends CrudRepository<Skill, Integer> {
      */
     @Query
     Skill findById(int id);
-
 }
