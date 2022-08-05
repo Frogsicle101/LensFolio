@@ -384,8 +384,9 @@ function clearAddEvidenceModalValues() {
     $("#webLinkName").val("")
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
-    $(".alert").alert('close') //Close alerts
+    $("#webLinkTitle").empty()
 }
+
 
 /**
  * Given a web address and an alias, creates and returns a web link element.
@@ -443,6 +444,7 @@ function disableEnableSaveButtonOnValidity() {
         $("#evidenceSaveButton").attr("disabled", true)
     }
 }
+
 
 function checkTextInputRegex() {
     let name = $("#evidenceName")
