@@ -80,6 +80,7 @@ $(document).on("submit", "#editRepoForm", function (event) {
         success: function (response) {
             createAlert("Changes submitted");
             cancelRepoEdit();
+            displayGroupRepoInformation()
         }
     })
 })
