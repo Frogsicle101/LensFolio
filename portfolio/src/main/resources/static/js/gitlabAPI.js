@@ -20,8 +20,11 @@ function getCommits(repoID, accessToken, callback) {
     $.ajax({
         url: `https://eng-git.canterbury.ac.nz/api/v4/projects/${repoID}/repository/commits?access_token=${accessToken}`,
         type: "GET",
-        complete: (response, status) => {
+        success: (response, status) => {
             callback(response, status)
+        },
+        error: (error, status) => {
+            callback(error, status)
         }
     })
 }
