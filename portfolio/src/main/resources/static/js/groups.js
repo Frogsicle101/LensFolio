@@ -151,14 +151,14 @@ function addUsers(groupId) {
     arrayOfIds = Array.from(new Set(arrayOfIds))
     selected.removeClass("selected")
     $.ajax({
-        url: `/groups/addUsers?groupId=${groupId}&userIds=${arrayOfIds}`,
+        url: `groups/addUsers?groupId=${groupId}&userIds=${arrayOfIds}`,
         type: "post",
         success: function () {
             displayGroupUsersList()
             createAlert("User(s) moved", false)
         },
         error: function (response) {
-            console.log(response)
+            // Log this
         }
     })
 }
