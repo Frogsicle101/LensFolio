@@ -29,5 +29,5 @@ public interface SkillRepository extends CrudRepository<Skill, Integer> {
      * @return The list of skill objects
      */
     @Query
-    List<Skill> findSkillsByEvidence_userId(@Param("userId") int userId);
+    List<Skill> findSkillsByEvidenceUserId(@Param("userId") int userId);
 }

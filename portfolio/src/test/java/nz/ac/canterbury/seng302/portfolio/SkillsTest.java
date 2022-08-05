@@ -74,8 +74,8 @@ class SkillsTest {
         evidenceRepository.save(evidence);
         evidenceRepository.save(evidenceWithNoSkills);
 
-        List<Skill> skillsForUser1 = skillRepository.findSkillsByEvidence_userId(1);
-        List<Skill> skillsForUser2 = skillRepository.findSkillsByEvidence_userId(2);
+        List<Skill> skillsForUser1 = skillRepository.findSkillsByEvidenceUserId(1);
+        List<Skill> skillsForUser2 = skillRepository.findSkillsByEvidenceUserId(2);
         Assertions.assertEquals(3, skillsForUser1.size());
         Assertions.assertEquals(skill1.getName(), skillsForUser1.get(0).getName());
         Assertions.assertEquals(skill2.getName(), skillsForUser1.get(1).getName());
