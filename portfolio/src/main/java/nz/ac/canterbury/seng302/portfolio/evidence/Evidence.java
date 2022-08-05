@@ -104,6 +104,10 @@ public class Evidence {
         return title;
     }
 
+    /**
+     * Verifies that the title is less than 500 characters, and sets the property if so.
+     * @param title The title to be checked and set.
+     */
     public void setTitle(String title) {
         checkTitleLength(title);
         this.title = title;
@@ -133,6 +137,10 @@ public class Evidence {
         this.webLinks.addAll(webLinks);
     }
 
+    /**
+     * Verifies that the description is less than 500 characters, and sets the property if so.
+     * @param description The description to be checked and set.
+     */
     public void setDescription(String description) {
         checkDescriptionLength(description);
         this.description = description;
