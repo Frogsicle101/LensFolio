@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.evidence.SkillRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Controller for all the Skill based end points
@@ -58,6 +61,31 @@ public class SkillController {
 
         } catch (Exception exception) {
             logger.error("GET REQUEST /skills - Internal Server Error attempt user: {}", userId);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Gets all the skills associated with a user with the supplied userId.
+     *
+     * @param skillId - The skill id of the skill whose pieces of evidence are requested
+     * @return A ResponseEntity that contains a list of evidences associated with the skill.
+     */
+    @GetMapping("/evidenceLinkedToSkill")
+    public ResponseEntity<Object> getEvidenceBySkill(@RequestParam Integer skillId) {
+        logger.info("GET REQUEST /evidenceLinkedToSkill - attempt to get all evidence for skill: {}", skillId);
+        try {
+            Optional<Skill> skill = skillRepository.findById(skillId);
+            if (skill.isEmpty()) {
+                logger.info("GET REQUEST /evidenceLinkedToSkill - skill {} does not exist", skillId);
+                return new ResponseEntity<>("Skill does not exist", HttpStatus.NOT_FOUND);
+            }
+            Set<Evidence> evidence = skill.get().getEvidence();
+            logger.info("GET REQUEST /evidenceLinkedToSkill - found and returned {} evidences for skill: {}", evidence.size() ,skillId);
+            return new ResponseEntity<>(evidence, HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.error("GET REQUEST /evidenceLinkedToSkill - Internal Server Error attempt skill: {}", skillId);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
