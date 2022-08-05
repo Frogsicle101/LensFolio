@@ -2,9 +2,12 @@ package nz.ac.canterbury.seng302.portfolio.service;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.evidence.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +20,12 @@ public class EvidenceService {
 
     static Pattern alpha = Pattern.compile("[a-zA-Z]");
 
+    @Autowired
+    private SkillRepository skillRepository;
+
+    @Autowired
+    private EvidenceRepository evidenceRepository;
+
 
     /**
      * Checks if the string is too short or matches the pattern provided
@@ -25,7 +34,7 @@ public class EvidenceService {
      * @param string A string
      * @throws CheckException The exception to throw
      */
-    public static void checkString(String string) throws CheckException {
+    public void checkString(String string) throws CheckException {
         Matcher matcher = alpha.matcher(string);
         if (string.length() < 2) {
             throw new CheckException("Title should be longer than 1 character");
@@ -43,7 +52,7 @@ public class EvidenceService {
      * @param project      the project to check dates for.
      * @param evidenceDate the date of the evidence
      */
-    public static void checkDate(Project project, LocalDate evidenceDate) {
+    public void checkDate(Project project, LocalDate evidenceDate) {
         if (evidenceDate.isBefore(project.getStartDateAsLocalDateTime().toLocalDate())
                 || evidenceDate.isAfter(project.getEndDateAsLocalDateTime().toLocalDate())) {
             throw new CheckException("Date is outside project dates");
@@ -51,6 +60,32 @@ public class EvidenceService {
 
         if (evidenceDate.isAfter(LocalDate.now())){
             throw new CheckException("Date is in the future");
+        }
+    }
+
+    /**SkillRepository
+     *add a list of skills to a given piece of evidence
+     *
+     * @param evidence - The  piece of evidence
+     * @param skillNames - The list of the skills
+     */
+    public void addSkills(Evidence evidence, String[] skillNames) {
+        Set<Skill> evidenceSkills =evidence.getSkills();
+        for(String skillName: skillNames){
+            boolean exist = false;
+            for (Skill oldSkill : evidenceSkills){
+                if (skillName.equalsIgnoreCase(oldSkill.getName())){
+                    exist = true;
+                    break;
+                }
+            }
+            if(!exist){
+                Skill createSkill = new Skill(skillName);
+                skillRepository.save(createSkill);
+            }
+            Skill theSkill = skillRepository.findByName(skillName);
+            evidence.addSkill(theSkill);
+            evidenceRepository.save(evidence);
         }
     }
 }

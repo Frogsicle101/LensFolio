@@ -13,6 +13,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -51,6 +52,9 @@ public class EvidenceController {
     /** The repository containing the projects. */
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private EvidenceService evidenceService;
 
 
     /**
@@ -189,7 +193,8 @@ public class EvidenceController {
             @RequestParam String title,
             @RequestParam String date,
             @RequestParam String description,
-            @RequestParam long projectId
+            @RequestParam long projectId,
+            @RequestParam String skills
     ) {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
         try {
@@ -200,10 +205,12 @@ public class EvidenceController {
             }
             Project project = optionalProject.get();
             LocalDate localDate = LocalDate.parse(date);
-            EvidenceService.checkDate(project, localDate);
-            EvidenceService.checkString(title);
-            EvidenceService.checkString(description);
+            evidenceService.checkDate(project, localDate);
+            evidenceService.checkString(title);
+            evidenceService.checkString(description);
             Evidence evidence = evidenceRepository.save(new Evidence(user.getId(), title, localDate, description));
+            String[] listSkills = skills.split("\\s+");
+            evidenceService.addSkills(evidence, listSkills);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
         } catch (CheckException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad input: {}", err.getMessage());
@@ -217,48 +224,4 @@ public class EvidenceController {
         }
     }
 
-
-    /**
-     *Entrypoint for creating a skill to a given piece of evidence
-     *
-     * @param evidenceId - The ID of the piece of evidence
-     * @param skillName - The name of the skill
-     * @return returns a ResponseEntity, this entity included the new piece of evidence if successful.
-     */
-    @PostMapping("/evidencePieceSkill")
-    public ResponseEntity<Object> addSkill(
-            @RequestParam String skillName,
-            @RequestParam long evidenceId
-    ) {
-        logger.info("POST REQUEST /evidencePieceSkill - attempt to create new skill");
-        try {
-            Optional<Evidence> optionalEvidence = evidenceRepository.findById(evidenceId);
-            if (optionalEvidence.isEmpty()) {
-                throw new CheckException("Evidence Id does not match any evidence");
-            }
-
-            //Check if the skill is existed
-            //ToDo: change the name format
-            Skill skillExists = SkillRepository.findByName(skillName);
-            if (skillExists){
-                if(true) {
-                    //get all of skills by a given evidence ID???
-                    //ToDo: check if the skill is already been added to this piece of evidence
-                    return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
-                }
-                //add the skill to the evidence
-                return new ResponseEntity<>(skill, HttpStatus.OK);
-            }
-            //creat the new skill and add it to the evidence
-            Skill skill = SkillRepository.save(new Skill(evidenceName));
-
-            return new ResponseEntity<>(skill, HttpStatus.OK);
-        } catch (CheckException err) {
-            logger.warn("POST REQUEST /evidencePieceSkill - attempt to create new skill: Bad input: {}", err.getMessage());
-            return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception err) {
-            logger.error("POST REQUEST /evidencePieceSkill - attempt to create new skill: ERROR: {}", err.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 }
