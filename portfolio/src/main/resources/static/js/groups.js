@@ -154,7 +154,7 @@ function addUsers(groupId) {
         url: `/groups/addUsers?groupId=${groupId}&userIds=${arrayOfIds}`,
         type: "post",
         success: function () {
-            displayGroupUsersList(selectedGroupId)
+            displayGroupUsersList()
             createAlert("User(s) moved", false)
         },
         error: function (response) {
@@ -260,16 +260,15 @@ function checkEditRights(group) {
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
  */
-function displayGroupUsersList(groupId) {
+function displayGroupUsersList() {
     let membersContainer = $("#groupTableBody")
     $.ajax({
-        url: `group?groupId=${groupId}`,
+        url: `group?groupId=${selectedGroupId}`,
         type: "GET",
         success: (response) => {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
-            $(this).closest(".group").addClass("focusOnGroup");
             group = response;
             for (let member in response.userList) {
                 let imageSource;
@@ -302,6 +301,10 @@ function displayGroupUsersList(groupId) {
 }
 
 
+/**
+ * A function to get the git repo information from the repository and display it on the group page, if there is no repo
+ * information then it changes the header to say there is no repository
+ */
 function displayGroupRepoInformation () {
     let repoInformationContainer = $("#gitRepo")
     $.ajax({
@@ -330,15 +333,66 @@ function displayGroupRepoInformation () {
                                 </div>
                              </div>`
                 )
-                getRepoCommits();
             }
-
-        },
-        error: (error) => {
-            console.log(error);
-        },
+            getRepoCommits();
+        }
     })
 }
+
+
+/**
+ * a function to get the commits from the provided git repository and display the first 3 if there are any, or change
+ * the title to say that there are no commits
+ */
+function getRepoCommits() {
+    const commitContainer = $("#groupSettingsCommitSection");
+    commitContainer.empty();
+    const repoID = $(".groupSettingsPageProjectId").text()
+    const accessToken = $(".groupSettingsPageAccessToken").text();
+
+    if (repoID.length !== 0) {
+        getCommits(repoID, accessToken, (data) => {
+
+            if (data.length === 0) {
+                let commitText =
+                    `<h5>No Recent Commits</h5>`
+                commitContainer.append(commitText)
+            }
+
+            const firstThree = data.slice(0, 3);
+
+            for (let commit of firstThree) {
+                let commitText =
+                    `<h5>Recent Commits:</h5>
+                     <div id="groupSettingsCommitContainer" class="marginSides1">
+                        <div class="gitCommitInfo">
+                            <div class="row">
+                                <div class="inlineText">
+                                    <p>Commit:&nbsp;</p>
+                                    <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <p>${sanitise(commit.message)}</p>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <p class="greyText">${sanitise(commit.author_name)}</p>
+                                </div>
+                                <div class="col commitDate">
+                                    <p class="greyText">${commit.committed_date.split("T")[0]}</p>
+                                </div>
+                            </div>
+                        </div>
+                     </div>`
+                commitContainer.append(commitText)
+            }
+        })
+    }
+}
+
+
+// ******************************* Click listeners *******************************
 
 
 /**
@@ -369,42 +423,6 @@ $(document).on("click", ".deleteButton", function () {
 })
 
 
-function getRepoCommits() {
-    const repoID = $(".groupSettingsPageProjectId").text()
-    const accessToken = $(".groupSettingsPageAccessToken").text();
-    getCommits(repoID, accessToken, (data) => {
-
-        const firstThree = data.slice(0, 3);
-
-        const commitContainer = $("#groupSettingsCommitContainer");
-        commitContainer.empty();
-        for (let commit of firstThree) {
-            let commitText =
-                `<div class="gitCommitInfo">
-                <div class="row">
-                    <div class="inlineText">
-                        <p>Commit:&nbsp;</p>
-                        <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
-                    </div>
-                </div>
-                <div class="row">
-                    <p>${sanitise(commit.message)}</p>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <p class="greyText">${sanitise(commit.author_name)}</p>
-                    </div>
-                    <div class="col commitDate">
-                        <p class="greyText">${commit.committed_date.split("T")[0]}</p>
-                    </div>
-                </div>
-            </div>`
-            commitContainer.append(commitText)
-        }
-    })
-}
-
-
 /**
  * When member removal is confirmed, a request is made to remove the selected users from the group.
  */
@@ -417,7 +435,7 @@ $(document).on("click", "#confirmRemoval", function () {
         url: `groups/removeUsers?groupId=${selectedGroupId}&userIds=${arrayOfIds}`,
         type: "DELETE",
         success: () => {
-            displayGroupUsersList(selectedGroupId)
+            displayGroupUsersList()
             createAlert("User removed", false)
         },
         error: (error) => {
@@ -435,6 +453,7 @@ $(document).on("click", "#cancelRemoval", function () {
     $("#confirmationForm").slideUp();
 })
 
+
 /**
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
@@ -445,9 +464,10 @@ $(document).on("click", "#pillsSettingsTab", function () {
 })
 
 
-// ******************************* Click listeners *******************************
-
-
+/**
+ * a listener for when the move users button is pushed, calls a function to move the currently selected users to the
+ * selected group
+ */
 $(document).on("click", "#moveUsersButton", function () {
     addUsers($("#newGroupSelector").val())
 })
@@ -474,14 +494,11 @@ $(document).on("click", "#selectAllCheckboxGroups", function () {
  */
 $(document).on("click", ".group", function () {
     $(".group").removeClass("focusOnGroup")
-    let groupId = $(this).closest(".group").find(".groupId").text();
-    selectedGroupId = groupId;
+    selectedGroupId = $(this).closest(".group").find(".groupId").text();
     let groupShortname = $(this).closest(".group").find(".groupShortName").text();
     $("#selectAllCheckboxGroups").prop("checked", false);
-    displayGroupUsersList(groupId);
+    displayGroupUsersList();
     displayGroupRepoInformation()
-
-    //$(this).closest(".group").addClass("focusOnGroup")
 
     if (groupShortname === "Teachers") { // teacher group
         $("#groupRemoveUser").show();
