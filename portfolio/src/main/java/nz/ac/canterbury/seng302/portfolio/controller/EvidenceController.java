@@ -3,10 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLink;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
@@ -176,7 +173,6 @@ public class EvidenceController {
         }
     }
 
-
     /**
      * Entrypoint for creating an evidence object
      *
@@ -217,6 +213,43 @@ public class EvidenceController {
             return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     *Entrypoint for creating a skill to a given piece of evidence
+     *
+     * @param evidenceId - The ID of the piece of evidence
+     * @param evidenceName - The name of the skill
+     * @return returns a ResponseEntity, this entity included the new piece of evidence if successful.
+     */
+    @PostMapping("/evidencePieceSkill")
+    public ResponseEntity<Object> addSkill(
+            @RequestParam String evidenceName,
+            @RequestParam long evidenceId
+    ) {
+        logger.info("POST REQUEST /evidencePieceSkill - attempt to create new skill");
+        try {
+            Optional<Evidence> optionalEvidence = evidenceRepository.findById(evidenceId);
+            if (optionalEvidence.isEmpty()) {
+                throw new CheckException("Evidence Id does not match any evidence");
+            }
+            Evidence evidence = optionalEvidence.get();
+
+            //ToDo: check the skill is exist or not, can we find a skill by name? in skill Repository
+
+            //ToDo: add skill to skills table
+            //ToDo: add skill and evidence to the relation table
+
+           Skill skill = SkillRepository.save(new Skill(evidenceName));
+            return new ResponseEntity<>(skill, HttpStatus.OK);
+        } catch (CheckException err) {
+            logger.warn("POST REQUEST /evidencePieceSkill - attempt to create new skill: Bad input: {}", err.getMessage());
+            return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception err) {
+            logger.error("POST REQUEST /evidencePieceSkill - attempt to create new skill: ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
