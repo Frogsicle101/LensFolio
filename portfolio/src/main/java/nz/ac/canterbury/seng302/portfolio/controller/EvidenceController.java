@@ -192,11 +192,12 @@ public class EvidenceController {
 
 
     /**
-     * Entrypoint for creating an evidence object
+     * Entrypoint for creating an evidence object.
      *
-     * @param principal   The authentication principal
+     * @param principal   The authentication principal for the logged-in user
+     * @param evidenceDTO The EvidenceDTO object containing the required data for the evidence instance being created.
 
-     * @return returns a ResponseEntity, this entity included the new piece of evidence if successful.
+     * @return returns a ResponseEntity. This entity includes the new piece of evidence if successful.
      */
     @PostMapping(value = "/evidence")
     @ResponseBody
@@ -206,8 +207,8 @@ public class EvidenceController {
     ) {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
         try {
-            evidenceService.addEvidence(principal, evidenceDTO);
-            return new ResponseEntity<>(HttpStatus.OK);
+            Evidence evidence = evidenceService.addEvidence(principal, evidenceDTO);
+            return new ResponseEntity<>(evidence, HttpStatus.OK);
         } catch (CheckException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad input: {}", err.getMessage());
             return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);

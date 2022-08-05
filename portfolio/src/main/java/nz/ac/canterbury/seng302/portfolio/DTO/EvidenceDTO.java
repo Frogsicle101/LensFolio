@@ -4,6 +4,9 @@ import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkDTO;
 
 import java.util.List;
 
+/**
+ * Evidence Data Transfer Object, used for representing the data required to make a piece of evidence.
+ */
 public class EvidenceDTO {
     String title;
     String date;
