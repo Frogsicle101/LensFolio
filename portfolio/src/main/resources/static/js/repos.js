@@ -22,16 +22,16 @@ $(document).on("click", ".editRepo", () => {
     parent.html(
         `<form id="editRepoForm" class="marginSides1">
             <div class="mb-1">
-                <label class="form-label">Repository Name:</label>
-                <input type="text" id="repoName" class="form-control" value="${$("#groupSettingsPageRepoName").text()}">
+                <label class="form-label">Repository Name (cannot be empty):</label>
+                <input type="text" id="repoName" class="form-control" required minlength=1 value="${$("#groupSettingsPageRepoName").text()}">
             </div>
             <div class="mb-1">
-                <label class="form-label">Project ID:</label>
-                <input type="text" id="projectId" class="form-control" value="${$(".groupSettingsPageProjectId").text()}">
+                <label class="form-label">Project ID (must be a number):</label>
+                <input type="number" id="projectId" class="form-control" required value="${$(".groupSettingsPageProjectId").text()}">
             </div>
             <div class="mb-1">
-                <label class="form-label">Access Token:</label>
-                <input type="text" id="accessToken" class="form-control" value="${$(".groupSettingsPageAccessToken").text()}">
+                <label class="form-label">Access Token (minimum 20 characters):</label>
+                <input type="text" id="accessToken" class="form-control" required minlength=20 value="${$(".groupSettingsPageAccessToken").text()}">
             </div>
             <div class="mb-3 mt-3">
                 <button type="submit" class="btn btn-primary">Save</button>
@@ -47,17 +47,6 @@ $(document).on("click", ".editRepo", () => {
  * Event listener for the cancel button on the git repo edit form.
  */
 $(document).on("click", ".cancelRepoEdit", cancelRepoEdit);
-
-
-/**
- * Detects any click outside the group settings page and closes the form.
- */
-$(document).click(function(event) {
-    const distance = $(event.target).closest("#groupSettingsPage").length
-    if (distance < 1) {
-        cancelRepoEdit()
-    }
-})
 
 
 /**
@@ -81,6 +70,9 @@ $(document).on("submit", "#editRepoForm", function (event) {
             createAlert("Changes submitted");
             cancelRepoEdit();
             displayGroupRepoInformation()
+        },
+        error: (error) => {
+            createAlert(error.responseText)
         }
     })
 })

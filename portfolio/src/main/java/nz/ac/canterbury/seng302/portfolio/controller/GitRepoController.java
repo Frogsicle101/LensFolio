@@ -66,9 +66,13 @@ public class GitRepoController {
         logger.info("POST REQUEST /gitRepo/add - attempt to add git repo {} to group {}", alias, groupId);
 
         try {
-            if (alias.isBlank() || accessToken.length() < 20) {
-                throw new Exception("Required regex not matched by parameters");
+            if (alias.isBlank()) {
+                throw new RuntimeException("The repository name cannot be empty");
             }
+            if (accessToken.length() < 20) {
+                throw new RuntimeException("Access token must be at least 20 characters");
+            }
+
 
             GitRepository repo;
             try {
@@ -84,10 +88,10 @@ public class GitRepoController {
             logger.info("POST /gitRepo/add: Success");
             return new ResponseEntity<>(repo, HttpStatus.OK);
 
-        } catch (Exception exception) {
+        } catch (RuntimeException exception) {
             logger.error("ERROR /gitRepo/add - an error occurred while adding git repo {} to group {}", alias, groupId);
             logger.error(exception.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
