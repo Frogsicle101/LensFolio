@@ -64,7 +64,7 @@ public class EvidenceController {
      */
     @GetMapping("/evidence")
     public ModelAndView getEvidencePage(@AuthenticationPrincipal Authentication principal) {
-        logger.info("GET REQUEST /groups - attempt to get all groups");
+        logger.info("GET REQUEST /evidence - attempt to get all groups");
 
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
