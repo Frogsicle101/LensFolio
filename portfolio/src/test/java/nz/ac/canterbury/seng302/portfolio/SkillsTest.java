@@ -83,4 +83,17 @@ class SkillsTest {
 
         Assertions.assertEquals(0, skillsForUser2.size());
     }
+
+
+    @Test
+    void checkIfSkillsRepoCaseInsensitive() {
+        Skill skill1 = new Skill("Testing 1");
+        String differentCaseSearchQuery = "tesTing 1";
+
+        skillRepository.save(skill1);
+
+        Skill foundSkill = skillRepository.findByNameIgnoreCase(differentCaseSearchQuery);
+        Assertions.assertNotEquals(foundSkill.getName(), differentCaseSearchQuery);
+        Assertions.assertEquals(skill1.getName(), foundSkill.getName());
+    }
 }

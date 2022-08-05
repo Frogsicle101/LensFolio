@@ -83,7 +83,7 @@ public class EvidenceService {
                 Skill createSkill = new Skill(skillName);
                 skillRepository.save(createSkill);
             }
-            Skill theSkill = skillRepository.findByName(skillName);
+            Skill theSkill = skillRepository.findByNameIgnoreCase(skillName);
             evidence.addSkill(theSkill);
             evidenceRepository.save(evidence);
         }

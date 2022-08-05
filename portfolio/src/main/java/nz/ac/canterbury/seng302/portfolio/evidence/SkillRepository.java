@@ -25,7 +25,7 @@ public interface SkillRepository extends CrudRepository<Skill, Integer> {
      * Finds a Skill object by its name.
      */
     @Query
-    Skill findByName(String name);
+    Skill findByNameIgnoreCase(String name);
 
 
     /**
