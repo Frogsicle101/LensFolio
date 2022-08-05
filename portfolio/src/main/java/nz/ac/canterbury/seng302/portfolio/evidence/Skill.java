@@ -51,6 +51,7 @@ public class Skill {
         this.name = name;
     }
 
+
     public Integer getId() {
         return id;
     }
@@ -66,6 +67,7 @@ public class Skill {
     public Set<Evidence> getEvidence() {
         return evidence;
     }
+
 
     /**
      * For testing returns the expected json string of the object.
