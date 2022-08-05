@@ -760,6 +760,10 @@ section {
     color: var(--secondary-text-colour-darker);
 }
 
+.redText {
+    color: red;
+}
+
 .inlineText {
     display: flex;
     justify-content: left;
