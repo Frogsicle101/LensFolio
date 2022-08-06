@@ -517,30 +517,15 @@ $(document).on("click", ".deleteButton", function () {
     const editButton = $(".editButton");
         editButton.hide();
         editButton.tooltip("hide");
-        const parent = $("#groupEditInfo");
 
-        parent.html(
-            `<form id="editGroupForm" class="marginSides1">
-                <div class="mb-1" id="editShortNameInput">
-                    <label class="form-label">Group ShortName:</label>
-                    <input type="text" id="groupShortName" class="form-control canDisable" maxlength=50 required value="${$("#groupInformationShortName").text()}">
-                    <small class="form-text text-muted countChar">0 characters remaining</small>
-                </div>
-                <div class="mb-1">
-                    <label class="form-label">Group LongName:</label>
-                    <input type="text" id="groupLongName" class="form-control canDisable" maxlength=100 required value="${$("#groupInformationLongName").text()}">
-                    <small class="form-text text-muted countChar">0 characters remaining</small>
-                </div>
-                <div class="mb-3 mt-3">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <button type="button" class="btn btn-secondary cancelGroupEdit" >Cancel</button>
-                </div>
-            </form>`
-        );
+        $("#groupShortName").text($("#groupInformationShortName").text())
+        $("#groupLongName").text($("#groupInformationLongName").text())
+
         if (!checkPrivilege()){
             $("#editShortNameInput").hide();
         }
-        parent.slideDown();
+        $("#groupEditInfo").slideDown();
+
         let formControl = $(".form-control");
         formControl.each(countCharacters);
         formControl.keyup(countCharacters);
@@ -679,6 +664,7 @@ $(document).on("click", ".group", function () {
         $(".controlButtons").show();
     }
     $("#confirmationForm").slideUp();
+    $("#groupEditInfo").slideUp();
     $(this).closest(".group").addClass("focusOnGroup");
 })
 
