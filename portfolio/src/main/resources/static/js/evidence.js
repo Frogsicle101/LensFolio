@@ -371,7 +371,9 @@ $(document).on("keydown", "#skillsInput", function (event) {
     if (event.keyCode === $.ui.keyCode.DELETE) {
         event.preventDefault();
         let skillsInput = $("#skillsInput")
-        let inputArray = skillsInput.val().split(' ')
+        let inputArray = skillsInput.val().trim().split(/\s+/)
+
+        console.log(inputArray)
         inputArray.pop()
         skillsInput.val(inputArray.join(" "))
     }
