@@ -466,6 +466,7 @@ $(document).on("change", ".form-control", function () {
     checkTextInputRegex()
 })
 
+
 /**
  * Refresh tooltip display
  */
