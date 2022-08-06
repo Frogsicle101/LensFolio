@@ -7,7 +7,30 @@ const regExp = new RegExp('[A-Za-z]');
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
-let skillsArray = ["testing", "loading", "test", "Patting_Dogs"]
+let skillsArray = [
+    "ActionScript",
+    "AppleScript",
+    "Asp",
+    "BASIC",
+    "C",
+    "C++",
+    "Clojure",
+    "COBOL",
+    "ColdFusion",
+    "Erlang",
+    "Fortran",
+    "Groovy",
+    "Haskell",
+    "Java",
+    "JavaScript",
+    "Lisp",
+    "Perl",
+    "PHP",
+    "Python",
+    "Ruby",
+    "Scala",
+    "Scheme"
+]
 
 
 /**
@@ -310,6 +333,7 @@ $("#skillsInput")
             let responseList = $.ui.autocomplete.filter(
                 skillsArray, extractLast(request.term))
             response(responseList.sort((element1, element2) => {
+                // This sorts the response list (the drop-down list) so that it shows the shortest match first
                 return element1.length - element2.length
             }));
         },
