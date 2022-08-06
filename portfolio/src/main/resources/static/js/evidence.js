@@ -245,7 +245,7 @@ $(document).on('click', '.addWebLinkButton', function () {
     let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
-        let address = $("#webLinkAddress").val()
+        let address = $("#webLinkUrl").val()
         let alias = $("#webLinkName").val()
         let form = $(".weblink-form")
         validateWebLink(form, alias, address)
@@ -258,7 +258,7 @@ $(document).on('click', '.addWebLinkButton', function () {
 /**
  * Listen for a keypress in the weblink address field, and closes the alert box
  */
-$(document).on('keypress', '#webLinkAddress', function () {
+$(document).on('keypress', '#webLinkUrl', function () {
     $(".address-alert").alert('close')
 })
 
@@ -402,7 +402,7 @@ function handleInvalidWebLink(form, error) {
  * If there's an issue, or it's not valid, calls a function to display an alert
  */
 function validateWebLinkAtBackend() {
-    let address = $("#webLinkAddress").val()
+    let address = $("#webLinkUrl").val()
     let form = $(".weblink-form")
 
     $.ajax({
