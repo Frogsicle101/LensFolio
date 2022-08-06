@@ -272,69 +272,86 @@ function createEvidencePreview(evidence) {
 
 
 /**
- * Validates the weblink.
- * Takes the URL and makes a call to the server to check if it's valid.
- * Then it does some basic title validation
- *
- * If there's an issue, it displays an alert
- * If it's valid, submits the weblink and toggles the form/button.
+ * Handles a web link validated by the back end. 
+Validates the alias and then displays an error message or saves the web link and toggles the web link form.
  */
-function validateWebLink() {
-    let address = $("#webLinkAddress").val()
-    let alias = $("#webLinkName").val()
-    let form = $(".weblink-form")
-    $.ajax({
-        url: `validateWebLink?address=${address}`,
-        type: "GET",
-        success: () => {
-            //Do some title validation
-            if (alias.length === 0) {
-                $(".address-alert").alert('close') //Close any previous alerts
-                form.append(`
+function handleValidatedWebLink(form, alias, address) {
+    //Do some title validation
+    if (alias.length === 0) {
+        $(".address-alert").alert('close') //Close any previous alerts
+        form.append(`
                     <div class="alert alert-danger alert-dismissible show weblink-name-alert" role="alert">
                       Please include a name for your web link
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
-            } else if (address.search("://") === -1) {
-                $(".address-alert").alert('close') //Close any previous alerts
-                form.append(`
+    } else if (address.search("://") === -1) {
+        $(".address-alert").alert('close') //Close any previous alerts
+        form.append(`
                     <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
                       That address is missing a "://" - did you make a typo?
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
-            } else {
-                submitWebLink()
-                webLinkButtonToggle()
-            }
-        },
-        error: (error) => {
-            $(".address-alert").alert('close') //Close any previous alerts
-            switch (error.status) {
-                case 400:
-                    // The URL is invalid
-                    form.append(`
+    }
+    else {
+        submitWebLink()
+        webLinkButtonToggle()
+    }
+}
+
+
+/**
+ * Handles the error messages for an invalid web link.
+ */
+function handleInvalidWebLink(form, error) {
+    $(".address-alert").alert('close') //Close any previous alerts
+    switch (error.status) {
+        case 400:
+            // The URL is invalid
+            form.append(`
                     <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
                       Please enter a valid address, like https://www.w3.org/WWW/
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
-                    break
-                default:
-                    // A regular error
-                    form.append(`
+            break
+        default:
+            // A regular error
+            form.append(`
                     <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
                       Something went wrong. Try again later.
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
-                    break
-            }
+            break
+    }
+}
+
+
+/**
+ * Validates the weblink.
+ * Takes the URL and makes a call to the server to check if it's valid.
+ * Then calls a function to handle the valid web link.
+ *
+ * If there's an issue, calls a function to display an alert
+ */
+function validateWebLink() {
+    let address = $("#webLinkAddress").val()
+    let alias = $("#webLinkName").val()
+    let form = $(".weblink-form")
+
+    $.ajax({
+        url: `validateWebLink?address=${address}`,
+        type: "GET",
+        success: () => {
+            handleValidatedWebLink(form, alias, address)
+        },
+        error: (error) => {
+            handleInvalidWebLink(form, error)
         }
     })
 }
-
 
 /**
  * Toggles the add weblink button,
