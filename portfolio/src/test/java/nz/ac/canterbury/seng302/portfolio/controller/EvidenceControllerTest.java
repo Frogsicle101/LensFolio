@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,7 +48,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class EvidenceControllerTest {
 
     private Authentication principal;
-
 
     @Autowired
     private MockMvc mockMvc;
@@ -355,7 +352,6 @@ class EvidenceControllerTest {
         String date = "WOW this shouldn't work";
         String description = "testing";
         long projectId = 1;
-        Project project = new Project("Testing");
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), projectId);
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new DateTimeParseException("test", "test", 0));
@@ -375,7 +371,6 @@ class EvidenceControllerTest {
         String date = "";
         String description = "testing";
         long projectId = 1;
-        Project project = new Project("Testing");
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), projectId);
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new DateTimeParseException("test", "test", 0));

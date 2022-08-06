@@ -4,7 +4,10 @@ import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.*;
+import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.evidence.WebLink;
+import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
@@ -21,14 +24,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Controller for all the Evidence based end points
@@ -166,8 +166,7 @@ public class EvidenceController {
      *
      * @param userId - The userId of the user whose evidence is wanted
      * @return A response entity with the required response code. Response body is the evidence is the status is OK
-     *///        Assertions.assertEquals(responseEntity.getStatusCode().getReasonPhrase(), 1);
-
+     */
     @GetMapping("/evidenceData")
     public ResponseEntity<Object> getAllEvidence(@RequestParam("userId") Integer userId) {
         logger.info("GET REQUEST /evidence - attempt to get evidence for user {}", userId);
@@ -182,8 +181,7 @@ public class EvidenceController {
                 }
             }
             return new ResponseEntity<>(evidence, HttpStatus.OK);
-        } catch (Exception exception) {//        Assertions.assertEquals(responseEntity.getStatusCode().getReasonPhrase(), 1);
-
+        } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -213,7 +211,7 @@ public class EvidenceController {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad input: {}", err.getMessage());
             return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (DateTimeParseException err) {
-            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad date: ");
+            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad date");
             return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
         } catch (MalformedURLException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad url {}", err.getMessage());
