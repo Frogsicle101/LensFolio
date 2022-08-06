@@ -17,14 +17,14 @@
             <div class="group" th:each="group : ${groups}" th:id="${'Group' + group.groupId}">
                 <div class="mb3">
                     <p class="groupId" style="display: none" th:text="${group.groupId}"></p>
-                    <h2 class="groupShortName" th:text="${group.shortName}"></h2>
-                    <h3 class="groupLongName" th:text="${group.longName}"></h3>
+                    <h2 class="groupShortName showExtraWhitespace" th:text="${group.shortName}"></h2>
+                    <h3 class="groupLongName showExtraWhitespace" th:text="${group.longName}"></h3>
                 </div>
             </div>
         </div>
         <div class="col" id="groupInformationContainer" style="display: none">
-            <h2 id="groupInformationShortName"></h2>
-            <h3 id="groupInformationLongName"></h3>
+            <h2 id="groupInformationShortName" class="showExtraWhitespace"></h2>
+            <h3 id="groupInformationLongName" class="showExtraWhitespace"></h3>
             <div id="groupEditInfo"></div>
             <hr>
             <ul class="nav nav-tabs mb-3" id="pillsTab" role="tablist">

@@ -23,6 +23,10 @@ section {
     align-items: center;
 }
 
+.showExtraWhitespace {
+    white-space: pre;
+}
+
 
 /*Colours*/
 
