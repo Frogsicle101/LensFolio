@@ -157,19 +157,19 @@ function addEvidencePreviews(response) {
  */
 function getWeblinksList() {
     let evidenceCreationForm = $("#evidenceCreationForm")
-    let weblinks = evidenceCreationForm.find(".webLinkElement")
-    let weblinksList = []
+    let webLinks = evidenceCreationForm.find(".webLinkElement")
+    let webLinksList = []
 
-     $.each(weblinks, function () {
-        let weblinkDTO = {
+     $.each(webLinks, function () {
+        let webLinkDTO = {
             "url": this.querySelector(".addedWebLinkUrl").innerHTML,
             "name": this.querySelector(".addedWebLinkName").innerHTML
         }
 
-        weblinksList.push(weblinkDTO)
+        webLinksList.push(webLinkDTO)
     })
 
-    return weblinksList
+    return webLinksList
 }
 
 
@@ -242,7 +242,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '.addWebLinkButton', function () {
-    $(".weblink-form").slideToggle();
+    $(".webLinkForm").slideToggle();
     let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
         //Un-toggle the button
