@@ -435,6 +435,36 @@ function getRepoCommits() {
 }
 
 
+/**
+ * Performs all the actions required to close the group details edit form
+ */
+function cancelGroupEdit() {
+    const parent = $("#groupEditInfo");
+    parent.slideUp(() => {
+        const editButton = $(".editButton");
+        editButton.show();
+    });
+}
+
+
+/**
+ * Function that gets the maxlength of an input field and lets the user know how many characters they have left.
+ */
+    function countCharacters() {
+        let maxlength = $(this).attr("maxLength")
+        let lengthOfCurrentInput = $(this).val().length;
+        let counter = maxlength - lengthOfCurrentInput;
+        let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
+
+        //If one character remains, changes from "characters remaining" to "character remaining"
+        if (counter !== 1) {
+            helper.text(counter + " characters remaining")
+        } else {
+            helper.text(counter + " character remaining")
+        }
+    }
+
+
 // ******************************* Click listeners *******************************
 
 
@@ -464,6 +494,74 @@ $(document).on("click", ".deleteButton", function () {
         })
     }
 })
+
+
+/**
+ * A listener for the edit group name button, opens up a form that allows teacher or admins to change the group names
+ */
+ $(document).on("click", ".editButton", () => {
+    const editButton = $(".editButton");
+        editButton.hide();
+        editButton.tooltip("hide");
+        const parent = $("#groupEditInfo");
+
+        parent.html(
+            `<form id="editGroupForm" class="marginSides1">
+                <div class="mb-1">
+                    <label class="form-label">Group ShortName:</label>
+                    <input type="text" id="groupShortName" class="form-control canDisable" maxlength=50 required value="${$("#groupInformationShortName").text()}">
+                    <small class="form-text text-muted countChar">0 characters remaining</small>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label">Group LongName:</label>
+                    <input type="text" id="groupLongName" class="form-control canDisable" maxlength=100 required value="${$("#groupInformationLongName").text()}">
+                    <small class="form-text text-muted countChar">0 characters remaining</small>
+                </div>
+                <div class="mb-3 mt-3">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary cancelGroupEdit" >Cancel</button>
+                </div>
+            </form>`
+        );
+        parent.slideDown();
+        let formControl = $(".form-control");
+        formControl.each(countCharacters);
+        formControl.keyup(countCharacters);
+ })
+
+
+ /**
+  * Event listener for the submit button of editing a group name
+  */
+ $(document).on("submit", "#editGroupForm", function (event) {
+     event.preventDefault();
+
+     const groupData = {
+         "groupId" : selectedGroupId,
+         "shortName" : $("#groupShortName").val(),
+         "longName" : $("#groupLongName").val(),
+     }
+
+     $.ajax({
+         url: "/groups/edit/details",
+         type: "post",
+         data: groupData,
+         success: function (response) {
+             createAlert("Changes submitted");
+             cancelGroupEdit();
+             displayGroupUsersList();
+         },
+         error: (error) => {
+             createAlert(error.responseText, true)
+         }
+     })
+ })
+
+
+/**
+ * Event listener for the cancel button on the git repo edit form.
+ */
+$(document).on("click", ".cancelGroupEdit", cancelGroupEdit);
 
 
 /**

@@ -72,7 +72,7 @@ $(document).on("submit", "#editRepoForm", function (event) {
             displayGroupRepoInformation()
         },
         error: (error) => {
-            createAlert(error.responseText)
+            createAlert(error.responseText, true)
         }
     })
 })

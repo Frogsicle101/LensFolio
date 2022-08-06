@@ -183,6 +183,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                                     .setFieldName("Short name")
                                     .setErrorText("A group exists with the shortName " + request.getShortName())
                                     .build())
+                            .setMessage("Error: A group already exists with the short name " + request.getShortName())
                             .setIsSuccess(false);
                     logger.warn("Group Modify - trying to update group details for group {}: {}",request.getGroupId(), "A group exists with the shortName " + request.getShortName());
                 }
@@ -191,7 +192,8 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                                 .setFieldName("Long name")
                                 .setErrorText("A group exists with the longName " + request.getLongName())
                                 .build())
-                        .setIsSuccess(false);
+                            .setMessage("Error: A group already exists with the long name " + request.getLongName())
+                            .setIsSuccess(false);
                     logger.warn("Group Modify - trying to update group details for group {}: {}",request.getGroupId(), "A group exists with the longName " + request.getLongName());
                 }
                 if (shortNameLength < MIN_LENGTH || shortNameLength > MAX_SHORT_NAME_LENGTH) {
