@@ -7,6 +7,8 @@ const regExp = new RegExp('[A-Za-z]');
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
+let skillsArray = ["testing", "loading", "test", "Patting_Dogs"]
+
 
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
@@ -28,6 +30,23 @@ $(document).ready(function () {
     let textInput = $(".text-input");
     textInput.each(countCharacters)
     textInput.keyup(countCharacters)
+
+
+    /**
+     * When the page loads this makes a call to the server to get a list of the users skills they already have
+     * this helps the autocomplete functionality on the skill input
+     */
+    $.ajax({
+        url: "skills?userId=" + userBeingViewedId,
+        type: "GET",
+        success: function(response){
+            console.log(response)
+            //TODO add response skills to skill array
+        },
+        error: function(response){
+            console.log(response)
+        }
+    })
 })
 
 
@@ -258,6 +277,66 @@ $(document).on('click', '.addWebLinkButton', function () {
         button.addClass("btn-primary")
     }
 })
+
+// --------------------------------- Autocomplete -----------------------------------------
+
+/** This split function splits the text by its spaces*/
+function split(val) {
+    return val.split( /\s+/ );
+}
+
+/** this function splits the input by its spaces then returns the last word */
+function extractLast( term ) {
+    return split( term ).pop();
+}
+
+/**
+ * Autocomplete widget provided by jQueryUi
+ * https://jqueryui.com/autocomplete/
+ */
+$("#skillsInput")
+    // don't navigate away from the field on tab when selecting an item
+    .on( "keydown", function( event ) {
+        if ( event.keyCode === $.ui.keyCode.TAB &&
+            $( this ).autocomplete( "instance" ).menu.active ) {
+            event.preventDefault();
+        }
+    })
+    .autocomplete({
+        autoFocus: true,
+        minLength: 0,
+        source: function(request, response) {
+            // delegate back to autocomplete, but extract the last term
+            let responseList = $.ui.autocomplete.filter(
+                skillsArray, extractLast( request.term ) )
+            response( responseList.sort((element1, element2) => {
+                return element1.length - element2.length
+            }) );
+        },
+        focus: function() {
+            // prevent value inserted on focus
+            return false;
+        },
+        select: function( event, ui ) {
+            let terms = split( this.value );
+            // remove the current input
+            terms.pop();
+            // add the selected item
+            terms.push( ui.item.value );
+            // add placeholder to get the space at the end
+            terms.push( "" );
+            this.value = terms.join( " " );
+            return false;
+        },
+
+})
+    .data('ui-autocomplete')._renderItem = function( ul, item ) {
+    //This handles the display of the drop-down menu.
+    return $( "<li></li>" )
+        .data( "ui-autocomplete-item", item )
+        .append( '<a>' + item.label + '</a>' )
+        .appendTo( ul );
+};
 
 
 
