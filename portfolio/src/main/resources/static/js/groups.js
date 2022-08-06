@@ -266,7 +266,6 @@ function checkEditRights(group) {
  * Loops through the groups members and adds them to the table.
  */
 function displayGroupUsersList() {
-    let membersContainer = $("#groupTableBody")
     $.ajax({
         url: `group?groupId=${selectedGroupId}`,
         type: "GET",
@@ -275,26 +274,7 @@ function displayGroupUsersList() {
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
             group = response;
-            for (let member in response.userList) {
-                let imageSource;
-                let user = response.userList[member]
-                if (user.imagePath.length === 0) {
-                    imageSource = "defaultProfile.png"
-                } else {
-                    imageSource = user.imagePath
-                }
-                membersContainer.append(`
-                    <tr class="userRow" userId=${user.id}>
-                        <td>${user.id}</td>
-                        <td>
-                            <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
-                        </td>
-                        <td>${user.firstName}</td>
-                        <td>${user.lastName}</td>
-                        <td>${user.username}</td>
-                    </tr>`
-                )
-            }
+            appendMembersToGroup(response)
             $("#groupInformationContainer").slideDown()
             checkToSeeIfHideOrShowOptions()
             checkEditRights(response)
@@ -307,64 +287,53 @@ function displayGroupUsersList() {
 
 
 /**
+ * Takes the details of a group and appends each user in the group to the group details user list div.
+ *
+ * @param group The group's details to be managed.
+ */
+function appendMembersToGroup(group) {
+    let membersContainer = $("#groupTableBody")
+    let imageSource;
+
+    $.each(group.userList, function (member) {
+        let user = group.userList[member]
+        if (user.imagePath.length === 0) {
+            imageSource = "defaultProfile.png"
+        } else {
+            imageSource = user.imagePath
+        }
+
+        membersContainer.append(`
+                    <tr class="userRow" userId=${user.id}>
+                        <td>${user.id}</td>
+                        <td>
+                            <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
+                        </td>
+                        <td>${user.firstName}</td>
+                        <td>${user.lastName}</td>
+                        <td>${user.username}</td>
+                    </tr>`
+        )
+    })
+}
+
+
+/**
  * A function to get the git repo information from the repository and display it on the group page, if there is no repo
  * information then it changes the header to say there is no repository
  */
-function displayGroupRepoInformation () {
-    let repoInformationContainer = $("#gitRepo")
+function retrieveGroupRepoInformation() {
     $.ajax({
         url: `getRepo?groupId=${selectedGroupId}`,
         type: "GET",
         success: (response) => {
-            if (response.length === 0){
-                repoInformationContainer.empty();
-                repoInformationContainer.append(`
-                        <div id="groupSettingsRepoInformationSection">
-                            <div id="groupSettingsRepoHeader">
-                                <h3 id="groupSettingsPageRepoName">No Repository</h3>
-                                <button type="button" class="editRepo noStyleButton marginSides1" data-bs-toggle="tooltip"
-                                        data-bs-placement="top" title="Edit Repository Settings">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                         class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
-                                        <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
-                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div id="repoSettingsContainer"></div>
-                        </div>`
-                )
-            }
-            else {
-                let repo = response[0];
-                repoInformationContainer.empty();
-                repoInformationContainer.append(`
-                        <div id="groupSettingsRepoInformationSection">
-                            <div id="groupSettingsRepoHeader">
-                                <h3 id="groupSettingsPageRepoName">${repo.alias}</h3>
-                                <button type="button" class="editRepo noStyleButton marginSides1" data-bs-toggle="tooltip"
-                                        data-bs-placement="top" title="Edit Repository Settings">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                         class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
-                                        <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
-                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div id="repoInfo" class="row marginSides1">
-                                <div class="inlineText col">
-                                    <p>Project Id:&nbsp;</p>
-                                    <p class="groupSettingsPageProjectId greyText">${repo.projectId}</p>
-                                </div>
-                                <div class="inlineText col">
-                                    <p>Access Token:&nbsp;</p>
-                                    <p class="groupSettingsPageAccessToken greyText">${repo.accessToken}</p>
-                                </div>
-                            </div>
-                            <div id="repoSettingsContainer"></div>
-                        </div>`
-                )
+            let repoInformationContainer = $("#gitRepo")
+            repoInformationContainer.empty();
+            if (response.length === 0) {
+                populateEmptyGroupRepo(repoInformationContainer)
+            } else {
+                let group = response[0]
+                populateGroupRepoInformation(repoInformationContainer, group)
             }
             getRepoCommits();
         }
@@ -373,69 +342,154 @@ function displayGroupRepoInformation () {
 
 
 /**
- * a function to get the commits from the provided git repository and display the first 3 if there are any, or change
- * the title to say that there are no commits. If there is a problem accessing the webpage, an error is displayed under
- * the repo information
+ * Populates the group's git repo information section to display the lack of a repository.
+ *
+ * @param container The git repo information container.
+ */
+function populateEmptyGroupRepo(container) {
+    container.append(`
+        <div id="groupSettingsRepoInformationSection">
+            <div id="groupSettingsRepoHeader">
+                <h3 id="groupSettingsPageRepoName">No Repository</h3>
+                <button type="button" class="editRepo noStyleButton marginSides1" data-bs-toggle="tooltip"
+                        data-bs-placement="top" title="Edit Repository Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                         class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
+                        <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="repoSettingsContainer"></div>
+        </div>`
+    )
+}
+
+
+/**
+ * Populates the given container with the given git repo information.
+ *
+ * @param container The git repo information container.
+ * @param repo The repo information.
+ */
+function populateGroupRepoInformation(container, repo) {
+    container.empty();
+    container.append(`
+        <div id="groupSettingsRepoInformationSection">
+            <div id="groupSettingsRepoHeader">
+                <h3 id="groupSettingsPageRepoName">${repo.alias}</h3>
+                <button type="button" class="editRepo noStyleButton marginSides1" data-bs-toggle="tooltip"
+                        data-bs-placement="top" title="Edit Repository Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                         class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
+                        <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="repoInfo" class="row marginSides1">
+                <div class="inlineText col">
+                    <p>Project Id:&nbsp;</p>
+                    <p class="groupSettingsPageProjectId greyText">${repo.projectId}</p>
+                </div>
+                <div class="inlineText col">
+                    <p>Access Token:&nbsp;</p>
+                    <p class="groupSettingsPageAccessToken greyText">${repo.accessToken}</p>
+                </div>
+            </div>
+            <div id="repoSettingsContainer"></div>
+        </div>`
+    )
+}
+
+
+/**
+ * Gets the commits from the provided git repository and displays the first 3 if there are any, or changes the title to
+ * state that there are no commits. If there is a problem accessing the webpage, an error is displayed under the repo
+ * information.
  */
 function getRepoCommits() {
     const commitContainer = $("#groupSettingsCommitSection");
-    commitContainer.empty();
     const repoID = $(".groupSettingsPageProjectId").text()
     const accessToken = $(".groupSettingsPageAccessToken").text();
 
+    commitContainer.empty();
+
     if (repoID.length !== 0) {
-        getCommits(repoID, accessToken, (data, status) => {
-            if (status === "success") {
+        getCommits(repoID, accessToken, (data) => {
                 if (data.length === 0) {
-                    let commitText =
-                        `<h5>No Recent Commits</h5>`
-                    commitContainer.append(commitText)
+                    commitContainer.append(`<h5>No Recent Commits</h5>`)
+                } else {
+                    populateCommitContainer(commitContainer, data)
                 }
-
-                commitContainer.append(`<h5>Recent Commits:</h5>`)
-                const firstThree = data.slice(0, 3);
-                for (let commit of firstThree) {
-                    let commitText =
-                        `<div id="groupSettingsCommitContainer" class="marginSides1">
-                            <div class="gitCommitInfo">
-                                <div class="row">
-                                    <div class="inlineText">
-                                        <p>Commit:&nbsp;</p>
-                                        <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <p>${sanitise(commit.message)}</p>
-                                </div>
-                                <div class="row">
-                                    <div class="col">
-                                        <p class="greyText">${sanitise(commit.author_name)}</p>
-                                    </div>
-                                    <div class="col commitDate">
-                                        <p class="greyText">${commit.committed_date.split("T")[0]}</p>
-                                    </div>
-                                </div>
-                            </div>
-                         </div>`
-                    commitContainer.append(commitText)
-                }
-            } else {
-                let repoInformationContainer = $("#gitRepo");
-                let repoProjectId = $(".groupSettingsPageProjectId");
-                let repoAccessToken = $(".groupSettingsPageAccessToken");
-
-                repoProjectId.removeClass('greyText')
-                repoProjectId.addClass("redText")
-                repoAccessToken.removeClass("greyText")
-                repoAccessToken.addClass("redText")
-
-                repoInformationContainer.append(`
-                <div>
-                    <p style="color: red">One or more repository settings are invalid</p>
-                </div>`)
+            },
+            () => {
+                handleGitRepoError()
             }
-        })
+        )
     }
+}
+
+
+/**
+ * Populates the given commit container with the first 3 commits retrieved from the git repository. The data includes the url, short
+ * Id, and commit message for each commit.
+ *
+ * @param commitContainer The container in which commits will be appended.
+ * @param data The data retrieved from the repo, which contains the recent commits to be appended to the repo container.
+ */
+function populateCommitContainer(commitContainer, data) {
+    commitContainer.append(`<h5>Recent Commits:</h5>`)
+
+    const firstThree = data.slice(0, 3);
+
+    for (let commit of firstThree) {
+        let commitText =
+            `<div id="groupSettingsCommitContainer" class="marginSides1">
+                <div class="gitCommitInfo">
+                    <div class="row">
+                        <div class="inlineText">
+                            <p>Commit:&nbsp;</p>
+                            <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p>${sanitise(commit.message)}</p>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <p class="greyText">${sanitise(commit.author_name)}</p>
+                        </div>
+                        <div class="col commitDate">
+                            <p class="greyText">${commit.committed_date.split("T")[0]}</p>
+                        </div>
+                    </div>
+                </div>
+             </div>`
+        commitContainer.append(commitText)
+    }
+}
+
+
+/**
+ * Populates the group's git repo container to indicate a lack of commits in the repo.
+ */
+function handleGitRepoError() {
+    let repoInformationContainer = $("#gitRepo");
+    let repoProjectId = $(".groupSettingsPageProjectId");
+    let repoAccessToken = $(".groupSettingsPageAccessToken");
+
+    repoProjectId.removeClass('greyText')
+    repoProjectId.addClass("redText")
+    repoAccessToken.removeClass("greyText")
+    repoAccessToken.addClass("redText")
+
+    repoInformationContainer.append(`
+        <div>
+            <p style="color: red">One or more repository settings are invalid</p>
+        </div>`
+    )
 }
 
 
@@ -448,24 +502,6 @@ function cancelGroupEdit() {
         const editButton = $(".editButton");
         editButton.show();
     });
-}
-
-
-/**
- * Function that gets the maxlength of an input field and lets the user know how many characters they have left.
- */
-function countCharacters() {
-    let maxlength = $(this).attr("maxLength")
-    let lengthOfCurrentInput = $(this).val().length;
-    let counter = maxlength - lengthOfCurrentInput;
-    let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
-
-    //If one character remains, changes from "characters remaining" to "character remaining"
-    if (counter !== 1) {
-        helper.text(counter + " characters remaining")
-    } else {
-        helper.text(counter + " character remaining")
-    }
 }
 
 
@@ -513,61 +549,61 @@ $(document).on("click", ".deleteButton", function () {
 /**
  * A listener for the edit group name button, opens up a form that allows teacher or admins to change the group names
  */
- $(document).on("click", ".editButton", () => {
+$(document).on("click", ".editButton", () => {
     const editButton = $(".editButton");
-        editButton.hide();
-        editButton.tooltip("hide");
+    editButton.hide();
+    editButton.tooltip("hide");
 
-        $("#groupShortName").text($("#groupInformationShortName").text())
-        $("#groupLongName").text($("#groupInformationLongName").text())
+    $("#groupShortName").text($("#groupInformationShortName").text())
+    $("#groupLongName").text($("#groupInformationLongName").text())
 
-        if (!checkPrivilege()){
-            $("#editShortNameInput").hide();
+    if (!checkPrivilege()) {
+        $("#editShortNameInput").hide();
+    }
+    $("#groupEditInfo").slideDown();
+
+    let formControl = $(".form-control");
+    formControl.each(countCharacters);
+    formControl.keyup(countCharacters);
+})
+
+
+/**
+ * Event listener for the submit button of editing a group name
+ */
+$(document).on("submit", "#editGroupForm", function (event) {
+    event.preventDefault();
+    let url;
+    let type;
+
+    if (checkPrivilege()) {
+        url = "/groups/edit/details";
+        type = "post";
+    } else {
+        url = "/groups/edit/longName";
+        type = "patch";
+    }
+    const groupData = {
+        "groupId": selectedGroupId,
+        "shortName": $("#groupShortName").val(),
+        "longName": $("#groupLongName").val(),
+    }
+
+    $.ajax({
+        url: url,
+        type: type,
+        data: groupData,
+        success: function () {
+            createAlert("Changes submitted");
+            cancelGroupEdit();
+            displayGroupUsersList();
+            updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
+        },
+        error: (error) => {
+            createAlert(error.responseText, true)
         }
-        $("#groupEditInfo").slideDown();
-
-        let formControl = $(".form-control");
-        formControl.each(countCharacters);
-        formControl.keyup(countCharacters);
- })
-
-
- /**
-  * Event listener for the submit button of editing a group name
-  */
- $(document).on("submit", "#editGroupForm", function (event) {
-     event.preventDefault();
-     let url;
-     let type;
-
-     if (checkPrivilege()) {
-         url = "/groups/edit/details";
-         type = "post";
-     } else {
-         url = "/groups/edit/longName";
-         type = "patch";
-     }
-     const groupData = {
-         "groupId" : selectedGroupId,
-         "shortName" : $("#groupShortName").val(),
-         "longName" : $("#groupLongName").val(),
-     }
-
-     $.ajax({
-         url: url,
-         type: type,
-         data: groupData,
-         success: function (response) {
-             createAlert("Changes submitted");
-             cancelGroupEdit();
-             displayGroupUsersList();
-             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
-         },
-         error: (error) => {
-             createAlert(error.responseText, true)
-         }
-     })
- })
+    })
+})
 
 
 /**
@@ -613,7 +649,7 @@ $(document).on("click", "#cancelRemoval", function () {
  * @param groupId the id of the group to fetch
  */
 $(document).on("click", "#pillsSettingsTab", function () {
-    displayGroupRepoInformation()
+    retrieveGroupRepoInformation()
 })
 
 
@@ -651,7 +687,7 @@ $(document).on("click", ".group", function () {
     let groupShortname = $(this).closest(".group").find(".groupShortName").text();
     $("#selectAllCheckboxGroups").prop("checked", false);
     displayGroupUsersList();
-    displayGroupRepoInformation()
+    retrieveGroupRepoInformation()
 
     if (groupShortname === "Teachers") { // teacher group
         $("#groupRemoveUser").show();
@@ -668,13 +704,16 @@ $(document).on("click", ".group", function () {
     $(this).closest(".group").addClass("focusOnGroup");
 })
 
+
 // ******************************* Keydown listeners *******************************
+
 
 $(document).keydown(function (event) {
     if (event.key === "Control") {
         controlDown = true;
     }
 })
+
 
 $(document).keyup(function (event) {
     if (event.key === "Control") {
@@ -688,6 +727,7 @@ $(document).keydown(function (event) {
         shiftDown = true;
     }
 })
+
 
 $(document).keyup(function (event) {
     if (event.key === "Shift") {
@@ -704,5 +744,4 @@ $(document).on("change", "input[type=checkbox]", function () {
         $(this).closest("tr").toggleClass("selected")
     }
     checkToSeeIfHideOrShowOptions()
-
 })
