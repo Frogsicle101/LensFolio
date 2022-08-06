@@ -242,6 +242,9 @@ public class EvidenceController {
     public ResponseEntity<Object> validateWebLink(@RequestParam("address") String address) {
         logger.info("GET REQUEST /validateWebLink - validating address {}", address);
         try {
+            if (!address.contains("://")) {
+                throw new MalformedURLException("There is no ://");
+            }
             URL candidate = new URL(address); //The constructor does all the validation for us
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);

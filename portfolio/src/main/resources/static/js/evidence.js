@@ -182,7 +182,10 @@ $(document).on('click', '.addWebLinkButton', function () {
     let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
-        validateWebLink()
+        let address = $("#webLinkAddress").val()
+        let alias = $("#webLinkName").val()
+        let form = $(".weblink-form")
+        validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()
     }
@@ -275,7 +278,7 @@ function createEvidencePreview(evidence) {
  * Handles a web link validated by the back end. 
 Validates the alias and then displays an error message or saves the web link and toggles the web link form.
  */
-function handleValidatedWebLink(form, alias, address) {
+function validateWebLink(form, alias, address) {
     //Do some title validation
     if (alias.length === 0) {
         $(".address-alert").alert('close') //Close any previous alerts
@@ -295,8 +298,7 @@ function handleValidatedWebLink(form, alias, address) {
                     `)
     }
     else {
-        submitWebLink()
-        webLinkButtonToggle()
+        validateWebLinkAtBackend()
     }
 }
 
@@ -330,22 +332,22 @@ function handleInvalidWebLink(form, error) {
 
 
 /**
- * Validates the weblink.
+ * Validates the weblink server-side.
  * Takes the URL and makes a call to the server to check if it's valid.
- * Then calls a function to handle the valid web link.
+ * If valid, save the web link and toggle the form.
  *
- * If there's an issue, calls a function to display an alert
+ * If there's an issue, or it's not valid, calls a function to display an alert
  */
-function validateWebLink() {
+function validateWebLinkAtBackend() {
     let address = $("#webLinkAddress").val()
-    let alias = $("#webLinkName").val()
     let form = $(".weblink-form")
 
     $.ajax({
         url: `validateWebLink?address=${address}`,
         type: "GET",
         success: () => {
-            handleValidatedWebLink(form, alias, address)
+            submitWebLink()
+            webLinkButtonToggle()
         },
         error: (error) => {
             handleInvalidWebLink(form, error)
