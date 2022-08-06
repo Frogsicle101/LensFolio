@@ -315,31 +315,31 @@ class EvidenceServiceTest {
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("shouldn't be strange"));
     }
 
-    @Test
-    void testWeblinkWithShortName() {
-        setUserToStudent();
-
-        Project project = new Project("Testing");
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-
-        String title = "Test";
-        String date = LocalDate.now().toString();
-        String description = "Description";
-
-        List<WebLinkDTO> weblinks = new ArrayList<>();
-        weblinks.add(new WebLinkDTO("a", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
-        
-        long projectId = 1L;
-
-
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
-
-        CheckException exception = Assertions.assertThrows(
-                CheckException.class,
-                () -> evidenceService.addEvidence(principal, evidenceDTO)
-        );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be longer than 1 character"));
-    }
+//    @Test
+//    void testWeblinkWithShortName() {
+//        setUserToStudent();
+//
+//        Project project = new Project("Testing");
+//        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+//
+//        String title = "Test";
+//        String date = LocalDate.now().toString();
+//        String description = "Description";
+//
+//        List<WebLinkDTO> weblinks = new ArrayList<>();
+//        weblinks.add(new WebLinkDTO("a", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
+//
+//        long projectId = 1L;
+//
+//
+//        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
+//
+//        CheckException exception = Assertions.assertThrows(
+//                CheckException.class,
+//                () -> evidenceService.addEvidence(principal, evidenceDTO)
+//        );
+//        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be longer than 1 character"));
+//    }
 
     @Test
     void testWeblinkWithLongName() {
