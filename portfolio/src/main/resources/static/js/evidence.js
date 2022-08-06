@@ -131,6 +131,7 @@ function setHighlightedEvidenceWebLinks(response) {
         let webLink = response[index]
         webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
     }
+    initialiseTooltips()
 }
 
 
@@ -342,7 +343,7 @@ function submitWebLink() {
         webLinkElement(url.val(), alias.val())
     )
 
-    $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+    initialiseTooltips()
     url.val("")
     alias.val("")
 }
@@ -467,3 +468,10 @@ $(document).on("change", ".form-control", function () {
     disableEnableSaveButtonOnValidity()
     checkTextInputRegex()
 })
+
+/**
+ * Refresh tooltip display
+ */
+function initialiseTooltips() {
+    $('[data-bs-toggle="tooltip"]').tooltip();
+}
