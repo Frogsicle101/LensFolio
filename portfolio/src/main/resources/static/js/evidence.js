@@ -1,7 +1,7 @@
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
 
-
+/** A regex only allowing modern English letters */
 const regExp = new RegExp('[A-Za-z]');
 
 /** The id of the piece of evidence being displayed. */
@@ -90,11 +90,48 @@ function getHighlightedEvidenceDetails() {
         url: "evidencePiece?evidenceId=" + selectedEvidenceId,
         success: function(response) {
             setHighlightEvidenceAttributes(response)
+            getHighlightedEvidenceWeblinks()
         },
         error: function () {
             createAlert("Failed to receive active evidence", true)
         }
     })
+}
+
+
+/**
+ * Makes a request to the backend to retrieve all the web links for a piece of evidence. If the request is successful,
+ * a function is called to add the web links to the document.
+ */
+function getHighlightedEvidenceWeblinks() {
+     $.ajax({
+         url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId,
+         success: function (response) {
+             setHighlightedEvidenceWebLinks(response)
+         },
+         error: function (response) {
+             if (response.status !== 404) {
+                 createAlert("Failed to receive evidence links", true)
+             }
+         }
+     })
+}
+
+
+/**
+ * Adds the web links from the given request to the document.
+ *
+ * @param response The response from the backend, which contains the web links for a piece of evidence.
+ */
+function setHighlightedEvidenceWebLinks(response) {
+    let webLinksDiv = $("#evidenceWebLinks")
+    webLinksDiv.empty()
+
+    for (let index in response) {
+        let webLink = response[index]
+        webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
+    }
+    initialiseTooltips()
 }
 
 
@@ -110,6 +147,29 @@ function addEvidencePreviews(response) {
     for (let pieceOfEvidence in response) {
         evidencePreviewsContainer.append(createEvidencePreview(response[pieceOfEvidence]))
     }
+}
+
+
+/**
+ * Retrieves the added web links and creates a list of them in DTO form.
+ *
+ * @returns {string} A list of web links matching the web link DTO format.
+ */
+function getWeblinksList() {
+    let evidenceCreationForm = $("#evidenceCreationForm")
+    let weblinks = evidenceCreationForm.find(".webLinkElement")
+    let weblinksList = []
+
+     $.each(weblinks, function () {
+        let weblinkDTO = {
+            "url": this.querySelector(".addedWebLinkUrl").innerHTML,
+            "name": this.querySelector(".addedWebLinkName").innerHTML
+        }
+
+        weblinksList.push(weblinkDTO)
+    })
+
+    return weblinksList
 }
 
 
@@ -136,7 +196,6 @@ $(document).on("click", ".evidenceListItem", function() {
 })
 
 
-
 /**
  * Saves the evidence input during creating a new piece of evidence
  */
@@ -150,15 +209,19 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
         const projectId = 1
+        let webLinks = getWeblinksList();
+        let data = JSON.stringify({
+            "title": title,
+            "date": date,
+            "description": description,
+            "projectId": projectId,
+            "webLinks": webLinks
+        })
         $.ajax({
-            url: "evidence",
+            url: `evidence`,
             type: "POST",
-            data: {
-                title,
-                date,
-                description,
-                projectId
-            },
+            contentType: "application/json",
+            data,
             success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
@@ -214,7 +277,7 @@ $(document).on('keypress', '#webLinkName', function () {
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
- * @param evidenceDetails
+ * @param evidenceDetails The title, date, and description for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
@@ -275,7 +338,7 @@ function createEvidencePreview(evidence) {
 
 
 /**
- * Handles a web link validated by the back end. 
+ * Handles a web link validated by the back end.
 Validates the alias and then displays an error message or saves the web link and toggles the web link form.
  */
 function validateWebLink(form, alias, address) {
@@ -381,48 +444,51 @@ function webLinkButtonToggle() {
  */
 function submitWebLink() {
     let alias = $("#webLinkName")
-    let address = $("#webLinkAddress")
+    let url = $("#webLinkUrl")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
 
     webLinkTitle.show()
     addedWebLinks.append(
-        webLinkElement(address.val(), alias.val())
+        webLinkElement(url.val(), alias.val())
     )
 
-    $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
-    address.val("")
+    initialiseTooltips()
+    url.val("")
     alias.val("")
 }
 
 
+/**
+ * Clears all fields (except the date field) in the "Add Evidence" form.
+ */
 function clearAddEvidenceModalValues() {
     $("#evidenceName").val("")
     $("#evidenceDescription").val("")
-    $("#webLinkAddress").val("")
+    $("#webLinkUrl").val("")
     $("#webLinkName").val("")
     $("#addedWebLinks").empty()
-    $("#webLinkTitle").empty()
     $("#webLinkTitle").empty()
 }
 
 
 /**
- * Given a web address and an alias, creates and returns a web link element.
+ * Given a web url and an alias, creates and returns a web link element.
  * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
  *
- * If the address doesn't start with https, it will show an un-filled, unlocked icon.
+ * If the url doesn't start with https, it will show an un-filled, unlocked icon.
  * If it does, it will show a locked, filled icon.
  *
- * @param address The web address of the web link
- * @param alias The alias/nickname of the web address. Everything before the first // occurrence will be cut off
+ * @param url The web url of the web link
+ * @param alias The alias/nickname of the web url. Everything before the first // occurrence will be cut off
  * (e.g. https://www.goggle.com becomes www.google.com)
  * @returns {string} A single-div webLink element, wrapped in ` - e.g. `<div>stuff!</div>`
  */
-function webLinkElement(address, alias) {
+function webLinkElement(url, alias) {
     let icon;
     let security = "unsecured"
-    if (address.startsWith("https://")) {
+
+    if (url.startsWith("https://")) {
         security = "secured"
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill lockIcon text-success" viewBox="0 0 16 16">
@@ -436,16 +502,18 @@ function webLinkElement(address, alias) {
 </svg>
         `
     }
-    let slashIndex = address.search("//") + 2
-    if (slashIndex > 1) address = address.slice(slashIndex) // Cut off the http:// or whatever else it might be
+
+    let slashIndex = url.search("//") + 2
+    if (slashIndex > 1) urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+
     return (`
-<div class="webLinkElement ${security}" data-bs-toggle="tooltip" data-bs-placement="top" 
-    data-bs-title="${address}" data-bs-custom-class="webLinkTooltip">
-    ${icon}
-    <div class="addedWebLinkName">
-        ${alias}
-    </div>
-</div>
+        <div class="webLinkElement ${security}" data-value="${url}" >
+            ${icon}
+            <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
+            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
+            <div class="addedWebLinkUrl" style="visibility: hidden">${url}</div>
+
+        </div>
     `)
 }
 
@@ -465,6 +533,9 @@ function disableEnableSaveButtonOnValidity() {
 }
 
 
+/**
+ * Checks that the name and description of a piece of evidence match the required regex.
+ */
 function checkTextInputRegex() {
     let name = $("#evidenceName")
     let description = $("#evidenceDescription")
@@ -507,3 +578,11 @@ $(document).on("change", ".form-control", function () {
     disableEnableSaveButtonOnValidity()
     checkTextInputRegex()
 })
+
+
+/**
+ * Refresh tooltip display
+ */
+function initialiseTooltips() {
+    $('[data-bs-toggle="tooltip"]').tooltip();
+}
