@@ -39,11 +39,11 @@ $(document).ready(function () {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId,
         type: "GET",
-        success: function(response){
+        success: function (response) {
             console.log(response)
             //TODO add response skills to skill array
         },
-        error: function(response){
+        error: function (response) {
             console.log(response)
         }
     })
@@ -107,7 +107,7 @@ function showHighlightedEvidenceDetails() {
 function getHighlightedEvidenceDetails() {
     $.ajax({
         url: "evidencePiece?evidenceId=" + selectedEvidenceId,
-        success: function(response) {
+        success: function (response) {
             setHighlightEvidenceAttributes(response)
             getHighlightedEvidenceWeblinks()
         },
@@ -123,17 +123,17 @@ function getHighlightedEvidenceDetails() {
  * a function is called to add the web links to the document.
  */
 function getHighlightedEvidenceWeblinks() {
-     $.ajax({
-         url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId,
-         success: function (response) {
-             setHighlightedEvidenceWebLinks(response)
-         },
-         error: function (response) {
-             if (response.status !== 404) {
-                 createAlert("Failed to receive evidence links", true)
-             }
-         }
-     })
+    $.ajax({
+        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId,
+        success: function (response) {
+            setHighlightedEvidenceWebLinks(response)
+        },
+        error: function (response) {
+            if (response.status !== 404) {
+                createAlert("Failed to receive evidence links", true)
+            }
+        }
+    })
 }
 
 
@@ -179,7 +179,7 @@ function getWeblinksList() {
     let weblinks = evidenceCreationForm.find(".webLinkElement")
     let weblinksList = []
 
-     $.each(weblinks, function () {
+    $.each(weblinks, function () {
         let weblinkDTO = {
             "url": this.querySelector(".addedWebLinkUrl").innerHTML,
             "name": this.querySelector(".addedWebLinkName").innerHTML
@@ -203,7 +203,7 @@ function getWeblinksList() {
  *    2. Add the selected class to the clicked div, and assign it as selected
  *    3. Populate the display with the selected evidence details.
  */
-$(document).on("click", ".evidenceListItem", function() {
+$(document).on("click", ".evidenceListItem", function () {
 
     let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
     previouslySelectedDiv.removeClass("selectedEvidence")
@@ -282,12 +282,12 @@ $(document).on('click', '.addWebLinkButton', function () {
 
 /** This split function splits the text by its spaces*/
 function split(val) {
-    return val.split( /\s+/ );
+    return val.split(/\s+/);
 }
 
 /** this function splits the input by its spaces then returns the last word */
-function extractLast( term ) {
-    return split( term ).pop();
+function extractLast(term) {
+    return split(term).pop();
 }
 
 /**
@@ -296,48 +296,64 @@ function extractLast( term ) {
  */
 $("#skillsInput")
     // don't navigate away from the field on tab when selecting an item
-    .on( "keydown", function( event ) {
-        if ( event.keyCode === $.ui.keyCode.TAB &&
-            $( this ).autocomplete( "instance" ).menu.active ) {
+    .on("keydown", function (event) {
+        if (event.keyCode === $.ui.keyCode.TAB &&
+            $(this).autocomplete("instance").menu.active) {
             event.preventDefault();
         }
     })
     .autocomplete({
-        autoFocus: true,
+        autoFocus: true, // This default selects the top result
         minLength: 0,
-        source: function(request, response) {
+        source: function (request, response) {
             // delegate back to autocomplete, but extract the last term
             let responseList = $.ui.autocomplete.filter(
-                skillsArray, extractLast( request.term ) )
-            response( responseList.sort((element1, element2) => {
+                skillsArray, extractLast(request.term))
+            response(responseList.sort((element1, element2) => {
                 return element1.length - element2.length
-            }) );
+            }));
         },
-        focus: function() {
+        focus: function () {
             // prevent value inserted on focus
             return false;
         },
-        select: function( event, ui ) {
-            let terms = split( this.value );
+        select: function (event, ui) {
+            let terms = split(this.value);
             // remove the current input
             terms.pop();
             // add the selected item
-            terms.push( ui.item.value );
+            terms.push(ui.item.value);
             // add placeholder to get the space at the end
-            terms.push( "" );
-            this.value = terms.join( " " );
+            terms.push("");
+            this.value = terms.join(" ");
             return false;
         },
 
-})
-    .data('ui-autocomplete')._renderItem = function( ul, item ) {
+    })
+    .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
-    return $( "<li></li>" )
-        .data( "ui-autocomplete-item", item )
-        .append( '<a>' + item.label + '</a>' )
-        .appendTo( ul );
+    return $("<li></li>")
+        .data("ui-autocomplete-item", item)
+        .append('<a>' + item.label + '</a>')
+        .appendTo(ul);
 };
 
+/**
+ * Listens out for a keydown event on the skills input.
+ * If it is a delete button keydown then it removes the last word from the input box.
+ */
+$(document).on("keydown", "#skillsInput", function (event) {
+
+    if (event.keyCode === $.ui.keyCode.DELETE) {
+        event.preventDefault();
+        let skillsInput = $("#skillsInput")
+        let inputArray = skillsInput.val().split(' ')
+        inputArray.pop()
+        skillsInput.val(inputArray.join(" "))
+    }
+
+
+})
 
 
 // --------------------------- Functional HTML Components ------------------------------------
