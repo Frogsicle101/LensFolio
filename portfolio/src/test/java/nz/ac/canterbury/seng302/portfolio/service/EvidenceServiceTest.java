@@ -5,6 +5,7 @@ import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -30,10 +31,11 @@ class EvidenceServiceTest {
     private final UserAccountsClientService userAccountsClientService = Mockito.mock(UserAccountsClientService.class);
     private final ProjectRepository projectRepository = Mockito.mock(ProjectRepository.class);
     private final EvidenceRepository evidenceRepository = Mockito.mock(EvidenceRepository.class);
+    private final WebLinkRepository webLinkRepository = Mockito.mock(WebLinkRepository.class);
 
     @BeforeEach
     void setUp() {
-        evidenceService = new EvidenceService(userAccountsClientService, projectRepository, evidenceRepository);
+        evidenceService = new EvidenceService(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository);
         when(userAccountsClientService.getUserAccountById(any())).thenReturn(UserResponse.newBuilder().setId(1).build());
 
     }

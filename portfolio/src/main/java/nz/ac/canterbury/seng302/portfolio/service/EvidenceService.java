@@ -4,10 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLink;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -44,13 +41,17 @@ public class EvidenceService {
 
     private final EvidenceRepository evidenceRepository;
 
+    private final WebLinkRepository webLinkRepository;
+
     @Autowired
     public EvidenceService(UserAccountsClientService userAccountsClientService,
                            ProjectRepository projectRepository,
-                           EvidenceRepository evidenceRepository) {
+                           EvidenceRepository evidenceRepository,
+                           WebLinkRepository webLinkRepository) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
+        this.webLinkRepository = webLinkRepository;
     }
 
 
@@ -128,15 +129,14 @@ public class EvidenceService {
         checkString(description, StringType.DESCRIPTION);
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
+        Evidence evidence1 = evidenceRepository.save(evidence);
 
-        if (webLinks != null) {
-            for (WebLinkDTO dto : webLinks) {
-                System.out.println(dto.getUrl());
-                WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
-                evidence.addWebLink(webLink);
-            }
+        for (WebLinkDTO dto : webLinks) {
+            WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
+            webLinkRepository.save(webLink);
+            evidence.addWebLink(webLink);
         }
 
-        return evidenceRepository.save(evidence);
+        return evidence1;
     }
 }

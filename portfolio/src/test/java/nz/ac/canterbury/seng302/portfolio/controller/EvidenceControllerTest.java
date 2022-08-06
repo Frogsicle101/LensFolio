@@ -82,8 +82,8 @@ class EvidenceControllerTest {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-
     }
+
 
     @Test
     void testAddEvidence() throws Exception {
@@ -106,6 +106,7 @@ class EvidenceControllerTest {
         Assertions.assertEquals(200, responseEntity.getStatusCode().value());
     }
 
+
     @Test
     void testAddEvidenceDateInFuture() throws Exception {
         setUserToStudent();
@@ -123,6 +124,7 @@ class EvidenceControllerTest {
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
     }
+
 
     @Test
     void testAddEvidenceOutsideProjectDates() throws Exception {
@@ -142,6 +144,7 @@ class EvidenceControllerTest {
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
     }
 
+
     @Test
     void testAddEvidenceTitleEmpty() throws Exception {
         setUserToStudent();
@@ -159,6 +162,7 @@ class EvidenceControllerTest {
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
     }
+
 
     @Test
     void testAddEvidenceTitleMixed() throws Exception {
@@ -181,6 +185,7 @@ class EvidenceControllerTest {
         Assertions.assertEquals(200, responseEntity.getStatusCode().value());
     }
 
+
     @Test
     void testAddEvidenceTitleLength() throws Exception {
         setUserToStudent();
@@ -198,6 +203,7 @@ class EvidenceControllerTest {
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
     }
+
 
     @Test
     void testAddEvidenceTitleNoAlpha() throws Exception {
@@ -237,6 +243,7 @@ class EvidenceControllerTest {
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
     }
 
+
     @Test
     void testAddEvidenceDescriptionMixed() throws Exception {
         setUserToStudent();
@@ -258,6 +265,7 @@ class EvidenceControllerTest {
         Assertions.assertEquals(200, responseEntity.getStatusCode().value());
     }
 
+
     @Test
     void testAddEvidenceDescriptionLength() throws Exception {
         setUserToStudent();
@@ -276,6 +284,7 @@ class EvidenceControllerTest {
                 .param("projectId", String.valueOf(projectId)))
                 .andExpect(status().isBadRequest());
     }
+
 
     @Test
     void testAddEvidenceDescriptionNoAlpha() throws Exception {
@@ -357,6 +366,7 @@ class EvidenceControllerTest {
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
     }
 
+
     @Test
     void testAddEvidenceDateNoDate() throws Exception {
         setUserToStudent();
@@ -374,8 +384,8 @@ class EvidenceControllerTest {
                 .param("date", date)
                 .param("description", description)
                 .param("projectId", String.valueOf(projectId))).andExpect(status().isBadRequest());
-
     }
+
 
     @Test
     void testAddEvidenceException() throws Exception {
