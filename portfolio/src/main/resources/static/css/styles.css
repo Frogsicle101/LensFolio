@@ -976,3 +976,9 @@ section {
 .webLinkTooltip.tooltip-arrow {
     padding-left: 2rem;
 }
+
+.addedWebLinkName:hover {
+    text-decoration-line: underline;
+    color: blue;
+    cursor: grab;
+}
