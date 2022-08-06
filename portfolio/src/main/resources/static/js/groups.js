@@ -231,8 +231,10 @@ function checkToSeeIfHideOrShowOptions() {
  */
 function checkEditRights(group) {
     let groupSettingsTab = $("#groupSettingsTab")
+    let groupEditButton = $("#editGroupNameButton")
     let groupId = group.id
     groupSettingsTab.hide()
+    groupEditButton.hide()
 
     if (groupId === TEACHER_GROUP_ID) {
         $("#groupRemoveUser").show();
@@ -251,6 +253,8 @@ function checkEditRights(group) {
         groupId !== TEACHER_GROUP_ID &&
         (checkPrivilege() || group.userList.some(member => member.id === userIdent))) {
         groupSettingsTab.show()
+        groupEditButton.show()
+        //show edit button
     } else {
         changeToUsersTab()
     }
@@ -517,7 +521,7 @@ $(document).on("click", ".deleteButton", function () {
 
         parent.html(
             `<form id="editGroupForm" class="marginSides1">
-                <div class="mb-1">
+                <div class="mb-1" id="editShortNameInput">
                     <label class="form-label">Group ShortName:</label>
                     <input type="text" id="groupShortName" class="form-control canDisable" maxlength=50 required value="${$("#groupInformationShortName").text()}">
                     <small class="form-text text-muted countChar">0 characters remaining</small>
@@ -533,6 +537,9 @@ $(document).on("click", ".deleteButton", function () {
                 </div>
             </form>`
         );
+        if (!checkPrivilege()){
+            $("#editShortNameInput").hide();
+        }
         parent.slideDown();
         let formControl = $(".form-control");
         formControl.each(countCharacters);
@@ -545,7 +552,16 @@ $(document).on("click", ".deleteButton", function () {
   */
  $(document).on("submit", "#editGroupForm", function (event) {
      event.preventDefault();
+     let url;
+     let type;
 
+     if (checkPrivilege()) {
+         url = "/groups/edit/details";
+         type = "post";
+     } else {
+         url = "/groups/edit/longName";
+         type = "patch";
+     }
      const groupData = {
          "groupId" : selectedGroupId,
          "shortName" : $("#groupShortName").val(),
@@ -553,8 +569,8 @@ $(document).on("click", ".deleteButton", function () {
      }
 
      $.ajax({
-         url: "/groups/edit/details",
-         type: "post",
+         url: url,
+         type: type,
          data: groupData,
          success: function (response) {
              createAlert("Changes submitted");
