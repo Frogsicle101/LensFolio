@@ -125,9 +125,13 @@ function getHighlightedEvidenceWeblinks() {
  */
 function setHighlightedEvidenceWebLinks(response) {
     let webLinksDiv = $("#evidenceWebLinks")
-    for (let webLink in response) {
-        webLinksDiv.append(webLinkElement(webLink)) // TODO use the web link formatting code here
+    webLinksDiv.empty()
+
+    for (let index in response) {
+        let webLink = response[index]
+        webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
     }
+    initialiseTooltips()
 }
 
 
@@ -152,18 +156,19 @@ function addEvidencePreviews(response) {
  * @returns {string} A list of web links matching the web link DTO format.
  */
 function getWeblinksList() {
-    let weblinks = document.getElementsByClassName("webLinkElement")
+    let evidenceCreationForm = $("#evidenceCreationForm")
+    let weblinks = evidenceCreationForm.find(".webLinkElement")
     let weblinksList = []
 
-    for (let i = 0; i < weblinks.length; i++) {
-        let weblink = weblinks.item(i)
-
+     $.each(weblinks, function () {
         let weblinkDTO = {
-            "url": weblink.querySelector(".addedWebLinkAddress").innerHTML,
-            "name": weblink.querySelector(".addedWebLinkName").innerHTML
+            "url": this.querySelector(".addedWebLinkUrl").innerHTML,
+            "name": this.querySelector(".addedWebLinkName").innerHTML
         }
+
         weblinksList.push(weblinkDTO)
-    }
+    })
+
     return weblinksList
 }
 
@@ -327,17 +332,17 @@ function createEvidencePreview(evidence) {
  */
 function submitWebLink() {
     let alias = $("#webLinkName")
-    let address = $("#webLinkAddress")
+    let url = $("#webLinkUrl")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
 
     webLinkTitle.show()
     addedWebLinks.append(
-        webLinkElement(address.val(), alias.val())
+        webLinkElement(url.val(), alias.val())
     )
 
-    $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
-    address.val("")
+    initialiseTooltips()
+    url.val("")
     alias.val("")
 }
 
@@ -348,28 +353,29 @@ function submitWebLink() {
 function clearAddEvidenceModalValues() {
     $("#evidenceName").val("")
     $("#evidenceDescription").val("")
-    $("#webLinkAddress").val("")
+    $("#webLinkUrl").val("")
     $("#webLinkName").val("")
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
 }
 
 /**
- * Given a web address and an alias, creates and returns a web link element.
+ * Given a web url and an alias, creates and returns a web link element.
  * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
  *
- * If the address doesn't start with https, it will show an un-filled, unlocked icon.
+ * If the url doesn't start with https, it will show an un-filled, unlocked icon.
  * If it does, it will show a locked, filled icon.
  *
- * @param address The web address of the web link
- * @param alias The alias/nickname of the web address. Everything before the first // occurrence will be cut off
+ * @param url The web url of the web link
+ * @param alias The alias/nickname of the web url. Everything before the first // occurrence will be cut off
  * (e.g. https://www.goggle.com becomes www.google.com)
  * @returns {string} A single-div webLink element, wrapped in ` - e.g. `<div>stuff!</div>`
  */
-function webLinkElement(address, alias) {
+function webLinkElement(url, alias) {
     let icon;
     let security = "unsecured"
-    if (address.startsWith("https://")) {
+
+    if (url.startsWith("https://")) {
         security = "secured"
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill lockIcon text-success" viewBox="0 0 16 16">
@@ -383,15 +389,17 @@ function webLinkElement(address, alias) {
         </svg>
         `
     }
-    let slashIndex = address.search("//") + 2
-    let addressWithoutSlash = address
-    if (slashIndex > 1) address = address.slice(slashIndex) // Cut off the http:// or whatever else it might be
+
+    let slashIndex = url.search("//") + 2
+    if (slashIndex > 1) urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+
     return (`
-        <div class="webLinkElement ${security}" data-bs-toggle="tooltip" data-bs-placement="top" 
-            data-bs-title="${address}" data-bs-custom-class="webLinkTooltip">
+        <div class="webLinkElement ${security}" data-value="${url}" >
             ${icon}
-            <div class="addedWebLinkName">${alias}</div>
-            <div class="addedWebLinkAddress" style="visibility: hidden">${addressWithoutSlash}</div>
+            <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
+            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
+            <div class="addedWebLinkUrl" style="visibility: hidden">${url}</div>
+
         </div>
     `)
 }
@@ -457,3 +465,11 @@ $(document).on("change", ".form-control", function () {
     disableEnableSaveButtonOnValidity()
     checkTextInputRegex()
 })
+
+
+/**
+ * Refresh tooltip display
+ */
+function initialiseTooltips() {
+    $('[data-bs-toggle="tooltip"]').tooltip();
+}

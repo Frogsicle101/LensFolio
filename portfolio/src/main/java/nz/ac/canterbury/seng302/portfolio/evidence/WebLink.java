@@ -2,8 +2,6 @@ package nz.ac.canterbury.seng302.portfolio.evidence;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.net.MalformedURLException;
@@ -20,7 +18,7 @@ public class WebLink {
     @GeneratedValue
     private int id;
 
-    private String name;
+    private String alias;
     private URL url;
     private Boolean isSecured;
 
@@ -34,18 +32,18 @@ public class WebLink {
      * Constructs an instance of the WebLink Object
      *
      * @param evidence The evidence that this weblink is associated with
-     * @param name     the name of the weblink
+     * @param alias     the name of the weblink
      * @param url      the url of the weblink
      * @throws MalformedURLException when the url string is not valid. This Weblink is not allowed to be created.
      */
-    public WebLink(Evidence evidence, String name, String url) throws MalformedURLException {
-        if (name.length() > 20) {
+    public WebLink(Evidence evidence, String alias, String url) throws MalformedURLException {
+        if (alias.length() > 20) {
             throw new CheckException("Name should be 20 characters or less");
         }
-        if (name.length() <= 2) {
-            throw new CheckException("Name should be longer than 1 character");
+        if (alias.length() < 1) {
+            throw new CheckException("Name should be at least 1 character in length");
         }
-        this.name = name;
+        this.alias = alias;
         this.evidence = evidence;
         this.url = new URL(url);
         this.isSecured = Objects.equals(this.url.getProtocol(), "https");
@@ -62,8 +60,8 @@ public class WebLink {
     }
 
 
-    public String getName() {
-        return name;
+    public String getAlias() {
+        return alias;
     }
 
     public URL getUrl() {
@@ -74,8 +72,8 @@ public class WebLink {
         return isSecured;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAlias(String name) {
+        this.alias = name;
     }
 
     public void setUrl(URL url) {
@@ -90,10 +88,10 @@ public class WebLink {
         this.isSecured = isSecured;
     }
 
-
     public Evidence getEvidence() {
         return evidence;
     }
+
 
     /**
      * This method is used to help with testing. It returns the expected JSON string created for this object.
@@ -103,7 +101,7 @@ public class WebLink {
     public String toJsonString() {
         return "{" +
                 "\"id\":" + id +
-                ",\"name\":\"" + name + "\"" +
+                ",\"alias\":\"" + alias + "\"" +
                 ",\"url\":\"" + url +
                 "\",\"isSecured\":" + isSecured +
                 "}";

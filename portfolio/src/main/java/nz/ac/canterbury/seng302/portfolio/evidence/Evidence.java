@@ -134,10 +134,6 @@ public class Evidence {
         this.webLinks.add(webLink);
     }
 
-    public void addWebLinks(List<WebLink> webLinks) {
-        this.webLinks.addAll(webLinks);
-    }
-
     /**
      * Verifies that the description is less than 500 characters, and sets the property if so.
      *
