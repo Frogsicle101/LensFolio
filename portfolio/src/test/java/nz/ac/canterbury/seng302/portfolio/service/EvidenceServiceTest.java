@@ -5,11 +5,12 @@ import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
+import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,13 +18,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.net.MalformedURLException;
-import java.security.Principal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 class EvidenceServiceTest {
 
@@ -90,17 +93,15 @@ class EvidenceServiceTest {
         when(projectRepository.findById(1L)).thenReturn(Optional.empty());
 
         String title = "title";
+        String description = "Description";
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        long projectId = 1L;
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), description, weblinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        LocalDate.now().toString(),
-                        "Description",
-                        1L,
-                        null
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("project id"));
     }
@@ -114,17 +115,16 @@ class EvidenceServiceTest {
 
         String title = "title";
         String date = "WOW this shouldn't work";
+        String description = "Description";
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        long projectId = 1L;
+        
 
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
+        
         Assertions.assertThrows(
                 DateTimeParseException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        "Description",
-                        1L,
-                        null
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
     }
 
@@ -135,19 +135,19 @@ class EvidenceServiceTest {
         Project project = new Project("Testing");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
+
         String title = "title";
         String date = LocalDate.now().plusDays(1).toString();
+        String description = "Description";
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        long projectId = 1L;
+
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);        
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        "Description",
-                        1L,
-                        null
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("future"));
     }
@@ -161,17 +161,16 @@ class EvidenceServiceTest {
 
         String title = "title";
         String date = LocalDate.now().minusDays(1).toString();
+        String description = "Description";
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        long projectId = 1L;
+
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        "Description",
-                        1L,
-                        null
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("outside project dates"));
     }
@@ -185,17 +184,16 @@ class EvidenceServiceTest {
 
         String title = "t";
         String date = LocalDate.now().toString();
+        String description = "Description";
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        long projectId = 1L;
+
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        "Description",
-                        1L,
-                        null
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be longer than 1 character"));
     }
@@ -209,17 +207,15 @@ class EvidenceServiceTest {
 
         String title = "This string is exactly 31 chars".repeat(5);
         String date = LocalDate.now().toString();
+        String description = "Description";
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        long projectId = 1L;
+        
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        "Description",
-                        1L,
-                        null
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         System.out.println(exception.getMessage());
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("cannot be more than 50 characters"));
@@ -235,17 +231,15 @@ class EvidenceServiceTest {
         String title = "Title";
         String date = LocalDate.now().toString();
         String description = "D";
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        long projectId = 1L;
+
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        description,
-                        1L,
-                        null
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be longer than 1 character"));
     }
@@ -260,17 +254,15 @@ class EvidenceServiceTest {
         String title = "Title";
         String date = LocalDate.now().toString();
         String description = "This string is exactly 31 chars".repeat(20);
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        long projectId = 1L;
+
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        description,
-                        1L,
-                        null
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("cannot be more than 500 characters"));
     }
@@ -285,17 +277,15 @@ class EvidenceServiceTest {
         String title = "_test_";
         String date = LocalDate.now().toString();
         String description = "Description";
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        long projectId = 1L;
+
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        description,
-                        1L,
-                        null
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("shouldn't be strange"));
     }
@@ -310,17 +300,15 @@ class EvidenceServiceTest {
         String title = "Test";
         String date = LocalDate.now().toString();
         String description = "_description_";
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        long projectId = 1L;
+
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        description,
-                        1L,
-                        null
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("shouldn't be strange"));
     }
@@ -336,19 +324,17 @@ class EvidenceServiceTest {
         String date = LocalDate.now().toString();
         String description = "Description";
 
-        List<WebLinkDTO> webLinks = new ArrayList<>();
-        webLinks.add(new WebLinkDTO("a", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        weblinks.add(new WebLinkDTO("a", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
+        
+        long projectId = 1L;
+
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        description,
-                        1L,
-                        webLinks
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be longer than 1 character"));
     }
@@ -364,19 +350,17 @@ class EvidenceServiceTest {
         String date = LocalDate.now().toString();
         String description = "Description";
 
-        List<WebLinkDTO> webLinks = new ArrayList<>();
-        webLinks.add(new WebLinkDTO("a".repeat(30), "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
+        List<WebLinkDTO> weblinks = new ArrayList<>();
+        weblinks.add(new WebLinkDTO("a".repeat(30), "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
+
+        long projectId = 1L;
+
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, weblinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
-                () -> evidenceService.addEvidence(
-                        principal,
-                        title,
-                        date,
-                        description,
-                        1L,
-                        webLinks
-                )
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be 20 characters or less"));
     }
