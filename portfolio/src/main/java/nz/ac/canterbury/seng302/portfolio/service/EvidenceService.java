@@ -101,7 +101,7 @@ public class EvidenceService {
 
     /**
      * Creates a new evidence object and saves it to the repository. Adds any weblink objects to the evidence object
-     * before saving it if needed.
+     * and also to the web lnk repository..
      *
      * @param principal   The authentication principal
      *
@@ -129,7 +129,7 @@ public class EvidenceService {
         checkString(description, StringType.DESCRIPTION);
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
-        Evidence evidence1 = evidenceRepository.save(evidence);
+        Evidence savedEvidence = evidenceRepository.save(evidence);
 
         for (WebLinkDTO dto : webLinks) {
             WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
@@ -137,6 +137,6 @@ public class EvidenceService {
             evidence.addWebLink(webLink);
         }
 
-        return evidence1;
+        return savedEvidence;
     }
 }
