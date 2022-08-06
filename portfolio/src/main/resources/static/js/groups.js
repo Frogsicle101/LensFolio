@@ -538,8 +538,11 @@ $(document).on("click", "#selectAllCheckboxGroups", function () {
     $(".selectUserCheckboxGroups").prop("checked", isChecked)
     if (isChecked) {
         $(".userRow").addClass("selected")
+        showDraggableIcon()
     } else {
-        $(".userRow").removeClass("selected")
+        let userRow = $(".userRow")
+        userRow.removeClass("selected")
+        userRow.find(".dragGrip").hide()
     }
     checkToSeeIfHideOrShowOptions()
 
