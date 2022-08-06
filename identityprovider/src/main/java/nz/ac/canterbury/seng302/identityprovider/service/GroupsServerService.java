@@ -176,8 +176,8 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             Optional<Group> optionalGroup = groupRepository.findById(request.getGroupId());
             if (optionalGroup.isPresent()) {
                 Group group = optionalGroup.get();
-                Optional<Group> checkIfExistsShortName = groupRepository.findByShortName(request.getShortName());
-                Optional<Group> checkIfExistsLongName = groupRepository.findByLongName(request.getLongName());
+                Optional<Group> checkIfExistsShortName = groupRepository.findByShortName(request.getShortName().trim());
+                Optional<Group> checkIfExistsLongName = groupRepository.findByLongName(request.getLongName().trim());
                 if (checkIfExistsShortName.isPresent() && checkIfExistsShortName.get().getId() != request.getGroupId()) {
                     response.addValidationErrors(ValidationError.newBuilder()
                                     .setFieldName("Short name")

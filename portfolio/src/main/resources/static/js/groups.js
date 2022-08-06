@@ -210,7 +210,7 @@ function changeToUsersTab() {
 }
 
 
-/**
+/**displayGroupUsersList
  * Helper function that uses the amount of selected users to determine if to call the showOptions function
  */
 function checkToSeeIfHideOrShowOptions() {
@@ -450,19 +450,29 @@ function cancelGroupEdit() {
 /**
  * Function that gets the maxlength of an input field and lets the user know how many characters they have left.
  */
-    function countCharacters() {
-        let maxlength = $(this).attr("maxLength")
-        let lengthOfCurrentInput = $(this).val().length;
-        let counter = maxlength - lengthOfCurrentInput;
-        let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
+function countCharacters() {
+    let maxlength = $(this).attr("maxLength")
+    let lengthOfCurrentInput = $(this).val().length;
+    let counter = maxlength - lengthOfCurrentInput;
+    let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
 
-        //If one character remains, changes from "characters remaining" to "character remaining"
-        if (counter !== 1) {
-            helper.text(counter + " characters remaining")
-        } else {
-            helper.text(counter + " character remaining")
-        }
+    //If one character remains, changes from "characters remaining" to "character remaining"
+    if (counter !== 1) {
+        helper.text(counter + " characters remaining")
+    } else {
+        helper.text(counter + " character remaining")
     }
+}
+
+
+/**
+ * When a group name is changed, this updates its new names to prevent the need to refresh the page
+ */
+function updateGroupName(shortname, longname) {
+    const selectedGroup = $(".focusOnGroup");
+    selectedGroup.find(".groupShortName").text(shortname);
+    selectedGroup.find(".groupLongName").text(longname);
+}
 
 
 // ******************************* Click listeners *******************************
@@ -550,6 +560,7 @@ $(document).on("click", ".deleteButton", function () {
              createAlert("Changes submitted");
              cancelGroupEdit();
              displayGroupUsersList();
+             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
          },
          error: (error) => {
              createAlert(error.responseText, true)
