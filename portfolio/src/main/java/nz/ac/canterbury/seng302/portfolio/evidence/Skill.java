@@ -40,6 +40,18 @@ public class Skill {
         this.name = name;
     }
 
+
+    /**
+     * Constructor for testing skills.
+     *
+     * @param name - The name of the skill.
+     */
+    public Skill(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+
     public Integer getId() {
         return id;
     }
@@ -54,5 +66,16 @@ public class Skill {
 
     public Set<Evidence> getEvidence() {
         return evidence;
+    }
+
+
+    /**
+     * For testing returns the expected json string of the object.
+     *
+     * @return the expected json string of the object.
+     */
+    public String toJsonString() {
+        return "{\"id\":" + id +
+                ",\"name\":\"" + name + "\"}";
     }
 }

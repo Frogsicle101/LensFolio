@@ -23,7 +23,6 @@ $(document).ready(() => {
             editUserButton.text("Edit Account")
             location.href = "account" // On success reloads page
         }
-
     })
 
 

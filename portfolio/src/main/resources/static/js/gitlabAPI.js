@@ -17,9 +17,16 @@ function getBranches(repoID, accessToken) {
  * @param callback Function to be called with the commit data when the http request comes back
  */
 function getCommits(repoID, accessToken, callback) {
-    $.get(`https://eng-git.canterbury.ac.nz/api/v4/projects/${repoID}/repository/commits?access_token=${accessToken}`,
-        (data, status) => callback(data)
-    );
+    $.ajax({
+        url: `https://eng-git.canterbury.ac.nz/api/v4/projects/${repoID}/repository/commits?access_token=${accessToken}`,
+        type: "GET",
+        success: (response, status) => {
+            callback(response, status)
+        },
+        error: (error, status) => {
+            callback(error, status)
+        }
+    })
 }
 
 

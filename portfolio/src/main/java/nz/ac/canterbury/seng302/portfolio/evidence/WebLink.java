@@ -2,6 +2,8 @@ package nz.ac.canterbury.seng302.portfolio.evidence;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.net.MalformedURLException;

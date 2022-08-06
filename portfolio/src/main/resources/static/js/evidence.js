@@ -1,7 +1,7 @@
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
 
-
+/** A regex only allowing modern English letters */
 const regExp = new RegExp('[A-Za-z]');
 
 /** The id of the piece of evidence being displayed. */
@@ -90,11 +90,44 @@ function getHighlightedEvidenceDetails() {
         url: "evidencePiece?evidenceId=" + selectedEvidenceId,
         success: function(response) {
             setHighlightEvidenceAttributes(response)
+            getHighlightedEvidenceWeblinks()
         },
         error: function () {
             createAlert("Failed to receive active evidence", true)
         }
     })
+}
+
+
+/**
+ * Makes a request to the backend to retrieve all the web links for a piece of evidence. If the request is successful,
+ * a function is called to add the web links to the document.
+ */
+function getHighlightedEvidenceWeblinks() {
+     $.ajax({
+         url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId,
+         success: function (response) {
+             setHighlightedEvidenceWebLinks(response)
+         },
+         error: function (response) {
+             if (response.status !== 404) {
+                 createAlert("Failed to receive evidence links", true)
+             }
+         }
+     })
+}
+
+
+/**
+ * Adds the web links from the given request to the document.
+ *
+ * @param response The response from the backend, which contains the web links for a piece of evidence.
+ */
+function setHighlightedEvidenceWebLinks(response) {
+    let webLinksDiv = $("#evidenceWebLinks")
+    for (let webLink in response) {
+        webLinksDiv.append(webLinkElement(webLink)) // TODO use the web link formatting code here
+    }
 }
 
 
@@ -110,6 +143,28 @@ function addEvidencePreviews(response) {
     for (let pieceOfEvidence in response) {
         evidencePreviewsContainer.append(createEvidencePreview(response[pieceOfEvidence]))
     }
+}
+
+
+/**
+ * Retrieves the added web links and creates a list of them in DTO form.
+ *
+ * @returns {string} A list of web links matching the web link DTO format.
+ */
+function getWeblinksList() {
+    let weblinks = document.getElementsByClassName("webLinkElement")
+    let weblinksList = []
+
+    for (let i = 0; i < weblinks.length; i++) {
+        let weblink = weblinks.item(i)
+
+        let weblinkDTO = {
+            "url": weblink.querySelector(".addedWebLinkAddress").innerHTML,
+            "name": weblink.querySelector(".addedWebLinkName").innerHTML
+        }
+        weblinksList.push(weblinkDTO)
+    }
+    return weblinksList
 }
 
 
@@ -136,7 +191,6 @@ $(document).on("click", ".evidenceListItem", function() {
 })
 
 
-
 /**
  * Saves the evidence input during creating a new piece of evidence
  */
@@ -150,15 +204,19 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
         const projectId = 1
+        let webLinks = getWeblinksList();
+        let data = JSON.stringify({
+            "title": title,
+            "date": date,
+            "description": description,
+            "projectId": projectId,
+            "webLinks": webLinks
+        })
         $.ajax({
-            url: "evidence",
+            url: `evidence`,
             type: "POST",
-            data: {
-                title,
-                date,
-                description,
-                projectId
-            },
+            contentType: "application/json",
+            data,
             success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
@@ -188,7 +246,6 @@ $(document).on('click', '.addWebLinkButton', function () {
         button.removeClass("btn-primary")
         button.addClass("btn-secondary")
         submitWebLink()
-        //TODO: Add the code for submitting the webF link here
     } else {
         button.text("Save Web Link")
         button.addClass("toggled")
@@ -198,13 +255,14 @@ $(document).on('click', '.addWebLinkButton', function () {
 })
 
 
+
 // --------------------------- Functional HTML Components ------------------------------------
 
 
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
- * @param evidenceDetails
+ * @param evidenceDetails The title, date, and description for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
@@ -284,6 +342,9 @@ function submitWebLink() {
 }
 
 
+/**
+ * Clears all fields (except the date field) in the "Add Evidence" form.
+ */
 function clearAddEvidenceModalValues() {
     $("#evidenceName").val("")
     $("#evidenceDescription").val("")
@@ -323,15 +384,15 @@ function webLinkElement(address, alias) {
         `
     }
     let slashIndex = address.search("//") + 2
+    let addressWithoutSlash = address
     if (slashIndex > 1) address = address.slice(slashIndex) // Cut off the http:// or whatever else it might be
     return (`
-<div class="webLinkElement ${security}" data-bs-toggle="tooltip" data-bs-placement="top" 
-    data-bs-title="${address}" data-bs-custom-class="webLinkTooltip">
-    ${icon}
-    <div class="addedWebLinkName">
-        ${alias}
-    </div>
-</div>
+        <div class="webLinkElement ${security}" data-bs-toggle="tooltip" data-bs-placement="top" 
+            data-bs-title="${address}" data-bs-custom-class="webLinkTooltip">
+            ${icon}
+            <div class="addedWebLinkName">${alias}</div>
+            <div class="addedWebLinkAddress" style="visibility: hidden">${addressWithoutSlash}</div>
+        </div>
     `)
 }
 
@@ -350,6 +411,10 @@ function disableEnableSaveButtonOnValidity() {
     }
 }
 
+
+/**
+ * Checks that the name and description of a piece of evidence match the required regex.
+ */
 function checkTextInputRegex() {
     let name = $("#evidenceName")
     let description = $("#evidenceDescription")

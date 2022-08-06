@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -98,21 +100,19 @@ public class EvidenceService {
      * before saving it if needed.
      *
      * @param principal   The authentication principal
-     * @param title       The title of the evidence
-     * @param date        The date of the evidence
-     * @param description The description of the evidence
-     * @param projectId   The project id
-     * @param webLinks    A list of weblinkDTOs to be added to the evidence
+     *
      * @return The evidence object, after it has been added to the database.
      * @throws MalformedURLException When one of the weblinks has a malformed url
      */
     public Evidence addEvidence(Authentication principal,
-                                String title,
-                                String date,
-                                String description,
-                                long projectId,
-                                List<WebLinkDTO> webLinks) throws MalformedURLException {
+                                EvidenceDTO evidenceDTO) throws MalformedURLException {
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+        long projectId = evidenceDTO.getProjectId();
+        String title = evidenceDTO.getTitle();
+        String description = evidenceDTO.getDescription();
+        List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
+        String date = evidenceDTO.getDate();
+
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isEmpty()) {
             throw new CheckException("Project Id does not match any project");
@@ -128,6 +128,7 @@ public class EvidenceService {
 
         if (webLinks != null) {
             for (WebLinkDTO dto : webLinks) {
+                System.out.println(dto.getUrl());
                 WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
                 evidence.addWebLink(webLink);
             }

@@ -49,6 +49,8 @@ public class Evidence {
      * @param description the description of the evidence
      */
     public Evidence(int userId, String title, LocalDate date, String description) {
+        checkTitleLength(title);
+        checkDescriptionLength(description);
         this.userId = userId;
         this.title = title;
         this.date = date;
