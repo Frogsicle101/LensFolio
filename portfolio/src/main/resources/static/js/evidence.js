@@ -160,16 +160,14 @@ function getWeblinksList() {
     let weblinks = evidenceCreationForm.find(".webLinkElement")
     let weblinksList = []
 
-    for (let i = 0; i < weblinks.length; i++) {
-        let weblink = weblinks[i]
-
+     $.each(weblinks, function () {
         let weblinkDTO = {
-            "url": weblink.querySelector(".addedWebLinkUrl").innerHTML,
-            "name": weblink.querySelector(".addedWebLinkName").innerHTML
+            "url": this.querySelector(".addedWebLinkUrl").innerHTML,
+            "name": this.querySelector(".addedWebLinkName").innerHTML
         }
 
         weblinksList.push(weblinkDTO)
-    }
+    })
 
     return weblinksList
 }
@@ -395,14 +393,13 @@ function webLinkElement(url, alias) {
     let slashIndex = url.search("//") + 2
     if (slashIndex > 1) urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
 
-    console.log(alias)
-    console.log(url)
     return (`
-        <div class="webLinkElement ${security}" data-bs-toggle="tooltip" data-bs-placement="top" 
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">
+        <div class="webLinkElement ${security}" data-value="${url}" >
             ${icon}
-            <div class="addedWebLinkName">${alias}</div>
+            <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
+            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
             <div class="addedWebLinkUrl" style="visibility: hidden">${url}</div>
+
         </div>
     `)
 }
