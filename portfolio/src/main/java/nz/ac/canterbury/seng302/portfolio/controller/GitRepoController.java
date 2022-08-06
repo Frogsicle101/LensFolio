@@ -40,10 +40,6 @@ public class GitRepoController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    /** Required regex for the git repository access token. */
-    private final String accessTokenRegex = "^[0-9a-f]{40}$";
-
-
     /**
      * Mapping for a post request to add a git repository to a group. Restricted to group members,teachers, and admin.
      * The method checks that the given group Id is valid, and then creates a git repository object using the provided
@@ -60,7 +56,7 @@ public class GitRepoController {
      * @param accessToken The access token of the git repository.
      * @return A response entity indicating success or an error. On success, also return the created git repository.
      */
-    @PostMapping("/addGitRepo")
+    @PostMapping("/editGitRepo")
     public ResponseEntity<Object> addGitRepo(
             @AuthenticationPrincipal Authentication principal,
             @RequestParam Integer groupId,
@@ -70,19 +66,32 @@ public class GitRepoController {
         logger.info("POST REQUEST /gitRepo/add - attempt to add git repo {} to group {}", alias, groupId);
 
         try {
-            if (alias.isBlank() || !accessToken.matches(accessTokenRegex)) {
-                throw new Exception("Required regex not matched by parameters");
+            if (alias.isBlank()) {
+                throw new RuntimeException("The repository name cannot be empty");
+            }
+            if (accessToken.length() < 20) {
+                throw new RuntimeException("Access token must be at least 20 characters");
             }
 
-            GitRepository gitRepository = new GitRepository(groupId, projectId, alias, accessToken);
-            gitRepoRepository.save(gitRepository);
-            logger.info("POST /gitRepo/add: Success");
-            return new ResponseEntity<>(gitRepository, HttpStatus.OK);
 
-        } catch (Exception exception) {
+            GitRepository repo;
+            try {
+                repo = gitRepoRepository.findAllByGroupId(groupId).get(0);
+                repo.setProjectId(projectId);
+                repo.setAlias(alias);
+                repo.setAccessToken(accessToken);
+            } catch (IndexOutOfBoundsException e) {
+                repo = new GitRepository(groupId, projectId, alias, accessToken);
+            }
+
+            gitRepoRepository.save(repo);
+            logger.info("POST /gitRepo/add: Success");
+            return new ResponseEntity<>(repo, HttpStatus.OK);
+
+        } catch (RuntimeException exception) {
             logger.error("ERROR /gitRepo/add - an error occurred while adding git repo {} to group {}", alias, groupId);
             logger.error(exception.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 

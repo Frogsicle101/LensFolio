@@ -120,8 +120,6 @@ $(document).ready(function () {
             }
         })
     }
-
-
 })
 
 // ******************************* Functions *******************************
@@ -153,14 +151,14 @@ function addUsers(groupId) {
     arrayOfIds = Array.from(new Set(arrayOfIds))
     selected.removeClass("selected")
     $.ajax({
-        url: `/groups/addUsers?groupId=${groupId}&userIds=${arrayOfIds}`,
+        url: `groups/addUsers?groupId=${groupId}&userIds=${arrayOfIds}`,
         type: "post",
         success: function () {
-            displayGroupUsersList(selectedGroupId)
+            displayGroupUsersList()
             createAlert("User(s) moved", false)
         },
         error: function (response) {
-            console.log(response)
+            // Log this
         }
     })
 }
@@ -171,11 +169,12 @@ function addUsers(groupId) {
  * @param show a boolean of if to show or hide
  */
 function showOptions(show) {
-    if ($("#groupDisplayOptions").is(':hidden')) {
+    let groupsDisplayOptions = $("#groupDisplayOptions")
+    if (groupsDisplayOptions.is(':hidden')) {
         if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
-            $("#groupDisplayOptions").slideDown()
+            groupsDisplayOptions.slideDown()
         } else {
-            $("#groupDisplayOptions").slideUp()
+            groupsDisplayOptions.slideUp()
         }
 
     }
@@ -261,18 +260,16 @@ function checkEditRights(group) {
 /**
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
- * @param groupId the id of the group to fetch
  */
-function displayGroupUsersList(groupId) {
+function displayGroupUsersList() {
     let membersContainer = $("#groupTableBody")
     $.ajax({
-        url: `group?groupId=${groupId}`,
+        url: `group?groupId=${selectedGroupId}`,
         type: "GET",
         success: (response) => {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
-            selectedGroupId = response.id;
             group = response;
             for (let member in response.userList) {
                 let imageSource;
@@ -306,30 +303,139 @@ function displayGroupUsersList(groupId) {
 
 
 /**
- * When group div is clicked, the members for that group are retrieved.
+ * A function to get the git repo information from the repository and display it on the group page, if there is no repo
+ * information then it changes the header to say there is no repository
  */
-$(document).on("click", ".group", function () {
-    $(".group").removeClass("focusOnGroup")
-    let groupId = $(this).closest(".group").find(".groupId").text();
-    let groupShortname = $(this).closest(".group").find(".groupShortName").text();
-    $("#selectAllCheckboxGroups").prop("checked", false);
-    displayGroupUsersList(groupId);
+function displayGroupRepoInformation () {
+    let repoInformationContainer = $("#gitRepo")
+    $.ajax({
+        url: `getRepo?groupId=${selectedGroupId}`,
+        type: "GET",
+        success: (response) => {
+            if (response.length === 0){
+                repoInformationContainer.empty();
+                repoInformationContainer.append(`
+                        <div id="groupSettingsRepoInformationSection">
+                            <div id="groupSettingsRepoHeader">
+                                <h3 id="groupSettingsPageRepoName">No Repository</h3>
+                                <button type="button" class="editRepo noStyleButton marginSides1" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Edit Repository Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                         class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
+                                        <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="repoSettingsContainer"></div>
+                        </div>`
+                )
+            }
+            else {
+                let repo = response[0];
+                repoInformationContainer.empty();
+                repoInformationContainer.append(`
+                        <div id="groupSettingsRepoInformationSection">
+                            <div id="groupSettingsRepoHeader">
+                                <h3 id="groupSettingsPageRepoName">${repo.alias}</h3>
+                                <button type="button" class="editRepo noStyleButton marginSides1" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Edit Repository Settings">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                         class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
+                                        <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
+                                    </svg>
+                                </button>
+                            </div>
 
-    $(this).closest(".group").addClass("focusOnGroup")
+                            <div id="repoInfo" class="row marginSides1">
+                                <div class="inlineText col">
+                                    <p>Project Id:&nbsp;</p>
+                                    <p class="groupSettingsPageProjectId greyText">${repo.projectId}</p>
+                                </div>
+                                <div class="inlineText col">
+                                    <p>Access Token:&nbsp;</p>
+                                    <p class="groupSettingsPageAccessToken greyText">${repo.accessToken}</p>
+                                </div>
+                            </div>
+                            <div id="repoSettingsContainer"></div>
+                        </div>`
+                )
+            }
+            getRepoCommits();
+        }
+    })
+}
 
-    if (groupShortname === "Teachers") { // teacher group
-        $("#groupRemoveUser").show();
-        $(".controlButtons").hide();
-    } else if (groupShortname === "Non-Group") { // non-group group
-        $("#groupRemoveUser").hide();
-        $(".controlButtons").hide();
-    } else {
-        $("#groupRemoveUser").show();
-        $(".controlButtons").show();
+
+/**
+ * a function to get the commits from the provided git repository and display the first 3 if there are any, or change
+ * the title to say that there are no commits. If there is a problem accessing the webpage, an error is displayed under
+ * the repo information
+ */
+function getRepoCommits() {
+    const commitContainer = $("#groupSettingsCommitSection");
+    commitContainer.empty();
+    const repoID = $(".groupSettingsPageProjectId").text()
+    const accessToken = $(".groupSettingsPageAccessToken").text();
+
+    if (repoID.length !== 0) {
+        getCommits(repoID, accessToken, (data, status) => {
+            if (status === "success") {
+                if (data.length === 0) {
+                    let commitText =
+                        `<h5>No Recent Commits</h5>`
+                    commitContainer.append(commitText)
+                }
+
+                commitContainer.append(`<h5>Recent Commits:</h5>`)
+                const firstThree = data.slice(0, 3);
+                for (let commit of firstThree) {
+                    let commitText =
+                        `<div id="groupSettingsCommitContainer" class="marginSides1">
+                            <div class="gitCommitInfo">
+                                <div class="row">
+                                    <div class="inlineText">
+                                        <p>Commit:&nbsp;</p>
+                                        <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <p>${sanitise(commit.message)}</p>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <p class="greyText">${sanitise(commit.author_name)}</p>
+                                    </div>
+                                    <div class="col commitDate">
+                                        <p class="greyText">${commit.committed_date.split("T")[0]}</p>
+                                    </div>
+                                </div>
+                            </div>
+                         </div>`
+                    commitContainer.append(commitText)
+                }
+            } else {
+                let repoInformationContainer = $("#gitRepo");
+                let repoProjectId = $(".groupSettingsPageProjectId");
+                let repoAccessToken = $(".groupSettingsPageAccessToken");
+
+                repoProjectId.removeClass('greyText')
+                repoProjectId.addClass("redText")
+                repoAccessToken.removeClass("greyText")
+                repoAccessToken.addClass("redText")
+
+                repoInformationContainer.append(`
+                <div>
+                    <p style="color: red">One or more repository settings are invalid</p>
+                </div>`)
+            }
+        })
     }
-    $("#confirmationForm").slideUp();
-    $(this).closest(".group").addClass("focusOnGroup");
-})
+}
+
+
+// ******************************* Click listeners *******************************
 
 
 /**
@@ -372,7 +478,7 @@ $(document).on("click", "#confirmRemoval", function () {
         url: `groups/removeUsers?groupId=${selectedGroupId}&userIds=${arrayOfIds}`,
         type: "DELETE",
         success: () => {
-            displayGroupUsersList(selectedGroupId)
+            displayGroupUsersList()
             createAlert("User removed", false)
         },
         error: (error) => {
@@ -391,32 +497,24 @@ $(document).on("click", "#cancelRemoval", function () {
 })
 
 
-// ******************************* Click listeners *******************************
+/**
+ * Makes an ajax get call to the server and gets all the information for a particular group.
+ * Loops through the groups members and adds them to the table.
+ * @param groupId the id of the group to fetch
+ */
+$(document).on("click", "#pillsSettingsTab", function () {
+    displayGroupRepoInformation()
+})
 
 
 /**
- * Ajax post request to the server for moving users from one group to another
+ * a listener for when the move users button is pushed, calls a function to move the currently selected users to the
+ * selected group
  */
-$(document).on("click", "#moveUsersButton", function () {
-    let arrayOfIds = [];
-    $(".selected").each(function () {
-        arrayOfIds.push($(this).attr("userId"))
-    })
-    $.ajax({
-        url: `/groups/addUsers?groupId=${$("#newGroupSelector").val()}&userIds=${arrayOfIds}`,
-        type: "post",
-        success: function (event) {
-            displayGroupUsersList(selectedGroupId)
-            createAlert(event, false)
-        },
-        error: function () {
-            createAlert("Error moving users", true)
-        }
-    })
-})
 $(document).on("click", "#moveUsersButton", function () {
     addUsers($("#newGroupSelector").val())
 })
+
 
 /**
  * selects every single user in the group when the button is clicked.
@@ -435,45 +533,28 @@ $(document).on("click", "#selectAllCheckboxGroups", function () {
 
 
 /**
- * Handles retrieving recent commits from the specified gitlab repo.
+ * When group div is clicked, the members for that group are retrieved.
  */
-$(document).on("click", "#pillsSettingsTab", function () {
-    const repoID = $(".groupSettingsPageProjectId").text()
-    const accessToken = $(".groupSettingsPageAccessToken").text();
-    getCommits(repoID, accessToken, (data) => {
+$(document).on("click", ".group", function () {
+    $(".group").removeClass("focusOnGroup")
+    selectedGroupId = $(this).closest(".group").find(".groupId").text();
+    let groupShortname = $(this).closest(".group").find(".groupShortName").text();
+    $("#selectAllCheckboxGroups").prop("checked", false);
+    displayGroupUsersList();
+    displayGroupRepoInformation()
 
-        const firstThree = data.slice(0, 3);
-
-        const commitContainer = $("#groupSettingsCommitContainer");
-        commitContainer.empty();
-        for (let commit of firstThree) {
-            let commitText =
-                `<div class="gitCommitInfo">
-                <div class="row">
-                    <div class="inlineText">
-                        <p>Commit:&nbsp;</p>
-                        <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
-                    </div>
-                </div>
-                <div class="row">
-                    <p>${sanitise(commit.message)}</p>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <p class="greyText">${sanitise(commit.author_name)}</p>
-                    </div>
-                    <div class="col commitDate">
-                        <p class="greyText">${commit.committed_date.split("T")[0]}</p>
-                    </div>
-                </div>
-            </div>`
-            commitContainer.append(commitText)
-        }
-
-
-
-
-    });
+    if (groupShortname === "Teachers") { // teacher group
+        $("#groupRemoveUser").show();
+        $(".controlButtons").hide();
+    } else if (groupShortname === "Non-Group") { // non-group group
+        $("#groupRemoveUser").hide();
+        $(".controlButtons").hide();
+    } else {
+        $("#groupRemoveUser").show();
+        $(".controlButtons").show();
+    }
+    $("#confirmationForm").slideUp();
+    $(this).closest(".group").addClass("focusOnGroup");
 })
 
 // ******************************* Keydown listeners *******************************
