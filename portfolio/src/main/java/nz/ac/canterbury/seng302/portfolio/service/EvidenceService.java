@@ -44,10 +44,12 @@ public class EvidenceService {
     private final WebLinkRepository webLinkRepository;
 
     @Autowired
-    public EvidenceService(UserAccountsClientService userAccountsClientService,
-                           ProjectRepository projectRepository,
-                           EvidenceRepository evidenceRepository,
-                           WebLinkRepository webLinkRepository) {
+    public EvidenceService(
+            UserAccountsClientService userAccountsClientService,
+            ProjectRepository projectRepository,
+            EvidenceRepository evidenceRepository,
+            WebLinkRepository webLinkRepository
+    ) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
