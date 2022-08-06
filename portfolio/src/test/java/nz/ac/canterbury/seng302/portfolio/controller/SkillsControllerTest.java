@@ -30,7 +30,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -225,7 +224,6 @@ class SkillsControllerTest {
                         .param("skillId", "1"))
                 .andExpect(status().isNotFound());
     }
-
 
 
     @Test

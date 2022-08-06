@@ -67,7 +67,7 @@ public class SkillController {
 
 
     /**
-     * Gets all the skills associated with a user with the supplied userId.
+     * Gets all the evidence associated with a user with the specified skill.
      *
      * @param skillId - The skill id of the skill whose pieces of evidence are requested
      * @return A ResponseEntity that contains a list of evidences associated with the skill.
@@ -81,9 +81,11 @@ public class SkillController {
                 logger.info("GET REQUEST /evidenceLinkedToSkill - skill {} does not exist", skillId);
                 return new ResponseEntity<>("Skill does not exist", HttpStatus.NOT_FOUND);
             }
+
             Set<Evidence> evidence = skill.get().getEvidence();
             logger.info("GET REQUEST /evidenceLinkedToSkill - found and returned {} evidences for skill: {}", evidence.size() ,skillId);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
+
         } catch (Exception exception) {
             logger.error("GET REQUEST /evidenceLinkedToSkill - Internal Server Error attempt skill: {}", skillId);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
