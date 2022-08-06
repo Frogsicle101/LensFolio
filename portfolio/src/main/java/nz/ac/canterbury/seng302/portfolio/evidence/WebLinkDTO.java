@@ -1,8 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.evidence;
 
 /**
- * Weblink Data Transfer Object, used for representing each item in the list of weblinks that can come after submitting
- * a post to the evidence endpoint.
+ * Weblink Data Transfer Object, which represents a valid web link with an alias.
  */
 public class WebLinkDTO {
 
