@@ -60,7 +60,6 @@ public class EvidenceService {
      * @throws CheckException The exception to throw
      */
     private void checkString(String string, StringType type) throws CheckException {
-
         if (string.length() < 2) {
             throw new CheckException("Text should be longer than 1 character");
         } else if (!string.matches(stringRegex)) {

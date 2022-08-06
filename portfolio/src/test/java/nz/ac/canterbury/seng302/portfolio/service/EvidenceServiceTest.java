@@ -327,10 +327,9 @@ class EvidenceServiceTest {
         String description = "Description";
 
         List<WebLinkDTO> webLinks = new ArrayList<>();
-        webLinks.add(new WebLinkDTO("a", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
+        webLinks.add(new WebLinkDTO("", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
         
         long projectId = 1L;
-
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
 
@@ -338,7 +337,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be longer than 1 character"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("name should be at least 1 character in length"));
     }
 
     @Test
