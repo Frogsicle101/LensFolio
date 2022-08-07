@@ -650,6 +650,8 @@ section {
     margin-top: 1rem;
     margin-right: 1rem;
     box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+    overflow-wrap: break-word;
+    overflow: auto;
 }
 
 .selected {
