@@ -31,9 +31,9 @@ public class WebLink {
     /**
      * Constructs an instance of the WebLink Object
      *
-     * @param evidence The evidence that this weblink is associated with
-     * @param alias     the name of the weblink
-     * @param url      the url of the weblink
+     * @param evidence The evidence that this web link is associated with
+     * @param alias     the name of the web link
+     * @param url      the url of the web link
      * @throws MalformedURLException when the url string is not valid. This Weblink is not allowed to be created.
      */
     public WebLink(Evidence evidence, String alias, String url) throws MalformedURLException {
