@@ -347,6 +347,7 @@ $(document).on("keyup", "#skillsInput", function (event) {
     displaySkillChips()
 })
 
+
 /**
  * Runs the remove duplicates function after a paste event has occurred on the skills input
  */
