@@ -830,3 +830,9 @@ section {
 .commitDate {
     text-align: right;
 }
+
+.dragGrip {
+    position: absolute;
+    left: 0.3rem;
+    margin-top: 0.9rem;
+}
