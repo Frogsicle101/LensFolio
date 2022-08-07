@@ -271,7 +271,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * If the new piece of evidence been canceled, reset the weblink count.
  */
 $(document).on("click", "#evidenceCancelButton", function () {
-    resetWeblink()
+    //resetWeblink()
 })
 
 /**
