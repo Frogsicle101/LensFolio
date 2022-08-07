@@ -366,21 +366,74 @@ $("#skillsInput")
  * Listens out for a keydown event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
  */
-$(document).on("keydown", "#skillsInput", function (event) {
+$(document).on("keyup", "#skillsInput", function (event) {
 
     if (event.keyCode === $.ui.keyCode.DELETE) {
         event.preventDefault();
         let skillsInput = $("#skillsInput")
         let inputArray = skillsInput.val().trim().split(/\s+/)
-
-        console.log(inputArray)
         inputArray.pop()
         skillsInput.val(inputArray.join(" "))
     }
 
+    displaySkillChips()
 
 })
 
+/** The below listeners trigger the rendering of the skill chips */
+$(document).on("change", "#skillsInput", () => displaySkillChips())
+$(document).on("click", ".ui-autocomplete", () => displaySkillChips())
+
+
+/**
+ * This function gets the input string from the skills input and trims off the extra whitespace
+ * then it separates each word into an array and creates chips for them.
+ */
+function displaySkillChips(){
+    let skillsInput = $("#skillsInput")
+    let inputArray = skillsInput.val().trim().split(/\s+/)
+    let chipDisplay = $("#skillChipDisplay")
+    chipDisplay.empty()
+    inputArray.forEach(function(element) {
+        element = element.split("_").join(" ")
+        chipDisplay.append(createChip(element))
+    })
+    chipDisplay.find(".skillChipText").each(function(){
+        if ($(this).text().length < 1){
+            $(this).parent(".skillChip").remove()
+        }
+    })
+}
+
+/**
+ * This function returns the html for the chips
+ * @param element the name of the skill
+ * @returns {string} the html for the chip
+ */
+function createChip(element){
+    return `<div class="skillChip">
+                <p class="skillChipText">${element}</p>  
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+                </div>`
+}
+
+/**
+ * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
+ * skill we are deleting.
+ */
+$(document).on("click", ".chipDelete", function () {
+    let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
+    let skillsInput = $("#skillsInput")
+    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function(value) {
+        return value !== skillText
+    })
+    skillsInput.val(inputArray.join(" "))
+    displaySkillChips()
+
+})
 
 // --------------------------- Functional HTML Components ------------------------------------
 
