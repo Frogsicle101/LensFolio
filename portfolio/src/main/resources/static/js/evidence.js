@@ -25,7 +25,7 @@ $(document).ready(function () {
         $(".evidenceDeleteButton").hide()
         $(".createEvidenceButton").hide();
     }
-
+    resetWeblink()
     getAndAddEvidencePreviews()
     let textInput = $(".text-input");
     textInput.each(countCharacters)
@@ -168,6 +168,35 @@ function addEvidencePreviews(response) {
 
 
 /**
+ * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
+ */
+function checkWeblinkCount() {
+    let addWeblinkButton = $("#addWebLinkButton")
+    let weblinkFullTab = $("#webLinkFull")
+    if (webLinksCount > 9){
+        addWeblinkButton.hide()
+        weblinkFullTab.show()
+    }else{
+        addWeblinkButton.show()
+        weblinkFullTab.hide()
+    }
+}
+
+
+/**
+ * reset the weblinks count
+ */
+function resetWeblink() {
+    let addWeblinkButton = $("#addWebLinkButton")
+    let weblinkFullTab = $("#webLinkFull")
+
+    addWeblinkButton.show()
+    weblinkFullTab.hide()
+    webLinksCount = 0
+}
+
+
+/**
  * Retrieves the added web links and creates a list of them in DTO form.
  *
  * @returns {string} A list of web links matching the web link DTO format.
@@ -202,7 +231,6 @@ function getWeblinksList() {
  *    3. Populate the display with the selected evidence details.
  */
 $(document).on("click", ".evidenceListItem", function () {
-
     let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
     previouslySelectedDiv.removeClass("selectedEvidence")
 
@@ -239,6 +267,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+                resetWeblink()
             }, error: function (error) {
                 createAlert(error.responseText, true)
             }
@@ -252,7 +281,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '.addWebLinkButton', function () {
-    $(".weblink-form").slideToggle();
+    $(".webLinkForm").slideToggle();
     let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
         //Un-toggle the button
@@ -269,7 +298,9 @@ $(document).on('click', '.addWebLinkButton', function () {
     }
 })
 
+
 // --------------------------------- Autocomplete -----------------------------------------
+
 
 /** This split function splits the text by its spaces*/
 function split(val) {
@@ -478,6 +509,13 @@ $(document).on("click", ".chipDelete", function () {
     displaySkillChips()
 })
 
+/**
+ * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
+ */
+$(document).on('click', '.addedWebLinkName', function () {
+    let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
+    window.open(destination, '_blank').focus();
+})
 
 // --------------------------- Functional HTML Components ------------------------------------
 
@@ -553,13 +591,20 @@ function submitWebLink() {
     let url = $("#webLinkUrl")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
-
+    if (alias.val().length > 0){
     webLinkTitle.show()
     addedWebLinks.append(webLinkElement(url.val(), alias.val()))
 
-    initialiseTooltips()
-    url.val("")
-    alias.val("")
+        initialiseTooltips()
+        url.val("")
+        alias.val("")
+        webLinksCount += 1
+        checkWeblinkCount()
+        $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+    }
+    else{
+        createAlert("Weblink name needs to be 1 char", true);
+    }
 }
 
 

@@ -145,7 +145,7 @@ class EvidenceServiceTest {
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);        
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -328,7 +328,7 @@ class EvidenceServiceTest {
 
         List<WebLinkDTO> webLinks = new ArrayList<>();
         webLinks.add(new WebLinkDTO("", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
-        
+
         long projectId = 1L;
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
