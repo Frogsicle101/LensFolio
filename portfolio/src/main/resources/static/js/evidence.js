@@ -320,7 +320,7 @@ $(document).on('click', '.addWebLinkButton', function () {
         //validate the link
         let address = $("#webLinkUrl").val()
         let alias = $("#webLinkName").val()
-        let form = $(".weblink-form")
+        let form = $(".webLinkForm")
         validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()
@@ -567,7 +567,7 @@ function handleInvalidWebLink(form, error) {
  */
 function validateWebLinkAtBackend() {
     let address = $("#webLinkUrl").val()
-    let form = $(".weblink-form")
+    let form = $(".webLinkForm")
 
     $.ajax({
         url: `validateWebLink?address=${address}`,
@@ -588,7 +588,7 @@ function validateWebLinkAtBackend() {
  */
 function webLinkButtonToggle() {
     let button = $(".addWebLinkButton");
-    $(".weblink-form").slideToggle();
+    $(".webLinkForm").slideToggle();
     if (button.hasClass("toggled")) {
         button.text("Add Web Link")
         button.removeClass("toggled")
