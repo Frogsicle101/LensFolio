@@ -9,6 +9,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 
 @SpringBootTest
@@ -92,8 +93,21 @@ class SkillsTest {
 
         skillRepository.save(skill1);
 
-        Skill foundSkill = skillRepository.findByNameIgnoreCase(differentCaseSearchQuery);
+        Skill foundSkill = skillRepository.findByNameIgnoreCase(differentCaseSearchQuery).get();
         Assertions.assertNotEquals(foundSkill.getName(), differentCaseSearchQuery);
         Assertions.assertEquals(skill1.getName(), foundSkill.getName());
+    }
+
+
+    @Test
+    void checkSkillRepositoryReturnForEmptyString() {
+        Skill skill1 = new Skill("");
+        String differentCaseSearchQuery = "";
+
+        skillRepository.save(skill1);
+
+        Optional<Skill> foundSkill = skillRepository.findByNameIgnoreCase(differentCaseSearchQuery);
+        Assertions.assertTrue(foundSkill.isEmpty());
+//        Assertions.assertEquals(skill1.getName(), foundSkill.getName());
     }
 }

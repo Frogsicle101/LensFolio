@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,20 +71,18 @@ public class EvidenceService {
      * @param skillNames - The list of the skills
      */
     public void addSkills(Evidence evidence, String[] skillNames) {
-        Set<Skill> evidenceSkills =evidence.getSkills();
         for(String skillName: skillNames){
-            boolean exist = false;
-            for (Skill oldSkill : evidenceSkills){
-                if (skillName.equalsIgnoreCase(oldSkill.getName())){
-                    exist = true;
-                    break;
-                }
+            if (skillName == null || skillName.equals("") || skillName.equals(" ")){
+                continue;
             }
-            if(!exist){
+            Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
+            Skill theSkill;
+            if (optionalSkill.isEmpty()) {
                 Skill createSkill = new Skill(skillName);
-                skillRepository.save(createSkill);
+                theSkill = skillRepository.save(createSkill);
+            } else {
+                theSkill = optionalSkill.get();
             }
-            Skill theSkill = skillRepository.findByNameIgnoreCase(skillName);
             evidence.addSkill(theSkill);
             evidenceRepository.save(evidence);
         }
