@@ -7,6 +7,8 @@ const regExp = new RegExp('[A-Za-z]');
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
+let webLinksCount = 0;
+
 let skillsArray = [
     "ActionScript",
     "AppleScript",
@@ -48,7 +50,7 @@ $(document).ready(function () {
         $(".evidenceDeleteButton").hide()
         $(".createEvidenceButton").hide();
     }
-
+    resetWeblink()
     getAndAddEvidencePreviews()
     let textInput = $(".text-input");
     textInput.each(countCharacters)
@@ -193,6 +195,35 @@ function addEvidencePreviews(response) {
 
 
 /**
+ * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
+ */
+function checkWeblinkCount() {
+    let addWeblinkButton = $("#addWebLinkButton")
+    let weblinkFullTab = $("#webLinkFull")
+    if (webLinksCount > 9){
+        addWeblinkButton.hide()
+        weblinkFullTab.show()
+    }else{
+        addWeblinkButton.show()
+        weblinkFullTab.hide()
+    }
+}
+
+
+/**
+ * reset the weblinks count
+ */
+function resetWeblink() {
+    let addWeblinkButton = $("#addWebLinkButton")
+    let weblinkFullTab = $("#webLinkFull")
+
+    addWeblinkButton.show()
+    weblinkFullTab.hide()
+    webLinksCount = 0
+}
+
+
+/**
  * Retrieves the added web links and creates a list of them in DTO form.
  *
  * @returns {string} A list of web links matching the web link DTO format.
@@ -269,6 +300,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
+                resetWeblink()
             },
             error: function (error) {
                 createAlert(error.responseText, true)
@@ -467,15 +499,22 @@ function submitWebLink() {
     let url = $("#webLinkUrl")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
+    if (alias.val().length > 0){
+        webLinkTitle.show()
+        addedWebLinks.append(
+            webLinkElement(url.val(), alias.val())
+        )
 
-    webLinkTitle.show()
-    addedWebLinks.append(
-        webLinkElement(url.val(), alias.val())
-    )
-
-    initialiseTooltips()
-    url.val("")
-    alias.val("")
+        initialiseTooltips()
+        url.val("")
+        alias.val("")
+        webLinksCount += 1
+        checkWeblinkCount()
+        $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+    }
+    else{
+        createAlert("Weblink name needs to be 1 char", true);
+    }
 }
 
 
