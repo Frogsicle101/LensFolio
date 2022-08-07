@@ -157,19 +157,19 @@ function addEvidencePreviews(response) {
  */
 function getWeblinksList() {
     let evidenceCreationForm = $("#evidenceCreationForm")
-    let weblinks = evidenceCreationForm.find(".webLinkElement")
-    let weblinksList = []
+    let webLinks = evidenceCreationForm.find(".webLinkElement")
+    let webLinksList = []
 
-     $.each(weblinks, function () {
-        let weblinkDTO = {
+     $.each(webLinks, function () {
+        let webLinkDTO = {
             "url": this.querySelector(".addedWebLinkUrl").innerHTML,
             "name": this.querySelector(".addedWebLinkName").innerHTML
         }
 
-        weblinksList.push(weblinkDTO)
+        webLinksList.push(webLinkDTO)
     })
 
-    return weblinksList
+    return webLinksList
 }
 
 
@@ -185,7 +185,6 @@ function getWeblinksList() {
  *    3. Populate the display with the selected evidence details.
  */
 $(document).on("click", ".evidenceListItem", function() {
-
     let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
     previouslySelectedDiv.removeClass("selectedEvidence")
 
@@ -242,7 +241,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '.addWebLinkButton', function () {
-    $(".weblink-form").slideToggle();
+    $(".webLinkForm").slideToggle();
     let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
         //Un-toggle the button
@@ -260,6 +259,13 @@ $(document).on('click', '.addWebLinkButton', function () {
 })
 
 
+/**
+ * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
+ */
+$(document).on('click', '.addedWebLinkName', function () {
+    let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
+    window.open(destination, '_blank').focus();
+})
 
 // --------------------------- Functional HTML Components ------------------------------------
 
@@ -399,7 +405,6 @@ function webLinkElement(url, alias) {
             <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
             data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
             <div class="addedWebLinkUrl" style="visibility: hidden">${url}</div>
-
         </div>
     `)
 }
