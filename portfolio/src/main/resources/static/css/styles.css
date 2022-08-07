@@ -978,6 +978,12 @@ section {
     padding-left: 2rem;
 }
 
+.addedWebLinkName:hover {
+    text-decoration-line: underline;
+    color: blue;
+    cursor: grab;
+}
+
 .ui-autocomplete {
     z-index: 10000;
     max-height: 5rem;
