@@ -30,8 +30,6 @@ $(document).ready(function () {
     let textInput = $(".text-input");
     textInput.each(countCharacters)
     textInput.keyup(countCharacters)
-
-    resetWeblink()
 })
 
 
@@ -268,13 +266,6 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
 
 
 /**
- * If the new piece of evidence been canceled, reset the weblink count.
- */
-$(document).on("click", "#evidenceCancelButton", function () {
-    //resetWeblink()
-})
-
-/**
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
@@ -379,17 +370,22 @@ function submitWebLink() {
     let url = $("#webLinkUrl")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
-    webLinkTitle.show()
-    addedWebLinks.append(
-        webLinkElement(url.val(), alias.val())
-    )
+    if (alias.val().length > 0){
+        webLinkTitle.show()
+        addedWebLinks.append(
+            webLinkElement(url.val(), alias.val())
+        )
 
-    initialiseTooltips()
-    url.val("")
-    alias.val("")
-    webLinksCount += 1
-    checkWeblinkCount()
-    $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+        initialiseTooltips()
+        url.val("")
+        alias.val("")
+        webLinksCount += 1
+        checkWeblinkCount()
+        $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+    }
+    else{
+        createAlert("Weblink name needs to be 1 char", true);
+    }
 }
 
 
