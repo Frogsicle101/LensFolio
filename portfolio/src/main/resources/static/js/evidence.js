@@ -7,30 +7,7 @@ const regExp = new RegExp('[A-Za-z]');
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
-let skillsArray = [
-    "ActionScript",
-    "AppleScript",
-    "Asp",
-    "BASIC",
-    "C",
-    "C++",
-    "Clojure",
-    "COBOL",
-    "ColdFusion",
-    "Erlang",
-    "Fortran",
-    "Groovy",
-    "Haskell",
-    "Java",
-    "JavaScript",
-    "Lisp",
-    "Perl",
-    "PHP",
-    "Python",
-    "Ruby",
-    "Scala",
-    "Scheme"
-]
+let skillsArray = ["ActionScript", "AppleScript", "Asp", "BASIC", "C", "C++", "Clojure", "COBOL", "ColdFusion", "Erlang", "Fortran", "Groovy", "Haskell", "Java", "JavaScript", "Lisp", "Perl", "PHP", "Python", "Ruby", "Scala", "Scheme"]
 
 
 /**
@@ -64,16 +41,13 @@ $(document).ready(function () {
  * When the page loads this makes a call to the server to get a list of the users skills they already have
  * this helps the autocomplete functionality on the skill input
  */
-function getSkills(){
+function getSkills() {
     $.ajax({
-        url: "skills?userId=" + userBeingViewedId,
-        type: "GET",
-        success: function (response) {
+        url: "skills?userId=" + userBeingViewedId, type: "GET", success: function (response) {
             console.log(response)
             //TODO add response skills to skill array
 
-        },
-        error: function (response) {
+        }, error: function (response) {
             console.log(response)
         }
     })
@@ -92,12 +66,10 @@ function getSkills(){
  */
 function getAndAddEvidencePreviews() {
     $.ajax({
-        url: "evidenceData?userId=" + userBeingViewedId,
-        success: function (response) {
+        url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
             addEvidencePreviews(response)
             showHighlightedEvidenceDetails()
-        },
-        error: function (error) {
+        }, error: function (error) {
             createAlert(error.responseText, true)
         }
     })
@@ -136,12 +108,10 @@ function showHighlightedEvidenceDetails() {
  */
 function getHighlightedEvidenceDetails() {
     $.ajax({
-        url: "evidencePiece?evidenceId=" + selectedEvidenceId,
-        success: function (response) {
+        url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
             setHighlightEvidenceAttributes(response)
             getHighlightedEvidenceWeblinks()
-        },
-        error: function () {
+        }, error: function () {
             createAlert("Failed to receive active evidence", true)
         }
     })
@@ -154,11 +124,9 @@ function getHighlightedEvidenceDetails() {
  */
 function getHighlightedEvidenceWeblinks() {
     $.ajax({
-        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId,
-        success: function (response) {
+        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId, success: function (response) {
             setHighlightedEvidenceWebLinks(response)
-        },
-        error: function (response) {
+        }, error: function (response) {
             if (response.status !== 404) {
                 createAlert("Failed to receive evidence links", true)
             }
@@ -261,26 +229,17 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const projectId = 1
         let webLinks = getWeblinksList();
         let data = JSON.stringify({
-            "title": title,
-            "date": date,
-            "description": description,
-            "projectId": projectId,
-            "webLinks": webLinks
+            "title": title, "date": date, "description": description, "projectId": projectId, "webLinks": webLinks
         })
         $.ajax({
-            url: `evidence`,
-            type: "POST",
-            contentType: "application/json",
-            data,
-            success: function (response) {
+            url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-            },
-            error: function (error) {
+            }, error: function (error) {
                 createAlert(error.responseText, true)
             }
         })
@@ -331,28 +290,23 @@ function extractLast(term) {
 $("#skillsInput")
     // don't navigate away from the field on tab when selecting an item
     .on("keydown", function (event) {
-        if (event.keyCode === $.ui.keyCode.TAB &&
-            $(this).autocomplete("instance").menu.active) {
+        if (event.keyCode === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
             event.preventDefault();
         }
     })
     .autocomplete({
         autoFocus: true, // This default selects the top result
-        minLength: 1,
-        source: function (request, response) {
+        minLength: 1, source: function (request, response) {
             // delegate back to autocomplete, but extract the last term
-            let responseList = $.ui.autocomplete.filter(
-                skillsArray, extractLast(request.term))
+            let responseList = $.ui.autocomplete.filter(skillsArray, extractLast(request.term))
             response(responseList.sort((element1, element2) => {
                 // This sorts the response list (the drop-down list) so that it shows the shortest match first
                 return element1.length - element2.length
             }));
-        },
-        focus: function () {
+        }, focus: function () {
             // prevent value inserted on focus
             return false;
-        },
-        select: function (event, ui) {
+        }, select: function (event, ui) {
             let terms = split(this.value);
             // remove the current input
             terms.pop();
@@ -387,9 +341,7 @@ $(document).on("keyup", "#skillsInput", function (event) {
         inputArray.pop()
         skillsInput.val(inputArray.join(" "))
     }
-    if (event.keyCode === $.ui.keyCode.SPACE
-        || event.keyCode === $.ui.keyCode.TAB
-        || event.keyCode === $.ui.keyCode.ENTER) {
+    if (event.keyCode === $.ui.keyCode.SPACE || event.keyCode === $.ui.keyCode.TAB || event.keyCode === $.ui.keyCode.ENTER) {
         removeDuplicatesFromInput(skillsInput)
     }
     displaySkillChips()
@@ -415,7 +367,7 @@ function removeDuplicatesFromInput(input) {
 
     let newArray = []
     inputArray.forEach(function (element) {
-        while (element.slice(-1) === "_"){
+        while (element.slice(-1) === "_") {
             element = element.slice(0, -1)
         }
         if (element.length > 30) { //Shortens down the elements to 30 characters
@@ -426,8 +378,8 @@ function removeDuplicatesFromInput(input) {
             newArray.push(element)
         }
     })
-    newArray.forEach(function(element, index) {
-        skillsArray.forEach(function(alreadyExistingSkill) {
+    newArray.forEach(function (element, index) {
+        skillsArray.forEach(function (alreadyExistingSkill) {
             if (element.toLowerCase() === alreadyExistingSkill.toLowerCase()) {
                 newArray[index] = alreadyExistingSkill;
             }
@@ -484,7 +436,7 @@ function displaySkillChips() {
 /**
  * Simple function that checks if the skill chip display should be visible or not.
  */
-function checkToShowSkillChips(){
+function checkToShowSkillChips() {
     let chipDisplay = $("#skillChipDisplay")
     let skillsInput = $("#skillsInput")
     if (skillsInput.val().trim().length > 0) {
@@ -602,9 +554,7 @@ function submitWebLink() {
     let webLinkTitle = $("#webLinkTitle")
 
     webLinkTitle.show()
-    addedWebLinks.append(
-        webLinkElement(url.val(), alias.val())
-    )
+    addedWebLinks.append(webLinkElement(url.val(), alias.val()))
 
     initialiseTooltips()
     url.val("")
