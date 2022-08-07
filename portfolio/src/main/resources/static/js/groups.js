@@ -554,8 +554,11 @@ $(document).on("click", ".editButton", () => {
     editButton.hide();
     editButton.tooltip("hide");
 
-    $("#groupShortName").text($("#groupInformationShortName").text())
-    $("#groupLongName").text($("#groupInformationLongName").text())
+    const shortName = $("#groupInformationShortName").text();
+    const longName = $("#groupInformationLongName").text();
+
+    $("#groupShortName").val(shortName)
+    $("#groupLongName").val(longName)
 
     if (!checkPrivilege()) {
         $("#editShortNameInput").hide();
@@ -577,10 +580,10 @@ $(document).on("submit", "#editGroupForm", function (event) {
     let type;
 
     if (checkPrivilege()) {
-        url = "/groups/edit/details";
+        url = "groups/edit/details";
         type = "post";
     } else {
-        url = "/groups/edit/longName";
+        url = "groups/edit/longName";
         type = "patch";
     }
     const groupData = {
