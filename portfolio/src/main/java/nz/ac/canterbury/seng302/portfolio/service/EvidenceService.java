@@ -29,6 +29,17 @@ public class EvidenceService {
 
 
     /**
+     * for testing
+     *
+     * @param skillRepository the mock repository
+     */
+    public EvidenceService(SkillRepository skillRepository, EvidenceRepository evidenceRepository) {
+        this.skillRepository = skillRepository;
+        this.evidenceRepository = evidenceRepository;
+    }
+
+
+    /**
      * Checks if the string is too short or matches the pattern provided
      * if either of these are true then it throws an exception
      *

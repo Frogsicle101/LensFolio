@@ -26,7 +26,7 @@ public class EvidenceServiceTest {
 
     @BeforeEach
     void setUp() {
-        evidenceService = new EvidenceService();
+        evidenceService = new EvidenceService(skillRepository, evidenceRepository);
         evidence = new Evidence(1, 2, "Title", LocalDate.now(), "description");
     }
 
@@ -79,7 +79,7 @@ public class EvidenceServiceTest {
     @Test
     void testAddSkillToEvidenceWhenSkillNotExist(){
         String skillsNames = "Skill_1";
-        Mockito.when(skillRepository.findByNameIgnoreCase("Skill_1")).thenReturn(Optional.of(null));
+        Mockito.when(skillRepository.findByNameIgnoreCase("Skill_1")).thenReturn(Optional.empty());
         String[] listSkills = skillsNames.split("\\s+");
         evidenceService.addSkills(evidence, listSkills);
         Mockito.verify(skillRepository, Mockito.times(1)).findByNameIgnoreCase(Mockito.any());
@@ -90,8 +90,8 @@ public class EvidenceServiceTest {
     @Test
     void testAddMultipleSkillsToEvidenceWhenSkillsNotExist(){
         String skillsNames = "Skill_1 Skill_2";
-        Mockito.when(skillRepository.findByNameIgnoreCase("Skill_1")).thenReturn(Optional.of(null));
-        Mockito.when(skillRepository.findByNameIgnoreCase("Skill_2")).thenReturn(Optional.of(null));
+        Mockito.when(skillRepository.findByNameIgnoreCase("Skill_1")).thenReturn(Optional.empty());
+        Mockito.when(skillRepository.findByNameIgnoreCase("Skill_2")).thenReturn(Optional.empty());
         String[] listSkills = skillsNames.split("\\s+");
         evidenceService.addSkills(evidence, listSkills);
         Mockito.verify(skillRepository, Mockito.times(2)).findByNameIgnoreCase(Mockito.any());
@@ -104,7 +104,7 @@ public class EvidenceServiceTest {
         Skill usersSkill1 = new Skill(1, "Skill_1");
         String skillsNames = "Skill_1 Skill_2";
         Mockito.when(skillRepository.findByNameIgnoreCase("Skill_1")).thenReturn(Optional.of(usersSkill1));
-        Mockito.when(skillRepository.findByNameIgnoreCase("Skill_2")).thenReturn(Optional.of(null));
+        Mockito.when(skillRepository.findByNameIgnoreCase("Skill_2")).thenReturn(Optional.empty());
         String[] listSkills = skillsNames.split("\\s+");
         evidenceService.addSkills(evidence, listSkills);
         Mockito.verify(skillRepository, Mockito.times(2)).findByNameIgnoreCase(Mockito.any());
