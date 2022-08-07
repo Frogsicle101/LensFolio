@@ -151,6 +151,7 @@ function addEvidencePreviews(response) {
     }
 }
 
+
 /**
  * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
  */
@@ -166,6 +167,7 @@ function checkWeblinkCount() {
     }
 }
 
+
 /**
  * reset the weblinks count
  */
@@ -177,6 +179,7 @@ function resetWeblink() {
     weblinkFullTab.hide()
     webLinksCount = 0
 }
+
 
 /**
  * Retrieves the added web links and creates a list of them in DTO form.
@@ -400,6 +403,7 @@ function clearAddEvidenceModalValues() {
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
 }
+
 
 /**
  * Given a web url and an alias, creates and returns a web link element.
