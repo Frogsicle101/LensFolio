@@ -27,6 +27,7 @@ $(document).ready(function () {
          */
         selected: function (e, ui) {
             let currentlySelected = $(ui.selected)
+
             notCtrlClick = !e.ctrlKey
             if (shiftDown) { // Checks if the shift key is currently pressed
                 notCtrlClick = false
@@ -69,7 +70,8 @@ $(document).ready(function () {
                 lastSelectedRow.addClass("selected")
             }
             $(".userRow").each(function () {
-                if (!$(this).hasClass("selected") && $(this).hasClass("ui-draggable")) {
+                if (!$(this).hasClass("selected") && $(this).find(".dragGrip").hasClass("ui-draggable")) {
+                    $(this).find(".dragGrip").hide()
                     try {
                         $(this).draggable("destroy")
                     } catch (err) {
@@ -79,6 +81,8 @@ $(document).ready(function () {
             arrayOfSelected = []
             checkToSeeIfHideOrShowOptions()
             addDraggable()
+
+            showDraggableIcon()
         },
 
         /**
@@ -117,20 +121,27 @@ $(document).ready(function () {
              */
             drop: function () {
                 addUsers($(this).attr("id"))
-            }
+            },
+            tolerance: "pointer"
         })
     }
 })
 
 // ******************************* Functions *******************************
 
+/**
+ * Displays the grip element that each table row has
+ */
+function showDraggableIcon() {
+    $(".selected").find(".dragGrip").show()
+}
 
 /**
  * Makes the selected elements able to  be draggable with the mouse
  * https://api.jqueryui.com/draggable/
  */
 function addDraggable() {
-    $(".selected").draggable({
+    $(".dragGrip").draggable({
         helper: function () {
             let helper = $("<table class='table colourForDrag'/>")
             return helper.append($(".selected").clone())
@@ -305,7 +316,11 @@ function appendMembersToGroup(group) {
 
         membersContainer.append(`
                     <tr class="userRow" userId=${user.id}>
-                        <td>${user.id}</td>
+                        <td class="userRowId">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-grip-vertical dragGrip" style="display: none" viewBox="0 0 16 16">
+                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                            </svg>
+                            ${user.id}</td>
                         <td>
                             <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
                         </td>
@@ -673,8 +688,11 @@ $(document).on("click", "#selectAllCheckboxGroups", function () {
     $(".selectUserCheckboxGroups").prop("checked", isChecked)
     if (isChecked) {
         $(".userRow").addClass("selected")
+        showDraggableIcon()
     } else {
-        $(".userRow").removeClass("selected")
+        let userRow = $(".userRow")
+        userRow.removeClass("selected")
+        userRow.find(".dragGrip").hide()
     }
     checkToSeeIfHideOrShowOptions()
 
