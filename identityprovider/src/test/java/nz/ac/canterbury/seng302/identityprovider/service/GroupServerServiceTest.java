@@ -30,13 +30,6 @@ class GroupServerServiceTest {
     @InjectMocks
     private GroupsServerService groupsServerService = new GroupsServerService();
 
-
-//    private final User user1 = Mockito.mock(User.class);
-//    @Mock
-//    private User user2;
-//    @Mock
-//    private User user3;
-
     @Mock
     private GroupService groupService = new GroupService(groupRepository, userRepository);
 
