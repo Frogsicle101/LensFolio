@@ -300,17 +300,21 @@ $(document).on('click', '.addWebLinkButton', function () {
     }
 })
 
+
 // --------------------------------- Autocomplete -----------------------------------------
+
 
 /** This split function splits the text by its spaces*/
 function split(val) {
     return val.split(/\s+/);
 }
 
+
 /** this function splits the input by its spaces then returns the last word */
 function extractLast(term) {
     return split(term).pop();
 }
+
 
 /**
  * Autocomplete widget provided by jQueryUi
@@ -361,6 +365,7 @@ $("#skillsInput")
         .appendTo(ul);
 };
 
+
 /**
  * Listens out for a keydown event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
@@ -376,9 +381,8 @@ $(document).on("keydown", "#skillsInput", function (event) {
         inputArray.pop()
         skillsInput.val(inputArray.join(" "))
     }
-
-
 })
+
 
 /**
  * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
@@ -387,6 +391,7 @@ $(document).on('click', '.addedWebLinkName', function () {
     let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
     window.open(destination, '_blank').focus();
 })
+
 
 // --------------------------- Functional HTML Components ------------------------------------
 
@@ -485,6 +490,7 @@ function clearAddEvidenceModalValues() {
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
 }
+
 
 /**
  * Given a web url and an alias, creates and returns a web link element.
