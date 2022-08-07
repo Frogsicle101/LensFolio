@@ -402,6 +402,13 @@ function removeDuplicatesFromInput(input) {
             newArray.push(element)
         }
     })
+    newArray.forEach(function(element, index) {
+        skillsArray.forEach(function(alreadyExistingSkill) {
+            if (element.toLowerCase() === alreadyExistingSkill.toLowerCase()) {
+                newArray[index] = alreadyExistingSkill;
+            }
+        })
+    })
     input.val(newArray.join(" ") + " ")
 }
 
