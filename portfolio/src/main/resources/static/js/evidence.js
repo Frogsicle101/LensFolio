@@ -53,6 +53,7 @@ $(document).ready(function () {
     let textInput = $(".text-input");
     textInput.each(countCharacters)
     textInput.keyup(countCharacters)
+    checkToShowSkillChips()
 
 
     /**
@@ -65,6 +66,7 @@ $(document).ready(function () {
         success: function (response) {
             console.log(response)
             //TODO add response skills to skill array
+            skillsArray.sort()
         },
         error: function (response) {
             console.log(response)
@@ -271,6 +273,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
+                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
             },
             error: function (error) {
                 createAlert(error.responseText, true)
@@ -309,10 +312,12 @@ function split(val) {
     return val.split(/\s+/);
 }
 
+
 /** this function splits the input by its spaces then returns the last word */
 function extractLast(term) {
     return split(term).pop();
 }
+
 
 /**
  * Autocomplete widget provided by jQueryUi
@@ -328,7 +333,7 @@ $("#skillsInput")
     })
     .autocomplete({
         autoFocus: true, // This default selects the top result
-        minLength: 0,
+        minLength: 1,
         source: function (request, response) {
             // delegate back to autocomplete, but extract the last term
             let responseList = $.ui.autocomplete.filter(
@@ -363,6 +368,7 @@ $("#skillsInput")
         .appendTo(ul);
 };
 
+
 /**
  * Listens out for a keydown event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
@@ -382,8 +388,17 @@ $(document).on("keyup", "#skillsInput", function (event) {
         removeDuplicatesFromInput(skillsInput)
     }
     displaySkillChips()
+})
+
+/**
+ * Runs the remove duplicates function after a paste event has occurred on the skills input
+ */
+$(document).on("paste", "#skillsInput", (event) => {
+    setTimeout(() => removeDuplicatesFromInput($("#skillsInput")), 0)
+    // Above is in a timeout so that it runs after the paste event has happened
 
 })
+
 
 /**
  * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
@@ -395,10 +410,14 @@ function removeDuplicatesFromInput(input) {
 
     let newArray = []
     inputArray.forEach(function (element) {
+        while (element.slice(-1) === "_"){
+            element = element.slice(0, -1)
+        }
         if (element.length > 30) { //Shortens down the elements to 30 characters
             element = element.split("").splice(0, 30).join("")
         }
         if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
+
             newArray.push(element)
         }
     })
@@ -412,6 +431,7 @@ function removeDuplicatesFromInput(input) {
     input.val(newArray.join(" ") + " ")
 }
 
+
 /** The below listeners trigger the rendering of the skill chips */
 $(document).on("change", "#skillsInput", () => displaySkillChips())
 $(document).on("click", ".ui-autocomplete", () => {
@@ -419,6 +439,7 @@ $(document).on("click", ".ui-autocomplete", () => {
     displaySkillChips()
 
 })
+
 
 /**
  * Cleans up the duplicates in the input when the user clicks away from the input.
@@ -428,19 +449,20 @@ $(document).on("click", () => {
     displaySkillChips()
 })
 
+
 /**
  * This function gets the input string from the skills input and trims off the extra whitespace
  * then it separates each word into an array and creates chips for them.
  */
 function displaySkillChips() {
+    checkToShowSkillChips()
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/)
     let chipDisplay = $("#skillChipDisplay")
     chipDisplay.empty()
-
     inputArray.forEach(function (element) {
         element = element.split("_").join(" ")
-        chipDisplay.append(createChip(element))
+        chipDisplay.append(createChip(sanitise(element)))
     })
     chipDisplay.find(".skillChipText").each(function () {
         if ($(this).text().length < 1) {
@@ -452,6 +474,21 @@ function displaySkillChips() {
         }
     })
 }
+
+
+/**
+ * Simple function that checks if the skill chip display should be visible or not.
+ */
+function checkToShowSkillChips(){
+    let chipDisplay = $("#skillChipDisplay")
+    let skillsInput = $("#skillsInput")
+    if (skillsInput.val().trim().length > 0) {
+        chipDisplay.show()
+    } else {
+        chipDisplay.hide()
+    }
+}
+
 
 /**
  * This function returns the html for the chips
@@ -468,6 +505,7 @@ function createChip(element) {
                 </div>`
 }
 
+
 /**
  * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
  * skill we are deleting.
@@ -480,8 +518,8 @@ $(document).on("click", ".chipDelete", function () {
     })
     skillsInput.val(inputArray.join(" "))
     displaySkillChips()
-
 })
+
 
 // --------------------------- Functional HTML Components ------------------------------------
 
@@ -579,7 +617,9 @@ function clearAddEvidenceModalValues() {
     $("#webLinkName").val("")
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
+    $("#skillsInput").val("")
 }
+
 
 /**
  * Given a web url and an alias, creates and returns a web link element.

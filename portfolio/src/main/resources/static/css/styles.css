@@ -917,6 +917,7 @@ section {
     padding-right: 1.5rem;
 }
 
+
 .evidenceFormSkills{
     padding-left: 1.5rem;
     padding-right: 1.5rem;
@@ -996,6 +997,7 @@ section {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    padding-bottom: 1.5rem;
 }
 
 
