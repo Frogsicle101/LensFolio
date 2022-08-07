@@ -982,3 +982,10 @@ section {
     color: blue;
     cursor: grab;
 }
+
+.ui-autocomplete {
+    z-index: 10000;
+    max-height: 5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

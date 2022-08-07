@@ -9,6 +9,31 @@ let selectedEvidenceId;
 
 let webLinksCount = 0;
 
+let skillsArray = [
+    "ActionScript",
+    "AppleScript",
+    "Asp",
+    "BASIC",
+    "C",
+    "C++",
+    "Clojure",
+    "COBOL",
+    "ColdFusion",
+    "Erlang",
+    "Fortran",
+    "Groovy",
+    "Haskell",
+    "Java",
+    "JavaScript",
+    "Lisp",
+    "Perl",
+    "PHP",
+    "Python",
+    "Ruby",
+    "Scala",
+    "Scheme"
+]
+
 
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
@@ -30,6 +55,23 @@ $(document).ready(function () {
     let textInput = $(".text-input");
     textInput.each(countCharacters)
     textInput.keyup(countCharacters)
+
+
+    /**
+     * When the page loads this makes a call to the server to get a list of the users skills they already have
+     * this helps the autocomplete functionality on the skill input
+     */
+    $.ajax({
+        url: "skills?userId=" + userBeingViewedId,
+        type: "GET",
+        success: function (response) {
+            console.log(response)
+            //TODO add response skills to skill array
+        },
+        error: function (response) {
+            console.log(response)
+        }
+    })
 })
 
 
@@ -90,7 +132,7 @@ function showHighlightedEvidenceDetails() {
 function getHighlightedEvidenceDetails() {
     $.ajax({
         url: "evidencePiece?evidenceId=" + selectedEvidenceId,
-        success: function(response) {
+        success: function (response) {
             setHighlightEvidenceAttributes(response)
             getHighlightedEvidenceWeblinks()
         },
@@ -106,17 +148,17 @@ function getHighlightedEvidenceDetails() {
  * a function is called to add the web links to the document.
  */
 function getHighlightedEvidenceWeblinks() {
-     $.ajax({
-         url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId,
-         success: function (response) {
-             setHighlightedEvidenceWebLinks(response)
-         },
-         error: function (response) {
-             if (response.status !== 404) {
-                 createAlert("Failed to receive evidence links", true)
-             }
-         }
-     })
+    $.ajax({
+        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId,
+        success: function (response) {
+            setHighlightedEvidenceWebLinks(response)
+        },
+        error: function (response) {
+            if (response.status !== 404) {
+                createAlert("Failed to receive evidence links", true)
+            }
+        }
+    })
 }
 
 
@@ -291,6 +333,89 @@ $(document).on('click', '.addWebLinkButton', function () {
 })
 
 
+// --------------------------------- Autocomplete -----------------------------------------
+
+
+/** This split function splits the text by its spaces*/
+function split(val) {
+    return val.split(/\s+/);
+}
+
+
+/** this function splits the input by its spaces then returns the last word */
+function extractLast(term) {
+    return split(term).pop();
+}
+
+
+/**
+ * Autocomplete widget provided by jQueryUi
+ * https://jqueryui.com/autocomplete/
+ */
+$("#skillsInput")
+    // don't navigate away from the field on tab when selecting an item
+    .on("keydown", function (event) {
+        if (event.keyCode === $.ui.keyCode.TAB &&
+            $(this).autocomplete("instance").menu.active) {
+            event.preventDefault();
+        }
+    })
+    .autocomplete({
+        autoFocus: true, // This default selects the top result
+        minLength: 0,
+        source: function (request, response) {
+            // delegate back to autocomplete, but extract the last term
+            let responseList = $.ui.autocomplete.filter(
+                skillsArray, extractLast(request.term))
+            response(responseList.sort((element1, element2) => {
+                // This sorts the response list (the drop-down list) so that it shows the shortest match first
+                return element1.length - element2.length
+            }));
+        },
+        focus: function () {
+            // prevent value inserted on focus
+            return false;
+        },
+        select: function (event, ui) {
+            let terms = split(this.value);
+            // remove the current input
+            terms.pop();
+            // add the selected item
+            terms.push(ui.item.value);
+            // add placeholder to get the space at the end
+            terms.push("");
+            this.value = terms.join(" ");
+            return false;
+        },
+
+    })
+    .data('ui-autocomplete')._renderItem = function (ul, item) {
+    //This handles the display of the drop-down menu.
+    return $("<li></li>")
+        .data("ui-autocomplete-item", item)
+        .append('<a>' + item.label + '</a>')
+        .appendTo(ul);
+};
+
+
+/**
+ * Listens out for a keydown event on the skills input.
+ * If it is a delete button keydown then it removes the last word from the input box.
+ */
+$(document).on("keydown", "#skillsInput", function (event) {
+
+    if (event.keyCode === $.ui.keyCode.DELETE) {
+        event.preventDefault();
+        let skillsInput = $("#skillsInput")
+        let inputArray = skillsInput.val().trim().split(/\s+/)
+
+        console.log(inputArray)
+        inputArray.pop()
+        skillsInput.val(inputArray.join(" "))
+    }
+})
+
+
 /**
  * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
  */
@@ -298,6 +423,7 @@ $(document).on('click', '.addedWebLinkName', function () {
     let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
     window.open(destination, '_blank').focus();
 })
+
 
 // --------------------------- Functional HTML Components ------------------------------------
 
