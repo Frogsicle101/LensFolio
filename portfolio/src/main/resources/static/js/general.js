@@ -11,19 +11,18 @@ $(document).ready(function () {
         $(".successMessageParent").show();
     }
 
-
     let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
 
     removeElementIfNotAuthorized()
-
 });
 
 
 /**
  * Checks if a user has a role above student.
+ *
  * @returns {boolean} returns true if userRole is above student.
  */
 function checkPrivilege() {
@@ -32,13 +31,16 @@ function checkPrivilege() {
 
 
 /**
- * Returns true if the user has the Admin role
+ * Returns true if the user has the Admin role.
  */
 function isAdmin() {
     return userRoles.includes('COURSE_ADMINISTRATOR')
 }
 
 
+/**
+ * Removes an element requiring teacher/admin permissions if the user does not have teacher/admin privileges.
+ */
 function removeElementIfNotAuthorized() {
     if (!checkPrivilege()) {
         $(".hasTeacherOrAbove").remove()
@@ -54,13 +56,13 @@ function removeAlert() {
     alert.hide("slide", 100, function() {
         alert.remove();
     })
-
-
 }
+
 
 /**
  * Displays a dismissible alert down the bottom right of the screen.
  * If isRed is true, the background colour will be red, otherwise green.
+ *
  * @param alertMessage
  * @param isRed
  */
@@ -75,10 +77,8 @@ function createAlert(alertMessage, isRed) {
     } else {
         alert(alertMessage, isRed)
     }
-
-
-
 }
+
 
 function alert(alertMessage, isRed) {
     let alertDiv = `<div id="alertPopUp" style="display: none">
@@ -124,3 +124,20 @@ function sanitise(string) {
     return string.replace(reg, (match)=>(map[match]));
 }
 
+
+/**
+ * Function that gets the maxlength of an input field and lets the user know how many characters they have left.
+ */
+function countCharacters() {
+    let maxlength = $(this).attr("maxLength")
+    let lengthOfCurrentInput = $(this).val().length;
+    let counter = maxlength - lengthOfCurrentInput;
+    let helper = $(this).next(".form-text"); //Gets the next div with a class that is form-text
+
+    //If one character remains, changes from "characters remaining" to "character remaining"
+    if (counter !== 1) {
+        helper.text(counter + " characters remaining")
+    } else {
+        helper.text(counter + " character remaining")
+    }
+}

@@ -23,6 +23,10 @@ section {
     align-items: center;
 }
 
+.showExtraWhitespace {
+    white-space: pre-wrap;
+}
+
 
 /*Colours*/
 
@@ -678,6 +682,8 @@ section {
 
 .groupShortName, #groupInformationShortName {
     color: var(--main-text-color);
+    margin-top: 0.3rem;
+    word-break: break-all;
 }
 
 .membersContainerTitle {

@@ -159,8 +159,9 @@ class GroupsControllerTest {
                                                                     .setGroupId(2)
                                                                     .build();
         GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
-                                                                    .setShortName("a short name")
-                                                                    .build();
+                .addMembers(UserResponse.newBuilder().setId(1).build())
+                .setShortName("a short name")
+                .build();
         Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
 
         mockMvc.perform(patch("/groups/edit/longName")
@@ -171,7 +172,7 @@ class GroupsControllerTest {
 
     @Test
     void testEditLongNameInvalidLongName() throws Exception {
-        setUserToTeacher();
+        setUserToStudent();
         setUpContext();
         String longName = "Test Name But Longer";
         String groupId = "2";
@@ -189,6 +190,7 @@ class GroupsControllerTest {
                 .setGroupId(2)
                 .build();
         GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
+                .addMembers(UserResponse.newBuilder().setId(1).build())
                 .setShortName("a short name")
                 .build();
         Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
@@ -201,7 +203,7 @@ class GroupsControllerTest {
 
     @Test
     void testEditLongNameInvalidGroupId() throws Exception {
-        setUserToTeacher();
+        setUserToStudent();
         setUpContext();
         String longName = "Test Name But Longer";
         String groupId = "9000";
@@ -219,6 +221,7 @@ class GroupsControllerTest {
                 .setGroupId(9000)
                 .build();
         GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
+                .addMembers(UserResponse.newBuilder().setId(1).build())
                 .setShortName("a short name")
                 .build();
         Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
