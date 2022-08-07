@@ -366,6 +366,7 @@ $("#skillsInput")
 /**
  * Listens out for a keydown event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
+ * If it is a space, tab or enter then it checks for duplicates
  */
 $(document).on("keyup", "#skillsInput", function (event) {
     let skillsInput = $("#skillsInput")
@@ -380,8 +381,6 @@ $(document).on("keyup", "#skillsInput", function (event) {
         || event.keyCode === $.ui.keyCode.ENTER) {
         removeDuplicatesFromInput(skillsInput)
     }
-
-
     displaySkillChips()
 
 })
@@ -393,8 +392,12 @@ $(document).on("keyup", "#skillsInput", function (event) {
  */
 function removeDuplicatesFromInput(input) {
     let inputArray = input.val().trim().split(/\s+/)
+
     let newArray = []
     inputArray.forEach(function (element) {
+        if (element.length > 30) { //Shortens down the elements to 30 characters
+            element = element.split("").splice(0, 30).join("")
+        }
         if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
             newArray.push(element)
         }
@@ -410,6 +413,9 @@ $(document).on("click", ".ui-autocomplete", () => {
 
 })
 
+/**
+ * Cleans up the duplicates in the input when the user clicks away from the input.
+ */
 $(document).on("click", () => {
     removeDuplicatesFromInput($("#skillsInput"))
     displaySkillChips()
@@ -432,6 +438,10 @@ function displaySkillChips() {
     chipDisplay.find(".skillChipText").each(function () {
         if ($(this).text().length < 1) {
             $(this).parent(".skillChip").remove()
+        }
+        if ($(this).text().length > 30) {
+            $(this).parent(".skillChip").addClass("skillChipInvalid")
+
         }
     })
 }
