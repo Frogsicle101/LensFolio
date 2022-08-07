@@ -755,15 +755,3 @@ $(document).keyup(function (event) {
         shiftDown = false;
     }
 })
-
-
-// ******************************* Change listeners *******************************
-
-
-$(document).on("change", "input[type=checkbox]", function () {
-    let tableRow = $(this).closest("tr")
-    if (!tableRow.hasClass("tableHeader")) {
-        $(this).closest("tr").toggleClass("selected")
-    }
-    checkToSeeIfHideOrShowOptions()
-})
