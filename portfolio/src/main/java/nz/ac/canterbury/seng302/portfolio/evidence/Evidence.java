@@ -40,6 +40,11 @@ public class Evidence {
     private final Set<Skill> skills = new HashSet<>();
 
 
+    @Enumerated(EnumType.ORDINAL)
+    @ElementCollection(fetch = FetchType.EAGER)
+    private final Set<Category> categories = new HashSet<>();
+
+
     /**
      * Constructs an instance of the evidence object
      *
@@ -150,6 +155,14 @@ public class Evidence {
 
     public void addSkill(Skill skill) {
         skills.add(skill);
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void addCategory(Category category) {
+        categories.add(category);
     }
 
 
