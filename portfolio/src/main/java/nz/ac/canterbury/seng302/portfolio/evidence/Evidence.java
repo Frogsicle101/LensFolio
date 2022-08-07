@@ -39,7 +39,7 @@ public class Evidence {
             inverseJoinColumns = @JoinColumn(name = "skillId"))
     private final Set<Skill> skills = new HashSet<>();
 
-
+    /** The set of categories, can have SERVICE, QUANTITATIVE and QUALITATIVE. Can be multiple*/
     @Enumerated(EnumType.ORDINAL)
     @ElementCollection(fetch = FetchType.EAGER)
     private final Set<Category> categories = new HashSet<>();
@@ -180,6 +180,7 @@ public class Evidence {
                 "\",\"description\":\"" + description +
                 "\",\"webLinks\":" + "[]" +
                 ",\"skills\":" + "[]" +
+                ",\"categories\":" + "[]" +
                 "}";
     }
 
