@@ -762,13 +762,29 @@ section {
     color: var(--secondary-text-colour-darker);
 }
 
+.redText {
+    color: red;
+}
+
 .inlineText {
     display: flex;
     justify-content: left;
 }
 
-#groupSettingsRepoInformationSection {
-    margin-bottom: 2rem;
+#groupSettingsRepoHeader {
+    display: flex;
+}
+
+#groupSettingsPageRepoName {
+    flex-grow: 1;
+}
+
+.editRepo:hover {
+    color: var(--select-green);
+}
+
+#repoSettingsContainer {
+    display: none;
 }
 
 /* Alerts */
@@ -894,13 +910,13 @@ section {
     justify-content: flex-end;
 }
 
-.evidenceFormName, .evidenceFormDate {
+.evidenceFormName, .evidenceFormDate ,.evidenceFormDescription {
     padding-bottom: 1.5rem;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
 
-.evidenceFormDescription{
+.evidenceFormSkills{
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
@@ -925,7 +941,7 @@ section {
     margin-top: 1rem;
 }
 
-.weblink-form {
+.webLinkForm {
     padding-right: 1.5rem;
     align-self: flex-end;
 }
@@ -950,6 +966,7 @@ section {
 .lockIcon {
     align-self: center;
     margin-bottom: 0.1rem;
+    margin-right: 0.5rem;
 }
 
 #addedWebLinks {
@@ -958,4 +975,10 @@ section {
 
 .webLinkTooltip.tooltip-arrow {
     padding-left: 2rem;
+}
+
+.addedWebLinkName:hover {
+    text-decoration-line: underline;
+    color: blue;
+    cursor: grab;
 }

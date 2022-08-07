@@ -871,7 +871,6 @@ function createEventDiv(eventObject) {
  * @returns {string} A div
  */
 function createMilestoneDiv(milestoneObject) {
-
     let iconElement;
     switch (milestoneObject.type) {
         case 1:
@@ -900,7 +899,6 @@ function createMilestoneDiv(milestoneObject) {
                 <p class="milestoneId" style="display: none">${milestoneObject.id}</p>
                 <p class="milestoneEndDateNilFormat" style="display: none">${milestoneObject.endDate}</p>
                 <p class="typeOfMilestone" style="display: none">${milestoneObject.type}</p>
-                
                 
                 <div class="mb-2 occasionTitleDiv">
                     <div class="occasionIcon">
@@ -1030,7 +1028,6 @@ function refreshEvents() {
             console.log(error)
         }
     })
-
 }
 
 
@@ -1103,9 +1100,8 @@ function refreshDeadlines(projectId) {
             console.log(error)
         }
     })
-
-
 }
+
 
 /**
  * Reloads a single element on the page dependent on its classname
@@ -1213,6 +1209,7 @@ function addEvent(eventId) {
     })
 }
 
+
 /**
  * Gets a single milestone then adds it to the page
  * @param milestoneId the id of the milestone
@@ -1299,6 +1296,9 @@ function isEmpty(el) {
 }
 
 
+/**
+ * Initialises tooltips, so they display when their element is hovered-over
+ */
 function enableToolTips() {
     let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
