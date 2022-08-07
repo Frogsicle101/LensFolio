@@ -243,6 +243,7 @@ $(document).on("click", ".evidenceListItem", function () {
  */
 $(document).on("click", "#evidenceSaveButton", function (event) {
     event.preventDefault()
+    removeDuplicatesFromInput($("#skillsInput"))
     let evidenceCreationForm = $("#evidenceCreationForm")[0]
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
@@ -367,23 +368,52 @@ $("#skillsInput")
  * If it is a delete button keydown then it removes the last word from the input box.
  */
 $(document).on("keyup", "#skillsInput", function (event) {
-
+    let skillsInput = $("#skillsInput")
     if (event.keyCode === $.ui.keyCode.DELETE) {
         event.preventDefault();
-        let skillsInput = $("#skillsInput")
         let inputArray = skillsInput.val().trim().split(/\s+/)
         inputArray.pop()
         skillsInput.val(inputArray.join(" "))
     }
+    if (event.keyCode === $.ui.keyCode.SPACE
+        || event.keyCode === $.ui.keyCode.TAB
+        || event.keyCode === $.ui.keyCode.ENTER) {
+        removeDuplicatesFromInput(skillsInput)
+    }
+
 
     displaySkillChips()
 
 })
 
+/**
+ * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
+ * exist in it, it checks for case insensitivity as well.
+ * @param input the jQuery call to the input to check
+ */
+function removeDuplicatesFromInput(input){
+    let inputArray = input.val().trim().split(/\s+/)
+    let newArray = []
+    inputArray.forEach(function(element) {
+        if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
+            newArray.push(element)
+        }
+    })
+    input.val(newArray.join(" ") + " ")
+}
+
 /** The below listeners trigger the rendering of the skill chips */
 $(document).on("change", "#skillsInput", () => displaySkillChips())
-$(document).on("click", ".ui-autocomplete", () => displaySkillChips())
+$(document).on("click", ".ui-autocomplete", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
+    displaySkillChips()
 
+})
+
+$(document).on("click", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
+    displaySkillChips()
+})
 
 /**
  * This function gets the input string from the skills input and trims off the extra whitespace
@@ -394,6 +424,7 @@ function displaySkillChips(){
     let inputArray = skillsInput.val().trim().split(/\s+/)
     let chipDisplay = $("#skillChipDisplay")
     chipDisplay.empty()
+
     inputArray.forEach(function(element) {
         element = element.split("_").join(" ")
         chipDisplay.append(createChip(element))
@@ -428,7 +459,7 @@ $(document).on("click", ".chipDelete", function () {
     let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/).filter(function(value) {
-        return value !== skillText
+        return value.toLowerCase() !== skillText.toLowerCase()
     })
     skillsInput.val(inputArray.join(" "))
     displaySkillChips()
