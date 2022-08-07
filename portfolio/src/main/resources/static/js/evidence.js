@@ -54,25 +54,30 @@ $(document).ready(function () {
     textInput.each(countCharacters)
     textInput.keyup(countCharacters)
     checkToShowSkillChips()
+    getSkills()
 
 
-    /**
-     * When the page loads this makes a call to the server to get a list of the users skills they already have
-     * this helps the autocomplete functionality on the skill input
-     */
+})
+
+
+/**
+ * When the page loads this makes a call to the server to get a list of the users skills they already have
+ * this helps the autocomplete functionality on the skill input
+ */
+function getSkills(){
     $.ajax({
         url: "skills?userId=" + userBeingViewedId,
         type: "GET",
         success: function (response) {
             console.log(response)
             //TODO add response skills to skill array
-            skillsArray.sort()
+
         },
         error: function (response) {
             console.log(response)
         }
     })
-})
+}
 
 
 /**
