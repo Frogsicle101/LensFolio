@@ -210,7 +210,7 @@ function changeToUsersTab() {
 }
 
 
-/**displayGroupUsersList
+/**
  * Helper function that uses the amount of selected users to determine if to call the showOptions function
  */
 function checkToSeeIfHideOrShowOptions() {
@@ -737,6 +737,7 @@ $(document).keyup(function (event) {
 
 
 // ******************************* Change listeners *******************************
+
 
 $(document).on("change", "input[type=checkbox]", function () {
     let tableRow = $(this).closest("tr")

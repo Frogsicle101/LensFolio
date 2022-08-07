@@ -228,8 +228,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
-
-            case "shortname-increasing" -> allGroups.sort(compareByShortName);
             case "shortname-decreasing" -> {
                 allGroups.sort(compareByShortName);
                 Collections.reverse(allGroups);
@@ -244,7 +242,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                 allGroups.sort(compareByMemberNumber);
                 Collections.reverse(allGroups);
             }
-            default -> allGroups.sort(compareByShortName);
+            default -> allGroups.sort(compareByShortName); //"shortname-increasing" and all other cases
         }
 
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allGroups.size()); i++) {
