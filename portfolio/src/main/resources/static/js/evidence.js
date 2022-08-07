@@ -391,10 +391,10 @@ $(document).on("keyup", "#skillsInput", function (event) {
  * exist in it, it checks for case insensitivity as well.
  * @param input the jQuery call to the input to check
  */
-function removeDuplicatesFromInput(input){
+function removeDuplicatesFromInput(input) {
     let inputArray = input.val().trim().split(/\s+/)
     let newArray = []
-    inputArray.forEach(function(element) {
+    inputArray.forEach(function (element) {
         if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
             newArray.push(element)
         }
@@ -419,18 +419,18 @@ $(document).on("click", () => {
  * This function gets the input string from the skills input and trims off the extra whitespace
  * then it separates each word into an array and creates chips for them.
  */
-function displaySkillChips(){
+function displaySkillChips() {
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/)
     let chipDisplay = $("#skillChipDisplay")
     chipDisplay.empty()
 
-    inputArray.forEach(function(element) {
+    inputArray.forEach(function (element) {
         element = element.split("_").join(" ")
         chipDisplay.append(createChip(element))
     })
-    chipDisplay.find(".skillChipText").each(function(){
-        if ($(this).text().length < 1){
+    chipDisplay.find(".skillChipText").each(function () {
+        if ($(this).text().length < 1) {
             $(this).parent(".skillChip").remove()
         }
     })
@@ -441,7 +441,7 @@ function displaySkillChips(){
  * @param element the name of the skill
  * @returns {string} the html for the chip
  */
-function createChip(element){
+function createChip(element) {
     return `<div class="skillChip">
                 <p class="skillChipText">${element}</p>  
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
@@ -458,7 +458,7 @@ function createChip(element){
 $(document).on("click", ".chipDelete", function () {
     let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
     let skillsInput = $("#skillsInput")
-    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function(value) {
+    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
         return value.toLowerCase() !== skillText.toLowerCase()
     })
     skillsInput.val(inputArray.join(" "))
