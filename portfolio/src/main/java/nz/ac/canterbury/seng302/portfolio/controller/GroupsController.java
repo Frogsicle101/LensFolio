@@ -1,9 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
-import nz.ac.canterbury.seng302.portfolio.service.GroupService;
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.service.GroupService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -48,7 +48,8 @@ public class GroupsController {
     private UserAccountsClientService userAccountsClientService;
 
     private static final int OFFSET = 0;
-    private static final String ORDER_BY = "shortname-increasing";
+    private static final String ORDER_BY = "shortName";
+    private static final Boolean IS_ASCENDING = true;
     private static final int LIMIT = 20;
 
 
@@ -78,6 +79,7 @@ public class GroupsController {
                     .setOffset(OFFSET)
                     .setOrderBy(ORDER_BY)
                     .setLimit(LIMIT)
+                    .setIsAscendingOrder(IS_ASCENDING)
                     .build();
             PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
 

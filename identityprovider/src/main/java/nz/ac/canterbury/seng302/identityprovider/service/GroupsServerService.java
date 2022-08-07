@@ -36,10 +36,10 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     private final int MIN_LENGTH = 1;
 
     /** GroupShortName Comparator */
-    Comparator<Group> compareByShortName = Comparator.comparing(Group::getShortName);
+    Comparator<Group> compareByShortName = Comparator.comparing((Group group) -> group.getShortName().toLowerCase(Locale.ROOT));
 
     /** GroupLongName Comparator */
-    Comparator<Group> compareByLongName = Comparator.comparing(Group::getLongName);
+    Comparator<Group> compareByLongName = Comparator.comparing((Group group) -> group.getLongName().toLowerCase(Locale.ROOT));
 
     /** GroupMemberNumber Comparator */
     Comparator<Group> compareByMemberNumber = Comparator.comparing(Group::getMembersNumber);
@@ -56,7 +56,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         logger.info("SERVICE - Creating group {}", request.getShortName());
         CreateGroupResponse.Builder response = CreateGroupResponse.newBuilder().setIsSuccess(true);
 
-        List<ValidationError> errors = checkValidGroup(request.getShortName(), request.getLongName());
+        List<ValidationError> errors = checkValidGroup(request.getShortName(), request.getLongName(), null);
         if (errors.size() > 0) {
             errors.forEach(response::addValidationErrors);
             response.setIsSuccess(false).setMessage(errors.get(0).getErrorText());
@@ -228,21 +228,13 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
-            case "shortname-decreasing" -> {
-                allGroups.sort(compareByShortName);
-                Collections.reverse(allGroups);
-            }
-            case "longname-increasing" -> allGroups.sort(compareByLongName);
-            case "longname-decreasing" -> {
-                allGroups.sort(compareByLongName);
-                Collections.reverse(allGroups);
-            }
-            case "MemberNumber-increasing" -> allGroups.sort(compareByMemberNumber);
-            case "MemberNumber-decreasing" -> {
-                allGroups.sort(compareByMemberNumber);
-                Collections.reverse(allGroups);
-            }
-            default -> allGroups.sort(compareByShortName); //"shortname-increasing" and all other cases
+            case "longName" -> allGroups.sort(compareByLongName);
+            case "membersNumber" -> allGroups.sort(compareByMemberNumber);
+            default -> allGroups.sort(compareByShortName); //"shortName" and all other cases
+        }
+
+        if (!request.getIsAscendingOrder()){
+            Collections.reverse(allGroups);
         }
 
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allGroups.size()); i++) {
@@ -310,6 +302,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         }
     }
 
+
     /**
      * Checks if the given modification is valid. If it is not valid, adds validation errors and sets response.isSuccess
      * to false.
@@ -338,19 +331,11 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         return response.getIsSuccess();
     }
 
-    /**
-     * Checks if the given shortname and longname are the correct lengths and not already in the database
-     * @param shortName The shortname to be checked
-     * @param longName The longname to be checked
-     * @return A list of ValidationErrors, to be added to a response object
-     */
-    private List<ValidationError> checkValidGroup(String shortName, String longName) {
-        return checkValidGroup(shortName, longName, null);
-    }
 
     /**
-     * Checks if the given shortname and longname are the correct lengths and not already in the database, excluding if
+     * Checks if the given shortname and longname are the correct lengths and not already in the database, excluding
      * the database entry with the given id. This is useful for modifying a group.
+     *
      * @param shortName The shortname to be checked
      * @param longName The longname to be checked
      * @param id The id of the group to ignore when checking
@@ -367,8 +352,10 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         return errors;
     }
 
+
     /**
      * Checks that the two given lengths are in the correct range
+     *
      * @param shortNameLength The length of a group's short name
      * @param longNameLength The length of a group's long name
      * @return A list of ValidationErrors, to be added to a response object
@@ -396,9 +383,11 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         return errors;
     }
 
+
     /**
      * Checks if the given shortname and longname are not already in the database, excluding if
      * the database entry with the given id. This is useful for modifying a group.
+     *
      * @param shortName The shortname to be checked
      * @param longName The longname to be checked
      * @param id The id of the group to ignore when checking
