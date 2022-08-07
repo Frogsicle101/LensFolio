@@ -941,7 +941,7 @@ section {
     margin-top: 1rem;
 }
 
-.weblink-form {
+.webLinkForm {
     padding-right: 1.5rem;
     align-self: flex-end;
 }
@@ -980,4 +980,17 @@ section {
 
 .webLinkTooltip.tooltip-arrow {
     padding-left: 2rem;
+}
+
+.addedWebLinkName:hover {
+    text-decoration-line: underline;
+    color: blue;
+    cursor: grab;
+}
+
+.ui-autocomplete {
+    z-index: 10000;
+    max-height: 5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
 }

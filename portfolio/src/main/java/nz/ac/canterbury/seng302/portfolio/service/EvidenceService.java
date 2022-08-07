@@ -62,7 +62,6 @@ public class EvidenceService {
      * @throws CheckException The exception to throw
      */
     private void checkString(String string, StringType type) throws CheckException {
-
         if (string.length() < 2) {
             throw new CheckException("Text should be longer than 1 character");
         } else if (!string.matches(stringRegex)) {
@@ -98,13 +97,13 @@ public class EvidenceService {
 
 
     /**
-     * Creates a new evidence object and saves it to the repository. Adds any weblink objects to the evidence object
+     * Creates a new evidence object and saves it to the repository. Adds any web link objects to the evidence object
      * and also to the web lnk repository..
      *
      * @param principal   The authentication principal
      *
      * @return The evidence object, after it has been added to the database.
-     * @throws MalformedURLException When one of the weblinks has a malformed url
+     * @throws MalformedURLException When one of the web links has a malformed url
      */
     public Evidence addEvidence(Authentication principal,
                                 EvidenceDTO evidenceDTO) throws MalformedURLException {

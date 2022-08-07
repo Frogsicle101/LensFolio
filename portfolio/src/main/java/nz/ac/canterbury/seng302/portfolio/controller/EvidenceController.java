@@ -142,7 +142,7 @@ public class EvidenceController {
      */
     @GetMapping("/evidencePieceWebLinks")
     public ResponseEntity<Object> getEvidenceWebLinks(@RequestParam("evidenceId") Integer evidenceId) {
-        logger.info("GET REQUEST /evidencePieceWebLinks - attempt to get weblinks with evidence Id {}", evidenceId);
+        logger.info("GET REQUEST /evidencePieceWebLinks - attempt to get web links with evidence Id {}", evidenceId);
         try {
             Optional<Evidence> evidence = evidenceRepository.findById(evidenceId);
             if (evidence.isEmpty()) {
@@ -217,7 +217,7 @@ public class EvidenceController {
             return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
         } catch (MalformedURLException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad url {}", err.getMessage());
-            return new ResponseEntity<>("Submitted weblink URL is malformed", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
