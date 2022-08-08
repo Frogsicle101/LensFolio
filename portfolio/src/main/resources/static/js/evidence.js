@@ -150,6 +150,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
         const projectId = 1
+        const skills = $("#skillsInput").val()
         $.ajax({
             url: "evidence",
             type: "POST",
@@ -157,7 +158,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 title,
                 date,
                 description,
-                projectId
+                projectId,
+                skills
             },
             success: function (response) {
                 selectedEvidenceId = response.id
