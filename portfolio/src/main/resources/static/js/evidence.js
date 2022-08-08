@@ -7,32 +7,7 @@ const regExp = new RegExp('[A-Za-z]');
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
-let webLinksCount = 0;
-
-let skillsArray = [
-    "ActionScript",
-    "AppleScript",
-    "Asp",
-    "BASIC",
-    "C",
-    "C++",
-    "Clojure",
-    "COBOL",
-    "ColdFusion",
-    "Erlang",
-    "Fortran",
-    "Groovy",
-    "Haskell",
-    "Java",
-    "JavaScript",
-    "Lisp",
-    "Perl",
-    "PHP",
-    "Python",
-    "Ruby",
-    "Scala",
-    "Scheme"
-]
+let skillsArray = ["ActionScript", "AppleScript", "Asp", "BASIC", "C", "C++", "Clojure", "COBOL", "ColdFusion", "Erlang", "Fortran", "Groovy", "Haskell", "Java", "JavaScript", "Lisp", "Perl", "PHP", "Python", "Ruby", "Scala", "Scheme"]
 
 
 /**
@@ -55,24 +30,28 @@ $(document).ready(function () {
     let textInput = $(".text-input");
     textInput.each(countCharacters)
     textInput.keyup(countCharacters)
+    checkToShowSkillChips()
+    getSkills()
 
 
-    /**
-     * When the page loads this makes a call to the server to get a list of the users skills they already have
-     * this helps the autocomplete functionality on the skill input
-     */
+})
+
+
+/**
+ * When the page loads this makes a call to the server to get a list of the users skills they already have
+ * this helps the autocomplete functionality on the skill input
+ */
+function getSkills() {
     $.ajax({
-        url: "skills?userId=" + userBeingViewedId,
-        type: "GET",
-        success: function (response) {
+        url: "skills?userId=" + userBeingViewedId, type: "GET", success: function (response) {
             console.log(response)
             //TODO add response skills to skill array
-        },
-        error: function (response) {
+
+        }, error: function (response) {
             console.log(response)
         }
     })
-})
+}
 
 
 /**
@@ -87,12 +66,10 @@ $(document).ready(function () {
  */
 function getAndAddEvidencePreviews() {
     $.ajax({
-        url: "evidenceData?userId=" + userBeingViewedId,
-        success: function (response) {
+        url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
             addEvidencePreviews(response)
             showHighlightedEvidenceDetails()
-        },
-        error: function (error) {
+        }, error: function (error) {
             createAlert(error.responseText, true)
         }
     })
@@ -131,12 +108,10 @@ function showHighlightedEvidenceDetails() {
  */
 function getHighlightedEvidenceDetails() {
     $.ajax({
-        url: "evidencePiece?evidenceId=" + selectedEvidenceId,
-        success: function (response) {
+        url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
             setHighlightEvidenceAttributes(response)
             getHighlightedEvidenceWeblinks()
-        },
-        error: function () {
+        }, error: function () {
             createAlert("Failed to receive active evidence", true)
         }
     })
@@ -149,11 +124,9 @@ function getHighlightedEvidenceDetails() {
  */
 function getHighlightedEvidenceWeblinks() {
     $.ajax({
-        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId,
-        success: function (response) {
+        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId, success: function (response) {
             setHighlightedEvidenceWebLinks(response)
-        },
-        error: function (response) {
+        }, error: function (response) {
             if (response.status !== 404) {
                 createAlert("Failed to receive evidence links", true)
             }
@@ -230,19 +203,19 @@ function resetWeblink() {
  */
 function getWeblinksList() {
     let evidenceCreationForm = $("#evidenceCreationForm")
-    let webLinks = evidenceCreationForm.find(".webLinkElement")
-    let webLinksList = []
+    let weblinks = evidenceCreationForm.find(".webLinkElement")
+    let weblinksList = []
 
-     $.each(webLinks, function () {
-        let webLinkDTO = {
+    $.each(weblinks, function () {
+        let weblinkDTO = {
             "url": this.querySelector(".addedWebLinkUrl").innerHTML,
             "name": this.querySelector(".addedWebLinkName").innerHTML
         }
 
-        webLinksList.push(webLinkDTO)
+        weblinksList.push(weblinkDTO)
     })
 
-    return webLinksList
+    return weblinksList
 }
 
 
@@ -257,7 +230,7 @@ function getWeblinksList() {
  *    2. Add the selected class to the clicked div, and assign it as selected
  *    3. Populate the display with the selected evidence details.
  */
-$(document).on("click", ".evidenceListItem", function() {
+$(document).on("click", ".evidenceListItem", function () {
     let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
     previouslySelectedDiv.removeClass("selectedEvidence")
 
@@ -273,6 +246,7 @@ $(document).on("click", ".evidenceListItem", function() {
  */
 $(document).on("click", "#evidenceSaveButton", function (event) {
     event.preventDefault()
+    removeDuplicatesFromInput($("#skillsInput"))
     let evidenceCreationForm = $("#evidenceCreationForm")[0]
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
@@ -295,19 +269,15 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "categories": categories
         })
         $.ajax({
-            url: `evidence`,
-            type: "POST",
-            contentType: "application/json",
-            data,
-            success: function (response) {
+            url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
+                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
                 resetWeblink()
-            },
-            error: function (error) {
+            }, error: function (error) {
                 createAlert(error.responseText, true)
             }
         })
@@ -360,28 +330,23 @@ function extractLast(term) {
 $("#skillsInput")
     // don't navigate away from the field on tab when selecting an item
     .on("keydown", function (event) {
-        if (event.keyCode === $.ui.keyCode.TAB &&
-            $(this).autocomplete("instance").menu.active) {
+        if (event.keyCode === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
             event.preventDefault();
         }
     })
     .autocomplete({
         autoFocus: true, // This default selects the top result
-        minLength: 0,
-        source: function (request, response) {
+        minLength: 1, source: function (request, response) {
             // delegate back to autocomplete, but extract the last term
-            let responseList = $.ui.autocomplete.filter(
-                skillsArray, extractLast(request.term))
+            let responseList = $.ui.autocomplete.filter(skillsArray, extractLast(request.term))
             response(responseList.sort((element1, element2) => {
                 // This sorts the response list (the drop-down list) so that it shows the shortest match first
                 return element1.length - element2.length
             }));
-        },
-        focus: function () {
+        }, focus: function () {
             // prevent value inserted on focus
             return false;
-        },
-        select: function (event, ui) {
+        }, select: function (event, ui) {
             let terms = split(this.value);
             // remove the current input
             terms.pop();
@@ -406,20 +371,152 @@ $("#skillsInput")
 /**
  * Listens out for a keydown event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
+ * If it is a space, tab or enter then it checks for duplicates
  */
-$(document).on("keydown", "#skillsInput", function (event) {
-
+$(document).on("keyup", "#skillsInput", function (event) {
+    let skillsInput = $("#skillsInput")
     if (event.keyCode === $.ui.keyCode.DELETE) {
         event.preventDefault();
-        let skillsInput = $("#skillsInput")
         let inputArray = skillsInput.val().trim().split(/\s+/)
-
-        console.log(inputArray)
         inputArray.pop()
         skillsInput.val(inputArray.join(" "))
     }
+    if (event.keyCode === $.ui.keyCode.SPACE || event.keyCode === $.ui.keyCode.TAB || event.keyCode === $.ui.keyCode.ENTER) {
+        removeDuplicatesFromInput(skillsInput)
+    }
+    displaySkillChips()
 })
 
+
+/**
+ * Runs the remove duplicates function after a paste event has occurred on the skills input
+ */
+$(document).on("paste", "#skillsInput", (event) => {
+    setTimeout(() => removeDuplicatesFromInput($("#skillsInput")), 0)
+    // Above is in a timeout so that it runs after the paste event has happened
+
+})
+
+
+/**
+ * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
+ * exist in it, it checks for case insensitivity as well.
+ * @param input the jQuery call to the input to check
+ */
+function removeDuplicatesFromInput(input) {
+    let inputArray = input.val().trim().split(/\s+/)
+
+    let newArray = []
+    inputArray.forEach(function (element) {
+        while (element.slice(-1) === "_") {
+            element = element.slice(0, -1)
+        }
+        if (element.length > 30) { //Shortens down the elements to 30 characters
+            element = element.split("").splice(0, 30).join("")
+        }
+        if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
+
+            newArray.push(element)
+        }
+    })
+    newArray.forEach(function (element, index) {
+        skillsArray.forEach(function (alreadyExistingSkill) {
+            if (element.toLowerCase() === alreadyExistingSkill.toLowerCase()) {
+                newArray[index] = alreadyExistingSkill;
+            }
+        })
+    })
+    input.val(newArray.join(" ") + " ")
+}
+
+
+/** The below listeners trigger the rendering of the skill chips */
+$(document).on("change", "#skillsInput", () => displaySkillChips())
+$(document).on("click", ".ui-autocomplete", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
+    displaySkillChips()
+
+})
+
+
+/**
+ * Cleans up the duplicates in the input when the user clicks away from the input.
+ */
+$(document).on("click", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
+    displaySkillChips()
+})
+
+
+/**
+ * This function gets the input string from the skills input and trims off the extra whitespace
+ * then it separates each word into an array and creates chips for them.
+ */
+function displaySkillChips() {
+    checkToShowSkillChips()
+    let skillsInput = $("#skillsInput")
+    let inputArray = skillsInput.val().trim().split(/\s+/)
+    let chipDisplay = $("#skillChipDisplay")
+    chipDisplay.empty()
+    inputArray.forEach(function (element) {
+        element = element.split("_").join(" ")
+        chipDisplay.append(createChip(sanitise(element)))
+    })
+    chipDisplay.find(".skillChipText").each(function () {
+        if ($(this).text().length < 1) {
+            $(this).parent(".skillChip").remove()
+        }
+        if ($(this).text().length > 30) {
+            $(this).parent(".skillChip").addClass("skillChipInvalid")
+
+        }
+    })
+}
+
+
+/**
+ * Simple function that checks if the skill chip display should be visible or not.
+ */
+function checkToShowSkillChips() {
+    let chipDisplay = $("#skillChipDisplay")
+    let skillsInput = $("#skillsInput")
+    if (skillsInput.val().trim().length > 0) {
+        chipDisplay.show()
+    } else {
+        chipDisplay.hide()
+    }
+}
+
+
+/**
+ * This function returns the html for the chips
+ * @param element the name of the skill
+ * @returns {string} the html for the chip
+ */
+function createChip(element) {
+    return `<div class="skillChip">
+                <p class="skillChipText">${element}</p>  
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                </svg>
+                </div>`
+}
+
+
+/**
+ * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
+ * skill we are deleting.
+ */
+$(document).on("click", ".chipDelete", function () {
+    let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
+    let skillsInput = $("#skillsInput")
+    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
+        return value.toLowerCase() !== skillText.toLowerCase()
+    })
+    skillsInput.val(inputArray.join(" "))
+    displaySkillChips()
+})
 
 /**
  * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
@@ -428,7 +525,6 @@ $(document).on('click', '.addedWebLinkName', function () {
     let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
     window.open(destination, '_blank').focus();
 })
-
 
 // --------------------------- Functional HTML Components ------------------------------------
 
@@ -505,10 +601,8 @@ function submitWebLink() {
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
     if (alias.val().length > 0){
-        webLinkTitle.show()
-        addedWebLinks.append(
-            webLinkElement(url.val(), alias.val())
-        )
+    webLinkTitle.show()
+    addedWebLinks.append(webLinkElement(url.val(), alias.val()))
 
         initialiseTooltips()
         url.val("")
@@ -533,6 +627,7 @@ function clearAddEvidenceModalValues() {
     $("#webLinkName").val("")
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
+    $("#skillsInput").val("")
 }
 
 
@@ -576,6 +671,7 @@ function webLinkElement(url, alias) {
             <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
             data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
             <div class="addedWebLinkUrl" style="visibility: hidden">${url}</div>
+
         </div>
     `)
 }
