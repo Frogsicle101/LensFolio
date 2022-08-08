@@ -87,27 +87,17 @@ class SkillsTest {
 
 
     @Test
-    void checkIfSkillsRepoCaseInsensitive() {
+    void testSkillsRepositoryIsNotCaseSensitive() {
         Skill skill1 = new Skill("Testing 1");
         String differentCaseSearchQuery = "tesTing 1";
 
         skillRepository.save(skill1);
-
-        Skill foundSkill = skillRepository.findByNameIgnoreCase(differentCaseSearchQuery).get();
+        Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(differentCaseSearchQuery);
+        if (optionalSkill.isEmpty()) {
+            Assertions.fail("Repository is case sensitive");
+        }
+        Skill foundSkill = optionalSkill.get();
         Assertions.assertNotEquals(foundSkill.getName(), differentCaseSearchQuery);
         Assertions.assertEquals(skill1.getName(), foundSkill.getName());
-    }
-
-
-    @Test
-    void checkSkillRepositoryReturnForEmptyString() {
-        Skill skill1 = new Skill("");
-        String differentCaseSearchQuery = "";
-
-        skillRepository.save(skill1);
-
-        Optional<Skill> foundSkill = skillRepository.findByNameIgnoreCase(differentCaseSearchQuery);
-        Assertions.assertTrue(foundSkill.isEmpty());
-//        Assertions.assertEquals(skill1.getName(), foundSkill.getName());
     }
 }

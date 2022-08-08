@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.*;
@@ -13,16 +14,14 @@ import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -38,23 +37,32 @@ public class EvidenceController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** For requesting user information form the IdP.*/
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
+    private final UserAccountsClientService userAccountsClientService;
 
     /** The repository containing users pieces of evidence. */
-    @Autowired
-    private EvidenceRepository evidenceRepository;
+    private final EvidenceRepository evidenceRepository;
 
     /** The repository containing web links. */
-    @Autowired
-    private WebLinkRepository webLinkRepository;
+    private final WebLinkRepository webLinkRepository;
 
     /** The repository containing the projects. */
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
+
+    private final EvidenceService evidenceService;
+
 
     @Autowired
-    private EvidenceService evidenceService;
+    public EvidenceController(UserAccountsClientService userAccountsClientService,
+                           ProjectRepository projectRepository,
+                           EvidenceRepository evidenceRepository,
+                           WebLinkRepository webLinkRepository,
+                           EvidenceService evidenceService) {
+        this.userAccountsClientService = userAccountsClientService;
+        this.projectRepository = projectRepository;
+        this.evidenceRepository = evidenceRepository;
+        this.webLinkRepository = webLinkRepository;
+        this.evidenceService = evidenceService;
+    }
 
 
     /**
@@ -129,7 +137,7 @@ public class EvidenceController {
      */
     @GetMapping("/evidencePieceWebLinks")
     public ResponseEntity<Object> getEvidenceWebLinks(@RequestParam("evidenceId") Integer evidenceId) {
-        logger.info("GET REQUEST /evidencePieceWebLinks - attempt to get weblinks with evidence Id {}", evidenceId);
+        logger.info("GET REQUEST /evidencePieceWebLinks - attempt to get web links with evidence Id {}", evidenceId);
         try {
             Optional<Evidence> evidence = evidenceRepository.findById(evidenceId);
             if (evidence.isEmpty()) {
@@ -177,51 +185,37 @@ public class EvidenceController {
         }
     }
 
+
     /**
-     * Entrypoint for creating an evidence object
+     * Entrypoint for creating an evidence object.
      *
-     * @param principal   The authentication principal
-     * @param title       The title of the evidence
-     * @param date        The date of the evidence
-     * @param description The description of the evidence
-     * @param projectId The project id
-     * @return returns a ResponseEntity, this entity included the new piece of evidence if successful.
+     * @param principal   The authentication principal for the logged-in user
+     * @param evidenceDTO The EvidenceDTO object containing the required data for the evidence instance being created.
+
+     * @return returns a ResponseEntity. This entity includes the new piece of evidence if successful.
      */
-    @PostMapping("/evidence")
+    @PostMapping(value = "/evidence")
+    @ResponseBody
     public ResponseEntity<Object> addEvidence(
             @AuthenticationPrincipal Authentication principal,
-            @RequestParam String title,
-            @RequestParam String date,
-            @RequestParam String description,
-            @RequestParam long projectId,
-            @RequestParam String skills
+            @RequestBody EvidenceDTO evidenceDTO
     ) {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
         try {
-            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-            Optional<Project> optionalProject = projectRepository.findById(projectId);
-            if (optionalProject.isEmpty()) {
-                throw new CheckException("Project Id does not match any project");
-            }
-            Project project = optionalProject.get();
-            LocalDate localDate = LocalDate.parse(date);
-            evidenceService.checkDate(project, localDate);
-            evidenceService.checkString(title);
-            evidenceService.checkString(description);
-            Evidence evidence = evidenceRepository.save(new Evidence(user.getId(), title, localDate, description));
-            String[] listSkills = skills.split("\\s+");
-            evidenceService.addSkills(evidence, listSkills);
+            Evidence evidence = evidenceService.addEvidence(principal, evidenceDTO);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
         } catch (CheckException err) {
             logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad input: {}", err.getMessage());
             return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (DateTimeParseException err) {
-            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad date: {}", date);
+            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad date");
             return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
+        } catch (MalformedURLException err) {
+            logger.warn("POST REQUEST /evidence - attempt to create new evidence: Bad url {}", err.getMessage());
+            return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }

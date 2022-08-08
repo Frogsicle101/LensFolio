@@ -1,11 +1,38 @@
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
 
-
+/** A regex only allowing modern English letters */
 const regExp = new RegExp('[A-Za-z]');
 
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
+
+let webLinksCount = 0;
+
+let skillsArray = [
+    "ActionScript",
+    "AppleScript",
+    "Asp",
+    "BASIC",
+    "C",
+    "C++",
+    "Clojure",
+    "COBOL",
+    "ColdFusion",
+    "Erlang",
+    "Fortran",
+    "Groovy",
+    "Haskell",
+    "Java",
+    "JavaScript",
+    "Lisp",
+    "Perl",
+    "PHP",
+    "Python",
+    "Ruby",
+    "Scala",
+    "Scheme"
+]
 
 
 /**
@@ -23,11 +50,28 @@ $(document).ready(function () {
         $(".evidenceDeleteButton").hide()
         $(".createEvidenceButton").hide();
     }
-
+    resetWeblink()
     getAndAddEvidencePreviews()
     let textInput = $(".text-input");
     textInput.each(countCharacters)
     textInput.keyup(countCharacters)
+
+
+    /**
+     * When the page loads this makes a call to the server to get a list of the users skills they already have
+     * this helps the autocomplete functionality on the skill input
+     */
+    $.ajax({
+        url: "skills?userId=" + userBeingViewedId,
+        type: "GET",
+        success: function (response) {
+            console.log(response)
+            //TODO add response skills to skill array
+        },
+        error: function (response) {
+            console.log(response)
+        }
+    })
 })
 
 
@@ -88,13 +132,50 @@ function showHighlightedEvidenceDetails() {
 function getHighlightedEvidenceDetails() {
     $.ajax({
         url: "evidencePiece?evidenceId=" + selectedEvidenceId,
-        success: function(response) {
+        success: function (response) {
             setHighlightEvidenceAttributes(response)
+            getHighlightedEvidenceWeblinks()
         },
         error: function () {
             createAlert("Failed to receive active evidence", true)
         }
     })
+}
+
+
+/**
+ * Makes a request to the backend to retrieve all the web links for a piece of evidence. If the request is successful,
+ * a function is called to add the web links to the document.
+ */
+function getHighlightedEvidenceWeblinks() {
+    $.ajax({
+        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId,
+        success: function (response) {
+            setHighlightedEvidenceWebLinks(response)
+        },
+        error: function (response) {
+            if (response.status !== 404) {
+                createAlert("Failed to receive evidence links", true)
+            }
+        }
+    })
+}
+
+
+/**
+ * Adds the web links from the given request to the document.
+ *
+ * @param response The response from the backend, which contains the web links for a piece of evidence.
+ */
+function setHighlightedEvidenceWebLinks(response) {
+    let webLinksDiv = $("#evidenceWebLinks")
+    webLinksDiv.empty()
+
+    for (let index in response) {
+        let webLink = response[index]
+        webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
+    }
+    initialiseTooltips()
 }
 
 
@@ -113,6 +194,58 @@ function addEvidencePreviews(response) {
 }
 
 
+/**
+ * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
+ */
+function checkWeblinkCount() {
+    let addWeblinkButton = $("#addWebLinkButton")
+    let weblinkFullTab = $("#webLinkFull")
+    if (webLinksCount > 9){
+        addWeblinkButton.hide()
+        weblinkFullTab.show()
+    }else{
+        addWeblinkButton.show()
+        weblinkFullTab.hide()
+    }
+}
+
+
+/**
+ * reset the weblinks count
+ */
+function resetWeblink() {
+    let addWeblinkButton = $("#addWebLinkButton")
+    let weblinkFullTab = $("#webLinkFull")
+
+    addWeblinkButton.show()
+    weblinkFullTab.hide()
+    webLinksCount = 0
+}
+
+
+/**
+ * Retrieves the added web links and creates a list of them in DTO form.
+ *
+ * @returns {string} A list of web links matching the web link DTO format.
+ */
+function getWeblinksList() {
+    let evidenceCreationForm = $("#evidenceCreationForm")
+    let webLinks = evidenceCreationForm.find(".webLinkElement")
+    let webLinksList = []
+
+     $.each(webLinks, function () {
+        let webLinkDTO = {
+            "url": this.querySelector(".addedWebLinkUrl").innerHTML,
+            "name": this.querySelector(".addedWebLinkName").innerHTML
+        }
+
+        webLinksList.push(webLinkDTO)
+    })
+
+    return webLinksList
+}
+
+
 // --------------------------------- Click listeners -----------------------------------------
 
 
@@ -125,7 +258,6 @@ function addEvidencePreviews(response) {
  *    3. Populate the display with the selected evidence details.
  */
 $(document).on("click", ".evidenceListItem", function() {
-
     let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
     previouslySelectedDiv.removeClass("selectedEvidence")
 
@@ -134,7 +266,6 @@ $(document).on("click", ".evidenceListItem", function() {
 
     showHighlightedEvidenceDetails()
 })
-
 
 
 /**
@@ -150,23 +281,31 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
         const projectId = 1
-        const skills = $("#skillsInput").val()
+        let webLinks = getWeblinksList();
+        const skills = $("#skillsInput").val();
+        const categories = ["SERVICE", "QUALITATIVE"]
+
+        let data = JSON.stringify({
+            "title": title,
+            "date": date,
+            "description": description,
+            "projectId": projectId,
+            "webLinks": webLinks,
+            "skills": skills,
+            "categories": categories
+        })
         $.ajax({
-            url: "evidence",
+            url: `evidence`,
             type: "POST",
-            data: {
-                title,
-                date,
-                description,
-                projectId,
-                skills
-            },
+            contentType: "application/json",
+            data,
             success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
+                resetWeblink()
             },
             error: function (error) {
                 createAlert(error.responseText, true)
@@ -181,7 +320,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '.addWebLinkButton', function () {
-    $(".weblink-form").slideToggle();
+    $(".webLinkForm").slideToggle();
     let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
         //Un-toggle the button
@@ -190,7 +329,6 @@ $(document).on('click', '.addWebLinkButton', function () {
         button.removeClass("btn-primary")
         button.addClass("btn-secondary")
         submitWebLink()
-        //TODO: Add the code for submitting the webF link here
     } else {
         button.text("Save Web Link")
         button.addClass("toggled")
@@ -200,13 +338,105 @@ $(document).on('click', '.addWebLinkButton', function () {
 })
 
 
+// --------------------------------- Autocomplete -----------------------------------------
+
+
+/** This split function splits the text by its spaces*/
+function split(val) {
+    return val.split(/\s+/);
+}
+
+
+/** this function splits the input by its spaces then returns the last word */
+function extractLast(term) {
+    return split(term).pop();
+}
+
+
+/**
+ * Autocomplete widget provided by jQueryUi
+ * https://jqueryui.com/autocomplete/
+ */
+$("#skillsInput")
+    // don't navigate away from the field on tab when selecting an item
+    .on("keydown", function (event) {
+        if (event.keyCode === $.ui.keyCode.TAB &&
+            $(this).autocomplete("instance").menu.active) {
+            event.preventDefault();
+        }
+    })
+    .autocomplete({
+        autoFocus: true, // This default selects the top result
+        minLength: 0,
+        source: function (request, response) {
+            // delegate back to autocomplete, but extract the last term
+            let responseList = $.ui.autocomplete.filter(
+                skillsArray, extractLast(request.term))
+            response(responseList.sort((element1, element2) => {
+                // This sorts the response list (the drop-down list) so that it shows the shortest match first
+                return element1.length - element2.length
+            }));
+        },
+        focus: function () {
+            // prevent value inserted on focus
+            return false;
+        },
+        select: function (event, ui) {
+            let terms = split(this.value);
+            // remove the current input
+            terms.pop();
+            // add the selected item
+            terms.push(ui.item.value);
+            // add placeholder to get the space at the end
+            terms.push("");
+            this.value = terms.join(" ");
+            return false;
+        },
+
+    })
+    .data('ui-autocomplete')._renderItem = function (ul, item) {
+    //This handles the display of the drop-down menu.
+    return $("<li></li>")
+        .data("ui-autocomplete-item", item)
+        .append('<a>' + item.label + '</a>')
+        .appendTo(ul);
+};
+
+
+/**
+ * Listens out for a keydown event on the skills input.
+ * If it is a delete button keydown then it removes the last word from the input box.
+ */
+$(document).on("keydown", "#skillsInput", function (event) {
+
+    if (event.keyCode === $.ui.keyCode.DELETE) {
+        event.preventDefault();
+        let skillsInput = $("#skillsInput")
+        let inputArray = skillsInput.val().trim().split(/\s+/)
+
+        console.log(inputArray)
+        inputArray.pop()
+        skillsInput.val(inputArray.join(" "))
+    }
+})
+
+
+/**
+ * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
+ */
+$(document).on('click', '.addedWebLinkName', function () {
+    let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
+    window.open(destination, '_blank').focus();
+})
+
+
 // --------------------------- Functional HTML Components ------------------------------------
 
 
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
- * @param evidenceDetails
+ * @param evidenceDetails The title, date, and description for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
@@ -271,46 +501,58 @@ function createEvidencePreview(evidence) {
  */
 function submitWebLink() {
     let alias = $("#webLinkName")
-    let address = $("#webLinkAddress")
+    let url = $("#webLinkUrl")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
+    if (alias.val().length > 0){
+        webLinkTitle.show()
+        addedWebLinks.append(
+            webLinkElement(url.val(), alias.val())
+        )
 
-    webLinkTitle.show()
-    addedWebLinks.append(
-        webLinkElement(address.val(), alias.val())
-    )
-
-    $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
-    address.val("")
-    alias.val("")
+        initialiseTooltips()
+        url.val("")
+        alias.val("")
+        webLinksCount += 1
+        checkWeblinkCount()
+        $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+    }
+    else{
+        createAlert("Weblink name needs to be 1 char", true);
+    }
 }
 
 
+/**
+ * Clears all fields (except the date field) in the "Add Evidence" form.
+ */
 function clearAddEvidenceModalValues() {
     $("#evidenceName").val("")
     $("#evidenceDescription").val("")
-    $("#webLinkAddress").val("")
+    $("#webLinkUrl").val("")
     $("#webLinkName").val("")
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
 }
 
+
 /**
- * Given a web address and an alias, creates and returns a web link element.
+ * Given a web url and an alias, creates and returns a web link element.
  * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
  *
- * If the address doesn't start with https, it will show an un-filled, unlocked icon.
+ * If the url doesn't start with https, it will show an un-filled, unlocked icon.
  * If it does, it will show a locked, filled icon.
  *
- * @param address The web address of the web link
- * @param alias The alias/nickname of the web address. Everything before the first // occurrence will be cut off
+ * @param url The web url of the web link
+ * @param alias The alias/nickname of the web url. Everything before the first // occurrence will be cut off
  * (e.g. https://www.goggle.com becomes www.google.com)
  * @returns {string} A single-div webLink element, wrapped in ` - e.g. `<div>stuff!</div>`
  */
-function webLinkElement(address, alias) {
+function webLinkElement(url, alias) {
     let icon;
     let security = "unsecured"
-    if (address.startsWith("https://")) {
+
+    if (url.startsWith("https://")) {
         security = "secured"
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill lockIcon text-success" viewBox="0 0 16 16">
@@ -324,16 +566,17 @@ function webLinkElement(address, alias) {
         </svg>
         `
     }
-    let slashIndex = address.search("//") + 2
-    if (slashIndex > 1) address = address.slice(slashIndex) // Cut off the http:// or whatever else it might be
+
+    let slashIndex = url.search("//") + 2
+    if (slashIndex > 1) urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+
     return (`
-<div class="webLinkElement ${security}" data-bs-toggle="tooltip" data-bs-placement="top" 
-    data-bs-title="${address}" data-bs-custom-class="webLinkTooltip">
-    ${icon}
-    <div class="addedWebLinkName">
-        ${alias}
-    </div>
-</div>
+        <div class="webLinkElement ${security}" data-value="${url}" >
+            ${icon}
+            <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
+            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
+            <div class="addedWebLinkUrl" style="visibility: hidden">${url}</div>
+        </div>
     `)
 }
 
@@ -352,6 +595,10 @@ function disableEnableSaveButtonOnValidity() {
     }
 }
 
+
+/**
+ * Checks that the name and description of a piece of evidence match the required regex.
+ */
 function checkTextInputRegex() {
     let name = $("#evidenceName")
     let description = $("#evidenceDescription")
@@ -394,3 +641,11 @@ $(document).on("change", ".form-control", function () {
     disableEnableSaveButtonOnValidity()
     checkTextInputRegex()
 })
+
+
+/**
+ * Refresh tooltip display
+ */
+function initialiseTooltips() {
+    $('[data-bs-toggle="tooltip"]').tooltip();
+}

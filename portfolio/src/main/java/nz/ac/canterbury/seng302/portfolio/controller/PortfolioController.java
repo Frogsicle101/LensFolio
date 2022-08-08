@@ -14,6 +14,8 @@ import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneHelper;
 import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepoRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
@@ -65,6 +67,9 @@ public class PortfolioController {
     @Autowired
     private final MilestoneRepository milestoneRepository;
 
+    @Autowired
+    private final GitRepoRepository gitRepoRepository;
+
     //Selectors for the error/info/success boxes.
     private static final String ERROR_MESSAGE = "errorMessage";
 
@@ -89,12 +94,14 @@ public class PortfolioController {
                                ProjectRepository projectRepository,
                                EventRepository eventRepository,
                                MilestoneRepository milestoneRepository,
-                               DeadlineRepository deadlineRepository) throws InvalidNameException {
+                               DeadlineRepository deadlineRepository,
+                               GitRepoRepository gitRepoRepository) throws InvalidNameException {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
         this.milestoneRepository = milestoneRepository;
         this.deadlineRepository = deadlineRepository;
+        this.gitRepoRepository = gitRepoRepository;
 
         //Below are only for testing purposes.
         if (INCLUDE_TEST_VALUES) {
@@ -108,6 +115,7 @@ public class PortfolioController {
             createDefaultSprints(defaultProject);
             createDefaultMilestones(defaultProject);
             createDefaultDeadlines(defaultProject);
+            createDefaultRepos(defaultProject);
         } else {
             projectRepository.save(new Project("Default Project"));
         }
@@ -674,5 +682,13 @@ public class PortfolioController {
         sprintRepository.save(sprint5);
         sprintRepository.save(sprint6);
         sprintRepository.save(sprint7);
+    }
+
+
+    public void createDefaultRepos(Project project){
+        GitRepository repo1 = new GitRepository(3, 13661, "Team 100's git Repository", "szMkVx_xM39gB5yRxSmL");
+        gitRepoRepository.save(repo1);
+        GitRepository repo2 = new GitRepository(4, 13737, "Team 200's git Repository", "ixgv4UTo--zGZ5Km1rQ");
+        gitRepoRepository.save(repo2);
     }
 }

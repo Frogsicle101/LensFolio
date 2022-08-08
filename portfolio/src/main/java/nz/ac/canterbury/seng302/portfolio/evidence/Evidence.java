@@ -39,6 +39,11 @@ public class Evidence {
             inverseJoinColumns = @JoinColumn(name = "skillId"))
     private final Set<Skill> skills = new HashSet<>();
 
+    /** The set of categories, can have SERVICE, QUANTITATIVE and QUALITATIVE. Can be multiple*/
+    @Enumerated(EnumType.ORDINAL)
+    @ElementCollection(fetch = FetchType.EAGER)
+    private final Set<Category> categories = new HashSet<>();
+
 
     /**
      * Constructs an instance of the evidence object
@@ -104,6 +109,11 @@ public class Evidence {
         return title;
     }
 
+    /**
+     * Verifies that the title is less than 500 characters, and sets the property if so.
+     *
+     * @param title The title to be checked and set.
+     */
     public void setTitle(String title) {
         checkTitleLength(title);
         this.title = title;
@@ -129,10 +139,11 @@ public class Evidence {
         this.webLinks.add(webLink);
     }
 
-    public void addWebLinks(List<WebLink> webLinks) {
-        this.webLinks.addAll(webLinks);
-    }
-
+    /**
+     * Verifies that the description is less than 500 characters, and sets the property if so.
+     *
+     * @param description The description to be checked and set.
+     */
     public void setDescription(String description) {
         checkDescriptionLength(description);
         this.description = description;
@@ -144,6 +155,14 @@ public class Evidence {
 
     public void addSkill(Skill skill) {
         skills.add(skill);
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void addCategory(Category category) {
+        categories.add(category);
     }
 
 
@@ -161,6 +180,7 @@ public class Evidence {
                 "\",\"description\":\"" + description +
                 "\",\"webLinks\":" + "[]" +
                 ",\"skills\":" + "[]" +
+                ",\"categories\":" + "[]" +
                 "}";
     }
 
