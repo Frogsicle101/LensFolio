@@ -38,6 +38,7 @@ section {
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
+    --background-chip-colour: #a1f5f2;
 }
 
 
@@ -916,6 +917,7 @@ section {
     padding-right: 1.5rem;
 }
 
+
 .evidenceFormSkills{
     padding-left: 1.5rem;
     padding-right: 1.5rem;
@@ -941,7 +943,7 @@ section {
     margin-top: 1rem;
 }
 
-.webLinkForm {
+.weblink-form {
     padding-right: 1.5rem;
     align-self: flex-end;
 }
@@ -988,4 +990,43 @@ section {
     max-height: 5rem;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+
+#skillChipDisplay{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-bottom: 1.5rem;
+}
+
+
+.skillChip{
+    padding: 0.2rem 1rem 0.2rem;
+    position: relative;
+    margin: 0.2rem;
+    background-color: var(--background-chip-colour);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: row;
+    box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+}
+
+.skillChipInvalid{
+    background-color: #ee3636;
+}
+
+.skillChipText{
+    margin: auto;
+}
+.chipDelete{
+    position: absolute;
+    top: -0.2rem;
+    right: -0.2rem;
+
+}
+
+.chipDelete:hover{
+    cursor: pointer;
+    color: red;
 }
