@@ -511,7 +511,7 @@ Validates the alias and then displays an error message or saves the web link and
 function validateWebLink(form, alias, address) {
     //Do some title validation
     if (alias.length === 0) {
-        $(".address-alert").alert('close') //Close any previous alerts
+        $(".weblink-name-alert").alert('close') //Close any previous alerts
         form.append(`
                     <div class="alert alert-danger alert-dismissible show weblink-name-alert" role="alert">
                       Please include a name for your web link
