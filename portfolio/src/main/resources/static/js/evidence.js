@@ -274,6 +274,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const projectId = 1
         let webLinks = getWeblinksList();
         const categories = getCategories();
+
         let data = JSON.stringify({
             "title": title, "date": date, "description": description, "projectId": projectId, "webLinks": webLinks, "categories": categories
         })
@@ -285,6 +286,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+                $(".address-alert").alert('close') // Close any web link alerts
+                $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
                 createAlert(error.responseText, true)
@@ -299,23 +302,34 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '.addWebLinkButton', function () {
-    $(".webLinkForm").slideToggle();
     let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
-        //Un-toggle the button
-        button.text("Add Web Link")
-        button.removeClass("toggled")
-        button.removeClass("btn-primary")
-        button.addClass("btn-secondary")
-        submitWebLink()
+        //validate the link
+        let address = $("#webLinkUrl").val()
+        let alias = $("#webLinkName").val()
+        let form = $(".webLinkForm")
+        console.log(address)
+        validateWebLink(form, alias, address)
     } else {
-        button.text("Save Web Link")
-        button.addClass("toggled")
-        button.removeClass("btn-secondary")
-        button.addClass("btn-primary")
+        webLinkButtonToggle()
     }
 })
 
+
+/**
+ * Listen for a keypress in the weblink address field, and closes the alert box
+ */
+$(document).on('keypress', '#webLinkUrl', function () {
+    $(".address-alert").alert('close')
+})
+
+
+/**
+ * Listen for a keypress in the weblink name field, and closes the alert box
+ */
+$(document).on('keypress', '#webLinkName', function () {
+    $(".weblink-name-alert").alert('close')
+})
 
 // --------------------------------- Autocomplete -----------------------------------------
 
@@ -366,7 +380,6 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
-
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -378,7 +391,7 @@ $("#skillsInput")
 
 
 /**
- * Listens out for a keydown event on the skills input.
+ * Listens out for a keyup event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
  * If it is a space, tab or enter then it checks for duplicates
  */
@@ -602,6 +615,113 @@ function createEvidencePreview(evidence) {
             </div>
             <p class="evidenceListItemInfo">${evidence.description}</p>
         </div>`
+}
+
+
+/**
+ * Handles a web link validated by the back end.
+Validates the alias and then displays an error message or saves the web link and toggles the web link form.
+ */
+function validateWebLink(form, alias, address) {
+    //Do some title validation
+    if (alias.length === 0) {
+        $(".weblink-name-alert").alert('close') //Close any previous alerts
+        form.append(`
+                    <div class="alert alert-danger alert-dismissible show weblink-name-alert" role="alert">
+                      Please include a name for your web link
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+    } else if (address.search("://") === -1) {
+        $(".address-alert").alert('close') //Close any previous alerts
+        form.append(`
+                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                      That address is missing a "://" - did you make a typo?
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+    }
+    else {
+        validateWebLinkAtBackend()
+    }
+}
+
+
+/**
+ * Handles the error messages for an invalid web link.
+ */
+function handleInvalidWebLink(form, error) {
+    $(".address-alert").alert('close') //Close any previous alerts
+    switch (error.status) {
+        case 400:
+            // The URL is invalid
+            form.append(`
+                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                      Please enter a valid address, like https://www.w3.org/WWW/
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+            break
+        default:
+            // A regular error
+            form.append(`
+                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                      Something went wrong. Try again later.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+            break
+    }
+}
+
+
+/**
+ * Validates the weblink server-side.
+ * Takes the URL and makes a call to the server to check if it's valid.
+ * If valid, save the web link and toggle the form.
+ *
+ * If there's an issue, or it's not valid, calls a function to display an alert
+ */
+function validateWebLinkAtBackend() {
+    let address = $("#webLinkUrl").val()
+    let form = $(".webLinkForm")
+    let data = JSON.stringify({
+        "url": address,
+        "name": $("#webLinkName").val()
+    })
+    $.ajax({
+        url: `validateWebLink`,
+        type: "POST",
+        contentType: "application/json",
+        data,
+        success: () => {
+            submitWebLink()
+            webLinkButtonToggle()
+        },
+        error: (error) => {
+            handleInvalidWebLink(form, error)
+        }
+    })
+}
+
+/**
+ * Toggles the add weblink button,
+ * and slide-toggles the form
+ */
+function webLinkButtonToggle() {
+    let button = $(".addWebLinkButton");
+    $(".webLinkForm").slideToggle();
+    if (button.hasClass("toggled")) {
+        button.text("Add Web Link")
+        button.removeClass("toggled")
+        button.removeClass("btn-primary")
+        button.addClass("btn-secondary")
+    } else {
+        button.text("Save Web Link")
+        button.addClass("toggled")
+        button.removeClass("btn-secondary")
+        button.addClass("btn-primary")
+    }
 }
 
 
