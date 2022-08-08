@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.DTO.ValidateWeblinkDTO;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
@@ -234,25 +235,26 @@ public class EvidenceController {
      * BAD_REQUEST means the URL is invalid
      * INTERNAL_SERVER_ERROR means some other error occurred while validating the URL
      *
-     * @param address - the full address to be validated
+     * @param request - the full address to be validated
      * @return A response entity with the required response code. If it is valid, the status will be OK.
      * No response body will be returned in any instance.
      * @see java.net.URL
      */
-    @GetMapping("/validateWebLink")
-    public ResponseEntity<Object> validateWebLink(@RequestParam("address") String address) {
+    @PostMapping("/validateWebLink")
+    @ResponseBody
+    public ResponseEntity<Object> validateWebLink(@RequestBody ValidateWeblinkDTO request) {
+        String address = request.getUrl();
         logger.info("GET REQUEST /validateWebLink - validating address {}", address);
         try {
             if (!address.contains("://")) {
                 throw new MalformedURLException("There is no ://");
-            } else if (address.contains("\u00A0")) {
+            } else if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }
-            URL candidate = new URL(address); //The constructor does all the validation for us
-            URI candidate2 = new URI(address);
+            URL URLcandidate = new URL(address); //The constructor does all the validation for us
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (MalformedURLException | URISyntaxException exception) {
+        } catch (MalformedURLException exception) {
             logger.info("/validateWebLink - invalid address {}", address);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {

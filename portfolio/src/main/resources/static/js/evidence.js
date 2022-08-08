@@ -571,10 +571,15 @@ function handleInvalidWebLink(form, error) {
 function validateWebLinkAtBackend() {
     let address = $("#webLinkUrl").val()
     let form = $(".webLinkForm")
-
+    let data = JSON.stringify({
+        "url": address,
+        "name": $("#webLinkName").val()
+    })
     $.ajax({
-        url: `validateWebLink?address=${address}`,
-        type: "GET",
+        url: `validateWebLink`,
+        type: "POST",
+        contentType: "application/json",
+        data,
         success: () => {
             submitWebLink()
             webLinkButtonToggle()
