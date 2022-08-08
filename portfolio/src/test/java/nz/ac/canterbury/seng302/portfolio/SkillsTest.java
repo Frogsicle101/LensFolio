@@ -9,6 +9,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 
 @SpringBootTest
@@ -82,5 +83,21 @@ class SkillsTest {
         Assertions.assertEquals(skill3.getName(), skillsForUser1.get(2).getName());
 
         Assertions.assertEquals(0, skillsForUser2.size());
+    }
+
+
+    @Test
+    void testSkillsRepositoryIsNotCaseSensitive() {
+        Skill skill1 = new Skill("Testing 1");
+        String differentCaseSearchQuery = "tesTing 1";
+
+        skillRepository.save(skill1);
+        Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(differentCaseSearchQuery);
+        if (optionalSkill.isEmpty()) {
+            Assertions.fail("Repository is case sensitive");
+        }
+        Skill foundSkill = optionalSkill.get();
+        Assertions.assertNotEquals(foundSkill.getName(), differentCaseSearchQuery);
+        Assertions.assertEquals(skill1.getName(), foundSkill.getName());
     }
 }

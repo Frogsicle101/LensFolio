@@ -6,17 +6,18 @@ import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
+import org.springframework.beans.factory.annotation.Autowired;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
+
 
 /**
  * Used to differentiate the strings that are passed to the stringCheck method
@@ -44,17 +45,21 @@ public class EvidenceService {
 
     private final WebLinkRepository webLinkRepository;
 
+    private final SkillRepository skillRepository;
+
     @Autowired
     public EvidenceService(
             UserAccountsClientService userAccountsClientService,
             ProjectRepository projectRepository,
             EvidenceRepository evidenceRepository,
-            WebLinkRepository webLinkRepository
+            WebLinkRepository webLinkRepository,
+            SkillRepository skillRepository
     ) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
         this.webLinkRepository = webLinkRepository;
+        this.skillRepository = skillRepository;
     }
 
 
@@ -138,6 +143,8 @@ public class EvidenceService {
             evidence.addWebLink(webLink);
         }
 
+        this.addSkills(evidence, evidenceDTO.getSkills());
+
         for (String categoryString : categories) {
             switch (categoryString) {
                 case "SERVICE" -> evidence.addCategory(Category.SERVICE);
@@ -147,5 +154,30 @@ public class EvidenceService {
             }
         }
         return evidenceRepository.save(evidence);
+    }
+
+
+    /**
+     * Add a list of skills to a given piece of evidence
+     *
+     * @param evidence - The  piece of evidence
+     * @param skills - The list of the skills in string form
+     */
+    public void addSkills(Evidence evidence, List<String> skills) {
+        for(String skillName: skills){
+            if (skillName == null || skillName.equals("") || skillName.equals(" ")){
+                continue;
+            }
+            Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
+            Skill theSkill;
+            if (optionalSkill.isEmpty()) {
+                Skill createSkill = new Skill(skillName);
+                theSkill = skillRepository.save(createSkill);
+            } else {
+                theSkill = optionalSkill.get();
+            }
+            evidence.addSkill(theSkill);
+            evidenceRepository.save(evidence);
+        }
     }
 }
