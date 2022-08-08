@@ -246,6 +246,24 @@ function getWeblinksList() {
 }
 
 
+/**
+ * Gets all the selected categories from the categories form
+ *
+ * @return a list of categories e.g., ["SERVICE", "QUANTITATIVE"]
+ */
+function getCategories() {
+    let categoryButtons = $("#evidenceFormCategories")
+    let selectedButtons = categoryButtons.find(".btn-success")
+    let categories = []
+
+    $.each(selectedButtons, function (button) {
+        categories.push($(selectedButtons[button]).val())
+    })
+
+    return categories
+}
+
+
 // --------------------------------- Click listeners -----------------------------------------
 
 
@@ -282,12 +300,15 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const description = $("#evidenceDescription").val()
         const projectId = 1
         let webLinks = getWeblinksList();
+        const categories = getCategories();
+
         let data = JSON.stringify({
             "title": title,
             "date": date,
             "description": description,
             "projectId": projectId,
-            "webLinks": webLinks
+            "webLinks": webLinks,
+            "categories": categories
         })
         $.ajax({
             url: `evidence`,
@@ -648,6 +669,8 @@ function clearAddEvidenceModalValues() {
     $("#webLinkName").val("")
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
+    $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
+    $(".evidenceCategoryTickIcon").hide();
 }
 
 
@@ -764,3 +787,17 @@ $(document).on("change", ".form-control", function () {
 function initialiseTooltips() {
     $('[data-bs-toggle="tooltip"]').tooltip();
 }
+
+
+$(".evidenceFormCategoryButton").on("click", function () {
+    let button = $(this)
+    if (button.hasClass("btn-secondary")) {
+        button.removeClass("btn-secondary")
+        button.addClass("btn-success")
+        button.find(".evidenceCategoryTickIcon").show("slide", 200)
+    } else {
+        button.removeClass("btn-success")
+        button.addClass("btn-secondary")
+        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
+    }
+})

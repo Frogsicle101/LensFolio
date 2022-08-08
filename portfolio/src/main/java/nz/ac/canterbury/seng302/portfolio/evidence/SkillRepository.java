@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository class for handling all the queries related to Skill objects.
@@ -21,6 +22,11 @@ public interface SkillRepository extends CrudRepository<Skill, Integer> {
     @Query
     Skill findById(int id);
 
+    /**
+     * Finds a Skill object by its name.
+     */
+    @Query
+    Optional<Skill> findByNameIgnoreCase(String name);
 
     /**
      * Find all skills by a users ID

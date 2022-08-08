@@ -6,15 +6,18 @@ import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
+import org.springframework.beans.factory.annotation.Autowired;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
+
 
 /**
  * Used to differentiate the strings that are passed to the stringCheck method
@@ -30,7 +33,9 @@ enum StringType {
 @Service
 public class EvidenceService {
 
-    private final String stringRegex = "[a-zA-Z0-9\s]*";
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static final String stringRegex = "[a-zA-Z0-9\s]*";
 
     private final UserAccountsClientService userAccountsClientService;
 
@@ -40,17 +45,21 @@ public class EvidenceService {
 
     private final WebLinkRepository webLinkRepository;
 
+    private final SkillRepository skillRepository;
+
     @Autowired
     public EvidenceService(
             UserAccountsClientService userAccountsClientService,
             ProjectRepository projectRepository,
             EvidenceRepository evidenceRepository,
-            WebLinkRepository webLinkRepository
+            WebLinkRepository webLinkRepository,
+            SkillRepository skillRepository
     ) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
         this.webLinkRepository = webLinkRepository;
+        this.skillRepository = skillRepository;
     }
 
 
@@ -97,8 +106,8 @@ public class EvidenceService {
 
 
     /**
-     * Creates a new evidence object and saves it to the repository. Adds any web link objects to the evidence object
-     * and also to the web lnk repository..
+     * Creates a new evidence object and saves it to the repository. Adds and saves any web link objects and categories
+     * to the evidence object.
      *
      * @param principal   The authentication principal
      *
@@ -113,6 +122,7 @@ public class EvidenceService {
         String description = evidenceDTO.getDescription();
         List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
         String date = evidenceDTO.getDate();
+        List<String> categories = evidenceDTO.getCategories();
 
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isEmpty()) {
@@ -126,7 +136,6 @@ public class EvidenceService {
         checkString(description, StringType.DESCRIPTION);
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
-        Evidence savedEvidence = evidenceRepository.save(evidence);
 
         for (WebLinkDTO dto : webLinks) {
             WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
@@ -134,6 +143,41 @@ public class EvidenceService {
             evidence.addWebLink(webLink);
         }
 
-        return savedEvidence;
+        this.addSkills(evidence, evidenceDTO.getSkills());
+
+        for (String categoryString : categories) {
+            switch (categoryString) {
+                case "SERVICE" -> evidence.addCategory(Category.SERVICE);
+                case "QUANTITATIVE" -> evidence.addCategory(Category.QUANTITATIVE);
+                case "QUALITATIVE" -> evidence.addCategory(Category.QUALITATIVE);
+                default -> logger.warn("Evidence service - evidence {} attempted to add category {}", evidence.getId(), categoryString);
+            }
+        }
+        return evidenceRepository.save(evidence);
+    }
+
+
+    /**
+     * Add a list of skills to a given piece of evidence
+     *
+     * @param evidence - The  piece of evidence
+     * @param skills - The list of the skills in string form
+     */
+    public void addSkills(Evidence evidence, List<String> skills) {
+        for(String skillName: skills){
+            if (skillName == null || skillName.equals("") || skillName.equals(" ")){
+                continue;
+            }
+            Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
+            Skill theSkill;
+            if (optionalSkill.isEmpty()) {
+                Skill createSkill = new Skill(skillName);
+                theSkill = skillRepository.save(createSkill);
+            } else {
+                theSkill = optionalSkill.get();
+            }
+            evidence.addSkill(theSkill);
+            evidenceRepository.save(evidence);
+        }
     }
 }
