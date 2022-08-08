@@ -320,9 +320,10 @@ $(document).on('click', '.addWebLinkButton', function () {
     let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
-        let address = sanitise($("#webLinkUrl").val())
-        let alias = sanitise($("#webLinkName").val())
+        let address = $("#webLinkUrl").val()
+        let alias = $("#webLinkName").val()
         let form = $(".webLinkForm")
+        console.log(address)
         validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()
@@ -568,7 +569,7 @@ function handleInvalidWebLink(form, error) {
  * If there's an issue, or it's not valid, calls a function to display an alert
  */
 function validateWebLinkAtBackend() {
-    let address = sanitise($("#webLinkUrl").val())
+    let address = $("#webLinkUrl").val()
     let form = $(".webLinkForm")
 
     $.ajax({
@@ -609,8 +610,8 @@ function webLinkButtonToggle() {
  * Appends a new link to the list of added links in the Add Evidence form.
  */
 function submitWebLink() {
-    let alias = sanitise($("#webLinkName"))
-    let url = sanitise($("#webLinkUrl"))
+    let alias = $("#webLinkName")
+    let url = $("#webLinkUrl")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
     if (alias.val().length > 0){

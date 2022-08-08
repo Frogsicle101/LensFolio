@@ -24,9 +24,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.net.*;
 import java.net.MalformedURLException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -246,11 +245,14 @@ public class EvidenceController {
         try {
             if (!address.contains("://")) {
                 throw new MalformedURLException("There is no ://");
+            } else if (address.contains("\u00A0")) {
+                throw new MalformedURLException("The non-breaking space is not a valid character");
             }
             URL candidate = new URL(address); //The constructor does all the validation for us
+            URI candidate2 = new URI(address);
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (MalformedURLException exception) {
+        } catch (MalformedURLException | URISyntaxException exception) {
             logger.info("/validateWebLink - invalid address {}", address);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
