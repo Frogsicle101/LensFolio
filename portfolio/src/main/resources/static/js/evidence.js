@@ -674,10 +674,10 @@ $(".evidenceFormCategoryButton").on("click", function () {
     if (button.hasClass("btn-secondary")) {
         button.removeClass("btn-secondary")
         button.addClass("btn-success")
-        button.find(".evidenceCategoryTickIcon").show()
+        button.find(".evidenceCategoryTickIcon").show("slide", 200)
     } else {
         button.removeClass("btn-success")
         button.addClass("btn-secondary")
-        button.find(".evidenceCategoryTickIcon").hide()
+        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
     }
 })

@@ -768,7 +768,7 @@ section {
 
 .inlineText {
     display: flex;
-    justify-content: left;
+    justify-content: center;
 }
 
 #groupSettingsRepoHeader {
@@ -917,17 +917,27 @@ section {
 }
 
 #evidenceFormCategories {
-    padding: 0.5rem;
+    padding: 1.5rem;
 }
 
 .evidenceFormCategoryButton {
     height: 3rem;
     align-items: center;
+    min-width: 9rem;
+    padding-left: 1.2rem;
+}
+
+.evidenceFormCategoryButton {
+    height: 3rem;
+    align-items: center;
+    min-width: 10rem;
+    padding-left: 1.2rem;
+    transition: 0.5s ease-in-out;
 }
 
 .evidenceCategoryTickIcon {
     margin-left: 1rem;
-    font-size: 120%;
+    font-size: 1.2rem;
     display: none
 }
 
