@@ -6,6 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.ArrayList;
 import java.util.Optional;
 
+
 /**
  * Repository class for handling all the queries related to Evidence objects.
  */
@@ -18,4 +19,7 @@ public interface EvidenceRepository extends CrudRepository<Evidence, Integer> {
     /** Returns an arrayList of all the evidence for a user in order by date descending */
     @Query
     ArrayList<Evidence> findAllByUserIdOrderByDateDesc(int id);
+
+    /** Returns an arrayList that contains all the evidence of a user of a certain category. */
+    ArrayList<Evidence> findAllByUserIdAndCategoriesContaining(int id, Category category);
 }

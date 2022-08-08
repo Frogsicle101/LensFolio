@@ -39,6 +39,11 @@ public class Evidence {
             inverseJoinColumns = @JoinColumn(name = "skillId"))
     private final Set<Skill> skills = new HashSet<>();
 
+    /** The set of categories, can have SERVICE, QUANTITATIVE and QUALITATIVE. Can be multiple*/
+    @Enumerated(EnumType.ORDINAL)
+    @ElementCollection(fetch = FetchType.EAGER)
+    private final Set<Category> categories = new HashSet<>();
+
 
     /**
      * Constructs an instance of the evidence object
@@ -152,6 +157,14 @@ public class Evidence {
         skills.add(skill);
     }
 
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void addCategory(Category category) {
+        categories.add(category);
+    }
+
 
     /**
      * This method is used to help with testing. It returns the expected JSON string created for this object.
@@ -167,6 +180,7 @@ public class Evidence {
                 "\",\"description\":\"" + description +
                 "\",\"webLinks\":" + "[]" +
                 ",\"skills\":" + "[]" +
+                ",\"categories\":" + "[]" +
                 "}";
     }
 

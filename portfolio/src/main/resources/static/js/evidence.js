@@ -7,6 +7,8 @@ const regExp = new RegExp('[A-Za-z]');
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
+let webLinksCount = 0;
+
 let skillsArray = ["ActionScript", "AppleScript", "Asp", "BASIC", "C", "C++", "Clojure", "COBOL", "ColdFusion", "Erlang", "Fortran", "Groovy", "Haskell", "Java", "JavaScript", "Lisp", "Perl", "PHP", "Python", "Ruby", "Scala", "Scheme"]
 
 
@@ -32,8 +34,6 @@ $(document).ready(function () {
     textInput.keyup(countCharacters)
     checkToShowSkillChips()
     getSkills()
-
-
 })
 
 
@@ -46,7 +46,6 @@ function getSkills() {
         url: "skills?userId=" + userBeingViewedId, type: "GET", success: function (response) {
             console.log(response)
             //TODO add response skills to skill array
-
         }, error: function (response) {
             console.log(response)
         }
@@ -219,6 +218,24 @@ function getWeblinksList() {
 }
 
 
+/**
+ * Gets all the selected categories from the categories form
+ *
+ * @return a list of categories e.g., ["SERVICE", "QUANTITATIVE"]
+ */
+function getCategories() {
+    let categoryButtons = $("#evidenceFormCategories")
+    let selectedButtons = categoryButtons.find(".btn-success")
+    let categories = []
+
+    $.each(selectedButtons, function (button) {
+        categories.push($(selectedButtons[button]).val())
+    })
+
+    return categories
+}
+
+
 // --------------------------------- Click listeners -----------------------------------------
 
 
@@ -256,8 +273,9 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const description = $("#evidenceDescription").val()
         const projectId = 1
         let webLinks = getWeblinksList();
+        const categories = getCategories();
         let data = JSON.stringify({
-            "title": title, "date": date, "description": description, "projectId": projectId, "webLinks": webLinks
+            "title": title, "date": date, "description": description, "projectId": projectId, "webLinks": webLinks, "categories": categories
         })
         $.ajax({
             url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
@@ -385,7 +403,6 @@ $(document).on("keyup", "#skillsInput", function (event) {
 $(document).on("paste", "#skillsInput", (event) => {
     setTimeout(() => removeDuplicatesFromInput($("#skillsInput")), 0)
     // Above is in a timeout so that it runs after the paste event has happened
-
 })
 
 
@@ -431,7 +448,6 @@ $(document).on("change", "#skillsInput", () => displaySkillChips())
 $(document).on("click", ".ui-autocomplete", () => {
     removeDuplicatesFromInput($("#skillsInput"))
     displaySkillChips()
-
 })
 
 
@@ -464,7 +480,6 @@ function displaySkillChips() {
         }
         if ($(this).text().length > 30) {
             $(this).parent(".skillChip").addClass("skillChipInvalid")
-
         }
     })
 }
@@ -514,6 +529,7 @@ $(document).on("click", ".chipDelete", function () {
     displaySkillChips()
 })
 
+
 /**
  * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
  */
@@ -521,6 +537,7 @@ $(document).on('click', '.addedWebLinkName', function () {
     let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
     window.open(destination, '_blank').focus();
 })
+
 
 // --------------------------- Functional HTML Components ------------------------------------
 
@@ -623,6 +640,8 @@ function clearAddEvidenceModalValues() {
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
     $("#skillsInput").val("")
+    $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
+    $(".evidenceCategoryTickIcon").hide();
 }
 
 
@@ -666,7 +685,6 @@ function webLinkElement(url, alias) {
             <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
             data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
             <div class="addedWebLinkUrl" style="visibility: hidden">${url}</div>
-
         </div>
     `)
 }
@@ -733,6 +751,24 @@ $(document).on("change", ".form-control", function () {
     checkTextInputRegex()
 })
 
+
+
+
+
+$(".evidenceFormCategoryButton").on("click", function () {
+    let button = $(this)
+    if (button.hasClass("btn-secondary")) {
+        button.removeClass("btn-secondary")
+        button.addClass("btn-success")
+        button.find(".evidenceCategoryTickIcon").show("slide", 200)
+    } else {
+        button.removeClass("btn-success")
+        button.addClass("btn-secondary")
+        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
+    }
+})
+
+//---- Tooltip Refresher----
 
 /**
  * Refresh tooltip display
