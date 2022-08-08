@@ -54,11 +54,6 @@ class EvidenceControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private UserResponse userResponse;
-
-    private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
-    private final AuthState authState = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
-
     @MockBean
     AuthenticateClientService authenticateClientService;
 
@@ -625,7 +620,7 @@ class EvidenceControllerTest {
                 .setEmail("steve@example.com")
                 .setProfileImagePath("a");
         userBuilder.addRoles(UserRole.STUDENT);
-        userResponse = userBuilder.build();
+        UserResponse userResponse = userBuilder.build();
 
         when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService)).thenReturn(userResponse);
         Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal.getAuthState());
