@@ -13,17 +13,21 @@ public class EvidenceDTO {
     String description;
     List<WebLinkDTO> webLinks;
     List<String> categories;
+    List<String> skills;
     Long projectId;
 
 
-    public EvidenceDTO(String title, String date, String description, List<WebLinkDTO> webLinks, List<String> categories, Long projectId) {
+    public EvidenceDTO(String title, String date, String description, List<WebLinkDTO> webLinks,
+                       List<String> skills, List<String> categories, Long projectId) {
         this.title = title;
         this.date = date;
         this.description = description;
         this.webLinks = webLinks;
         this.projectId = projectId;
+        this.skills = skills;
         this.categories = categories;
     }
+
 
     public String getTitle() {
         return title;
@@ -71,5 +75,13 @@ public class EvidenceDTO {
 
     public void setCategories(List<String> categories) {
         this.categories = categories;
+    }
+
+    public List<String> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<String> skills) {
+        this.skills = skills;
     }
 }
