@@ -8,6 +8,8 @@ import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +32,9 @@ enum StringType {
 @Service
 public class EvidenceService {
 
-    private final String stringRegex = "[a-zA-Z0-9\s]*";
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static final String stringRegex = "[a-zA-Z0-9\s]*";
 
     private final UserAccountsClientService userAccountsClientService;
 
@@ -97,8 +101,8 @@ public class EvidenceService {
 
 
     /**
-     * Creates a new evidence object and saves it to the repository. Adds any web link objects to the evidence object
-     * and also to the web lnk repository..
+     * Creates a new evidence object and saves it to the repository. Adds and saves any web link objects and categories
+     * to the evidence object.
      *
      * @param principal   The authentication principal
      *
@@ -113,6 +117,7 @@ public class EvidenceService {
         String description = evidenceDTO.getDescription();
         List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
         String date = evidenceDTO.getDate();
+        List<String> categories = evidenceDTO.getCategories();
 
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isEmpty()) {
@@ -126,7 +131,6 @@ public class EvidenceService {
         checkString(description, StringType.DESCRIPTION);
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
-        Evidence savedEvidence = evidenceRepository.save(evidence);
 
         for (WebLinkDTO dto : webLinks) {
             WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
@@ -134,6 +138,14 @@ public class EvidenceService {
             evidence.addWebLink(webLink);
         }
 
-        return savedEvidence;
+        for (String categoryString : categories) {
+            switch (categoryString) {
+                case "SERVICE" -> evidence.addCategory(Category.SERVICE);
+                case "QUANTITATIVE" -> evidence.addCategory(Category.QUANTITATIVE);
+                case "QUALITATIVE" -> evidence.addCategory(Category.QUALITATIVE);
+                default -> logger.warn("Evidence service - evidence {} attempted to add category {}", evidence.getId(), categoryString);
+            }
+        }
+        return evidenceRepository.save(evidence);
     }
 }
