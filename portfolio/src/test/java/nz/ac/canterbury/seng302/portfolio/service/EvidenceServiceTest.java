@@ -3,10 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.service;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkDTO;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
@@ -22,6 +19,7 @@ import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +52,7 @@ class EvidenceServiceTest {
 
         String title = "title";
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), 1L);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), 1L);
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
@@ -76,7 +74,7 @@ class EvidenceServiceTest {
         String url = "https://www.google.com";
         links.add(new WebLinkDTO("name", url));
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", links, 1L);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", links, new ArrayList<>(), 1L);
         evidenceService.addEvidence(principal,
                 evidenceDTO);
 
@@ -99,7 +97,7 @@ class EvidenceServiceTest {
         List<WebLinkDTO> webLinks = new ArrayList<>();
         long projectId = 1L;
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), 1L);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -119,10 +117,11 @@ class EvidenceServiceTest {
         String date = "WOW this shouldn't work";
         String description = "Description";
         List<WebLinkDTO> webLinks = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         long projectId = 1L;
         
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
         
         Assertions.assertThrows(
                 DateTimeParseException.class,
@@ -142,10 +141,11 @@ class EvidenceServiceTest {
         String date = LocalDate.now().plusDays(1).toString();
         String description = "Description";
         List<WebLinkDTO> webLinks = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -165,10 +165,11 @@ class EvidenceServiceTest {
         String date = LocalDate.now().minusDays(1).toString();
         String description = "Description";
         List<WebLinkDTO> webLinks = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -188,10 +189,11 @@ class EvidenceServiceTest {
         String date = LocalDate.now().toString();
         String description = "Description";
         List<WebLinkDTO> webLinks = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -211,9 +213,10 @@ class EvidenceServiceTest {
         String date = LocalDate.now().toString();
         String description = "Description";
         List<WebLinkDTO> webLinks = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         long projectId = 1L;
         
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -234,10 +237,11 @@ class EvidenceServiceTest {
         String date = LocalDate.now().toString();
         String description = "D";
         List<WebLinkDTO> webLinks = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -257,10 +261,11 @@ class EvidenceServiceTest {
         String date = LocalDate.now().toString();
         String description = "This string is exactly 31 chars".repeat(20);
         List<WebLinkDTO> webLinks = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -280,10 +285,11 @@ class EvidenceServiceTest {
         String date = LocalDate.now().toString();
         String description = "Description";
         List<WebLinkDTO> webLinks = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -303,10 +309,11 @@ class EvidenceServiceTest {
         String date = LocalDate.now().toString();
         String description = "_description_";
         List<WebLinkDTO> webLinks = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -328,10 +335,11 @@ class EvidenceServiceTest {
 
         List<WebLinkDTO> webLinks = new ArrayList<>();
         webLinks.add(new WebLinkDTO("", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
+        List<String> categories = new ArrayList<>();
 
         long projectId = 1L;
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -354,10 +362,12 @@ class EvidenceServiceTest {
         List<WebLinkDTO> webLinks = new ArrayList<>();
         webLinks.add(new WebLinkDTO("a".repeat(30), "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
 
+        List<String> categories = new ArrayList<>();
+
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -365,6 +375,120 @@ class EvidenceServiceTest {
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be 20 characters or less"));
     }
+
+
+    @Test
+    void addEvidenceWithNoCategories() throws MalformedURLException {
+        setUserToStudent();
+
+        Project project = new Project("Testing");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        String title = "title";
+        List<String> categories = new ArrayList<>();
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), categories, 1L);
+        evidenceService.addEvidence(principal, evidenceDTO);
+        ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
+        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+
+        Evidence evidence = captor.getValue();
+        Assertions.assertEquals(0, evidence.getCategories().size());
+    }
+
+
+    @Test
+    void addEvidenceWithOneCategory() throws MalformedURLException {
+        setUserToStudent();
+
+        Project project = new Project("Testing");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        String title = "title";
+        List<String> categories = new ArrayList<>();
+        categories.add("SERVICE");
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), categories, 1L);
+        evidenceService.addEvidence(principal, evidenceDTO);
+        ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
+        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+
+        Evidence evidence = captor.getValue();
+        Assertions.assertEquals(1, evidence.getCategories().size());
+        Assertions.assertTrue(evidence.getCategories().contains(Category.SERVICE));
+    }
+
+
+    @Test
+    void addEvidenceWithAllCategories() throws MalformedURLException {
+        setUserToStudent();
+
+        Project project = new Project("Testing");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        String title = "title";
+        List<String> categories = new ArrayList<>();
+        categories.add("SERVICE");
+        categories.add("QUANTITATIVE");
+        categories.add("QUALITATIVE");
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), categories, 1L);
+        evidenceService.addEvidence(principal, evidenceDTO);
+        ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
+        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+
+        Evidence evidence = captor.getValue();
+        Assertions.assertEquals(3, evidence.getCategories().size());
+        Assertions.assertTrue(evidence.getCategories().contains(Category.SERVICE));
+        Assertions.assertTrue(evidence.getCategories().contains(Category.QUANTITATIVE));
+        Assertions.assertTrue(evidence.getCategories().contains(Category.QUALITATIVE));
+    }
+
+    @Test
+    void addEvidenceCategoriesCantBeAddedTwice() throws MalformedURLException {
+        setUserToStudent();
+
+        Project project = new Project("Testing");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        String title = "title";
+        List<String> categories = new ArrayList<>();
+        categories.add("SERVICE");
+        categories.add("QUALITATIVE");
+        categories.add("QUALITATIVE");
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), categories, 1L);
+        evidenceService.addEvidence(principal, evidenceDTO);
+        ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
+        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+
+        Evidence evidence = captor.getValue();
+        Assertions.assertEquals(2, evidence.getCategories().size());
+        Assertions.assertTrue(evidence.getCategories().contains(Category.SERVICE));
+        Assertions.assertTrue(evidence.getCategories().contains(Category.QUALITATIVE));
+    }
+
+
+    @Test
+    void addEvidenceCategoriesDoesNothingWithNotExistingCategories() throws MalformedURLException {
+        setUserToStudent();
+
+        Project project = new Project("Testing");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        String title = "title";
+        List<String> categories = new ArrayList<>();
+        categories.add("NOT");
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), categories, 1L);
+        evidenceService.addEvidence(principal, evidenceDTO);
+        ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
+        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+
+        Evidence evidence = captor.getValue();
+        Assertions.assertEquals(0, evidence.getCategories().size());
+    }
+
 
     private void setUserToStudent() {
         principal = new Authentication(AuthState.newBuilder()

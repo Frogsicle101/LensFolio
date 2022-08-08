@@ -282,12 +282,15 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const description = $("#evidenceDescription").val()
         const projectId = 1
         let webLinks = getWeblinksList();
+        const categories = ["SERVICE", "QUALITATIVE"]
+
         let data = JSON.stringify({
             "title": title,
             "date": date,
             "description": description,
             "projectId": projectId,
-            "webLinks": webLinks
+            "webLinks": webLinks,
+            "categories": categories
         })
         $.ajax({
             url: `evidence`,
