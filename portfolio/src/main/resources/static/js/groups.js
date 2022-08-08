@@ -121,6 +121,8 @@ $(document).ready(function () {
              */
             drop: function () {
                 addUsers($(this).attr("id"))
+                console.log($(this).attr("id"))
+                showDraggableIcon()
             },
             tolerance: "pointer"
         })
@@ -147,6 +149,7 @@ function addDraggable() {
             return helper.append($(".selected").clone())
         },
         revert: true,
+        appendTo: "body"
     })
 }
 
