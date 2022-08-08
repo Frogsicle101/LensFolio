@@ -32,12 +32,12 @@ public class DataInitialisationManager {
      */
     public void initialiseData() {
         testGroupData.addDefaultGroups();
+        if (includeTestGroups)
+            testGroupData.addTestGroups();
         if (includeAdminAccount)
             testUserData.addAdminAccount();
         if (includeTestUsers)
             testUserData.addTestUsers();
-        if (includeTestGroups)
-            testGroupData.addTestGroups();
         if (includeTestUsers && includeTestGroups)
             testGroupData.addUsersToTestGroups();
         testGroupData.setInitialTeachersAndMWAGGroupMembers();
