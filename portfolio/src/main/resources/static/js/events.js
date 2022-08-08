@@ -4,10 +4,6 @@ $(document).ready(function () {
 
     let formControl = $(".form-control");
 
-    refreshDeadlines(projectId)
-    refreshMilestones(projectId)
-    refreshEvents(projectId)
-
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)
