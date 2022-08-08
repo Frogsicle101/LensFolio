@@ -15,14 +15,12 @@ section {
     margin-top: 4rem;
 }
 
-
 .center {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-
 
 /*Colours*/
 
@@ -38,8 +36,8 @@ section {
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
+    --background-chip-colour: #57A0D3;
 }
-
 
 /*CSS relating to Header*/
 
@@ -58,7 +56,6 @@ section {
     box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
     color: white;
 }
-
 
 /* properties of the dropdown 'zone' */
 .profileDropdown {
@@ -88,11 +85,9 @@ section {
     height: 2.5rem;
 }
 
-
 .username {
     font-weight: bold;
 }
-
 
 .dropdown-content {
     position: absolute;
@@ -115,7 +110,6 @@ section {
 .dropdown-content a:hover {
     background-color: #626262;
 }
-
 
 /*Account*/
 .accountBody {
@@ -143,7 +137,6 @@ section {
     border-radius: 100%;
 }
 
-
 #accountPageImage {
     height: 15rem;
 }
@@ -152,7 +145,6 @@ section {
     content: "*";
     color: red;
 }
-
 
 /*Login*/
 .loginSection {
@@ -176,7 +168,6 @@ section {
     align-self: flex-start;
     padding: 2rem;
 }
-
 
 /*Portfolio*/
 .projectDetails {
@@ -202,9 +193,7 @@ section {
 
 }
 
-
 /*Portfolio Project*/
-
 
 /*Porfolio - Events*/
 
@@ -290,7 +279,6 @@ section {
     color: #ff0000;
 }
 
-
 .event p {
     margin: 0;
 }
@@ -341,7 +329,6 @@ section {
     font-weight: bolder;
 }
 
-
 .beingEdited {
     border: solid 1px blue;
 }
@@ -367,7 +354,6 @@ section {
     transition: all 0.3s ease-out;
     will-change: transform;
 }
-
 
 .sprint h6 {
     color: var(--secondary-text-colour-darker);
@@ -402,7 +388,6 @@ section {
 .editSprint:hover {
     color: var(--select-green);
 }
-
 
 .noStyleButton {
     background: none;
@@ -476,7 +461,6 @@ section {
     align-self: center;
 }
 
-
 .listTable a {
     text-decoration: none;
     color: var(--main-text-color);
@@ -513,7 +497,6 @@ section {
 .tableStyled thead tr a {
     color: #f9f9f9;
 }
-
 
 .tableStyled tbody tr {
     border-bottom: 1px solid #dddddd;
@@ -566,7 +549,6 @@ section {
 .eventCalendar {
     bottom: -77px;
 }
-
 
 .calendarOccasion {
     color: black;
@@ -920,7 +902,6 @@ section {
     padding: 1.5rem;
 }
 
-
 .evidenceFormCategoryButton {
     height: 3rem;
     align-items: center;
@@ -960,7 +941,7 @@ section {
     margin-top: 1rem;
 }
 
-.webLinkForm {
+.weblink-form {
     padding-right: 1.5rem;
     align-self: flex-end;
 }
@@ -1007,4 +988,42 @@ section {
     max-height: 5rem;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+#skillChipDisplay{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-bottom: 1.5rem;
+}
+
+.skillChip{
+    padding: 0.2rem 1rem 0.2rem;
+    position: relative;
+    margin: 0.2rem;
+    background-color: var(--background-chip-colour);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: row;
+    box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+}
+
+.skillChipInvalid{
+    background-color: #ee3636;
+}
+
+.skillChipText{
+    margin: auto;
+}
+
+.chipDelete{
+    position: absolute;
+    top: -0.2rem;
+    right: -0.2rem;
+
+}
+
+.chipDelete:hover{
+    cursor: pointer;
+    color: red;
 }
