@@ -109,6 +109,7 @@ function showHighlightedEvidenceDetails() {
 function getHighlightedEvidenceDetails() {
     $.ajax({
         url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
+            console.log(response)
             setHighlightEvidenceAttributes(response)
             getHighlightedEvidenceWeblinks()
         }, error: function () {
@@ -384,7 +385,7 @@ $(document).on("keyup", "#skillsInput", function (event) {
 /**
  * Runs the remove duplicates function after a paste event has occurred on the skills input
  */
-$(document).on("paste", "#skillsInput", (event) => {
+$(document).on("paste", "#skillsInput", () => {
     setTimeout(() => removeDuplicatesFromInput($("#skillsInput")), 0)
     // Above is in a timeout so that it runs after the paste event has happened
 
@@ -535,6 +536,7 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
+    addSkillsToEvidence(evidenceDetails.skills)
 
     highlightedEvidenceTitle.show()
     highlightedEvidenceDate.show()
@@ -545,6 +547,25 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     } else {
         $(".evidenceDeleteButton").hide()
     }
+}
+
+
+/**
+ * Receives a list of skills and adds them to the focused evidence.
+ *
+ * @param skills The skills to be added.
+ */
+function addSkillsToEvidence(skills) {
+    let highlightedEvidenceSkills = $("#evidenceDetailsSkills")
+    highlightedEvidenceSkills.empty();
+
+    $.each(skills, function(skill) {
+        console.log(skill)
+        highlightedEvidenceSkills.append(`
+                <div class="skillChip">
+                    <p class="skillChipText">${skill.name}</p>
+                </div>`)
+    })
 }
 
 

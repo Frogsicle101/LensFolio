@@ -119,7 +119,7 @@ public class EvidenceController {
                 logger.info("GET REQUEST /evidence - evidence {} does not exist", evidenceId);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(evidence, HttpStatus.OK);
+            return new ResponseEntity<>(evidence.get(), HttpStatus.OK);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
