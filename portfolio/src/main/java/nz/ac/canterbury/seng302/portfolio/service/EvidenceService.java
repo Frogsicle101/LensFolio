@@ -6,23 +6,18 @@ import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.List;
-import java.util.Optional;
+
 
 /**
  * Used to differentiate the strings that are passed to the stringCheck method
@@ -42,15 +37,15 @@ public class EvidenceService {
 
     private static final String stringRegex = "[a-zA-Z0-9\s]*";
 
-    private UserAccountsClientService userAccountsClientService;
+    private final UserAccountsClientService userAccountsClientService;
 
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
 
-    private EvidenceRepository evidenceRepository;
+    private final EvidenceRepository evidenceRepository;
 
-    private WebLinkRepository webLinkRepository;
+    private final WebLinkRepository webLinkRepository;
 
-    private SkillRepository skillRepository;
+    private final SkillRepository skillRepository;
 
     @Autowired
     public EvidenceService(
@@ -65,17 +60,6 @@ public class EvidenceService {
         this.evidenceRepository = evidenceRepository;
         this.webLinkRepository = webLinkRepository;
         this.skillRepository = skillRepository;
-    }
-
-
-    /**
-     * for testing
-     *
-     * @param skillRepository the mock repository
-     */
-    public EvidenceService(SkillRepository skillRepository, EvidenceRepository evidenceRepository) {
-        this.skillRepository = skillRepository;
-        this.evidenceRepository = evidenceRepository;
     }
 
 
@@ -159,6 +143,8 @@ public class EvidenceService {
             evidence.addWebLink(webLink);
         }
 
+        this.addSkills(evidence, evidenceDTO.getSkills());
+
         for (String categoryString : categories) {
             switch (categoryString) {
                 case "SERVICE" -> evidence.addCategory(Category.SERVICE);
@@ -170,14 +156,15 @@ public class EvidenceService {
         return evidenceRepository.save(evidence);
     }
 
+
     /**SkillRepository
      *add a list of skills to a given piece of evidence
      *
      * @param evidence - The  piece of evidence
-     * @param skillNames - The list of the skills
+     * @param skills - The list of the skills
      */
-    public void addSkills(Evidence evidence, String[] skillNames) {
-        for(String skillName: skillNames){
+    public void addSkills(Evidence evidence, List<String> skills) {
+        for(String skillName: skills){
             if (skillName == null || skillName.equals("") || skillName.equals(" ")){
                 continue;
             }
