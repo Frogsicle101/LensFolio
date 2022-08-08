@@ -28,7 +28,6 @@ public interface SkillRepository extends CrudRepository<Skill, Integer> {
     @Query
     Optional<Skill> findByNameIgnoreCase(String name);
 
-
     /**
      * Find all skills by a users ID
      *
