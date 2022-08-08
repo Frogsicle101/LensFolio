@@ -300,6 +300,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
+                $(".address-alert").alert('close') // Close any web link alerts
+                $(".weblink-name-alert").alert('close')
                 resetWeblink()
             },
             error: function (error) {

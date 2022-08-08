@@ -236,7 +236,8 @@ public class EvidenceController {
      * INTERNAL_SERVER_ERROR means some other error occurred while validating the URL
      *
      * @param address - the full address to be validated
-     * @return A response entity with the required response code. Response body is the evidence is the status is OK
+     * @return A response entity with the required response code. If it is valid, the status will be OK.
+     * No response body will be returned in any instance.
      * @see java.net.URL
      */
     @GetMapping("/validateWebLink")
