@@ -173,10 +173,10 @@ function addEvidencePreviews(response) {
 function checkWeblinkCount() {
     let addWeblinkButton = $("#addWebLinkButton")
     let weblinkFullTab = $("#webLinkFull")
-    if (webLinksCount > 9){
+    if (webLinksCount > 9) {
         addWeblinkButton.hide()
         weblinkFullTab.show()
-    }else{
+    } else {
         addWeblinkButton.show()
         weblinkFullTab.hide()
     }
@@ -396,17 +396,22 @@ $(document).on("paste", "#skillsInput", (event) => {
  */
 function removeDuplicatesFromInput(input) {
     let inputArray = input.val().trim().split(/\s+/)
-
     let newArray = []
     inputArray.forEach(function (element) {
         while (element.slice(-1) === "_") {
             element = element.slice(0, -1)
         }
+        while (element.slice(0, 1) === "_") {
+            element = element.slice(1, element.length)
+        }
+        element = element.replaceAll("_", " ")
+            .replace(/\s+/g, ' ')
+            .trim()
+            .replaceAll(" ", "_")
         if (element.length > 30) { //Shortens down the elements to 30 characters
             element = element.split("").splice(0, 30).join("")
         }
         if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
-
             newArray.push(element)
         }
     })
@@ -591,9 +596,9 @@ function submitWebLink() {
     let url = $("#webLinkUrl")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
-    if (alias.val().length > 0){
-    webLinkTitle.show()
-    addedWebLinks.append(webLinkElement(url.val(), alias.val()))
+    if (alias.val().length > 0) {
+        webLinkTitle.show()
+        addedWebLinks.append(webLinkElement(url.val(), alias.val()))
 
         initialiseTooltips()
         url.val("")
@@ -601,8 +606,7 @@ function submitWebLink() {
         webLinksCount += 1
         checkWeblinkCount()
         $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
-    }
-    else{
+    } else {
         createAlert("Weblink name needs to be 1 char", true);
     }
 }
