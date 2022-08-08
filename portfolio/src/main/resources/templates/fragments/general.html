@@ -58,6 +58,12 @@
         let userRoles = /*[[${user.getRolesList()}]]*/ 'default'; /*]]>*/
         let userIdent = /*[[${user.getId()}]]*/ 'default'; /*]]>*/
     </script>
+    <div class="navButtonsDiv">
+        <a class="portfolio" th:href="@{portfolio?projectId=1}" >Project</a>
+        <a th:href="@{calendar?projectId=1}">Calendar</a>
+        <a th:href="@{groups}">Groups</a>
+        <a th:href="@{user-list}">Users</a>
+    </div>
     <div class="profileNav" id="navbar">
         <div class="profileDropdown" th:object="${user}">
             <img alt="Your profile photo!" class="profilePic" id="profile" th:if="${user != null}"
@@ -71,11 +77,7 @@
         <div>
             <div class="dropdown-content" id="dropdownContent" style="display: none">
                 <a class="account" th:href="@{account}">Account</a>
-                <a class="portfolio" th:href="@{portfolio?projectId=1}" >Portfolio</a>
-                <a th:href="@{calendar?projectId=1}">Calendar</a>
-                <a th:href="@{groups}">Groups</a>
-                <a th:href="@{user-list}">View Users</a>
-                <a class="logout" href="logout">Log Out</a><br>
+                <a class="logout" href="logout">Log Out</a>
             </div>
         </div>
     </div>
