@@ -157,11 +157,11 @@ public class EvidenceService {
     }
 
 
-    /**SkillRepository
-     *add a list of skills to a given piece of evidence
+    /**
+     * Add a list of skills to a given piece of evidence
      *
      * @param evidence - The  piece of evidence
-     * @param skills - The list of the skills
+     * @param skills - The list of the skills in string form
      */
     public void addSkills(Evidence evidence, List<String> skills) {
         for(String skillName: skills){
