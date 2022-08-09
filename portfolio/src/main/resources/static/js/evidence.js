@@ -618,7 +618,8 @@ function addSkillsToEvidence(skills) {
     let highlightedEvidenceSkills = $("#evidenceDetailsSkills")
     highlightedEvidenceSkills.empty();
 
-    skills.sort((a, b) => a.name < b.name ? 1 : -1)
+    // Sorts in alphabetical order
+    skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
 
     $.each(skills, function (i) {
         highlightedEvidenceSkills.append(`
