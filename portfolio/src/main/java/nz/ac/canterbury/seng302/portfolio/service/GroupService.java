@@ -13,6 +13,9 @@ import java.util.List;
 public class GroupService {
 
     /** The ID of the default teacher group */
+    private static final int MWAG_GROUP_ID = 2;
+
+    /** The ID of the default teacher group */
     private static final int TEACHER_GROUP_ID = 1;
 
     /** Used to add / remove users from groups */
@@ -28,7 +31,8 @@ public class GroupService {
     }
 
     /**
-     * Add users to the given group, assigning roles as needed
+     * Add users to the given group, assigning or removing roles as needed
+     *
      * @param groupId The group to add the users to
      * @param userIds The users to add to the group
      * @return A response message as defined in the protobuf
@@ -41,6 +45,15 @@ public class GroupService {
                         .setUserId(userId)
                         .build();
                 userAccountsClientService.addRoleToUser(request);
+            }
+        }
+        if (groupId == MWAG_GROUP_ID) {
+            for (Integer userId: userIds) {
+                ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
+                        .setRole(UserRole.TEACHER)
+                        .setUserId(userId)
+                        .build();
+                userAccountsClientService.removeRoleFromUser(request);
             }
         }
         AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder()

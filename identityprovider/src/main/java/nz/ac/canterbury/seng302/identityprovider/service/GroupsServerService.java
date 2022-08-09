@@ -135,7 +135,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         logger.info("SERVICE - modify group details for group with group id {}", request.getGroupId());
         ModifyGroupDetailsResponse.Builder response = ModifyGroupDetailsResponse.newBuilder().setIsSuccess(true);
         try {
-
             boolean validModification = checkIfValidGroupModification(request, response);
 
             if (validModification) {
@@ -153,7 +152,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             logger.error("An error occurred editing modify group request: {} \n See stack trace below \n", request );
             logger.error(err.getMessage());
             response.setIsSuccess(false)
-                    .setMessage("An error occurred editing modify group request");
+                    .setMessage("Unable to edit the group. Ensure the new names are valid");
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();

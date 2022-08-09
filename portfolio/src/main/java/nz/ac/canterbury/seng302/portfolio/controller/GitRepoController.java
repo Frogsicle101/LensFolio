@@ -88,7 +88,8 @@ public class GitRepoController {
         } catch (RuntimeException exception) {
             logger.error("ERROR /gitRepo/add - an error occurred while adding git repo {} to group {}", alias, groupId);
             logger.error(exception.getMessage());
-            return new ResponseEntity<>("Unable to edit the git repository information", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Unable to edit the repository information. \n" +
+                    "Check the new information is valid", HttpStatus.BAD_REQUEST);
         }
     }
 
