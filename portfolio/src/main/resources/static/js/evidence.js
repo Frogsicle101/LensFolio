@@ -678,7 +678,6 @@ function webLinkElement(url, alias) {
             <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
             data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
             <div class="addedWebLinkUrl" style="visibility: hidden">${url}</div>
-
         </div>
     `)
 }
