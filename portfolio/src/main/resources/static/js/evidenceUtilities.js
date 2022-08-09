@@ -62,11 +62,8 @@ function showHighlightedEvidenceDetails() {
 function setHighlightedEvidenceWebLinks(response) {
     let webLinksDiv = $("#evidenceWebLinks")
     webLinksDiv.empty()
-    console.log("hi")
-    console.log(response)
 
     for (let index in response) {
-        console.log(index)
         let webLink = response[index]
         webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
     }
@@ -91,7 +88,6 @@ function webLinkElement(url, alias) {
     let icon;
     let security = "unsecured"
 
-    console.log(alias)
     if (url.startsWith("https://")) {
         security = "secured"
         icon = `
@@ -135,7 +131,6 @@ function webLinkElement(url, alias) {
 function getHighlightedEvidenceDetails() {
     $.ajax({
         url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
-            console.log(response)
             setHighlightEvidenceAttributes(response)
             getHighlightedEvidenceWeblinks()
         }, error: function () {
@@ -152,6 +147,7 @@ function getHighlightedEvidenceDetails() {
 function getHighlightedEvidenceWeblinks() {
     $.ajax({
         url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId, success: function (response) {
+            console.log(response)
             setHighlightedEvidenceWebLinks(response)
         }, error: function (response) {
             if (response.status !== 404) {
@@ -222,7 +218,6 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
 function addSkillsToEvidence(skills) {
     let highlightedEvidenceSkills = $("#evidenceDetailsSkills")
     highlightedEvidenceSkills.empty();
-    console.log(skills)
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
 
@@ -243,7 +238,7 @@ function addSkillsToEvidence(skills) {
  */
 function createEvidencePreview(evidence) {
     return `
-        <div class="box ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
+        <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
             <div class="row evidenceListItemHeader">
                 <p class="evidenceId" style="display: none">${evidence.id}</p>
                 <p class="col evidenceListItemTitle">${evidence.title}</p>

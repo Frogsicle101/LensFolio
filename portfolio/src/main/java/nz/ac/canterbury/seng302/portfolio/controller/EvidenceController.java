@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Controller for all the Evidence based end points
@@ -183,7 +184,7 @@ public class EvidenceController {
                 logger.info("GET REQUEST /evidence - evidence {} does not exist", evidenceId);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            List<WebLink> webLinks = evidence.get().getWebLinks();
+            Set<WebLink> webLinks = evidence.get().getWebLinks();
             return new ResponseEntity<>(webLinks, HttpStatus.OK);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());

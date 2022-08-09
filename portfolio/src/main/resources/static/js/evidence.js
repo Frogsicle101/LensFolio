@@ -67,21 +67,6 @@ function getAndAddEvidencePreviews() {
 
 
 /**
- * Takes the response from an evidence list get request and adds the evidence previews to the left
- * side of the page.
- *
- * @param response - The response from GET /evidenceData
- */
-function addEvidencePreviews(response) {
-    let evidencePreviewsContainer = $("#evidenceList")
-    evidencePreviewsContainer.empty()
-    for (let pieceOfEvidence in response) {
-        evidencePreviewsContainer.append(createEvidencePreview(response[pieceOfEvidence]))
-    }
-}
-
-
-/**
  * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
  */
 function checkWeblinkCount() {

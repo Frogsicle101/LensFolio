@@ -40,11 +40,22 @@ function showEvidenceWithSkill() {
     $.ajax({
         url: "evidenceLinkedToSkill?skillName=" + selectedSkill, success: function (response) {
             addEvidencePreviews(response)
+            updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
             createAlert(error.responseText, true)
         }
     })
+}
+
+
+function updateSelectedEvidence() {
+    let previouslySelectedDiv = $(".selectedEvidence")
+    previouslySelectedDiv.removeClass("selectedEvidence")
+
+    let evidenceElements = $("#evidenceList").children()
+    evidenceElements.first().addClass("selectedEvidence")
+    selectedEvidenceId = evidenceElements.first().find(".evidenceId").text()
 }
 
 
