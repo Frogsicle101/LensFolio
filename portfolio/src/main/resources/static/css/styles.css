@@ -32,7 +32,8 @@ section {
 }
 
 .navButtonsDiv {
-    align-items: left;
+    align-items: flex-start;
+    margin-left: 1rem;
 }
 
 .navButtonsDiv a {
@@ -42,7 +43,7 @@ section {
     padding: 19px 16px;
     text-decoration: none;
     font-size: 17px;
-    border-right
+    border-right: var(--main-border-colour);
 }
 
 /* Change the color of links on hover */
@@ -740,7 +741,7 @@ section {
     margin: 1rem;
 }
 
-.userRow:hover{
+.clickableRow:hover{
     cursor: pointer;
 }
 

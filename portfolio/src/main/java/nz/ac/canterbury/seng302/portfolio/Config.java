@@ -2,6 +2,8 @@ package nz.ac.canterbury.seng302.portfolio;
 
 import nz.ac.canterbury.seng302.portfolio.service.GroupSettingsInterceptor;
 import nz.ac.canterbury.seng302.portfolio.service.RoleBasedIntercepter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -10,7 +12,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
+@ComponentScan
 public class Config implements WebMvcConfigurer {
+
+    /**
+     * The Role based interceptor is initialised this way to register it as a bean.
+     * This means that we can autowire in the useful services to the interceptors.
+     *
+     * @return The new roleBasedInterceptor Bean
+     */
+    @Bean
+    public RoleBasedIntercepter roleBasedIntercepter() {
+        return new RoleBasedIntercepter();
+    }
+
+
+    /**
+     * The Group Settings interceptor is initialised this way to register it as a bean.
+     * This means that we can autowire in the useful services to the interceptors.
+     *
+     * @return The new GroupSettingsInterceptor Bean
+     */
+    @Bean
+    public GroupSettingsInterceptor groupSettingsInterceptor() {
+        return new GroupSettingsInterceptor();
+    }
+
 
     /**
      * This will intercept all the endpoints that we specify in the method and run them through RoleBasedInterceptor
@@ -56,7 +83,7 @@ public class Config implements WebMvcConfigurer {
 
 
         //Groups
-        pathsToInterceptForRoleBased.add("/groups/addUser");
+        pathsToInterceptForRoleBased.add("/groups/addUsers");
         pathsToInterceptForRoleBased.add("/groups/removeUsers");
         pathsToInterceptForRoleBased.add("/groups/edit");
 
@@ -65,7 +92,8 @@ public class Config implements WebMvcConfigurer {
         pathsToInterceptForGroupSettings.add("/editGitRepo");
         pathsToInterceptForGroupSettings.add("/getRepo");
 
-        registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToInterceptForRoleBased);
-        registry.addInterceptor(new GroupSettingsInterceptor()).addPathPatterns(pathsToInterceptForGroupSettings);
+
+        registry.addInterceptor(roleBasedIntercepter()).addPathPatterns(pathsToInterceptForRoleBased);
+        registry.addInterceptor(groupSettingsInterceptor()).addPathPatterns(pathsToInterceptForGroupSettings);
     }
 }

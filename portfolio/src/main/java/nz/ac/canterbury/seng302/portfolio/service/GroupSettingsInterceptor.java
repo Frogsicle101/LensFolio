@@ -4,13 +4,12 @@ import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetGroupDetailsRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -22,29 +21,19 @@ import java.util.List;
 public class GroupSettingsInterceptor implements HandlerInterceptor {
 
     /** To get the users information */
+    @Autowired
     public AuthenticateClientService authenticateClientService;
 
+    /** To get the users information */
+    @Autowired
+    public UserAccountsClientService userAccountsClientService;
+
     /** The client side service to request groups information from the IdP */
+    @Autowired
     private GroupsClientService groupsClientService;
 
     /** To log when the checks are made */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-
-    /**
-     * Gets the AuthenticateClientService as the bean is not injected
-     *
-     * @param request - The httpServlet request
-     * @return the AuthenticateClientService instance
-     */
-    private AuthenticateClientService getAuthenticateClientService(HttpServletRequest request) {
-        if (authenticateClientService == null) {
-            ServletContext servletContext = request.getServletContext();
-            WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-            authenticateClientService = webApplicationContext.getBean(AuthenticateClientService.class);
-        }
-        return authenticateClientService;
-    }
 
 
     /**
@@ -65,27 +54,22 @@ public class GroupSettingsInterceptor implements HandlerInterceptor {
         logger.info("GroupSettingsIntercepter: GroupSettingsIntercepter has been called for this endpoint: {}", request.getRequestURI());
 
         try {
-            ServletContext servletContext = request.getServletContext();
-            WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-            authenticateClientService = webApplicationContext.getBean(AuthenticateClientService.class);
-            AuthState authState = getAuthenticateClientService(request).checkAuthState();
-
-            groupsClientService = webApplicationContext.getBean(GroupsClientService.class);
+            AuthState principal = authenticateClientService.checkAuthState();
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal, userAccountsClientService);
 
             int groupId = Integer.parseInt(request.getParameter("groupId"));
-
             GetGroupDetailsRequest getGroupDetailsRequest = GetGroupDetailsRequest.newBuilder().setGroupId(groupId).build();
-            List<UserResponse> userResponse = groupsClientService.getGroupDetails(getGroupDetailsRequest).getMembersList();
-            int userId = PrincipalAttributes.getIdFromPrincipal(authState);
-            logger.info("Checking user {} is in group {}", userId, groupId);
-            for (UserResponse user : userResponse) {
-                if (user.getId() == userId) {
+            List<UserResponse> users = groupsClientService.getGroupDetails(getGroupDetailsRequest).getMembersList();
+
+            logger.info("Checking user {} is in group {}", user.getId(), groupId);
+            for (UserResponse userInGroup : users) {
+                if (userInGroup.getId() == user.getId()) {
                     return true;
                 }
             }
 
-            String roles = PrincipalAttributes.getClaim(authState, "role");
-            if (roles.contains("teacher") || roles.contains("course_administrator")) {
+            List<UserRole> usersRoles = user.getRolesList();
+            if (usersRoles.contains(UserRole.TEACHER) || usersRoles.contains(UserRole.COURSE_ADMINISTRATOR)) {
                 return true;
             } else {
                 response.sendError(401);
