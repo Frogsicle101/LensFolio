@@ -6,7 +6,6 @@ import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
-import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,10 +48,6 @@ public class CategoryControllerTest {
     @MockBean
     private EvidenceRepository evidenceRepository;
 
-    @MockBean
-    private CategoryRepository categoryRepository;
-
-
 
     @Test
     void testGetEvidenceByCategoryWhenNoEvidence() throws Exception {
@@ -66,8 +61,8 @@ public class CategoryControllerTest {
         Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(new ArrayList<>());
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
-                        .queryParam("userId", existingUserId)
-                        .queryParam("category", category))
+                        .param("userId", String.valueOf(existingUserId))
+                        .param("category", String.valueOf(category)))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -81,18 +76,18 @@ public class CategoryControllerTest {
         setUpContext();
         initialiseGetRequestMocks();
         int existingUserId = 1;
-        Category category = Category.SERVICE;
+        Category category = Category.QUANTITATIVE;
         ArrayList<Evidence> evidences = new ArrayList<>();
         Evidence evidence1 = new Evidence(1, 1, "Title", LocalDate.now(), "description");
         evidences.add(evidence1);
-        String expectedContent = "[]";
+        String expectedContent = "["+evidence1.toJsonString()+"]";
 
 
         Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(evidences);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
-                        .queryParam("userId", existingUserId)
-                        .queryParam("category", category))
+                        .param("userId", String.valueOf(existingUserId))
+                        .param("category", String.valueOf(category)))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -112,56 +107,13 @@ public class CategoryControllerTest {
         Evidence evidence2 = new Evidence(1, 1, "Title", LocalDate.now(), "description");
         evidences.add(evidence1);
         evidences.add(evidence2);
-        String expectedContent = "[]";
+        String expectedContent = "["+evidence1.toJsonString()+"," + evidence1.toJsonString() +"]";
 
         Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(evidences);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
-                        .queryParam("userId", existingUserId)
-                        .queryParam("category", category))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String responseContent = result.getResponse().getContentAsString();
-        Assertions.assertEquals(expectedContent, responseContent);
-    }
-
-
-    @Test
-    void testGetEvidenceByCategoryWhenCategoryNotValid() throws Exception {
-        setUserToStudent();
-        setUpContext();
-        initialiseGetRequestMocks();
-        String existingUserId = 1;
-        Category category = Category.SERVICE;
-        String expectedContent = "[]";
-
-        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(evidences);
-
-        MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
-                        .queryParam("userId", existingUserId)
-                        .queryParam("category", category))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String responseContent = result.getResponse().getContentAsString();
-        Assertions.assertEquals(expectedContent, responseContent);
-    }
-
-    @Test
-    void testGetEvidenceByCategoryWhenUseNotExist() throws Exception {
-        setUserToStudent();
-        setUpContext();
-        initialiseGetRequestMocks();
-        String existingUserId = "1";
-        Category category = Category.SERVICE;
-        String expectedContent = "[]";
-
-        Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(new ArrayList<>());
-
-        MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
-                        .queryParam("userId", existingUserId)
-                        .queryParam("category", category))
+                        .param("userId", String.valueOf(existingUserId))
+                        .param("category", String.valueOf(category)))
                 .andExpect(status().isOk())
                 .andReturn();
 
