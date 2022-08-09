@@ -108,7 +108,7 @@ function showHighlightedEvidenceDetails() {
 function getHighlightedEvidenceDetails() {
     $.ajax({
         url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
-            console.log(response)
+            // Log this in future
             setHighlightEvidenceAttributes(response)
             getHighlightedEvidenceWeblinks()
         }, error: function () {
