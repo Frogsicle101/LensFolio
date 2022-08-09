@@ -556,7 +556,7 @@ $(document).on('click', '.addedWebLinkName', function () {
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
- * @param evidenceDetails The title, date, and description for a piece of evidence.
+ * @param evidenceDetails The title, date, description, and skills for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
@@ -586,13 +586,10 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
  * @param skills The skills to be added.
  */
 function addSkillsToEvidence(skills) {
-    console.log(skills)
     let highlightedEvidenceSkills = $("#evidenceDetailsSkills")
     highlightedEvidenceSkills.empty();
 
     $.each(skills, function (i) {
-        console.log(skills[i])
-        console.log(skills[i].name)
         highlightedEvidenceSkills.append(`
                 <div class="skillChip">
                     <p class="skillChipText">${skills[i].name}</p>
