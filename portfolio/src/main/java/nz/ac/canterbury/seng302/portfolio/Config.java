@@ -69,11 +69,13 @@ public class Config implements WebMvcConfigurer {
         pathsToInterceptForRoleBased.add("/groups/addUsers");
         pathsToInterceptForRoleBased.add("/groups/removeUsers");
         pathsToInterceptForRoleBased.add("/groups/edit");
+        pathsToInterceptForGroupSettings.add("/groups/edit/longName");
 
 
         //GitSettings
         pathsToInterceptForGroupSettings.add("/editGitRepo");
         pathsToInterceptForGroupSettings.add("/getRepo");
+        pathsToInterceptForRoleBased.add("/groups/edit/details");
 
 
         registry.addInterceptor(roleBasedIntercepter).addPathPatterns(pathsToInterceptForRoleBased);
