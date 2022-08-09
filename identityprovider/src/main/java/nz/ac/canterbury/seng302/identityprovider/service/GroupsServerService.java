@@ -55,18 +55,24 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     public void createGroup(CreateGroupRequest request, StreamObserver<CreateGroupResponse> responseObserver) {
         logger.info("SERVICE - Creating group {}", request.getShortName());
         CreateGroupResponse.Builder response = CreateGroupResponse.newBuilder().setIsSuccess(true);
+        try {
+            List<ValidationError> errors = checkValidGroup(request.getShortName(), request.getLongName(), null);
+            if (!errors.isEmpty()) {
+                errors.forEach(response::addValidationErrors);
+                response.setIsSuccess(false).setMessage(errors.get(0).getErrorText());
+            }
 
-        List<ValidationError> errors = checkValidGroup(request.getShortName(), request.getLongName(), null);
-        if (!errors.isEmpty()) {
-            errors.forEach(response::addValidationErrors);
-            response.setIsSuccess(false).setMessage(errors.get(0).getErrorText());
+            if (response.getIsSuccess()) {
+                Group group = groupRepository.save(new Group(request.getShortName(), request.getLongName()));
+                response.setNewGroupId(group.getId())
+                        .setMessage("Group created");
+            }
+        } catch (Exception exception) {
+            logger.error("SERVICE createGroup caught exception");
+            logger.error(exception.getMessage());
+            response.setIsSuccess(false).setMessage("Unable to create group. Check names and try again.");
         }
 
-        if (response.getIsSuccess()) {
-            Group group = groupRepository.save(new Group(request.getShortName(), request.getLongName()));
-            response.setNewGroupId(group.getId())
-                    .setMessage("Group created");
-        }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }

@@ -241,7 +241,7 @@ public class GroupsController {
 
         // Checks if the user trying to edit is a member of the group being edited
         if (!response.getMembersList().stream().map(UserResponse::getId).toList().contains(userId)){
-            return new ResponseEntity<>("Error: Only members of this group can edit the name", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Only members of this group can edit the name", HttpStatus.UNAUTHORIZED);
         }
 
         return groupEdit(groupId, response.getShortName(), longName);
