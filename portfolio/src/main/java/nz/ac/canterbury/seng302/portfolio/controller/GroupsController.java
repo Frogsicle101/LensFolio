@@ -17,7 +17,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -194,7 +193,7 @@ public class GroupsController {
         } catch (Exception e) {
             logger.error("ERROR /groups/edit - an error occurred while creating a group");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Unable to create group " + createInfo.getShortName(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -252,6 +251,7 @@ public class GroupsController {
     /**
      * An extracted helper method that makes a request to the identity provider
      * to modify a group's details.
+     *
      * @param groupId The id of the group to be modified
      * @param shortName The new short name of the group. Use "" to leave it unmodified.
      * @param longName The new long name of the group.
@@ -315,7 +315,7 @@ public class GroupsController {
     @DeleteMapping("/groups/removeUsers")
     public ResponseEntity<String> removeUsersFromGroup(
             @RequestParam(value = "groupId") Integer groupId,
-            @RequestParam(value = "userIds") ArrayList<Integer> userIds
+            @RequestParam(value = "userIds") List<Integer> userIds
     ) {
         logger.info("DELETE REQUEST /groups/removeUsers");
 

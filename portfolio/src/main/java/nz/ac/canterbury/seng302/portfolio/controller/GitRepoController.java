@@ -4,7 +4,6 @@ import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepoRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepository;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetGroupDetailsRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
 import org.slf4j.Logger;
@@ -37,8 +36,6 @@ public class GitRepoController {
     @Autowired
     private GroupsClientService groupsClientService;
 
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
 
     /**
      * Mapping for a post request to add a git repository to a group. Restricted to group members,teachers, and admin.
@@ -91,7 +88,7 @@ public class GitRepoController {
         } catch (RuntimeException exception) {
             logger.error("ERROR /gitRepo/add - an error occurred while adding git repo {} to group {}", alias, groupId);
             logger.error(exception.getMessage());
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Unable to edit the git repository information", HttpStatus.BAD_REQUEST);
         }
     }
 

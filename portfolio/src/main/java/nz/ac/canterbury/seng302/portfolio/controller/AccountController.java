@@ -16,7 +16,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-
 /**
  * Controller class for the account page.
  *
@@ -183,7 +182,7 @@ public class AccountController {
                 || nickname != null && !nickname.matches(ALPHA_SPACES_REGEX_CAN_BE_EMPTY)
                 || middlename != null && !middlename.matches(ALPHA_SPACES_REGEX_CAN_BE_EMPTY)
                 || pronouns != null && !pronouns.matches(PRONOUN_REGEX)) {
-            return new ResponseEntity<>("Field(s) not matching patterns", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Field(s) not matching patterns", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);

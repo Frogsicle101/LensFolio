@@ -31,9 +31,9 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     @Autowired
     private GroupService groupService;
 
-    private final int MAX_SHORT_NAME_LENGTH = 50;
-    private final int MAX_LONG_NAME_LENGTH = 100;
-    private final int MIN_LENGTH = 1;
+    private static final int MAX_SHORT_NAME_LENGTH = 50;
+    private static final int MAX_LONG_NAME_LENGTH = 100;
+    private static final int MIN_LENGTH = 1;
 
     /** GroupShortName Comparator */
     Comparator<Group> compareByShortName = Comparator.comparing((Group group) -> group.getShortName().toLowerCase(Locale.ROOT));
@@ -57,7 +57,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         CreateGroupResponse.Builder response = CreateGroupResponse.newBuilder().setIsSuccess(true);
 
         List<ValidationError> errors = checkValidGroup(request.getShortName(), request.getLongName(), null);
-        if (errors.size() > 0) {
+        if (!errors.isEmpty()) {
             errors.forEach(response::addValidationErrors);
             response.setIsSuccess(false).setMessage(errors.get(0).getErrorText());
         }
@@ -65,7 +65,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         if (response.getIsSuccess()) {
             Group group = groupRepository.save(new Group(request.getShortName(), request.getLongName()));
             response.setNewGroupId(group.getId())
-                    .setMessage("Created");
+                    .setMessage("Group created");
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
@@ -149,16 +149,14 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                         .setMessage("Successfully updated details for " + group.getShortName());
                 logger.info("Group Modify Success - updated group details for group {}", request.getGroupId());
             }
-
-            responseObserver.onNext(response.build());
-            responseObserver.onCompleted();
-
         } catch (Exception err) {
             logger.error("An error occurred editing modify group request: {} \n See stack trace below \n", request );
             logger.error(err.getMessage());
             response.setIsSuccess(false)
                     .setMessage("An error occurred editing modify group request");
         }
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
     }
 
 
@@ -282,23 +280,21 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
      */
     @Override
     public void getMembersWithoutAGroup(Empty request, StreamObserver<GroupDetailsResponse> responseObserver) {
-        {
-            logger.info("SERVICE - Getting MWAG group");
-            GroupDetailsResponse response;
-            try {
-                Optional<Group> group = groupRepository.findByShortName("Non-Group");
-                if (group.isPresent()) {
-                    response = group.get().groupDetailsResponse();
-                } else {
-                    response = GroupDetailsResponse.newBuilder().setGroupId(-1).build();
-                }
-                responseObserver.onNext(response);
-                responseObserver.onCompleted();
-            } catch (Exception err) {
-                logger.error("SERVICE - Getting MWAG group: {}", err.getMessage());
-                responseObserver.onNext(GroupDetailsResponse.newBuilder().setGroupId(-1).build());
-                responseObserver.onCompleted();
+        logger.info("SERVICE - Getting MWAG group");
+        GroupDetailsResponse response;
+        try {
+            Optional<Group> group = groupRepository.findByShortName("Non-Group");
+            if (group.isPresent()) {
+                response = group.get().groupDetailsResponse();
+            } else {
+                response = GroupDetailsResponse.newBuilder().setGroupId(-1).build();
             }
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception err) {
+            logger.error("SERVICE - Getting MWAG group: {}", err.getMessage());
+            responseObserver.onNext(GroupDetailsResponse.newBuilder().setGroupId(-1).build());
+            responseObserver.onCompleted();
         }
     }
 
@@ -324,7 +320,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
                 request.getGroupId()
         );
 
-        if (errors.size() > 0) {
+        if (!errors.isEmpty()) {
             errors.forEach(response::addValidationErrors);
             response.setIsSuccess(false).setMessage(errors.get(0).getErrorText());
         }
