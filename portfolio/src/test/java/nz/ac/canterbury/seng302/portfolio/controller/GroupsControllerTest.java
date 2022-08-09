@@ -8,6 +8,8 @@ import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.ValidationError;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -27,6 +29,7 @@ import org.springframework.util.MultiValueMap;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,6 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class GroupsControllerTest {
 
     private Authentication principal;
+
+    private UserResponse idpUser;
 
     @Autowired
     private MockMvc mockMvc;
@@ -442,6 +447,9 @@ class GroupsControllerTest {
                 .addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build())
                 .addClaims(ClaimDTO.newBuilder().setType("role").setValue("student").build())
                 .build());
+        idpUser = UserResponse.newBuilder().setId(1).addRoles(UserRole.STUDENT).build();
+
+        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(idpUser);
     }
 
 
@@ -453,6 +461,9 @@ class GroupsControllerTest {
                 .addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build())
                 .addClaims(ClaimDTO.newBuilder().setType("role").setValue("course_administrator").build())
                 .build());
+        idpUser = UserResponse.newBuilder().setId(1).addRoles(UserRole.COURSE_ADMINISTRATOR).build();
+
+        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(idpUser);
     }
 
 

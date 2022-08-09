@@ -10,6 +10,9 @@ const MWAG_GROUP_ID = 2
 
 $(document).ready(function () {
     let arrayOfSelected = []
+    if (!checkPrivilege()) {
+        return
+    }
 
     /**
      * JQuery UI Selectable interaction
@@ -171,8 +174,8 @@ function addUsers(groupId) {
             displayGroupUsersList()
             createAlert("User(s) moved", false)
         },
-        error: function (response) {
-            // Log this
+        error: function () {
+            createAlert("Couldn't move users", true)
         }
     })
 }
@@ -293,8 +296,8 @@ function displayGroupUsersList() {
             checkToSeeIfHideOrShowOptions()
             checkEditRights(response)
         },
-        error: (error) => {
-            createAlert(error.responseText, true)
+        error: () => {
+            createAlert("Couldn't retrieve users", true)
         }
     })
 }
@@ -318,7 +321,7 @@ function appendMembersToGroup(group) {
         }
 
         membersContainer.append(`
-                    <tr class="userRow" userId=${user.id}>
+                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${user.id}>
                         <td class="userRowId">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-grip-vertical dragGrip" style="display: none" viewBox="0 0 16 16">
                                     <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
@@ -556,8 +559,8 @@ $(document).on("click", ".deleteButton", function () {
             type: "delete",
             success: function () {
                 window.location.reload()
-            }, error: function (error) {
-                createAlert(error.responseText, true)
+            }, error: function () {
+                createAlert("Couldn't delete the group", true)
             }
         })
     }
@@ -620,8 +623,8 @@ $(document).on("submit", "#editGroupForm", function (event) {
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
         },
-        error: (error) => {
-            createAlert(error.responseText, true)
+        error: () => {
+            createAlert("Couldn't edit the group details", true)
         }
     })
 })
@@ -648,8 +651,8 @@ $(document).on("click", "#confirmRemoval", function () {
             displayGroupUsersList()
             createAlert("User removed", false)
         },
-        error: (error) => {
-            console.log(error);
+        error: () => {
+            createAlert("Couldn't remove users from group", true)
         }
     })
     $("#confirmationForm").slideUp();
