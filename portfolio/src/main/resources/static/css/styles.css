@@ -1008,3 +1008,42 @@ section {
     overflow-y: auto;
     overflow-x: hidden;
 }
+
+
+#skillChipDisplay, #evidenceDetailsSkills, #evidenceCategories{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-bottom: 1.5rem;
+}
+
+
+.skillChip{
+    padding: 0.2rem 1rem 0.2rem;
+    position: relative;
+    margin: 0.2rem;
+    background-color: var(--background-chip-colour);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: row;
+    box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+}
+
+.skillChipInvalid{
+    background-color: #ee3636;
+}
+
+.skillChipText{
+    margin: auto;
+}
+.chipDelete{
+    position: absolute;
+    top: -0.2rem;
+    right: -0.2rem;
+
+}
+
+.chipDelete:hover{
+    cursor: pointer;
+    color: red;
+}

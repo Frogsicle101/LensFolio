@@ -34,6 +34,12 @@ let skillsArray = [
     "Scheme"
 ]
 
+let categoriesMapping = new Map([
+    ["SERVICE", "Service"],
+    ["QUALITATIVE", "Qualitative"],
+    ["QUANTITATIVE", "Quantitative"]
+])
+
 
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
@@ -466,12 +472,28 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.show()
     highlightedEvidenceDate.show()
     highlightedEvidenceDescription.show()
+    addCategoriesToEvidence(evidenceDetails.categories)
 
     if (userBeingViewedId === userIdent) {
         $(".evidenceDeleteButton").show()
     } else {
         $(".evidenceDeleteButton").hide()
     }
+}
+
+
+function addCategoriesToEvidence(categories) {
+    let highlightedEvidenceCategories = $("#evidenceCategories")
+        highlightedEvidenceCategories.empty();
+
+        $.each(categories, function(category) {
+            let categoryText = categoriesMapping.get(categories[category]);
+
+            highlightedEvidenceCategories.append(`
+                    <div class="skillChip">
+                        <p class="skillChipText">${categoryText}</p>
+                    </div>`)
+        })
 }
 
 
