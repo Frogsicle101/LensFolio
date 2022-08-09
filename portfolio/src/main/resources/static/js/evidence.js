@@ -11,6 +11,12 @@ let webLinksCount = 0;
 
 let skillsArray = ["ActionScript", "AppleScript", "Asp", "BASIC", "C", "C++", "Clojure", "COBOL", "ColdFusion", "Erlang", "Fortran", "Groovy", "Haskell", "Java", "JavaScript", "Lisp", "Perl", "PHP", "Python", "Ruby", "Scala", "Scheme"]
 
+let categoriesMapping = new Map([
+    ["SERVICE", "Service"],
+    ["QUALITATIVE", "Qualitative"],
+    ["QUANTITATIVE", "Quantitative"]
+])
+
 
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
@@ -273,16 +279,17 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const description = $("#evidenceDescription").val()
         const projectId = 1
         let webLinks = getWeblinksList();
+        const categories = getCategories();
 
         const skills = $("#skillsInput").val().split(" ");
         $.each(skills, function (i) {
             skills[i] = skills[i].replace("_", " ")
         })
 
-        const categories = getCategories();
+
         let data = JSON.stringify({
             "title": title,
-            "date": date, 
+            "date": date,
             "description": description,
             "projectId": projectId,
             "webLinks": webLinks,
@@ -468,7 +475,7 @@ function removeDuplicatesFromInput(input) {
 }
 
 
-/** 
+/**
  * The below listeners trigger the rendering of the skill chips
  */
 $(document).on("change", "#skillsInput", () => displaySkillChips())
@@ -586,11 +593,41 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.show()
     highlightedEvidenceDate.show()
     highlightedEvidenceDescription.show()
+    addCategoriesToEvidence(evidenceDetails.categories)
 
     if (userBeingViewedId === userIdent) {
         $(".evidenceDeleteButton").show()
     } else {
         $(".evidenceDeleteButton").hide()
+    }
+}
+
+
+/**
+ * A function to display all the categories for a piece of evidence
+ *
+ * @param categories A list of categories associated with a piece of evidence
+ */
+function addCategoriesToEvidence(categories) {
+    let highlightedEvidenceCategories = $("#evidenceChipsSection")
+    let evidenceCategoryTitle = $("#evidenceCategoriesTitle")
+
+    evidenceCategoryTitle.empty();
+    highlightedEvidenceCategories.empty();
+
+    if (categories.length === 0) {
+        evidenceCategoryTitle.append(`<h5>No Categories</h5>`)
+    } else {
+    evidenceCategoryTitle.append(`<h5>Categories:</h5>`)
+
+    $.each(categories, function(category) {
+        let categoryText = categoriesMapping.get(categories[category]);
+
+        highlightedEvidenceCategories.append(`
+                <div class="categoryChip">
+                    <p class="skillChipText">${categoryText}</p>
+                </div>`)
+    })
     }
 }
 
