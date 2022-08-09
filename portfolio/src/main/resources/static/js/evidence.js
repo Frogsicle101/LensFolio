@@ -281,8 +281,20 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         let webLinks = getWeblinksList();
         const categories = getCategories();
 
+        const skills = $("#skillsInput").val().split(" ");
+        $.each(skills, function (i) {
+            skills[i] = skills[i].replace("_", " ")
+        })
+
+
         let data = JSON.stringify({
-            "title": title, "date": date, "description": description, "projectId": projectId, "webLinks": webLinks, "categories": categories, "skills": []
+            "title": title,
+            "date": date,
+            "description": description,
+            "projectId": projectId,
+            "webLinks": webLinks,
+            "skills": skills,
+            "categories": categories
         })
         $.ajax({
             url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
@@ -428,6 +440,7 @@ $(document).on("paste", "#skillsInput", (event) => {
 /**
  * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
  * exist in it, it checks for case insensitivity as well.
+ *
  * @param input the jQuery call to the input to check
  */
 function removeDuplicatesFromInput(input) {
@@ -462,7 +475,9 @@ function removeDuplicatesFromInput(input) {
 }
 
 
-/** The below listeners trigger the rendering of the skill chips */
+/**
+ * The below listeners trigger the rendering of the skill chips
+ */
 $(document).on("change", "#skillsInput", () => displaySkillChips())
 $(document).on("click", ".ui-autocomplete", () => {
     removeDuplicatesFromInput($("#skillsInput"))
