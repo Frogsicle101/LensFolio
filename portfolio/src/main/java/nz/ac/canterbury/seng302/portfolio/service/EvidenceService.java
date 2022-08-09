@@ -136,6 +136,7 @@ public class EvidenceService {
         checkString(description, StringType.DESCRIPTION);
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
+        evidenceRepository.save(evidence);
 
         for (WebLinkDTO dto : webLinks) {
             WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
@@ -153,7 +154,7 @@ public class EvidenceService {
                 default -> logger.warn("Evidence service - evidence {} attempted to add category {}", evidence.getId(), categoryString);
             }
         }
-        return evidenceRepository.save(evidence);
+        return evidence;
     }
 
 

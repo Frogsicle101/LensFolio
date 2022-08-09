@@ -273,15 +273,14 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
         const projectId = 1
-        let webLinks = getWeblinksList();
+        let webLinks = getWeblinksList()
 
-        const skills = $("#skillsInput").val().split();
-        for (var i = 0; i < skills.length; i++){
-            let skill = skills[i].replace("_"," ")
-            skills[i] = skill
-        }
+        const skills = $("#skillsInput").val().split(" ")
+        $.each(skills, function (i) {
+            skills[i] = skills[i].replace("_", " ")
+        })
 
-        const categories = getCategories();
+        const categories = getCategories()
         let data = JSON.stringify({
             "title": title, "date": date, "description": description, "projectId": projectId, "skills": skills, "webLinks": webLinks,"categories": categories
         })
@@ -417,11 +416,13 @@ $(document).on("paste", "#skillsInput", () => {
 /**
  * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
  * exist in it, it checks for case insensitivity as well.
+ *
  * @param input the jQuery call to the input to check
  */
 function removeDuplicatesFromInput(input) {
     let inputArray = input.val().trim().split(/\s+/)
     let newArray = []
+
     inputArray.forEach(function (element) {
         while (element.slice(-1) === "_") {
             element = element.slice(0, -1)
@@ -440,6 +441,7 @@ function removeDuplicatesFromInput(input) {
             newArray.push(element)
         }
     })
+
     newArray.forEach(function (element, index) {
         skillsArray.forEach(function (alreadyExistingSkill) {
             if (element.toLowerCase() === alreadyExistingSkill.toLowerCase()) {
@@ -447,6 +449,7 @@ function removeDuplicatesFromInput(input) {
             }
         })
     })
+
     input.val(newArray.join(" ") + " ")
 }
 
@@ -583,14 +586,16 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
  * @param skills The skills to be added.
  */
 function addSkillsToEvidence(skills) {
+    console.log(skills)
     let highlightedEvidenceSkills = $("#evidenceDetailsSkills")
     highlightedEvidenceSkills.empty();
 
-    $.each(skills, function(skill) {
-        console.log(skill)
+    $.each(skills, function (i) {
+        console.log(skills[i])
+        console.log(skills[i].name)
         highlightedEvidenceSkills.append(`
                 <div class="skillChip">
-                    <p class="skillChipText">${skill.name}</p>
+                    <p class="skillChipText">${skills[i].name}</p>
                 </div>`)
     })
 }
@@ -630,6 +635,114 @@ function createEvidencePreview(evidence) {
             </div>
             <p class="evidenceListItemInfo">${evidence.description}</p>
         </div>`
+}
+
+
+/**
+ * Handles a web link validated by the back end.
+Validates the alias and then displays an error message or saves the web link and toggles the web link form.
+ */
+function validateWebLink(form, alias, address) {
+    //Do some title validation
+    if (alias.length === 0) {
+        $(".weblink-name-alert").alert('close') //Close any previous alerts
+        form.append(`
+                    <div class="alert alert-danger alert-dismissible show weblink-name-alert" role="alert">
+                      Please include a name for your web link
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+    } else if (address.search("://") === -1) {
+        $(".address-alert").alert('close') //Close any previous alerts
+        form.append(`
+                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                      That address is missing a "://" - did you make a typo?
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+    }
+    else {
+        validateWebLinkAtBackend()
+    }
+}
+
+
+/**
+ * Handles the error messages for an invalid web link.
+ */
+function handleInvalidWebLink(form, error) {
+    $(".address-alert").alert('close') //Close any previous alerts
+    switch (error.status) {
+        case 400:
+            // The URL is invalid
+            form.append(`
+                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                      Please enter a valid address, like https://www.w3.org/WWW/
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+            break
+        default:
+            // A regular error
+            form.append(`
+                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                      Something went wrong. Try again later.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+            break
+    }
+}
+
+
+/**
+ * Validates the weblink server-side.
+ * Takes the URL and makes a call to the server to check if it's valid.
+ * If valid, save the web link and toggle the form.
+ *
+ * If there's an issue, or it's not valid, calls a function to display an alert
+ */
+function validateWebLinkAtBackend() {
+    let address = $("#webLinkUrl").val()
+    let form = $(".webLinkForm")
+    let data = JSON.stringify({
+        "url": address,
+        "name": $("#webLinkName").val()
+    })
+    $.ajax({
+        url: `validateWebLink`,
+        type: "POST",
+        contentType: "application/json",
+        data,
+        success: () => {
+            submitWebLink()
+            webLinkButtonToggle()
+        },
+        error: (error) => {
+            handleInvalidWebLink(form, error)
+        }
+    })
+}
+
+
+/**
+ * Toggles the add weblink button,
+ * and slide-toggles the form
+ */
+function webLinkButtonToggle() {
+    let button = $(".addWebLinkButton");
+    $(".webLinkForm").slideToggle();
+    if (button.hasClass("toggled")) {
+        button.text("Add Web Link")
+        button.removeClass("toggled")
+        button.removeClass("btn-primary")
+        button.addClass("btn-secondary")
+    } else {
+        button.text("Save Web Link")
+        button.addClass("toggled")
+        button.removeClass("btn-secondary")
+        button.addClass("btn-primary")
+    }
 }
 
 
@@ -712,7 +825,7 @@ function webLinkElement(url, alias) {
             ${icon}
             <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
             data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
-            <div class="addedWebLinkUrl" style="visibility: hidden">${url}</div>
+            <div class="addedWebLinkUrl" style="display: none">${url}</div>
         </div>
     `)
 }
