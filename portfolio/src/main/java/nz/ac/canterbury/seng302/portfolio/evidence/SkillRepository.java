@@ -30,12 +30,13 @@ public interface SkillRepository extends CrudRepository<Skill, Integer> {
     @Query
     Optional<Skill> findByNameIgnoreCase(String name);
 
+
     /**
-     * Find all skills by a users ID
+     * Find all skills by a users ID, ignoring duplicate skills
      *
      * @param userId -  the integer id of the user who has the skill
      * @return The list of skill objects
      */
     @Query
-    List<Skill> findSkillsByEvidenceUserId(@Param("userId") int userId);
+    List<Skill> findDistinctByEvidenceUserId(@Param("userId") int userId);
 }
