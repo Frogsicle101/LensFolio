@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lensfolio | Evidence</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
+</head>
+<body>
+<header th:insert="fragments/general.html :: header"></header>
+<section class="skillsPage">
+    <div class="skillSideBar">
+        <div class="categoryBox">
+            Categories go here
+        </div>
+        <div class="skillContainer">
+            Skills
+            <!-- The skill holding container, pieces are added through JS -->
+            <div id="skillList"></div>
+        </div>
+    </div>
+    <div class="evidenceContainer">
+        <div class="col evidenceListContainer">
+            <hr>
+            <h3 class="evidenceListTitle">Evidence</h3>
+            <hr style="margin-bottom: 0">
+            <!-- The evidence holding container, pieces are added through JS -->
+            <div id="evidenceList"></div>
+        </div>
+        <div class="col evidenceDetailsContainer">
+            <div class="row evidenceDetailsHeader">
+                <p id="evidenceDetailsDate" class="col evidenceDetailsDate"></p>
+                <div class="col evidenceDeleteButton">
+                    <button type="button" class=" noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="left" title="Delete Evidence">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </button>
+                </div>
+                <h2 id="evidenceDetailsTitle" class="evidenceDetailsTitle"></h2>
+            </div>
+            <div id="evidenceDetailsDescription" class="evidenceDetails"></div>
+            <hr>
+            <div id="evidenceWebLinks"></div>
+            <hr>
+        </div>
+    </div>
+</section>
+</body>
+<script th:src="@{js/evidence.js}" type="application/javascript"></script>
+</html>

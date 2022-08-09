@@ -100,6 +100,38 @@ public class EvidenceController {
 
 
     /**
+     * Gets the evidence-by-skills page for the logged-in user.
+     *
+     * @param principal The principal containing the logged-in user's Id.
+     * @return A modelAndView object of the page.
+     */
+    @GetMapping("/evidence-by-skills")
+    public ModelAndView getEvidenceBySkillsPage(@AuthenticationPrincipal Authentication principal) {
+        logger.info("GET REQUEST /evidence/skills - attempt to get page");
+
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+
+        ModelAndView modelAndView = new ModelAndView("evidenceBySkills");
+        modelAndView.addObject("user", user);
+
+        Project project = projectRepository.getProjectById(1L);
+        LocalDate projectEndDate = project.getEndDate();
+        LocalDate projectStartDate = project.getStartDate();
+        LocalDate currentDate = LocalDate.now();
+        LocalDate evidenceMaxDate = LocalDate.now();
+        modelAndView.addObject("currentDate", currentDate.format(DateTimeFormat.yearMonthDay()));
+        modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeFormat.yearMonthDay()));
+
+        if (projectEndDate.isBefore(currentDate)) {
+            evidenceMaxDate = projectEndDate;
+        }
+        modelAndView.addObject("evidenceMaxDate", evidenceMaxDate.format(DateTimeFormat.yearMonthDay()));
+
+        return modelAndView;
+    }
+
+
+    /**
      * Gets the details for a piece of evidence with the given id
      *
      * Response codes: NOT_FOUND means the piece of evidence does not exist

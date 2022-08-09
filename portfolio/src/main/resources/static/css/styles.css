@@ -1032,3 +1032,21 @@ section {
     cursor: pointer;
     color: red;
 }
+
+
+/* skills page */
+.skillsPage {
+    display: flex;
+    flex-direction: row
+}
+
+.skillSideBar {
+    max-width: 10rem;
+}
+
+.evidenceContainer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
