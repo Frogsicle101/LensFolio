@@ -274,9 +274,16 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const description = $("#evidenceDescription").val()
         const projectId = 1
         let webLinks = getWeblinksList();
+
+        const skills = $("#skillsInput").val().split();
+        for (var i = 0; i < skills.length; i++){
+            let skill = skills[i].replace("_"," ")
+            skills[i] = skill
+        }
+
         const categories = getCategories();
         let data = JSON.stringify({
-            "title": title, "date": date, "description": description, "projectId": projectId, "webLinks": webLinks,"categories": categories
+            "title": title, "date": date, "description": description, "projectId": projectId, "skills": skills, "webLinks": webLinks,"categories": categories
         })
         $.ajax({
             url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
@@ -773,6 +780,9 @@ $(document).on("change", ".form-control", function () {
 })
 
 
+/**
+ * Toggles category button appearance on the evidence creation form.
+ */
 $(".evidenceFormCategoryButton").on("click", function () {
     let button = $(this)
     if (button.hasClass("btn-secondary")) {
