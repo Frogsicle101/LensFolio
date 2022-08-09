@@ -9,7 +9,7 @@ let selectedEvidenceId;
 
 let webLinksCount = 0;
 
-let skillsArray = ["ActionScript", "AppleScript", "Asp", "BASIC", "C", "C++", "Clojure", "COBOL", "ColdFusion", "Erlang", "Fortran", "Groovy", "Haskell", "Java", "JavaScript", "Lisp", "Perl", "PHP", "Python", "Ruby", "Scala", "Scheme"]
+let skillsArray = ["ActionScript"]//, "AppleScript", "Asp", "BASIC", "C", "C++", "Clojure", "COBOL", "ColdFusion", "Erlang", "Fortran", "Groovy", "Haskell", "Java", "JavaScript", "Lisp", "Perl", "PHP", "Python", "Ruby", "Scala", "Scheme"]
 
 
 /**
@@ -43,11 +43,14 @@ $(document).ready(function () {
  */
 function getSkills() {
     $.ajax({
-        url: "skills?userId=" + userBeingViewedId, type: "GET", success: function (response) {
-            console.log(response)
-            //TODO add response skills to skill array
+        url: "skills?userId=" + userBeingViewedId,
+        type: "GET",
+        success: function (response) {
+            response.forEach(skill => {
+                skillsArray.push(skill.name.replaceAll(" ", "_"));
+            })
         }, error: function (response) {
-            console.log(response)
+            // Log this
         }
     })
 }
@@ -107,11 +110,13 @@ function showHighlightedEvidenceDetails() {
  */
 function getHighlightedEvidenceDetails() {
     $.ajax({
-        url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
+        url: "evidencePiece?evidenceId=" + selectedEvidenceId,
+        success: function (response) {
             // Log this in future
             setHighlightEvidenceAttributes(response)
             getHighlightedEvidenceWeblinks()
-        }, error: function () {
+        },
+        error: function () {
             createAlert("Failed to receive active evidence", true)
         }
     })
@@ -276,9 +281,11 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         let webLinks = getWeblinksList()
 
         const skills = $("#skillsInput").val().split(" ")
+        skillsArray = skillsArray.concat(skills);
         $.each(skills, function (i) {
-            skills[i] = skills[i].replace("_", " ")
+            skills[i] = skills[i].replaceAll("_", " ")
         })
+
 
         const categories = getCategories()
         let data = JSON.stringify({
@@ -352,17 +359,20 @@ $("#skillsInput")
     })
     .autocomplete({
         autoFocus: true, // This default selects the top result
-        minLength: 1, source: function (request, response) {
+        minLength: 1,
+        source: function (request, response) {
             // delegate back to autocomplete, but extract the last term
             let responseList = $.ui.autocomplete.filter(skillsArray, extractLast(request.term))
             response(responseList.sort((element1, element2) => {
                 // This sorts the response list (the drop-down list) so that it shows the shortest match first
                 return element1.length - element2.length
             }));
-        }, focus: function () {
+        },
+        focus: function () {
             // prevent value inserted on focus
             return false;
-        }, select: function (event, ui) {
+        },
+        select: function (event, ui) {
             let terms = split(this.value);
             // remove the current input
             terms.pop();
@@ -588,6 +598,8 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
 function addSkillsToEvidence(skills) {
     let highlightedEvidenceSkills = $("#evidenceDetailsSkills")
     highlightedEvidenceSkills.empty();
+
+    skills.sort((a, b) => a.name < b.name ? 1 : -1)
 
     $.each(skills, function (i) {
         highlightedEvidenceSkills.append(`
