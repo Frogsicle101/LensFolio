@@ -32,14 +32,14 @@ public class CategoryController {
      * Gets all the evidence associated with a user with the specified Category.
      *
      * @param userId - The userId of the user whose evidence is wanted
-     * @param category - The Category is requested
+     * @param category - The String of category is requested
      * @return A ResponseEntity that contains a list of evidences associated with the Category.
      */
     @GetMapping("/evidenceLinkedToCategory")
     public ResponseEntity<Object> getEvidenceByCategory(@RequestParam("userId") Integer userId, @RequestParam Category category) {
         logger.info("GET REQUEST /evidenceLinkedToCategory - attempt to get all evidence for category: {}", category);
         try {
-            if (!isValidCategory(category)) {
+            if (!isValidCategory(category.toString())) {
                 logger.info("GET REQUEST /evidenceLinkedToCategory - category {} does not exist", category);
                 return new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
             }
@@ -60,8 +60,8 @@ public class CategoryController {
      * @param category - The Category is requested
      * @return A boolean value of the category is valid or not
      */
-    public static boolean isValidCategory(Category category){
-        return(Enums.getIfPresent(Category.class, category.toString()).isPresent());
+    public static boolean isValidCategory(String category){
+        return(Enums.getIfPresent(Category.class, category).isPresent());
     }
 
 }
