@@ -149,6 +149,7 @@ public class EvidenceController {
         logger.info("GET REQUEST /evidence - attempt to get evidence with Id {}", evidenceId);
         try {
             Optional<Evidence> evidence = evidenceRepository.findById(evidenceId);
+
             if (evidence.isEmpty()) {
                 logger.info("GET REQUEST /evidence - evidence {} does not exist", evidenceId);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);

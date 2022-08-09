@@ -37,7 +37,6 @@ function addSkillsToSideBar() {
  */
 function showEvidenceWithSkill() {
     // Get all the pieces of evidence related to that skill
-    console.log(selectedSkill)
     $.ajax({
         url: "evidenceLinkedToSkill?skillName=" + selectedSkill, success: function (response) {
             addEvidencePreviews(response)
