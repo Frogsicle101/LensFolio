@@ -257,11 +257,10 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const projectId = 1
         let webLinks = getWeblinksList();
 
-        const skills = $("#skillsInput").val().split();
-        for (var i = 0; i < skills.length; i++){
-            let skill = skills[i].replace("_"," ")
-            skills[i] = skill
-        }
+        const skills = $("#skillsInput").val().split(" ");
+        $.each(skills, function (i) {
+            skills[i] = skills[i].replace("_", " ")
+        })
 
         const categories = ["SERVICE", "QUALITATIVE"]
         let data = JSON.stringify({
