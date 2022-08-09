@@ -1,3 +1,12 @@
+/** the user id of the user whose evidence page if being viewed */
+let userBeingViewedId;
+
+/** A regex only allowing modern English letters */
+const regExp = new RegExp('[A-Za-z]');
+
+/** The id of the piece of evidence being displayed. */
+let selectedEvidenceId;
+
 let webLinksCount = 0;
 
 /**
@@ -26,6 +35,25 @@ $(document).ready(function () {
 
 
 /**
+ * When the page loads this makes a call to the server to get a list of the users skills they already have
+ * this helps the autocomplete functionality on the skill input
+ */
+function getSkills() {
+    $.ajax({
+        url: "skills?userId=" + userBeingViewedId,
+        type: "GET",
+        success: function (response) {
+            response.forEach(skill => {
+                skillsArray.push(skill.name.replaceAll(" ", "_"));
+            })
+        }, error: function (response) {
+            // Log this
+        }
+    })
+}
+
+
+/**
  * Gets the evidence data for the chosen user and adds it to the page.
  *
  * On successful retrieval, this adds the elements and calls the functions to populate the page.
@@ -44,6 +72,100 @@ function getAndAddEvidencePreviews() {
             createAlert(error.responseText, true)
         }
     })
+}
+
+
+/**
+ * This function is responsible for displaying the selected piece of evidence.
+ *
+ * If nothing is selected, it will default to either the first piece of evidence,
+ * or a 'No evidence' display if none exist.
+ *
+ * It then calls the appropriate function for displaying said evidence.
+ */
+function showHighlightedEvidenceDetails() {
+    if (selectedEvidenceId != null) {
+        getHighlightedEvidenceDetails()
+        return
+    }
+    let evidenceElements = $("#evidenceList").children()
+    if (evidenceElements.length > 0) {
+        selectedEvidenceId = evidenceElements.first().find(".evidenceId").text()
+        getHighlightedEvidenceDetails()
+    } else {
+        setDetailsToNoEvidenceExists()
+    }
+}
+
+
+/**
+ * This is called so show the evidence details for the selected piece of evidence.
+ *
+ * If the selectedEvidenceId is null or the server cannot find the evidence, it selected the first
+ * piece of evidence in the table, and sets the details to that. If there is no evidence, the appropriate
+ * message is displayed.
+ */
+function getHighlightedEvidenceDetails() {
+    $.ajax({
+        url: "evidencePiece?evidenceId=" + selectedEvidenceId,
+        success: function (response) {
+            // Log this in future
+            setHighlightEvidenceAttributes(response)
+            getHighlightedEvidenceWeblinks()
+        },
+        error: function () {
+            createAlert("Failed to receive active evidence", true)
+        }
+    })
+}
+
+
+/**
+ * Makes a request to the backend to retrieve all the web links for a piece of evidence. If the request is successful,
+ * a function is called to add the web links to the document.
+ */
+function getHighlightedEvidenceWeblinks() {
+    $.ajax({
+        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId, success: function (response) {
+            setHighlightedEvidenceWebLinks(response)
+        }, error: function (response) {
+            if (response.status !== 404) {
+                createAlert("Failed to receive evidence links", true)
+            }
+        }
+    })
+}
+
+
+/**
+ * Adds the web links from the given request to the document.
+ *
+ * @param response The response from the backend, which contains the web links for a piece of evidence.
+ */
+function setHighlightedEvidenceWebLinks(response) {
+    let webLinksDiv = $("#evidenceWebLinks")
+    webLinksDiv.empty()
+
+    for (let index in response) {
+        let webLink = response[index]
+        webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
+    }
+    initialiseTooltips()
+}
+
+
+/**
+ * Takes the response from an evidence list get request and adds the evidence previews to the left
+ * side of the page.
+ *
+ * @param response - The response from GET /evidenceData
+ */
+function addEvidencePreviews(response) {
+    let evidencePreviewsContainer = $("#evidenceList")
+    evidencePreviewsContainer.empty()
+    for (let pieceOfEvidence in response) {
+        evidencePreviewsContainer.append(createEvidencePreview(response[pieceOfEvidence]))
+    }
 }
 
 
@@ -153,17 +275,18 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
         const projectId = 1
-        let webLinks = getWeblinksList();
+        let webLinks = getWeblinksList()
 
-        const skills = $("#skillsInput").val().split(" ");
+        const skills = $("#skillsInput").val().split(" ")
+        skillsArray = skillsArray.concat(skills);
         $.each(skills, function (i) {
-            skills[i] = skills[i].replace("_", " ")
+            skills[i] = skills[i].replaceAll("_", " ")
         })
 
         const categories = getCategories();
         let data = JSON.stringify({
             "title": title,
-            "date": date, 
+            "date": date,
             "description": description,
             "projectId": projectId,
             "webLinks": webLinks,
@@ -251,17 +374,20 @@ $("#skillsInput")
     })
     .autocomplete({
         autoFocus: true, // This default selects the top result
-        minLength: 1, source: function (request, response) {
+        minLength: 1,
+        source: function (request, response) {
             // delegate back to autocomplete, but extract the last term
             let responseList = $.ui.autocomplete.filter(skillsArray, extractLast(request.term))
             response(responseList.sort((element1, element2) => {
                 // This sorts the response list (the drop-down list) so that it shows the shortest match first
                 return element1.length - element2.length
             }));
-        }, focus: function () {
+        },
+        focus: function () {
             // prevent value inserted on focus
             return false;
-        }, select: function (event, ui) {
+        },
+        select: function (event, ui) {
             let terms = split(this.value);
             // remove the current input
             terms.pop();
@@ -305,7 +431,7 @@ $(document).on("keyup", "#skillsInput", function (event) {
 /**
  * Runs the remove duplicates function after a paste event has occurred on the skills input
  */
-$(document).on("paste", "#skillsInput", (event) => {
+$(document).on("paste", "#skillsInput", () => {
     setTimeout(() => removeDuplicatesFromInput($("#skillsInput")), 0)
     // Above is in a timeout so that it runs after the paste event has happened
 })
@@ -320,6 +446,7 @@ $(document).on("paste", "#skillsInput", (event) => {
 function removeDuplicatesFromInput(input) {
     let inputArray = input.val().trim().split(/\s+/)
     let newArray = []
+
     inputArray.forEach(function (element) {
         while (element.slice(-1) === "_") {
             element = element.slice(0, -1)
@@ -338,6 +465,7 @@ function removeDuplicatesFromInput(input) {
             newArray.push(element)
         }
     })
+
     newArray.forEach(function (element, index) {
         skillsArray.forEach(function (alreadyExistingSkill) {
             if (element.toLowerCase() === alreadyExistingSkill.toLowerCase()) {
@@ -345,11 +473,12 @@ function removeDuplicatesFromInput(input) {
             }
         })
     })
+
     input.val(newArray.join(" ") + " ")
 }
 
 
-/** 
+/**
  * The below listeners trigger the rendering of the skill chips
  */
 $(document).on("change", "#skillsInput", () => displaySkillChips())
@@ -448,6 +577,54 @@ $(document).on('click', '.addedWebLinkName', function () {
 
 
 // --------------------------- Functional HTML Components ------------------------------------
+
+
+/**
+ * Sets the evidence details (big display) values to the given piece of evidence.
+ *
+ * @param evidenceDetails The title, date, description, and skills for a piece of evidence.
+ */
+function setHighlightEvidenceAttributes(evidenceDetails) {
+    let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
+    let highlightedEvidenceDate = $("#evidenceDetailsDate")
+    let highlightedEvidenceDescription = $("#evidenceDetailsDescription")
+
+    highlightedEvidenceTitle.text(evidenceDetails.title)
+    highlightedEvidenceDate.text(evidenceDetails.date)
+    highlightedEvidenceDescription.text(evidenceDetails.description)
+    addSkillsToEvidence(evidenceDetails.skills)
+
+    highlightedEvidenceTitle.show()
+    highlightedEvidenceDate.show()
+    highlightedEvidenceDescription.show()
+
+    if (userBeingViewedId === userIdent) {
+        $(".evidenceDeleteButton").show()
+    } else {
+        $(".evidenceDeleteButton").hide()
+    }
+}
+
+
+/**
+ * Receives a list of skills and adds them to the focused evidence.
+ *
+ * @param skills The skills to be added.
+ */
+function addSkillsToEvidence(skills) {
+    let highlightedEvidenceSkills = $("#evidenceDetailsSkills")
+    highlightedEvidenceSkills.empty();
+
+    // Sorts in alphabetical order
+    skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
+
+    $.each(skills, function (i) {
+        highlightedEvidenceSkills.append(`
+                <div class="skillChip">
+                    <p class="skillChipText">${skills[i].name}</p>
+                </div>`)
+    })
+}
 
 
 /**
@@ -654,7 +831,7 @@ function webLinkElement(url, alias) {
             ${icon}
             <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
             data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
-            <div class="addedWebLinkUrl" style="visibility: hidden">${url}</div>
+            <div class="addedWebLinkUrl" style="display: none">${url}</div>
         </div>
     `)
 }
@@ -722,9 +899,9 @@ $(document).on("change", ".form-control", function () {
 })
 
 
-
-
-
+/**
+ * Toggles category button appearance on the evidence creation form.
+ */
 $(".evidenceFormCategoryButton").on("click", function () {
     let button = $(this)
     if (button.hasClass("btn-secondary")) {

@@ -6,10 +6,10 @@ package nz.ac.canterbury.seng302.portfolio.evidence;
 public class WebLinkDTO {
 
     /** The readable name of the link */
-    private String name;
+    private final String name;
 
-    /** The actual followable URL */
-    private String url;
+    /** The followable URL */
+    private final String url;
 
     public String getName() {
         return name;
