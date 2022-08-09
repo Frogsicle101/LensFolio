@@ -607,9 +607,7 @@ section {
 
 .scrollableGroupOverview {
     position: absolute;
-    width: 100%; /* Multiple widths for different browsers */
-    width: -moz-available;
-    width: -webkit-fill-available;
+    width: 50%;
     height: calc(100vh - 110px);
     overflow-y: scroll;
 
@@ -617,9 +615,7 @@ section {
 
 .scrollableGroupDetails {
     position: absolute;
-    width: 100%;
-    width: -moz-available; /* multiple width settings for different browsers */
-    width: -webkit-fill-available;
+    width: 49%;
     height: calc(100vh - 130px);
     overflow-y: scroll;
     padding: 2rem;
