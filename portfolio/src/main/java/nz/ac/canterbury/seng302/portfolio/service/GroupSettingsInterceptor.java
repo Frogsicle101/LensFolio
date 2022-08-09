@@ -8,6 +8,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import java.util.List;
  * Checks that a user has the teacher or administrator role, or is in the requested group, before forwarding them onto
  * the requested endpoint.
  */
+@Component
 public class GroupSettingsInterceptor implements HandlerInterceptor {
 
     /** To get the users information */

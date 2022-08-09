@@ -2,8 +2,7 @@ package nz.ac.canterbury.seng302.portfolio;
 
 import nz.ac.canterbury.seng302.portfolio.service.GroupSettingsInterceptor;
 import nz.ac.canterbury.seng302.portfolio.service.RoleBasedIntercepter;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -12,31 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@ComponentScan
 public class Config implements WebMvcConfigurer {
 
-    /**
-     * The Role based interceptor is initialised this way to register it as a bean.
-     * This means that we can autowire in the useful services to the interceptors.
-     *
-     * @return The new roleBasedInterceptor Bean
-     */
-    @Bean
-    public RoleBasedIntercepter roleBasedIntercepter() {
-        return new RoleBasedIntercepter();
-    }
+    /** Interceptor to check if the user has Teacher or Admin role */
+    @Autowired
+    private RoleBasedIntercepter roleBasedIntercepter;
 
-
-    /**
-     * The Group Settings interceptor is initialised this way to register it as a bean.
-     * This means that we can autowire in the useful services to the interceptors.
-     *
-     * @return The new GroupSettingsInterceptor Bean
-     */
-    @Bean
-    public GroupSettingsInterceptor groupSettingsInterceptor() {
-        return new GroupSettingsInterceptor();
-    }
+    /** Interceptor to check if the user has Teacher or Admin role or is in the group requested. */
+    @Autowired
+    private GroupSettingsInterceptor groupSettingsInterceptor;
 
 
     /**
@@ -93,7 +76,7 @@ public class Config implements WebMvcConfigurer {
         pathsToInterceptForGroupSettings.add("/getRepo");
 
 
-        registry.addInterceptor(roleBasedIntercepter()).addPathPatterns(pathsToInterceptForRoleBased);
-        registry.addInterceptor(groupSettingsInterceptor()).addPathPatterns(pathsToInterceptForGroupSettings);
+        registry.addInterceptor(roleBasedIntercepter).addPathPatterns(pathsToInterceptForRoleBased);
+        registry.addInterceptor(groupSettingsInterceptor).addPathPatterns(pathsToInterceptForGroupSettings);
     }
 }
