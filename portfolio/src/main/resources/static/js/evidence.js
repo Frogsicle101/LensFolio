@@ -282,7 +282,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const categories = getCategories();
 
         let data = JSON.stringify({
-            "title": title, "date": date, "description": description, "projectId": projectId, "webLinks": webLinks, "categories": categories
+            "title": title, "date": date, "description": description, "projectId": projectId, "webLinks": webLinks, "categories": categories, "skills": []
         })
         $.ajax({
             url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
@@ -588,18 +588,32 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
 }
 
 
+/**
+ * A function to display all the categories for a piece of evidence
+ *
+ * @param categories A list of categories associated with a piece of evidence
+ */
 function addCategoriesToEvidence(categories) {
-    let highlightedEvidenceCategories = $("#evidenceCategories")
-        highlightedEvidenceCategories.empty();
+    let highlightedEvidenceCategories = $("#evidenceChipsSection")
+    let evidenceCategoryTitle = $("#evidenceCategoriesTitle")
 
-        $.each(categories, function(category) {
-            let categoryText = categoriesMapping.get(categories[category]);
+    evidenceCategoryTitle.empty();
+    highlightedEvidenceCategories.empty();
 
-            highlightedEvidenceCategories.append(`
-                    <div class="skillChip">
-                        <p class="skillChipText">${categoryText}</p>
-                    </div>`)
-        })
+    if (categories.length === 0) {
+        evidenceCategoryTitle.append(`<h5>No Categories</h5>`)
+    } else {
+    evidenceCategoryTitle.append(`<h5>Categories:</h5>`)
+
+    $.each(categories, function(category) {
+        let categoryText = categoriesMapping.get(categories[category]);
+
+        highlightedEvidenceCategories.append(`
+                <div class="categoryChip">
+                    <p class="skillChipText">${categoryText}</p>
+                </div>`)
+    })
+    }
 }
 
 

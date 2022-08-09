@@ -143,7 +143,7 @@ public class EvidenceService {
             evidence.addWebLink(webLink);
         }
 
-        //this.addSkills(evidence, evidenceDTO.getSkills());
+        this.addSkills(evidence, evidenceDTO.getSkills());
 
         for (String categoryString : categories) {
             switch (categoryString) {
