@@ -243,7 +243,7 @@ function addSkillsToEvidence(skills) {
  */
 function createEvidencePreview(evidence) {
     return `
-        <div class="evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
+        <div class="box ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
             <div class="row evidenceListItemHeader">
                 <p class="evidenceId" style="display: none">${evidence.id}</p>
                 <p class="col evidenceListItemTitle">${evidence.title}</p>

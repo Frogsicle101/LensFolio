@@ -14,7 +14,7 @@
     </div>
     <div class="row">
         <div class="col groupsContainer">
-            <div class="group" th:each="group : ${groups}" th:id="${group.groupId}">
+            <div class="box group" th:each="group : ${groups}" th:id="${group.groupId}">
                 <div class="mb3">
                     <p class="groupId" style="display: none" th:text="${group.groupId}"></p>
                     <h2 class="groupShortName" th:text="${group.shortName}"></h2>
