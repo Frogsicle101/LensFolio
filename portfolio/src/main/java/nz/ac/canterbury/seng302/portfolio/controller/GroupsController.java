@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The controller for managing requests to edit groups and their user's memberships.
@@ -39,6 +40,8 @@ public class GroupsController {
     /** For performing more complicated operations on groups */
     @Autowired
     private GroupService groupService;
+
+    private static final Integer TEACHER_GROUP_ID = 1;
 
     /**
      * For requesting user information form the IdP.
@@ -314,12 +317,21 @@ public class GroupsController {
      */
     @DeleteMapping("/groups/removeUsers")
     public ResponseEntity<String> removeUsersFromGroup(
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "groupId") Integer groupId,
             @RequestParam(value = "userIds") List<Integer> userIds
     ) {
         logger.info("DELETE REQUEST /groups/removeUsers");
 
         try {
+            if (Objects.equals(groupId, TEACHER_GROUP_ID)) {
+                logger.info("Removing users from teacher group, checking user is admin");
+                UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+                if (!userResponse.getRolesList().contains(UserRole.COURSE_ADMINISTRATOR)) {
+                    return new ResponseEntity<>("You must be a course administrator to do this.", HttpStatus.UNAUTHORIZED);
+                }
+
+            }
             RemoveGroupMembersResponse response = groupService.removeUsersFromGroup(groupId, userIds);
             if (response.getIsSuccess()) {
                 return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);

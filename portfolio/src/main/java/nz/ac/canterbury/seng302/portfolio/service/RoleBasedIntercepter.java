@@ -20,15 +20,15 @@ import java.util.List;
 @Component
 public class RoleBasedIntercepter implements HandlerInterceptor {
 
-    /** To get the users information */
+    /** To get the user's information */
     @Autowired
     public AuthenticateClientService authenticateClientService;
 
-    @Autowired UserAccountsClientService userAccountsClientService;
+    /** To get the user's authentication status */
+    @Autowired
+    public UserAccountsClientService userAccountsClientService;
 
-    /**
-     * To log when the checks are made
-     */
+    /** To log when the checks are made */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -46,7 +46,7 @@ public class RoleBasedIntercepter implements HandlerInterceptor {
             HttpServletRequest request,
             HttpServletResponse response,
             Object handler) throws Exception {
-        logger.info("RoleBasedIntercepter: RoleBasedIntercepter has been called for this endpoint: {}", request.getRequestURI());
+        logger.info("RoleBasedInterceptor: RoleBasedIntercepter has been called for this endpoint: {}", request.getRequestURI());
 
         AuthState principal = authenticateClientService.checkAuthState();
 
