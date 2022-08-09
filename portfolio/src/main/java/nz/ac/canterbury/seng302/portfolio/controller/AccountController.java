@@ -46,6 +46,17 @@ public class AccountController {
 
 
     /**
+     * Redirects users to their account page if they go to the root path
+     *
+     * @return A redirect to the account model and view
+     */
+    @GetMapping("/")
+    public ModelAndView indexRedirectToAccount() {
+        return new ModelAndView("redirect:account");
+    }
+
+
+    /**
      * This method is responsible for populating the account page template
      * It adds in variables to the html template, as well as the values of those variables
      * It then returns the 'filled in' html template, to be displayed in a web browser

@@ -17,6 +17,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * This class is responsible for authenticating users and adding the token cookie to their browser.
+ */
 @Controller
 public class LoginController {
 
