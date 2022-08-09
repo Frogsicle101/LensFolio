@@ -11,14 +11,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class creates a few simple methods for extracting claims from AuthState gRPC messages.
- * <br>
- * Primarily used to extract the userId from an AuthState object
  *
- * @author Sam Clark, Harrison Martin
+ * Primarily used to extract the userId from an AuthState object
  */
 public class PrincipalAttributes {
 
     private static final Logger logger = LoggerFactory.getLogger(PrincipalAttributes.class);
+
+
+    /**
+     * Makes the constructor invisible so only static methods are reachable
+     */
+    private PrincipalAttributes() {}
+
 
     /**
      * Used to get the claims attributes of a AuthState gRPC message. Note the primary use of this is getting userID
@@ -30,13 +35,14 @@ public class PrincipalAttributes {
      * @return claimValue - a string value of the claim requested.
      */
     public static String getClaim(AuthState principal, String claimType) {
-        logger.info("Getting " + claimType + " from principal");
+        logger.info("Getting {} from principal", claimType);
         return principal.getClaimsList().stream()
                 .filter(claim -> claim.getType().equals(claimType))
                 .findFirst()
                 .map(ClaimDTO::getValue)
                 .orElse("NOT FOUND");
     }
+
 
     /**
      * Specific use of the getClaim method for returning a userId from their AuthState.
@@ -58,10 +64,9 @@ public class PrincipalAttributes {
      */
     public static UserResponse getUserFromPrincipal(AuthState principal, UserAccountsClientService userAccountsClientService) {
         // Get user from server
-        int user_id = getIdFromPrincipal(principal);
-        GetUserByIdRequest userRequest = GetUserByIdRequest.newBuilder().setId(user_id).build();
-        UserResponse user = userAccountsClientService.getUserAccountById(userRequest);
-        return user;
+        int userId = getIdFromPrincipal(principal);
+        GetUserByIdRequest userRequest = GetUserByIdRequest.newBuilder().setId(userId).build();
+        return userAccountsClientService.getUserAccountById(userRequest);
     }
 
 }

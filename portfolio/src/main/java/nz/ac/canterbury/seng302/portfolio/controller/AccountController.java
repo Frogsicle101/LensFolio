@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.service.LoginService;
 import nz.ac.canterbury.seng302.portfolio.service.ReadableTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 
 /**
  * Controller class for the account page.
@@ -28,6 +32,9 @@ public class AccountController {
     /** The client service allowing requests to be made to the IdP. */
     @Autowired
     private UserAccountsClientService userAccountsClientService;
+
+    @Autowired
+    private LoginService loginService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String ALPHA_SPACES_REGEX = "([a-zA-Z]+[.,'-]*\s?)+";
@@ -104,7 +111,9 @@ public class AccountController {
      */
     @PostMapping("/register")
     public ResponseEntity<Object> attemptRegistration(
-            @ModelAttribute(name = "registerForm") UserRequest userRequest
+            @ModelAttribute(name = "registerForm") UserRequest userRequest,
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse
     ) {
         String warningMessage = "Registration Failed: {}";
         logger.info("POST REQUEST /register - attempt to register new user");
@@ -121,7 +130,7 @@ public class AccountController {
             if (registerReply.getIsSuccess()) {
                 logger.info("Registration Success: {}", registerReply.getMessage());
                 logger.info("Log in new user");
-
+                loginService.attemptLogin(userRequest, servletRequest, servletResponse);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
                 logger.info(warningMessage, registerReply.getMessage());
