@@ -403,7 +403,7 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
         if (group.isPresent() && !group.get().getId().equals(id)) {
             errors.add(ValidationError.newBuilder()
                     .setFieldName("Short name")
-                    .setErrorText("A group exists with the shortName " + shortName)
+                    .setErrorText("A group exists with the short name " + shortName)
                     .build()
             );
         }

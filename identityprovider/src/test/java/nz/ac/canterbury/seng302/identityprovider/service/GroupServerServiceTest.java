@@ -430,7 +430,7 @@ class GroupServerServiceTest {
         groupsServerService.modifyGroupDetails(modifyGroupDetailsRequest, responseObserver);
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         ModifyGroupDetailsResponse response = responseCaptor.getValue();
-        Assertions.assertEquals("A group exists with the shortName Non-Group changes", response.getValidationErrors(0).getErrorText());
+        Assertions.assertEquals("A group exists with the short name Non-Group changes", response.getValidationErrors(0).getErrorText());
     }
 
     @Test
