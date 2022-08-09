@@ -281,7 +281,13 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
 
         const categories = getCategories();
         let data = JSON.stringify({
-            "title": title, "date": date, "description": description, "projectId": projectId, "webLinks": webLinks,"skills": skills, "categories": categories
+            "title": title,
+            "date": date, 
+            "description": description,
+            "projectId": projectId,
+            "webLinks": webLinks,
+            "skills": skills,
+            "categories": categories
         })
         $.ajax({
             url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
