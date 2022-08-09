@@ -9,7 +9,7 @@ let selectedEvidenceId;
 
 let webLinksCount = 0;
 
-let skillsArray = ["ActionScript"]//, "AppleScript", "Asp", "BASIC", "C", "C++", "Clojure", "COBOL", "ColdFusion", "Erlang", "Fortran", "Groovy", "Haskell", "Java", "JavaScript", "Lisp", "Perl", "PHP", "Python", "Ruby", "Scala", "Scheme"]
+let skillsArray = ["ActionScript", "AppleScript", "Asp", "BASIC", "C", "C++", "Clojure", "COBOL", "ColdFusion", "Erlang", "Fortran", "Groovy", "Haskell", "Java", "JavaScript", "Lisp", "Perl", "PHP", "Python", "Ruby", "Scala", "Scheme"]
 
 
 /**
@@ -286,10 +286,15 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             skills[i] = skills[i].replaceAll("_", " ")
         })
 
-
-        const categories = getCategories()
+        const categories = getCategories();
         let data = JSON.stringify({
-            "title": title, "date": date, "description": description, "projectId": projectId, "skills": skills, "webLinks": webLinks,"categories": categories
+            "title": title,
+            "date": date,
+            "description": description,
+            "projectId": projectId,
+            "webLinks": webLinks,
+            "skills": skills,
+            "categories": categories
         })
         $.ajax({
             url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
@@ -299,6 +304,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+                $(".address-alert").alert('close') // Close any web link alerts
+                $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
                 createAlert(error.responseText, true)
@@ -313,23 +320,34 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '.addWebLinkButton', function () {
-    $(".webLinkForm").slideToggle();
     let button = $(".addWebLinkButton");
     if (button.hasClass("toggled")) {
-        //Un-toggle the button
-        button.text("Add Web Link")
-        button.removeClass("toggled")
-        button.removeClass("btn-primary")
-        button.addClass("btn-secondary")
-        submitWebLink()
+        //validate the link
+        let address = $("#webLinkUrl").val()
+        let alias = $("#webLinkName").val()
+        let form = $(".webLinkForm")
+        console.log(address)
+        validateWebLink(form, alias, address)
     } else {
-        button.text("Save Web Link")
-        button.addClass("toggled")
-        button.removeClass("btn-secondary")
-        button.addClass("btn-primary")
+        webLinkButtonToggle()
     }
 })
 
+
+/**
+ * Listen for a keypress in the weblink address field, and closes the alert box
+ */
+$(document).on('keypress', '#webLinkUrl', function () {
+    $(".address-alert").alert('close')
+})
+
+
+/**
+ * Listen for a keypress in the weblink name field, and closes the alert box
+ */
+$(document).on('keypress', '#webLinkName', function () {
+    $(".weblink-name-alert").alert('close')
+})
 
 // --------------------------------- Autocomplete -----------------------------------------
 
@@ -383,7 +401,6 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
-
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -395,7 +412,7 @@ $("#skillsInput")
 
 
 /**
- * Listens out for a keydown event on the skills input.
+ * Listens out for a keyup event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
  * If it is a space, tab or enter then it checks for duplicates
  */
@@ -464,7 +481,9 @@ function removeDuplicatesFromInput(input) {
 }
 
 
-/** The below listeners trigger the rendering of the skill chips */
+/**
+ * The below listeners trigger the rendering of the skill chips
+ */
 $(document).on("change", "#skillsInput", () => displaySkillChips())
 $(document).on("click", ".ui-autocomplete", () => {
     removeDuplicatesFromInput($("#skillsInput"))
@@ -732,7 +751,6 @@ function validateWebLinkAtBackend() {
         }
     })
 }
-
 
 /**
  * Toggles the add weblink button,
