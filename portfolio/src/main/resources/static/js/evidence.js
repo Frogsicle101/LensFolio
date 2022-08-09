@@ -1,8 +1,12 @@
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
 
-/** A regex only allowing modern English letters */
+/** A regex only allowing English characters */
 const regExp = new RegExp('[A-Za-z]');
+
+/** A regex only allowing English characters, numbers, hyphens and underscores */
+const regex = new RegExp("[A-Za-z0-9_-]+");
+
 
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
@@ -458,21 +462,23 @@ function removeDuplicatesFromInput(input) {
     let newArray = []
 
     inputArray.forEach(function (element) {
-        while (element.slice(-1) === "_") {
-            element = element.slice(0, -1)
-        }
-        while (element.slice(0, 1) === "_") {
-            element = element.slice(1, element.length)
-        }
-        element = element.replaceAll("_", " ")
-            .replace(/\s+/g, ' ')
-            .trim()
-            .replaceAll(" ", "_")
-        if (element.length > 30) { //Shortens down the elements to 30 characters
-            element = element.split("").splice(0, 30).join("")
-        }
-        if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
-            newArray.push(element)
+        if (regex.test(element)){
+            while (element.slice(-1) === "_") {
+                element = element.slice(0, -1)
+            }
+            while (element.slice(0, 1) === "_") {
+                element = element.slice(1, element.length)
+            }
+            element = element.replaceAll("_", " ")
+                .replace(/\s+/g, ' ')
+                .trim()
+                .replaceAll(" ", "_")
+            if (element.length > 30) { //Shortens down the elements to 30 characters
+                element = element.split("").splice(0, 30).join("")
+            }
+            if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
+                newArray.push(element)
+            }
         }
     })
 
