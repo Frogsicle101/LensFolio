@@ -5,7 +5,10 @@ import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.DTO.ValidateWeblinkDTO;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.*;
+import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.evidence.WebLink;
+import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
@@ -118,7 +121,8 @@ public class EvidenceController {
                 logger.info("GET REQUEST /evidence - evidence {} does not exist", evidenceId);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(evidence, HttpStatus.OK);
+
+            return new ResponseEntity<>(evidence.get(), HttpStatus.OK);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());

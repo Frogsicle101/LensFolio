@@ -47,7 +47,7 @@ public class SkillController {
     public ResponseEntity<Object> getSkillsByUserId(@RequestParam Integer userId) {
         logger.info("GET REQUEST /skills - attempt to get all skills for user: {}", userId);
         try {
-            List<Skill> skills = skillRepository.findSkillsByEvidenceUserId(userId);
+            List<Skill> skills = skillRepository.findDistinctByEvidenceUserId(userId);
             if (skills.isEmpty()) {
                 GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
                 UserResponse userResponse = userAccountsClientService.getUserAccountById(request);

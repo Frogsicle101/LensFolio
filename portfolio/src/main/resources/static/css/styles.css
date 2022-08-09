@@ -995,7 +995,7 @@ section {
     overflow-x: hidden;
 }
 
-#skillChipDisplay, #evidenceDetailsSkills{
+.skillChipDisplay{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
