@@ -1,16 +1,4 @@
-/** the user id of the user whose evidence page if being viewed */
-let userBeingViewedId;
-
-/** A regex only allowing modern English letters */
-const regExp = new RegExp('[A-Za-z]');
-
-/** The id of the piece of evidence being displayed. */
-let selectedEvidenceId;
-
 let webLinksCount = 0;
-
-let skillsArray = ["ActionScript", "AppleScript", "Asp", "BASIC", "C", "C++", "Clojure", "COBOL", "ColdFusion", "Erlang", "Fortran", "Groovy", "Haskell", "Java", "JavaScript", "Lisp", "Perl", "PHP", "Python", "Ruby", "Scala", "Scheme"]
-
 
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
