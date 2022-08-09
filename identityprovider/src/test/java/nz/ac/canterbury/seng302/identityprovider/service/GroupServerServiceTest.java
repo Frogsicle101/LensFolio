@@ -49,7 +49,7 @@ class GroupServerServiceTest {
 
         Assertions.assertTrue(response.getIsSuccess());
         Assertions.assertEquals(1, response.getNewGroupId());
-        Assertions.assertEquals("Created", response.getMessage());
+        Assertions.assertEquals("Group created", response.getMessage());
         Assertions.assertEquals(0, response.getValidationErrorsCount());
     }
 

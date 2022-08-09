@@ -1,10 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import io.grpc.StatusRuntimeException;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.AuthenticationException;
-import nz.ac.canterbury.seng302.portfolio.authentication.CookieUtil;
-import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
+import nz.ac.canterbury.seng302.portfolio.service.LoginService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +17,18 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * This class is responsible for authenticating users and adding the token cookie to their browser.
+ */
 @Controller
 public class LoginController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    /** To give authenticated clients an access token in a cookie */
     @Autowired
-    public AuthenticateClientService authenticateClientService;
+    private LoginService loginService;
+
 
     /**
      * Shows the login page to anyone who wants to see it.
@@ -36,9 +40,10 @@ public class LoginController {
         return "login";
     }
 
+
     /**
      * Attempts to authenticate with the Identity Provider via gRPC.
-     * <p>
+     *
      * This process works in a few stages:
      * 1.  We send the username and password to the IdP
      * 2.  We check the response, and if it is successful we add a cookie to the HTTP response so that
@@ -63,7 +68,7 @@ public class LoginController {
         AuthenticateResponse loginReply;
         //This try/catch block is the login attempt
         try {
-            loginReply = attemptLogin(userRequest, request, response, authenticateClientService);
+            loginReply = loginService.attemptLogin(userRequest, request, response);
         } catch (AuthenticationException e) {
             // Note this is logged when the error is thrown
             model.addAttribute("errorMessage", "Error connecting to Identity Provider... " +
@@ -72,53 +77,12 @@ public class LoginController {
         }
         // If login was successful redirect to account, otherwise add failure message
         if (loginReply.getSuccess()) {
-            logger.info("Login Successful - redirect to account page for username " + loginReply.getUsername());
+            logger.info("Login Successful - redirect to account page for username {}", loginReply.getUsername());
             return new ModelAndView("redirect:account");
         } else {
             // Logged in attempt login method
             model.addAttribute("errorMessage", loginReply.getMessage());
             return new ModelAndView("login");
         }
-    }
-
-    /**
-     * This method attempts to authenticate a user by sending an Authentication request to the server and if successful
-     * adding a Cookie, otherwise it does not add the cookie
-     *
-     * @param userRequest - The userRequest object with the authentication fields
-     * @param request     - used for creating the cookie
-     * @param response    - used for creating the cookie
-     * @return authenticate response - contains information about the authentication attempt.
-     * @throws AuthenticationException - if the Identity provider can't be reached.
-     */
-    public AuthenticateResponse attemptLogin(UserRequest userRequest,
-                                             HttpServletRequest request,
-                                             HttpServletResponse response,
-                                             AuthenticateClientService authenticateClientService) throws AuthenticationException {
-        AuthenticateResponse authenticateResponse;
-        //This try/catch block is the login attempt
-        try {
-            logger.info("Sending authentication request for username {}", userRequest.getUsername());
-            authenticateResponse = authenticateClientService.authenticate(userRequest.getUsername(), userRequest.getPassword());
-        } catch (StatusRuntimeException e) {
-            logger.error("Error connecting to Identity Provider");
-            throw new AuthenticationException("failed to connect to the Identity Provider");
-        }
-        //If the login was successful, create a cookie!
-        if (authenticateResponse.getSuccess()) {
-            logger.info("Login successful - Added cookie to username " + authenticateResponse.getUsername());
-            var domain = request.getHeader("host");
-            CookieUtil.create(
-                    response,
-                    "lens-session-token",
-                    authenticateResponse.getToken(),
-                    true,
-                    5 * 60 * 60, // Expires in 5 hours
-                    domain.startsWith("localhost") ? null : domain
-            );
-        } else {
-            logger.info(authenticateResponse.getMessage());
-        }
-        return authenticateResponse;
     }
 }
