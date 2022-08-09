@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.DTO.ValidateWeblinkDTO;
 import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.*;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.net.*;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -215,6 +217,47 @@ public class EvidenceController {
             return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Checks if the provided web address is valid, i.e. could lead to a website.
+     * The criteria are specified by java.net.URL, and is protocol dependent.
+     * This doesn't guarantee that the website actually exists; just that it could.
+     *
+     * Response codes:
+     * OK means the address is valid
+     * BAD_REQUEST means the URL is invalid
+     * INTERNAL_SERVER_ERROR means some other error occurred while validating the URL
+     *
+     * @param request - the full address to be validated
+     * @return A response entity with the required response code. If it is valid, the status will be OK.
+     * No response body will be returned in any instance.
+     * @see java.net.URL
+     */
+    @PostMapping("/validateWebLink")
+    @ResponseBody
+    public ResponseEntity<Object> validateWebLink(@RequestBody ValidateWeblinkDTO request) {
+        String address = request.getUrl();
+        logger.info("GET REQUEST /validateWebLink - validating address {}", address);
+        try {
+            if (!address.contains("://")) {
+                throw new MalformedURLException("There is no ://");
+            }
+            if (address.contains("&nbsp")) {
+                throw new MalformedURLException("The non-breaking space is not a valid character");
+            }
+            new URL(address).toURI(); //The constructor does all the validation for us
+            //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (MalformedURLException | URISyntaxException exception) {
+            logger.info("/validateWebLink - invalid address {}", address);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception exception) {
+            logger.warn(exception.getClass().getName());
+            logger.warn(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
