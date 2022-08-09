@@ -405,6 +405,7 @@ $(document).on("paste", "#skillsInput", (event) => {
 /**
  * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
  * exist in it, it checks for case insensitivity as well.
+ *
  * @param input the jQuery call to the input to check
  */
 function removeDuplicatesFromInput(input) {
