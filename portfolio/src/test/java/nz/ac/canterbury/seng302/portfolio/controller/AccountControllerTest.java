@@ -3,8 +3,10 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.authentication.AuthenticationException;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.service.LoginService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
@@ -18,6 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -34,12 +39,15 @@ class AccountControllerTest {
     @InjectMocks
     private final AccountController accountController = spy(AccountController.class);
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
+    private final HttpServletRequest mockServletRequest = mock(HttpServletRequest.class);
+    private final HttpServletResponse mockServletResponse = mock(HttpServletResponse.class);
+    private final LoginService loginService = mock(LoginService.class);
     private final Authentication principal = new Authentication(
             AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build()
     );
 
     @BeforeEach
-    public void beforeAll() {
+    public void beforeAll() throws AuthenticationException {
         UserResponse.Builder userBuilder = UserResponse.newBuilder()
                 .setUsername("steve")
                 .setFirstName("Steve")
@@ -62,7 +70,9 @@ class AccountControllerTest {
 
         Project project = new Project("test");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-
+        Mockito.when(loginService.attemptLogin(any(), any(), any())).thenReturn(
+                AuthenticateResponse.newBuilder().build()
+        );
     }
 
     @Test
@@ -81,9 +91,9 @@ class AccountControllerTest {
     @Test
     void testAttemptRegistrationNotAllMandatoryFields() {
         UserRequest userRequest = new UserRequest("TestCase", "Password");
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Missing fields", response.getBody().toString());
+        Assertions.assertEquals("Missing fields", Objects.requireNonNull(response.getBody()).toString());
     }
 
     @Test
@@ -98,7 +108,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -114,7 +124,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -130,7 +140,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -146,7 +156,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -162,7 +172,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -178,7 +188,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -194,7 +204,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -210,7 +220,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -226,7 +236,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -242,7 +252,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -258,7 +268,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -274,7 +284,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -290,7 +300,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename("Mcgregor gregorich!");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -306,7 +316,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename("Mcgregor gregorich the 13th");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -322,7 +332,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename("Luth, the great");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -338,7 +348,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename("Jade-Rose");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -354,7 +364,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename("Mc'Gregor");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -370,7 +380,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename("Luth. the great");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -386,7 +396,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(" ");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -402,7 +412,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -418,7 +428,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -434,7 +444,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -450,7 +460,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -466,7 +476,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -482,7 +492,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -498,7 +508,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -514,7 +524,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -530,7 +540,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -546,7 +556,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -562,7 +572,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -578,7 +588,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -594,7 +604,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -610,7 +620,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -626,7 +636,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -642,7 +652,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -658,7 +668,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -674,7 +684,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -690,7 +700,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -706,7 +716,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns(null);
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -722,7 +732,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns("He/Him Them");
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -738,7 +748,7 @@ class AccountControllerTest {
         userRequest.setPersonalPronouns("He/Him!");
         userRequest.setMiddlename(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -750,7 +760,7 @@ class AccountControllerTest {
         userRequest.setFirstname("Test");
         userRequest.setLastname("Testing");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -762,7 +772,7 @@ class AccountControllerTest {
         userRequest.setFirstname("Test");
         userRequest.setLastname("Testing");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -774,7 +784,7 @@ class AccountControllerTest {
         userRequest.setFirstname("Test");
         userRequest.setLastname("Testing");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -786,7 +796,7 @@ class AccountControllerTest {
         userRequest.setFirstname("");
         userRequest.setLastname("Testing");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -798,7 +808,7 @@ class AccountControllerTest {
         userRequest.setFirstname("Test");
         userRequest.setLastname("");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -810,7 +820,7 @@ class AccountControllerTest {
         userRequest.setFirstname("Test");
         userRequest.setLastname("Testing");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -822,7 +832,7 @@ class AccountControllerTest {
         userRequest.setFirstname("Test");
         userRequest.setLastname("Testing");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -834,7 +844,7 @@ class AccountControllerTest {
         userRequest.setFirstname("Test");
         userRequest.setLastname("Testing");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -846,7 +856,7 @@ class AccountControllerTest {
         userRequest.setFirstname(null);
         userRequest.setLastname("Testing");
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -858,7 +868,7 @@ class AccountControllerTest {
         userRequest.setFirstname("Test");
         userRequest.setLastname(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -874,7 +884,7 @@ class AccountControllerTest {
         userRequest.setBio(null);
         userRequest.setPersonalPronouns(null);
 
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest);
+        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 

@@ -35,7 +35,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
 
     /**
      * Attempts to authenticate a user with a given username and password.
-     * <br>
+     *
      * This method attempts to find a user in the repository by the username provided in the request.
      * This user is then passed to the LoginController to check if the request forms a valid login.
      * Depending on the Login status returned from the LoginService, one of 3 helper methods is called to form
@@ -43,7 +43,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
      */
     @Override
     public void authenticate(AuthenticateRequest request, StreamObserver<AuthenticateResponse> responseObserver) {
-        logger.info("SERVICE - Authenticating user with username: " + request.getUsername());
+        logger.info("SERVICE - Authenticating user with username: {}", request.getUsername());
         AuthenticateResponse.Builder reply = AuthenticateResponse.newBuilder();
 
         User foundUser = repository.findByUsername(request.getUsername());
@@ -54,7 +54,6 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
             case VALID -> setSuccessReply(foundUser, reply);
             case USER_INVALID -> setNoUserReply(request.getUsername(), reply);
             case PASSWORD_INVALID -> setBadPasswordReply(reply);
-
         }
 
         responseObserver.onNext(reply.build());
@@ -100,6 +99,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
                 .setUsername(foundUser.getUsername());
     }
 
+
     /**
      * Helper function for the authenticate method. This is called when a user attempt to login
      * using a username that can't be found in the database
@@ -113,6 +113,7 @@ public class AuthenticateServerService extends AuthenticationServiceImplBase{
                 .setSuccess(false)
                 .setToken("");
     }
+
 
     /**
      * Helper function for the authenticate method. This is called when a user attempt to log in
