@@ -154,7 +154,7 @@ public class EvidenceService {
                 default -> logger.warn("Evidence service - evidence {} attempted to add category {}", evidence.getId(), categoryString);
             }
         }
-        return evidence;
+        return evidenceRepository.save(evidence);
     }
 
 
