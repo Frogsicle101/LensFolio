@@ -298,6 +298,8 @@ function addCategoriesToEvidence(categories) {
  * @return the HTML component for previewing evidence of class evidenceListItem
  */
 function createEvidencePreview(evidence) {
+    console.log(evidence)
+    let skills = getEvidenceTags(evidence.skills)
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
             <div class="row evidenceListItemHeader">
@@ -305,8 +307,23 @@ function createEvidencePreview(evidence) {
                 <p class="col evidenceListItemTitle">${evidence.title}</p>
                 <p class="col evidenceListItemDate">${evidence.date}</p>
             </div>
-            <p class="evidenceListItemInfo">${evidence.description}</p>
+            <div class="evidencePreviewTags skillChipDisplay">${skills}</div>
         </div>`
+
+}
+
+
+function getEvidenceTags(skills) {
+    skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
+
+    let skillsHTML = ``
+    $.each(skills, function (i) {
+        skillsHTML += `<div class="skillChip">
+                <p class="skillChipText">${skills[i].name}</p>
+            </div>`
+    })
+
+    return skillsHTML
 }
 
 /**
