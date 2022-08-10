@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.evidence.SkillRepository;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,6 +33,10 @@ public class SkillController {
     /** Holds persisted information about skills */
     @Autowired
     private SkillRepository skillRepository;
+
+    /** Holds persisted information about evidence */
+    @Autowired
+    private EvidenceRepository evidenceRepository;
 
     /** For checking is a user exists and getting their details. */
     @Autowired
@@ -73,9 +79,16 @@ public class SkillController {
      * @return A ResponseEntity that contains a list of evidences associated with the skill.
      */
     @GetMapping("/evidenceLinkedToSkill")
-    public ResponseEntity<Object> getEvidenceBySkill(@RequestParam String skillName) {
+    public ResponseEntity<Object> getEvidenceBySkill(
+            @RequestParam Integer userId,
+            @RequestParam String skillName) {
         logger.info("GET REQUEST /evidenceLinkedToSkill - attempt to get all evidence for skill: {}", skillName);
         try {
+            if (Objects.equals(skillName, "No Skill")) {
+                List<Evidence> evidence = evidenceRepository.findAllByUserIdAndSkillsIsEmptyOrderByDateDesc(userId);
+                logger.info("GET REQUEST /evidenceLinkedToSkill - No skill evidence retrieved");
+                return new ResponseEntity<>(evidence, HttpStatus.OK);
+            }
             Optional<Skill> skill = skillRepository.findByNameIgnoreCase(skillName);
             if (skill.isEmpty()) {
                 logger.info("GET REQUEST /evidenceLinkedToSkill - skill {} does not exist", skillName);

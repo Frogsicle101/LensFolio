@@ -9,6 +9,9 @@
 <header th:insert="fragments/general.html :: header"></header>
 <section class="skillsPage">
     <div class="skillSideBar">
+        <div class="showAllContainer center">
+            <button id="showAllEvidence" class="btn btn-primary">Show All Evidence</button>
+        </div>
         <div class="categoryContainer">
             <h3 class="categoriesHeader">Categories</h3>
             <div id="categoryList"></div>
@@ -23,7 +26,7 @@
         <h2 class="evidenceTitle">Evidence</h2>
         <button class="btn btn-primary createEvidenceButton" data-bs-toggle="modal"
                 data-bs-target="#addEvidenceModal" type="button">
-            Create
+            Create New Evidence
         </button>
 
         <div class="evidenceContainer">
@@ -37,7 +40,9 @@
                         <p id="evidenceDetailsDate" class="col evidenceDetailsDate"></p>
                         <h2 id="evidenceDetailsTitle" class="evidenceDetailsTitle"></h2>
                     </div>
-                    <hr style="margin-top: 2rem">
+                    <div id="evidenceDetailsCategories" class="skillChipDisplay"></div>
+
+                    <hr style="margin-top: 1rem">
                     <div id="evidenceWebLinks"></div>
                     <hr>
                     <div id="evidenceDetailsDescription" class="evidenceDetails"></div>

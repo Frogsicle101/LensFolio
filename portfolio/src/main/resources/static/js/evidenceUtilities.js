@@ -11,8 +11,14 @@ let userBeingViewedId;
 let selectedEvidenceId;
 
 let skillsArray = []
+
 let categoryArray = ["Qualitative", "Quantitative", "Service"]
 
+let categoriesMapping = new Map([
+    ["SERVICE", "Service"],
+    ["QUALITATIVE", "Qualitative"],
+    ["QUANTITATIVE", "Quantitative"]
+])
 
 $(document).ready(() => {
 
@@ -138,9 +144,15 @@ function webLinkElement(url, alias) {
 * Note: by default the first element is the highlighted element.
 */
 function getAndAddEvidencePreviews() {
+
+    let title = $(document).find(".evidenceTitle").first()
+    title.text("Evidence");
+
+
     $.ajax({
         url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
             addEvidencePreviews(response)
+            updateSelectedEvidence();
             showHighlightedEvidenceDetails()
         }, error: function (error) {
             createAlert(error.responseText, true)
@@ -156,14 +168,21 @@ function getAndAddEvidencePreviews() {
  * message is displayed.
  */
 function getHighlightedEvidenceDetails() {
-    $.ajax({
-        url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
-            setHighlightEvidenceAttributes(response)
-            getHighlightedEvidenceWeblinks()
-        }, error: function () {
-            createAlert("Failed to receive active evidence", true)
-        }
-    })
+
+    if (selectedEvidenceId !== "") {
+        $.ajax({
+            url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
+                setHighlightEvidenceAttributes(response)
+                getHighlightedEvidenceWeblinks()
+            }, error: function (error) {
+                console.log(error)
+                createAlert("Failed to receive active evidence", true)
+            }
+        })
+    } else {
+        $("#evidenceDetailsTitle").text("No Evidence Found")
+    }
+
 }
 
 
@@ -174,7 +193,6 @@ function getHighlightedEvidenceDetails() {
 function getHighlightedEvidenceWeblinks() {
     $.ajax({
         url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId, success: function (response) {
-            console.log(response)
             setHighlightedEvidenceWebLinks(response)
         }, error: function (response) {
             if (response.status !== 404) {
@@ -272,26 +290,19 @@ function addSkillsToEvidence(skills) {
  * @param categories A list of categories associated with a piece of evidence
  */
 function addCategoriesToEvidence(categories) {
-    let highlightedEvidenceCategories = $("#evidenceChipsSection")
-    let evidenceCategoryTitle = $("#evidenceCategoriesTitle")
+    let highlightedEvidenceCategories = $("#evidenceDetailsCategories")
 
-    evidenceCategoryTitle.empty();
     highlightedEvidenceCategories.empty();
 
-    if (categories.length === 0) {
-        evidenceCategoryTitle.append(`<h5>No Categories</h5>`)
-    } else {
-        evidenceCategoryTitle.append(`<h5>Categories:</h5>`)
+    $.each(categories, function(category) {
+        let categoryText = categoriesMapping.get(categories[category]);
 
-        $.each(categories, function(category) {
-            let categoryText = categoriesMapping.get(categories[category]);
+        highlightedEvidenceCategories.append(`
+            <div class="categoryChip">
+                <p class="skillChipText">${categoryText}</p>
+            </div>`)
+    })
 
-            highlightedEvidenceCategories.append(`
-                <div class="categoryChip">
-                    <p class="skillChipText">${categoryText}</p>
-                </div>`)
-        })
-    }
 }
 
 
@@ -302,8 +313,8 @@ function addCategoriesToEvidence(categories) {
  * @return the HTML component for previewing evidence of class evidenceListItem
  */
 function createEvidencePreview(evidence) {
-    console.log(evidence)
     let skills = getEvidenceTags(evidence.skills)
+    let categories = getCategoryTags(evidence.categories)
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
             <div class="row evidenceListItemHeader">
@@ -311,6 +322,7 @@ function createEvidencePreview(evidence) {
                 <p class="col evidenceListItemTitle">${evidence.title}</p>
                 <p class="col evidenceListItemDate">${evidence.date}</p>
             </div>
+            <div class="evidencePreviewTags skillChipDisplay">${categories}</div>
             <div class="evidencePreviewTags skillChipDisplay">${skills}</div>
         </div>`
 
@@ -329,6 +341,20 @@ function getEvidenceTags(skills) {
 
     return skillsHTML
 }
+
+function getCategoryTags(categories) {
+    categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
+
+    let skillsHTML = ``
+    $.each(categories, function (i) {
+        skillsHTML += `<div class="categoryChip">
+                <p class="skillChipText">${categoriesMapping.get(categories[i])}</p>
+            </div>`
+    })
+
+    return skillsHTML
+}
+
 
 /**
  * Hides the date and description fields and sets the Title field to no information.

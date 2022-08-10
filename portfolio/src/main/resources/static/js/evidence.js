@@ -5,13 +5,6 @@ const regExp = new RegExp('[A-Za-z]');
 
 let webLinksCount = 0;
 
-let categoriesMapping = new Map([
-    ["SERVICE", "Service"],
-    ["QUALITATIVE", "Qualitative"],
-    ["QUANTITATIVE", "Quantitative"]
-])
-
-
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
  */
