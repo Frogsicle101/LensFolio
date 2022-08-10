@@ -757,7 +757,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, true)
+                createAlert("Text contains characters that are not allowed", true, ".modal-body")
             }
         })
     }
