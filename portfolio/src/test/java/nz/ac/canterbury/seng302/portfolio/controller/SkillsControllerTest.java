@@ -177,7 +177,8 @@ class SkillsControllerTest {
         Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         mockMvc.perform(get("/evidenceLinkedToSkill")
-                .param("skillName", "writing_tests"))
+                .param("skillName", "writing_tests")
+                        .param("userId", "1"))
                 .andExpect(status().isOk());
     }
 
@@ -191,7 +192,8 @@ class SkillsControllerTest {
         Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillName", "writing_tests"))
+                        .param("skillName", "writing_tests")
+                        .param("userId", "1"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -214,7 +216,8 @@ class SkillsControllerTest {
         Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillName", "writing_tests"))
+                        .param("skillName", "writing_tests")
+                        .param("userId", "1"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -229,7 +232,8 @@ class SkillsControllerTest {
     @Test
     void testGetEvidenceForSkillWhenSkillDoesNotExist() throws Exception {
         mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillName", "Mystery"))
+                        .param("skillName", "Mystery")
+                        .param("userId", "1"))
                 .andExpect(status().isNotFound());
     }
 
@@ -241,7 +245,8 @@ class SkillsControllerTest {
         Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenThrow(e);
 
         mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillName", "writing_tests"))
+                        .param("skillName", "writing_tests")
+                        .param("userId", "1"))
                 .andExpect(status().isInternalServerError());
     }
 
