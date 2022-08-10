@@ -773,7 +773,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, true)
+                createAlert("Text contains characters that are not allowed", true, ".modal-body")
             }
         })
     }
@@ -790,7 +790,6 @@ $(document).on('click', '.addWebLinkButton', function () {
         let address = $("#webLinkUrl").val()
         let alias = $("#webLinkName").val()
         let form = $(".webLinkForm")
-        console.log(address)
         validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()
