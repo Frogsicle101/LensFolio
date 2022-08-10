@@ -39,6 +39,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    // Repeat messages
+    private static final String UNEXPECTED_ERROR_MESSAGE = "An Unexpected error occurred";
+    private static final String UNFOUND_USER_ERROR_MESSAGE = "Could not find user";
+
 
     /** First Name Comparator, has other name fields after to decide order if first names are the same*/
     Comparator<User> compareByFirstName = Comparator.comparing((User user) ->
@@ -73,9 +77,17 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     Comparator<User> compareByRole = (userOne, userTwo) -> {
         List<UserRole> userOneRoles = userOne.getRoles();
         List<UserRole> userTwoRoles = userTwo.getRoles();
-        Collections.sort(userOneRoles);
-        Collections.sort(userTwoRoles);
-        return userOneRoles.toString().compareTo(userTwoRoles.toString());
+        Integer userOnePrecedence = (userOneRoles.contains(UserRole.STUDENT) ? 1 : 0) +
+                                    (userOneRoles.contains(UserRole.TEACHER) ? 2 : 0) +
+                                    (userOneRoles.contains(UserRole.COURSE_ADMINISTRATOR) ? 4 : 0);
+        Integer userTwoPrecedence = (userTwoRoles.contains(UserRole.STUDENT) ? 1 : 0) +
+                                    (userTwoRoles.contains(UserRole.TEACHER) ? 2 : 0) +
+                                    (userTwoRoles.contains(UserRole.COURSE_ADMINISTRATOR) ? 4 : 0);
+
+        userOneRoles.sort(Collections.reverseOrder());
+        userTwoRoles.sort(Collections.reverseOrder());
+
+        return userOnePrecedence.compareTo(userTwoPrecedence);
     };
 
 
@@ -88,11 +100,16 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void getUserAccountById(GetUserByIdRequest request, StreamObserver<UserResponse> responseObserver) {
-        logger.info("SERVICE - Getting user details by Id: " + request.getId());
+        logger.info("SERVICE - Getting user details by Id: {}", request.getId());
         User user = repository.findById(request.getId());
-        logger.info("Sending user details for " + user.getUsername());
-        UserResponse reply = user.userResponse();
-
+        UserResponse reply;
+        if (user == null) {
+            logger.warn("Could not find user with id {}, -1 responded", request.getId());
+            reply = UserResponse.newBuilder().setId(-1).build();
+        } else {
+            logger.info("Sending user details for {}", user.getUsername());
+            reply = user.userResponse();
+        }
         responseObserver.onNext(reply);
         responseObserver.onCompleted();
     }
@@ -106,7 +123,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void register(UserRegisterRequest request, StreamObserver<UserRegisterResponse> responseObserver) {
-        logger.info("SERVICE - Registering new user with username " + request.getUsername());
+        logger.info("SERVICE - Registering new user with username {}", request.getUsername());
         UserRegisterResponse.Builder reply = UserRegisterResponse.newBuilder();
 
         try {
@@ -123,14 +140,14 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     TimeService.getTimeStamp());
 
             if (repository.findByUsername(user.getUsername()) == null) {
-                logger.info("Registration Success - for new user " + request.getUsername());
+                logger.info("Registration Success - for new user {}", request.getUsername());
                 repository.save(user);
                 groupService.addGroupMemberByGroupShortName("Non-Group",user.getId());
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())
                         .setMessage("Account has successfully been registered");
             } else {
-                    logger.info("Registration Failure - username " + request.getUsername() + " already in use");
+                    logger.info("Registration Failure - username {} already in use", request.getUsername());
                     reply.setIsSuccess(false);
                     reply.setMessage("Username already in use");
             }
@@ -138,12 +155,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         } catch (io.grpc.StatusRuntimeException e) {
             reply.setIsSuccess(false);
             reply.setMessage("An error occurred registering user from request");
-            logger.error("An error occurred registering user from request: " + request + "\n see stack trace below \n");
+            logger.error("An error occurred registering user from request: {}\n see stack trace below \n", request);
             logger.error(e.getMessage());
         } catch (Exception e) {
-            logger.info("An unexpected error occurred when trying to add the new user:\n" + e.getMessage());
+            logger.info("An unexpected error occurred when trying to add the new user:\n {}", e.getMessage());
             reply.setIsSuccess(false)
-                    .setMessage("An Unexpected error occurred");
+                    .setMessage(UNEXPECTED_ERROR_MESSAGE);
         }
 
         responseObserver.onNext(reply.build());
@@ -164,14 +181,14 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Transactional
     @Override
     public void editUser(EditUserRequest request, StreamObserver<EditUserResponse> responseObserver) {
-        logger.info("SERVICE - Editing details for user with id " + request.getUserId());
+        logger.info("SERVICE - Editing details for user with id {}", request.getUserId());
         EditUserResponse.Builder response = EditUserResponse.newBuilder();
         // Try to find user by ID
         User userToEdit = repository.findById(request.getUserId());
 
         if (userToEdit != null) {
             try {
-                logger.info("User Edit Success - updated user details for user " + request.getUserId());
+                logger.info("User Edit Success - updated user details for user {}", request.getUserId());
                 userToEdit.setFirstName(request.getFirstName());
                 userToEdit.setMiddleName(request.getMiddleName());
                 userToEdit.setLastName(request.getLastName());
@@ -183,13 +200,13 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 response.setIsSuccess(true)
                         .setMessage("Successfully updated details for " + userToEdit.getUsername());
             } catch (StatusRuntimeException e) {
-                logger.error("An error occurred editing user from request: " + request + "\n See stack trace below \n");
+                logger.error("An error occurred editing user from request: {}\n See stack trace below \n", request);
                 logger.error(e.getMessage());
                 response.setIsSuccess(false)
                         .setMessage("Incorrect current password provided");
             }
         } else {
-            logger.info("User Edit Failure - could not find user with id " + request.getUserId());
+            logger.info("User Edit Failure - could not find user with id {}", request.getUserId());
             response.setIsSuccess(false)
                     .setMessage("Could not find user to edit");
         }
@@ -215,7 +232,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Transactional
     @Override
     public void changeUserPassword(ChangePasswordRequest request, StreamObserver<ChangePasswordResponse> responseObserver) {
-        logger.info("SERVICE - Changing password for user with id" + request.getUserId());
+        logger.info("SERVICE - Changing password for user with id {}", request.getUserId());
         ChangePasswordResponse.Builder response = ChangePasswordResponse.newBuilder();
 
         User userToUpdate = repository.findById(request.getUserId());
@@ -228,27 +245,27 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 // Check encrypted password against pw hash
                 if (userToUpdate.getPwhash().equals(inputPWHash)) {
                     // If password hash matches, update
-                    logger.info("Password Change Success - password updated for user " + request.getUserId());
+                    logger.info("Password Change Success - password updated for user {}", request.getUserId());
                     userToUpdate.setPwhash(request.getNewPassword());
                     repository.save(userToUpdate);
                     response.setIsSuccess(true)
                             .setMessage("Successfully updated details for " + userToUpdate.getUsername());
                 } else {
-                    logger.info("Password Change Failure - incorrect old password for " + request.getUserId());
+                    logger.info("Password Change Failure - incorrect old password for {}", request.getUserId());
                     // Password hash doesn't match so don't update
                     response.setIsSuccess(false)
                             .setMessage("Incorrect current password provided");
                 }
             } catch (StatusRuntimeException e) {
-                logger.error("An error occurred changing user password from request: " + request + "\n See stack trace below \n");
+                logger.error("An error occurred changing user password from request: {}\n See stack trace below \n", request);
                 logger.error(e.getMessage());
                 response.setIsSuccess(false)
                         .setMessage("An error has occurred while connecting to the database");
             }
         } else {
-            logger.info("Password Change Failure - could not find user with id " + request.getUserId());
+            logger.info("Password Change Failure - could not find user with id {}", request.getUserId());
             response.setIsSuccess(false)
-                    .setMessage("Could not find user");
+                    .setMessage(UNFOUND_USER_ERROR_MESSAGE);
         }
 
         responseObserver.onNext(response.build());
@@ -305,7 +322,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void addRoleToUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
-        logger.info("Service - Adding role " + request.getRole() + " to user " + request.getUserId());
+        logger.info("Service - Adding role {} to user {}", request.getRole(), request.getUserId() );
         UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
 
         User userToUpdate = repository.findById(request.getUserId());
@@ -325,13 +342,13 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                             .setMessage("User already has that role");
                 }
             } catch (Exception e){
-                logger.info("An unexpected error occurred when trying to add a role to user:\n" + e.getMessage());
+                logger.info("An unexpected error occurred when trying to add a role to user:\n{}", e.getMessage());
                 response.setIsSuccess(false)
-                        .setMessage("An Unexpected error occurred");
+                        .setMessage(UNEXPECTED_ERROR_MESSAGE);
             }
         } else {
             response.setIsSuccess(false)
-                    .setMessage("Could not find user");
+                    .setMessage(UNFOUND_USER_ERROR_MESSAGE);
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
@@ -356,7 +373,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void removeRoleFromUser(ModifyRoleOfUserRequest request, StreamObserver<UserRoleChangeResponse> responseObserver) {
-        logger.info("Service - Removing role " + request.getRole() +  " from user " + request.getUserId());
+        logger.info("Service - Removing role {} from user {}", request.getRole(), request.getUserId());
         UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
 
         User userToUpdate = repository.findById(request.getUserId());
@@ -365,8 +382,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
             try {
                 userToUpdate.deleteRole(request.getRole());
                 repository.save(userToUpdate);
-                logger.info("Role Removal Success - removed " + request.getRole()
-                        + " from user " + request.getUserId());
+                logger.info("Role Removal Success - removed {} from user {}", request.getRole(), request.getUserId());
                 if (request.getRole().equals(UserRole.TEACHER)){
                     groupService.removeGroupMembersByGroupShortName("Teachers", userToUpdate.getId());
                 }
@@ -375,20 +391,19 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                                 request.getRole(), userToUpdate.getId()));
             } catch (IllegalStateException e) {
                 //The user has only one role - we can't delete it!
-                logger.info("Role Removal Failure - user " + request.getUserId()
-                        + " has 1 role. Users cannot have 0 roles");
+                logger.info("Role Removal Failure - user {} has 1 role. Users cannot have 0 roles", request.getUserId());
                 response.setIsSuccess(false)
                         .setMessage("The user can't have zero roles");
             } catch (Exception e) {
                 logger.info(e.getMessage());
                 response.setIsSuccess(false)
-                        .setMessage("An Unexpected error occurred");
+                        .setMessage(UNEXPECTED_ERROR_MESSAGE);
             }
         } else {
             //Here, we couldn't find the user, so we do not succeed.
-            logger.info("Role Removal Failure - could not find user " + request.getUserId());
+            logger.info("Role Removal Failure - could not find user {}", request.getUserId());
             response.setIsSuccess(false)
-                    .setMessage("Could not find user");
+                    .setMessage(UNFOUND_USER_ERROR_MESSAGE);
         }
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();

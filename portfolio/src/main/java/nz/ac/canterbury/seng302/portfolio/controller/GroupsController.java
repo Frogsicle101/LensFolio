@@ -264,7 +264,7 @@ public class GroupsController {
         try {
             ModifyGroupDetailsRequest request = ModifyGroupDetailsRequest.newBuilder()
                     .setGroupId(groupId)
-                    .setShortName(shortName) //A blank shortname should be ignored (i.e. no changes made)
+                    .setShortName(shortName)
                     .setLongName(longName)
                     .build();
             ModifyGroupDetailsResponse response = groupsClientService.modifyGroupDetails(request);

@@ -67,8 +67,8 @@ section {
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
+    --background-chip-colour: #57A0D3;
 }
-
 
 /*CSS relating to Header*/
 
@@ -86,7 +86,6 @@ section {
     box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
     color: white;
 }
-
 
 /* properties of the dropdown 'zone' */
 .profileDropdown {
@@ -116,11 +115,9 @@ section {
     height: 2.5rem;
 }
 
-
 .username {
     font-weight: bold;
 }
-
 
 .dropdown-content {
     position: absolute;
@@ -143,7 +140,6 @@ section {
 .dropdown-content a:hover {
     background-color: #626262;
 }
-
 
 /*Account*/
 .accountBody {
@@ -171,7 +167,6 @@ section {
     border-radius: 100%;
 }
 
-
 #accountPageImage {
     height: 15rem;
 }
@@ -180,7 +175,6 @@ section {
     content: "*";
     color: red;
 }
-
 
 /*Login*/
 .loginSection {
@@ -204,7 +198,6 @@ section {
     align-self: flex-start;
     padding: 2rem;
 }
-
 
 /*Portfolio*/
 .projectDetails {
@@ -230,9 +223,7 @@ section {
 
 }
 
-
 /*Portfolio Project*/
-
 
 /*Porfolio - Events*/
 
@@ -318,7 +309,6 @@ section {
     color: #ff0000;
 }
 
-
 .event p {
     margin: 0;
 }
@@ -369,7 +359,6 @@ section {
     font-weight: bolder;
 }
 
-
 .beingEdited {
     border: solid 1px blue;
 }
@@ -395,7 +384,6 @@ section {
     transition: all 0.3s ease-out;
     will-change: transform;
 }
-
 
 .sprint h6 {
     color: var(--secondary-text-colour-darker);
@@ -430,7 +418,6 @@ section {
 .editSprint:hover {
     color: var(--select-green);
 }
-
 
 .noStyleButton {
     background: none;
@@ -504,7 +491,6 @@ section {
     align-self: center;
 }
 
-
 .listTable a {
     text-decoration: none;
     color: var(--main-text-color);
@@ -542,7 +528,6 @@ section {
     color: #f9f9f9;
 }
 
-
 .tableStyled tbody tr {
     border-bottom: 1px solid #dddddd;
 }
@@ -555,6 +540,9 @@ section {
     border-bottom: 2px solid #000000;
 }
 
+.userRoleRow:hover :not(.roleButtonsContainer) {
+    cursor: grab;
+}
 
 /*Calendar*/
 
@@ -591,7 +579,6 @@ section {
 .eventCalendar {
     bottom: -77px;
 }
-
 
 .calendarOccasion {
     color: black;
@@ -730,7 +717,6 @@ section {
     align-content: center;
 }
 
-
 .moveToDiv{
     display: flex;
     flex-direction: row;
@@ -741,7 +727,7 @@ section {
     margin: 1rem;
 }
 
-.clickableRow:hover{
+.clickableRow:hover, .evidenceListItem :hover{
     cursor: pointer;
 }
 
@@ -798,7 +784,7 @@ section {
 
 .inlineText {
     display: flex;
-    justify-content: left;
+    justify-content: center;
 }
 
 #groupSettingsRepoHeader {
@@ -820,7 +806,6 @@ section {
 /* Alerts */
 
 #alertPopUp {
-
     position: fixed;
     bottom: 10px;
     left: 10px;
@@ -845,11 +830,11 @@ section {
     font-size: 0.8rem;
 }
 
-.backgroundGreen{
+.backgroundGreen {
     background-color: var(--alert-green);
 }
 
-.backgroundRed{
+.backgroundRed {
     background-color: var(--alert-red);
 }
 
@@ -867,4 +852,240 @@ section {
     position: absolute;
     left: 0.3rem;
     margin-top: 0.9rem;
+}
+
+/* Evidence Page */
+
+.evidencePage {
+    display: flex;
+    flex-direction: row
+}
+
+.evidenceListContainer, .evidenceDetailsContainer {
+    border: solid var(--main-border-colour) 1px;
+}
+
+.evidenceDetailsContainer {
+    padding: 1rem 2rem 2rem;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+}
+
+.evidenceDetailsDate {
+    color: var(--secondary-text-colour-darker);
+    font-weight: lighter;
+}
+
+.evidenceDetailsHeader {
+    margin-bottom: 1rem;
+}
+
+.evidenceListContainer {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    max-width: 30%;
+    padding-right: 0;
+    padding-left: 0;
+ }
+
+.evidenceListMenu, .evidenceList {
+    align-self: center;
+}
+
+.createEvidenceButton {
+    margin-top: 1rem;
+}
+
+.evidenceListTitle {
+    text-align: center;
+    padding: inherit;
+    margin-bottom: 0;
+}
+
+#evidenceList {
+    overflow: auto;
+    height: 38rem;
+}
+
+.evidenceListItem {
+    margin: 1rem;
+    padding: 1rem;
+    border: solid 1px var(--secondary-text-colour);
+    border-radius: var(--border-radius);
+    max-width: 95%;
+}
+
+.evidenceListItemTitle {
+    font-weight: bold;
+}
+
+.evidenceListItemDate {
+    color: var(--secondary-text-colour-darker);
+    font-weight: lighter;
+    text-align: end;
+}
+
+.evidenceDeleteButton {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.evidenceFormName, .evidenceFormDate ,.evidenceFormDescription {
+    padding-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+#evidenceFormCategories {
+    padding: 1.5rem;
+}
+
+.evidenceFormCategoryButton {
+    height: 3rem;
+    align-items: center;
+    min-width: 10rem;
+    padding-left: 1.2rem;
+    transition: 0.5s ease-in-out;
+}
+
+.evidenceCategoryTickIcon {
+    margin-left: 1rem;
+    font-size: 1.2rem;
+    display: none
+}
+
+.evidenceFormSkills{
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.invalid {
+    border-color: red;
+}
+
+.selectedEvidence {
+    background-color: #eaeaea;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.addWebLinkButton {
+    margin-right: 1.5rem;
+    max-width: fit-content;
+    align-self: self-end;
+    margin-top: 1rem;
+}
+
+.weblink-form {
+    padding-right: 1.5rem;
+    align-self: flex-end;
+}
+
+#webLinkName {
+    margin-top: 0.5rem
+}
+
+#webLinkTitle {
+    padding-left: 1.5rem;
+    padding-top: .5rem;
+}
+
+.webLinkElement {
+    display: flex;
+    flex-direction: row;
+    padding-left: 2rem;
+    padding-right: 1.5rem;
+    width: inherit;
+}
+
+.lockIcon {
+    align-self: center;
+    margin-bottom: 0.1rem;
+    margin-right: 0.5rem;
+}
+
+.address-alert, .weblink-name-alert {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+#addedWebLinks {
+    width: fit-content;
+}
+
+.webLinkTooltip.tooltip-arrow {
+    padding-left: 2rem;
+}
+
+.addedWebLinkName:hover {
+    text-decoration-line: underline;
+    color: blue;
+    cursor: grab;
+}
+
+.ui-autocomplete {
+    z-index: 10000;
+    max-height: 5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.skillChipDisplay{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-bottom: 1.5rem;
+}
+
+#evidenceChipsSection {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.skillChip{
+    padding: 0.2rem 1rem 0.2rem;
+    position: relative;
+    margin: 0.2rem;
+    background-color: var(--background-chip-colour);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: row;
+    box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+}
+
+.categoryChip{
+    padding: 0.2rem 1rem 0.2rem;
+    position: relative;
+    margin: 0.2rem;
+    background-color: navajowhite;
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: row;
+    box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+}
+
+.skillChipInvalid{
+    background-color: #ee3636;
+}
+
+.skillChipText{
+    margin: auto;
+}
+
+.chipDelete{
+    position: absolute;
+    top: -0.2rem;
+    right: -0.2rem;
+
+}
+
+.chipDelete:hover{
+    cursor: pointer;
+    color: red;
 }
