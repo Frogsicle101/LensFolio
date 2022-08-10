@@ -6,17 +6,17 @@ import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
 import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import org.springframework.beans.factory.annotation.Autowired;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -154,7 +154,7 @@ public class EvidenceService {
                 default -> logger.warn("Evidence service - evidence {} attempted to add category {}", evidence.getId(), categoryString);
             }
         }
-        return evidence;
+        return evidenceRepository.save(evidence);
     }
 
 

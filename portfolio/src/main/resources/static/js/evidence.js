@@ -1,5 +1,14 @@
 let webLinksCount = 0;
 
+let skillsArray = []
+
+let categoriesMapping = new Map([
+    ["SERVICE", "Service"],
+    ["QUALITATIVE", "Qualitative"],
+    ["QUANTITATIVE", "Quantitative"]
+])
+
+
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
  */
@@ -134,7 +143,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const date = $("#evidenceDate").val()
         const description = $("#evidenceDescription").val()
         const projectId = 1
-        let webLinks = getWeblinksList()
+        let webLinks = getWeblinksList();
+        const categories = getCategories();
 
         const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
         skillsArray = [...new Set(skillsArray.concat(skills))];
@@ -143,7 +153,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         })
         addSkillsToSideBar();
 
-        const categories = getCategories();
+
         let data = JSON.stringify({
             "title": title,
             "date": date,
@@ -430,6 +440,84 @@ $(document).on("click", ".chipDelete", function () {
 
 
 // --------------------------- Functional HTML Components ------------------------------------
+
+
+/**
+ * Sets the evidence details (big display) values to the given piece of evidence.
+ *
+ * @param evidenceDetails The title, date, description, and skills for a piece of evidence.
+ */
+function setHighlightEvidenceAttributes(evidenceDetails) {
+    let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
+    let highlightedEvidenceDate = $("#evidenceDetailsDate")
+    let highlightedEvidenceDescription = $("#evidenceDetailsDescription")
+
+    highlightedEvidenceTitle.text(evidenceDetails.title)
+    highlightedEvidenceDate.text(evidenceDetails.date)
+    highlightedEvidenceDescription.text(evidenceDetails.description)
+    addSkillsToEvidence(evidenceDetails.skills)
+
+    highlightedEvidenceTitle.show()
+    highlightedEvidenceDate.show()
+    highlightedEvidenceDescription.show()
+    addCategoriesToEvidence(evidenceDetails.categories)
+
+    if (userBeingViewedId === userIdent) {
+        $(".evidenceDeleteButton").show()
+    } else {
+        $(".evidenceDeleteButton").hide()
+    }
+}
+
+
+/**
+ * Receives a list of skills and adds them to the focused evidence.
+ *
+ * @param skills The skills to be added.
+ */
+function addSkillsToEvidence(skills) {
+    let highlightedEvidenceSkills = $("#evidenceDetailsSkills")
+    highlightedEvidenceSkills.empty();
+
+    // Sorts in alphabetical order
+    skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
+
+    $.each(skills, function (i) {
+        highlightedEvidenceSkills.append(`
+                <div class="skillChip">
+                    <p class="skillChipText">${skills[i].name}</p>
+                </div>`)
+    })
+}
+
+
+/**
+ * A function to display all the categories for a piece of evidence
+ *
+ * @param categories A list of categories associated with a piece of evidence
+ */
+function addCategoriesToEvidence(categories) {
+    let highlightedEvidenceCategories = $("#evidenceChipsSection")
+    let evidenceCategoryTitle = $("#evidenceCategoriesTitle")
+
+    evidenceCategoryTitle.empty();
+    highlightedEvidenceCategories.empty();
+
+    if (categories.length === 0) {
+        evidenceCategoryTitle.append(`<h5>No Categories</h5>`)
+    } else {
+    evidenceCategoryTitle.append(`<h5>Categories:</h5>`)
+
+    $.each(categories, function(category) {
+        let categoryText = categoriesMapping.get(categories[category]);
+
+        highlightedEvidenceCategories.append(`
+                <div class="categoryChip">
+                    <p class="skillChipText">${categoryText}</p>
+                </div>`)
+    })
+    }
+}
 
 
 /**

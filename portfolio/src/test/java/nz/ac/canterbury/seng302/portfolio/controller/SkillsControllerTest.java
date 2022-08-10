@@ -74,7 +74,7 @@ class SkillsControllerTest {
         String expectedResponseString = "[]";
         UserResponse validUserResponse = UserResponse.newBuilder().setId(validUserId).build();
 
-        Mockito.when(skillRepository.findSkillsByEvidenceUserId(validUserId)).thenReturn(emptySkills);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
         Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
 
         MvcResult result = mockMvc.perform(get("/skills")
@@ -95,7 +95,7 @@ class SkillsControllerTest {
         String expectedResponseString = "[" + usersSkill.toJsonString() + "]";
         UserResponse validUserResponse = UserResponse.newBuilder().setId(validUserId).build();
 
-        Mockito.when(skillRepository.findSkillsByEvidenceUserId(validUserId)).thenReturn(emptySkills);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
         Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
 
         MvcResult result = mockMvc.perform(get("/skills")
@@ -120,7 +120,7 @@ class SkillsControllerTest {
         String expectedResponseString = "[" + usersSkill1.toJsonString() + "," + usersSkill2.toJsonString() +  "," + usersSkill3.toJsonString() + "]";
         UserResponse validUserResponse = UserResponse.newBuilder().setId(validUserId).build();
 
-        Mockito.when(skillRepository.findSkillsByEvidenceUserId(validUserId)).thenReturn(emptySkills);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
         Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
 
         MvcResult result = mockMvc.perform(get("/skills")
@@ -145,7 +145,7 @@ class SkillsControllerTest {
         List<Skill> emptySkills = new ArrayList<>();
         UserResponse invalidUserResponse = UserResponse.newBuilder().setId(-1).build();
 
-        Mockito.when(skillRepository.findSkillsByEvidenceUserId(validUserId)).thenReturn(emptySkills);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
         Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(invalidUserResponse);
 
         mockMvc.perform(get("/skills")

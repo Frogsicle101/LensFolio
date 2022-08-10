@@ -4,6 +4,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class GroupDTO {
@@ -31,6 +32,7 @@ public class GroupDTO {
         for (UserResponse userResponse : groupDetailsResponse.getMembersList()) {
             userList.add(new UserDTO(userResponse));
         }
+        userList.sort(Comparator.comparingInt(UserDTO::getId));
     }
 
     public Integer getId() {

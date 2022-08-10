@@ -54,7 +54,7 @@
         </div>
 
     </div>
-    <div class="mb3">
+    <div class="mb-3">
         <label class="required form-label" for="email">Email address</label>
         <input class="form-control canDisable" id="email" maxlength="100" name="email" required
                th:pattern="${emailRegex}"
@@ -78,9 +78,13 @@
     </div>
     <div class="mb-3">
         <label class="form-label" for="bio">Bio</label>
+
         <!-- The max length for fields in our database is, by default, somewhere around 250
         So going beyond 250 characters, even for a bio, runs the risk of errors -->
-        <textarea class="form-control canDisable" contenteditable id="bio" maxlength="250" name="bio"></textarea>
+        <textarea class="form-control canDisable" contenteditable id="bio" maxlength="250" name="bio"
+                  th:pattern="${alphaSpacesRegexCanBeEmpty}"
+                  title="Only letters A-Z upper or lowercase and , . ' or - allowed, with words seperated by a space"
+                  type="text"></textarea>
     </div>
     <button class="btn btn-primary " id="registerSubmitButton" type="submit">Submit</button>
     <button class="btn btn-secondary" onclick="history.back()" type="button">Back</button>

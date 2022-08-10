@@ -1,7 +1,11 @@
 $(document).ready(() => {
     //Gets the project Id
     const projectId = $("#projectId").html()
-    getSprints()
+    getSprints(() => {
+        refreshDeadlines(projectId);
+        refreshMilestones(projectId);
+        refreshEvents(projectId);
+    });
 
 
     /**
@@ -76,7 +80,7 @@ $(document).on("click", ".deleteSprint", function () {
 })
 
 
-function getSprints() {
+function getSprints(callback = ()=>{}) {
     $.ajax({
         url: 'getSprintList',
         type: 'GET',
@@ -88,6 +92,7 @@ function getSprints() {
             }
             sprintContainer.slideDown(400)
             removeElementIfNotAuthorized()
+            callback();
         }
     })
 }

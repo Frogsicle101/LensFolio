@@ -1,9 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
-import nz.ac.canterbury.seng302.portfolio.service.GroupService;
 import nz.ac.canterbury.seng302.portfolio.DTO.GroupRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.service.GroupService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -17,8 +17,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The controller for managing requests to edit groups and their user's memberships.
@@ -41,6 +41,8 @@ public class GroupsController {
     @Autowired
     private GroupService groupService;
 
+    private static final Integer TEACHER_GROUP_ID = 1;
+
     /**
      * For requesting user information form the IdP.
      */
@@ -48,7 +50,8 @@ public class GroupsController {
     private UserAccountsClientService userAccountsClientService;
 
     private static final int OFFSET = 0;
-    private static final String ORDER_BY = "shortname-increasing";
+    private static final String ORDER_BY = "shortName";
+    private static final Boolean IS_ASCENDING = true;
     private static final int LIMIT = 20;
 
 
@@ -78,6 +81,7 @@ public class GroupsController {
                     .setOffset(OFFSET)
                     .setOrderBy(ORDER_BY)
                     .setLimit(LIMIT)
+                    .setIsAscendingOrder(IS_ASCENDING)
                     .build();
             PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
 
@@ -192,7 +196,7 @@ public class GroupsController {
         } catch (Exception e) {
             logger.error("ERROR /groups/edit - an error occurred while creating a group");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Unable to create group " + createInfo.getShortName(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -237,6 +241,12 @@ public class GroupsController {
                 .setGroupId(groupId)
                 .build();
         GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
+
+        // Checks if the user trying to edit is a member of the group being edited
+        if (!response.getMembersList().stream().map(UserResponse::getId).toList().contains(userId)){
+            return new ResponseEntity<>("Only members of this group can edit the name", HttpStatus.UNAUTHORIZED);
+        }
+
         return groupEdit(groupId, response.getShortName(), longName);
     }
 
@@ -244,6 +254,7 @@ public class GroupsController {
     /**
      * An extracted helper method that makes a request to the identity provider
      * to modify a group's details.
+     *
      * @param groupId The id of the group to be modified
      * @param shortName The new short name of the group. Use "" to leave it unmodified.
      * @param longName The new long name of the group.
@@ -306,12 +317,21 @@ public class GroupsController {
      */
     @DeleteMapping("/groups/removeUsers")
     public ResponseEntity<String> removeUsersFromGroup(
+            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "groupId") Integer groupId,
-            @RequestParam(value = "userIds") ArrayList<Integer> userIds
+            @RequestParam(value = "userIds") List<Integer> userIds
     ) {
         logger.info("DELETE REQUEST /groups/removeUsers");
 
         try {
+            if (Objects.equals(groupId, TEACHER_GROUP_ID)) {
+                logger.info("Removing users from teacher group, checking user is admin");
+                UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+                if (!userResponse.getRolesList().contains(UserRole.COURSE_ADMINISTRATOR)) {
+                    return new ResponseEntity<>("You must be a course administrator to do this.", HttpStatus.UNAUTHORIZED);
+                }
+
+            }
             RemoveGroupMembersResponse response = groupService.removeUsersFromGroup(groupId, userIds);
             if (response.getIsSuccess()) {
                 return new ResponseEntity<>(response.getMessage(), HttpStatus.OK);
