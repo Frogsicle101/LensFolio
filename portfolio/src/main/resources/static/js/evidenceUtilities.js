@@ -268,26 +268,19 @@ function addSkillsToEvidence(skills) {
  * @param categories A list of categories associated with a piece of evidence
  */
 function addCategoriesToEvidence(categories) {
-    let highlightedEvidenceCategories = $("#evidenceChipsSection")
-    let evidenceCategoryTitle = $("#evidenceCategoriesTitle")
+    let highlightedEvidenceCategories = $("#evidenceDetailsCategories")
 
-    evidenceCategoryTitle.empty();
     highlightedEvidenceCategories.empty();
 
-    if (categories.length === 0) {
-        evidenceCategoryTitle.append(`<h5>No Categories</h5>`)
-    } else {
-        evidenceCategoryTitle.append(`<h5>Categories:</h5>`)
+    $.each(categories, function(category) {
+        let categoryText = categoriesMapping.get(categories[category]);
 
-        $.each(categories, function(category) {
-            let categoryText = categoriesMapping.get(categories[category]);
+        highlightedEvidenceCategories.append(`
+            <div class="categoryChip">
+                <p class="skillChipText">${categoryText}</p>
+            </div>`)
+    })
 
-            highlightedEvidenceCategories.append(`
-                <div class="categoryChip">
-                    <p class="skillChipText">${categoryText}</p>
-                </div>`)
-        })
-    }
 }
 
 
