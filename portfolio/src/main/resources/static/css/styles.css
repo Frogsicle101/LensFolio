@@ -831,14 +831,19 @@ section {
 
 .evidenceDetailsContainer {
     padding: 1rem 2rem 2rem;
-    display: flex;
-    width: 100%;
-    flex-direction: column;
+    margin-right: 2rem;
+    width: auto;
+    height: 100%;
 }
 
 .evidenceDetailsDate {
     color: var(--secondary-text-colour-darker);
     font-weight: lighter;
+}
+
+#evidenceDetailsSkills {
+    bottom: 4rem;
+    position: absolute;
 }
 
 .evidenceDetailsHeader {
@@ -870,7 +875,7 @@ section {
 
 #evidenceList {
     overflow: auto;
-    height: 38rem;
+    height: 50rem;
 }
 
 .evidenceListItem {
