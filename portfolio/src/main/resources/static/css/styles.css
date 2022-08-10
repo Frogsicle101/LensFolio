@@ -1050,7 +1050,6 @@ section {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    padding-bottom: 1.5rem;
 }
 
 #evidenceChipsSection {
@@ -1068,6 +1067,7 @@ section {
     display: flex;
     flex-direction: row;
     box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+    cursor: pointer;
 }
 
 .categoryChip{
@@ -1131,6 +1131,7 @@ section {
     line-height: 1rem;
     border-bottom: solid var(--main-border-colour) 1px;
     align-content: center;
+    cursor: pointer;
 }
 
 
@@ -1143,6 +1144,7 @@ section {
     display: flex;
     flex-direction: row;
     box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+    cursor: pointer;
 }
 
 

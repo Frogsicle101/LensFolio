@@ -17,8 +17,14 @@ const regex = new RegExp("[A-Za-z0-9_-]+");
 let selectedEvidenceId;
 
 let skillsArray = []
+
 let categoryArray = ["Qualitative", "Quantitative", "Service"]
 
+let categoriesMapping = new Map([
+    ["SERVICE", "Service"],
+    ["QUALITATIVE", "Qualitative"],
+    ["QUANTITATIVE", "Quantitative"]
+])
 
 $(document).ready(() => {
 
@@ -278,26 +284,19 @@ function addSkillsToEvidence(skills) {
  * @param categories A list of categories associated with a piece of evidence
  */
 function addCategoriesToEvidence(categories) {
-    let highlightedEvidenceCategories = $("#evidenceChipsSection")
-    let evidenceCategoryTitle = $("#evidenceCategoriesTitle")
+    let highlightedEvidenceCategories = $("#evidenceDetailsCategories")
 
-    evidenceCategoryTitle.empty();
     highlightedEvidenceCategories.empty();
 
-    if (categories.length === 0) {
-        evidenceCategoryTitle.append(`<h5>No Categories</h5>`)
-    } else {
-        evidenceCategoryTitle.append(`<h5>Categories:</h5>`)
+    $.each(categories, function(category) {
+        let categoryText = categoriesMapping.get(categories[category]);
 
-        $.each(categories, function(category) {
-            let categoryText = categoriesMapping.get(categories[category]);
+        highlightedEvidenceCategories.append(`
+            <div class="categoryChip">
+                <p class="skillChipText">${categoryText}</p>
+            </div>`)
+    })
 
-            highlightedEvidenceCategories.append(`
-                <div class="categoryChip">
-                    <p class="skillChipText">${categoryText}</p>
-                </div>`)
-        })
-    }
 }
 
 
@@ -308,8 +307,9 @@ function addCategoriesToEvidence(categories) {
  * @return the HTML component for previewing evidence of class evidenceListItem
  */
 function createEvidencePreview(evidence) {
-    console.log(evidence)
     let skills = getEvidenceTags(evidence.skills)
+    console.log(evidence)
+    let categories = getCategoryTags(evidence.categories)
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
             <div class="row evidenceListItemHeader">
@@ -317,6 +317,7 @@ function createEvidencePreview(evidence) {
                 <p class="col evidenceListItemTitle">${evidence.title}</p>
                 <p class="col evidenceListItemDate">${evidence.date}</p>
             </div>
+            <div class="evidencePreviewTags skillChipDisplay">${categories}</div>
             <div class="evidencePreviewTags skillChipDisplay">${skills}</div>
         </div>`
 
@@ -335,6 +336,21 @@ function getEvidenceTags(skills) {
 
     return skillsHTML
 }
+
+function getCategoryTags(categories) {
+    console.log(categories)
+    categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
+
+    let skillsHTML = ``
+    $.each(categories, function (i) {
+        skillsHTML += `<div class="categoryChip">
+                <p class="skillChipText">${categoriesMapping.get(categories[i])}</p>
+            </div>`
+    })
+
+    return skillsHTML
+}
+
 
 /**
  * Hides the date and description fields and sets the Title field to no information.
@@ -757,7 +773,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, true)
+                createAlert("Text contains characters that are not allowed", true, ".modal-body")
             }
         })
     }
