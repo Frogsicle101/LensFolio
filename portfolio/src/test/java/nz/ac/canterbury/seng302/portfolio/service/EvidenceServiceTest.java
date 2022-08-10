@@ -89,7 +89,7 @@ class EvidenceServiceTest {
         Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
-        Assertions.assertEquals(url, evidence.getWebLinks().get(0).getUrl().toString());
+        Assertions.assertEquals(url, evidence.getWebLinks().iterator().next().getUrl().toString());
     }
 
 

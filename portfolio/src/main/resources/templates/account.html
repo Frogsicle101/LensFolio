@@ -41,8 +41,8 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="MiddleName">Middle name</label>
-                        <input class="form-control canDisable" disabled id="middlename" maxlength="50"
-                               name="middlename" th:pattern="${alphaSpacesRegexCanBeEmpty}"
+                        <input class="form-control canDisable" disabled id="middleName" maxlength="50"
+                               name="middleName" th:pattern="${alphaSpacesRegexCanBeEmpty}"
                                th:value="${user.getMiddleName()}"
                                title="Only letters A-Z upper or lowercase and , . ' or - allowed, names must be seperated by a space" type="text">
                     </div>
@@ -104,7 +104,7 @@
                 </div>
             </div>
             <div class="mb-3">
-                <p class="membersince" th:text="'Member since: ' + ${membersince}"></p>
+                <p class="memberSince" th:text="'Member since: ' + ${membersince}"></p>
             </div>
             <button class="btn btn-primary canDisable editUserSubmit" disabled style="display: none" type="submit">
                 Submit
