@@ -10,6 +10,10 @@ $(document).ready(function () {
     } else {
         userBeingViewedId = userIdent
     }
+
+    if (userBeingViewedId !== userIdent) {
+        $(".createEvidenceButton").hide();
+    }
     getAndAddEvidencePreviews()
     addCategoriesToSidebar()
     getSkills(addSkillsToSideBar)

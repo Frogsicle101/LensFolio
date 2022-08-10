@@ -174,14 +174,21 @@ function getAndAddEvidencePreviews() {
  * message is displayed.
  */
 function getHighlightedEvidenceDetails() {
-    $.ajax({
-        url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
-            setHighlightEvidenceAttributes(response)
-            getHighlightedEvidenceWeblinks()
-        }, error: function () {
-            createAlert("Failed to receive active evidence", true)
-        }
-    })
+
+    if (selectedEvidenceId !== "") {
+        $.ajax({
+            url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
+                setHighlightEvidenceAttributes(response)
+                getHighlightedEvidenceWeblinks()
+            }, error: function (error) {
+                console.log(error)
+                createAlert("Failed to receive active evidence", true)
+            }
+        })
+    } else {
+        $("#evidenceDetailsTitle").text("No Evidence Found")
+    }
+
 }
 
 
