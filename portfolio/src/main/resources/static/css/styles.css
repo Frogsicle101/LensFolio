@@ -27,6 +27,18 @@ section {
     align-items: center;
 }
 
+.box {
+    position: relative;
+    padding: 2rem;
+    border: solid 1px var(--main-border-colour);
+    background-color: var(--background-colour-white);
+    border-radius: var(--border-radius);
+
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+    margin: 1rem;
+    word-break: break-all;
+}
+
 .showExtraWhitespace {
     white-space: pre-wrap;
 }
@@ -62,12 +74,12 @@ section {
     --secondary-text-colour-darker: #696969;
     --select-green: #95fd97;
     --select-red: #ff0000;
-    --alert-red: rgba(222, 121, 121, 0.5);
-    --alert-green: rgba(140, 222, 121, 0.5);
+    --alert-red: rgba(222, 121, 121, 0.75);
+    --alert-green: rgba(140, 222, 121, 0.75);
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
-    --background-chip-colour: #57A0D3;
+    --background-chip-colour: #add8e6;
 }
 
 /*CSS relating to Header*/
@@ -628,7 +640,7 @@ section {
     padding-left: 0.5rem;
 }
 
-.groupsContainer {
+.groupsContainer .evidenceContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -816,10 +828,10 @@ section {
 /* Alerts */
 
 #alertPopUp {
-    position: fixed;
+    position: relative;
     bottom: 10px;
     left: 10px;
-
+    width:25%;
     min-width: 10rem;
     min-height: 5rem;
     border-radius: var(--border-radius);
@@ -877,14 +889,19 @@ section {
 
 .evidenceDetailsContainer {
     padding: 1rem 2rem 2rem;
-    display: flex;
-    width: 100%;
-    flex-direction: column;
+    margin-right: 2rem;
+    width: auto;
+    height: 100%;
 }
 
 .evidenceDetailsDate {
     color: var(--secondary-text-colour-darker);
     font-weight: lighter;
+}
+
+#evidenceDetailsSkills {
+    bottom: 4rem;
+    position: absolute;
 }
 
 .evidenceDetailsHeader {
@@ -916,7 +933,7 @@ section {
 
 #evidenceList {
     overflow: auto;
-    height: 38rem;
+    height: 50rem;
 }
 
 .evidenceListItem {
@@ -975,7 +992,7 @@ section {
     border-color: red;
 }
 
-.selectedEvidence {
+.selectedEvidence, .selectedSkill {
     background-color: #eaeaea;
 }
 
@@ -1067,6 +1084,7 @@ section {
     display: flex;
     flex-direction: row;
     box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+    cursor: pointer;
 }
 
 .categoryChip{
@@ -1104,3 +1122,79 @@ section {
     cursor: pointer;
     color: red;
 }
+
+
+/* skills page */
+.skillsPage {
+    display: flex;
+    flex-direction: row
+}
+
+.skillSideBar {
+    width: 15%;
+    height: calc(100vh - 4rem);
+    overflow: auto;
+    border: solid var(--main-border-colour) 1px;
+    background: white;
+
+}
+
+.categoriesHeader {
+    margin-top: 2rem;
+}
+
+.skillsHeader {
+    margin-top: 2rem;
+    border-bottom: solid var(--main-border-colour) 1px;
+}
+
+.skillListItem {
+    vertical-align: middle;
+    text-align: center;
+    line-height: 1rem;
+    border-bottom: solid var(--main-border-colour) 1px;
+    align-content: center;
+    cursor: pointer;
+}
+
+.categoryListItem {
+    padding: 0.2rem 1rem 0.2rem;
+    position: relative;
+    margin: 0.2rem;
+    background-color: lightgoldenrodyellow;
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: row;
+    box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+    cursor: pointer;
+}
+
+
+.evidenceTitle {
+    text-align: center;
+    padding: 2rem;
+}
+
+.contentContainer {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    width: 100%;
+}
+
+.evidenceContainer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.skillSideBar h3 {
+    text-align: center;
+}
+
+.contentContainer .createEvidenceButton {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+}
+

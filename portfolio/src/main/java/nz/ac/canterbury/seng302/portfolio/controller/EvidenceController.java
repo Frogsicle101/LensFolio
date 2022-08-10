@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Controller for all the Evidence based end points
@@ -77,12 +78,12 @@ public class EvidenceController {
      * @return A modelAndView object of the page.
      */
     @GetMapping("/evidence")
-    public ModelAndView getEvidencePage(@AuthenticationPrincipal Authentication principal) {
-        logger.info("GET REQUEST /evidence - attempt to get all groups");
+    public ModelAndView getEvidenceBySkillsPage(@AuthenticationPrincipal Authentication principal) {
+        logger.info("GET REQUEST /evidence/skills - attempt to get page");
 
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
 
-        ModelAndView modelAndView = new ModelAndView("evidence");
+        ModelAndView modelAndView = new ModelAndView("evidenceBySkills");
         modelAndView.addObject("user", user);
 
         Project project = projectRepository.getProjectById(1L);
@@ -117,6 +118,7 @@ public class EvidenceController {
         logger.info("GET REQUEST /evidence - attempt to get evidence with Id {}", evidenceId);
         try {
             Optional<Evidence> evidence = evidenceRepository.findById(evidenceId);
+
             if (evidence.isEmpty()) {
                 logger.info("GET REQUEST /evidence - evidence {} does not exist", evidenceId);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -150,7 +152,7 @@ public class EvidenceController {
                 logger.info("GET REQUEST /evidence - evidence {} does not exist", evidenceId);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            List<WebLink> webLinks = evidence.get().getWebLinks();
+            Set<WebLink> webLinks = evidence.get().getWebLinks();
             return new ResponseEntity<>(webLinks, HttpStatus.OK);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());

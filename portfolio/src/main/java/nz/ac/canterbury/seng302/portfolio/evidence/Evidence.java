@@ -6,10 +6,7 @@ import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents an Evidence entity
@@ -29,7 +26,8 @@ public class Evidence {
 
     /** A list of the web links associated with a piece of Evidence */
     @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER)
-    private final List<WebLink> webLinks = new ArrayList<>();
+    private final Set<WebLink> webLinks = new HashSet<>() {
+    };
 
     /** A list of the skills associated with the piece of Evidence */
     @ManyToMany
@@ -131,7 +129,7 @@ public class Evidence {
         return description;
     }
 
-    public List<WebLink> getWebLinks() {
+    public Set<WebLink> getWebLinks() {
         return webLinks;
     }
 

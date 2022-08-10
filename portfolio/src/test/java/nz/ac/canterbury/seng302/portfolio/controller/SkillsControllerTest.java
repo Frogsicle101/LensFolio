@@ -5,6 +5,7 @@ import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.evidence.SkillRepository;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
+import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
@@ -52,6 +53,9 @@ class SkillsControllerTest {
 
     @MockBean
     private UserAccountsClientService userAccountsClientService;
+
+    @MockBean
+    private GroupsClientService groupsClientService;
 
     @MockBean
     private SkillRepository skillRepository;
@@ -164,26 +168,26 @@ class SkillsControllerTest {
 
     @Test
     void testGetEvidenceForSkillWhenSkillHasNoEvidence() throws Exception {
-        Skill testSkill = new Skill(1, "writing tests");
+        Skill testSkill = new Skill(1, "writing_tests");
 
-        Mockito.when(skillRepository.findById(testSkill.getId())).thenReturn(Optional.of(testSkill));
+        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         mockMvc.perform(get("/evidenceLinkedToSkill")
-                .param("skillId", "1"))
+                .param("skillName", "writing_tests"))
                 .andExpect(status().isOk());
     }
 
 
     @Test
     void testGetEvidenceForSkillWhenSkillHasOneEvidence() throws Exception {
-        Skill testSkill = new Skill(1, "writing tests");
+        Skill testSkill = new Skill(1, "writing_tests");
         Evidence evidence1 = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         testSkill.getEvidence().add(evidence1);
 
-        Mockito.when(skillRepository.findById(testSkill.getId())).thenReturn(Optional.of(testSkill));
+        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillId", "1"))
+                        .param("skillName", "writing_tests"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -195,7 +199,7 @@ class SkillsControllerTest {
 
     @Test
     void testGetEvidenceForSkillWhenSkillHasMultipleEvidence() throws Exception {
-        Skill testSkill = new Skill(1, "writing tests");
+        Skill testSkill = new Skill(1, "writing_tests");
         Evidence evidence1 = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         Evidence evidence2 = new Evidence(2, 2, "Title", LocalDate.now(), "description");
         Evidence evidence3 = new Evidence(3, 2, "Title", LocalDate.now(), "description");
@@ -203,10 +207,10 @@ class SkillsControllerTest {
         testSkill.getEvidence().add(evidence2);
         testSkill.getEvidence().add(evidence3);
 
-        Mockito.when(skillRepository.findById(testSkill.getId())).thenReturn(Optional.of(testSkill));
+        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillId", "1"))
+                        .param("skillName", "writing_tests"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -221,27 +225,19 @@ class SkillsControllerTest {
     @Test
     void testGetEvidenceForSkillWhenSkillDoesNotExist() throws Exception {
         mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillId", "1"))
+                        .param("skillName", "Mystery"))
                 .andExpect(status().isNotFound());
     }
 
 
     @Test
-    void testGetEvidenceForSkillInvalidSkillId() throws Exception {
-        mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillId", "Skill issue"))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @Test
     void testGetEvidenceForSkillWhenInternalErrorOccurs() throws Exception {
-        Skill testSkill = new Skill(1, "writing tests");
+        Skill testSkill = new Skill(1, "writing_tests");
         RuntimeException e = new RuntimeException();
-        Mockito.when(skillRepository.findById(testSkill.getId())).thenThrow(e);
+        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenThrow(e);
 
         mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillId", "1"))
+                        .param("skillName", "writing_tests"))
                 .andExpect(status().isInternalServerError());
     }
 
