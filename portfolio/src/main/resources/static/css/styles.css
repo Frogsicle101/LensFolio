@@ -1175,5 +1175,10 @@ section {
     position: absolute;
     left: 1rem;
     top: 1rem;
+    margin-top: 0;
+}
+
+.showAllContainer {
+    margin-top: 1rem;
 }
 

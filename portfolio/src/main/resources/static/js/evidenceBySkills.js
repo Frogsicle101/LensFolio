@@ -75,6 +75,7 @@ function updateSelectedEvidence() {
 }
 
 
+
 /* ------------ Event Listeners ----------------- */
 
 
@@ -122,3 +123,5 @@ $(document).on("click", ".skillChip" , function () {
     title.text(selectedSkill)
     showEvidenceWithSkill()
 })
+
+$(document).on("click", "#showAllEvidence", getAndAddEvidencePreviews)

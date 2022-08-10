@@ -144,9 +144,15 @@ function webLinkElement(url, alias) {
 * Note: by default the first element is the highlighted element.
 */
 function getAndAddEvidencePreviews() {
+
+    let title = $(document).find(".evidenceTitle").first()
+    title.text("Evidence");
+
+
     $.ajax({
         url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
             addEvidencePreviews(response)
+            updateSelectedEvidence();
             showHighlightedEvidenceDetails()
         }, error: function (error) {
             createAlert(error.responseText, true)
