@@ -66,13 +66,13 @@ $(document).on("submit", "#editRepoForm", function (event) {
         url: "editGitRepo",
         type: "post",
         data: repoData,
-        success: function (response) {
+        success: function () {
             createAlert("Changes submitted");
             cancelRepoEdit();
-            displayGroupRepoInformation()
+            retrieveGroupRepoInformation()
         },
         error: (error) => {
-            createAlert(error.responseText)
+            createAlert(error.responseText, true)
         }
     })
 })

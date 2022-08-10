@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio;
 
 import nz.ac.canterbury.seng302.portfolio.service.GroupSettingsInterceptor;
 import nz.ac.canterbury.seng302.portfolio.service.RoleBasedIntercepter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -11,6 +12,15 @@ import java.util.List;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
+
+    /** Interceptor to check if the user has Teacher or Admin role */
+    @Autowired
+    private RoleBasedIntercepter roleBasedIntercepter;
+
+    /** Interceptor to check if the user has Teacher or Admin role or is in the group requested. */
+    @Autowired
+    private GroupSettingsInterceptor groupSettingsInterceptor;
+
 
     /**
      * This will intercept all the endpoints that we specify in the method and run them through RoleBasedInterceptor
@@ -56,16 +66,19 @@ public class Config implements WebMvcConfigurer {
 
 
         //Groups
-        pathsToInterceptForRoleBased.add("/groups/addUser");
+        pathsToInterceptForRoleBased.add("/groups/addUsers");
         pathsToInterceptForRoleBased.add("/groups/removeUsers");
         pathsToInterceptForRoleBased.add("/groups/edit");
+        pathsToInterceptForGroupSettings.add("/groups/edit/longName");
 
 
         //GitSettings
         pathsToInterceptForGroupSettings.add("/editGitRepo");
         pathsToInterceptForGroupSettings.add("/getRepo");
+        pathsToInterceptForRoleBased.add("/groups/edit/details");
 
-        registry.addInterceptor(new RoleBasedIntercepter()).addPathPatterns(pathsToInterceptForRoleBased);
-        registry.addInterceptor(new GroupSettingsInterceptor()).addPathPatterns(pathsToInterceptForGroupSettings);
+
+        registry.addInterceptor(roleBasedIntercepter).addPathPatterns(pathsToInterceptForRoleBased);
+        registry.addInterceptor(groupSettingsInterceptor).addPathPatterns(pathsToInterceptForGroupSettings);
     }
 }

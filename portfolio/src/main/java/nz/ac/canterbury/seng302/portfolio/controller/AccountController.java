@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.DTO.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.service.LoginService;
 import nz.ac.canterbury.seng302.portfolio.service.ReadableTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -15,6 +16,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -29,6 +33,9 @@ public class AccountController {
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
+    @Autowired
+    private LoginService loginService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String ALPHA_SPACES_REGEX = "([a-zA-Z]+[.,'-]*\s?)+";
     private static final String ALPHA_SPACES_REGEX_CAN_BE_EMPTY = "([a-zA-Z]+[.,'-]*\s?)*";
@@ -36,6 +43,17 @@ public class AccountController {
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$";
     private static final String PASSWORD_REGEX = "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+";
     private static final String PRONOUN_REGEX = "([a-zA-Z/]*)+";
+
+
+    /**
+     * Redirects users to their account page if they go to the root path
+     *
+     * @return A redirect to the account model and view
+     */
+    @GetMapping("/")
+    public ModelAndView indexRedirectToAccount() {
+        return new ModelAndView("redirect:account");
+    }
 
 
     /**
@@ -104,7 +122,9 @@ public class AccountController {
      */
     @PostMapping("/register")
     public ResponseEntity<Object> attemptRegistration(
-            @ModelAttribute(name = "registerForm") UserRequest userRequest
+            @ModelAttribute(name = "registerForm") UserRequest userRequest,
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse
     ) {
         String warningMessage = "Registration Failed: {}";
         logger.info("POST REQUEST /register - attempt to register new user");
@@ -121,7 +141,7 @@ public class AccountController {
             if (registerReply.getIsSuccess()) {
                 logger.info("Registration Success: {}", registerReply.getMessage());
                 logger.info("Log in new user");
-
+                loginService.attemptLogin(userRequest, servletRequest, servletResponse);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
                 logger.info(warningMessage, registerReply.getMessage());
@@ -183,7 +203,7 @@ public class AccountController {
                 || nickname != null && !nickname.matches(ALPHA_SPACES_REGEX_CAN_BE_EMPTY)
                 || middlename != null && !middlename.matches(ALPHA_SPACES_REGEX_CAN_BE_EMPTY)
                 || pronouns != null && !pronouns.matches(PRONOUN_REGEX)) {
-            return new ResponseEntity<>("Field(s) not matching patterns", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Field(s) not matching patterns", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);

@@ -15,12 +15,43 @@ section {
     margin-top: 4rem;
 }
 
+.profileNav {
+    margin-left: auto;
+}
+
+
 .center {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
+
+.showExtraWhitespace {
+    white-space: pre-wrap;
+}
+
+.navButtonsDiv {
+    align-items: flex-start;
+    margin-left: 1rem;
+}
+
+.navButtonsDiv a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 19px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    border-right: var(--main-border-colour);
+}
+
+/* Change the color of links on hover */
+.navButtonsDiv a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
 
 /*Colours*/
 
@@ -47,7 +78,6 @@ section {
     position: fixed;
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
     align-items: center;
     background-color: #2a2a2a;
     overflow: visible;
@@ -675,6 +705,8 @@ section {
 
 .groupShortName, #groupInformationShortName {
     color: var(--main-text-color);
+    margin-top: 0.3rem;
+    word-break: break-all;
 }
 
 .membersContainerTitle {
@@ -705,7 +737,7 @@ section {
     margin: 1rem;
 }
 
-.userRow:hover, .evidenceListItem :hover {
+.clickableRow:hover, .evidenceListItem :hover{
     cursor: pointer;
 }
 
@@ -824,6 +856,12 @@ section {
 
 .commitDate {
     text-align: right;
+}
+
+.dragGrip {
+    position: absolute;
+    left: 0.3rem;
+    margin-top: 0.9rem;
 }
 
 /* Evidence Page */

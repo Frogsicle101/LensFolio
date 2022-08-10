@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.PortfolioApplication;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
@@ -7,6 +8,8 @@ import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.ValidationError;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -17,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
@@ -25,16 +29,20 @@ import org.springframework.util.MultiValueMap;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = PortfolioApplication.class)
 @WebMvcTest(controllers = GroupsController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class GroupsControllerTest {
 
     private Authentication principal;
+
+    private UserResponse idpUser;
 
     @Autowired
     private MockMvc mockMvc;
@@ -160,8 +168,9 @@ class GroupsControllerTest {
                                                                     .setGroupId(2)
                                                                     .build();
         GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
-                                                                    .setShortName("a short name")
-                                                                    .build();
+                .addMembers(UserResponse.newBuilder().setId(1).build())
+                .setShortName("a short name")
+                .build();
         Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
 
         mockMvc.perform(patch("/groups/edit/longName")
@@ -173,7 +182,7 @@ class GroupsControllerTest {
 
     @Test
     void testEditLongNameInvalidLongName() throws Exception {
-        setUserToTeacher();
+        setUserToStudent();
         setUpContext();
         String longName = "Test Name But Longer";
         String groupId = "2";
@@ -191,6 +200,7 @@ class GroupsControllerTest {
                 .setGroupId(2)
                 .build();
         GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
+                .addMembers(UserResponse.newBuilder().setId(1).build())
                 .setShortName("a short name")
                 .build();
         Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
@@ -204,7 +214,7 @@ class GroupsControllerTest {
 
     @Test
     void testEditLongNameInvalidGroupId() throws Exception {
-        setUserToTeacher();
+        setUserToStudent();
         setUpContext();
         String longName = "Test Name But Longer";
         String groupId = "9000";
@@ -222,6 +232,7 @@ class GroupsControllerTest {
                 .setGroupId(9000)
                 .build();
         GroupDetailsResponse groupResponse = GroupDetailsResponse.newBuilder()
+                .addMembers(UserResponse.newBuilder().setId(1).build())
                 .setShortName("a short name")
                 .build();
         Mockito.when(groupsClientService.getGroupDetails(groupRequest)).thenReturn(groupResponse);
@@ -440,6 +451,9 @@ class GroupsControllerTest {
                 .addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build())
                 .addClaims(ClaimDTO.newBuilder().setType("role").setValue("student").build())
                 .build());
+        idpUser = UserResponse.newBuilder().setId(1).addRoles(UserRole.STUDENT).build();
+
+        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(idpUser);
     }
 
 
@@ -451,6 +465,9 @@ class GroupsControllerTest {
                 .addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build())
                 .addClaims(ClaimDTO.newBuilder().setType("role").setValue("course_administrator").build())
                 .build());
+        idpUser = UserResponse.newBuilder().setId(1).addRoles(UserRole.COURSE_ADMINISTRATOR).build();
+
+        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(idpUser);
     }
 
 

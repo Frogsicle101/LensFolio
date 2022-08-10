@@ -4,7 +4,6 @@ import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,7 +13,7 @@ import java.util.List;
 public class GroupService {
 
     /** The ID of the default teacher group */
-    private final int TEACHER_GROUP_ID = 1;
+    private static final int TEACHER_GROUP_ID = 1;
 
     /** Used to add / remove users from groups */
     private final GroupsClientService groupsClientService;
@@ -28,8 +27,10 @@ public class GroupService {
         this.userAccountsClientService = userAccountsClientService;
     }
 
+
     /**
-     * Add users to the given group, assigning roles as needed
+     * Add users to the given group, assigning the teacher role as needed
+     *
      * @param groupId The group to add the users to
      * @param userIds The users to add to the group
      * @return A response message as defined in the protobuf
@@ -58,7 +59,7 @@ public class GroupService {
      * @param userIds The users to remove from the group
      * @return A response message as defined in the protobuf
      */
-    public RemoveGroupMembersResponse removeUsersFromGroup(int groupId, ArrayList<Integer> userIds) {
+    public RemoveGroupMembersResponse removeUsersFromGroup(int groupId, List<Integer> userIds) {
         if (groupId == TEACHER_GROUP_ID) {
             for (Integer userId: userIds) {
                 ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()

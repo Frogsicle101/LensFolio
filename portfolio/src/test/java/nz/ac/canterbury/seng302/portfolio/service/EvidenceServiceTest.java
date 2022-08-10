@@ -45,6 +45,7 @@ class EvidenceServiceTest {
         evidenceService = new EvidenceService(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, skillRepository);
         evidence = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         when(userAccountsClientService.getUserAccountById(any())).thenReturn(UserResponse.newBuilder().setId(1).build());
+        when(evidenceRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
     }
 
 

@@ -136,6 +136,7 @@ public class EvidenceService {
         checkString(description, StringType.DESCRIPTION);
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
+        evidence = evidenceRepository.save(evidence);
 
         for (WebLinkDTO dto : webLinks) {
             WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
