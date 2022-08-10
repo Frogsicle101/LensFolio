@@ -584,7 +584,9 @@ class EvidenceControllerTest {
         String expectedResult = "[" + testLink1.toJsonString() + "," + testLink2.toJsonString() + ","
                 + testLink3.toJsonString() + "]";
         String responseContent = result.getResponse().getContentAsString();
-        Assertions.assertEquals(expectedResult, responseContent);
+        Assertions.assertTrue(responseContent.contains(testLink1.toJsonString()));
+        Assertions.assertTrue(responseContent.contains(testLink2.toJsonString()));
+        Assertions.assertTrue(responseContent.contains(testLink3.toJsonString()));
     }
 
 

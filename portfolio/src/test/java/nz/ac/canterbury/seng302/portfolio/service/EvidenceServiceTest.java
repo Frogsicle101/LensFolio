@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.when;
 
 class EvidenceServiceTest {
@@ -61,7 +61,7 @@ class EvidenceServiceTest {
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L);
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
-        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+        Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
         Assertions.assertEquals(title, evidence.getTitle());
@@ -86,7 +86,7 @@ class EvidenceServiceTest {
                 evidenceDTO);
 
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
-        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+        Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
         Assertions.assertEquals(url, evidence.getWebLinks().iterator().next().getUrl().toString());
@@ -424,7 +424,7 @@ class EvidenceServiceTest {
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), skills, categories, 1L);
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
-        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+        Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
         Assertions.assertEquals(0, evidence.getCategories().size());
@@ -446,7 +446,7 @@ class EvidenceServiceTest {
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), skills, categories, 1L);
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
-        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+        Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
         Assertions.assertEquals(1, evidence.getCategories().size());
@@ -470,7 +470,7 @@ class EvidenceServiceTest {
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), categories, 1L);
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
-        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+        Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
         Assertions.assertEquals(3, evidence.getCategories().size());
@@ -496,7 +496,7 @@ class EvidenceServiceTest {
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), categories, 1L);
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
-        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+        Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
         Assertions.assertEquals(2, evidence.getCategories().size());
@@ -519,7 +519,7 @@ class EvidenceServiceTest {
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), categories, 1L);
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
-        Mockito.verify(evidenceRepository, times(1)).save(captor.capture());
+        Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
         Assertions.assertEquals(0, evidence.getCategories().size());
