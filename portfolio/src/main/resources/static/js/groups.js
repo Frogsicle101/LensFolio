@@ -172,7 +172,7 @@ function addUsers(groupId) {
         type: "post",
         success: function () {
             displayGroupUsersList()
-            if (groupId === MWAG_GROUP_ID) {
+            if (parseInt(groupId) === MWAG_GROUP_ID) {
                 createAlert("User(s) moved, and teachers role remains", false)
             } else {
                 createAlert("User(s) moved", false)
