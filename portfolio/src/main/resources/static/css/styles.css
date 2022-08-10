@@ -1050,7 +1050,6 @@ section {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    padding-bottom: 1.5rem;
 }
 
 #evidenceChipsSection {

@@ -17,8 +17,14 @@ const regex = new RegExp("[A-Za-z0-9_-]+");
 let selectedEvidenceId;
 
 let skillsArray = []
+
 let categoryArray = ["Qualitative", "Quantitative", "Service"]
 
+let categoriesMapping = new Map([
+    ["SERVICE", "Service"],
+    ["QUALITATIVE", "Qualitative"],
+    ["QUANTITATIVE", "Quantitative"]
+])
 
 $(document).ready(() => {
 
@@ -301,8 +307,9 @@ function addCategoriesToEvidence(categories) {
  * @return the HTML component for previewing evidence of class evidenceListItem
  */
 function createEvidencePreview(evidence) {
-    console.log(evidence)
     let skills = getEvidenceTags(evidence.skills)
+    console.log(evidence)
+    let categories = getCategoryTags(evidence.categories)
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
             <div class="row evidenceListItemHeader">
@@ -310,6 +317,7 @@ function createEvidencePreview(evidence) {
                 <p class="col evidenceListItemTitle">${evidence.title}</p>
                 <p class="col evidenceListItemDate">${evidence.date}</p>
             </div>
+            <div class="evidencePreviewTags skillChipDisplay">${categories}</div>
             <div class="evidencePreviewTags skillChipDisplay">${skills}</div>
         </div>`
 
@@ -328,6 +336,21 @@ function getEvidenceTags(skills) {
 
     return skillsHTML
 }
+
+function getCategoryTags(categories) {
+    console.log(categories)
+    categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
+
+    let skillsHTML = ``
+    $.each(categories, function (i) {
+        skillsHTML += `<div class="categoryChip">
+                <p class="skillChipText">${categoriesMapping.get(categories[i])}</p>
+            </div>`
+    })
+
+    return skillsHTML
+}
+
 
 /**
  * Hides the date and description fields and sets the Title field to no information.

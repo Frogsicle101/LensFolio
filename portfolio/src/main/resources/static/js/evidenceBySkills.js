@@ -34,7 +34,6 @@ function addSkillsToSideBar() {
 
 function addCategoriesToSidebar() {
     let categoriesList = $('#categoryList')
-    console.log(categoryArray)
     for (let category of categoryArray) {
         categoriesList.append(`
             <div class="categoryListItem evidenceFilter ${category === selectedSkill ? 'selectedSkill' : ''}">
