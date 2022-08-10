@@ -762,7 +762,6 @@ $(document).on('click', '.addWebLinkButton', function () {
         let address = $("#webLinkUrl").val()
         let alias = $("#webLinkName").val()
         let form = $(".webLinkForm")
-        console.log(address)
         validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()
