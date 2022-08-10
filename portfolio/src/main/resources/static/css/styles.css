@@ -639,6 +639,7 @@ section {
     padding-top: 0.5rem;
     padding-left: 0.5rem;
 }
+
 .groupsContainer .evidenceContainer {
     display: flex;
     flex-direction: column;
@@ -646,27 +647,44 @@ section {
     overflow: auto;
 }
 
+.scrollableGroupOverview {
+    position: absolute;
+    width: 100%;
+    height: calc(100vh - 110px);
+    overflow-y: scroll;
+
+}
+
+.scrollableGroupDetails {
+    position: absolute;
+    width: 49%;
+    height: calc(100vh - 130px);
+    overflow-y: scroll;
+    padding: 2rem;
+    border: solid 1px var(--main-border-colour);
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    margin-right: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+}
+
+
 .group {
-    width: 40rem;
-    margin-bottom: 0;
-}
-
-.group:hover {
-    cursor: pointer;
-}
-
-#groupInformationContainer {
     position: relative;
-    width: 45rem;
+    width: 40rem;
     padding: 2rem;
     border: solid 1px var(--main-border-colour);
     background-color: var(--background-colour-white);
     border-radius: var(--border-radius);
     margin-top: 1rem;
-    margin-right: 1rem;
     box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
-    overflow-wrap: break-word;
-    overflow: auto;
+    margin-left: auto;
+    margin-right: auto;
+    word-break: break-all;
+}
+
+.group:hover {
+    cursor: pointer;
 }
 
 .selected {
@@ -865,8 +883,6 @@ section {
     flex-direction: row
 }
 
-
-
 .evidenceListContainer, .evidenceDetailsContainer {
     border: solid var(--main-border-colour) 1px;
 }
@@ -992,7 +1008,7 @@ section {
     margin-top: 1rem;
 }
 
-.weblink-form {
+.webLinkForm {
     padding-right: 1.5rem;
     align-self: flex-end;
 }
@@ -1046,11 +1062,10 @@ section {
     overflow-x: hidden;
 }
 
-.skillChipDisplay {
+#skillChipDisplay, #evidenceDetailsSkills{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    padding-bottom: 1.5rem;
 }
 
 #evidenceChipsSection {
@@ -1080,6 +1095,11 @@ section {
     display: flex;
     flex-direction: row;
     box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+}
+
+.categoryChip:hover{
+    cursor: pointer;
+    background-color: antiquewhite;
 }
 
 .skillChipInvalid{

@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -25,4 +26,7 @@ public interface EvidenceRepository extends CrudRepository<Evidence, Integer> {
     /** Returns an arrayList that contains all the evidence of a user of a certain category. */
     @Query
     ArrayList<Evidence> findAllByUserIdAndCategoriesContaining(int id, Category category);
+
+    @Query
+    List<Evidence> findAllByUserIdAndSkillsIsEmptyOrderByDateDesc(int userId);
 }

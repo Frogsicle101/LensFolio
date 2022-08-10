@@ -68,6 +68,7 @@ function removeAlert() {
  * @param window - the location to show the error
  */
 function createAlert(alertMessage, isRed, window = "body") {
+
     let CheckAlert = $("#alertPopUp")
     if (CheckAlert.is(":visible")) {
         CheckAlert.hide("slide", 100, function() {
@@ -100,6 +101,11 @@ function alert(alertMessage, isRed, window = "body") {
     } else {
         alert.addClass("backgroundGreen")
         alert.removeClass("backgroundRed")
+    }
+    if (window === "body") {
+        alert.css("position", "fixed")
+    } else {
+        alert.css("position","relative")
     }
     alert.show("slide", 100)
 }

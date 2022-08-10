@@ -23,6 +23,9 @@ $(document).ready(function () {
 function addSkillsToSideBar() {
     let skillsContainer = $('#skillList')
     skillsContainer.empty()
+    if (! skillsArray.includes("No Skill")) {
+        skillsArray.unshift("No Skill")
+    }
     for (let skill of skillsArray) {
         skillsContainer.append(`
             <div class="skillListItem evidenceFilter ${skill === selectedSkill ? 'selectedSkill' : ''}"
@@ -36,7 +39,6 @@ function addSkillsToSideBar() {
 
 function addCategoriesToSidebar() {
     let categoriesList = $('#categoryList')
-    console.log(categoryArray)
     for (let category of categoryArray) {
         categoriesList.append(`
             <div class="categoryListItem evidenceFilter ${category === selectedSkill ? 'selectedSkill' : ''}">
@@ -54,7 +56,8 @@ function addCategoriesToSidebar() {
 function showEvidenceWithSkill() {
     // Get all the pieces of evidence related to that skill
     $.ajax({
-        url: "evidenceLinkedToSkill?skillName=" + selectedSkill, success: function (response) {
+        url: "evidenceLinkedToSkill?skillName=" + selectedSkill + "&userId=" + userBeingViewedId,
+        success: function (response) {
             addEvidencePreviews(response)
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
