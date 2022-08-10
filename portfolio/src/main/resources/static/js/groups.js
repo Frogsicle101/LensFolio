@@ -174,8 +174,9 @@ function addUsers(groupId) {
             displayGroupUsersList()
             if (groupId === MWAG_GROUP_ID) {
                 createAlert("User(s) moved, and teachers role remains", false)
+            } else {
+                createAlert("User(s) moved", false)
             }
-            createAlert("User(s) moved", false)
         },
         error: function () {
             createAlert("Couldn't move users", true)
