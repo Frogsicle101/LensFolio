@@ -628,13 +628,20 @@ function addSkillsToEvidence(skills) {
 
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
-
-    $.each(skills, function (i) {
+    if (skills.length < 1) {
         highlightedEvidenceSkills.append(`
+                <div class="skillChip">
+                    <p class="skillChipText">No Tag</p>
+                </div>`)
+    } else {
+        $.each(skills, function (i) {
+            highlightedEvidenceSkills.append(`
                 <div class="skillChip">
                     <p class="skillChipText">${skills[i].name}</p>
                 </div>`)
-    })
+        })
+    }
+
 }
 
 
