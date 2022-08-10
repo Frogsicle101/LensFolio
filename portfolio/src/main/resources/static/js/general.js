@@ -81,24 +81,25 @@ function countCharacters() {
  * If isRed is true, the background colour will be red, otherwise green.
  * @param alertMessage
  * @param isRed
+ * @param window - the location to show the error
  */
-function createAlert(alertMessage, isRed) {
+function createAlert(alertMessage, isRed, window = "body") {
     let CheckAlert = $("#alertPopUp")
     if (CheckAlert.is(":visible")) {
         CheckAlert.hide("slide", 100, function() {
             CheckAlert.remove();
         }).promise().done(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
-            alert(alertMessage, isRed)
+            alert(alertMessage, isRed, window)
         })
     } else {
-        alert(alertMessage, isRed)
+        alert(alertMessage, isRed, window)
     }
 
 
 
 }
 
-function alert(alertMessage, isRed) {
+function alert(alertMessage, isRed, window = "body") {
     let alertDiv = `<div id="alertPopUp" style="display: none">
                      <p id="alertPopUpMessage">${alertMessage}</p>
                      <button id="alertPopUpCloseButton" onclick="removeAlert()" class="noStyleButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x-circle" viewBox="0 0 16 16">
@@ -108,7 +109,7 @@ function alert(alertMessage, isRed) {
                      
                  </div>`
 
-    $("body").append(alertDiv)
+    $(window).append(alertDiv)
     let alert = $("#alertPopUp")
 
     if(isRed) {

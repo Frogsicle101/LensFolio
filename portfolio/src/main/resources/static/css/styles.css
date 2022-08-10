@@ -31,8 +31,8 @@ section {
     --secondary-text-colour-darker: #696969;
     --select-green: #95fd97;
     --select-red: #ff0000;
-    --alert-red: rgba(222, 121, 121, 0.5);
-    --alert-green: rgba(140, 222, 121, 0.5);
+    --alert-red: rgba(222, 121, 121, 0.75);
+    --alert-green: rgba(140, 222, 121, 0.75);
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
@@ -772,10 +772,10 @@ section {
 /* Alerts */
 
 #alertPopUp {
-    position: fixed;
+    position: relative;
     bottom: 10px;
     left: 10px;
-
+    width:25%;
     min-width: 10rem;
     min-height: 5rem;
     border-radius: var(--border-radius);
