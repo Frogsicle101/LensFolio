@@ -1,8 +1,7 @@
 /** A regex only allowing English characters */
 const regExp = new RegExp('[A-Za-z]');
 
-/** A regex only allowing English characters, numbers, hyphens and underscores */
-const regex = new RegExp("[A-Za-z0-9_-]+");
+
 
 let webLinksCount = 0;
 
