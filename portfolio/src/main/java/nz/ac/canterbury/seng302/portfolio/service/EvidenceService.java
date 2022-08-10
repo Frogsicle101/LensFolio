@@ -17,6 +17,8 @@ import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -35,7 +37,10 @@ public class EvidenceService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final String stringRegex = "[a-zA-Z0-9\s]*";
+    /**
+     * Regex that is all unicode letters, numbers and punctuation
+     */
+    private static final Pattern pattern = Pattern.compile("[\\p{L}\\p{Nd}\\p{P}]+", Pattern.CASE_INSENSITIVE);
 
     private final UserAccountsClientService userAccountsClientService;
 
@@ -73,8 +78,12 @@ public class EvidenceService {
     private void checkString(String string, StringType type) throws CheckException {
         if (string.length() < 2) {
             throw new CheckException("Text should be longer than 1 character");
-        } else if (!string.matches(stringRegex)) {
-            throw new CheckException("Text shouldn't be strange");
+        } else {
+            Matcher matcher = pattern.matcher(string);
+            boolean matchFound = matcher.matches();
+            if (!matchFound) {
+                throw new CheckException("Text contains characters that aren't allowed");
+            }
         }
 
         if (type == StringType.TITLE && string.length() > 50) {

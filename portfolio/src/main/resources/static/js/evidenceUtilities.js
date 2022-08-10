@@ -7,12 +7,6 @@
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
 
-/** A regex only allowing modern English letters */
-const regExp = new RegExp('[A-Za-z]');
-
-/** A regex only allowing English characters, numbers, hyphens and underscores */
-const regex = new RegExp("[A-Za-z0-9_-]+");
-
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
@@ -783,7 +777,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert("Text contains characters that are not allowed", true, ".modal-body")
+                createAlert(error.responseText, true, ".modal-body")
             }
         })
     }
@@ -977,17 +971,17 @@ function checkTextInputRegex() {
     let nameVal = name.val()
     let descriptionVal = description.val()
 
-    if (!regExp.test(nameVal) || !regExp.test(descriptionVal)) {
+    if (!regex.test(nameVal) || !regex.test(descriptionVal)) {
         $("#evidenceSaveButton").attr("disabled", true)
     }
 
-    if (!regExp.test(nameVal) && nameVal.length > 0) {
+    if (!regex.test(nameVal) && nameVal.length > 0) {
         name.addClass("invalid")
     } else {
         name.removeClass("invalid")
     }
 
-    if (!regExp.test(descriptionVal) && descriptionVal.length > 0) {
+    if (!regex.test(descriptionVal) && descriptionVal.length > 0) {
         description.addClass("invalid")
 
     } else {
