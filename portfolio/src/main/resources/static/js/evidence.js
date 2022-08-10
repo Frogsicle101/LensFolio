@@ -637,7 +637,7 @@ function addSkillsToEvidence(skills) {
     if (skills.length < 1) {
         highlightedEvidenceSkills.append(`
                 <div class="skillChip">
-                    <p class="skillChipText">No Tag</p>
+                    <p class="skillChipText">No Skill</p>
                 </div>`)
     } else {
         $.each(skills, function (i) {
