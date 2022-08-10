@@ -25,7 +25,7 @@ function addSkillsToSideBar() {
     for (let skill of skillsArray) {
         skillsContainer.append(`
             <div class="skillListItem evidenceFilter ${skill === selectedSkill ? 'selectedSkill' : ''}">
-            <p class="skillName">${skill}</p> 
+            <p class="skillName">${skill.replaceAll("_", " ")}</p> 
             </div>
         `)
     }
