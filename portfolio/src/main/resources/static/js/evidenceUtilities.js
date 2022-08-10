@@ -14,6 +14,7 @@ const regExp = new RegExp('[A-Za-z]');
 let selectedEvidenceId;
 
 let skillsArray = []
+let categoryArray = ["Qualitative", "Quantitative", "Service"]
 
 
 /**
@@ -119,7 +120,26 @@ function webLinkElement(url, alias) {
 
 
 // --------------------------- Server Queries ------------------------------------
-
+/**
+* Gets the evidence data for the chosen user and adds it to the page.
+*
+* On successful retrieval, this adds the elements and calls the functions to populate the page.
+* To see these functions:
+    *     - addEvidencePreviews(response): Populates the left side evidence menus
+*     - showHighlightedEvidenceDetails(): Populates the right side, the details of the highlighted evidence.
+*
+* Note: by default the first element is the highlighted element.
+*/
+function getAndAddEvidencePreviews() {
+    $.ajax({
+        url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
+            addEvidencePreviews(response)
+            showHighlightedEvidenceDetails()
+        }, error: function (error) {
+            createAlert(error.responseText, true)
+        }
+    })
+}
 
 /**
  * This is called to show the evidence details for the selected piece of evidence.

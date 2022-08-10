@@ -4,6 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
@@ -35,15 +36,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
+import java.net.MalformedURLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @Controller
@@ -70,9 +69,17 @@ public class PortfolioController {
     @Autowired
     private final GitRepoRepository gitRepoRepository;
 
+    @Autowired
+    private final EvidenceRepository evidenceRepository;
+
+    @Autowired
+    private final SkillRepository skillRepository;
+
+    @Autowired
+    private final WebLinkRepository webLinkRepository;
+
     //Selectors for the error/info/success boxes.
     private static final String ERROR_MESSAGE = "errorMessage";
-
 
     private final CheckDateService checkDateService = new CheckDateService();
 
@@ -81,27 +88,33 @@ public class PortfolioController {
 
     // For testing
     private static final boolean INCLUDE_TEST_VALUES = true;
+    private int userId;
 
 
     /**
      * Constructor for PortfolioController
-     *
      * @param sprintRepository    repository
      * @param projectRepository   repository
      * @param milestoneRepository repository
+     * @param evidenceRepository repository
+     * @param skillRepository repo
+     * @param webLinkRepository repo
      */
     public PortfolioController(SprintRepository sprintRepository,
                                ProjectRepository projectRepository,
                                EventRepository eventRepository,
                                MilestoneRepository milestoneRepository,
                                DeadlineRepository deadlineRepository,
-                               GitRepoRepository gitRepoRepository) throws InvalidNameException {
+                               GitRepoRepository gitRepoRepository, EvidenceRepository evidenceRepository, SkillRepository skillRepository, WebLinkRepository webLinkRepository) throws InvalidNameException, MalformedURLException {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
         this.milestoneRepository = milestoneRepository;
         this.deadlineRepository = deadlineRepository;
         this.gitRepoRepository = gitRepoRepository;
+        this.evidenceRepository = evidenceRepository;
+        this.skillRepository = skillRepository;
+        this.webLinkRepository = webLinkRepository;
 
         //Below are only for testing purposes.
         if (INCLUDE_TEST_VALUES) {
@@ -115,7 +128,8 @@ public class PortfolioController {
             createDefaultSprints(defaultProject);
             createDefaultMilestones(defaultProject);
             createDefaultDeadlines(defaultProject);
-            createDefaultRepos(defaultProject);
+            createDefaultRepos();
+            createDefaultEvidence();
         } else {
             projectRepository.save(new Project("Default Project"));
         }
@@ -141,6 +155,7 @@ public class PortfolioController {
 
             // Get user from server
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+            userId = user.getId();
 
 
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
@@ -685,10 +700,78 @@ public class PortfolioController {
     }
 
 
-    public void createDefaultRepos(Project project){
+    public void createDefaultRepos() {
         GitRepository repo1 = new GitRepository(3, 13661, "Team 100's git Repository", "szMkVx_xM39gB5yRxSmL");
         gitRepoRepository.save(repo1);
         GitRepository repo2 = new GitRepository(4, 13737, "Team 200's git Repository", "ixgv4UTo--zGZ5Km1rQ");
         gitRepoRepository.save(repo2);
+    }
+
+    public void createDefaultEvidence() throws MalformedURLException {
+        Evidence evidence = new Evidence(9, "Title", LocalDate.now(), "Description");
+        Evidence evidence1 = new Evidence(9, "Created test Data", LocalDate.now(), "Created a selection of default evidence objects for testing");
+        Evidence evidence2 = new Evidence(9, "making more evidence", LocalDate.now(), "Description of another one");
+        Evidence evidence3 = new Evidence(9, "Writing Long Descriptions", LocalDate.now(), "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. ");
+        Evidence evidence4 = new Evidence(9, "No Skill Evidence", LocalDate.now(), "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. ");
+
+        evidenceRepository.save(evidence);
+        evidenceRepository.save(evidence1);
+        evidenceRepository.save(evidence2);
+        evidenceRepository.save(evidence3);
+        evidenceRepository.save(evidence4);
+//
+        WebLink webLink = new WebLink(evidence, "localhost", "https://localhost");
+        WebLink webLink1 = new WebLink(evidence1,  "evidence1 weblink", "https://localhost/evidence1");
+        WebLink webLink2 = new WebLink(evidence1,  "lost of web links", "https:/lotsofTestWeblinks");
+
+        webLinkRepository.save(webLink);
+        webLinkRepository.save(webLink1);
+        webLinkRepository.save(webLink2);
+
+        evidence.addWebLink(webLink);
+        evidence1.addWebLink(webLink1);
+        evidence1.addWebLink(webLink2);
+
+        evidenceRepository.save(evidence);
+        evidenceRepository.save(evidence1);
+        evidenceRepository.save(evidence2);
+        evidenceRepository.save(evidence3);
+        evidenceRepository.save(evidence4);
+        createDefaultSkills(evidence, evidence1, evidence2, evidence3, evidence4);
+    }
+
+    public void createDefaultSkills(Evidence evidence, Evidence  evidence1, Evidence  evidence2, Evidence  evidence3, Evidence evidence4) {
+        Skill skill = new Skill("test");
+        Skill skill1 = new Skill("java");
+        Skill skill2 = new Skill("debugging");
+        Skill skill3 = new Skill("making data");
+
+        skillRepository.save(skill);
+        skillRepository.save(skill1);
+        skillRepository.save(skill2);
+        skillRepository.save(skill3);
+
+        evidence.addSkill(skill);
+        evidence.addSkill(skill1);
+        evidence.addSkill(skill2);
+        evidence.addSkill(skill3);
+
+        evidence1.addSkill(skill);
+        evidence1.addSkill(skill1);
+        evidence1.addSkill(skill2);
+
+        evidence2.addSkill(skill2);
+        evidence2.addSkill(skill3);
+
+        evidence3.addSkill(skill);
+        evidence3.addSkill(skill1);
+        evidence3.addSkill(skill2);
+        evidence3.addSkill(skill3);
+
+        evidenceRepository.save(evidence);
+        evidenceRepository.save(evidence1);
+        evidenceRepository.save(evidence2);
+        evidenceRepository.save(evidence3);
+        evidenceRepository.save(evidence4);
     }
 }

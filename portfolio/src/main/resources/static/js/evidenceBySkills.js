@@ -10,8 +10,9 @@ $(document).ready(function () {
     } else {
         userBeingViewedId = userIdent
     }
-    addSkillsToSideBar() // Add the first/default batch of skills
-    getSkills(addSkillsToSideBar) // Get any extras and add those as well
+    getAndAddEvidencePreviews()
+    addCategoriesToSidebar()
+    getSkills(addSkillsToSideBar)
 })
 
 
@@ -23,8 +24,21 @@ function addSkillsToSideBar() {
     skillsContainer.empty()
     for (let skill of skillsArray) {
         skillsContainer.append(`
-            <div class="skillListItem ${skill === selectedSkill ? 'selectedSkill' : ''}">
+            <div class="skillListItem evidenceFilter ${skill === selectedSkill ? 'selectedSkill' : ''}">
             <p class="skillName">${skill}</p> 
+            </div>
+        `)
+    }
+}
+
+
+function addCategoriesToSidebar() {
+    let categoriesList = $('#categoryList')
+    console.log(categoryArray)
+    for (let category of categoryArray) {
+        categoriesList.append(`
+            <div class="categoryListItem evidenceFilter ${category === selectedSkill ? 'selectedSkill' : ''}">
+            <p class="skillName skillChipText">${category}</p> 
             </div>
         `)
     }
@@ -70,7 +84,7 @@ function updateSelectedEvidence() {
  *    2. Add the selected class to the clicked div, and assign it as selected
  *    3. Populate the display with the selected evidence details.
  */
-$(document).on("click", ".skillListItem", function () {
+$(document).on("click", ".evidenceFilter" , function () {
     let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
     previouslySelectedDiv.removeClass("selectedSkill")
 

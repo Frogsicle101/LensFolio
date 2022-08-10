@@ -929,7 +929,7 @@ section {
     border-color: red;
 }
 
-.selectedEvidence {
+.selectedEvidence, .selectedSkill {
     background-color: #eaeaea;
 }
 
@@ -1053,13 +1053,34 @@ section {
 
 }
 
-.skillListItem {
-    text-align: center;
-    vertical-align: center;
-    border: solid var(--main-border-colour) 1px;
-    border-radius: var(--border-radius);
-    margin: 0.25rem 0.5rem;
+.categoriesHeader {
+    margin-top: 2rem;
 }
+
+.skillsHeader {
+    margin-top: 2rem;
+    border-bottom: solid var(--main-border-colour) 1px;
+}
+
+.skillListItem {
+    vertical-align: middle;
+    text-align: center;
+    line-height: 1rem;
+    border-bottom: solid var(--main-border-colour) 1px;
+    align-content: center;
+}
+
+.categoryListItem {
+    padding: 0.2rem 1rem 0.2rem;
+    position: relative;
+    margin: 0.2rem;
+    background-color: lightgoldenrodyellow;
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: row;
+    box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+}
+
 
 .evidenceTitle {
     text-align: center;
