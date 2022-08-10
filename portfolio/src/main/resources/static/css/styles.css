@@ -775,7 +775,7 @@ section {
     position: relative;
     bottom: 10px;
     left: 10px;
-
+    width:25%;
     min-width: 10rem;
     min-height: 5rem;
     border-radius: var(--border-radius);

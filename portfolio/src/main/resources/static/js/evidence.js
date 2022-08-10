@@ -319,7 +319,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, true)
+                createAlert(error.responseText, true, ".modal-body")
             }
         })
     }
