@@ -45,9 +45,6 @@ function getSkills() {
 
 
 /**
-
-
-/**
  * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
  */
 function checkWeblinkCount() {
