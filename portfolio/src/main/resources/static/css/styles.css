@@ -1089,6 +1089,7 @@ section {
 
 .contentContainer {
     display: flex;
+    position: relative;
     flex-direction: column;
     width: 100%;
 }
@@ -1101,5 +1102,11 @@ section {
 
 .skillSideBar h3 {
     text-align: center;
+}
+
+.contentContainer .createEvidenceButton {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
 }
 

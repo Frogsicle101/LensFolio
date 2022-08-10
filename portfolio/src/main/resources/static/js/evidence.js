@@ -136,11 +136,12 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const projectId = 1
         let webLinks = getWeblinksList()
 
-        const skills = $("#skillsInput").val().split(" ")
-        skillsArray = skillsArray.concat(skills);
+        const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
+        skillsArray = [...new Set(skillsArray.concat(skills))];
         $.each(skills, function (i) {
             skills[i] = skills[i].replaceAll("_", " ")
         })
+        addSkillsToSideBar();
 
         const categories = getCategories();
         let data = JSON.stringify({
