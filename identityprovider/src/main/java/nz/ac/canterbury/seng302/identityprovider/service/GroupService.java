@@ -173,7 +173,7 @@ public class GroupService {
         logger.info("Removing user {} from all groups", user.getId());
         List<Group> usersCurrentGroups = user.getGroups();
         for (Group group: usersCurrentGroups){
-            if (!group.getId().equals(TEACHERS_GROUP_ID) && user.getRoles().contains(UserRole.TEACHER)) {
+            if (!(group.getId().equals(TEACHERS_GROUP_ID) && user.getRoles().contains(UserRole.TEACHER))) {
                 group.removeGroupMember(user);
             }
         }

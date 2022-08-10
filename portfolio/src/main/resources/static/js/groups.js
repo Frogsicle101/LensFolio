@@ -124,7 +124,6 @@ $(document).ready(function () {
              */
             drop: function () {
                 addUsers($(this).attr("id"))
-                console.log($(this).attr("id"))
                 showDraggableIcon()
             },
             tolerance: "pointer"
