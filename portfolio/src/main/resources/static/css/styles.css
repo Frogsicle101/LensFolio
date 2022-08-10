@@ -649,7 +649,7 @@ section {
 
 .scrollableGroupOverview {
     position: absolute;
-    width: 50%;
+    width: 100%;
     height: calc(100vh - 110px);
     overflow-y: scroll;
 
