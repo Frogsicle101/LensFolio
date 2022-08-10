@@ -10,6 +10,9 @@ let userBeingViewedId;
 /** A regex only allowing modern English letters */
 const regExp = new RegExp('[A-Za-z]');
 
+/** A regex only allowing English characters, numbers, hyphens and underscores */
+const regex = new RegExp("[A-Za-z0-9_-]+");
+
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
@@ -251,15 +254,22 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
 function addSkillsToEvidence(skills) {
     let highlightedEvidenceSkills = $("#evidenceDetailsSkills")
     highlightedEvidenceSkills.empty();
+
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
-
-    $.each(skills, function (i) {
+    if (skills.length < 1) {
         highlightedEvidenceSkills.append(`
+                <div class="skillChip">
+                    <p class="skillChipText">No Skill</p>
+                </div>`)
+    } else {
+        $.each(skills, function (i) {
+            highlightedEvidenceSkills.append(`
                 <div class="skillChip">
                     <p class="skillChipText">${skills[i].name}</p>
                 </div>`)
-    })
+        })
+    }
 }
 
 /**
@@ -580,21 +590,23 @@ function removeDuplicatesFromInput(input) {
     let newArray = []
 
     inputArray.forEach(function (element) {
-        while (element.slice(-1) === "_") {
-            element = element.slice(0, -1)
-        }
-        while (element.slice(0, 1) === "_") {
-            element = element.slice(1, element.length)
-        }
-        element = element.replaceAll("_", " ")
-            .replace(/\s+/g, ' ')
-            .trim()
-            .replaceAll(" ", "_")
-        if (element.length > 30) { //Shortens down the elements to 30 characters
-            element = element.split("").splice(0, 30).join("")
-        }
-        if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
-            newArray.push(element)
+        if (regex.test(element)){
+            while (element.slice(-1) === "_") {
+                element = element.slice(0, -1)
+            }
+            while (element.slice(0, 1) === "_") {
+                element = element.slice(1, element.length)
+            }
+            element = element.replaceAll("_", " ")
+                .replace(/\s+/g, ' ')
+                .trim()
+                .replaceAll(" ", "_")
+            if (element.length > 30) { //Shortens down the elements to 30 characters
+                element = element.split("").splice(0, 30).join("")
+            }
+            if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
+                newArray.push(element)
+            }
         }
     })
 
@@ -762,7 +774,6 @@ $(document).on('click', '.addWebLinkButton', function () {
         let address = $("#webLinkUrl").val()
         let alias = $("#webLinkName").val()
         let form = $(".webLinkForm")
-        console.log(address)
         validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()

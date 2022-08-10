@@ -1,3 +1,8 @@
+/** A regex only allowing English characters */
+const regExp = new RegExp('[A-Za-z]');
+
+
+
 let webLinksCount = 0;
 
 let categoriesMapping = new Map([

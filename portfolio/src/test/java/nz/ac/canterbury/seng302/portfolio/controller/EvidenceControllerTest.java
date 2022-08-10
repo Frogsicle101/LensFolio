@@ -11,13 +11,13 @@ import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
+import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -71,6 +70,9 @@ class EvidenceControllerTest {
 
     @MockBean
     EvidenceService evidenceService;
+
+    @MockBean
+    private GroupsClientService groupsClientService;
 
 
     @BeforeEach
@@ -582,7 +584,9 @@ class EvidenceControllerTest {
         String expectedResult = "[" + testLink1.toJsonString() + "," + testLink2.toJsonString() + ","
                 + testLink3.toJsonString() + "]";
         String responseContent = result.getResponse().getContentAsString();
-        Assertions.assertEquals(expectedResult, responseContent);
+        Assertions.assertTrue(responseContent.contains(testLink1.toJsonString()));
+        Assertions.assertTrue(responseContent.contains(testLink2.toJsonString()));
+        Assertions.assertTrue(responseContent.contains(testLink3.toJsonString()));
     }
 
 
