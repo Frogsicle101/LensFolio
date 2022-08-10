@@ -186,7 +186,6 @@ function getHighlightedEvidenceDetails() {
 function getHighlightedEvidenceWeblinks() {
     $.ajax({
         url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId, success: function (response) {
-            console.log(response)
             setHighlightedEvidenceWebLinks(response)
         }, error: function (response) {
             if (response.status !== 404) {
@@ -308,7 +307,6 @@ function addCategoriesToEvidence(categories) {
  */
 function createEvidencePreview(evidence) {
     let skills = getEvidenceTags(evidence.skills)
-    console.log(evidence)
     let categories = getCategoryTags(evidence.categories)
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
@@ -338,7 +336,6 @@ function getEvidenceTags(skills) {
 }
 
 function getCategoryTags(categories) {
-    console.log(categories)
     categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
 
     let skillsHTML = ``
