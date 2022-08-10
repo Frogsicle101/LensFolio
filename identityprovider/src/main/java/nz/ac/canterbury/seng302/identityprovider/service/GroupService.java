@@ -4,13 +4,13 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.GeneratedValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +29,9 @@ public class GroupService {
 
     /** For logging the requests related to groups. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    /** The Teacher group ID as stored in the Database */
+    private static final Integer TEACHERS_GROUP_ID = 1;
 
 
     /**
@@ -161,7 +164,8 @@ public class GroupService {
 
 
     /**
-     * Removes to user from all the groups they are currently a member of
+     * Removes to user from all the groups they are currently a member of except for
+     * the teachers group.
      *
      * @param user user to be removed from all groups
      */
@@ -169,7 +173,9 @@ public class GroupService {
         logger.info("Removing user {} from all groups", user.getId());
         List<Group> usersCurrentGroups = user.getGroups();
         for (Group group: usersCurrentGroups){
-            group.removeGroupMember(user);
+            if (!group.getId().equals(TEACHERS_GROUP_ID) && user.getRoles().contains(UserRole.TEACHER)) {
+                group.removeGroupMember(user);
+            }
         }
     }
 
@@ -181,7 +187,8 @@ public class GroupService {
 
 
     /**
-     * Adds the users to Members Without A Group, also removes them from every other group
+     * Adds the users to Members Without A Group, also removes them from every other group,
+     * doesn't add teachers to MWAG.
      *
      * @param usersToAdd a list of users the be added to Members Without A Group
      * @param MwagGroup The Members Without A Group group to add the users to
@@ -190,25 +197,8 @@ public class GroupService {
         logger.info("Adding users {} to Members Without A Group", usersToAdd);
         for (User user: usersToAdd) {
             removeUserFromAllGroups(user);
-            MwagGroup.addGroupMember(user);
-        }
-    }
-
-
-    /**
-     * Checks if the user is not part of any group and if so, adds them to Members Without A Group
-     *
-     * @param user The user to check
-     * @throws Exception Thrown when there is an error getting Members Without A Group from the repository
-     */
-    private void checkIfUserInNoGroup(User user) throws Exception {
-        Group group = getMWAG();
-        if (group == (null)) {
-            logger.info("Failed to retrieve MWAG");
-            throw new Exception("An error occurred getting the MWAG group");
-        } else {
-            if (user.getGroups().size() == 0) { // user in no other groups
-                group.addGroupMember(user);
+            if (!user.getRoles().contains(UserRole.TEACHER)) {
+                MwagGroup.addGroupMember(user);
             }
         }
     }
