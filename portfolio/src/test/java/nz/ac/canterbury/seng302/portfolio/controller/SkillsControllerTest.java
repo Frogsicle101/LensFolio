@@ -5,6 +5,7 @@ import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.evidence.SkillRepository;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
+import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
@@ -52,6 +53,9 @@ class SkillsControllerTest {
 
     @MockBean
     private UserAccountsClientService userAccountsClientService;
+
+    @MockBean
+    private GroupsClientService groupsClientService;
 
     @MockBean
     private SkillRepository skillRepository;
