@@ -82,16 +82,19 @@ By default, the Portfolio will run on local port 9000 (`http://localhost:9000`)
 **Admin account**
 
 username: admin
+
 password: password
 
 **Teacher account**
 
 username: steve
+
 password: password
 
 **Student account**
 
 username: Robert.abe1989
+
 password: thib2eCuTh
 
 ## Contributors
