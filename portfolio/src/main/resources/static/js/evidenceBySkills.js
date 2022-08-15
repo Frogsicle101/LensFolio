@@ -10,6 +10,10 @@ $(document).ready(function () {
     } else {
         userBeingViewedId = userIdent
     }
+
+    if (userBeingViewedId !== userIdent) {
+        $(".createEvidenceButton").hide();
+    }
     getAndAddEvidencePreviews()
     addCategoriesToSidebar()
     getSkills(addSkillsToSideBar)
@@ -23,6 +27,9 @@ $(document).ready(function () {
 function addSkillsToSideBar() {
     let skillsContainer = $('#skillList')
     skillsContainer.empty()
+    if (! skillsArray.includes("No Skill")) {
+        skillsArray.unshift("No Skill")
+    }
     for (let skill of skillsArray) {
         skillsContainer.append(`
             <div class="skillListItem evidenceFilter ${skill === selectedSkill ? 'selectedSkill' : ''}"
@@ -53,7 +60,27 @@ function addCategoriesToSidebar() {
 function showEvidenceWithSkill() {
     // Get all the pieces of evidence related to that skill
     $.ajax({
-        url: "evidenceLinkedToSkill?skillName=" + selectedSkill, success: function (response) {
+        url: "evidenceLinkedToSkill?skillName=" + selectedSkill + "&userId=" + userBeingViewedId,
+        success: function (response) {
+            addEvidencePreviews(response)
+            updateSelectedEvidence()
+            showHighlightedEvidenceDetails()
+        }, error: function (error) {
+            createAlert(error.responseText, true)
+        }
+    })
+}
+
+
+/**
+ * Populates the evidence table with all pieces of evidence with that
+ * specific skill.
+ */
+function showEvidenceWithCategory() {
+    // Get all the pieces of evidence related to that skill
+    $.ajax({
+        url: "evidenceLinkedToCategory?category=" + selectedSkill + "&userId=" + userBeingViewedId,
+        success: function (response) {
             addEvidencePreviews(response)
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
@@ -74,6 +101,7 @@ function updateSelectedEvidence() {
 }
 
 
+
 /* ------------ Event Listeners ----------------- */
 
 
@@ -85,7 +113,7 @@ function updateSelectedEvidence() {
  *    2. Add the selected class to the clicked div, and assign it as selected
  *    3. Populate the display with the selected evidence details.
  */
-$(document).on("click", ".evidenceFilter" , function () {
+$(document).on("click", ".skillListItem" , function () {
     let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
     previouslySelectedDiv.removeClass("selectedSkill")
 
@@ -97,6 +125,49 @@ $(document).on("click", ".evidenceFilter" , function () {
 
     showEvidenceWithSkill()
 })
+
+
+/**
+ * When a skill div in the sidebar is clicked, it becomes selected and is displays all evidence with that skill.
+ *
+ * There are 3 steps to this:
+ *    1. remove the selected class from the previously selected div.
+ *    2. Add the selected class to the clicked div, and assign it as selected
+ *    3. Populate the display with the selected evidence details.
+ */
+$(document).on("click", ".categoryListItem" , function () {
+    let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
+    previouslySelectedDiv.removeClass("selectedSkill")
+
+    selectedSkill = $(this).find('.skillName').text()
+
+    let title = $(document).find(".evidenceTitle").first()
+    title.text(selectedSkill)
+
+    showEvidenceWithCategory()
+})
+
+
+/**
+ * When a skill div in the sidebar is clicked, it becomes selected and is displays all evidence with that skill.
+ *
+ * There are 3 steps to this:
+ *    1. remove the selected class from the previously selected div.
+ *    2. Add the selected class to the clicked div, and assign it as selected
+ *    3. Populate the display with the selected evidence details.
+ */
+$(document).on("click", ".categoryChip" , function () {
+    let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
+    previouslySelectedDiv.removeClass("selectedSkill")
+
+    selectedSkill = $(this).find('.skillChipText').text()
+
+    let title = $(document).find(".evidenceTitle").first()
+    title.text(selectedSkill)
+
+    showEvidenceWithCategory()
+})
+
 
 
 /**
@@ -121,3 +192,6 @@ $(document).on("click", ".skillChip" , function () {
     title.text(selectedSkill)
     showEvidenceWithSkill()
 })
+
+
+$(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())

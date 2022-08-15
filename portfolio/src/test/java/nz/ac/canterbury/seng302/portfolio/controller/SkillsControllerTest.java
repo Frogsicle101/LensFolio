@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.evidence.SkillRepository;
 import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
@@ -59,6 +60,9 @@ class SkillsControllerTest {
 
     @MockBean
     private SkillRepository skillRepository;
+
+    @MockBean
+    private EvidenceRepository evidenceRepository;
 
     private final Integer validUserId = 1;
     private final Integer nonExistentUserId = 2;
@@ -173,7 +177,8 @@ class SkillsControllerTest {
         Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         mockMvc.perform(get("/evidenceLinkedToSkill")
-                .param("skillName", "writing_tests"))
+                .param("skillName", "writing_tests")
+                        .param("userId", "1"))
                 .andExpect(status().isOk());
     }
 
@@ -187,7 +192,8 @@ class SkillsControllerTest {
         Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillName", "writing_tests"))
+                        .param("skillName", "writing_tests")
+                        .param("userId", "1"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -210,7 +216,8 @@ class SkillsControllerTest {
         Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillName", "writing_tests"))
+                        .param("skillName", "writing_tests")
+                        .param("userId", "1"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -225,7 +232,8 @@ class SkillsControllerTest {
     @Test
     void testGetEvidenceForSkillWhenSkillDoesNotExist() throws Exception {
         mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillName", "Mystery"))
+                        .param("skillName", "Mystery")
+                        .param("userId", "1"))
                 .andExpect(status().isNotFound());
     }
 
@@ -237,7 +245,8 @@ class SkillsControllerTest {
         Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenThrow(e);
 
         mockMvc.perform(get("/evidenceLinkedToSkill")
-                        .param("skillName", "writing_tests"))
+                        .param("skillName", "writing_tests")
+                        .param("userId", "1"))
                 .andExpect(status().isInternalServerError());
     }
 

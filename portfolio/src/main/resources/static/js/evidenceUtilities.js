@@ -3,15 +3,14 @@
  * that can be used across multiple pages.
  */
 
-
-/** the user id of the user whose evidence page if being viewed */
-let userBeingViewedId;
-
 /** A regex only allowing modern English letters */
 const regExp = new RegExp('[A-Za-z]');
 
 /** A regex only allowing English characters, numbers, hyphens and underscores */
-const regex = new RegExp("[A-Za-z0-9_-]+");
+const regexSkills = new RegExp("[A-Za-z0-9_-]+");
+
+/** the user id of the user whose evidence page if being viewed */
+let userBeingViewedId;
 
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
@@ -150,9 +149,15 @@ function webLinkElement(url, alias) {
 * Note: by default the first element is the highlighted element.
 */
 function getAndAddEvidencePreviews() {
+
+    let title = $(document).find(".evidenceTitle").first()
+    title.text("Evidence");
+
+
     $.ajax({
         url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
             addEvidencePreviews(response)
+            updateSelectedEvidence();
             showHighlightedEvidenceDetails()
         }, error: function (error) {
             createAlert(error.responseText, true)
@@ -168,14 +173,21 @@ function getAndAddEvidencePreviews() {
  * message is displayed.
  */
 function getHighlightedEvidenceDetails() {
-    $.ajax({
-        url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
-            setHighlightEvidenceAttributes(response)
-            getHighlightedEvidenceWeblinks()
-        }, error: function () {
-            createAlert("Failed to receive active evidence", true)
-        }
-    })
+
+    if (selectedEvidenceId !== "") {
+        $.ajax({
+            url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
+                setHighlightEvidenceAttributes(response)
+                getHighlightedEvidenceWeblinks()
+            }, error: function (error) {
+                console.log(error)
+                createAlert("Failed to receive active evidence", true)
+            }
+        })
+    } else {
+        $("#evidenceDetailsTitle").text("No Evidence Found")
+    }
+
 }
 
 
@@ -186,7 +198,6 @@ function getHighlightedEvidenceDetails() {
 function getHighlightedEvidenceWeblinks() {
     $.ajax({
         url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId, success: function (response) {
-            console.log(response)
             setHighlightedEvidenceWebLinks(response)
         }, error: function (response) {
             if (response.status !== 404) {
@@ -308,7 +319,6 @@ function addCategoriesToEvidence(categories) {
  */
 function createEvidencePreview(evidence) {
     let skills = getEvidenceTags(evidence.skills)
-    console.log(evidence)
     let categories = getCategoryTags(evidence.categories)
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
@@ -338,7 +348,6 @@ function getEvidenceTags(skills) {
 }
 
 function getCategoryTags(categories) {
-    console.log(categories)
     categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
 
     let skillsHTML = ``
@@ -606,7 +615,7 @@ function removeDuplicatesFromInput(input) {
     let newArray = []
 
     inputArray.forEach(function (element) {
-        if (regex.test(element)){
+        if (regexSkills.test(element)){
             while (element.slice(-1) === "_") {
                 element = element.slice(0, -1)
             }
@@ -773,7 +782,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert("Text contains characters that are not allowed", true, ".modal-body")
+                createAlert(error.responseText, true, ".modal-body")
             }
         })
     }
@@ -967,17 +976,17 @@ function checkTextInputRegex() {
     let nameVal = name.val()
     let descriptionVal = description.val()
 
-    if (!regExp.test(nameVal) || !regExp.test(descriptionVal)) {
+    if (!regex.test(nameVal) || !regex.test(descriptionVal)) {
         $("#evidenceSaveButton").attr("disabled", true)
     }
 
-    if (!regExp.test(nameVal) && nameVal.length > 0) {
+    if (!regex.test(nameVal) && nameVal.length > 0) {
         name.addClass("invalid")
     } else {
         name.removeClass("invalid")
     }
 
-    if (!regExp.test(descriptionVal) && descriptionVal.length > 0) {
+    if (!regex.test(descriptionVal) && descriptionVal.length > 0) {
         description.addClass("invalid")
 
     } else {
