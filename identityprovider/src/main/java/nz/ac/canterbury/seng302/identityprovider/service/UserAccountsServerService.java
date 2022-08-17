@@ -3,8 +3,8 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
@@ -27,9 +27,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     /** The repository where Users details are stored */
     @Autowired
     private UserRepository repository;
-
-    @Autowired
-    private UrlService urlService;
 
     @Autowired
     private Environment env;
@@ -261,6 +258,11 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 logger.error(e.getMessage());
                 response.setIsSuccess(false)
                         .setMessage("An error has occurred while connecting to the database");
+            } catch (PasswordEncryptionException e) {
+                logger.error("An error occurred encrypting the new password");
+                logger.error(e.getMessage());
+                response.setIsSuccess(false)
+                        .setMessage("An error has occurred while encrypting the new password");
             }
         } else {
             logger.info("Password Change Failure - could not find user with id {}", request.getUserId());
