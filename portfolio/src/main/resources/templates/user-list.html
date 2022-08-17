@@ -17,6 +17,17 @@
         <section>
             <div class="listTableDiv">
                 <h1 class="title">Users</h1>
+                <form action="#">
+                    <label for="lang">Users per page</label>
+                    <select name="UsersPerPage" id="lang">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="40">40</option>
+                        <option value="60">60</option>
+                        <option value="all">All</option>
+                    </select>
+                    <input type="submit" value="Submit" />
+                </form>
                 <div class="listTable" id="user-list">
                     <table class="tableStyled">
                         <thead>
