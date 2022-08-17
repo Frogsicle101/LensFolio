@@ -2,14 +2,15 @@
 
 context('Window', () => {
   beforeEach(() => {
-    cy.visit('https://csse-s302g6.canterbury.ac.nz/test/portfolio/calendar')
+    cy.visit('http://localhost:9000/anything')
   })
 
   it('login', () => {
     // 'https://csse-s302g6.canterbury.ac.nz/test/portfolio/login'
     cy.get('#username')
-        .type('admin').should('have.value', 'admin')
+        .type('admin')
     cy.get('#password')
-        .type('password').should('have.value', 'password')
+        .type('password{enter}')
+    cy.url().should('include', 'account')
   })
 })
