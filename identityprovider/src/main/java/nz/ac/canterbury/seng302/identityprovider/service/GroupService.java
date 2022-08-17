@@ -1,9 +1,9 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
-import nz.ac.canterbury.seng302.identityprovider.groups.Group;
-import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.Group;
+import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,11 +68,11 @@ public class GroupService {
             if (group.getLongName().equals("Members Without A Group")) {
                 addUsersToMWAG(usersToAdd, group); // Need to remove users from all the other groups in this case
             } else {
-                Group MwagGroup = getMWAG();
+                Group mwagGroup = getMWAG();
                 for (User user : usersToAdd) {
                     group.addGroupMember(user);
-                    if (user.getGroups().contains(MwagGroup)) {
-                        removeUserFromMWAG(user, MwagGroup);
+                    if (user.getGroups().contains(mwagGroup)) {
+                        removeUserFromMWAG(user, mwagGroup);
                     }
                 }
             }
@@ -181,8 +181,8 @@ public class GroupService {
 
 
     private void addUserToMWAG(User user) {
-        Group MwagGroup = getMWAG();
-        MwagGroup.addGroupMember(user);
+        Group mwagGroup = getMWAG();
+        mwagGroup.addGroupMember(user);
     }
 
 
@@ -191,14 +191,14 @@ public class GroupService {
      * doesn't add teachers to MWAG.
      *
      * @param usersToAdd a list of users the be added to Members Without A Group
-     * @param MwagGroup The Members Without A Group group to add the users to
+     * @param mwaggroup The Members Without A Group group to add the users to
      */
-    private void addUsersToMWAG(List<User> usersToAdd, Group MwagGroup) {
+    private void addUsersToMWAG(List<User> usersToAdd, Group mwaggroup) {
         logger.info("Adding users {} to Members Without A Group", usersToAdd);
         for (User user: usersToAdd) {
             removeUserFromAllGroups(user);
             if (!user.getRoles().contains(UserRole.TEACHER)) {
-                MwagGroup.addGroupMember(user);
+                mwaggroup.addGroupMember(user);
             }
         }
     }
@@ -210,12 +210,12 @@ public class GroupService {
      * @param user The user to remove
      * @throws Exception Thrown when there is an error getting Members Without A Group from the repository
      */
-    private void removeUserFromMWAG(User user, Group MwagGroup) throws Exception {
-        if (MwagGroup == (null)){
+    private void removeUserFromMWAG(User user, Group mwagGroup) throws Exception {
+        if (mwagGroup == (null)){
             logger.info("Failed to retrieve MWAG");
             throw new Exception("An error occurred getting the MWAG group");
         } else {
-            MwagGroup.removeGroupMember(user);
+            mwagGroup.removeGroupMember(user);
         }
     }
 

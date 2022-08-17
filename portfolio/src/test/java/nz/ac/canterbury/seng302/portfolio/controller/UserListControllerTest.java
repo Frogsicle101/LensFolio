@@ -1,8 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import nz.ac.canterbury.seng302.shared.util.PaginationResponseOptions;
@@ -19,7 +19,7 @@ import java.util.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-public class UserListControllerTest {
+class UserListControllerTest {
 
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
 
@@ -72,8 +72,9 @@ public class UserListControllerTest {
 
     private static final Model model = setMockModel();
 
+
     @BeforeEach
-    public void beforeAll() {
+    void beforeAll() {
         expectedUsersList.clear();
         //userListController.setUserAccountsClientService(mockClientService);
         UserResponse.Builder user = UserResponse.newBuilder();
@@ -101,7 +102,7 @@ public class UserListControllerTest {
      * @param min the minimum number, used to ensure that there is no repeats of usernames
      * @param max the maximum number of users to be used for testing
      */
-    public void addUsersToExpectedList(int min, int max) {
+    private void addUsersToExpectedList(int min, int max) {
         for (int i = min; i < max; i++) {
             UserResponse.Builder user = UserResponse.newBuilder();
             user.setUsername("steve" + i)
@@ -161,13 +162,15 @@ public class UserListControllerTest {
         when(mockClientService.getPaginatedUsers(request)).thenReturn(response.build());
     }
 
-    @Test
-    public void contextLoads() {
-        Assertions.assertNotEquals(userListController, null);
-    }
 
     @Test
-    public void loadFirstPage() {
+    void contextLoads() {
+        Assertions.assertNotNull(userListController);
+    }
+
+
+    @Test
+    void loadFirstPage() {
         createMockResponse(0, "firstname", "true");
         userListController.getUserList(principal, model, 1, "firstname", "true");
         Object totalPages = model.getAttribute("totalPages");
@@ -195,8 +198,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
 
+
     @Test
-    public void loadLastPage() {
+    void loadLastPage() {
         createMockResponse(usersPerPage * 4, "firstname", "true");
         userListController.getUserList(principal, model, 5, "firstname", "true");
         Object totalPages = model.getAttribute("totalPages");
@@ -224,8 +228,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
 
+
     @Test
-    public void loadThirdPage() {
+    void loadThirdPage() {
         createMockResponse(usersPerPage * 2, "firstname", "true");
         userListController.getUserList(principal, model, 3, "firstname", "true");
         Object totalPages = model.getAttribute("totalPages");
@@ -253,8 +258,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
 
+
     @Test
-    public void loadLastPagePlusOne() {
+    void loadLastPagePlusOne() {
         createMockResponse(usersPerPage * 5, "firstname", "true"); //needed so controller can see the total pages amount
         createMockResponse(usersPerPage * 4, "firstname", "true");
         userListController.getUserList(principal, model, 6, "firstname", "true");
@@ -283,8 +289,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
 
+
     @Test
-    public void loadZeroPageNumber() {
+    void loadZeroPageNumber() {
         createMockResponse(0, "firstname", "true");
         userListController.getUserList(principal, model, 0, "firstname", "true");
         Object totalPages = model.getAttribute("totalPages");
@@ -312,8 +319,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
 
+
     @Test
-    public void loadNegativePageNumber() {
+    void loadNegativePageNumber() {
         createMockResponse(0, "firstname", "true");
         userListController.getUserList(principal, model, -1, "firstname", "true");
         Object totalPages = model.getAttribute("totalPages");
@@ -341,8 +349,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
 
+
     @Test
-    public void footerNumberSequenceLessThanElevenPages() {
+    void footerNumberSequenceLessThanElevenPages() {
         createMockResponse(0, "firstname", "true");
         userListController.getUserList(principal, model, 1, null, null);
         ArrayList<Integer> footerSequence = userListController.getFooterSequence();
@@ -351,8 +360,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedFooterSequence.toString(), footerSequence.toString());
     }
 
+
     @Test
-    public void footerNumberSequencePage10GreaterThan16Pages() {
+    void footerNumberSequencePage10GreaterThan16Pages() {
         addUsersToExpectedList(usersPerPage  * 4 + 2, usersPerPage * 18);
         createMockResponse(usersPerPage * 9, "firstname", "true");
         userListController.getUserList(principal, model, 10, "firstname", "true");
@@ -365,8 +375,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedFooterSequence.toString(), footerSequence.toString());
     }
 
+
     @Test
-    public void footerNumberSequencePage10LessThan16Pages() {
+    void footerNumberSequencePage10LessThan16Pages() {
         addUsersToExpectedList(usersPerPage  * 4 + 2, usersPerPage * 13);
         createMockResponse(usersPerPage * 9, "firstname", "true");
         userListController.getUserList(principal, model, 10, "firstname", "true");
@@ -379,8 +390,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedFooterSequence.toString(), footerSequence.toString());
     }
 
+
     @Test
-    public void sortByFirstNameIncreasing() {
+    void sortByFirstNameIncreasing() {
         createMockResponse(0, "firstname", "true");
         userListController.getUserList(principal, model, 1, "firstname", "true");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -390,8 +402,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByFirstNameDecreasing() {
+    void sortByFirstNameDecreasing() {
         createMockResponse(0, "firstname", "false");
         userListController.getUserList(principal, model, 1, "firstname", "false");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -402,8 +415,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByMiddleNameIncreasing() {
+    void sortByMiddleNameIncreasing() {
         createMockResponse(0, "middlename", "true");
         userListController.getUserList(principal, model, 1, "middlename", "true");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -413,8 +427,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByMiddleNameDecreasing() {
+    void sortByMiddleNameDecreasing() {
         createMockResponse(0, "middlename", "false");
         userListController.getUserList(principal, model, 1, "middlename", "false");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -425,8 +440,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByLastNameIncreasing() {
+    void sortByLastNameIncreasing() {
         createMockResponse(0, "lastname", "true");
         userListController.getUserList(principal, model, 1, "lastname", "true");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -436,8 +452,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByLastNameDecreasing() {
+    void sortByLastNameDecreasing() {
         createMockResponse(0, "lastname", "false");
         userListController.getUserList(principal, model, 1, "lastname", "false");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -448,8 +465,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByUsernameIncreasing() {
+    void sortByUsernameIncreasing() {
         createMockResponse(0, "username", "true");
         userListController.getUserList(principal, model, 1, "username", "true");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -459,8 +477,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByUsernameDecreasing() {
+    void sortByUsernameDecreasing() {
         createMockResponse(0, "username", "false");
         userListController.getUserList(principal, model, 1, "username", "false");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -471,8 +490,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByAliasIncreasing() {
+    void sortByAliasIncreasing() {
         createMockResponse(0, "aliases", "true");
         userListController.getUserList(principal, model, 1, "aliases", "true");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -482,8 +502,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByAliasDecreasing() {
+    void sortByAliasDecreasing() {
         createMockResponse(0, "aliases", "false");
         userListController.getUserList(principal, model, 1, "aliases", "false");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -494,8 +515,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByRolesIncreasing() {
+    void sortByRolesIncreasing() {
         createMockResponse(0, "roles", "true");
         userListController.getUserList(principal, model, 1, "roles", "true");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -505,8 +527,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortByRolesDecreasing() {
+    void sortByRolesDecreasing() {
         createMockResponse(0, "roles", "false");
         userListController.getUserList(principal, model, 1, "roles", "false");
         List<UserResponse> user_list = userListController.getUserResponseList();
@@ -516,8 +539,9 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedSubsetOfUsers, user_list);
     }
 
+
     @Test
-    public void sortOrderDefaultToNameIncreasing() {
+    void sortOrderDefaultToNameIncreasing() {
         createMockResponse(0, "firstname", "true");
         String expectedDefaultSortOrder = "firstname";
         userListController.getUserList(principal, model, 1, null, null);
@@ -528,8 +552,9 @@ public class UserListControllerTest {
         Assertions.assertTrue(isAscending);
     }
 
+
     @Test
-    public void sortOrderPersistence() {
+    void sortOrderPersistence() {
         String expectedPersistedSortOrder = "role";
         createMockResponse(0, expectedPersistedSortOrder, "false");
         userListController.getUserList(principal, model, 1, expectedPersistedSortOrder, "false");
@@ -540,6 +565,7 @@ public class UserListControllerTest {
         Assertions.assertEquals(expectedPersistedSortOrder, sortOrder);
         Assertions.assertFalse(isAscending);
     }
+
 
     @SuppressWarnings("NullableProblems")
     private static Model setMockModel() {

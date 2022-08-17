@@ -3,10 +3,10 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
-import nz.ac.canterbury.seng302.identityprovider.groups.Group;
-import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.Group;
+import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;
@@ -50,7 +50,7 @@ class UserAccountsServerServiceTest {
 
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws PasswordEncryptionException {
         user = new User(
                 "MySuperCoolUsername",
                 "password",
@@ -329,7 +329,7 @@ class UserAccountsServerServiceTest {
 
 
     @Test
-    void changeUserPassword() {
+    void changeUserPassword() throws PasswordEncryptionException {
         repository.save(user);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
@@ -494,7 +494,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void addTeacherRoleIsAddedToTeacherGroup() {
+    void addTeacherRoleIsAddedToTeacherGroup() throws PasswordEncryptionException {
         User newUser = new User(
                 "testuser",
                 "password",
@@ -546,7 +546,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void removeTeacherRoleIsRemovedFromTeacherGroup() {
+    void removeTeacherRoleIsRemovedFromTeacherGroup() throws PasswordEncryptionException {
 
         User newUser = new User(
                 "testuser",
