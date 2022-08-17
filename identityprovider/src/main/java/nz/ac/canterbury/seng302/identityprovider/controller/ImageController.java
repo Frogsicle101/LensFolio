@@ -36,7 +36,7 @@ public class ImageController {
      */
     @RequestMapping("/profile/{name}")
     public void image(@PathVariable("name") String name, HttpServletResponse response) {
-        logger.info("Retrieving profile image: " + name);
+        logger.info("Retrieving profile image: {}", name);
 
         String photoLocation = env.getProperty("photoLocation", "/src/main/resources/profile-photos/");
         File image = new File(photoLocation + name);
