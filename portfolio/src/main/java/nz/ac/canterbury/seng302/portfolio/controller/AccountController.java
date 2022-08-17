@@ -32,17 +32,33 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class AccountController {
 
-    /** The client service allowing requests to be made to the IdP. */
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
-
-    @Autowired
-    private LoginService loginService;
-
-    @Autowired
-    private RegexService regexService;
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    /** The client service allowing requests to be made to the IdP. */
+    private final UserAccountsClientService userAccountsClientService;
+
+    /** Injected LoginService Bean for assisting logging in and adding token cookies */
+    private final LoginService loginService;
+
+    /** Injected Bean to assist with validation */
+    private final RegexService regexService;
+
+
+    /**
+     * Autowired constructor to automatically inject the required beans.
+     *
+     * @param userAccountsClientService - The UserAccountsClientService bean to be injected
+     * @param loginService - The LoginService bean to be injected
+     * @param regexService - The RegexService bean to be injected
+     */
+    @Autowired
+    public AccountController(UserAccountsClientService userAccountsClientService,
+                             LoginService loginService,
+                             RegexService regexService) {
+        this.userAccountsClientService = userAccountsClientService;
+        this.loginService = loginService;
+        this.regexService = regexService;
+    }
 
 
     /**
@@ -75,7 +91,6 @@ public class AccountController {
             logger.info("GET REQUEST /account - retrieving account details for user {}", user.getUsername());
 
             ModelAndView model = new ModelAndView("account");
-            model.addObject("realNameRegex", RegexPattern.REAL_NAME);
             model.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
             model.addObject("generalUnicodeNoSpacesRegex", RegexPattern.GENERAL_UNICODE_NO_SPACES);
             model.addObject("emailRegex", RegexPattern.EMAIL);
@@ -101,7 +116,6 @@ public class AccountController {
     public ModelAndView register() {
         logger.info("GET REQUEST /register - get register page");
         ModelAndView model = new ModelAndView("accountRegister");
-        model.addObject("realNameRegex", RegexPattern.REAL_NAME);
         model.addObject("generalUnicodeNoSpacesRegex", RegexPattern.GENERAL_UNICODE_NO_SPACES);
         model.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
         model.addObject("emailRegex", RegexPattern.EMAIL);
@@ -127,7 +141,7 @@ public class AccountController {
         logger.info("POST REQUEST /register - attempt to register new user");
         try {
             ResponseEntity<Object> checkCredentials = checkUsernameAndPassword(userRequest);
-            ResponseEntity<Object> checkUserRequest = checkUserRequestNoPasswordOrUser(userRequest); // Checks that the userRequest object passes all checks
+            ResponseEntity<Object> checkUserRequest = checkUserRequestNoPasswordOrUser(userRequest);
             if (checkCredentials.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 logger.warn(warningMessage, checkCredentials.getBody());
                 return checkCredentials;
@@ -149,6 +163,9 @@ public class AccountController {
                 logger.info(warningMessage, registerReply.getMessage());
                 return new ResponseEntity<>(registerReply.getMessage(), HttpStatus.NOT_ACCEPTABLE);
             }
+        } catch (CheckException exception) {
+            logger.error(warningMessage, exception.toString());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error(warningMessage, err.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -184,10 +201,10 @@ public class AccountController {
      */
     private ResponseEntity<Object> checkUserRequestNoPasswordOrUser(UserRequest userRequest) {
         try {
-            regexService.checkInput(RegexPattern.REAL_NAME, userRequest.getFirstname(), 1, 50, "First name");
-            regexService.checkInput(RegexPattern.REAL_NAME, userRequest.getMiddlename(), 0, 50, "Middle name");
-            regexService.checkInput(RegexPattern.REAL_NAME, userRequest.getLastname(), 1, 50, "Last name");
-            regexService.checkInput(RegexPattern.EMAIL, userRequest.getEmail(), 0, 100, "Email");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getFirstname(), 1, 50, "First name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getMiddlename(), 0, 50, "Middle name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getLastname(), 1, 50, "Last name");
+            regexService.checkInput(RegexPattern.EMAIL, userRequest.getEmail(), 1, 100, "Email");
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getNickname(), 0, 50, "Nick name");
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getPersonalPronouns(), 0, 50, "Pronouns");
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getBio(), 0, 250, "Bio");

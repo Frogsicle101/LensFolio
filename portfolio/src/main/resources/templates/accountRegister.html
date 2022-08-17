@@ -12,36 +12,41 @@
 <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert" style="display: none">
     <p class="errorMessage"></p>
 </div>
+<!--/*@thymesVar id="registerForm" type="UserRequest"*/-->
 <form id="registerForm" method="post" th:action="@{register}" th:object="${registerForm}">
 
     <div class="row mb-3">
         <div class="col">
             <label class="required form-label" for="firstname">First name(s)</label>
+            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="firstname" maxlength="50" name="firstname"
                    required
-                   th:pattern="${realNameRegex.getPatternString()}"
-                   th:title="${'First name' + realNameRegex.getRequirements()}"
+                   th:pattern="${generalUnicodeRegex.getPatternString()}"
+                   th:title="${'First name' + generalUnicodeRegex.getRequirements()}"
                    type="text">
         </div>
         <div class="col">
             <label class="form-label" for="middleName">Middle name(s)</label>
+            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="middleName" maxlength="50" name="middlename"
-                   th:pattern="${realNameRegex.getPatternString()}"
-                   th:title="${'Middle name' + realNameRegex.getRequirements()}"
+                   th:pattern="${generalUnicodeRegex.getPatternString()}"
+                   th:title="${'Middle name' + generalUnicodeRegex.getRequirements()}"
                    type="text">
         </div>
         <div class="col">
             <label class="required form-label" for="lastname">Last name(s)</label>
+            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="lastname" maxlength="50" name="lastname"
                    required
-                   th:pattern="${realNameRegex.getPatternString()}"
-                   th:title="${'Last name' + realNameRegex.getRequirements()}"
+                   th:pattern="${generalUnicodeRegex.getPatternString()}"
+                   th:title="${'Last name' + generalUnicodeRegex.getRequirements()}"
                    type="text">
         </div>
     </div>
     <div class="row mb-3">
         <div class="col">
             <label class="required form-label" for="username">Username</label>
+            <!--/*@thymesVar id="generalUnicodeNoSpacesRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control" id="username" maxlength="50" name="username" required
                    th:pattern="${generalUnicodeNoSpacesRegex.getPatternString()}"
                    th:title="${'Username' + generalUnicodeNoSpacesRegex.getRequirements()}"
@@ -49,6 +54,7 @@
         </div>
         <div class="col">
             <label class="required form-label" for="password">Password</label>
+            <!--/*@thymesVar id="generalUnicodeNoSpacesRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="password" maxlength="50" minlength="5" name="password"
                    required
                    th:pattern="${generalUnicodeNoSpacesRegex.getPatternString()}"
@@ -59,6 +65,7 @@
     </div>
     <div class="mb-3">
         <label class="required form-label" for="email">Email address</label>
+        <!--/*@thymesVar id="emailRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
         <input class="form-control canDisable" id="email" maxlength="100" name="email" required
                th:pattern="${emailRegex.getPatternString()}"
                th:title="${'Your email' + emailRegex.getRequirements()}"
@@ -68,6 +75,7 @@
     <div class="row mb-3">
         <div class="col">
             <label class="form-label" for="nickname">Nickname</label>
+            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="nickname" maxlength="50" name="nickname"
                    th:pattern="${generalUnicodeRegex.getPatternString()}"
                    th:title="${'Nickname' + generalUnicodeRegex.getRequirements()}"
@@ -75,6 +83,7 @@
         </div>
         <div class="col">
             <label class="form-label" for="personalPronouns">Pronouns</label>
+            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="personalPronouns" maxlength="50" name="personalPronouns"
                    th:pattern="${generalUnicodeRegex.getPatternString()}"
                    th:title="${'Pronouns' + generalUnicodeRegex.getRequirements()}"
@@ -86,10 +95,10 @@
 
         <!-- The max length for fields in our database is, by default, somewhere around 250
         So going beyond 250 characters, even for a bio, runs the risk of errors -->
+        <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
         <textarea class="form-control canDisable" contenteditable id="bio" maxlength="250" name="bio"
                   th:pattern="${generalUnicodeRegex.getPatternString()}"
-                  th:title="${'Your bio' + generalUnicodeRegex.getRequirements()}"
-                  type="text"></textarea>
+                  th:title="${'Your bio' + generalUnicodeRegex.getRequirements()}"></textarea>
     </div>
     <button class="btn btn-primary " id="registerSubmitButton" type="submit">Submit</button>
     <button class="btn btn-secondary" onclick="history.back()" type="button">Back</button>

@@ -7,41 +7,67 @@ import java.util.regex.Pattern;
  */
 public enum RegexPattern {
 
+    // Enum values defined
+
     /** Regex that is all unicode letters, numbers, punctuation, symbols and whitespace */
     GENERAL_UNICODE(Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\p{S}\\s]*", Pattern.CASE_INSENSITIVE),
             " can only contain unicode letters, numbers, punctuation, symbols and whitespace"),
-
-    /** Regex that is all unicode letters, dashes and spaces. Intended for first, middle and last names */
-    REAL_NAME(Pattern.compile("[\\p{L}\\p{Pd}\\p{Zs}]*", Pattern.CASE_INSENSITIVE),
-            " can only contain letters, dashes and spaces."),
 
     /** Regex that is all unicode letters, numbers, punctuation & symbols. Intended for usernames and passwords */
     GENERAL_UNICODE_NO_SPACES(Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\p{S}]*", Pattern.CASE_INSENSITIVE),
             " can only contain letters, numbers, punctuation and symbols."),
 
+    /** Restricts to valid email format, e.g., example@email.com */
     EMAIL(Pattern.compile("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$"),
             " must be of a valid email format e.g., example@email.com"),
     ;
 
+    // Enum attribute declaration
+
+    /** The enums pattern attribute, the regex pattern used for checks.*/
     private final Pattern pattern;
 
+    /** The string representation of the requirements for tool tips and error messages. */
     private final String requirements;
 
 
+    /**
+     * Gets the pattern object used to validate input.
+     *
+     * @return The regex pattern for comparisons.
+     */
     public Pattern getPattern() {
         return pattern;
     }
 
+    /**
+     * Gets the pattern string so that input can be validated on the frontend too.
+     * Note this may say unused, this is because the value is retrieved in a thymeleaf th:pattern field
+     * not used in Java
+     *
+     * @return the String that was compiled into the regex.
+     */
     public String getPatternString() {
         return pattern.toString();
     }
 
+    /**
+     * Gets the requirements, used for error messages and tooltips.
+     *
+     * @return A string representing the requirements
+     */
     public String getRequirements() {
         return requirements;
     }
 
-    RegexPattern(Pattern pattern, String failureMessage) {
+    /**
+     * Required constructor to initialise the Enum values with their parameters.
+     *
+     * @param pattern - Declares the pattern attribute
+     * @param requirements - Declares the requirements attribute
+     */
+    RegexPattern(Pattern pattern, String requirements) {
         this.pattern = pattern;
-        this.requirements = failureMessage;
+        this.requirements = requirements;
     }
 }
