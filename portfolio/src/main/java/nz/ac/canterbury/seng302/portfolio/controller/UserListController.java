@@ -1,9 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
-import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
-import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefs;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefs;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,23 +105,24 @@ public class UserListController {
      *               This can be done easily with the line Objects.requireNonNullElse(order, "")
      */
     private void selectSortOrder(int userId, String order) {
-        logger.info("VIEWING USERS - ID: " + userId + " : Beginning sort order selection");
+        String genericLogMessage = "VIEWING USERS - ID: " + userId + "{}";
+        logger.info(genericLogMessage, " : Beginning sort order selection");
         if (!Objects.equals(order, "")) {
-            logger.info("VIEWING USERS - ID: " + userId + " : order provided, saving preferences");
+            logger.info(genericLogMessage, " : order provided, saving preferences");
             sortOrder = order;
             prefRepository.save(new UserPrefs(userId, order, isAscending));
-            logger.info("VIEWING USERS - ID: " + userId + " : preferences saved successfully");
+            logger.info(genericLogMessage, " : preferences saved successfully");
         } else {
             //The request doesn't come with a sort order (it's null), so use the one saved
-            logger.info("VIEWING USERS - ID: " + userId + " : no order provided, checking database for user");
+            logger.info(genericLogMessage, " : no order provided, checking database for user");
             UserPrefs user;
             user = prefRepository.getUserPrefsByUserId(userId);
             if (user != null) {
-                logger.info("VIEWING USERS - ID: " + userId + " : user found, fetching preferences...");
+                logger.info(genericLogMessage, " : user found, fetching preferences...");
                 sortOrder = user.getListSortPref();
                 isAscending = user.getIsAscending();
             } else {
-                logger.warn("VIEWING USERS - ID: " + userId + " : The user is null, saving them to the database");
+                logger.warn(genericLogMessage, " : The user is null, saving them to the database");
                 sortOrder = "firstname";
                 isAscending = true;
                 user = new UserPrefs(userId, sortOrder, isAscending);

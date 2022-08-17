@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
-import nz.ac.canterbury.seng302.identityprovider.User;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +46,11 @@ public class LoginService {
         } else {
             //User in database
             if (passwordMatches(request.getPassword(), foundUser)) { // Password matches stored hash
-                logger.info(String.format("Authentication success - %s", foundUser.getUsername()));
+                logger.info("Authentication success - {}", foundUser.getUsername());
                 return LoginStatus.VALID;
 
             } else { // Incorrect password
-                logger.info(String.format("Authentication failure - incorrect password for %s", foundUser.getUsername()));
+                logger.info("Authentication failure - incorrect password for {}", foundUser.getUsername());
                 return LoginStatus.PASSWORD_INVALID;
             }
         }
@@ -63,9 +63,13 @@ public class LoginService {
      * @param user The user to check against
      */
     public boolean passwordMatches(String password, User user) {
-        return getHash(password, user.getSalt()).equals(user.getPwhash());
+        try {
+            return getHash(password, user.getSalt()).equals(user.getPwhash());
+        } catch (PasswordEncryptionException exception) {
+            logger.error(exception.getMessage());
+            return false;
+        }
     }
-
 
 
     /**
@@ -75,7 +79,7 @@ public class LoginService {
      *             and then stored in the database with the user.
      * @return Base64 encoded hash
      */
-    public String getHash(String password, String salt) {
+    public String getHash(String password, String salt) throws PasswordEncryptionException {
         String algorithm = "PBKDF2WithHmacSHA1";
         int derivedKeyLength = 160;
         int iterations = 20000;
@@ -90,7 +94,7 @@ public class LoginService {
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             // This exception will only be thrown if the java algorithm specification changes
             logger.error("ERROR - failed to hash password");
-            throw new RuntimeException("Could not hash password: " + e.getMessage());
+            throw new PasswordEncryptionException("Could not hash password: " + e.getMessage());
         }
 
 
@@ -101,7 +105,7 @@ public class LoginService {
      * Generates 8 random bytes to be used as salt
      * @return Base64 encoded salt
      */
-    public String getNewSalt() {
+    public String getNewSalt() throws PasswordEncryptionException {
         SecureRandom random;
 
         try {
@@ -109,7 +113,7 @@ public class LoginService {
         } catch (NoSuchAlgorithmException e) {
             // This exception will only be thrown if the java algorithm specification changes
             logger.error("ERROR - failed to retrieve salt for password");
-            throw new RuntimeException("Could not get salt: " + e.getMessage());
+            throw new PasswordEncryptionException("Could not get salt: " + e.getMessage());
         }
 
         byte[] salt = new byte[8];
