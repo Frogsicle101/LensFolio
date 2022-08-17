@@ -642,7 +642,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersFirstNameIncreasing(){
+    void getPaginatedUsersFirstNameIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "firstname";
@@ -663,7 +663,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersFirstNameDecreasing(){
+    void getPaginatedUsersFirstNameDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "firstname";
@@ -684,7 +684,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersMiddleNameIncreasing(){
+    void getPaginatedUsersMiddleNameIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "middlename";
@@ -705,7 +705,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersMiddleNameDecreasing(){
+    void getPaginatedUsersMiddleNameDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "middlename";
@@ -726,7 +726,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersLastNameIncreasing(){
+    void getPaginatedUsersLastNameIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "lastname";
@@ -747,7 +747,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersLastNameDecreasing(){
+    void getPaginatedUsersLastNameDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "lastname";
@@ -768,7 +768,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersUserNameIncreasing(){
+    void getPaginatedUsersUserNameIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "username";
@@ -789,7 +789,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersUserNameDecreasing(){
+    void getPaginatedUsersUserNameDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "username";
@@ -810,7 +810,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersNicknameIncreasing(){
+    void getPaginatedUsersNicknameIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "aliases";
@@ -831,7 +831,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersNicknameDecreasing(){
+    void getPaginatedUsersNicknameDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "aliases";
@@ -852,7 +852,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersRolesIncreasing(){
+    void getPaginatedUsersRolesIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "roles";
@@ -873,7 +873,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersRolesDecreasing(){
+    void getPaginatedUsersRolesDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "roles";
@@ -894,7 +894,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersOffsetThree(){
+    void getPaginatedUsersOffsetThree() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "firstname";
@@ -913,7 +913,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersOffsetMoreThanAmountUsers(){
+    void getPaginatedUsersOffsetMoreThanAmountUsers() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "firstname";
@@ -929,7 +929,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersLimitThree(){
+    void getPaginatedUsersLimitThree() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "firstname";
@@ -948,7 +948,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersLimitHigherThanAmountUsers(){
+    void getPaginatedUsersLimitHigherThanAmountUsers() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "firstname";
@@ -970,7 +970,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void getPaginatedUsersOffsetTwoLimitTwo(){
+    void getPaginatedUsersOffsetTwoLimitTwo() throws PasswordEncryptionException{
         groupRepository.deleteAll();
         repository.deleteAll();
         String orderBy = "firstname";
@@ -997,7 +997,7 @@ class UserAccountsServerServiceTest {
      * @param isAscending Whether the list should be in ascending or descending order
      * @return The response received from the tested UserAccountsServerService.getPaginatedUsers method
      */
-    private PaginatedUsersResponse runGetPaginatedUsersTest(String orderBy, Integer offset, Integer limit, Boolean isAscending){
+    private PaginatedUsersResponse runGetPaginatedUsersTest(String orderBy, Integer offset, Integer limit, Boolean isAscending) throws PasswordEncryptionException{
         PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
                 .setOffset(offset)
                 .setLimit(limit)
@@ -1030,7 +1030,7 @@ class UserAccountsServerServiceTest {
      *
      * @return A list of users to be saved to the repository
      */
-    private List<User> createUsers() {
+    private List<User> createUsers() throws PasswordEncryptionException {
         List<User> userList = new ArrayList<>();
         User user1 = new User("SteveA", "password", "Stevea", "Stevensonb", "McSteveF", "KingSteved", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
         User user2 = new User("SteveB", "password", "SteveB", "StevensonA", "McSteveE", "KingStevee", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
