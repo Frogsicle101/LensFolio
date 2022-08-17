@@ -7,6 +7,8 @@ import nz.ac.canterbury.seng302.identityprovider.User;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
+import nz.ac.canterbury.seng302.shared.util.PaginationResponseOptions;
 import nz.ac.canterbury.seng302.shared.util.ValidationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,12 +222,13 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
      * Follows the gRPC contract for retrieving the paginated groups. Does this by sorting a list of all the groups based
      * on what was requested and then looping through to add the specific page of groups to the response
      *
-     * @param request the GetPaginatedGroupsRequest passed through from the client service
+     * @param groupsRequest the GetPaginatedGroupsRequest passed through from the client service
      * @param responseObserver Used to return the response to the client side.
      */
     @Override
-    public void getPaginatedGroups(GetPaginatedGroupsRequest request, StreamObserver<PaginatedGroupsResponse> responseObserver) {
+    public void getPaginatedGroups(GetPaginatedGroupsRequest groupsRequest, StreamObserver<PaginatedGroupsResponse> responseObserver) {
         PaginatedGroupsResponse.Builder reply = PaginatedGroupsResponse.newBuilder();
+        PaginationRequestOptions request = groupsRequest.getPaginationRequestOptions();
 
         List<Group> allGroups = (List<Group>) groupRepository.findAll();
         String sortMethod = request.getOrderBy();
@@ -244,7 +247,10 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             Group group = allGroups.get(i);
             reply.addGroups(group.groupDetailsResponse());
         }
-        reply.setResultSetSize(allGroups.size());
+        PaginationResponseOptions options = PaginationResponseOptions.newBuilder()
+                                                                     .setResultSetSize(allGroups.size())
+                                                                     .build();
+        reply.setPaginationResponseOptions(options);
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }

@@ -8,6 +8,7 @@ import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.groups.Group;
 import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -532,7 +533,7 @@ class GroupServerServiceTest {
         Boolean isAscending = true;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 1", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 2", response.getGroupsList().get(1).getShortName());
@@ -548,7 +549,7 @@ class GroupServerServiceTest {
         Boolean isAscending = false;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 3", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 2", response.getGroupsList().get(1).getShortName());
@@ -564,7 +565,7 @@ class GroupServerServiceTest {
         Boolean isAscending = true;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 1", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 2", response.getGroupsList().get(1).getShortName());
@@ -580,7 +581,7 @@ class GroupServerServiceTest {
         Boolean isAscending = false;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 3", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 2", response.getGroupsList().get(1).getShortName());
@@ -596,7 +597,7 @@ class GroupServerServiceTest {
         Boolean isAscending = true;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 1", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 3", response.getGroupsList().get(1).getShortName());
@@ -612,7 +613,7 @@ class GroupServerServiceTest {
         Boolean isAscending = false;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 2", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 3", response.getGroupsList().get(1).getShortName());
@@ -633,11 +634,14 @@ class GroupServerServiceTest {
      * @return The response received from the tested GroupsServerService.getPaginatedGroups method
      */
     private PaginatedGroupsResponse runGetPaginatedGroupTest(String orderBy, Integer offset, Integer limit, Boolean isAscending){
-        GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
                 .setOffset(offset)
                 .setLimit(limit)
                 .setOrderBy(orderBy)
                 .setIsAscendingOrder(isAscending)
+                .build();
+        GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
+                .setPaginationRequestOptions(options)
                 .build();
 
         List<Group> groupsList = createUsersAndAddToGroups();
@@ -658,6 +662,8 @@ class GroupServerServiceTest {
 
     /**
      * A helper function to set up some groups and users in these groups
+     *
+     * @return a list of the groups with users added to them
      */
     private List<Group> createUsersAndAddToGroups() {
         List<Group> groupsList = new ArrayList<>();

@@ -4,6 +4,8 @@ import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
+import nz.ac.canterbury.seng302.shared.util.PaginationResponseOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -123,11 +125,15 @@ public class UserListControllerTest {
      */
     private void createMockResponse(int offset, String sortOrder, String isAscending) {
         boolean boolAscending = Objects.equals(isAscending, "true");
-        GetPaginatedUsersRequest.Builder request = GetPaginatedUsersRequest.newBuilder();
-        request.setOrderBy(sortOrder);
-        request.setLimit(usersPerPage);
-        request.setOffset(offset);
-        request.setIsAscendingOrder(boolAscending);
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                                                                   .setOrderBy(sortOrder)
+                                                                   .setLimit(usersPerPage)
+                                                                   .setOffset(offset)
+                                                                   .setIsAscendingOrder(boolAscending)
+                                                                   .build();
+        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+                                                                   .setPaginationRequestOptions(options)
+                                                                   .build();
         PaginatedUsersResponse.Builder response = PaginatedUsersResponse.newBuilder();
 
         switch (sortOrder) {
@@ -147,8 +153,12 @@ public class UserListControllerTest {
             response.addUsers(expectedUsersList.get(i));
         }
 
-        response.setResultSetSize(expectedUsersList.size());
-        when(mockClientService.getPaginatedUsers(request.build())).thenReturn(response.build());
+        PaginationResponseOptions responseOptions = PaginationResponseOptions.newBuilder()
+                                                                             .setResultSetSize(expectedUsersList.size())
+                                                                             .build();
+
+        response.setPaginationResponseOptions(responseOptions);
+        when(mockClientService.getPaginatedUsers(request)).thenReturn(response.build());
     }
 
     @Test

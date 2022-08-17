@@ -5,6 +5,7 @@ import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefRepository;
 import nz.ac.canterbury.seng302.portfolio.userPrefs.UserPrefs;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +79,7 @@ public class UserListController {
         offset = (pageNum - 1) * usersPerPageLimit;
 
         PaginatedUsersResponse response = getPaginatedUsersFromServer();
-        totalNumUsers = response.getResultSetSize();
+        totalNumUsers = response.getPaginationResponseOptions().getResultSetSize();
         totalPages = totalNumUsers / usersPerPageLimit;
         if ((totalNumUsers % usersPerPageLimit) != 0) {
             totalPages++;
@@ -227,11 +228,14 @@ public class UserListController {
      * @return PaginatedUsersResponse, a type that contains all users for a specific page and the total number of users
      */
     private PaginatedUsersResponse getPaginatedUsersFromServer() {
-        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
                                                                    .setOffset(offset)
                                                                    .setLimit(usersPerPageLimit)
                                                                    .setOrderBy(sortOrder)
                                                                    .setIsAscendingOrder(isAscending)
+                                                                   .build();
+        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+                                                                   .setPaginationRequestOptions(options)
                                                                    .build();
         return userAccountsClientService.getPaginatedUsers(request);
     }

@@ -8,6 +8,8 @@ import nz.ac.canterbury.seng302.identityprovider.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
+import nz.ac.canterbury.seng302.shared.util.PaginationResponseOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -414,13 +416,14 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      * Follows the gRPC contract for retrieving the paginated users. Does this by sorting a list of all the users based
      * on what was requested and then looping through to add the specific page of users to the response
      *
-     * @param request the GetPaginatedUsersRequest passed through from the client service
+     * @param usersRequest the GetPaginatedUsersRequest passed through from the client service
      * @param responseObserver Used to return the response to the client side.
      */
     @Override
-    public void getPaginatedUsers(GetPaginatedUsersRequest request, StreamObserver<PaginatedUsersResponse> responseObserver) {
+    public void getPaginatedUsers(GetPaginatedUsersRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver) {
         PaginatedUsersResponse.Builder reply = PaginatedUsersResponse.newBuilder();
         List<User> allUsers = (List<User>) repository.findAll();
+        PaginationRequestOptions request = usersRequest.getPaginationRequestOptions();
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
@@ -440,7 +443,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
             reply.addUsers(allUsers.get(i).userResponse());
         }
-        reply.setResultSetSize(allUsers.size());
+        PaginationResponseOptions options = PaginationResponseOptions.newBuilder()
+                                                                     .setResultSetSize(allUsers.size())
+                                                                     .build();
+        reply.setPaginationResponseOptions(options);
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }
