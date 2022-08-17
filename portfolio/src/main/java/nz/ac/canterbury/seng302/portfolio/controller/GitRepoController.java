@@ -1,9 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepoRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepository;
-import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
+import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepoRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetGroupDetailsRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
 import org.slf4j.Logger;

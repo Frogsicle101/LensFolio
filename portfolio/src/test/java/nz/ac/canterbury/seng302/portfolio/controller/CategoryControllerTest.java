@@ -2,12 +2,12 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.Category;
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
-import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = CategoryController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class CategoryControllerTest {
+class CategoryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

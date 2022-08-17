@@ -1,13 +1,13 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.evidence.Skill;
-import nz.ac.canterbury.seng302.portfolio.evidence.SkillRepository;
-import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
-import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;

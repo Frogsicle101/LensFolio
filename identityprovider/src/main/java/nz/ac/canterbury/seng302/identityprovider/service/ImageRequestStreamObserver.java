@@ -3,8 +3,8 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetadata;
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatus;
@@ -52,7 +52,7 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
 //  --------------------------------- Check if the first "packet" is the metadata --------------------------------------
         if (request.getUploadDataCase() == UploadUserProfilePhotoRequest.UploadDataCase.METADATA) {
             ProfilePhotoUploadMetadata metadata = request.getMetaData();
-            logger.info("Received image metadata: " + metadata);
+            logger.info("Received image metadata: {}", metadata);
 
             // Metadata received, create new image and tell client with PENDING status
             userId = metadata.getUserId();
@@ -67,7 +67,7 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
 //  ---------------------------- Otherwise the incoming content must be file chunks ------------------------------------
         } else {
             ByteString fileContent = request.getFileContent();
-            logger.info("Received image chunk of size: " + fileContent.size());
+            logger.info("Received image chunk of size: {}", fileContent.size());
 
             // If the metadata wasn't received first as error will occur
             if (bytes == null) {

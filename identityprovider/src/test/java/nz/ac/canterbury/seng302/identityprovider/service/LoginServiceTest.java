@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
-import nz.ac.canterbury.seng302.identityprovider.User;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.service.LoginService.LoginStatus;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +14,7 @@ class LoginServiceTest {
     User user;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws PasswordEncryptionException {
         service = new LoginService();
         user = new User(
                 "test",
@@ -60,7 +60,7 @@ class LoginServiceTest {
 
 
     @Test
-    void testHashesSame() {
+    void testHashesSame() throws PasswordEncryptionException {
 
         String salt = service.getNewSalt();
         String hash1 = service.getHash("testpassword123", salt);
@@ -71,7 +71,7 @@ class LoginServiceTest {
     }
 
     @Test
-    void testHashesDifferent() {
+    void testHashesDifferent() throws PasswordEncryptionException {
 
         String salt = service.getNewSalt();
         String hash1 = service.getHash("testpassword123", salt);
@@ -82,7 +82,7 @@ class LoginServiceTest {
     }
 
     @Test
-    void testSaltsRandom() {
+    void testSaltsRandom() throws PasswordEncryptionException {
 
         String salt1 = service.getNewSalt();
         String salt2 = service.getNewSalt();
@@ -92,15 +92,12 @@ class LoginServiceTest {
     }
 
     @Test
-    void testMatchingPasswords() {
-
-
+    void testMatchingPasswords() throws PasswordEncryptionException {
         assertTrue(service.passwordMatches("password", user));
     }
 
     @Test
-    void testNonMatchingPasswords() {
-
+    void testNonMatchingPasswords() throws PasswordEncryptionException {
         assertFalse(service.passwordMatches("different_password", user));
     }
 }
