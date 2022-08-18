@@ -14,7 +14,6 @@
         <div th:replace="fragments/general.html :: errorBox"></div>
         <form method="post" th:action="@{login}" th:object="${loginForm}">
             <h1 class="signIn">Sign In</h1>
-
             <div class="mb-3">
                 <label class="form-label" for="username">Username</label>
                 <input id="username" class="form-control canDisable" maxlength="50" name="username" required
@@ -24,14 +23,11 @@
                 <label class="form-label" for="password">Password</label>
                 <input id="password" class="form-control" maxlength="100" name="password" required type="password">
             </div>
-
             <button id="loginButton" class="btn btn-primary canDisable" type="submit">Submit</button>
-
         </form>
         <hr>
         <p>Click <a th:href="@{register}">here</a> to register a new user</p>
     </div>
-
 </div>
 
 </body>
