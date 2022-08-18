@@ -1,6 +1,6 @@
 describe('Test Registration', () => {
   it('Visits the local web address for registration', () => {
-    cy.visit('/login')
+    cy.visit('/')
     cy.contains("here").click()
     cy.url().should("include", "/register")
   })
@@ -55,12 +55,12 @@ describe('Test Registration', () => {
         .should('equal', 'Please fill out this field.')
   })
 
-  it('Fills in the registration details with username emoji', () => {
+  it('Fills in the registration details with invalid username', () => {
     cy.visit('/register')
     cy.get("#firstname").type("This is a test")
     cy.get("#middleName").type("This is a test")
     cy.get("#lastname").type("This is a test")
-    cy.get("#username").type("😀" + Math.floor(Math.random() * 10))
+    cy.get("#username").type('\u0000' + Math.floor(Math.random() * 10))
     cy.get("#password").type("password")
     cy.get("#email").type("test@test.com")
     cy.contains("Submit").click()
@@ -77,8 +77,8 @@ describe('Test Registration', () => {
     cy.get("#username").type("test" + Math.floor(Math.random() * 10))
     cy.get("#password").type("password")
     cy.get("#email").type("test@test.com")
-    cy.get("#bio").type("😀 😃 😄"+ Math.floor(Math.random() * 10))
-    cy.contains("Invalid character")
+    cy.get("#bio").type("😀")
+    cy.get("#alertPopUp").should('be.visible').contains("Invalid character")
   })
 })
 
