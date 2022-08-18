@@ -183,6 +183,27 @@ section {
     height: 15rem;
 }
 
+#photoContainer:hover #accountPageImage {
+    opacity: 0.4;
+    background-color: black;
+}
+
+#photoContainer:hover #uploadPhotoButton {
+    display: block;
+}
+
+#photoContainer {
+    position: relative;
+}
+
+#uploadPhotoButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+}
+
 .required:after {
     content: "*";
     color: red;
