@@ -553,7 +553,7 @@ section {
 }
 
 .userRoleRow:hover :not(.roleButtonsContainer) {
-    cursor: grab;
+    cursor: pointer;
 }
 
 /*Calendar*/

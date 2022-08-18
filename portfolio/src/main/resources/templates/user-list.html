@@ -114,7 +114,7 @@
                                         <div class="tagDiv">
                                             <div class=" text-black roleType" th:text="${activeRole}"></div>
                                             <button class="btn-close roleDeleteButton" style="font-size: 0.75em;"
-                                                    th:if="${userCanEdit}">
+                                                    th:if="${userCanEdit and paginatedUser.rolesList.size() > 1}">
                                             </button>
                                         </div>
                                     </div>
