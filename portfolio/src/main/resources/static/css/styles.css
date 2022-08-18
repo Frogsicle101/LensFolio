@@ -184,8 +184,10 @@ section {
 }
 
 #photoContainer:hover #accountPageImage {
-    opacity: 0.4;
-    background-color: black;
+    /*opacity: 0.4;*/
+    /*background-color: black;*/
+
+    filter: contrast(50%);
 }
 
 #photoContainer:hover #uploadPhotoButton {
