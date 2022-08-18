@@ -1165,7 +1165,6 @@ section {
 
 .skillsHeader {
     margin-top: 2rem;
-    border-bottom: solid var(--main-border-colour) 1px;
 }
 
 .skillListItem {
@@ -1176,6 +1175,7 @@ section {
     align-content: center;
     cursor: pointer;
 }
+
 
 .categoryListItem {
     padding: 0.2rem 1rem 0.2rem;
@@ -1221,5 +1221,11 @@ section {
 
 .showAllContainer {
     margin-top: 1rem;
+}
+
+.skillName {
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+    margin-bottom: 0;
 }
 
