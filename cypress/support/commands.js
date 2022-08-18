@@ -32,18 +32,11 @@
  */
 Cypress.Commands.add('login', () => {
     cy.visit(`${Cypress.env('baseUrl')}/login`)
-
-    const formData = new FormData()
-    formData.append("username", "admin")
-    formData.append("password", "password")
-
-    // FIXME The request below is returning 200, and logging a redirect in the portfolio logger, but the account page redirects back to login.
-// I think it might have something to do with cookies?
-// Using a post request for logging in is more efficient (& better practice) than going through the UI for every test.
-
-    cy.request('POST', 'login', formData)
-        .its('body')
-        .as('currentUser')
-
-    cy.visit(`${Cypress.env('baseUrl')}/account`)
+    it('successful log in to admin account', () => {
+        cy.get('#username')
+            .type("admin")
+        cy.get('#password')
+            .type(`password{enter}`) //add password and submit form
+        cy.url().should('include', 'account')
+    })
 })
