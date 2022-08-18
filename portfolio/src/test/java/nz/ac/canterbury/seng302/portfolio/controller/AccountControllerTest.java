@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import io.cucumber.java.bs.A;
 import nz.ac.canterbury.seng302.portfolio.model.dto.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
@@ -7,6 +8,7 @@ import nz.ac.canterbury.seng302.portfolio.authentication.AuthenticationException
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.service.LoginService;
+import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
@@ -36,12 +38,14 @@ class AccountControllerTest {
 
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
 
-    @InjectMocks
-    private final AccountController accountController = spy(AccountController.class);
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
     private final HttpServletRequest mockServletRequest = mock(HttpServletRequest.class);
     private final HttpServletResponse mockServletResponse = mock(HttpServletResponse.class);
     private final LoginService loginService = mock(LoginService.class);
+    private final RegexService regexService = new RegexService();
+
+    private final AccountController accountController = new AccountController(mockClientService, loginService, regexService);
+
     private final Authentication principal = new Authentication(
             AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build()
     );
@@ -80,12 +84,9 @@ class AccountControllerTest {
         ModelAndView model = accountController.register();
 
         Assertions.assertTrue(model.hasView());
-        Assertions.assertTrue(model.getModel().containsKey("alphaSpacesRegex"));
-        Assertions.assertTrue(model.getModel().containsKey("alphaSpacesRegexCanBeEmpty"));
-        Assertions.assertTrue(model.getModel().containsKey("userNameRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("generalUnicodeRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("generalUnicodeNoSpacesRegex"));
         Assertions.assertTrue(model.getModel().containsKey("emailRegex"));
-        Assertions.assertTrue(model.getModel().containsKey("passwordRegex"));
-        Assertions.assertTrue(model.getModel().containsKey("pronounRegex"));
     }
 
     @Test
@@ -93,7 +94,8 @@ class AccountControllerTest {
         UserRequest userRequest = new UserRequest("TestCase", "Password");
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Missing fields", Objects.requireNonNull(response.getBody()).toString());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Required field"));
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("is missing"));
     }
 
     @Test
@@ -177,38 +179,6 @@ class AccountControllerTest {
     }
 
     @Test
-    void testAttemptRegistrationIncorrectPatternFirstnameInvalidSymbol() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test!");
-        userRequest.setLastname("Testing");
-        userRequest.setBio(null);
-        userRequest.setNickname(null);
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename(null);
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    void testAttemptRegistrationIncorrectPatternFirstnameWithNumber() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test9000");
-        userRequest.setLastname("Testing");
-        userRequest.setBio(null);
-        userRequest.setNickname(null);
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename(null);
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
     void testAttemptRegistrationIncorrectPatternFirstnameAsSpace() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
@@ -289,38 +259,6 @@ class AccountControllerTest {
     }
 
     @Test
-    void testAttemptRegistrationIncorrectPatternMiddlenameInvalidSymbol() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("Testing");
-        userRequest.setBio(null);
-        userRequest.setNickname(null);
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename("Mcgregor gregorich!");
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    void testAttemptRegistrationIncorrectPatternMiddlenameWithNumber() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("Testing");
-        userRequest.setBio(null);
-        userRequest.setNickname(null);
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename("Mcgregor gregorich the 13th");
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
     void testAttemptRegistrationCorrectPatternMiddlenameWithComma() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
@@ -382,54 +320,6 @@ class AccountControllerTest {
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @Test
-    void testAttemptRegistrationIncorrectPatternMiddlenameAsSpace() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("Testing");
-        userRequest.setBio(null);
-        userRequest.setNickname(null);
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename(" ");
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    void testAttemptRegistrationIncorrectPatternLastnameInvalidSymbol() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("Testing@");
-        userRequest.setBio(null);
-        userRequest.setNickname(null);
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename(null);
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    void testAttemptRegistrationIncorrectPatternLastnameWithNumber() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("test");
-        userRequest.setLastname("Testing1");
-        userRequest.setBio(null);
-        userRequest.setNickname(null);
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename(null);
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -609,54 +499,6 @@ class AccountControllerTest {
     }
 
     @Test
-    void testAttemptRegistrationIncorrectPatternNicknameInvalidSymbol() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("Testing");
-        userRequest.setBio(null);
-        userRequest.setNickname("Mr Jeeves!");
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename(null);
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    void testAttemptRegistrationIncorrectPatternNicknameWithNumber() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("Testing");
-        userRequest.setBio(null);
-        userRequest.setNickname("hello90");
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename(null);
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    void testAttemptRegistrationIncorrectPatternNicknameAsSpace() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("Testing");
-        userRequest.setBio(null);
-        userRequest.setNickname(" ");
-        userRequest.setPersonalPronouns(null);
-        userRequest.setMiddlename(null);
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
     void testAttemptRegistrationCorrectNicknameWithComma() {
 
         UserRequest userRequest = new UserRequest("TestCase", "Password");
@@ -718,38 +560,6 @@ class AccountControllerTest {
 
         ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @Test
-    void testAttemptRegistrationIncorrectPatternPronounsWithSpace() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("Testing");
-        userRequest.setBio(null);
-        userRequest.setNickname(null);
-        userRequest.setPersonalPronouns("He/Him Them");
-        userRequest.setMiddlename(null);
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    void testAttemptRegistrationIncorrectPatternPronounsWithSymbols() {
-
-        UserRequest userRequest = new UserRequest("TestCase", "Password");
-        userRequest.setEmail("test@test.com");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("Testing");
-        userRequest.setBio(null);
-        userRequest.setNickname(null);
-        userRequest.setPersonalPronouns("He/Him!");
-        userRequest.setMiddlename(null);
-
-        ResponseEntity<Object> response = accountController.attemptRegistration(userRequest, mockServletRequest, mockServletResponse);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -894,12 +704,9 @@ class AccountControllerTest {
         ModelAndView modelAndView = accountController.account(principal);
 
         Assertions.assertTrue(modelAndView.hasView());
-        Assertions.assertTrue(modelAndView.getModel().containsKey("alphaSpacesRegex"));
-        Assertions.assertTrue(modelAndView.getModel().containsKey("alphaSpacesRegexCanBeEmpty"));
-        Assertions.assertTrue(modelAndView.getModel().containsKey("userNameRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("generalUnicodeNoSpacesRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("generalUnicodeRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("emailRegex"));
-        Assertions.assertTrue(modelAndView.getModel().containsKey("passwordRegex"));
-        Assertions.assertTrue(modelAndView.getModel().containsKey("pronounRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("user"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("membersince"));
 
@@ -921,56 +728,6 @@ class AccountControllerTest {
 
     }
 
-    @Test
-    void testEditAccountBadNickname() {
-        UserRequest userRequest = new UserRequest("testUser", "password");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("User");
-        userRequest.setEmail("Test@Test.com");
-        userRequest.setNickname("@");
-        EditUserResponse.Builder editUserResponse = EditUserResponse.newBuilder();
-        editUserResponse.setIsSuccess(true);
-        editUserResponse.build();
-        Mockito.when(mockClientService.editUser(Mockito.any())).thenReturn(editUserResponse.build());
-        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Field(s) not matching patterns", response.getBody());
-
-    }
-
-    @Test
-    void testEditAccountBadMiddlename() {
-        UserRequest userRequest = new UserRequest("testUser", "password");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("User");
-        userRequest.setEmail("Test@Test.com");
-        userRequest.setMiddlename("@");
-        EditUserResponse.Builder editUserResponse = EditUserResponse.newBuilder();
-        editUserResponse.setIsSuccess(true);
-        editUserResponse.build();
-        Mockito.when(mockClientService.editUser(Mockito.any())).thenReturn(editUserResponse.build());
-        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Field(s) not matching patterns", response.getBody());
-
-    }
-
-    @Test
-    void testEditAccountBadPronouns() {
-        UserRequest userRequest = new UserRequest("testUser", "password");
-        userRequest.setFirstname("Test");
-        userRequest.setLastname("User");
-        userRequest.setEmail("Test@Test.com");
-        userRequest.setPersonalPronouns("@");
-        EditUserResponse.Builder editUserResponse = EditUserResponse.newBuilder();
-        editUserResponse.setIsSuccess(true);
-        editUserResponse.build();
-        Mockito.when(mockClientService.editUser(Mockito.any())).thenReturn(editUserResponse.build());
-        ResponseEntity<Object> response = accountController.editDetails(principal, userRequest);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Field(s) not matching patterns", response.getBody());
-
-    }
 
     @Test
     void testEditAccountBadRequest() {
