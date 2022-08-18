@@ -24,7 +24,7 @@ context('Login page', () => {
 
 context("logging out", () => {
   beforeEach(() => {
-    cy.login()
+    cy.studentLogin()
   })
 
   it("logging out", () => {

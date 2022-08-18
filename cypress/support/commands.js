@@ -26,17 +26,27 @@
 
 
 /**
- * Logs into the admin account programmatically.
+ * Logs into the admin account.
  *
  * This is more efficient than logging-in through the user interface.
  */
-Cypress.Commands.add('login', () => {
+Cypress.Commands.add('adminLogin', () => {
     cy.visit(`${Cypress.env('baseUrl')}/login`)
-    it('successful log in to admin account', () => {
-        cy.get('#username')
-            .type("admin")
-        cy.get('#password')
-            .type(`password{enter}`) //add password and submit form
-        cy.url().should('include', 'account')
-    })
+    cy.get('#username')
+        .type("admin")
+    cy.get('#password')
+        .type(`password{enter}`) //add password and submit form
+})
+
+/**
+ * Logs into a student account.
+ *
+ * This is more efficient than logging-in through the user interface.
+ */
+Cypress.Commands.add('studentLogin', () => {
+    cy.visit(`${Cypress.env('baseUrl')}/login`)
+    cy.get('#username')
+        .type("Walter.harber")
+    cy.get('#password')
+        .type(`doopoo2Ah{enter}`) //add password and submit form
 })
