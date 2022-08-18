@@ -48,71 +48,76 @@
     <div class="row mb-3">
         <div class="col">
             <label class="required form-label" for="firstname">First name(s)</label>
-            <!--/*@thymesVar id="alphaSpacesRegex" type="String"*/-->
+            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="firstname" maxlength="50" name="firstname"
                    required
-                   th:pattern="${alphaSpacesRegex}"
-                   title="Only letters A-Z upper or lowercase and , . ' or - allowed, names must be seperated by a space" type="text">
+                   th:pattern="${generalUnicodeRegex.getPatternString()}"
+                   th:title="${'First name' + generalUnicodeRegex.getRequirements()}"
+                   type="text">
         </div>
         <div class="col">
             <label class="form-label" for="middleName">Middle name(s)</label>
-            <!--/*@thymesVar id="alphaSpacesRegexCanBeEmpty" type="String"*/-->
+            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="middleName" maxlength="50" name="middlename"
-                   th:pattern="${alphaSpacesRegexCanBeEmpty}"
-                   title="Only letters A-Z upper or lowercase and , . ' or - allowed, names must be seperated by a space"
+                   th:pattern="${generalUnicodeRegex.getPatternString()}"
+                   th:title="${'Middle name' + generalUnicodeRegex.getRequirements()}"
                    type="text">
         </div>
         <div class="col">
             <label class="required form-label" for="lastname">Last name(s)</label>
-            <!--/*@thymesVar id="alphaSpacesRegex" type="String"*/-->
+            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="lastname" maxlength="50" name="lastname"
                    required
-                   th:pattern="${alphaSpacesRegex}"
-                   title="Only letters A-Z upper or lowercase and , . ' or - allowed, names must be seperated by a space" type="text">
+                   th:pattern="${generalUnicodeRegex.getPatternString()}"
+                   th:title="${'Last name' + generalUnicodeRegex.getRequirements()}"
+                   type="text">
         </div>
     </div>
     <div class="row mb-3">
         <div class="col">
             <label class="required form-label" for="username">Username</label>
-            <!--/*@thymesVar id="userNameRegex" type="String"*/-->
+            <!--/*@thymesVar id="generalUnicodeNoSpacesRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control" id="username" maxlength="50" name="username" required
-                   th:pattern="${userNameRegex}" title="Cannot contain spaces or special characters other than !#$%&'*+-/=?^_`{|}~.,"
+                   th:pattern="${generalUnicodeNoSpacesRegex.getPatternString()}"
+                   th:title="${'Username' + generalUnicodeNoSpacesRegex.getRequirements()}"
                    type="text">
         </div>
         <div class="col">
             <label class="required form-label" for="password">Password</label>
-            <!--/*@thymesVar id="passwordRegex" type="String"*/-->
+            <!--/*@thymesVar id="generalUnicodeNoSpacesRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="password" maxlength="50" minlength="5" name="password"
                    required
-                   th:pattern="${passwordRegex}"
-                   title="Must be between 5 and 50 characters long, cannot contain special characters other than !#$%&'*+-/=?^_`{|}~.,"
+                   th:pattern="${generalUnicodeNoSpacesRegex.getPatternString()}"
+                   th:title="${'Password' + generalUnicodeNoSpacesRegex.getRequirements()}"
                    type="password">
         </div>
 
     </div>
     <div class="mb-3">
         <label class="required form-label" for="email">Email address</label>
-        <!--/*@thymesVar id="emailRegex" type="String"*/-->
+        <!--/*@thymesVar id="emailRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
         <input class="form-control canDisable" id="email" maxlength="100" name="email" required
-               th:pattern="${emailRegex}"
-               title="Cannot contain spaces, must match email conventions like 'name@something.something'" type="email">
+               th:pattern="${emailRegex.getPatternString()}"
+               th:title="${'Your email' + emailRegex.getRequirements()}"
+               type="email">
     </div>
 
     <div class="row mb-3">
         <div class="col">
             <label class="form-label" for="nickname">Nickname</label>
-            <!--/*@thymesVar id="alphaSpacesRegexCanBeEmpty" type="String"*/-->
+            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="nickname" maxlength="50" name="nickname"
-                   th:pattern="${alphaSpacesRegexCanBeEmpty}"
-                   title="Only letters A-Z upper or lowercase and , . ' or - allowed, with words seperated by a space"
+                   th:pattern="${generalUnicodeRegex.getPatternString()}"
+                   th:title="${'Nickname' + generalUnicodeRegex.getRequirements()}"
                    type="text">
         </div>
         <div class="col">
             <label class="form-label" for="personalPronouns">Pronouns</label>
-            <!--/*@thymesVar id="pronounRegex" type="String"*/-->
+            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
             <input class="form-control canDisable" id="personalPronouns" maxlength="50" name="personalPronouns"
-                   th:pattern="${pronounRegex}"
-                   title="Only letters A-Z upper or lowercase, pronouns must be seperated by a '/'" type="text">
+                   th:pattern="${generalUnicodeRegex.getPatternString()}"
+                   th:title="${'Pronouns' + generalUnicodeRegex.getRequirements()}"
+                   type="text">
         </div>
     </div>
     <div class="mb-3">
@@ -120,11 +125,10 @@
 
         <!-- The max length for fields in our database is, by default, somewhere around 250
         So going beyond 250 characters, even for a bio, runs the risk of errors -->
-        <!--/*@thymesVar id="alphaSpacesRegexCanBeEmpty" type="String"*/-->
+        <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
         <textarea class="form-control canDisable" contenteditable id="bio" maxlength="250" name="bio"
-                  th:pattern="${alphaSpacesRegexCanBeEmpty}"
-                  title="Only letters A-Z upper or lowercase and , . ' or - allowed, with words seperated by a space"
-                  type="text"></textarea>
+                  th:pattern="${generalUnicodeRegex.getPatternString()}"
+                  th:title="${'Your bio' + generalUnicodeRegex.getRequirements()}"></textarea>
     </div>
     <button class="btn btn-primary " id="registerSubmitButton" type="submit">Submit</button>
     <button class="btn btn-secondary" onclick="history.back()" type="button">Back</button>

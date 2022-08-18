@@ -3,8 +3,6 @@ package nz.ac.canterbury.seng302.identityprovider.authentication;
 import io.grpc.*;
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @GrpcGlobalServerInterceptor
 public class AuthenticationServerInterceptor implements ServerInterceptor {
@@ -13,8 +11,6 @@ public class AuthenticationServerInterceptor implements ServerInterceptor {
 
     public static final Context.Key<String> SESSION_TOKEN = Context.key("lens-session-token");
     public static final Context.Key<AuthState> AUTH_STATE = Context.key("auth-state");
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(

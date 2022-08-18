@@ -1,10 +1,10 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
-import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

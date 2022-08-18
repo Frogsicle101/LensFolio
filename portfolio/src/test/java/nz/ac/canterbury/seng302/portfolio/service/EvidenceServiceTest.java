@@ -1,11 +1,18 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.*;
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -286,66 +293,14 @@ class EvidenceServiceTest {
         List<String> categories = new ArrayList<>();
         long projectId = 1L;
 
-
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
+        System.out.println(exception.getMessage().toLowerCase());
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("cannot be more than 500 characters"));
-    }
-
-
-    @Test
-    void testStrangeTitle() {
-        setUserToStudent();
-
-        Project project = new Project("Testing");
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-
-        String title = "_test_";
-        String date = LocalDate.now().toString();
-        String description = "Description";
-        List<WebLinkDTO> webLinks = new ArrayList<>();
-        List<String> skills = new ArrayList<>();
-        List<String> categories = new ArrayList<>();
-        long projectId = 1L;
-
-
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
-
-        CheckException exception = Assertions.assertThrows(
-                CheckException.class,
-                () -> evidenceService.addEvidence(principal, evidenceDTO)
-        );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("shouldn't be strange"));
-    }
-
-
-    @Test
-    void testStrangeDescription() {
-        setUserToStudent();
-
-        Project project = new Project("Testing");
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-
-        String title = "Test";
-        String date = LocalDate.now().toString();
-        String description = "_description_";
-        List<WebLinkDTO> webLinks = new ArrayList<>();
-        List<String> skills = new ArrayList<>();
-        List<String> categories = new ArrayList<>();
-        long projectId = 1L;
-
-
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
-
-        CheckException exception = Assertions.assertThrows(
-                CheckException.class,
-                () -> evidenceService.addEvidence(principal, evidenceDTO)
-        );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("shouldn't be strange"));
     }
 
 

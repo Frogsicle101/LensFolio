@@ -1,8 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,7 @@ import java.util.List;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CheckDateServiceTest {
+class CheckDateServiceTest {
 
     Project project;
     SprintRepository mockSprintRepository = mock(SprintRepository.class);
@@ -23,7 +23,7 @@ public class CheckDateServiceTest {
     CheckDateService checkDateService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         project = new Project("test");
         project.setStartDate(LocalDate.parse("1500-01-01"));
         project.setEndDate(LocalDate.parse("1999-01-01"));
@@ -35,34 +35,38 @@ public class CheckDateServiceTest {
         checkDateService = new CheckDateService();
     }
 
+
     @Test
-    public void testDateOutsideSprints() {
+    void testDateOutsideSprints() {
         LocalDate date = LocalDate.parse("1700-01-01");
         Assertions.assertFalse(checkDateService.dateIsInSprint(date, project, mockSprintRepository));
     }
 
+
     @Test
-    public void testDateInSprints() {
+    void testDateInSprints() {
         LocalDate date = LocalDate.parse("1800-01-01");
         Assertions.assertTrue(checkDateService.dateIsInSprint(date, project, mockSprintRepository));
     }
 
+
     @Test
-    public void testDateOnSprintBoundaryStart() {
+    void testDateOnSprintBoundaryStart() {
         LocalDate date = LocalDate.parse("1900-01-01");
         Assertions.assertTrue(checkDateService.dateIsInSprint(date, project, mockSprintRepository));
     }
 
+
     @Test
-    public void testDateOnSprintBoundaryEnd() {
+    void testDateOnSprintBoundaryEnd() {
         LocalDate date = LocalDate.parse("1900-01-04");
         Assertions.assertTrue(checkDateService.dateIsInSprint(date, project, mockSprintRepository));
     }
 
+
     @Test
-    public void testDateOutsideProject() {
+    void testDateOutsideProject() {
         LocalDate date = LocalDate.parse("2000-01-01");
         Assertions.assertFalse(checkDateService.dateIsInSprint(date, project, mockSprintRepository));
     }
-
 }

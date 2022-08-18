@@ -1,5 +1,7 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptionException;
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +13,7 @@ class UserTest {
     User user;
 
     @BeforeEach
-    void setup() {
+    void setup() throws PasswordEncryptionException {
         user = new User(
                 "test",
                 "password",
@@ -25,14 +27,13 @@ class UserTest {
                 TimeService.getTimeStamp());
     }
 
+
     @Test
     void testRemoveRole() {
         user.addRole(UserRole.STUDENT);
         user.addRole(UserRole.TEACHER);
-
         user.deleteRole(UserRole.TEACHER);
 
         assertEquals(1, user.getRoles().size());
     }
-
 }
