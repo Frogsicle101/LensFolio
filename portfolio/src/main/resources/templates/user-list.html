@@ -17,14 +17,14 @@
         <section>
             <div class="listTableDiv">
                 <h1 class="title">Users</h1>
-                <form action="#">
+                <form action="">
                     <label for="lang">Users per page</label>
-                    <select name="UsersPerPage" id="lang">
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="40">40</option>
-                        <option value="60">60</option>
-                        <option value="all">All</option>
+                    <select name="usersPerPage" id="lang">
+                        <option value="10" th:selected="${'10'== selectedUsersPerPage}">10</option>
+                        <option value="20" th:selected="${'20'== selectedUsersPerPage}">20</option>
+                        <option value="40" th:selected="${'40'== selectedUsersPerPage}">40</option>
+                        <option value="60" th:selected="${'60'== selectedUsersPerPage}">60</option>
+                        <option value="all" th:selected="${'999999999'== selectedUsersPerPage}">All</option>
                     </select>
                     <button class="btn btn-primary" type="submit">Submit</button>
                 </form>
