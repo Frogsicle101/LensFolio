@@ -1,5 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
+import org.springframework.security.core.parameters.P;
+
 import java.util.regex.Pattern;
 
 /**
@@ -9,13 +11,14 @@ public enum RegexPattern {
 
     // Enum values defined
 
-    /** Regex that is all unicode letters, numbers, punctuation, symbols and whitespace */
-    GENERAL_UNICODE(Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\p{S}\\s]*", Pattern.CASE_INSENSITIVE),
-            " can only contain unicode letters, numbers, punctuation, symbols and whitespace"),
+    /** Regex that is all unicode letters, numbers, punctuation, modifier/currency/math symbols and whitespace */
+    GENERAL_UNICODE(Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\p{Sc}\\p{Sk}\\p{Sm}\\s]*", Pattern.CASE_INSENSITIVE),
+            " can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace"),
 
-    /** Regex that is all unicode letters, numbers, punctuation & symbols. Intended for usernames and passwords */
-    GENERAL_UNICODE_NO_SPACES(Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\p{S}]*", Pattern.CASE_INSENSITIVE),
-            " can only contain letters, numbers, punctuation and symbols."),
+    /** Regex that is all unicode letters, numbers, punctuation & modifier/currency/math symbols.
+     * Intended for usernames and passwords */
+    GENERAL_UNICODE_NO_SPACES(Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\p{Sc}\\p{Sk}\\p{Sm}]*", Pattern.CASE_INSENSITIVE),
+            " can only contain letters, numbers, punctuation and symbols (but not emojis)."),
 
     /** Restricts to valid email format, e.g., example@email.com */
     EMAIL(Pattern.compile("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$"),
