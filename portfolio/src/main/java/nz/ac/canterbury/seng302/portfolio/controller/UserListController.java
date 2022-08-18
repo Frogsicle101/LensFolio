@@ -1,9 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefs;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +32,10 @@ public class UserListController {
 
     private int pageNum = 1;
     private int totalPages = 1;
-    private final int usersPerPageLimit = 20;
+    private int usersPerPageLimit = 10;
     private int offset = 0;
     private int totalNumUsers = 0;
-    private String sortOrder = "name";
+    private String sortOrder = "firstname";
     private boolean isAscending = true;
     private final ArrayList<Integer> footerNumberSequence = new ArrayList<>();
     private List<UserResponse> userResponseList;
@@ -57,7 +57,8 @@ public class UserListController {
             Model model,
             @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "sortField", required = false) String order,
-            @RequestParam(name = "isAscending", required = false) String isAscending)
+            @RequestParam(name = "isAscending", required = false) String isAscending,
+            @RequestParam(name = "usersPerPage", required = false) String usersPerPage)
     {
         logger.info("GET REQUEST /user-list - retrieve paginated users for the user list");
 
@@ -65,6 +66,16 @@ public class UserListController {
             this.isAscending = true;
         } else if (Objects.equals(isAscending, "false")){
             this.isAscending = false;
+        }
+
+        if (!(usersPerPage == null)){
+            switch(usersPerPage){
+                case "10" -> usersPerPageLimit = 10;
+                case "20" -> usersPerPageLimit = 20;
+                case "40" -> usersPerPageLimit = 40;
+                case "60" -> usersPerPageLimit = 60;
+                case "all" -> usersPerPageLimit = 999999999;
+            }
         }
 
         selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal.getAuthState()), Objects.requireNonNullElse(order, ""));
@@ -110,7 +121,7 @@ public class UserListController {
         if (!Objects.equals(order, "")) {
             logger.info(genericLogMessage, " : order provided, saving preferences");
             sortOrder = order;
-            prefRepository.save(new UserPrefs(userId, order, isAscending));
+            prefRepository.save(new UserPrefs(userId, order, isAscending, usersPerPageLimit));
             logger.info(genericLogMessage, " : preferences saved successfully");
         } else {
             //The request doesn't come with a sort order (it's null), so use the one saved
@@ -121,11 +132,11 @@ public class UserListController {
                 logger.info(genericLogMessage, " : user found, fetching preferences...");
                 sortOrder = user.getListSortPref();
                 isAscending = user.getIsAscending();
+                usersPerPageLimit = user.getUsersPerPage();
             } else {
                 logger.warn(genericLogMessage, " : The user is null, saving them to the database");
                 sortOrder = "firstname";
-                isAscending = true;
-                user = new UserPrefs(userId, sortOrder, isAscending);
+                user = new UserPrefs(userId, sortOrder, isAscending, usersPerPageLimit);
                 prefRepository.save(user);
             }
         }
@@ -275,6 +286,7 @@ public class UserListController {
         return this.userResponseList;
     }
 
+
     /**
      * to get the list of page numbers that is displayed at the bottom of the page for navigation
      *
@@ -283,6 +295,7 @@ public class UserListController {
     public ArrayList<Integer> getFooterSequence() {
         return this.footerNumberSequence;
     }
+
 
     /**
      * To get the string describing how to sort the data
@@ -293,11 +306,22 @@ public class UserListController {
         return this.sortOrder;
     }
 
+
     /**
      * To get the boolean describing how if the data should be sorted ascending or descending
+     *
      * @return a boolean of if data is ascending or descending
      */
     public boolean getIsAscending() { return this.isAscending; }
+
+
+    /**
+     * To get the number describing how many users should be displayed per page
+     *
+     * @return and integer of how many users should be displayed per page
+     */
+    public int getUsersPerPageLimit() { return this.usersPerPageLimit;}
+
 
     /**
      * Defines the value roles a user can have, and maps them to their string representation.
@@ -312,6 +336,7 @@ public class UserListController {
         rolesDictionary.put("UNRECOGNIZED", UserRole.UNRECOGNIZED);
         return rolesDictionary;
     }
+
 
     /**
      * Used to set the UserPrefsRepository used in tests.

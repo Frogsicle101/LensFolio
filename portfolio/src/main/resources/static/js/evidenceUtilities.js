@@ -3,12 +3,20 @@
  * that can be used across multiple pages.
  */
 
+/** A regex only allowing modern English letters */
+const regExp = new RegExp('[A-Za-z]');
+
+/** A regex only allowing English characters, numbers, hyphens and underscores */
+const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
 
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
+
+/** WebLinksCount is used to restrict the amount of weblinks on a piece of evidence*/
+let webLinksCount = 0;
 
 let skillsArray = []
 
@@ -610,7 +618,7 @@ function removeDuplicatesFromInput(input) {
     let newArray = []
 
     inputArray.forEach(function (element) {
-        if (regex.test(element)){
+        if (regexSkills.test(element)){
             while (element.slice(-1) === "_") {
                 element = element.slice(0, -1)
             }
