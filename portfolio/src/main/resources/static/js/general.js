@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(function () {
     // Checks to see if there is an error message to be displayed
     if (!$(".errorMessage").is(':empty')) {
         $(".errorMessageParent").show();
@@ -26,7 +26,12 @@ $(document).ready(function () {
  * @returns {boolean} returns true if userRole is above student.
  */
 function checkPrivilege() {
-    return userRoles.includes('COURSE_ADMINISTRATOR') || userRoles.includes('TEACHER');
+    if (typeof userRoles !== 'undefined') {
+        return userRoles.includes('COURSE_ADMINISTRATOR') || userRoles.includes('TEACHER');
+    } else {
+        return false;
+    }
+
 }
 
 
