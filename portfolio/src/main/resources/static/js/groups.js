@@ -31,7 +31,7 @@ $(document).ready(function () {
         selected: function (e, ui) {
             let currentlySelected = $(ui.selected)
 
-            notCtrlClick = !e.ctrlKey
+            notCtrlClick = !e.ctrlKey && !e.metaKey
             if (shiftDown) { // Checks if the shift key is currently pressed
                 notCtrlClick = false
                 if (parseInt(currentlySelected.attr("userId")) > parseInt(lastSelectedRow.attr("userId"))) {
