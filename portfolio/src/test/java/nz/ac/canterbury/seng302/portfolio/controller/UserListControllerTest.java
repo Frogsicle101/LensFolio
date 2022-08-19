@@ -127,16 +127,6 @@ class UserListControllerTest {
      */
     private void createMockResponse(int offset, String sortOrder, String isAscending, String usersPerPage) {
         boolean boolAscending = Objects.equals(isAscending, "true");
-        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
-                                                                   .setOrderBy(sortOrder)
-                                                                   .setLimit(usersPerPage)
-                                                                   .setOffset(offset)
-                                                                   .setIsAscendingOrder(boolAscending)
-                                                                   .build();
-        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
-                                                                   .setPaginationRequestOptions(options)
-                                                                   .build();
-        PaginatedUsersResponse.Builder response = PaginatedUsersResponse.newBuilder();
 
         if (!(usersPerPage == null)){
             switch(usersPerPage){
@@ -147,7 +137,19 @@ class UserListControllerTest {
                 case "all" -> this.usersPerPage = 999999999;
             }
         }
-        request.setLimit(this.usersPerPage);
+
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                                                                   .setOrderBy(sortOrder)
+                                                                   .setOffset(offset)
+                                                                   .setLimit(this.usersPerPage)
+                                                                   .setIsAscendingOrder(boolAscending)
+                                                                   .build();
+
+        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+                .setPaginationRequestOptions(options)
+                .build();
+
+        PaginatedUsersResponse.Builder response = PaginatedUsersResponse.newBuilder();
 
         switch (sortOrder) {
             case "roles" -> expectedUsersList.sort(compareByRole);
