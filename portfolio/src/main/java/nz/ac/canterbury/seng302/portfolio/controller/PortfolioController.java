@@ -7,6 +7,7 @@ import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.projects.ProjectService;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
@@ -42,41 +43,36 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 
 @Controller
 public class PortfolioController {
 
-    @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    @Autowired
     private final SprintRepository sprintRepository;
 
-    @Autowired
     private final ProjectRepository projectRepository;
 
-    @Autowired
     private final EventRepository eventRepository;
 
-    @Autowired
     private final DeadlineRepository deadlineRepository;
 
-    @Autowired
     private final MilestoneRepository milestoneRepository;
 
-    @Autowired
     private final GitRepoRepository gitRepoRepository;
 
-    @Autowired
     private final EvidenceRepository evidenceRepository;
 
-    @Autowired
     private final SkillRepository skillRepository;
 
-    @Autowired
     private final WebLinkRepository webLinkRepository;
+
+    private final ProjectService projectService;
 
     //Selectors for the error/info/success boxes.
     private static final String ERROR_MESSAGE = "errorMessage";
@@ -100,21 +96,28 @@ public class PortfolioController {
      * @param skillRepository repo
      * @param webLinkRepository repo
      */
-    public PortfolioController(SprintRepository sprintRepository,
+    @Autowired
+    public PortfolioController(UserAccountsClientService userAccountsClientService,
+                               SprintRepository sprintRepository,
                                ProjectRepository projectRepository,
                                EventRepository eventRepository,
-                               MilestoneRepository milestoneRepository,
                                DeadlineRepository deadlineRepository,
-                               GitRepoRepository gitRepoRepository, EvidenceRepository evidenceRepository, SkillRepository skillRepository, WebLinkRepository webLinkRepository) throws InvalidNameException, MalformedURLException {
+                               MilestoneRepository milestoneRepository,
+                               GitRepoRepository gitRepoRepository,
+                               EvidenceRepository evidenceRepository,
+                               SkillRepository skillRepository,
+                               WebLinkRepository webLinkRepository, ProjectService projectService) throws InvalidNameException, MalformedURLException {
+        this.userAccountsClientService = userAccountsClientService;
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
-        this.milestoneRepository = milestoneRepository;
         this.deadlineRepository = deadlineRepository;
+        this.milestoneRepository = milestoneRepository;
         this.gitRepoRepository = gitRepoRepository;
         this.evidenceRepository = evidenceRepository;
         this.skillRepository = skillRepository;
         this.webLinkRepository = webLinkRepository;
+        this.projectService = projectService;
 
         //Below are only for testing purposes.
         if (INCLUDE_TEST_VALUES) {
@@ -133,6 +136,7 @@ public class PortfolioController {
         } else {
             projectRepository.save(new Project("Default Project"));
         }
+
 
     }
 
@@ -234,6 +238,12 @@ public class PortfolioController {
             // Adds the project object to the view for use.
             modelAndView.addObject("project", project);
 
+            // Values to set the max and min of datepicker inputs
+            modelAndView.addObject("minStartDate", projectService.getMinStartDate(project));
+            modelAndView.addObject("maxStartDate", projectService.getMaxStartDate(project));
+            modelAndView.addObject("minEndDate", projectService.getMinEndDate(project));
+
+
             // Adds the username and profile photo to the view for use.
             modelAndView.addObject("user", user);
 
@@ -276,23 +286,16 @@ public class PortfolioController {
                     "Project with id " + editInfo.getProjectId() + "was not found"
             ));
 
-            if (projectStart.isBefore(project.getStartDate().minusYears(1))) {
-                return new ResponseEntity<>("Project cannot start more than a year before its original date", HttpStatus.BAD_REQUEST);
+            if (projectStart.isBefore(projectService.getMinStartDate(project))) {
+                return new ResponseEntity<>("Project cannot start more than a year before today", HttpStatus.BAD_REQUEST);
             }
 
-            List<Sprint> sprintListEndDates = sprintRepository.getAllByProjectOrderByEndDateDesc(project);
-            List<Sprint> sprintListStartDates = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
-            if (!sprintListEndDates.isEmpty()) {
-                Sprint sprint = sprintListEndDates.get(0);
-                if (sprint.getEndDate().isAfter(projectEnd)) {
-                    String errorMessage = "Could not change project dates.  New project end date of " + projectEnd + " is before the sprint: " + sprint.getName() + " ends: " + sprint.getEndDate().toString();
-                    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
-                }
-                sprint = sprintListStartDates.get(0);
-                if (sprint.getStartDate().isBefore(projectStart)) {
-                    String errorMessage = "Could not change project dates. New project start date of: " + projectStart + " is after the sprint: " + sprint.getName() + " starts: " + sprint.getStartDate().toString();
-                    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
-                }
+            if (projectStart.isAfter(projectService.getMaxStartDate(project))) {
+                return new ResponseEntity<>("There is a sprint that starts before that date", HttpStatus.BAD_REQUEST);
+            }
+
+            if (projectEnd.isBefore(projectService.getMinEndDate(project))) {
+                return new ResponseEntity<>("There is a sprint that extends after that date", HttpStatus.BAD_REQUEST);
             }
 
             //Updates the project's details

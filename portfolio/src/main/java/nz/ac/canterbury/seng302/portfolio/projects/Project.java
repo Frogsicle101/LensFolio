@@ -75,15 +75,6 @@ public class Project {
         return endDate.atTime(LocalTime.parse("23:59:59"));
     }
 
-    /**
-     * Gets the minimum start date for a project which is now minus a year.
-     *
-     * @return LocalDate set a year in the past.
-     */
-    public LocalDate getMinStartDateAsLocalDateTime() {
-        return LocalDate.now().minusYears(1);
-    }
-
 
     /**
      * Getter for ID.
