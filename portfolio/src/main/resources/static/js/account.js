@@ -12,7 +12,7 @@ $(document).ready(() => {
 
 
     //On Edit Account button click
-    editUserButton.click(function () {
+    $(editUserButton).on("click", () => {
         let canDisable = $(".canDisable")
         canDisable.prop("disabled", !canDisable.prop("disabled"));
         $(".editUserSubmit").slideToggle() // Show submit button
@@ -27,12 +27,13 @@ $(document).ready(() => {
 
 
     //On upload photo button click
-    $(".uploadPhotoButton").click(() => {
+    $(".uploadPhotoButton").on("click", () => {
         location.href = "uploadImage"; // change location
-    });
+    })
 
 
-    $(".deleteProfilePhotoButton").click(() => {
+    $(".deleteProfilePhotoButton").on("click", () => {
+        console.log('Profile photo delete button pressed!')
         $.ajax({
             url: "deleteProfileImg",
             type: "DELETE",
@@ -40,11 +41,11 @@ $(document).ready(() => {
                 location.reload()
             }
         })
-    });
+    })
 
 
     // On account form submit
-    $("#accountForm").submit(function (event) {
+    $("#accountForm").on("submit", (event) => {
         event.preventDefault(); // Prevents submit
         let accountData = {
             "firstname": firstname.val(),
@@ -71,9 +72,8 @@ $(document).ready(() => {
 
 
     // On password change form submit
-    $("#passwordChangeForm").submit(function (event) {
+    $("#passwordChangeForm").on( "submit", (event) => {
         event.preventDefault()
-
         let data = {
             "oldPassword": $("#OldPassword").val(),
             "newPassword": $("#NewPassword").val(),
