@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
@@ -10,6 +11,8 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Miles
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
+import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
+import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
@@ -35,12 +38,15 @@ public class PortfolioController {
 
     private final UserAccountsClientService userAccountsClientService;
 
+    /** Repository that stores the sprints */
     private final SprintRepository sprintRepository;
 
+    /** Repository that stores the project */
     private final ProjectRepository projectRepository;
 
+    private final RegexService regexService;
 
-    //Selectors for the error/info/success boxes.
+
     private static final String ERROR_MESSAGE = "errorMessage";
 
     private final CheckDateService checkDateService = new CheckDateService();
@@ -59,10 +65,12 @@ public class PortfolioController {
     @Autowired
     public PortfolioController(SprintRepository sprintRepository,
                                ProjectRepository projectRepository,
-                               UserAccountsClientService userAccountsClientService) {
+                               UserAccountsClientService userAccountsClientService,
+                               RegexService regexService) {
         this.projectRepository = projectRepository;
         this.sprintRepository = sprintRepository;
         this.userAccountsClientService = userAccountsClientService;
+        this.regexService = regexService;
     }
 
 
@@ -79,27 +87,19 @@ public class PortfolioController {
             @RequestParam(value = "projectId") long projectId
     ) {
         try {
-
-            logger.info("GET REQUEST /portfolio");
-
-            // Get user from server
+            logger.info("GET REQUEST /portfolio: Getting page");
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-
-            Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
-                    "Project with id " + projectId + " was not found"
-            ));
-
+            Optional<Project> projectOptional = projectRepository.findById(projectId);
+            if(projectOptional.isEmpty()){
+                throw new EntityNotFoundException("Project not found");
+            }
+            Project project = projectOptional.get();
             ModelAndView modelAndView = new ModelAndView("portfolio");
-
             // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
             List<UserRole> roles = user.getRolesList();
-            if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
-                modelAndView.addObject("userCanEdit", true);
-            } else {
-                modelAndView.addObject("userCanEdit", false);
-            }
 
-            LocalDate defaultOccasionDate = project.getStartDate(); // Today is in a sprint, the start of th project otherwise
+            modelAndView.addObject("userCanEdit", (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)));
+            LocalDate defaultOccasionDate = project.getStartDate(); // Today is in a sprint, the start of the project otherwise
             if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
                 defaultOccasionDate = LocalDate.now();
             }
@@ -138,27 +138,17 @@ public class PortfolioController {
             @RequestParam(value = "projectId") Long projectId
     ) {
         try {
-            logger.info("GET REQUEST /editProject");
-
-            // Get user from server
+            logger.info("GET REQUEST /editProject: Getting project edit page");
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-
-            // Gets the project that the request is referring to.
-            Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
-                    "Event with id " + projectId + "was not found"
-            ));
-
-            // The view we are going to return.
+            Optional<Project> projectOptional = projectRepository.findById(projectId);
+            if(projectOptional.isEmpty()){
+                throw new EntityNotFoundException("Project not found");
+            }
+            Project project = projectOptional.get();
             ModelAndView modelAndView = new ModelAndView("projectEdit");
-
-            // Adds the project object to the view for use.
             modelAndView.addObject("project", project);
-
-            // Adds the username and profile photo to the view for use.
             modelAndView.addObject("user", user);
-
             return modelAndView;
-
         } catch (EntityNotFoundException err) {
             logger.error("GET REQUEST /editProject", err);
             return new ModelAndView("errorPage").addObject(ERROR_MESSAGE, err);
@@ -180,95 +170,28 @@ public class PortfolioController {
             @ModelAttribute(name = "editProjectForm") ProjectRequest editInfo
     ) {
         try {
-            logger.info("POST REQUEST /projectEdit");
-
-            ResponseEntity<Object> parsedProjectRequest = checkProjectRequest(editInfo);
-            if (parsedProjectRequest.getStatusCode() != HttpStatus.OK) {
-                logger.error("/projectEdit error: {}", parsedProjectRequest.getBody());
-                return parsedProjectRequest;
-            }
-
-            LocalDate projectStart = LocalDate.parse(editInfo.getProjectStartDate());
-            LocalDate projectEnd = LocalDate.parse(editInfo.getProjectEndDate());
-
-
+            logger.info("POST REQUEST /projectEdit: user is editing project - {}", editInfo.getProjectId());
             Project project = projectRepository.findById(Long.parseLong(editInfo.getProjectId())).orElseThrow(() -> new EntityNotFoundException(
                     "Project with id " + editInfo.getProjectId() + "was not found"
             ));
 
-            if (projectStart.isBefore(project.getStartDate().minusYears(1))) {
-                return new ResponseEntity<>("Project cannot start more than a year before its original date", HttpStatus.BAD_REQUEST);
-            }
-
-            List<Sprint> sprintListEndDates = sprintRepository.getAllByProjectOrderByEndDateDesc(project);
-            List<Sprint> sprintListStartDates = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
-            if (!sprintListEndDates.isEmpty()) {
-                Sprint sprint = sprintListEndDates.get(0);
-                if (sprint.getEndDate().isAfter(projectEnd)) {
-                    String errorMessage = "Could not change project dates.  New project end date of " + projectEnd + " is before the sprint: " + sprint.getName() + " ends: " + sprint.getEndDate().toString();
-                    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
-                }
-                sprint = sprintListStartDates.get(0);
-                if (sprint.getStartDate().isBefore(projectStart)) {
-                    String errorMessage = "Could not change project dates. New project start date of: " + projectStart + " is after the sprint: " + sprint.getName() + " starts: " + sprint.getStartDate().toString();
-                    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
-                }
-            }
-
-            //Updates the project's details
+            String projectName = editInfo.getProjectName();
+            String projectDescription = editInfo.getProjectDescription();
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectName, 1, 50, "Project name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description");
+            CheckDateService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
             project.setName(editInfo.getProjectName());
-            project.setStartDate(projectStart);
-            project.setEndDate(projectEnd);
+            project.setStartDate(LocalDate.parse(editInfo.getProjectStartDate()));
+            project.setEndDate(LocalDate.parse(editInfo.getProjectEndDate()));
             project.setDescription(editInfo.getProjectDescription());
             projectRepository.save(project);
 
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (EntityNotFoundException err) {
+        } catch (EntityNotFoundException | CheckException err) {
             logger.error("POST REQUEST /projectEdit", err);
             return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /projectEdit", err);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    /**
-     * Checks that the project request is valid, contains all the right things, and dates are correct and in order.
-     *
-     * @param projectRequest the project request DTO
-     * @return Response Entity that is either Ok, or not with issues attached.
-     */
-    private ResponseEntity<Object> checkProjectRequest(ProjectRequest projectRequest) {
-        try {
-            int projectId = Integer.parseInt(projectRequest.getProjectId());
-            String projectName = projectRequest.getProjectName();
-            LocalDate projectStartDate = LocalDate.parse(projectRequest.getProjectStartDate());
-            LocalDate projectEndDate = LocalDate.parse(projectRequest.getProjectEndDate());
-            String projectDescription = projectRequest.getProjectDescription();
-
-            if (!regexPatterns.getTitleRegex().matcher(projectName).matches()) {
-                return new ResponseEntity<>("Project Name contains characters outside of a-z 0-9", HttpStatus.BAD_REQUEST);
-            }
-            if (!regexPatterns.getDescriptionRegex().matcher(projectDescription).matches()) {
-                return new ResponseEntity<>("Project description contains illegal characters", HttpStatus.BAD_REQUEST);
-            }
-
-            if (projectId < 0) {
-                return new ResponseEntity<>("Project id cannot be less than zero", HttpStatus.BAD_REQUEST);
-            }
-
-            if (projectEndDate.isBefore(projectStartDate)) {
-                return new ResponseEntity<>("End date cannot be before start date", HttpStatus.BAD_REQUEST);
-            }
-
-            return new ResponseEntity<>(HttpStatus.OK);
-
-        } catch (NumberFormatException err) {
-            return new ResponseEntity<>("Project id is not a parsable integer", HttpStatus.BAD_REQUEST);
-        } catch (DateTimeParseException err) {
-            return new ResponseEntity<>("Project date(s) are not valid dates", HttpStatus.BAD_REQUEST);
-        } catch (Exception err) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -286,42 +209,22 @@ public class PortfolioController {
             @RequestParam(value = "projectId") Long projectId) {
         try {
             logger.info("GET REQUEST /portfolio/addSprint");
-
-            // Gets the amount of sprints belonging to the project
-            int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
-            String sprintName = "Sprint " + amountOfSprints;
-
-
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Project with id " + projectId + " was not found"
             ));
-
-            // Initially startDate is set to the projects start date.
-            LocalDate startDate = project.getStartDate();
-
-            //If there are sprints in the repository, startDate is set to the day after the last sprint.
-            List<Sprint> sprintList = sprintRepository.getAllByProjectOrderByEndDateDesc(project);
-            if (!sprintList.isEmpty()) {
-                startDate = sprintList.get(0).getEndDate().plusDays(1);
-            }
-            //If start date of sprint is after the project end date then send a message to the user informing them
-            //that no more sprints can be added.
-            if (startDate.isAfter(project.getEndDate())) {
-                logger.warn("Could not add anymore sprints, no more room for sprints within project dates");
-                return new ResponseEntity<>("No more room to add sprints within project dates!", HttpStatus.BAD_REQUEST);
+            // Gets the amount of sprints belonging to the project
+            int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
+            String sprintName = "Sprint " + amountOfSprints;
+            CheckDateService.checkProjectHasRoomForSprints(sprintRepository, project);
+            if (project.getStartDate().plusWeeks(3).isAfter(project.getEndDate())) {
+                sprintRepository.save(new Sprint(project, sprintName, project.getStartDate(), project.getEndDate()));
             } else {
-                // Check that if the end date (startDate.plus(3)weeks) is after project end date, then set the end date
-                // to be the project end date.
-                if (startDate.plusWeeks(3).isAfter(project.getEndDate())) {
-                    //Save the new sprint
-                    sprintRepository.save(new Sprint(project, sprintName, startDate, project.getEndDate()));
-                } else {
-                    //Save the new sprint
-                    sprintRepository.save(new Sprint(project, sprintName, startDate));
-                }
+                sprintRepository.save(new Sprint(project, sprintName, project.getStartDate()));
             }
             return new ResponseEntity<>(HttpStatus.OK);
-
+        } catch (CheckException checkException) {
+            logger.warn(checkException.getMessage());
+            return new ResponseEntity<>(checkException.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("GET REQUEST /portfolio/addSprint", err);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
