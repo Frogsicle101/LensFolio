@@ -26,24 +26,27 @@
 
 
 /**
- * Logs into the admin account programmatically.
+ * Logs into the admin account.
  *
  * This is more efficient than logging-in through the user interface.
  */
-Cypress.Commands.add('login', () => {
+Cypress.Commands.add('adminLogin', () => {
     cy.visit(`${Cypress.env('baseUrl')}/login`)
+    cy.get('#username')
+        .type("admin")
+    cy.get('#password')
+        .type(`password{enter}`) //add password and submit form
+})
 
-    const formData = new FormData()
-    formData.append("username", "admin")
-    formData.append("password", "password")
-
-    // FIXME The request below is returning 200, and logging a redirect in the portfolio logger, but the account page redirects back to login.
-// I think it might have something to do with cookies?
-// Using a post request for logging in is more efficient (& better practice) than going through the UI for every test.
-
-    cy.request('POST', 'login', formData)
-        .its('body')
-        .as('currentUser')
-
-    cy.visit(`${Cypress.env('baseUrl')}/account`)
+/**
+ * Logs into a student account.
+ *
+ * This is more efficient than logging-in through the user interface.
+ */
+Cypress.Commands.add('studentLogin', () => {
+    cy.visit(`${Cypress.env('baseUrl')}/login`)
+    cy.get('#username')
+        .type("Walter.harber")
+    cy.get('#password')
+        .type(`doopoo2Ah{enter}`) //add password and submit form
 })
