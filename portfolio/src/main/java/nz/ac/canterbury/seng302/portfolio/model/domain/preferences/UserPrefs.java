@@ -1,6 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.preferences;
 
 
+import com.sun.istack.NotNull;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,9 +14,14 @@ public class UserPrefs {
     @Column(unique = true)
     private int userId;
 
+    @NotNull
     private String listSortPref;
 
+    @NotNull
     private boolean isAscending;
+
+    @NotNull
+    private int usersPerPage;
 
     /**
      * Constructs a UserPrefs object to be stored in the database.
@@ -23,10 +30,11 @@ public class UserPrefs {
      * @param listSortPref The sorting preference of the user. This should take the form of 'field-order',
      *                     e.g. 'name-decreasing' or 'aliases-ascending'
      */
-    public UserPrefs(int userId, String listSortPref, boolean isAscending) {
+    public UserPrefs(int userId, String listSortPref, boolean isAscending, int usersPerPage) {
         this.userId = userId;
         this.listSortPref = listSortPref;
         this.isAscending = isAscending;
+        this.usersPerPage = usersPerPage;
     }
 
     /**
@@ -57,6 +65,10 @@ public class UserPrefs {
     }
 
     public boolean getIsAscending() { return isAscending;}
+
+    public int getUsersPerPage() {
+        return usersPerPage;
+    }
 
     public void setListSortPref(String listSortPref) {
         this.listSortPref = listSortPref;

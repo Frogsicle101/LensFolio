@@ -15,6 +15,9 @@ let userBeingViewedId;
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
+/** WebLinksCount is used to restrict the amount of weblinks on a piece of evidence*/
+let webLinksCount = 0;
+
 let skillsArray = []
 
 let categoryArray = ["Qualitative", "Quantitative", "Service"]

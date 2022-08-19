@@ -1,10 +1,13 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.dto.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.LoginService;
 import nz.ac.canterbury.seng302.portfolio.service.ReadableTimeService;
+import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
+import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.slf4j.Logger;
@@ -29,20 +32,33 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class AccountController {
 
-    /** The client service allowing requests to be made to the IdP. */
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
-
-    @Autowired
-    private LoginService loginService;
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String ALPHA_SPACES_REGEX = "([a-zA-Z]+[.,'-]*\s?)+";
-    private static final String ALPHA_SPACES_REGEX_CAN_BE_EMPTY = "([a-zA-Z]+[.,'-]*\s?)*";
-    private static final String USER_NAME_REGEX = "([a-zA-Z0-9!#$%&'*+/=?^_`{|}~.,-]+)";
-    private static final String EMAIL_REGEX = "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$";
-    private static final String PASSWORD_REGEX = "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+";
-    private static final String PRONOUN_REGEX = "([a-zA-Z/]*)+";
+
+    /** The client service allowing requests to be made to the IdP. */
+    private final UserAccountsClientService userAccountsClientService;
+
+    /** Injected LoginService Bean for assisting logging in and adding token cookies */
+    private final LoginService loginService;
+
+    /** Injected Bean to assist with validation */
+    private final RegexService regexService;
+
+
+    /**
+     * Autowired constructor to automatically inject the required beans.
+     *
+     * @param userAccountsClientService - The UserAccountsClientService bean to be injected
+     * @param loginService - The LoginService bean to be injected
+     * @param regexService - The RegexService bean to be injected
+     */
+    @Autowired
+    public AccountController(UserAccountsClientService userAccountsClientService,
+                             LoginService loginService,
+                             RegexService regexService) {
+        this.userAccountsClientService = userAccountsClientService;
+        this.loginService = loginService;
+        this.regexService = regexService;
+    }
 
 
     /**
@@ -75,12 +91,9 @@ public class AccountController {
             logger.info("GET REQUEST /account - retrieving account details for user {}", user.getUsername());
 
             ModelAndView model = new ModelAndView("account");
-            model.addObject("alphaSpacesRegex", ALPHA_SPACES_REGEX);
-            model.addObject("alphaSpacesRegexCanBeEmpty", ALPHA_SPACES_REGEX_CAN_BE_EMPTY);
-            model.addObject("userNameRegex", USER_NAME_REGEX);
-            model.addObject("emailRegex", EMAIL_REGEX);
-            model.addObject("passwordRegex", PASSWORD_REGEX);
-            model.addObject("pronounRegex", PRONOUN_REGEX);
+            model.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
+            model.addObject("generalUnicodeNoSpacesRegex", RegexPattern.GENERAL_UNICODE_NO_SPACES);
+            model.addObject("emailRegex", RegexPattern.EMAIL);
             model.addObject("user", user);
             String memberSince = ReadableTimeService.getReadableDate(user.getCreated())
                     + " (" + ReadableTimeService.getReadableTimeSince(user.getCreated()) + ")";
@@ -103,12 +116,10 @@ public class AccountController {
     public ModelAndView register() {
         logger.info("GET REQUEST /register - get register page");
         ModelAndView model = new ModelAndView("accountRegister");
-        model.addObject("alphaSpacesRegex", ALPHA_SPACES_REGEX);
-        model.addObject("alphaSpacesRegexCanBeEmpty", ALPHA_SPACES_REGEX_CAN_BE_EMPTY);
-        model.addObject("userNameRegex", USER_NAME_REGEX);
-        model.addObject("emailRegex", EMAIL_REGEX);
-        model.addObject("passwordRegex", PASSWORD_REGEX);
-        model.addObject("pronounRegex", PRONOUN_REGEX);
+        model.addObject("generalUnicodeNoSpacesRegex", RegexPattern.GENERAL_UNICODE_NO_SPACES);
+        model.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
+        model.addObject("emailRegex", RegexPattern.EMAIL);
+
         return model;
     }
 
@@ -129,7 +140,12 @@ public class AccountController {
         String warningMessage = "Registration Failed: {}";
         logger.info("POST REQUEST /register - attempt to register new user");
         try {
-            ResponseEntity<Object> checkUserRequest = checkUserRequest(userRequest); // Checks that the userRequest object passes all checks
+            ResponseEntity<Object> checkCredentials = checkUsernameAndPassword(userRequest);
+            ResponseEntity<Object> checkUserRequest = checkUserRequestNoPasswordOrUser(userRequest);
+            if (checkCredentials.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                logger.warn(warningMessage, checkCredentials.getBody());
+                return checkCredentials;
+            }
             if (checkUserRequest.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 logger.warn(warningMessage, checkUserRequest.getBody());
                 return checkUserRequest;
@@ -147,6 +163,9 @@ public class AccountController {
                 logger.info(warningMessage, registerReply.getMessage());
                 return new ResponseEntity<>(registerReply.getMessage(), HttpStatus.NOT_ACCEPTABLE);
             }
+        } catch (CheckException exception) {
+            logger.error(warningMessage, exception.toString());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error(warningMessage, err.toString());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -160,50 +179,14 @@ public class AccountController {
      * @param userRequest the UserRequest to be checked.
      * @return ResponseEntity, either an accept, or a not accept with message as to what went wrong.
      */
-    private ResponseEntity<Object> checkUserRequest(UserRequest userRequest) {
-        String firstname = userRequest.getFirstname();
-        String middlename = userRequest.getMiddlename();
-        String lastname = userRequest.getLastname();
-        String username = userRequest.getUsername();
-        String password = userRequest.getPassword();
-        String email = userRequest.getEmail();
-        String nickname = userRequest.getNickname();
-        String pronouns = userRequest.getPersonalPronouns();
-        String bio = userRequest.getBio();
+    private ResponseEntity<Object> checkUsernameAndPassword(UserRequest userRequest) {
 
-        if (firstname == null // Checks that all necessary information is there.
-                || lastname == null
-                || username == null
-                || password == null
-                || email == null) {
-            return new ResponseEntity<>("Missing fields", HttpStatus.BAD_REQUEST);
-
-        }
-
-        if (middlename == null) {
-            userRequest.setMiddlename("");
-        }
-        if (nickname == null) {
-            userRequest.setNickname("");
-        }
-        if (bio == null) {
-            userRequest.setBio("");
-        }
-        if (pronouns == null) {
-            userRequest.setPersonalPronouns("");
-        }
-
-        // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
-        if (!firstname.matches(ALPHA_SPACES_REGEX)
-                || !lastname.matches(ALPHA_SPACES_REGEX)
-                || !username.matches(USER_NAME_REGEX)
-                || !email.matches(EMAIL_REGEX)
-                || !password.matches(PASSWORD_REGEX)
-                // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
-                || nickname != null && !nickname.matches(ALPHA_SPACES_REGEX_CAN_BE_EMPTY)
-                || middlename != null && !middlename.matches(ALPHA_SPACES_REGEX_CAN_BE_EMPTY)
-                || pronouns != null && !pronouns.matches(PRONOUN_REGEX)) {
-                return new ResponseEntity<>("Field(s) not matching patterns", HttpStatus.BAD_REQUEST);
+        try {
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE_NO_SPACES, userRequest.getPassword(), 5, 50, "Password");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE_NO_SPACES, userRequest.getUsername(), 1, 50, "Username");
+        } catch (CheckException exception) {
+            logger.warn("Registration failed to meet requirement, {}", exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -217,43 +200,31 @@ public class AccountController {
      * @return ResponseEntity, either an accept, or a not accept with message as to what went wrong.
      */
     private ResponseEntity<Object> checkUserRequestNoPasswordOrUser(UserRequest userRequest) {
-        String firstname = userRequest.getFirstname();
-        String middlename = userRequest.getMiddlename();
-        String lastname = userRequest.getLastname();
-        String email = userRequest.getEmail();
-        String nickname = userRequest.getNickname();
-        String pronouns = userRequest.getPersonalPronouns();
-        String bio = userRequest.getBio();
+        try {
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getFirstname(), 1, 50, "First name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getMiddlename(), 0, 50, "Middle name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getLastname(), 1, 50, "Last name");
+            regexService.checkInput(RegexPattern.EMAIL, userRequest.getEmail(), 1, 100, "Email");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getNickname(), 0, 50, "Nick name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getPersonalPronouns(), 0, 50, "Pronouns");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getBio(), 0, 250, "Bio");
 
-        if (firstname == null // Checks that all necessary information is there.
-                || lastname == null
-                || email == null) {
-            return new ResponseEntity<>("Missing fields", HttpStatus.BAD_REQUEST);
+            if (userRequest.getMiddlename() == null) {
+                userRequest.setMiddlename("");
+            }
+            if (userRequest.getNickname() == null) {
+                userRequest.setNickname("");
+            }
+            if (userRequest.getBio() == null) {
+                userRequest.setBio("");
+            }
+            if (userRequest.getPersonalPronouns() == null) {
+                userRequest.setPersonalPronouns("");
+            }
 
-        }
-
-        if (middlename == null) {
-            userRequest.setMiddlename("");
-        }
-        if (nickname == null) {
-            userRequest.setNickname("");
-        }
-        if (bio == null) {
-            userRequest.setBio("");
-        }
-        if (pronouns == null) {
-            userRequest.setPersonalPronouns("");
-        }
-
-        // Checks that the strings passed through from the front-end are in formats that are acceptable with regex checks.
-        if (!firstname.matches(ALPHA_SPACES_REGEX)
-                || !lastname.matches(ALPHA_SPACES_REGEX)
-                || !email.matches(EMAIL_REGEX)
-                // Checks if the non-necessary fields have strings in them, if they do then they need to match the pattern that is acceptable.
-                || nickname != null && !nickname.matches(ALPHA_SPACES_REGEX_CAN_BE_EMPTY)
-                || middlename != null && !middlename.matches(ALPHA_SPACES_REGEX_CAN_BE_EMPTY)
-                || pronouns != null && !pronouns.matches(PRONOUN_REGEX)) {
-            return new ResponseEntity<>("Field(s) not matching patterns", HttpStatus.BAD_REQUEST);
+        } catch (CheckException exception) {
+            logger.warn("Registration or update failed to meet requirement, {}", exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -312,7 +283,6 @@ public class AccountController {
             logger.error("/edit/details ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
 
@@ -334,9 +304,9 @@ public class AccountController {
             int userId = PrincipalAttributes.getIdFromPrincipal(authentication.getAuthState());
             logger.info("POST REQUEST /edit/password - update password for user {}", userId);
             ChangePasswordRequest.Builder changePasswordRequest = ChangePasswordRequest.newBuilder();
-
             ChangePasswordResponse changePasswordResponse;
             if (editInfo.getNewPassword().equals(editInfo.getConfirmPassword())) {
+                regexService.checkInput(RegexPattern.GENERAL_UNICODE_NO_SPACES, editInfo.getNewPassword(), 5, 50, "Password");
                 logger.info("New password and confirm password match, requesting change password service ({})", userId);
                 //Create request
                 changePasswordRequest.setUserId(userId)
@@ -358,6 +328,9 @@ public class AccountController {
             //Give the user the response from the IDP
             return new ResponseEntity<>(changePasswordResponse.getMessage(), HttpStatus.OK);
 
+        } catch (CheckException exception) {
+            logger.error("/edit/password Could not change password {}", exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("/edit/password Error {}", err.getMessage());
             return new ResponseEntity<>(err.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
