@@ -11,19 +11,23 @@ $(document).ready(() => {
     let email = $("#email")
 
 
-    //On Edit Account button click
-    $(editUserButton).on("click", () => {
+    function toggleEditForm() {
         let canDisable = $(".canDisable")
         canDisable.prop("disabled", !canDisable.prop("disabled"));
-        $(".editUserSubmit").slideToggle() // Show submit button
-        $(".passwordChangeDiv").slideToggle() // Show password change form
+        let editUserSubmit = $(".editUserSubmit")
+        let passwordChangeDiv = $(".passwordChangeDiv")
+        editUserSubmit.slideToggle() // Show submit button
+        passwordChangeDiv.slideToggle() // Show password change form
         if (editUserButton.text() === "Edit Account") { //Toggle text change
             editUserButton.text("Cancel")
         } else {
             editUserButton.text("Edit Account")
-            location.href = "account" // On success reloads page
         }
-    })
+    }
+
+
+    //On Edit Account button click
+    $(editUserButton).on("click", toggleEditForm)
 
 
     //On upload photo button click
@@ -61,8 +65,9 @@ $(document).ready(() => {
             url: "edit/details",
             type: "post",
             data: accountData,
-            success: function () {
-                location.href = "account" // On success reloads page
+            success:  () => {
+                createAlert("Updated details successfully!", false)
+                toggleEditForm()
             },
             error: function (error) {//Displays error in box on failure
                 createAlert(error.responseText, true)
@@ -85,7 +90,11 @@ $(document).ready(() => {
             data: data,
             url: "edit/password",
             success: function () {
-                location.href = "account" // Reload page on success
+                createAlert("Password Changed Successfully!", false)
+                toggleEditForm()
+                $("#OldPassword").val('')
+                $("#NewPassword").val('')
+                $("#ConfirmPassword").val('')
             },
             error: function (error) { // Display errors in box on failure
                 createAlert(error.responseText, true)
