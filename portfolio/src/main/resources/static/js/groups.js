@@ -94,9 +94,7 @@ $(document).ready(function () {
          * @param ui The selectable item that has been unselected.
          */
         unselected: function (e, ui) {
-            if (notCtrlClick) {
-                $(ui.unselected).removeClass("selected");
-            }
+            $(ui.unselected).removeClass("selected");
             checkToSeeIfHideOrShowOptions()
         }
     });
