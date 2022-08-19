@@ -15,7 +15,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -84,7 +87,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         userOneRoles.sort(Collections.reverseOrder());
         userTwoRoles.sort(Collections.reverseOrder());
 
-        return userOnePrecedence.compareTo(userTwoPrecedence);
+        return userTwoPrecedence.compareTo(userOnePrecedence);
     };
 
 
