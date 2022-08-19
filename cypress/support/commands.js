@@ -36,6 +36,13 @@ Cypress.Commands.add('adminLogin', () => {
         .type("admin")
     cy.get('#password')
         .type(`password{enter}`) //add password and submit form
+
+    cy.getCookie('lens-session-token')
+      .should('exist')
+      .then((c) => {
+        // save cookie until we need it
+        cy.setCookie('lens-session-token', c.value)
+      })
 })
 
 /**
