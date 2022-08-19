@@ -1,4 +1,4 @@
-context("CtrlKeyTest", () => {
+context("Ctrl Selecting Group Members", () => {
     beforeEach(() => {
         cy.adminLogin()
         cy.get('.navButtonsDiv').click();
@@ -43,7 +43,7 @@ context("CtrlKeyTest", () => {
 })
 
 
-context("ShiftKeyTest", () => {
+context("Shift Selecting Group Members", () => {
     beforeEach(() => {
         cy.adminLogin()
         cy.get('.navButtonsDiv').click();
@@ -64,12 +64,46 @@ context("ShiftKeyTest", () => {
     })
 
 
-    it('shift selecting and deselecting the whole group members list', () => {
+    it('shift selecting and deselecting the whole group members list except one', () => {
         cy.get('.userRow').first()
             .click({shiftKey: true})
+        cy.get('body')
+            .type('{shift}', {release: false})
         cy.get('.userRow').last()
+            .click()
+        cy.get('body')
+            .type('{shift}', )
+        cy.contains('Shirley').click()
+        cy.get('.selected')
+            .should('have.length', 1)
+            .find('td').first().should('contain.text', '15')
+    })
+})
+
+
+context("Shift and Ctrl Keys Selecting Group Members", () => {
+    beforeEach(() => {
+        cy.adminLogin()
+        cy.get('.navButtonsDiv').click();
+        cy.get('#2').click('top');
+    })
+
+    it('shift selecting and deselecting the whole group members list except one', () => {
+        const numRows = Cypress.$('.userRow').length
+
+        cy.get('.userRow').first()
             .click({shiftKey: true})
-        cy.get("tr [key='17']").click()
-        cy.get('.selected').should('have.length', 1)
+        cy.get('body')
+            .type('{shift}', {release: false})
+        cy.get('.userRow').last()
+            .click()
+        cy.get('body')
+            .type('{shift}', )
+        cy.contains('Shirley')
+            .click({ctrlKey: true})
+        cy.get('.selected')
+            .should('have.length', numRows-1)
+        cy.get('.userRow:not(.selected)').first()
+            .should('contain.text', '15')
     })
 })
