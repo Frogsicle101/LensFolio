@@ -1,20 +1,12 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.DeadlineRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.EventRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.MilestoneRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepoRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
-import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
@@ -32,13 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
-import java.net.MalformedURLException;
-import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
@@ -46,35 +33,12 @@ import java.util.*;
 @Controller
 public class PortfolioController {
 
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
+    private final UserAccountsClientService userAccountsClientService;
 
-    @Autowired
     private final SprintRepository sprintRepository;
 
-    @Autowired
     private final ProjectRepository projectRepository;
 
-    @Autowired
-    private final EventRepository eventRepository;
-
-    @Autowired
-    private final DeadlineRepository deadlineRepository;
-
-    @Autowired
-    private final MilestoneRepository milestoneRepository;
-
-    @Autowired
-    private final GitRepoRepository gitRepoRepository;
-
-    @Autowired
-    private final EvidenceRepository evidenceRepository;
-
-    @Autowired
-    private final SkillRepository skillRepository;
-
-    @Autowired
-    private final WebLinkRepository webLinkRepository;
 
     //Selectors for the error/info/success boxes.
     private static final String ERROR_MESSAGE = "errorMessage";
@@ -84,53 +48,21 @@ public class PortfolioController {
     RegexPatterns regexPatterns = new RegexPatterns();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // For testing
-    private static final boolean INCLUDE_TEST_VALUES = true;
-
 
     /**
-     * Constructor for PortfolioController
+     * Autowired constructor for PortfolioController to inject the required beans
+     *
      * @param sprintRepository    repository
      * @param projectRepository   repository
-     * @param milestoneRepository repository
-     * @param evidenceRepository repository
-     * @param skillRepository repo
-     * @param webLinkRepository repo
+     * @param userAccountsClientService The bean used to get user information
      */
+    @Autowired
     public PortfolioController(SprintRepository sprintRepository,
                                ProjectRepository projectRepository,
-                               EventRepository eventRepository,
-                               MilestoneRepository milestoneRepository,
-                               DeadlineRepository deadlineRepository,
-                               GitRepoRepository gitRepoRepository, EvidenceRepository evidenceRepository, SkillRepository skillRepository, WebLinkRepository webLinkRepository) throws InvalidNameException, MalformedURLException {
-        this.sprintRepository = sprintRepository;
+                               UserAccountsClientService userAccountsClientService) {
         this.projectRepository = projectRepository;
-        this.eventRepository = eventRepository;
-        this.milestoneRepository = milestoneRepository;
-        this.deadlineRepository = deadlineRepository;
-        this.gitRepoRepository = gitRepoRepository;
-        this.evidenceRepository = evidenceRepository;
-        this.skillRepository = skillRepository;
-        this.webLinkRepository = webLinkRepository;
-
-        //Below are only for testing purposes.
-        if (INCLUDE_TEST_VALUES) {
-            Project defaultProject = projectRepository.save(new Project("Project Seng302",
-                    LocalDate.parse("2022-02-25"),
-                    LocalDate.parse("2022-09-30"),
-                    "SENG302 is all about putting all that you have learnt in" +
-                            " other courses into a systematic development process to" +
-                            " create software as a team."));
-            createDefaultEvents(defaultProject);
-            createDefaultSprints(defaultProject);
-            createDefaultMilestones(defaultProject);
-            createDefaultDeadlines(defaultProject);
-            createDefaultRepos();
-            createDefaultEvidence();
-        } else {
-            projectRepository.save(new Project("Default Project"));
-        }
-
+        this.sprintRepository = sprintRepository;
+        this.userAccountsClientService = userAccountsClientService;
     }
 
 
@@ -138,7 +70,7 @@ public class PortfolioController {
      * Get mapping for /Portfolio
      *
      * @param principal - The Authentication of the user making the request, for authentication
-     * @param projectId Id of the project to display
+     * @param projectId the ID of the project to display
      * @return returns the portfolio view, or error-page
      */
     @GetMapping("/portfolio")
@@ -152,8 +84,6 @@ public class PortfolioController {
 
             // Get user from server
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-            Integer userId = user.getId();
-
 
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Project with id " + projectId + " was not found"
@@ -169,10 +99,6 @@ public class PortfolioController {
                 modelAndView.addObject("userCanEdit", false);
             }
 
-            List<Event> eventList = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
-            List<Milestone> milestoneList = milestoneRepository.findAllByProjectIdOrderByEndDate(projectId);
-
-            int nextMilestoneNumber = milestoneRepository.countMilestoneByProjectId(projectId).intValue() + 1;
             LocalDate defaultOccasionDate = project.getStartDate(); // Today is in a sprint, the start of th project otherwise
             if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
                 defaultOccasionDate = LocalDate.now();
@@ -180,9 +106,6 @@ public class PortfolioController {
 
             modelAndView.addObject("project", project);
             modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
-            modelAndView.addObject("events", eventList);
-            modelAndView.addObject("milestones", milestoneList);
-            modelAndView.addObject("nextMilestoneNumber", nextMilestoneNumber);
             modelAndView.addObject("eventNameLengthRestriction", Milestone.getNameLengthRestriction());
             modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
             modelAndView.addObject("user", user);
@@ -247,7 +170,7 @@ public class PortfolioController {
 
 
     /**
-     * Postmapping for /projectEdit, this is called when user submits there project changes.
+     * Post mapping for /projectEdit, this is called when user submits there project changes.
      *
      * @param editInfo A DTO of project from the inputs on the edit page.
      * @return Returns to the portfolio page.
@@ -412,7 +335,7 @@ public class PortfolioController {
      *
      * @param principal The authentication state
      * @param sprintId  The sprint id
-     * @return Thymleaf template
+     * @return Thymeleaf template
      */
     @RequestMapping("/sprintEdit")
     public ModelAndView sprintEdit(
@@ -470,7 +393,7 @@ public class PortfolioController {
 
 
     /**
-     * Get a list of all the sprints in a project by the project Id.
+     * Get a list of all the sprints in a project by the project ID.
      *
      * @param projectId - The project that contains the sprints
      * @return A response entity containing the sprints and the HTTP status
@@ -629,146 +552,5 @@ public class PortfolioController {
         logger.info("DELETE REQUEST /deleteSprint");
         sprintRepository.deleteById(String.valueOf(id));
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
-    }
-
-
-    /////////////////////////////////////////////// Test Values  ////////////////////////////////////////////////////////
-
-    public void createDefaultEvents(Project project) throws InvalidNameException {
-
-        Event event1 = new Event(project, "Term Break", LocalDateTime.parse("2022-04-11T08:00:00"), LocalDate.parse("2022-05-01"), LocalTime.parse("08:30:00"), 1);
-        Event event2 = new Event(project, "Melbourne Grand Prix", LocalDateTime.parse("2022-04-10T17:00:00"), LocalDate.parse("2022-04-10"), LocalTime.parse("20:30:00"), 5);
-        Event event3 = new Event(project, "Workshop Code Review", LocalDateTime.parse("2022-05-18T15:00:00"), LocalDate.parse("2022-05-18"), LocalTime.now(), 4);
-        Event event4 = new Event(project, "Semester 2", LocalDateTime.parse("2022-07-18T15:00:00"), LocalDate.parse("2022-09-30"), LocalTime.now(), 6);
-        eventRepository.save(event1);
-        eventRepository.save(event2);
-        eventRepository.save(event3);
-        eventRepository.save(event4);
-    }
-
-
-    /**
-     * Creates default deadlines for a given project.
-     *
-     * @param project The project in which the deadlines will be stored.
-     */
-    public void createDefaultDeadlines(Project project) {
-        try {
-            Deadline deadline1 = new Deadline(project, "SENG 101 Assignment due", LocalDate.parse("2022-05-01"), LocalTime.parse("23:59:00"), 1);
-            Deadline deadline2 = new Deadline(project, "Auckland Electoral Candidate", LocalDate.parse("2022-08-12"), LocalTime.parse("12:00:00"), 2);
-            Deadline deadline3 = new Deadline(project, "NCEA level 3 Calculus exam", LocalDate.parse("2022-08-14"), LocalTime.parse("09:30:00"), 3);
-            Deadline deadline4 = new Deadline(project, "NZ On Air Scripted General Audiences", LocalDate.parse("2022-09-29"), LocalTime.parse("16:00:00"), 4);
-            deadlineRepository.save(deadline1);
-            deadlineRepository.save(deadline2);
-            deadlineRepository.save(deadline3);
-            deadlineRepository.save(deadline4);
-        } catch (InvalidNameException | DateTimeException err) {
-            logger.warn("Error occurred loading default deadlines: {}", err.getMessage());
-        }
-    }
-
-
-    public void createDefaultMilestones(Project project) throws InvalidNameException {
-        Milestone milestone1 = new Milestone(project, "Finished the project!", LocalDate.parse("2022-05-01"), 1);
-        Milestone milestone2 = new Milestone(project, "Lost all the money", LocalDate.parse("2022-06-01"), 2);
-        Milestone milestone3 = new Milestone(project, "Wow look at that flying dog", LocalDate.parse("2022-07-01"), 3);
-
-        milestoneRepository.save(milestone1);
-        milestoneRepository.save(milestone2);
-        milestoneRepository.save(milestone3);
-    }
-
-
-    public void createDefaultSprints(Project project) {
-        Sprint sprint1 = new Sprint(project, "Sprint 1", LocalDate.parse("2022-02-28"), LocalDate.parse("2022-03-09"), "Sprint 1", "#0066cc");
-        Sprint sprint2 = new Sprint(project, "Sprint 2", LocalDate.parse("2022-03-14"), LocalDate.parse("2022-03-30"), "Sprint 2", "#ffcc00");
-        Sprint sprint3 = new Sprint(project, "Sprint 3", LocalDate.parse("2022-04-04"), LocalDate.parse("2022-05-11"), "Sprint 3", "#f48c06");
-        Sprint sprint4 = new Sprint(project, "Sprint 4", LocalDate.parse("2022-05-16"), LocalDate.parse("2022-07-20"), "Sprint 4", "#118ab2");
-        Sprint sprint5 = new Sprint(project, "Sprint 5", LocalDate.parse("2022-07-25"), LocalDate.parse("2022-08-10"), "Sprint 5", "#219ebc");
-        Sprint sprint6 = new Sprint(project, "Sprint 6", LocalDate.parse("2022-08-15"), LocalDate.parse("2022-09-14"), "Sprint 6", "#f48c06");
-        Sprint sprint7 = new Sprint(project, "Sprint 7", LocalDate.parse("2022-09-19"), LocalDate.parse("2022-09-30"), "Sprint 7", "#f48c06");
-        sprintRepository.save(sprint1);
-        sprintRepository.save(sprint2);
-        sprintRepository.save(sprint3);
-        sprintRepository.save(sprint4);
-        sprintRepository.save(sprint5);
-        sprintRepository.save(sprint6);
-        sprintRepository.save(sprint7);
-    }
-
-
-    public void createDefaultRepos() {
-        GitRepository repo1 = new GitRepository(3, 13661, "Team 100's git Repository", "szMkVx_xM39gB5yRxSmL");
-        gitRepoRepository.save(repo1);
-        GitRepository repo2 = new GitRepository(4, 13737, "Team 200's git Repository", "ixgv4UTo--zGZ5Km1rQ");
-        gitRepoRepository.save(repo2);
-    }
-
-    public void createDefaultEvidence() throws MalformedURLException {
-        Evidence evidence = new Evidence(9, "Title", LocalDate.now(), "Description");
-        Evidence evidence1 = new Evidence(9, "Created test Data", LocalDate.now(), "Created a selection of default evidence objects for testing");
-        Evidence evidence2 = new Evidence(9, "making more evidence", LocalDate.now(), "Description of another one");
-        Evidence evidence3 = new Evidence(9, "Writing Long Descriptions", LocalDate.now(), "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. ");
-        Evidence evidence4 = new Evidence(9, "No Skill Evidence", LocalDate.now(), "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. ");
-
-        evidenceRepository.save(evidence);
-        evidenceRepository.save(evidence1);
-        evidenceRepository.save(evidence2);
-        evidenceRepository.save(evidence3);
-        evidenceRepository.save(evidence4);
-//
-        WebLink webLink = new WebLink(evidence, "localhost", "https://localhost");
-        WebLink webLink1 = new WebLink(evidence1,  "evidence1 weblink", "https://localhost/evidence1");
-        WebLink webLink2 = new WebLink(evidence1,  "lost of web links", "https:/lotsofTestWeblinks");
-
-        webLinkRepository.save(webLink);
-        webLinkRepository.save(webLink1);
-        webLinkRepository.save(webLink2);
-
-        evidence.addWebLink(webLink);
-        evidence1.addWebLink(webLink1);
-        evidence1.addWebLink(webLink2);
-
-        evidenceRepository.save(evidence);
-        evidenceRepository.save(evidence1);
-        evidenceRepository.save(evidence2);
-        evidenceRepository.save(evidence3);
-        evidenceRepository.save(evidence4);
-        createDefaultSkills(evidence, evidence1, evidence2, evidence3, evidence4);
-    }
-
-    public void createDefaultSkills(Evidence evidence, Evidence  evidence1, Evidence  evidence2, Evidence  evidence3, Evidence evidence4) {
-        Skill skill = new Skill("test");
-        Skill skill1 = new Skill("java");
-        Skill skill2 = new Skill("debugging");
-        Skill skill3 = new Skill("making data");
-
-        skillRepository.save(skill);
-        skillRepository.save(skill1);
-        skillRepository.save(skill2);
-        skillRepository.save(skill3);
-
-        evidence.addSkill(skill);
-        evidence.addSkill(skill1);
-        evidence.addSkill(skill2);
-        evidence.addSkill(skill3);
-
-        evidence1.addSkill(skill);
-        evidence1.addSkill(skill1);
-        evidence1.addSkill(skill2);
-
-        evidence2.addSkill(skill2);
-        evidence2.addSkill(skill3);
-
-        evidence3.addSkill(skill);
-        evidence3.addSkill(skill1);
-        evidence3.addSkill(skill2);
-        evidence3.addSkill(skill3);
-
-        evidenceRepository.save(evidence);
-        evidenceRepository.save(evidence1);
-        evidenceRepository.save(evidence2);
-        evidenceRepository.save(evidence3);
-        evidenceRepository.save(evidence4);
     }
 }

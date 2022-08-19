@@ -49,7 +49,20 @@ public class TestGroupData {
      */
     public void addTestGroups() {
         logger.info("Creating test groups");
-        Group groupOne = new Group("Team 100", "Seng 302 Team 100");
+        Group groupOne = new Grouppackage nz.ac.canterbury.seng302.portfolio.demodata;
+
+import jdk.incubator.vector.VectorOperators;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class TestProjectData {
+
+    @Autowired
+    public VectorOperators.Test
+}
+("Team 100", "Seng 302 Team 100");
         Group groupTwo = new Group("Team 200", "Seng 302 Team 200");
         Group groupThree = new Group("Team 300", "Seng 302 Team 300");
         Group groupFour = new Group("Team 400", "Seng 302 Team 400");
