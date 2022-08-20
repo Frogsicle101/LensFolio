@@ -502,6 +502,10 @@ function appendEventToSprint(elementToAppendTo, event) {
                 <div class="row">
                     <div class="col">
                         <div class="eventInSprint eventInSprint${event.id}" >
+                            <svg data-toggle="tooltip" 
+                                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-calendar3-event-fill calendarOccasion" viewBox="-3 -3 20 20">
+                                    <path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2h16a2 2 0 0 0-2-2H2zM0 14V3h16v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm12-8a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
+                                    </svg>
                             <p class="sprintEventName text-truncate">${event.name} : </p>
                             <p class="sprintEventStart">${event.startDateFormatted}</p>
                             <p>-</p>
