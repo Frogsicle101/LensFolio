@@ -31,7 +31,7 @@
  * This is more efficient than logging-in through the user interface.
  */
 Cypress.Commands.add('adminLogin', () => {
-    cy.visit(`${Cypress.env('baseUrl')}/login`)
+    cy.visit("/login")
     cy.get('#username')
         .type("admin")
     cy.get('#password')
@@ -51,7 +51,7 @@ Cypress.Commands.add('adminLogin', () => {
  * This is more efficient than logging-in through the user interface.
  */
 Cypress.Commands.add('studentLogin', () => {
-    cy.visit(`${Cypress.env('baseUrl')}/login`)
+    cy.visit("/login")
     cy.get('#username')
         .type("Walter.harber")
     cy.get('#password')
