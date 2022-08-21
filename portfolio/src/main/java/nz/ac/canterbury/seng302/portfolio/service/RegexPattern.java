@@ -1,7 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
-import org.springframework.security.core.parameters.P;
-
 import java.util.regex.Pattern;
 
 /**
@@ -35,6 +33,18 @@ public enum RegexPattern {
 
 
     /**
+     * Required constructor to initialise the Enum values with their parameters.
+     *
+     * @param pattern - Declares the pattern attribute
+     * @param requirements - Declares the requirements attribute
+     */
+    RegexPattern(Pattern pattern, String requirements) {
+        this.pattern = pattern;
+        this.requirements = requirements;
+    }
+
+
+    /**
      * Gets the pattern object used to validate input.
      *
      * @return The regex pattern for comparisons.
@@ -42,6 +52,7 @@ public enum RegexPattern {
     public Pattern getPattern() {
         return pattern;
     }
+
 
     /**
      * Gets the pattern string so that input can be validated on the frontend too.
@@ -54,6 +65,7 @@ public enum RegexPattern {
         return pattern.toString();
     }
 
+
     /**
      * Gets the requirements, used for error messages and tooltips.
      *
@@ -61,16 +73,5 @@ public enum RegexPattern {
      */
     public String getRequirements() {
         return requirements;
-    }
-
-    /**
-     * Required constructor to initialise the Enum values with their parameters.
-     *
-     * @param pattern - Declares the pattern attribute
-     * @param requirements - Declares the requirements attribute
-     */
-    RegexPattern(Pattern pattern, String requirements) {
-        this.pattern = pattern;
-        this.requirements = requirements;
     }
 }
