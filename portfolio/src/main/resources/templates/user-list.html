@@ -10,7 +10,6 @@
         <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
                 </th:block> /*/-->
         <script th:src="@{js/user-list-script.js}" type="application/javascript"></script>
-        <script th:src="@{js/evidence.js}" type="application/javascript"></script>
     </head>
     <body>
         <header th:insert="fragments/general.html :: header"> </header>
@@ -87,7 +86,7 @@
                                         <a th:href="@{'user-list?sortField=aliases&isAscending=true'}">Aliases</a>
                                     </div>
                                 </th>
-                                <th class="tableHead">
+                                <th id="rolesHeader" class="tableHead">
                                     <div th:if="${sortOrder == 'roles' and isAscending}">
                                         <a th:href="@{'user-list?sortField=roles&isAscending=false'}">Roles &#8593;</a>
                                     </div>
