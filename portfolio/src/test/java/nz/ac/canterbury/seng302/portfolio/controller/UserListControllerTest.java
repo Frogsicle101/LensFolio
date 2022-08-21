@@ -4,6 +4,8 @@ import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefRepository;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
+import nz.ac.canterbury.seng302.shared.util.PaginationResponseOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -125,11 +127,6 @@ class UserListControllerTest {
      */
     private void createMockResponse(int offset, String sortOrder, String isAscending, String usersPerPage) {
         boolean boolAscending = Objects.equals(isAscending, "true");
-        GetPaginatedUsersRequest.Builder request = GetPaginatedUsersRequest.newBuilder();
-        request.setOrderBy(sortOrder);
-        request.setOffset(offset);
-        request.setIsAscendingOrder(boolAscending);
-        PaginatedUsersResponse.Builder response = PaginatedUsersResponse.newBuilder();
 
         if (!(usersPerPage == null)){
             switch(usersPerPage){
@@ -140,7 +137,19 @@ class UserListControllerTest {
                 case "all" -> this.usersPerPage = 999999999;
             }
         }
-        request.setLimit(this.usersPerPage);
+
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                                                                   .setOrderBy(sortOrder)
+                                                                   .setOffset(offset)
+                                                                   .setLimit(this.usersPerPage)
+                                                                   .setIsAscendingOrder(boolAscending)
+                                                                   .build();
+
+        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+                .setPaginationRequestOptions(options)
+                .build();
+
+        PaginatedUsersResponse.Builder response = PaginatedUsersResponse.newBuilder();
 
         switch (sortOrder) {
             case "roles" -> expectedUsersList.sort(compareByRole);
@@ -159,8 +168,12 @@ class UserListControllerTest {
             response.addUsers(expectedUsersList.get(i));
         }
 
-        response.setResultSetSize(expectedUsersList.size());
-        when(mockClientService.getPaginatedUsers(request.build())).thenReturn(response.build());
+        PaginationResponseOptions responseOptions = PaginationResponseOptions.newBuilder()
+                                                                             .setResultSetSize(expectedUsersList.size())
+                                                                             .build();
+
+        response.setPaginationResponseOptions(responseOptions);
+        when(mockClientService.getPaginatedUsers(request)).thenReturn(response.build());
     }
 
 
