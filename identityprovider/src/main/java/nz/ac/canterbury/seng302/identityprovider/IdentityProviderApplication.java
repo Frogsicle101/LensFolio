@@ -15,14 +15,14 @@ public class IdentityProviderApplication {
 
     /** Initialised the test and setup data for the IdP */
     @Autowired
-    DataInitialisationManager dataInitialiser;
+    DataInitialisationManager dataInitializer;
 
     /**
      * Initialises test data when the boolean variables are true
      */
     @EventListener(ApplicationReadyEvent.class)
     public void setup() {
-        dataInitialiser.initialiseData();
+        dataInitializer.initialiseData();
     }
 
 

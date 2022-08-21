@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
@@ -73,6 +74,9 @@ class EvidenceControllerTest {
 
     @MockBean
     private GroupsClientService groupsClientService;
+
+    @MockBean
+    private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
 
 
     @BeforeEach
