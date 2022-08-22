@@ -10,15 +10,19 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepositor
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
+import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
+import nz.ac.canterbury.seng302.portfolio.service.PortfolioService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -53,6 +57,8 @@ class PortfolioControllerTest {
     private final SprintRepository sprintRepository = mock(SprintRepository.class);
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
     private final RegexService regexService = spy(RegexService.class);
+    private final PortfolioService portfolioService = spy(PortfolioService.class);
+    private final Sprint mockSprint = mock(Sprint.class);
     @MockBean
     private SkillRepository skillRepository;
 
@@ -67,8 +73,7 @@ class PortfolioControllerTest {
     );
 
     @InjectMocks
-    private final PortfolioController portfolioController = new PortfolioController(sprintRepository,projectRepository,userAccountsClientService, regexService);
-
+    private final PortfolioController portfolioController = new PortfolioController(sprintRepository,projectRepository,userAccountsClientService, regexService, portfolioService);
     private final Integer validUserId = 1;
     private final Integer nonExistentUserId = 2;
     private final String invalidUserId = "Not an Id";
@@ -286,10 +291,137 @@ class PortfolioControllerTest {
     }
 
 
+    @Test
+    void testEditSprint(){
+        Project project = new Project("Test Project");
+        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
+        SprintRequest sprintRequest = new SprintRequest("1", "testing", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
+        Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.of(sprint));
+        Mockito.when(mockSprint.getProject()).thenReturn(project);
+        ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
+        Assertions.assertTrue(response.getStatusCode().is2xxSuccessful());
+    }
+
+    @Test
+    void testEditSprintBadSprintId(){
+        Project project = new Project("Test Project");
+        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
+        SprintRequest sprintRequest = new SprintRequest("1", "testing", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
+        Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.empty());
+        Mockito.when(mockSprint.getProject()).thenReturn(project);
+        ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertEquals("Sprint id doesn't correspond to existing sprint", response.getBody());
+    }
+
+    @Test
+    void testEditSprintBadName(){
+        Project project = new Project("Test Project");
+        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
+        SprintRequest sprintRequest = new SprintRequest("1", "", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
+        Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.of(sprint));
+        Mockito.when(mockSprint.getProject()).thenReturn(project);
+        ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertEquals("Sprint name is shorter than the minimum length", response.getBody());
+    }
+
+    @Test
+    void testEditSprintBadNameLong(){
+        Project project = new Project("Test Project");
+        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
+        SprintRequest sprintRequest = new SprintRequest("1", "test".repeat(400), LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
+        Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.of(sprint));
+        Mockito.when(mockSprint.getProject()).thenReturn(project);
+        ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertEquals("Sprint name is longer than the maximum length", response.getBody());
+    }
+
+    @Test
+    void testEditSprintBadNameSpaces(){
+        Project project = new Project("Test Project");
+        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
+        SprintRequest sprintRequest = new SprintRequest("1", "       ", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
+        Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.of(sprint));
+        Mockito.when(mockSprint.getProject()).thenReturn(project);
+        ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertEquals("Sprint name is shorter than the minimum length", response.getBody());
+    }
+
+
+    @Test
+    void testEditSprintDescriptionBadNameLong(){
+        Project project = new Project("Test Project");
+        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
+        SprintRequest sprintRequest = new SprintRequest("1", "test", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing".repeat(400), "#fff");
+        Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.of(sprint));
+        Mockito.when(mockSprint.getProject()).thenReturn(project);
+        ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertEquals("Sprint description is longer than the maximum length", response.getBody());
+    }
+
+
+    @Test
+    void testEditSprintBadColourLong(){
+        Project project = new Project("Test Project");
+        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
+        SprintRequest sprintRequest = new SprintRequest("1", "test", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "123123123123");
+        Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.of(sprint));
+        Mockito.when(mockSprint.getProject()).thenReturn(project);
+        ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertEquals("Sprint colour is longer than the maximum length", response.getBody());
+    }
+
+
+    @Test
+    void testEditSprintBadColour(){
+        Project project = new Project("Test Project");
+        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
+        SprintRequest sprintRequest = new SprintRequest("1", "test", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#iii");
+        Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.of(sprint));
+        Mockito.when(mockSprint.getProject()).thenReturn(project);
+        ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertEquals("Sprint colour must be a valid hex colour.", response.getBody());
+    }
+
+
+    @Test
+    void testEditSprintStartDatesWrong(){
+        Project project = new Project("Test Project");
+        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
+        SprintRequest sprintRequest = new SprintRequest("1", "testing", LocalDate.now().minusDays(5).toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
+        Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.of(sprint));
+        Mockito.when(mockSprint.getProject()).thenReturn(project);
+        ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertEquals("Start date is before previous sprints end date / project start date", response.getBody());
+    }
+
+
+    @Test
+    void testEditSprintEndDatesWrong(){
+        Project project = new Project("Test Project");
+        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
+        SprintRequest sprintRequest = new SprintRequest("1", "testing", LocalDate.now().toString(), LocalDate.now().plusDays(700).toString(), "testing", "#fff");
+        Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.of(sprint));
+        Mockito.when(mockSprint.getProject()).thenReturn(project);
+        ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
+        Assertions.assertTrue(response.getStatusCode().is4xxClientError());
+        Assertions.assertEquals("End date is after next sprints start date / project end date", response.getBody());
+    }
+
+
+
+
 
     // -------------- Helper context functions ----------------------------------------------------
 
-    private void setUserToStudent() {
+    void setUserToStudent() {
         principal = new Authentication(AuthState.newBuilder()
                 .setIsAuthenticated(true)
                 .setNameClaimType("name")
@@ -324,7 +456,5 @@ class PortfolioControllerTest {
         arrayList.add(sprint2);
         return arrayList;
     }
-
-
 
 }
