@@ -1,8 +1,10 @@
-package nz.ac.canterbury.seng302.portfolio.projects;
+package nz.ac.canterbury.seng302.portfolio.service;
 
 import com.google.type.DateTime;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
