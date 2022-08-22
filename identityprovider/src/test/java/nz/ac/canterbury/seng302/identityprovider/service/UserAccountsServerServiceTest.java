@@ -856,12 +856,12 @@ class UserAccountsServerServiceTest {
 
         PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
         Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
-        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
-        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
-        Assertions.assertEquals("SteveE", response.getUsers(2).getUsername());
-        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
-        Assertions.assertEquals("SteveF", response.getUsers(4).getUsername());
-        Assertions.assertEquals("SteveD", response.getUsers(5).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
     }
 
 
@@ -877,12 +877,12 @@ class UserAccountsServerServiceTest {
 
         PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
         Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
-        Assertions.assertEquals("SteveD", response.getUsers(0).getUsername());
-        Assertions.assertEquals("SteveF", response.getUsers(1).getUsername());
-        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
-        Assertions.assertEquals("SteveE", response.getUsers(3).getUsername());
-        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
-        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(5).getUsername());
     }
 
 
