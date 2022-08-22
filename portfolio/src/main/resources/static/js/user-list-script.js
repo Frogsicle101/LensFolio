@@ -70,3 +70,18 @@ $(document).on("click", ".userRoleRow", function() {
     let userId = $(this).find(".userId").text()
     window.location.href = "/evidence?userId=" + userId //redirect to the user's evidence page
 })
+
+
+/**
+ * When a value of usersPerPage is selected, a call is made to display the table with this many users
+ */
+$(document).on("change", "#usersPerPageSelect", function() {
+    let selected = $(this).val()
+    $.ajax({
+            url: "user-list?usersPerPage=" + selected, type: "GET", success: function (response) {
+                location.reload()
+            }, error: function (error) {
+                createAlert(error.responseText, true)
+            }
+        })
+})
