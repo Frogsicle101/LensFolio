@@ -125,6 +125,33 @@ function createElementFromHTML(htmlString) {
 
 
 /**
+ * A helper function to add a day to a date. This is needed as full calendar will cut off one day if we use the normal
+ * end date
+ */
+function addDay(date) {
+  var result = new Date(date);
+  result.setDate(result.getDate() + 1);
+  return result;
+}
+
+
+/**
+ * A helper function to turn a JavaScript date into a string that full calendar can use
+ */
+function formatDateString(date) {
+    const yyyy = date.getFullYear();
+    let mm = date.getMonth() + 1; // Months start at 0!
+    let dd = date.getDate();
+
+    if (dd < 10) dd = '0' + dd;
+    if (mm < 10) mm = '0' + mm;
+
+    date = yyyy + '-' + mm + '-' + dd;
+    return date;
+}
+
+
+/**
  * $(document).ready fires off a function when the document has finished loading.
  * https://learn.jquery.com/using-jquery-core/document-ready/
  */
@@ -132,6 +159,8 @@ $(document).ready(function () {
     let projectId = $("#projectId").html();
     let calendarEl = document.getElementById('calendar');
     $("body").tooltip({selector: '[data-toggle=tooltip]'});
+    let endDate = Date.parse($('#projectEndUnformatted').text());
+    endDate = formatDateString(addDay(endDate));
 
     /**
      * Calendar functionality
@@ -141,6 +170,10 @@ $(document).ready(function () {
         initialView: 'dayGridMonth',
         eventDurationEditable: false,
         eventResizableFromStart: true,
+        validRange: {
+            start: $('#projectStartUnformatted').text(),
+            end: endDate
+        },
         eventResize: function (info) {
             eventResize(info)
         },
