@@ -11,6 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRe
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
+import nz.ac.canterbury.seng302.portfolio.service.PortfolioService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -29,7 +30,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @Controller
@@ -37,12 +37,11 @@ public class PortfolioController {
 
   private static final String ERROR_MESSAGE = "errorMessage";
   private final UserAccountsClientService userAccountsClientService;
-  /** Repository that stores the sprints */
   private final SprintRepository sprintRepository;
-  /** Repository that stores the project */
   private final ProjectRepository projectRepository;
   private final RegexService regexService;
-  private final CheckDateService checkDateService = new CheckDateService();
+  private final PortfolioService portfolioService;
+  private final CheckDateService checkDateService;
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
   RegexPatterns regexPatterns = new RegexPatterns();
 
@@ -59,11 +58,15 @@ public class PortfolioController {
       SprintRepository sprintRepository,
       ProjectRepository projectRepository,
       UserAccountsClientService userAccountsClientService,
-      RegexService regexService) {
+      RegexService regexService,
+      PortfolioService portfolioService,
+      CheckDateService checkDateService) {
     this.projectRepository = projectRepository;
     this.sprintRepository = sprintRepository;
     this.userAccountsClientService = userAccountsClientService;
     this.regexService = regexService;
+    this.portfolioService = portfolioService;
+    this.checkDateService = checkDateService;
   }
 
 
@@ -179,7 +182,7 @@ public class PortfolioController {
       regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectName, 1, 50, "Project name");
       regexService.checkInput(
           RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description");
-      CheckDateService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
+      checkDateService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
       project.setName(editInfo.getProjectName());
       project.setStartDate(LocalDate.parse(editInfo.getProjectStartDate()));
       project.setEndDate(LocalDate.parse(editInfo.getProjectEndDate()));
@@ -216,7 +219,7 @@ public class PortfolioController {
       // Gets the amount of sprints belonging to the project
       int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
       String sprintName = "Sprint " + amountOfSprints;
-      CheckDateService.checkProjectHasRoomForSprints(sprintRepository, project);
+      checkDateService.checkProjectHasRoomForSprints(sprintRepository, project);
       if (project.getStartDate().plusWeeks(3).isAfter(project.getEndDate())) {
         sprintRepository.save(
             new Sprint(project, sprintName, project.getStartDate(), project.getEndDate()));
@@ -263,7 +266,7 @@ public class PortfolioController {
                           "Sprint with id " + projectId.toString() + " was not found"));
 
       Project project = projectRepository.getProjectById(projectId);
-      HashMap<String, LocalDate> neighbouringDates = checkNeighbourDatesForSprint(project, sprint);
+      Map<String, LocalDate> neighbouringDates = PortfolioService.checkNeighbourDatesForSprint(sprint, sprintRepository);
       String textForPreviousSprint;
       String textForNextSprint;
       modelAndView.addObject("previousSprintEnd", neighbouringDates.get("previousSprintEnd"));
@@ -311,44 +314,6 @@ public class PortfolioController {
 
 
   /**
-   * Helper function that gets the dates that neighbour the sprint that it is given
-   *
-   * @param project the project the sprint is in
-   * @param sprint the sprint
-   * @return a HashMap that contains keys "previousSprintEnd" and "nextSprintStart"
-   */
-  private HashMap<String, LocalDate> checkNeighbourDatesForSprint(Project project, Sprint sprint) {
-    // Gets a list of all sprints that belong to the project and orders them by start date: earliest to latest
-    List<Sprint> sprintList = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
-    HashMap<String, LocalDate> neighbouringSprintDates = new HashMap<>();
-    int indexOfPrevSprint = sprintList.indexOf(sprint);
-    int indexOfNextSprint = sprintList.indexOf(sprint);
-    // Checks if the selected sprint is not the first on the list
-    if (indexOfPrevSprint > 0) {
-      indexOfPrevSprint = indexOfPrevSprint - 1;
-      // Adds an object to the view that limits the calendar to dates past the previous sprints end.
-      neighbouringSprintDates.put(
-          "previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate().plusDays(1));
-    } else {
-      // Else adds an object to the view that limits the calendar to project start .
-      neighbouringSprintDates.put("previousSprintEnd", project.getStartDate());
-    }
-    // Checks if the selected sprint is not the last on the list
-    if (indexOfNextSprint < sprintList.size() - 1) {
-      indexOfNextSprint = indexOfNextSprint + 1;
-      // Adds an object to the view that limits the calendar to dates before the next sprints starts.
-      neighbouringSprintDates.put(
-          "nextSprintStart", sprintList.get(indexOfNextSprint).getStartDate().minusDays(1));
-    } else {
-      // Else adds an object to the view that limits the calendar to be before the project end.
-      neighbouringSprintDates.put("nextSprintStart", project.getEndDate());
-    }
-
-    return neighbouringSprintDates;
-  }
-
-
-  /**
    * Takes the request to update the sprint. Tries to update the sprint then redirects user.
    *
    * @param sprintInfo the thymeleaf-created form object
@@ -361,27 +326,17 @@ public class PortfolioController {
     try {
       logger.info("POST REQUEST /sprintSubmit");
       // Checks that the sprint request is acceptable
-      ResponseEntity<Object> checkSprintRequest = checkSprintRequest(sprintInfo);
-      if (checkSprintRequest.getStatusCode() != HttpStatus.OK) {
-        logger.warn("/sprintSubmit issue with SprintRequest: {}", checkSprintRequest.getBody());
-        return checkSprintRequest;
-      }
+      portfolioService.checkSprintRequest(sprintInfo);
+
       LocalDate startDate = LocalDate.parse(sprintInfo.getSprintStartDate());
       LocalDate endDate = LocalDate.parse(sprintInfo.getSprintEndDate());
-      Sprint sprint = sprintRepository.getSprintById(sprintInfo.getSprintId());
-      Project project = sprint.getProject();
-      HashMap<String, LocalDate> checkSprintDates = checkNeighbourDatesForSprint(project, sprint);
-      LocalDate previousDateLimit = checkSprintDates.get("previousSprintEnd");
-      LocalDate nextDateLimit = checkSprintDates.get("nextSprintStart");
-      if (startDate.isBefore(previousDateLimit)) {
-        return new ResponseEntity<>(
-            "Start date is before previous sprints end date / project start date",
-            HttpStatus.BAD_REQUEST);
+      Optional<Sprint> sprintOptional = sprintRepository.findById(sprintInfo.getSprintId());
+      if (sprintOptional.isEmpty()){
+        throw new CheckException("Sprint id doesn't correspond to existing sprint");
       }
-      if (endDate.isAfter(nextDateLimit)) {
-        return new ResponseEntity<>(
-            "End date is after next sprints start date / project end date", HttpStatus.BAD_REQUEST);
-      }
+      Sprint sprint = sprintOptional.get();
+      Map<String, LocalDate> checkSprintDates = PortfolioService.checkNeighbourDatesForSprint(sprint, sprintRepository);
+      checkDateService.checkNewSprintDateNotInsideOtherSprints(checkSprintDates.get("previousSprintEnd"), checkSprintDates.get("nextSprintStart"), sprintInfo);
       sprint.setName(sprintInfo.getSprintName());
       sprint.setStartDate(startDate);
       sprint.setEndDate(endDate);
@@ -389,44 +344,12 @@ public class PortfolioController {
       sprint.setColour(sprintInfo.getSprintColour());
       sprintRepository.save(sprint);
       return new ResponseEntity<>(HttpStatus.OK);
+    } catch (CheckException checkException){
+        logger.warn("/sprintSubmit issue with SprintRequest: {}", checkException.getMessage());
+        return new ResponseEntity<>(checkException.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception err) {
-      logger.error("POST REQUEST /sprintSubmit", err);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-
-  /**
-   * Checks the SprintRequest DTO is all good and correct
-   *
-   * @param sprintRequest the SprintRequest to check
-   * @return ResponseEntity which is either okay, or not with message.
-   */
-  private ResponseEntity<Object> checkSprintRequest(SprintRequest sprintRequest) {
-    try {
-      String sprintName = sprintRequest.getSprintName();
-      LocalDate sprintStartDate = LocalDate.parse(sprintRequest.getSprintStartDate());
-      LocalDate sprintEndDate = LocalDate.parse(sprintRequest.getSprintEndDate());
-      String sprintDescription = sprintRequest.getSprintDescription();
-      String sprintColour = sprintRequest.getSprintColour();
-      if (!regexPatterns.getTitleRegex().matcher(sprintName).matches()) {
-        return new ResponseEntity<>("Sprint Name not in correct format", HttpStatus.BAD_REQUEST);
-      }
-      if (!regexPatterns.getDescriptionRegex().matcher(sprintDescription).matches()) {
-        return new ResponseEntity<>(
-            "Sprint Description not in correct format", HttpStatus.BAD_REQUEST);
-      }
-      if (!regexPatterns.getHexRegex().matcher(sprintColour).matches()) {
-        return new ResponseEntity<>(
-            "Sprint Colour not in correct hex format", HttpStatus.BAD_REQUEST);
-      }
-      if (sprintEndDate.isBefore(sprintStartDate)) {
-        return new ResponseEntity<>(
-            "Sprint end date is before sprint start date", HttpStatus.BAD_REQUEST);
-      }
-      return new ResponseEntity<>(HttpStatus.OK);
-    } catch (DateTimeParseException err) {
-      return new ResponseEntity<>("Date(s) is in incorrect format", HttpStatus.BAD_REQUEST);
+        logger.error("POST REQUEST /sprintSubmit {}", err.getMessage());
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
