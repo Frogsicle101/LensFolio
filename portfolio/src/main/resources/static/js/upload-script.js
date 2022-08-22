@@ -3,7 +3,7 @@ $(document).ready(() => {
         location.href = "account"
     })
 
-    $(".deleteProfilePhotoButton").click(() => {
+    $(".deleteProfilePhotoButton").on("click", () => {
         $.ajax({
             url: "deleteProfileImg",
             type: "DELETE",
