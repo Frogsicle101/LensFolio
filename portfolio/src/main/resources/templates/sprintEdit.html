@@ -21,7 +21,7 @@
         <input id="sprintId" name="sprintId" style="display: none" th:value="${sprint.getId()}" type="text">
         <div class="row">
             <div class="col">
-                <label class="form-label" for="sprintName">Sprint Name</label>
+                <label class="form-label" for="sprintName">Name</label>
                 <input class="form-control canDisable" id="sprintName" maxlength="50" name="sprintName" required
                        th:value="${sprint.getName()}" type="text">
             </div>
@@ -34,13 +34,13 @@
 
         <div class="row">
             <div class="col">
-                <label class="form-label" for="sprintStartDate">Sprint Start</label>
+                <label class="form-label" for="sprintStartDate">Start Date</label>
                 <input class="form-control canDisable" id="sprintStartDate" name="sprintStartDate" required
                        th:max="${nextSprintStart}" th:min="${previousSprintEnd}" th:value="${sprint.getStartDate()}" type="date">
                 <small class="form-text text-muted" th:text="${textForPrevSprint}"></small>
             </div>
             <div class="col">
-                <label class="form-label" for="sprintEndDate">Sprint End</label>
+                <label class="form-label" for="sprintEndDate">End Date</label>
                 <input class="form-control canDisable" id="sprintEndDate" name="sprintEndDate" required
                        th:max="${nextSprintStart}" th:min="${previousSprintEnd}" th:value="${sprint.getEndDate()}"
                        type="date">
@@ -56,7 +56,7 @@
             </div>
         </div>
         <div class="mb-3">
-            <label class="form-label" for="sprintDescription">Sprint Description</label>
+            <label class="form-label" for="sprintDescription">Description</label>
             <textarea class="form-control canDisable" id="sprintDescription" maxlength="200" name="sprintDescription"
                       th:text="${sprint.getDescription()}"></textarea>
         </div>
