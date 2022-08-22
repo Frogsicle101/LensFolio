@@ -11,10 +11,11 @@ import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("unchecked") // Suppresses intelliJ's warning for testing with mock StreamObservers
+@RunWith(MockitoJUnitRunner.class)
 class UserAccountsServerServiceTest {
 
     @Mock
@@ -1021,7 +1023,7 @@ class UserAccountsServerServiceTest {
         Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(2, response.getUsersList().size());
         Assertions.assertEquals("SteveC", response.getUsers(0).getUsername());
-        Assertions.assertEquals("SteveD", response.getUsers(1).getUsername());;
+        Assertions.assertEquals("SteveD", response.getUsers(1).getUsername());
     }
 
     // ----------------------------------------- Test runner helpers -------------------------------------------------
