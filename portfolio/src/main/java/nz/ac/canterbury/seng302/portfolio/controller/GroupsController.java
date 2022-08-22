@@ -1,12 +1,13 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
-import nz.ac.canterbury.seng302.portfolio.DTO.GroupRequest;
+import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.GroupCreationDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
-import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,11 +78,14 @@ public class GroupsController {
 
         //to populate groups page with groups
         try {
-            GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
+            PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
                     .setOffset(OFFSET)
                     .setOrderBy(ORDER_BY)
                     .setLimit(LIMIT)
                     .setIsAscendingOrder(IS_ASCENDING)
+                    .build();
+            GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
+                    .setPaginationRequestOptions(options)
                     .build();
             PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
 
@@ -112,7 +116,7 @@ public class GroupsController {
                     .setGroupId(groupId)
                     .build();
             GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
-            return new ResponseEntity<>(new GroupDTO(response), HttpStatus.OK);
+            return new ResponseEntity<>(new GroupResponseDTO(response), HttpStatus.OK);
         } catch (Exception exception) {
             logger.error("ERROR /group - an error occurred while retrieving group {}", groupId);
             logger.error(exception.getMessage());
@@ -180,7 +184,7 @@ public class GroupsController {
      */
     @PostMapping("/groups/edit")
     public ResponseEntity<String> createGroup(@AuthenticationPrincipal Authentication principal,
-                                              @ModelAttribute(name="editDetailsForm") GroupRequest createInfo) {
+                                              @ModelAttribute(name="editDetailsForm") GroupCreationDTO createInfo) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
         logger.info("POST REQUEST /groups/edit - attempt to create group {} by user: {}", createInfo.getShortName(), userId);
         try {

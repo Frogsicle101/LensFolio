@@ -3,11 +3,12 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
-import nz.ac.canterbury.seng302.identityprovider.groups.Group;
-import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.Group;
+import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -189,7 +190,7 @@ class GroupServerServiceTest {
 
 
     @Test
-    void testGetGroupDetails() {
+    void testGetGroupDetails() throws PasswordEncryptionException {
         Group group = new Group(1, "Short", "Long");
         ReflectionTestUtils.setField(group, "userList", new ArrayList<>());
 
@@ -242,7 +243,7 @@ class GroupServerServiceTest {
 
 
     @Test
-    void testGetTeachingGroup() {
+    void testGetTeachingGroup() throws PasswordEncryptionException {
         Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
 
         User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
@@ -311,7 +312,7 @@ class GroupServerServiceTest {
 
 
     @Test
-    void testGetMembersWithoutAGroup() {
+    void testGetMembersWithoutAGroup() throws PasswordEncryptionException {
         Group nonGroup = new Group(1, "Non-Group", "Non-Group");
 
         User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
@@ -377,7 +378,6 @@ class GroupServerServiceTest {
         Assertions.assertEquals(-1, response.getGroupId());
 
     }
-
 
 
     @Test
@@ -525,14 +525,14 @@ class GroupServerServiceTest {
 
 
     @Test
-    void getPaginatedGroupsShortNameIncreasing(){
+    void getPaginatedGroupsShortNameIncreasing() throws PasswordEncryptionException {
         String orderBy = "shortName";
         Integer offset = 0;
         Integer limit = 3;
         Boolean isAscending = true;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 1", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 2", response.getGroupsList().get(1).getShortName());
@@ -541,14 +541,14 @@ class GroupServerServiceTest {
 
 
     @Test
-    void getPaginatedGroupsShortNameDecreasing(){
+    void getPaginatedGroupsShortNameDecreasing() throws PasswordEncryptionException {
         String orderBy = "shortName";
         Integer offset = 0;
         Integer limit = 3;
         Boolean isAscending = false;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 3", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 2", response.getGroupsList().get(1).getShortName());
@@ -557,14 +557,14 @@ class GroupServerServiceTest {
 
 
     @Test
-    void getPaginatedGroupsLongNameIncreasing(){
+    void getPaginatedGroupsLongNameIncreasing() throws PasswordEncryptionException {
         String orderBy = "longName";
         Integer offset = 0;
         Integer limit = 3;
         Boolean isAscending = true;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 1", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 2", response.getGroupsList().get(1).getShortName());
@@ -573,14 +573,14 @@ class GroupServerServiceTest {
 
 
     @Test
-    void getPaginatedGroupsLongNameDecreasing(){
+    void getPaginatedGroupsLongNameDecreasing() throws PasswordEncryptionException {
         String orderBy = "longName";
         Integer offset = 0;
         Integer limit = 3;
         Boolean isAscending = false;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 3", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 2", response.getGroupsList().get(1).getShortName());
@@ -589,14 +589,14 @@ class GroupServerServiceTest {
 
 
     @Test
-    void getPaginatedGroupsMemberCountIncreasing(){
+    void getPaginatedGroupsMemberCountIncreasing() throws PasswordEncryptionException {
         String orderBy = "membersNumber";
         Integer offset = 0;
         Integer limit = 3;
         Boolean isAscending = true;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 1", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 3", response.getGroupsList().get(1).getShortName());
@@ -605,14 +605,14 @@ class GroupServerServiceTest {
 
 
     @Test
-    void getPaginatedGroupsMemberCountDecreasing(){
+    void getPaginatedGroupsMemberCountDecreasing() throws PasswordEncryptionException {
         String orderBy = "membersNumber";
         Integer offset = 0;
         Integer limit = 3;
         Boolean isAscending = false;
 
         PaginatedGroupsResponse response = runGetPaginatedGroupTest(orderBy, offset, limit, isAscending);
-        Assertions.assertEquals(3, response.getResultSetSize());
+        Assertions.assertEquals(3, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getGroupsCount());
         Assertions.assertEquals("Group 2", response.getGroupsList().get(0).getShortName());
         Assertions.assertEquals("Group 3", response.getGroupsList().get(1).getShortName());
@@ -632,12 +632,15 @@ class GroupServerServiceTest {
      * @param isAscending Whether the list should be in ascending or descending order
      * @return The response received from the tested GroupsServerService.getPaginatedGroups method
      */
-    private PaginatedGroupsResponse runGetPaginatedGroupTest(String orderBy, Integer offset, Integer limit, Boolean isAscending){
-        GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
+    private PaginatedGroupsResponse runGetPaginatedGroupTest(String orderBy, Integer offset, Integer limit, Boolean isAscending) throws PasswordEncryptionException {
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
                 .setOffset(offset)
                 .setLimit(limit)
                 .setOrderBy(orderBy)
                 .setIsAscendingOrder(isAscending)
+                .build();
+        GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
+                .setPaginationRequestOptions(options)
                 .build();
 
         List<Group> groupsList = createUsersAndAddToGroups();
@@ -658,8 +661,10 @@ class GroupServerServiceTest {
 
     /**
      * A helper function to set up some groups and users in these groups
+     *
+     * @return a list of the groups with users added to them
      */
-    private List<Group> createUsersAndAddToGroups() {
+    private List<Group> createUsersAndAddToGroups() throws PasswordEncryptionException {
         List<Group> groupsList = new ArrayList<>();
         Group group1 = new Group(1,"Group 1", "Comp Sci Group 1");
         Group group2 = new Group(2,"Group 2", "Comp Sci Group 2");

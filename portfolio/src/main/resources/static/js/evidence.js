@@ -2,9 +2,6 @@
 const regExp = new RegExp('[A-Za-z]');
 
 
-
-let webLinksCount = 0;
-
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
  */

@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.UserRequest;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.AuthenticationException;
 import nz.ac.canterbury.seng302.portfolio.service.LoginService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
@@ -29,6 +29,8 @@ public class LoginController {
     @Autowired
     private LoginService loginService;
 
+    private final String loginHtmlName = "login";
+
 
     /**
      * Shows the login page to anyone who wants to see it.
@@ -37,7 +39,7 @@ public class LoginController {
      */
     @GetMapping("/login")
     public String showLogin() {
-        return "login";
+        return loginHtmlName;
     }
 
 
@@ -73,7 +75,7 @@ public class LoginController {
             // Note this is logged when the error is thrown
             model.addAttribute("errorMessage", "Error connecting to Identity Provider... " +
                     "Try again later.");
-            return new ModelAndView("login");
+            return new ModelAndView(loginHtmlName);
         }
         // If login was successful redirect to account, otherwise add failure message
         if (loginReply.getSuccess()) {
@@ -82,7 +84,7 @@ public class LoginController {
         } else {
             // Logged in attempt login method
             model.addAttribute("errorMessage", loginReply.getMessage());
-            return new ModelAndView("login");
+            return new ModelAndView(loginHtmlName);
         }
     }
 }

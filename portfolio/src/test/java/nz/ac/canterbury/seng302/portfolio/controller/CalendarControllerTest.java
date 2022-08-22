@@ -1,11 +1,11 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,12 +1,14 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
+import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
-import nz.ac.canterbury.seng302.identityprovider.groups.Group;
-import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.Group;
+import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +50,7 @@ class UserAccountsServerServiceTest {
 
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws PasswordEncryptionException {
         user = new User(
                 "MySuperCoolUsername",
                 "password",
@@ -327,7 +329,7 @@ class UserAccountsServerServiceTest {
 
 
     @Test
-    void changeUserPassword() {
+    void changeUserPassword() throws PasswordEncryptionException {
         repository.save(user);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
@@ -492,7 +494,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void addTeacherRoleIsAddedToTeacherGroup() {
+    void addTeacherRoleIsAddedToTeacherGroup() throws PasswordEncryptionException {
         User newUser = new User(
                 "testuser",
                 "password",
@@ -544,7 +546,7 @@ class UserAccountsServerServiceTest {
 
     @Test
     @Transactional
-    void removeTeacherRoleIsRemovedFromTeacherGroup() {
+    void removeTeacherRoleIsRemovedFromTeacherGroup() throws PasswordEncryptionException {
 
         User newUser = new User(
                 "testuser",
@@ -597,6 +599,7 @@ class UserAccountsServerServiceTest {
         assertFalse(usersInTeachersGroup.contains(newSavedUser));
     }
 
+
     @Test
     @Transactional
     void registerNewUserAddedToMwag() {
@@ -634,5 +637,423 @@ class UserAccountsServerServiceTest {
             fail("Members Without A Group not found");
         }
         assertTrue(usersInMwagGroup.contains(user));
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersFirstNameIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersFirstNameDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveF", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersMiddleNameIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "middlename";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveB", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersMiddleNameDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "middlename";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveE", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersLastNameIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "lastname";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveF", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersLastNameDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "lastname";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersUserNameIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "username";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersUserNameDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "username";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveF", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersNicknameIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "aliases";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveD", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersNicknameDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "aliases";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveC", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersRolesIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "roles";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersRolesDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "roles";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveD", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersOffsetThree() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 3;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(3, response.getUsersList().size());
+        Assertions.assertEquals("SteveD", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(2).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersOffsetMoreThanAmountUsers() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 7;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(0, response.getUsersList().size());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersLimitThree() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 0;
+        Integer limit = 3;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(3, response.getUsersList().size());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersLimitHigherThanAmountUsers() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 0;
+        Integer limit = 7;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(6, response.getUsersList().size());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersOffsetTwoLimitTwo() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        repository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 2;
+        Integer limit = 2;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(2, response.getUsersList().size());
+        Assertions.assertEquals("SteveC", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(1).getUsername());;
+    }
+
+    // ----------------------------------------- Test runner helpers -------------------------------------------------
+
+
+    /**
+     * A helper function for running tests for getting paginated users
+     *
+     * @param orderBy The string of what parameter to order by
+     * @param offset The amount of users to offset the start of the list by
+     * @param limit The maximum amount of users to get for the page
+     * @param isAscending Whether the list should be in ascending or descending order
+     * @return The response received from the tested UserAccountsServerService.getPaginatedUsers method
+     */
+    private PaginatedUsersResponse runGetPaginatedUsersTest(String orderBy, Integer offset, Integer limit, Boolean isAscending) throws PasswordEncryptionException{
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                .setOffset(offset)
+                .setLimit(limit)
+                .setOrderBy(orderBy)
+                .setIsAscendingOrder(isAscending)
+                .build();
+        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+                .setPaginationRequestOptions(options)
+                .build();
+
+        StreamObserver<PaginatedUsersResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<PaginatedUsersResponse> responseCaptor = ArgumentCaptor.forClass(PaginatedUsersResponse.class);
+
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+
+        List<User> usersList = createUsers();
+        repository.saveAll(usersList);
+
+        service.getPaginatedUsers(request, responseObserver);
+
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        return responseCaptor.getValue();
+    }
+
+
+    /**
+     * A helper function to create the users used for testing. The fields are a mix of upper and lower case letters and
+     * are in different orders to ensure that the sorting is working as expected
+     *
+     * @return A list of users to be saved to the repository
+     */
+    private List<User> createUsers() throws PasswordEncryptionException {
+        List<User> userList = new ArrayList<>();
+        User user1 = new User("SteveA", "password", "Stevea", "Stevensonb", "McSteveF", "KingSteved", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user2 = new User("SteveB", "password", "SteveB", "StevensonA", "McSteveE", "KingStevee", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user3 = new User("SteveC", "password", "Stevec", "Stevensond", "McSteveD", "KingStevef", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user4 = new User("SteveD", "password", "SteveD", "StevensonC", "McStevec", "KingSteveA", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user5 = new User("SteveE", "password", "Stevee", "Stevensonf", "McSteveb", "KingSteveB", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user6 = new User("SteveF", "password", "SteveF", "StevensonE", "McStevea", "KingSteveC", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user1.addRole(UserRole.STUDENT);
+        user2.addRole(UserRole.TEACHER);
+        user3.addRole(UserRole.COURSE_ADMINISTRATOR);
+        user4.addRole(UserRole.TEACHER);
+        user4.addRole(UserRole.COURSE_ADMINISTRATOR);
+        user5.addRole(UserRole.TEACHER);
+        user5.addRole(UserRole.STUDENT);
+        user6.addRole(UserRole.COURSE_ADMINISTRATOR);
+        user6.addRole(UserRole.STUDENT);
+        userList.add(user1);
+        userList.add(user2);
+        userList.add(user3);
+        userList.add(user4);
+        userList.add(user5);
+        userList.add(user6);
+
+        return userList;
     }
 }

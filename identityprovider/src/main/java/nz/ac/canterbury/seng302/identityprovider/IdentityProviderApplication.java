@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
-import nz.ac.canterbury.seng302.identityprovider.TestData.DataInitialisationManager;
+import nz.ac.canterbury.seng302.identityprovider.demodata.DataInitialisationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

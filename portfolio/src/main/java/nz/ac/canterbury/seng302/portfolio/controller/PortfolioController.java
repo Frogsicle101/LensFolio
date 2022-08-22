@@ -1,27 +1,25 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.ProjectRequest;
-import nz.ac.canterbury.seng302.portfolio.DTO.SprintRequest;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
+import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
+import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.*;
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.projects.ProjectService;
-import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
-import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.events.Event;
-import nz.ac.canterbury.seng302.portfolio.projects.events.EventHelper;
-import nz.ac.canterbury.seng302.portfolio.projects.events.EventRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneHelper;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepoRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.repositories.GitRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.Sprint;
-import nz.ac.canterbury.seng302.portfolio.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.DeadlineRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.MilestoneRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepoRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
@@ -84,7 +82,6 @@ public class PortfolioController {
 
     // For testing
     private static final boolean INCLUDE_TEST_VALUES = true;
-    private int userId;
 
 
     /**
@@ -159,7 +156,7 @@ public class PortfolioController {
 
             // Get user from server
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-            userId = user.getId();
+            Integer userId = user.getId();
 
 
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
@@ -176,8 +173,8 @@ public class PortfolioController {
                 modelAndView.addObject("userCanEdit", false);
             }
 
-            List<Event> eventList = EventHelper.setEventColours(project.getId(), eventRepository, sprintRepository);
-            List<Milestone> milestoneList = MilestoneHelper.setMilestoneColours(project.getId(), milestoneRepository, sprintRepository);
+            List<Event> eventList = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
+            List<Milestone> milestoneList = milestoneRepository.findAllByProjectIdOrderByEndDate(projectId);
 
             int nextMilestoneNumber = milestoneRepository.countMilestoneByProjectId(projectId).intValue() + 1;
             LocalDate defaultOccasionDate = project.getStartDate(); // Today is in a sprint, the start of th project otherwise

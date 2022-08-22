@@ -1,12 +1,20 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
-import nz.ac.canterbury.seng302.portfolio.evidence.*;
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +25,8 @@ import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -35,7 +45,10 @@ public class EvidenceService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final String stringRegex = "[a-zA-Z0-9\s]*";
+    /**
+     * Regex that is all unicode letters, numbers and punctuation
+     */
+    private static final Pattern pattern = Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\s]+", Pattern.CASE_INSENSITIVE);
 
     private final UserAccountsClientService userAccountsClientService;
 
@@ -73,8 +86,12 @@ public class EvidenceService {
     private void checkString(String string, StringType type) throws CheckException {
         if (string.length() < 2) {
             throw new CheckException("Text should be longer than 1 character");
-        } else if (!string.matches(stringRegex)) {
-            throw new CheckException("Text shouldn't be strange");
+        } else {
+            Matcher matcher = pattern.matcher(string);
+            boolean matchFound = matcher.matches();
+            if (!matchFound) {
+                throw new CheckException("Text contains characters that aren't allowed");
+            }
         }
 
         if (type == StringType.TITLE && string.length() > 50) {

@@ -3,11 +3,13 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
+import nz.ac.canterbury.seng302.shared.util.PaginationResponseOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +29,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     /** The repository where Users details are stored */
     @Autowired
     private UserRepository repository;
-
-    @Autowired
-    private UrlService urlService;
 
     @Autowired
     private Environment env;
@@ -261,6 +260,11 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 logger.error(e.getMessage());
                 response.setIsSuccess(false)
                         .setMessage("An error has occurred while connecting to the database");
+            } catch (PasswordEncryptionException e) {
+                logger.error("An error occurred encrypting the new password");
+                logger.error(e.getMessage());
+                response.setIsSuccess(false)
+                        .setMessage("An error has occurred while encrypting the new password");
             }
         } else {
             logger.info("Password Change Failure - could not find user with id {}", request.getUserId());
@@ -414,13 +418,14 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      * Follows the gRPC contract for retrieving the paginated users. Does this by sorting a list of all the users based
      * on what was requested and then looping through to add the specific page of users to the response
      *
-     * @param request the GetPaginatedUsersRequest passed through from the client service
+     * @param usersRequest the GetPaginatedUsersRequest passed through from the client service
      * @param responseObserver Used to return the response to the client side.
      */
     @Override
-    public void getPaginatedUsers(GetPaginatedUsersRequest request, StreamObserver<PaginatedUsersResponse> responseObserver) {
+    public void getPaginatedUsers(GetPaginatedUsersRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver) {
         PaginatedUsersResponse.Builder reply = PaginatedUsersResponse.newBuilder();
         List<User> allUsers = (List<User>) repository.findAll();
+        PaginationRequestOptions request = usersRequest.getPaginationRequestOptions();
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
@@ -440,7 +445,10 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
             reply.addUsers(allUsers.get(i).userResponse());
         }
-        reply.setResultSetSize(allUsers.size());
+        PaginationResponseOptions options = PaginationResponseOptions.newBuilder()
+                                                                     .setResultSetSize(allUsers.size())
+                                                                     .build();
+        reply.setPaginationResponseOptions(options);
         responseObserver.onNext(reply.build());
         responseObserver.onCompleted();
     }

@@ -1,7 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import com.google.common.base.Enums;
-import nz.ac.canterbury.seng302.portfolio.evidence.*;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 
 /**
@@ -23,8 +25,9 @@ public class CategoryController {
     /** For logging the controller for debugging. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
+
     /** The repository containing users pieces of evidence. */
+    @Autowired
     private EvidenceRepository evidenceRepository;
 
 
@@ -36,15 +39,16 @@ public class CategoryController {
      * @return A ResponseEntity that contains a list of evidences associated with the Category.
      */
     @GetMapping("/evidenceLinkedToCategory")
-    public ResponseEntity<Object> getEvidenceByCategory(@RequestParam("userId") Integer userId, @RequestParam Category category) {
+    public ResponseEntity<Object> getEvidenceByCategory(@RequestParam("userId") Integer userId, @RequestParam String category) {
         logger.info("GET REQUEST /evidenceLinkedToCategory - attempt to get all evidence for category: {}", category);
         try {
-            if (!isValidCategory(category.toString())) {
+            Optional<Category> optionalCategory = parseCategory(category);
+            if (optionalCategory.isEmpty()) {
                 logger.info("GET REQUEST /evidenceLinkedToCategory - category {} does not exist", category);
                 return new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
             }
 
-            ArrayList <Evidence> evidence = evidenceRepository.findAllByUserIdAndCategoriesContaining(userId, category);
+            ArrayList <Evidence> evidence = evidenceRepository.findAllByUserIdAndCategoriesContaining(userId, optionalCategory.get());
             logger.info("GET REQUEST /evidenceLinkedToCategory - found and returned {} evidences for category: {}", evidence.size() ,category);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
 
@@ -60,8 +64,12 @@ public class CategoryController {
      * @param category - The Category is requested
      * @return A boolean value of the category is valid or not
      */
-    public static boolean isValidCategory(String category){
-        return(Enums.getIfPresent(Category.class, category).isPresent());
+    public static Optional<Category> parseCategory(String category) {
+        return switch (category) {
+            case "Service", "SERVICE" -> Optional.of(Category.SERVICE);
+            case "Quantitative", "QUANTITATIVE" -> Optional.of(Category.QUANTITATIVE);
+            case "Qualitative", "QUALITATIVE" -> Optional.of(Category.QUALITATIVE);
+            default -> Optional.empty();
+        };
     }
-
 }
