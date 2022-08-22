@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SuppressWarnings("unchecked") // Suppresses intelliJ's warning for testing with mock StreamObservers
 class UserAccountsServerServiceTest {
 
     @Mock
