@@ -155,7 +155,6 @@ function countCharacters() {
 }
 
 /**
- * Regex that is all unicode letters, numbers and punctuation
- * This is equivalent to \p{L} \p{Nd}\ p{P}
+ * Regex that is all unicode letters, decimal numbers and punctuation
  */
 let regex = new RegExp("[\\p{L}\\p{Nd}\\p{P}]+", 'u')
