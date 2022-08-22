@@ -26,7 +26,11 @@ $(document).ready(() => {
             success: function (response) {
                 $(".sprintsContainer").slideUp(400, function () {
                     $(".sprintsContainer").empty()
-                    getSprints()
+                    getSprints(() => {
+                        refreshDeadlines(projectId);
+                        refreshMilestones(projectId);
+                        refreshEvents(projectId);
+                    })
                 })
                 createAlert("Sprint created!", false)
                 sendNotification("sprint", response.id, "create")
@@ -75,7 +79,14 @@ $(document).on("click", ".deleteSprint", function () {
             sendNotification("sprint", sprintId, "delete")
         },
     }).done(function () {
-        location.href = "portfolio?projectId=" + projectId
+        $(".sprintsContainer").slideUp(400, function () {
+            $(".sprintsContainer").empty()
+            getSprints(() => {
+                refreshDeadlines(projectId);
+                refreshMilestones(projectId);
+                refreshEvents(projectId);
+            })
+        })
     })
 })
 
