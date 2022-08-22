@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
@@ -63,6 +64,9 @@ class SkillsControllerTest {
 
     @MockBean
     private EvidenceRepository evidenceRepository;
+
+    @MockBean
+    private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
 
     private final Integer validUserId = 1;
     private final Integer nonExistentUserId = 2;

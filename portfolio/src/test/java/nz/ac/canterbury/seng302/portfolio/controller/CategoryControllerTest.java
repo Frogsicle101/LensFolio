@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -53,6 +54,8 @@ class CategoryControllerTest {
     @MockBean
     private GroupsClientService groupsClientService;
 
+    @MockBean
+    private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
 
     @Test
     void testGetEvidenceByCategoryWhenNoEvidence() throws Exception {

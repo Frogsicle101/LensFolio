@@ -1037,6 +1037,9 @@ class UserAccountsServerServiceTest {
         user5.addRole(UserRole.STUDENT);
         user6.addRole(UserRole.COURSE_ADMINISTRATOR);
         user6.addRole(UserRole.STUDENT);
+        user2.deleteRole(UserRole.STUDENT);
+        user3.deleteRole(UserRole.STUDENT);
+        user4.deleteRole(UserRole.STUDENT);
         userList.add(user1);
         userList.add(user2);
         userList.add(user3);
