@@ -7,6 +7,6 @@ describe('users per page', () => {
         cy.visit('/user-list')
         cy.get('#usersPerPageSelect')
             .select("20",{force: true})
-        cy.get(".tableStyled").find("tbody").find("tr").should('have.length', 20)
+        cy.get(".tableStyled").find("tbody").find(".userRoleRow").should('have.length', 20)
     })
 })
