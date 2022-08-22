@@ -18,12 +18,10 @@ import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -76,9 +74,7 @@ class PortfolioControllerTest {
 
     @InjectMocks
     private final PortfolioController portfolioController = new PortfolioController(sprintRepository,projectRepository,userAccountsClientService, regexService, portfolioService, checkDateService);
-    private final Integer validUserId = 1;
-    private final Integer nonExistentUserId = 2;
-    private final String invalidUserId = "Not an Id";
+
 
 
     @BeforeEach
@@ -93,17 +89,12 @@ class PortfolioControllerTest {
                 .setPersonalPronouns("Steve/Steve")
                 .setEmail("steve@example.com")
                 .setProfileImagePath("a");
-
-
         project = new Project("Project Seng302",
                 LocalDate.parse("2022-02-25"),
                 LocalDate.parse("2022-09-30"),
                 "SENG302 is all about putting all that you have learnt in" +
                         " other courses into a systematic development process to" +
                         " create software as a team.");
-
-
-
         userBuilder.addRoles(UserRole.TEACHER);
         UserResponse user = userBuilder.build();
         when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService)).thenReturn(user);
@@ -113,10 +104,7 @@ class PortfolioControllerTest {
         when(userAccountsClientService.register(any(UserRegisterRequest.class))).thenReturn(userRegisterResponse);
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
         when(projectRepository.findById(Mockito.any())).thenReturn(Optional.of(project));
-
-
     }
-
 
 
     @Test
@@ -307,7 +295,6 @@ class PortfolioControllerTest {
     @Test
     void testEditSprintBadSprintId(){
         Project project = new Project("Test Project");
-        Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
         SprintRequest sprintRequest = new SprintRequest("1", "testing", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
         Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.empty());
         Mockito.when(mockSprint.getProject()).thenReturn(project);
