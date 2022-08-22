@@ -2,7 +2,6 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.model.Group;
@@ -13,10 +12,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -26,32 +25,37 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class UserAccountsServerServiceTest {
 
-    @Autowired
-    UserRepository repository;
+    @Mock
+    private UserRepository userRepository;
 
-    @Autowired
-    GroupRepository groupRepository;
+    @Mock
+    private Environment env;
 
-    @Autowired
+    @Mock
+    private GroupRepository groupRepository;
+
     private UrlService urlService;
 
-    @Autowired
-    UserAccountsServerService service;
+    private UserAccountsServerService userAccountsServerService;
 
-    User user;
+    private User initialUser;
 
-    List<Group> defaultGroups = new ArrayList<>();
+    private UserResponse initialUserResponse;
 
-    @GrpcClient(value = "identity-provider-grpc-server")
-    private UserAccountServiceGrpc.UserAccountServiceBlockingStub userAccountStub;
+    private User postOperationUser;
+
+    private Group mwagGroup;
+
+    private Group teacherGroup;
+
+    private Group postOperationGroup;
 
 
     @BeforeEach
     void setUp() throws PasswordEncryptionException {
-        user = new User(
+        initialUser = new User(
                 "MySuperCoolUsername",
                 "password",
                 "test",
@@ -63,52 +67,93 @@ class UserAccountsServerServiceTest {
                 "test@example.com",
                 TimeService.getTimeStamp());
 
-        Group teacherGroup = new Group(1, "Teachers", "Teaching staff group");
-        Group MwagGroup = new Group(2, "Non-Group", "Members Without A Group");
+        teacherGroup = new Group(1, "Teachers", "Teaching staff group");
+        mwagGroup = new Group(2, "Non-Group", "Members Without A Group");
 
-        defaultGroups.add(teacherGroup);
-        defaultGroups.add(MwagGroup);
+        initialiseMocks();
+        urlService = new UrlService(env);
+        GroupService groupService = new GroupService(groupRepository, userRepository);
+        userAccountsServerService = new UserAccountsServerService(userRepository, env, groupService);
+
+        Mockito.when(groupRepository.findByShortName(mwagGroup.getShortName())).thenReturn(Optional.of(mwagGroup));
+        Mockito.when(groupRepository.findByShortName(teacherGroup.getShortName())).thenReturn(Optional.of(teacherGroup));
+        Mockito.when(groupRepository.findById(mwagGroup.getId())).thenReturn(Optional.of(mwagGroup));
+        Mockito.when(groupRepository.findById(teacherGroup.getId())).thenReturn(Optional.of(teacherGroup));
+
+        initialUserResponse = UserResponse.newBuilder()
+                .setUsername(initialUser.getUsername())
+                .setFirstName(initialUser.getFirstName())
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setNickname(initialUser.getNickname())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setEmail(initialUser.getEmail())
+                .setCreated(initialUser.getAccountCreatedTime())
+                .setId(initialUser.getId())
+                .setProfileImagePath(urlService.getProfileURL(initialUser).toString())
+                .addAllRoles(initialUser.getRoles())
+                .build();
+
+        Mockito.when(initialUser.userResponse()).thenReturn(initialUserResponse);
+    }
+
+
+    private void initialiseMocks() {
+        String defaultPhotoLocation = "src/main/resources/profile-photos/";
+        Mockito.when(env.getProperty("photoLocation", defaultPhotoLocation)).thenReturn(defaultPhotoLocation);
+
+        Mockito.when(env.getProperty("protocol", "http")).thenReturn("http");
+        Mockito.when(env.getProperty("hostName", "localhost")).thenReturn(defaultPhotoLocation);
+        Mockito.when(env.getProperty("port", "9001")).thenReturn("9001");
+        Mockito.when(env.getProperty("rootPath", "")).thenReturn("");
+
+
+        Mockito.when(userRepository.findById(initialUser.getId())).thenReturn(initialUser);
+        Mockito.when(userRepository.findByUsername(initialUser.getUsername())).thenReturn(initialUser);
+        Mockito.when(userRepository.findById(-1)).thenReturn(null);
     }
 
 
     @Test
     void removeExistingRoleFromUser() {
         //Add some roles to the user
-        user.addRole(UserRole.STUDENT);
-        user.addRole(UserRole.TEACHER);
-
-        repository.save(user);
+        initialUser.addRole(UserRole.STUDENT);
+        initialUser.addRole(UserRole.TEACHER);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(user.getId())
+                .setUserId(initialUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.removeRoleFromUser(request, responseObserver);
+        userAccountsServerService.removeRoleFromUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
-        User updatedUser = repository.findById(user.getId());
+        Mockito.verify(userRepository).save(userCaptor.capture());
+        postOperationUser = userCaptor.getValue();
 
         Assertions.assertTrue(response.getIsSuccess());
-        assertFalse(updatedUser.getRoles().contains(UserRole.TEACHER));
+        assertFalse(postOperationUser.getRoles().contains(UserRole.TEACHER));
+        assertTrue(postOperationUser.getRoles().contains(UserRole.STUDENT));
     }
 
 
     @Test
     void removeExistingRoleFromUserNoUserOfThatId() {
         //Add some roles to the user
-        user.addRole(UserRole.STUDENT);
-        user.addRole(UserRole.TEACHER);
+        initialUser.addRole(UserRole.STUDENT);
+        initialUser.addRole(UserRole.TEACHER);
 
-        repository.save(user);
+        Mockito.when(userRepository.findById(initialUser.getId())).thenReturn(initialUser);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
@@ -121,14 +166,14 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.removeRoleFromUser(request, responseObserver);
+        userAccountsServerService.removeRoleFromUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
         assertEquals("Could not find user", response.getMessage());
-        User updatedUser = repository.findById(user.getId());
+        User updatedUser = userRepository.findById(initialUser.getId());
         assertTrue(updatedUser.getRoles().contains(UserRole.TEACHER));
     }
 
@@ -136,13 +181,11 @@ class UserAccountsServerServiceTest {
     @Test
     void removeExistingRoleFromUserOnlyHasOneRole() {
         //Add some roles to the user
-        user.addRole(UserRole.STUDENT);
-
-        repository.save(user);
+        initialUser.addRole(UserRole.STUDENT);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.STUDENT)
-                .setUserId(user.getId())
+                .setUserId(initialUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -151,64 +194,65 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.removeRoleFromUser(request, responseObserver);
+        userAccountsServerService.removeRoleFromUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
+        Mockito.verify(userRepository, Mockito.never()).save(Mockito.any());
+
         assertFalse(response.getIsSuccess());
         assertEquals("The user can't have zero roles", response.getMessage());
-        User updatedUser = repository.findById(user.getId());
-        assertTrue(updatedUser.getRoles().contains(UserRole.STUDENT));
     }
 
 
     @Test
     void registerNewUser() {
-        groupRepository.deleteAll();
-        groupRepository.saveAll(defaultGroups);
-        repository.deleteAll();
         UserRegisterRequest.Builder request = UserRegisterRequest.newBuilder();
-        request.setUsername(user.getUsername())
-                .setPassword(user.getPwhash())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setEmail(user.getEmail())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setNickname(user.getNickname());
+        request.setUsername(initialUser.getUsername())
+                .setPassword(initialUser.getPwhash())
+                .setFirstName(initialUser.getFirstName())
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setEmail(initialUser.getEmail())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setNickname(initialUser.getNickname());
+
+        Mockito.when(userRepository.findByUsername(initialUser.getUsername())).thenReturn(null);
 
         StreamObserver<UserRegisterResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRegisterResponse> responseCaptor = ArgumentCaptor.forClass(UserRegisterResponse.class);
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.register(request.build(), responseObserver);
+        userAccountsServerService.register(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRegisterResponse response = responseCaptor.getValue();
 
+        Mockito.verify(userRepository).save(userCaptor.capture());
+        postOperationUser = userCaptor.getValue();
+
         assertTrue(response.getIsSuccess());
-        assertTrue(repository.existsById(response.getNewUserId()));
+        assertEquals(request.getUsername(), postOperationUser.getUsername());
     }
 
 
     @Test
     void registerNewUserUsernameInUse() {
-        repository.save(user);
-
         UserRegisterRequest.Builder request = UserRegisterRequest.newBuilder();
-        request.setUsername(user.getUsername())
-                .setPassword(user.getPwhash())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setEmail(user.getEmail())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setNickname(user.getNickname());
+        request.setUsername(initialUser.getUsername())
+                .setPassword(initialUser.getPwhash())
+                .setFirstName(initialUser.getFirstName())
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setEmail(initialUser.getEmail())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setNickname(initialUser.getNickname());
 
         StreamObserver<UserRegisterResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRegisterResponse> responseCaptor = ArgumentCaptor.forClass(UserRegisterResponse.class);
@@ -216,37 +260,35 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.register(request.build(), responseObserver);
+        userAccountsServerService.register(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRegisterResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
-        assertFalse(repository.existsById(response.getNewUserId()));
         assertEquals("Username already in use", response.getMessage());
     }
 
 
     @Test
     void getUserAccountById() {
-        repository.save(user);
 
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
-        request.setId(user.getId());
+        request.setId(initialUser.getId());
 
         UserResponse.Builder expectedObject = UserResponse.newBuilder();
 
-        expectedObject.setUsername(user.getUsername())
-                .setId(user.getId())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setNickname(user.getNickname())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime())
-                .setProfileImagePath(urlService.getProfileURL(user).toString()
+        expectedObject.setUsername(initialUser.getUsername())
+                .setId(initialUser.getId())
+                .setFirstName(initialUser.getFirstName())
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setNickname(initialUser.getNickname())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setEmail(initialUser.getEmail())
+                .setCreated(initialUser.getAccountCreatedTime())
+                .setProfileImagePath(urlService.getProfileURL(initialUser).toString()
                 );
         expectedObject.addRoles(UserRole.STUDENT);
 
@@ -256,7 +298,7 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.getUserAccountById(request.build(), responseObserver);
+        userAccountsServerService.getUserAccountById(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserResponse response = responseCaptor.getValue();
@@ -268,18 +310,18 @@ class UserAccountsServerServiceTest {
     @Test
     void editUser() {
         groupRepository.deleteAll();
-        repository.deleteAll();
-        repository.save(user);
+        userRepository.deleteAll();
+        userRepository.save(initialUser);
 
         EditUserRequest.Builder request = EditUserRequest.newBuilder();
-        request.setUserId(user.getId())
+        request.setUserId(initialUser.getId())
                 .setFirstName("Johnny")
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setNickname(user.getNickname())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail());
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setNickname(initialUser.getNickname())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setEmail(initialUser.getEmail());
 
         StreamObserver<EditUserResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<EditUserResponse> responseCaptor = ArgumentCaptor.forClass(EditUserResponse.class);
@@ -287,29 +329,29 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.editUser(request.build(), responseObserver);
+        userAccountsServerService.editUser(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         EditUserResponse response = responseCaptor.getValue();
 
         assertTrue(response.getIsSuccess());
-        assertEquals("Johnny", repository.findById(user.getId()).getFirstName());
+        assertEquals("Johnny", userRepository.findById(initialUser.getId()).getFirstName());
     }
 
 
     @Test
     void editUserNoUserOfThatId() {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         EditUserRequest.Builder request = EditUserRequest.newBuilder();
         request.setUserId(-1)
                 .setFirstName("Johnny")
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setNickname(user.getNickname())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail());
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setNickname(initialUser.getNickname())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setEmail(initialUser.getEmail());
 
         StreamObserver<EditUserResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<EditUserResponse> responseCaptor = ArgumentCaptor.forClass(EditUserResponse.class);
@@ -317,27 +359,27 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.editUser(request.build(), responseObserver);
+        userAccountsServerService.editUser(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         EditUserResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
         assertEquals("Could not find user to edit", response.getMessage());
-        assertEquals(user.getFirstName(), repository.findById(user.getId()).getFirstName());
+        assertEquals(initialUser.getFirstName(), userRepository.findById(initialUser.getId()).getFirstName());
     }
 
 
     @Test
     void changeUserPassword() throws PasswordEncryptionException {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
-        request.setUserId(user.getId())
+        request.setUserId(initialUser.getId())
                 .setCurrentPassword("password")
                 .setNewPassword("SuperSecurePassword");
 
-        String salt = user.getSalt();
+        String salt = initialUser.getSalt();
         LoginService encryptor = new LoginService();
         String expectedPassword = encryptor.getHash(request.getNewPassword(), salt);
 
@@ -347,26 +389,26 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.changeUserPassword(request.build(), responseObserver);
+        userAccountsServerService.changeUserPassword(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         ChangePasswordResponse response = responseCaptor.getValue();
 
         assertTrue(response.getIsSuccess());
-        assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
+        assertEquals(expectedPassword, userRepository.findById(initialUser.getId()).getPwhash());
     }
 
 
     @Test
     void changeUserPasswordIncorrectCurrentPassword() {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
-        request.setUserId(user.getId())
+        request.setUserId(initialUser.getId())
                 .setCurrentPassword("is this my password?")
                 .setNewPassword("SuperSecurePassword");
 
-        String expectedPassword = user.getPwhash();
+        String expectedPassword = initialUser.getPwhash();
 
         StreamObserver<ChangePasswordResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<ChangePasswordResponse> responseCaptor = ArgumentCaptor.forClass(ChangePasswordResponse.class);
@@ -374,27 +416,27 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.changeUserPassword(request.build(), responseObserver);
+        userAccountsServerService.changeUserPassword(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         ChangePasswordResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
         assertEquals("Incorrect current password provided" , response.getMessage());
-        assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
+        assertEquals(expectedPassword, userRepository.findById(initialUser.getId()).getPwhash());
     }
 
 
     @Test
     void changeUserPasswordNoUserOfThatId() {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
         request.setUserId(-1)
                 .setCurrentPassword("password")
                 .setNewPassword("SuperSecurePassword");
 
-        String expectedPassword = user.getPwhash();
+        String expectedPassword = initialUser.getPwhash();
 
         StreamObserver<ChangePasswordResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<ChangePasswordResponse> responseCaptor = ArgumentCaptor.forClass(ChangePasswordResponse.class);
@@ -402,24 +444,24 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.changeUserPassword(request.build(), responseObserver);
+        userAccountsServerService.changeUserPassword(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         ChangePasswordResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
         assertEquals("Could not find user" , response.getMessage());
-        assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
+        assertEquals(expectedPassword, userRepository.findById(initialUser.getId()).getPwhash());
     }
 
 
     @Test
     void addRoleToUser() {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(user.getId())
+                .setUserId(initialUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -428,20 +470,20 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.addRoleToUser(request, responseObserver);
+        userAccountsServerService.addRoleToUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
         assertTrue(response.getIsSuccess());
-        User updatedUser = repository.findById(user.getId());
+        User updatedUser = userRepository.findById(initialUser.getId());
         assertTrue(updatedUser.getRoles().contains(UserRole.TEACHER));
     }
 
 
     @Test
     void addRoleToUserNoUserOfThatId() {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
@@ -454,13 +496,13 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.addRoleToUser(request, responseObserver);
+        userAccountsServerService.addRoleToUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
-        User updatedUser = repository.findById(user.getId());
+        User updatedUser = userRepository.findById(initialUser.getId());
         assertFalse(updatedUser.getRoles().contains(UserRole.TEACHER));
         assertEquals("Could not find user", response.getMessage());
     }
@@ -468,12 +510,12 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUserAlreadyHasThatRole() {
-        user.addRole(UserRole.TEACHER);
-        repository.save(user);
+        initialUser.addRole(UserRole.TEACHER);
+        userRepository.save(initialUser);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(user.getId())
+                .setUserId(initialUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -482,7 +524,7 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.addRoleToUser(request, responseObserver);
+        userAccountsServerService.addRoleToUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
@@ -508,8 +550,8 @@ class UserAccountsServerServiceTest {
                 TimeService.getTimeStamp());
         //clear and repopulate repositories
         groupRepository.deleteAll();
-        repository.deleteAll();
-        User newSavedUser = repository.save(newUser);
+        userRepository.deleteAll();
+        User newSavedUser = userRepository.save(newUser);
 
         Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
         groupRepository.save(teachingGroup);
@@ -527,7 +569,7 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.addRoleToUser(request, responseObserver);
+        userAccountsServerService.addRoleToUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
@@ -561,9 +603,9 @@ class UserAccountsServerServiceTest {
                 TimeService.getTimeStamp());
         //clear and repopulate repositories
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         newUser.addRole(UserRole.TEACHER);
-        User newSavedUser = repository.save(newUser);
+        User newSavedUser = userRepository.save(newUser);
 
         Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
         teachingGroup.addGroupMember(newSavedUser);
@@ -583,7 +625,7 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.removeRoleFromUser(request, responseObserver);
+        userAccountsServerService.removeRoleFromUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
@@ -603,19 +645,16 @@ class UserAccountsServerServiceTest {
     @Test
     @Transactional
     void registerNewUserAddedToMwag() {
-        groupRepository.deleteAll();
-        groupRepository.saveAll(defaultGroups);
-        repository.deleteAll();
         UserRegisterRequest.Builder request = UserRegisterRequest.newBuilder();
-        request.setUsername(user.getUsername())
-                .setPassword(user.getPwhash())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setEmail(user.getEmail())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setNickname(user.getNickname());
+        request.setUsername(initialUser.getUsername())
+                .setPassword(initialUser.getPwhash())
+                .setFirstName(initialUser.getFirstName())
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setEmail(initialUser.getEmail())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setNickname(initialUser.getNickname());
 
         StreamObserver<UserRegisterResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRegisterResponse> responseCaptor = ArgumentCaptor.forClass(UserRegisterResponse.class);
@@ -623,7 +662,7 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.register(request.build(), responseObserver);
+        userAccountsServerService.register(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRegisterResponse response = responseCaptor.getValue();
@@ -636,7 +675,7 @@ class UserAccountsServerServiceTest {
         } else {
             fail("Members Without A Group not found");
         }
-        assertTrue(usersInMwagGroup.contains(user));
+        assertTrue(usersInMwagGroup.contains(initialUser));
     }
 
 
@@ -644,7 +683,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersFirstNameIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "firstname";
         Integer offset = 0;
         Integer limit = 6;
@@ -665,7 +704,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersFirstNameDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "firstname";
         Integer offset = 0;
         Integer limit = 6;
@@ -686,7 +725,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersMiddleNameIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "middlename";
         Integer offset = 0;
         Integer limit = 6;
@@ -707,7 +746,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersMiddleNameDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "middlename";
         Integer offset = 0;
         Integer limit = 6;
@@ -728,7 +767,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersLastNameIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "lastname";
         Integer offset = 0;
         Integer limit = 6;
@@ -749,7 +788,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersLastNameDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "lastname";
         Integer offset = 0;
         Integer limit = 6;
@@ -770,7 +809,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersUserNameIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "username";
         Integer offset = 0;
         Integer limit = 6;
@@ -791,7 +830,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersUserNameDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "username";
         Integer offset = 0;
         Integer limit = 6;
@@ -812,7 +851,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersNicknameIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "aliases";
         Integer offset = 0;
         Integer limit = 6;
@@ -833,7 +872,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersNicknameDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "aliases";
         Integer offset = 0;
         Integer limit = 6;
@@ -854,7 +893,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersRolesIncreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "roles";
         Integer offset = 0;
         Integer limit = 6;
@@ -875,7 +914,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersRolesDecreasing() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "roles";
         Integer offset = 0;
         Integer limit = 6;
@@ -896,7 +935,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersOffsetThree() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "firstname";
         Integer offset = 3;
         Integer limit = 6;
@@ -915,7 +954,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersOffsetMoreThanAmountUsers() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "firstname";
         Integer offset = 7;
         Integer limit = 6;
@@ -931,7 +970,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersLimitThree() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "firstname";
         Integer offset = 0;
         Integer limit = 3;
@@ -950,7 +989,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersLimitHigherThanAmountUsers() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "firstname";
         Integer offset = 0;
         Integer limit = 7;
@@ -972,7 +1011,7 @@ class UserAccountsServerServiceTest {
     @Transactional
     void getPaginatedUsersOffsetTwoLimitTwo() throws PasswordEncryptionException{
         groupRepository.deleteAll();
-        repository.deleteAll();
+        userRepository.deleteAll();
         String orderBy = "firstname";
         Integer offset = 2;
         Integer limit = 2;
@@ -1015,9 +1054,9 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onCompleted();
 
         List<User> usersList = createUsers();
-        repository.saveAll(usersList);
+        userRepository.saveAll(usersList);
 
-        service.getPaginatedUsers(request, responseObserver);
+        userAccountsServerService.getPaginatedUsers(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         return responseCaptor.getValue();
