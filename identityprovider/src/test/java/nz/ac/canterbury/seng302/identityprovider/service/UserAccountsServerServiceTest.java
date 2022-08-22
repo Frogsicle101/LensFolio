@@ -556,24 +556,25 @@ class UserAccountsServerServiceTest {
                 "steve/steve",
                 "steve@example.com",
                 TimeService.getTimeStamp());
+
         //clear and repopulate repositories
         newUser.addRole(UserRole.TEACHER);
-        User newSavedUser = userRepository.save(newUser);
-
-        Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
-        teachingGroup.addGroupMember(newSavedUser);
-        groupRepository.save(teachingGroup);
-
-        Group MwagGroup = new Group(2, "Non-Group", "Members without a group");
-        groupRepository.save(MwagGroup);
+        Mockito.when(userRepository.findAllById(List.of(newUser.getId()))).thenReturn(List.of(newUser));
+        Mockito.when(userRepository.findById(newUser.getId())).thenReturn(newUser);
+        // Since we want to add the teacher role without actually adding it, we'll mock the group repo
+        Group teacherGroup = new Group(1, "Teachers", "Teaching staff group");
+        teacherGroup.addGroupMember(newUser);
+        Mockito.when(groupRepository.findByShortName(teacherGroup.getShortName())).thenReturn(Optional.of(teacherGroup));
+        Mockito.when(groupRepository.findById(teacherGroup.getId())).thenReturn(Optional.of(teacherGroup));
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(newSavedUser.getId())
+                .setUserId(newUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
+        ArgumentCaptor<Group> groupArgumentCaptor = ArgumentCaptor.forClass(Group.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
@@ -583,15 +584,12 @@ class UserAccountsServerServiceTest {
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
+        Mockito.verify(groupRepository).save(groupArgumentCaptor.capture());
+        Group group = groupArgumentCaptor.getValue();
+        List<User> usersInTeachersGroup = group.getUserList();
+
         assertTrue(response.getIsSuccess());
-        Optional<Group> group = groupRepository.findByShortName("Teachers");
-        List<User> usersInTeachersGroup = null;
-        if (group.isPresent()) {
-            usersInTeachersGroup = group.get().getUserList();
-        } else {
-            fail("Teachers group not found");
-        }
-        assertFalse(usersInTeachersGroup.contains(newSavedUser));
+        assertFalse(usersInTeachersGroup.contains(newUser));
     }
 
 
