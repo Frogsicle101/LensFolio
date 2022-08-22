@@ -15,7 +15,6 @@ import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
 import nz.ac.canterbury.seng302.portfolio.service.PortfolioService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
-import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
@@ -28,7 +27,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -46,13 +44,9 @@ class PortfolioControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     private Project project;
-
-
-    private final AuthenticateClientService authenticateClientService  = mock(AuthenticateClientService.class);
+    private final AuthenticateClientService authenticateClientService = mock(AuthenticateClientService.class);
     private final UserAccountsClientService userAccountsClientService = mock(UserAccountsClientService.class);
-    private final GroupsClientService groupsClientService  = mock(GroupsClientService.class);
     private final SprintRepository sprintRepository = mock(SprintRepository.class);
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
     private final RegexService regexService = spy(RegexService.class);
@@ -73,8 +67,7 @@ class PortfolioControllerTest {
     );
 
     @InjectMocks
-    private final PortfolioController portfolioController = new PortfolioController(sprintRepository,projectRepository,userAccountsClientService, regexService, portfolioService, checkDateService);
-
+    private final PortfolioController portfolioController = new PortfolioController(sprintRepository, projectRepository, userAccountsClientService, regexService, portfolioService, checkDateService);
 
 
     @BeforeEach
@@ -108,7 +101,7 @@ class PortfolioControllerTest {
 
 
     @Test
-    void testGetPortfolio(){
+    void testGetPortfolio() {
         ModelAndView modelAndView = portfolioController.getPortfolio(principal, 1L);
         Assertions.assertTrue(modelAndView.hasView());
         Assertions.assertEquals("portfolio", modelAndView.getViewName());
@@ -133,7 +126,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testGetPortfolioRolesAreStudent(){
+    void testGetPortfolioRolesAreStudent() {
         setUserToStudent();
         ModelAndView modelAndView = portfolioController.getPortfolio(principal, 1L);
         Assertions.assertTrue(modelAndView.hasView());
@@ -142,7 +135,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testGetPortfolioRolesAreTeacherOrAbove(){
+    void testGetPortfolioRolesAreTeacherOrAbove() {
         ModelAndView modelAndView = portfolioController.getPortfolio(principal, 1L);
         Assertions.assertTrue(modelAndView.hasView());
         Assertions.assertEquals("portfolio", modelAndView.getViewName());
@@ -150,14 +143,14 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testGetEditProjectPage(){
+    void testGetEditProjectPage() {
         ModelAndView modelAndView = portfolioController.edit(principal, 1L);
         Assertions.assertTrue(modelAndView.hasView());
         Assertions.assertEquals("projectEdit", modelAndView.getViewName());
     }
 
     @Test
-    void testGetEditProjectPageNoProject(){
+    void testGetEditProjectPageNoProject() {
         when(projectRepository.findById(Mockito.any())).thenReturn(Optional.empty());
         ModelAndView modelAndView = portfolioController.edit(principal, 1L);
         Assertions.assertTrue(modelAndView.hasView());
@@ -165,7 +158,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testGetEditProjectPageThrowsException(){
+    void testGetEditProjectPageThrowsException() {
         when(projectRepository.findById(Mockito.any())).thenReturn(null);
         ModelAndView modelAndView = portfolioController.edit(principal, 1L);
         Assertions.assertTrue(modelAndView.hasView());
@@ -173,14 +166,14 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testEditProject(){
+    void testEditProject() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is2xxSuccessful());
     }
 
     @Test
-    void testEditProjectNoProject(){
+    void testEditProjectNoProject() {
         when(projectRepository.findById(Mockito.any())).thenReturn(Optional.empty());
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
@@ -188,7 +181,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testEditProjectThrowsException(){
+    void testEditProjectThrowsException() {
         when(projectRepository.findById(Mockito.any())).thenReturn(null);
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
@@ -196,7 +189,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testEditProjectNameTooLong(){
+    void testEditProjectNameTooLong() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name".repeat(400), LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
@@ -204,7 +197,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testEditProjectNameTooShort(){
+    void testEditProjectNameTooShort() {
         ProjectRequest projectRequest = new ProjectRequest("1", "", LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
@@ -212,7 +205,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testEditProjectDescriptionTooLong(){
+    void testEditProjectDescriptionTooLong() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description".repeat(400));
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
@@ -221,7 +214,7 @@ class PortfolioControllerTest {
 
 
     @Test
-    void testEditProjectNewStartDateToFarInPast(){
+    void testEditProjectNewStartDateToFarInPast() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().minusYears(2).toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
@@ -230,7 +223,7 @@ class PortfolioControllerTest {
 
 
     @Test
-    void testEditProjectNewEndDateIsBeforeSprintsEnd(){
+    void testEditProjectNewEndDateIsBeforeSprintsEnd() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().plusDays(1).toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         when(sprintRepository.findAllByProjectId(Mockito.any())).thenReturn(getSprints());
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
@@ -240,7 +233,7 @@ class PortfolioControllerTest {
 
 
     @Test
-    void testEditProjectNewStartDateIsAfterSprintsStart(){
+    void testEditProjectNewStartDateIsAfterSprintsStart() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().plusMonths(4).toString(), LocalDate.now().plusMonths(4).plusDays(4).toString(), "New Description");
         when(sprintRepository.findAllByProjectId(Mockito.any())).thenReturn(getSprints());
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
@@ -249,7 +242,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testEditProjectNewStartDateBeforeNewEndDate(){
+    void testEditProjectNewStartDateBeforeNewEndDate() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().toString(), LocalDate.now().minusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
@@ -257,13 +250,13 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testAddSprint(){
+    void testAddSprint() {
         ResponseEntity<Object> response = portfolioController.addSprint(project.getId());
         Assertions.assertTrue(response.getStatusCode().is2xxSuccessful());
     }
 
     @Test
-    void testAddSprintNoMoreRoom(){
+    void testAddSprintNoMoreRoom() {
         project = new Project("Project Seng302",
                 LocalDate.now(),
                 LocalDate.now().plusWeeks(2),
@@ -282,7 +275,7 @@ class PortfolioControllerTest {
 
 
     @Test
-    void testEditSprint(){
+    void testEditSprint() {
         Project project = new Project("Test Project");
         Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
         SprintRequest sprintRequest = new SprintRequest("1", "testing", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
@@ -293,7 +286,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testEditSprintBadSprintId(){
+    void testEditSprintBadSprintId() {
         Project project = new Project("Test Project");
         SprintRequest sprintRequest = new SprintRequest("1", "testing", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
         Mockito.when(sprintRepository.findById("1")).thenReturn(Optional.empty());
@@ -304,7 +297,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testEditSprintBadName(){
+    void testEditSprintBadName() {
         Project project = new Project("Test Project");
         Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
         SprintRequest sprintRequest = new SprintRequest("1", "", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
@@ -316,7 +309,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testEditSprintBadNameLong(){
+    void testEditSprintBadNameLong() {
         Project project = new Project("Test Project");
         Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
         SprintRequest sprintRequest = new SprintRequest("1", "test".repeat(400), LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
@@ -328,7 +321,7 @@ class PortfolioControllerTest {
     }
 
     @Test
-    void testEditSprintBadNameSpaces(){
+    void testEditSprintBadNameSpaces() {
         Project project = new Project("Test Project");
         Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
         SprintRequest sprintRequest = new SprintRequest("1", "       ", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
@@ -341,7 +334,7 @@ class PortfolioControllerTest {
 
 
     @Test
-    void testEditSprintDescriptionBadNameLong(){
+    void testEditSprintDescriptionBadNameLong() {
         Project project = new Project("Test Project");
         Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
         SprintRequest sprintRequest = new SprintRequest("1", "test", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing".repeat(400), "#fff");
@@ -354,7 +347,7 @@ class PortfolioControllerTest {
 
 
     @Test
-    void testEditSprintBadColourLong(){
+    void testEditSprintBadColourLong() {
         Project project = new Project("Test Project");
         Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
         SprintRequest sprintRequest = new SprintRequest("1", "test", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "123123123123");
@@ -367,7 +360,7 @@ class PortfolioControllerTest {
 
 
     @Test
-    void testEditSprintBadColour(){
+    void testEditSprintBadColour() {
         Project project = new Project("Test Project");
         Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
         SprintRequest sprintRequest = new SprintRequest("1", "test", LocalDate.now().toString(), LocalDate.now().plusDays(4).toString(), "testing", "#iii");
@@ -380,7 +373,7 @@ class PortfolioControllerTest {
 
 
     @Test
-    void testEditSprintStartDatesWrong(){
+    void testEditSprintStartDatesWrong() {
         Project project = new Project("Test Project");
         Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
         SprintRequest sprintRequest = new SprintRequest("1", "testing", LocalDate.now().minusDays(5).toString(), LocalDate.now().plusDays(4).toString(), "testing", "#fff");
@@ -393,7 +386,7 @@ class PortfolioControllerTest {
 
 
     @Test
-    void testEditSprintEndDatesWrong(){
+    void testEditSprintEndDatesWrong() {
         Project project = new Project("Test Project");
         Sprint sprint = new Sprint(project, "Testing", LocalDate.now());
         SprintRequest sprintRequest = new SprintRequest("1", "testing", LocalDate.now().toString(), LocalDate.now().plusDays(700).toString(), "testing", "#fff");
@@ -403,9 +396,6 @@ class PortfolioControllerTest {
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
         Assertions.assertEquals("End date is after next sprints start date / project end date", response.getBody());
     }
-
-
-
 
 
     // -------------- Helper context functions ----------------------------------------------------
@@ -439,7 +429,7 @@ class PortfolioControllerTest {
 
     private ArrayList<Sprint> getSprints() {
         Sprint sprint = new Sprint(project, "test", LocalDate.now().plusWeeks(1));
-        Sprint sprint2 = new Sprint(project,"test2", LocalDate.now().plusWeeks(1).plusMonths(1));
+        Sprint sprint2 = new Sprint(project, "test2", LocalDate.now().plusWeeks(1).plusMonths(1));
         ArrayList<Sprint> arrayList = new ArrayList<>();
         arrayList.add(sprint);
         arrayList.add(sprint2);
