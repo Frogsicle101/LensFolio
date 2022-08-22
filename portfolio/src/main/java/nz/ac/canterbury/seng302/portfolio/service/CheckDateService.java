@@ -26,7 +26,7 @@ public class CheckDateService {
      * @param sprintRepository The repository containing sprints which the date is checked against.
      * @return Whether the date is contained in any of the sprints for the given project.
      */
-    public static boolean dateIsInSprint(LocalDate dateToCheck, Project project, SprintRepository sprintRepository) {
+    public boolean dateIsInSprint(LocalDate dateToCheck, Project project, SprintRepository sprintRepository) {
         boolean isInSprint = false;
         for (Sprint sprint : sprintRepository.getAllByProjectOrderByStartDateAsc(project)) {
             if ((sprint.getStartDate().minusDays(1L).isBefore(dateToCheck)) && sprint.getEndDate().plusDays(1L).isAfter(dateToCheck)) {
@@ -44,7 +44,7 @@ public class CheckDateService {
      * @param project The project in question.
      * @param projectRequest The project request that contains all the proposed changes.
      */
-    public static void checkProjectAndItsSprintDates(SprintRepository sprintRepository, Project project, ProjectRequest projectRequest){
+    public void checkProjectAndItsSprintDates(SprintRepository sprintRepository, Project project, ProjectRequest projectRequest){
         List<Sprint> sprints = sprintRepository.findAllByProjectId(project.getId());
         sprints.sort((Comparator.comparing(Sprint::getStartDate)));
         LocalDate newProjectStart = LocalDate.parse(projectRequest.getProjectStartDate());
@@ -74,7 +74,7 @@ public class CheckDateService {
      * @param sprintRepository the repository for sprints
      * @param project the project in question
      */
-    public static void checkProjectHasRoomForSprints(SprintRepository sprintRepository, Project project) {
+    public void checkProjectHasRoomForSprints(SprintRepository sprintRepository, Project project) {
         LocalDate startDate = project.getStartDate();
         List<Sprint> sprints = sprintRepository.findAllByProjectId(project.getId());
         sprints.sort((Comparator.comparing(Sprint::getStartDate)));
@@ -86,7 +86,7 @@ public class CheckDateService {
         }
     }
 
-    public static void checkNewSprintDateNotInsideOtherSprints(LocalDate previousDateLimit, LocalDate nextDateLimit, SprintRequest sprintRequest){
+    public void checkNewSprintDateNotInsideOtherSprints(LocalDate previousDateLimit, LocalDate nextDateLimit, SprintRequest sprintRequest){
         LocalDate startDate = LocalDate.parse(sprintRequest.getSprintStartDate());
         LocalDate endDate = LocalDate.parse(sprintRequest.getSprintEndDate());
         if (startDate.isBefore(previousDateLimit)) {

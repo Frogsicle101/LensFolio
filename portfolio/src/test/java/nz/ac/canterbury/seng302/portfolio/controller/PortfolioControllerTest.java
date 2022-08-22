@@ -11,6 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
+import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
 import nz.ac.canterbury.seng302.portfolio.service.PortfolioService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
@@ -59,6 +60,7 @@ class PortfolioControllerTest {
     private final RegexService regexService = spy(RegexService.class);
     private final PortfolioService portfolioService = spy(PortfolioService.class);
     private final Sprint mockSprint = mock(Sprint.class);
+    private final CheckDateService checkDateService = spy(CheckDateService.class);
     @MockBean
     private SkillRepository skillRepository;
 
@@ -73,7 +75,7 @@ class PortfolioControllerTest {
     );
 
     @InjectMocks
-    private final PortfolioController portfolioController = new PortfolioController(sprintRepository,projectRepository,userAccountsClientService, regexService, portfolioService);
+    private final PortfolioController portfolioController = new PortfolioController(sprintRepository,projectRepository,userAccountsClientService, regexService, portfolioService, checkDateService);
     private final Integer validUserId = 1;
     private final Integer nonExistentUserId = 2;
     private final String invalidUserId = "Not an Id";

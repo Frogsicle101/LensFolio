@@ -41,6 +41,7 @@ public class PortfolioController {
   private final ProjectRepository projectRepository;
   private final RegexService regexService;
   private final PortfolioService portfolioService;
+  private final CheckDateService checkDateService;
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
   RegexPatterns regexPatterns = new RegexPatterns();
 
@@ -58,12 +59,14 @@ public class PortfolioController {
       ProjectRepository projectRepository,
       UserAccountsClientService userAccountsClientService,
       RegexService regexService,
-      PortfolioService portfolioService) {
+      PortfolioService portfolioService,
+      CheckDateService checkDateService) {
     this.projectRepository = projectRepository;
     this.sprintRepository = sprintRepository;
     this.userAccountsClientService = userAccountsClientService;
     this.regexService = regexService;
     this.portfolioService = portfolioService;
+    this.checkDateService = checkDateService;
   }
 
 
@@ -97,7 +100,7 @@ public class PortfolioController {
           (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)));
       LocalDate defaultOccasionDate =
           project.getStartDate(); // Today is in a sprint, the start of the project otherwise
-      if (CheckDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
+      if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
         defaultOccasionDate = LocalDate.now();
       }
       modelAndView.addObject("project", project);
@@ -179,7 +182,7 @@ public class PortfolioController {
       regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectName, 1, 50, "Project name");
       regexService.checkInput(
           RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description");
-      CheckDateService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
+      checkDateService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
       project.setName(editInfo.getProjectName());
       project.setStartDate(LocalDate.parse(editInfo.getProjectStartDate()));
       project.setEndDate(LocalDate.parse(editInfo.getProjectEndDate()));
@@ -216,7 +219,7 @@ public class PortfolioController {
       // Gets the amount of sprints belonging to the project
       int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
       String sprintName = "Sprint " + amountOfSprints;
-      CheckDateService.checkProjectHasRoomForSprints(sprintRepository, project);
+      checkDateService.checkProjectHasRoomForSprints(sprintRepository, project);
       if (project.getStartDate().plusWeeks(3).isAfter(project.getEndDate())) {
         sprintRepository.save(
             new Sprint(project, sprintName, project.getStartDate(), project.getEndDate()));
@@ -333,7 +336,7 @@ public class PortfolioController {
       }
       Sprint sprint = sprintOptional.get();
       Map<String, LocalDate> checkSprintDates = PortfolioService.checkNeighbourDatesForSprint(sprint, sprintRepository);
-      CheckDateService.checkNewSprintDateNotInsideOtherSprints(checkSprintDates.get("previousSprintEnd"), checkSprintDates.get("nextSprintStart"), sprintInfo);
+      checkDateService.checkNewSprintDateNotInsideOtherSprints(checkSprintDates.get("previousSprintEnd"), checkSprintDates.get("nextSprintStart"), sprintInfo);
       sprint.setName(sprintInfo.getSprintName());
       sprint.setStartDate(startDate);
       sprint.setEndDate(endDate);
