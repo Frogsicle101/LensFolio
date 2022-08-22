@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
@@ -29,14 +28,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @RunWith(MockitoJUnitRunner.class)
 class UserAccountsServerServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+    private final UserRepository userRepository = Mockito.mock(UserRepository.class);
 
-    @Mock
-    private Environment env;
+    private final Environment env = Mockito.mock(Environment.class);
 
-    @Mock
-    private GroupRepository groupRepository;
+    private final GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
 
     private UrlService urlService;
 
@@ -47,13 +43,6 @@ class UserAccountsServerServiceTest {
     private UserResponse initialUserResponse;
 
     private User postOperationUser;
-
-    private Group mwagGroup;
-
-    private Group teacherGroup;
-
-    private Group postOperationGroup;
-
 
     @BeforeEach
     void setUp() throws PasswordEncryptionException {
@@ -68,9 +57,10 @@ class UserAccountsServerServiceTest {
                 "test/test",
                 "test@example.com",
                 TimeService.getTimeStamp());
+        initialUser = Mockito.spy(initialUser);
 
-        teacherGroup = new Group(1, "Teachers", "Teaching staff group");
-        mwagGroup = new Group(2, "Non-Group", "Members Without A Group");
+        Group teacherGroup = new Group(1, "Teachers", "Teaching staff group");
+        Group mwagGroup = new Group(2, "Non-Group", "Members Without A Group");
 
         initialiseMocks();
         urlService = new UrlService(env);
@@ -82,22 +72,7 @@ class UserAccountsServerServiceTest {
         Mockito.when(groupRepository.findById(mwagGroup.getId())).thenReturn(Optional.of(mwagGroup));
         Mockito.when(groupRepository.findById(teacherGroup.getId())).thenReturn(Optional.of(teacherGroup));
 
-        initialUserResponse = UserResponse.newBuilder()
-                .setUsername(initialUser.getUsername())
-                .setFirstName(initialUser.getFirstName())
-                .setMiddleName(initialUser.getMiddleName())
-                .setLastName(initialUser.getLastName())
-                .setNickname(initialUser.getNickname())
-                .setBio(initialUser.getBio())
-                .setPersonalPronouns(initialUser.getPronouns())
-                .setEmail(initialUser.getEmail())
-                .setCreated(initialUser.getAccountCreatedTime())
-                .setId(initialUser.getId())
-                .setProfileImagePath(urlService.getProfileURL(initialUser).toString())
-                .addAllRoles(initialUser.getRoles())
-                .build();
-
-        Mockito.when(initialUser.userResponse()).thenReturn(initialUserResponse);
+        mockUserResponses(List.of(initialUser));
     }
 
 
@@ -106,7 +81,7 @@ class UserAccountsServerServiceTest {
         Mockito.when(env.getProperty("photoLocation", defaultPhotoLocation)).thenReturn(defaultPhotoLocation);
 
         Mockito.when(env.getProperty("protocol", "http")).thenReturn("http");
-        Mockito.when(env.getProperty("hostName", "localhost")).thenReturn(defaultPhotoLocation);
+        Mockito.when(env.getProperty("hostName", "localhost")).thenReturn("localhost");
         Mockito.when(env.getProperty("port", "9001")).thenReturn("9001");
         Mockito.when(env.getProperty("rootPath", "")).thenReturn("");
 
@@ -114,6 +89,7 @@ class UserAccountsServerServiceTest {
         Mockito.when(userRepository.findById(initialUser.getId())).thenReturn(initialUser);
         Mockito.when(userRepository.findByUsername(initialUser.getUsername())).thenReturn(initialUser);
         Mockito.when(userRepository.findById(-1)).thenReturn(null);
+        Mockito.when(userRepository.findAllById(List.of(initialUser.getId()))).thenReturn(List.of(initialUser));
     }
 
 
@@ -537,36 +513,15 @@ class UserAccountsServerServiceTest {
 
 
     @Test
-    @Transactional
-    void addTeacherRoleIsAddedToTeacherGroup() throws PasswordEncryptionException {
-        User newUser = new User(
-                "testuser",
-                "password",
-                "steve",
-                "steve",
-                "steve",
-                "steve",
-                "steve",
-                "steve/steve",
-                "steve@example.com",
-                TimeService.getTimeStamp());
-        //clear and repopulate repositories
-        groupRepository.deleteAll();
-        userRepository.deleteAll();
-        User newSavedUser = userRepository.save(newUser);
-
-        Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
-        groupRepository.save(teachingGroup);
-        Group MwagGroup = new Group(2, "Non-Group", "Members without a group");
-        groupRepository.save(MwagGroup);
-
+    void addTeacherRoleIsAddedToTeacherGroup() {
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(newSavedUser.getId())
+                .setUserId(initialUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
+        ArgumentCaptor<Group> groupArgumentCaptor = ArgumentCaptor.forClass(Group.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
@@ -576,22 +531,20 @@ class UserAccountsServerServiceTest {
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
+        Mockito.verify(groupRepository).save(groupArgumentCaptor.capture());
+        Group group = groupArgumentCaptor.getValue();
+
+        List<User> usersInTeachersGroup = group.getUserList();
+
         assertTrue(response.getIsSuccess());
-        Optional<Group> group = groupRepository.findByShortName("Teachers");
-        List<User> usersInTeachersGroup = null;
-        if (group.isPresent()) {
-            usersInTeachersGroup = group.get().getUserList();
-        } else {
-            fail("Teachers group not found");
-        }
-        assertTrue(usersInTeachersGroup.contains(newSavedUser));
+        assertEquals(1, usersInTeachersGroup.size());
+        assertTrue(usersInTeachersGroup.contains(initialUser));
     }
 
 
     @Test
     @Transactional
     void removeTeacherRoleIsRemovedFromTeacherGroup() throws PasswordEncryptionException {
-
         User newUser = new User(
                 "testuser",
                 "password",
@@ -604,8 +557,6 @@ class UserAccountsServerServiceTest {
                 "steve@example.com",
                 TimeService.getTimeStamp());
         //clear and repopulate repositories
-        groupRepository.deleteAll();
-        userRepository.deleteAll();
         newUser.addRole(UserRole.TEACHER);
         User newSavedUser = userRepository.save(newUser);
 
@@ -658,8 +609,12 @@ class UserAccountsServerServiceTest {
                 .setPersonalPronouns(initialUser.getPronouns())
                 .setNickname(initialUser.getNickname());
 
+        Mockito.when(userRepository.findByUsername(initialUser.getUsername())).thenReturn(null);
+
         StreamObserver<UserRegisterResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRegisterResponse> responseCaptor = ArgumentCaptor.forClass(UserRegisterResponse.class);
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        ArgumentCaptor<Group> groupCaptor = ArgumentCaptor.forClass(Group.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
@@ -669,15 +624,17 @@ class UserAccountsServerServiceTest {
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRegisterResponse response = responseCaptor.getValue();
 
+        Mockito.verify(userRepository).save(userCaptor.capture());
+        postOperationUser = userCaptor.getValue();
+
+        Mockito.verify(groupRepository).save(groupCaptor.capture());
+        Group group = groupCaptor.getValue();
+
+        List<User> usersInMwag = group.getUserList();
+
         assertTrue(response.getIsSuccess());
-        Optional<Group> group = groupRepository.findByShortName("Non-Group");
-        List<User> usersInMwagGroup = null;
-        if (group.isPresent()) {
-            usersInMwagGroup = group.get().getUserList();
-        } else {
-            fail("Members Without A Group not found");
-        }
-        assertTrue(usersInMwagGroup.contains(initialUser));
+        assertEquals(1, usersInMwag.size());
+        assertTrue(usersInMwag.contains(initialUser));
     }
 
 
@@ -705,8 +662,6 @@ class UserAccountsServerServiceTest {
     @Test
     @Transactional
     void getPaginatedUsersFirstNameDecreasing() throws PasswordEncryptionException{
-        groupRepository.deleteAll();
-        userRepository.deleteAll();
         String orderBy = "firstname";
         Integer offset = 0;
         Integer limit = 6;
@@ -1048,15 +1003,13 @@ class UserAccountsServerServiceTest {
         GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
                 .setPaginationRequestOptions(options)
                 .build();
+        createUsers();
 
         StreamObserver<PaginatedUsersResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<PaginatedUsersResponse> responseCaptor = ArgumentCaptor.forClass(PaginatedUsersResponse.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
-
-        List<User> usersList = createUsers();
-        userRepository.saveAll(usersList);
 
         userAccountsServerService.getPaginatedUsers(request, responseObserver);
 
@@ -1068,10 +1021,8 @@ class UserAccountsServerServiceTest {
     /**
      * A helper function to create the users used for testing. The fields are a mix of upper and lower case letters and
      * are in different orders to ensure that the sorting is working as expected
-     *
-     * @return A list of users to be saved to the repository
      */
-    private List<User> createUsers() throws PasswordEncryptionException {
+    private void createUsers() throws PasswordEncryptionException {
         List<User> userList = new ArrayList<>();
         User user1 = new User("SteveA", "password", "Stevea", "Stevensonb", "McSteveF", "KingSteved", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
         User user2 = new User("SteveB", "password", "SteveB", "StevensonA", "McSteveE", "KingStevee", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
@@ -1094,7 +1045,40 @@ class UserAccountsServerServiceTest {
         userList.add(user4);
         userList.add(user5);
         userList.add(user6);
-
-        return userList;
+        List<User> listOfUsers = userToSpy(userList);
+        Mockito.when(userRepository.findAll()).thenReturn(listOfUsers);
+        mockUserResponses(listOfUsers);
     }
+
+
+    private List<User> userToSpy(List<User> users) {
+        List<User> spies = new ArrayList<>();
+        for (User user : users) {
+            User spyOfUser = Mockito.spy(user);
+            spies.add(spyOfUser);
+        }
+        return spies;
+    }
+
+    private void mockUserResponses(List<User> users) {
+        for (User user : users) {
+            UserResponse userResponse = UserResponse.newBuilder()
+                    .setUsername(user.getUsername())
+                    .setFirstName(user.getFirstName())
+                    .setMiddleName(user.getMiddleName())
+                    .setLastName(user.getLastName())
+                    .setNickname(user.getNickname())
+                    .setBio(user.getBio())
+                    .setPersonalPronouns(user.getPronouns())
+                    .setEmail(user.getEmail())
+                    .setCreated(user.getAccountCreatedTime())
+                    .setId(user.getId())
+                    .setProfileImagePath(urlService.getProfileURL(user).toString())
+                    .addAllRoles(user.getRoles())
+                    .build();
+
+            Mockito.doReturn(userResponse).when(user).userResponse();
+        }
+    }
+
 }
