@@ -44,18 +44,18 @@ public class ProjectService {
     }
 
     /**
-     * Gets the max start date for a project. This will be null, unless the project includes sprints, in which case
-     * it will be the start date of the first sprint.
+     * Gets the max start date for a project. This will be the start date of the first sprint, or LocalDate.MAX if the
+     * project has no sprints.
      *
      * @return A LocalDate to be compared against
      */
     public LocalDate getMaxStartDate(Project project) {
         List<Sprint> sprintListStartDates = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
-        if (sprintListStartDates.size() > 0) {
+        if (!sprintListStartDates.isEmpty()) {
             Sprint sprint = sprintListStartDates.get(0);
             return sprint.getStartDate();
         } else {
-            return null;
+            return LocalDate.MAX;
         }
     }
 

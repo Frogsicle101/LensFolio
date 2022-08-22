@@ -10,6 +10,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepositor
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
+import nz.ac.canterbury.seng302.portfolio.service.ProjectService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
@@ -25,7 +26,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -53,6 +53,7 @@ class PortfolioControllerTest {
     private final SprintRepository sprintRepository = mock(SprintRepository.class);
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
     private final RegexService regexService = spy(RegexService.class);
+    private final ProjectService projectService = new ProjectService(projectRepository, sprintRepository);
     @MockBean
     private SkillRepository skillRepository;
 
@@ -67,7 +68,13 @@ class PortfolioControllerTest {
     );
 
     @InjectMocks
-    private final PortfolioController portfolioController = new PortfolioController(sprintRepository,projectRepository,userAccountsClientService, regexService);
+    private final PortfolioController portfolioController = new PortfolioController(
+            sprintRepository,
+            projectRepository,
+            userAccountsClientService,
+            regexService,
+            projectService
+    );
 
     private final Integer validUserId = 1;
     private final Integer nonExistentUserId = 2;
@@ -230,27 +237,28 @@ class PortfolioControllerTest {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().minusYears(2).toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Project cannot start more than a year before its original date", response.getBody());
+        Assertions.assertEquals("Project cannot start more than a year before today", response.getBody());
     }
 
 
     @Test
     void testEditProjectNewEndDateIsBeforeSprintsEnd(){
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().plusDays(1).toString(), LocalDate.now().plusDays(3).toString(), "New Description");
-        when(sprintRepository.findAllByProjectId(Mockito.any())).thenReturn(getSprints());
+        when(sprintRepository.getAllByProjectOrderByEndDateDesc(Mockito.any())).thenReturn(getSprints());
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
+        System.out.println(response.getStatusCode());
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("There is a sprint that falls after these new dates", response.getBody());
+        Assertions.assertEquals("There is a sprint that extends after that date", response.getBody());
     }
 
 
     @Test
     void testEditProjectNewStartDateIsAfterSprintsStart(){
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().plusMonths(4).toString(), LocalDate.now().plusMonths(4).plusDays(4).toString(), "New Description");
-        when(sprintRepository.findAllByProjectId(Mockito.any())).thenReturn(getSprints());
+        when(sprintRepository.getAllByProjectOrderByStartDateAsc(Mockito.any())).thenReturn(getSprints());
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("There is a sprint that falls before these new dates", response.getBody());
+        Assertions.assertEquals("There is a sprint that starts before that date", response.getBody());
     }
 
     @Test

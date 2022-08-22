@@ -3,21 +3,11 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.DeadlineRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.Event;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.EventRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepoRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepository;
-import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
-import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
@@ -46,31 +36,19 @@ import java.util.*;
 @Controller
 public class PortfolioController {
 
-    private UserAccountsClientService userAccountsClientService;
+    private final UserAccountsClientService userAccountsClientService;
 
     private final SprintRepository sprintRepository;
 
     private final ProjectRepository projectRepository;
-
-    private final EventRepository eventRepository;
-
-    private final DeadlineRepository deadlineRepository;
-
-    private final MilestoneRepository milestoneRepository;
-
-    private final GitRepoRepository gitRepoRepository;
-
-    private final EvidenceRepository evidenceRepository;
-
-    private final SkillRepository skillRepository;
-
-    private final WebLinkRepository webLinkRepository;
 
     private final ProjectService projectService;
 
     private final RegexService regexService;
 
     private static final String ERROR_MESSAGE = "errorMessage";
+    
+    private static final String ERROR_PAGE_LOCATION = ERROR_PAGE_LOCATION;
 
     private final CheckDateService checkDateService = new CheckDateService();
 
@@ -91,11 +69,14 @@ public class PortfolioController {
       SprintRepository sprintRepository,
       ProjectRepository projectRepository,
       UserAccountsClientService userAccountsClientService,
-      RegexService regexService) {
+      RegexService regexService,
+      ProjectService projectService
+  ) {
     this.projectRepository = projectRepository;
     this.sprintRepository = sprintRepository;
     this.userAccountsClientService = userAccountsClientService;
     this.regexService = regexService;
+    this.projectService = projectService;
   }
 
 
@@ -143,10 +124,10 @@ public class PortfolioController {
       return modelAndView;
     } catch (EntityNotFoundException err) {
       logger.error("GET REQUEST /portfolio", err);
-      return new ModelAndView("errorPage").addObject(ERROR_MESSAGE, err.getMessage());
+      return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err.getMessage());
     } catch (Exception err) {
       logger.error("GET REQUEST /portfolio", err);
-      return new ModelAndView("errorPage").addObject(ERROR_MESSAGE, err);
+      return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err);
     }
   }
 
@@ -196,10 +177,10 @@ public class PortfolioController {
 
         } catch (EntityNotFoundException err) {
             logger.error("GET REQUEST /editProject", err);
-            return new ModelAndView("errorPage").addObject(ERROR_MESSAGE, err);
+            return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err);
         } catch (Exception err) {
             logger.error("GET REQUEST /editProject", err);
-            return new ModelAndView("errorPage");
+            return new ModelAndView(ERROR_PAGE_LOCATION);
         }
     }
 
@@ -240,13 +221,14 @@ public class PortfolioController {
             if (projectStart.isBefore(projectService.getMinStartDate(project))) {
                 return new ResponseEntity<>("Project cannot start more than a year before today", HttpStatus.BAD_REQUEST);
             }
-
             if (projectStart.isAfter(projectService.getMaxStartDate(project))) {
                 return new ResponseEntity<>("There is a sprint that starts before that date", HttpStatus.BAD_REQUEST);
             }
-
             if (projectEnd.isBefore(projectService.getMinEndDate(project))) {
                 return new ResponseEntity<>("There is a sprint that extends after that date", HttpStatus.BAD_REQUEST);
+            }
+            if (projectEnd.isBefore(projectStart)) {
+                return new ResponseEntity<>("End date cannot be before start date", HttpStatus.BAD_REQUEST);
             }
 
             //Updates the project's details
