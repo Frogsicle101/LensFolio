@@ -61,7 +61,7 @@ public class PortfolioService {
      *
      * @param sprintRequest the SprintRequest to check
      */
-    public void checkSprintRequest(SprintRequest sprintRequest) throws CheckException{
+    public void checkSprintRequest(SprintRequest sprintRequest) throws CheckException {
         try {
             String sprintName = sprintRequest.getSprintName();
             LocalDate sprintStartDate = LocalDate.parse(sprintRequest.getSprintStartDate());
