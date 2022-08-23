@@ -7,7 +7,6 @@ import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +40,6 @@ public class GroupService {
      * @param groupRepository The repository containing the groups being managed by the group service.
      * @param userRepository The repository containing the users being managed by the group service.
      */
-    @Autowired
     public GroupService(GroupRepository groupRepository, UserRepository userRepository) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;

@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * The Server side gRPC service used to authenticate users, both attempting to login and
  * checking the status of a user, ie checking their authentication status.
- *
+ * <br>
  * This class was initially
  * provided by the university of canterbury and was then built upon.
  */
