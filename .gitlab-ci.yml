@@ -27,7 +27,6 @@ junit-porfolio:
   stage: test
   script:
     - cd portfolio
-    - ./gradlew clean
     - ./gradlew test
   except:
     - dev
@@ -36,10 +35,8 @@ junit-porfolio:
 
 junit-identityprovider:
   stage: test
-  variables: {}
   script:
     - cd identityprovider
-    - ./gradlew clean
     - ./gradlew test
   except:
     - dev
@@ -59,10 +56,8 @@ branch-build:
   stage: build
   script:
     - cd identityprovider
-    - ./gradlew clean
     - ./gradlew bootJar
     - cd ../portfolio
-    - ./gradlew clean
     - ./gradlew bootJar
   artifacts:
     paths:
