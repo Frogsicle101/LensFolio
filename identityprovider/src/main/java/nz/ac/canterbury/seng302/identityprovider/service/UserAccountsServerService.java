@@ -32,16 +32,13 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** The repository where Users details are stored. */
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     /** Provides access to environment variables. */
-    @Autowired
-    private Environment env;
+    private final Environment env;
 
     /** To edit group details related to users roles. */
-    @Autowired
-    private GroupService groupService;
+    private final GroupService groupService;
 
 
     // Repeat messages
@@ -95,8 +92,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         return userTwoPrecedence.compareTo(userOnePrecedence);
     };
 
-    public UserAccountsServerService() {}
-
 
     /**
      * Autowired constructor to inject the required beans.
@@ -105,6 +100,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      * @param env  - Gives access to the environment variables
      * @param groupService - For CRUD actions to do with groups.
      */
+    @Autowired
     public UserAccountsServerService(UserRepository userRepository, Environment env, GroupService groupService) {
        this.userRepository = userRepository;
        this.env = env;
