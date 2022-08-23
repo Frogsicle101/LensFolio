@@ -56,8 +56,10 @@ branch-build:
   stage: build
   script:
     - cd identityprovider
+    - ./gradlew clean
     - ./gradlew bootJar
     - cd ../portfolio
+    - ./gradlew clean
     - ./gradlew bootJar
   artifacts:
     paths:
