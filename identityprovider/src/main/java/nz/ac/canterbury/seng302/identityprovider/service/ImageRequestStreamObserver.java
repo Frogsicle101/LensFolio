@@ -19,8 +19,6 @@ import java.io.IOException;
 /**
  * Defines the StreamObserver<UploadUserProfilePhotoRequest> implementation used by the UserAccountsServerService for
  * uploading images.
- * <br>
- * @author Sam Clark
  */
 public class ImageRequestStreamObserver implements StreamObserver<UploadUserProfilePhotoRequest> {
 
