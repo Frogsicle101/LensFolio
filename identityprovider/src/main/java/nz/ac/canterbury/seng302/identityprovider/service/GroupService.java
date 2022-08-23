@@ -23,10 +23,12 @@ import java.util.Optional;
 public class GroupService {
 
     /** The repository containing the groups being managed by the group service. */
-    private final GroupRepository groupRepository;
+    @Autowired
+    private GroupRepository groupRepository;
 
     /** The repository containing the users being managed by the group service. */
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     /** For logging the requests related to groups. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -35,17 +37,17 @@ public class GroupService {
     private static final Integer TEACHERS_GROUP_ID = 1;
 
 
-    /**
-     * The default constructor for the group service.
-     *
-     * @param groupRepository The repository containing the groups being managed by the group service.
-     * @param userRepository The repository containing the users being managed by the group service.
-     */
-    @Autowired
-    public GroupService(GroupRepository groupRepository, UserRepository userRepository) {
-        this.groupRepository = groupRepository;
-        this.userRepository = userRepository;
-    }
+//    /**
+//     * The default constructor for the group service.
+//     *
+//     * @param groupRepository The repository containing the groups being managed by the group service.
+//     * @param userRepository The repository containing the users being managed by the group service.
+//     */
+//    @Autowired
+//    public GroupService(GroupRepository groupRepository, UserRepository userRepository) {
+//        this.groupRepository = groupRepository;
+//        this.userRepository = userRepository;
+//    }
 
 
     /**
