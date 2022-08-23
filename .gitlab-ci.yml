@@ -36,7 +36,6 @@ junit-porfolio:
 
 junit-identityprovider:
   stage: test
-  variables: {}
   script:
     - cd identityprovider
     - ./gradlew clean
