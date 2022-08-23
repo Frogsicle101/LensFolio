@@ -23,14 +23,22 @@ import java.util.*;
 @GrpcService
 public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase {
 
+    /** The group repository for adding, deleting, updating and retrieving groups. */
+    private GroupRepository groupRepository;
+
+    /** Provides helpful services for adding and removing users from groups. */
+    private GroupService groupService;
+
+
+
     /** For logging the requests related to groups. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /** The group repository for adding, deleting, updating and retrieving groups. */
-    private final GroupRepository groupRepository;
-
-    /** Provides helpful services for adding and removing users from groups. */
-    private final GroupService groupService;
+//    /** The group repository for adding, deleting, updating and retrieving groups. */
+//    private final GroupRepository groupRepository;
+//
+//    /** Provides helpful services for adding and removing users from groups. */
+//    private final GroupService groupService;
 
     private static final int MAX_SHORT_NAME_LENGTH = 50;
     private static final int MAX_LONG_NAME_LENGTH = 100;
@@ -45,12 +53,12 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     /** GroupMemberNumber Comparator */
     Comparator<Group> compareByMemberNumber = Comparator.comparing(Group::getMembersNumber);
 
-
-    @Autowired
-    public GroupsServerService(GroupRepository groupRepository, GroupService groupService) {
-        this.groupRepository = groupRepository;
-        this.groupService = groupService;
-    }
+//
+//    @Autowired
+//    public GroupsServerService(GroupRepository groupRepository, GroupService groupService) {
+//        this.groupRepository = groupRepository;
+//        this.groupService = groupService;
+//    }
 
 
     /**
