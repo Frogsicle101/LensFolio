@@ -1,4 +1,4 @@
-package nz.ac.canterbury.seng302.identityprovider;
+package nz.ac.canterbury.seng302.portfolio;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-class IdentityproviderApplicationTests {
+class PortfolioApplicationTest {
 
     @Test
     void contextLoads() {

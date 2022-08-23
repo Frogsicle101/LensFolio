@@ -1,4 +1,4 @@
-package nz.ac.canterbury.seng302.identityprovider.service;
+package nz.ac.canterbury.seng302.identityprovider.service.grpc;
 
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
@@ -7,6 +7,7 @@ import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.authentication.AuthenticationServerInterceptor;
 import nz.ac.canterbury.seng302.identityprovider.authentication.JwtTokenUtil;
+import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthenticateResponse;
@@ -19,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * The Server side gRPC service used to authenticate users, both attempting to login and
  * checking the status of a user, ie checking their authentication status.
- * <br>
+ *
  * This class was initially
  * provided by the university of canterbury and was then built upon.
  */

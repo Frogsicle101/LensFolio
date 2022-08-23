@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * Initialises the User and Group data used by the application.
  */
 @Service
-public class DataInitialisationManager {
+public class DataInitialisationManagerIdentityProvider {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -36,7 +36,7 @@ public class DataInitialisationManager {
      * @param testGroupData - The TestUserData service used for adding initial group data
      */
     @Autowired
-    public DataInitialisationManager(TestUserData testUserData, TestGroupData testGroupData) {
+    public DataInitialisationManagerIdentityProvider(TestUserData testUserData, TestGroupData testGroupData) {
         this.testUserData = testUserData;
         this.testGroupData = testGroupData;
     }

@@ -2,12 +2,14 @@ package nz.ac.canterbury.seng302.identityprovider.model;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 /**
  * Represents the repository which stores the groups' data.
  */
+@Repository
 public interface GroupRepository extends CrudRepository<Group, Integer> {
 
     /**

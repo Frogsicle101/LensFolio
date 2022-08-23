@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.identityprovider.model;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * Interface that defines how to interact with the database. Spring boot does the hard work under the hood
@@ -8,6 +9,7 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @see  <a href="https://spring.io/guides/gs/accessing-data-jpa">https://spring.io/guides/gs/accessing-data-jpa/</a>
  */
+@Repository
 public interface UserRepository extends CrudRepository <User, Integer> {
     /**
      * Gets a user object from the database using the ID.

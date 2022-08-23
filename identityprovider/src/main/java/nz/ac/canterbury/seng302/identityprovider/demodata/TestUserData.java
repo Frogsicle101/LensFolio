@@ -14,11 +14,21 @@ import org.springframework.stereotype.Service;
 public class TestUserData {
 
     /** Enables us to directly inject test users into the database*/
-    @Autowired
-    UserRepository repository;
+    private final UserRepository userRepository;
 
     /** Logs the applications' initialisation process */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+    /**
+     * Autowired constructor to inject the repositories.
+     *
+     * @param userRepository - The injected user repository bean.
+     */
+    @Autowired
+    public TestUserData(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
 
     /**
@@ -39,7 +49,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         admin.addRole(UserRole.COURSE_ADMINISTRATOR);
-        repository.save(admin);
+        userRepository.save(admin);
     }
 
 
@@ -65,7 +75,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.TEACHER);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "Robert.abe1989",
@@ -80,7 +90,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "finagle",
@@ -95,7 +105,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "Walter.harber",
@@ -110,7 +120,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "RonnieNick",
@@ -125,7 +135,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "Shirley.reilly",
@@ -140,7 +150,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "Katrina.Crawford",
@@ -155,7 +165,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "Eric.feest",
@@ -170,7 +180,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "elia_Shirley",
@@ -185,7 +195,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "Blackgod47",
@@ -200,7 +210,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "adrienne_m1987",
@@ -215,7 +225,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "gileadite",
@@ -230,7 +240,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "maximo.bec1970",
@@ -245,7 +255,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "marjory_kl1981",
@@ -260,7 +270,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "giles",
@@ -275,7 +285,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "wendy_mohr",
@@ -290,7 +300,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "verda",
@@ -305,7 +315,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "jamarcus",
@@ -320,7 +330,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "fidel",
@@ -335,7 +345,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "abdullah",
@@ -350,7 +360,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "immanuel.z1983",
@@ -365,7 +375,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "godfrey",
@@ -380,7 +390,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "tyler88",
@@ -395,7 +405,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "rubie.ocon2003",
@@ -410,7 +420,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "Josette",
@@ -425,7 +435,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "milan_stol1996",
@@ -440,7 +450,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "murl",
@@ -455,7 +465,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "sagedaniel",
@@ -470,7 +480,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "singlehandedly",
@@ -485,7 +495,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
 
         tempUser = new User(
                 "lavonne.do1975",
@@ -500,7 +510,7 @@ public class TestUserData {
                 TimeService.getTimeStamp()
         );
         tempUser.addRole(UserRole.STUDENT);
-        repository.save(tempUser);
+        userRepository.save(tempUser);
     }
 
 }
