@@ -18,19 +18,18 @@ import java.net.URL;
 public class UrlService {
 
     /** The environment variables which contain image path components */
+    private final Environment env;
+
+
+    /**
+     * Autowired constructor to inject the required environment variables
+     *
+     * @param env - an interface to retrieve the environment variables
+     */
     @Autowired
-    private Environment env;
-
-
-//    /**
-//     * Autowired constructor to inject the required environment variables
-//     *
-//     * @param env - an interface to retrieve the environment variables
-//     */
-//    @Autowired
-//    public UrlService(Environment env) {
-//        this.env = env;
-//    }
+    public UrlService(Environment env) {
+        this.env = env;
+    }
 
 
     /**
