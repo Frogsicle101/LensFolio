@@ -24,11 +24,12 @@ import java.util.*;
 public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase {
 
     /** The group repository for adding, deleting, updating and retrieving groups. */
+    @Autowired
     private GroupRepository groupRepository;
 
     /** Provides helpful services for adding and removing users from groups. */
+    @Autowired
     private GroupService groupService;
-
 
 
     /** For logging the requests related to groups. */
