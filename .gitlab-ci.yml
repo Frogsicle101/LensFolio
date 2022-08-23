@@ -27,6 +27,7 @@ junit-porfolio:
   stage: test
   script:
     - cd portfolio
+    - ./gradlew clean
     - ./gradlew test
   except:
     - dev
@@ -37,6 +38,7 @@ junit-identityprovider:
   stage: test
   script:
     - cd identityprovider
+    - ./gradlew clean
     - ./gradlew test
   except:
     - dev
