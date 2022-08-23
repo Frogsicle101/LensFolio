@@ -1083,7 +1083,11 @@ section {
     display: flex;
     flex-direction: row;
     box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+}
+
+.skillChip:hover{
     cursor: pointer;
+    background-color: lightcyan;
 }
 
 .categoryChip{
@@ -1154,20 +1158,6 @@ section {
     align-content: center;
     cursor: pointer;
 }
-
-
-.categoryListItem {
-    padding: 0.2rem 1rem 0.2rem;
-    position: relative;
-    margin: 0.2rem;
-    background-color: lightgoldenrodyellow;
-    border-radius: var(--border-radius);
-    display: flex;
-    flex-direction: row;
-    box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
-    cursor: pointer;
-}
-
 
 .evidenceTitle {
     text-align: center;

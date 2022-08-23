@@ -1,4 +1,4 @@
-let selectedSkill;
+let selectedChip;
 
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
@@ -32,7 +32,7 @@ function addSkillsToSideBar() {
     }
     for (let skill of skillsArray) {
         skillsContainer.append(`
-            <div class="skillListItem evidenceFilter ${skill === selectedSkill ? 'selectedSkill' : ''}"
+            <div class="skillListItem evidenceFilter ${skill === selectedChip ? 'selectedSkill' : ''}"
             id="SkillCalled${skill.replaceAll(" ", "_")}"> <!-- This ID has underscores instead of spaces  -->
             <p class="skillName">${skill.replaceAll("_", " ")}</p> 
             </div>
@@ -41,11 +41,14 @@ function addSkillsToSideBar() {
 }
 
 
+/**
+ * Adds the categories to the side bar of the evidence page to allow for easy navigation
+ */
 function addCategoriesToSidebar() {
     let categoriesList = $('#categoryList')
     for (let category of categoryArray) {
         categoriesList.append(`
-            <div class="categoryListItem evidenceFilter ${category === selectedSkill ? 'selectedSkill' : ''}">
+            <div class="categoryChip evidenceFilter ${category === selectedChip ? 'selectedSkill' : ''}">
             <p class="skillName skillChipText">${category}</p> 
             </div>
         `)
@@ -60,7 +63,7 @@ function addCategoriesToSidebar() {
 function showEvidenceWithSkill() {
     // Get all the pieces of evidence related to that skill
     $.ajax({
-        url: "evidenceLinkedToSkill?skillName=" + selectedSkill + "&userId=" + userBeingViewedId,
+        url: "evidenceLinkedToSkill?skillName=" + selectedChip + "&userId=" + userBeingViewedId,
         success: function (response) {
             addEvidencePreviews(response)
             updateSelectedEvidence()
@@ -79,7 +82,7 @@ function showEvidenceWithSkill() {
 function showEvidenceWithCategory() {
     // Get all the pieces of evidence related to that skill
     $.ajax({
-        url: "evidenceLinkedToCategory?category=" + selectedSkill + "&userId=" + userBeingViewedId,
+        url: "evidenceLinkedToCategory?category=" + selectedChip + "&userId=" + userBeingViewedId,
         success: function (response) {
             addEvidencePreviews(response)
             updateSelectedEvidence()
@@ -91,6 +94,9 @@ function showEvidenceWithCategory() {
 }
 
 
+/**
+ * Updated which piece of evidence is currently selected
+ */
 function updateSelectedEvidence() {
     let previouslySelectedDiv = $(".selectedEvidence")
     previouslySelectedDiv.removeClass("selectedEvidence")
@@ -118,38 +124,17 @@ $(document).on("click", ".skillListItem" , function () {
     previouslySelectedDiv.removeClass("selectedSkill")
 
     $(this).addClass("selectedSkill")
-    selectedSkill = $(this).find('.skillName').text()
+    selectedChip = $(this).find('.skillName').text()
 
     let title = $(document).find(".evidenceTitle").first()
-    title.text(selectedSkill)
+    title.text(selectedChip)
 
     showEvidenceWithSkill()
 })
 
 
 /**
- * When a skill div in the sidebar is clicked, it becomes selected and is displays all evidence with that skill.
- *
- * There are 3 steps to this:
- *    1. remove the selected class from the previously selected div.
- *    2. Add the selected class to the clicked div, and assign it as selected
- *    3. Populate the display with the selected evidence details.
- */
-$(document).on("click", ".categoryListItem" , function () {
-    let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
-    previouslySelectedDiv.removeClass("selectedSkill")
-
-    selectedSkill = $(this).find('.skillName').text()
-
-    let title = $(document).find(".evidenceTitle").first()
-    title.text(selectedSkill)
-
-    showEvidenceWithCategory()
-})
-
-
-/**
- * When a skill div in the sidebar is clicked, it becomes selected and is displays all evidence with that skill.
+ * When a category div in the sidebar is clicked, it becomes selected and is displays all evidence with that category.
  *
  * There are 3 steps to this:
  *    1. remove the selected class from the previously selected div.
@@ -160,10 +145,10 @@ $(document).on("click", ".categoryChip" , function () {
     let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
     previouslySelectedDiv.removeClass("selectedSkill")
 
-    selectedSkill = $(this).find('.skillChipText').text()
+    selectedChip = $(this).find('.skillChipText').text()
 
     let title = $(document).find(".evidenceTitle").first()
-    title.text(selectedSkill)
+    title.text(selectedChip)
 
     showEvidenceWithCategory()
 })
@@ -183,13 +168,12 @@ $(document).on("click", ".skillChip" , function () {
     let previouslySelectedDiv = $(document).find(".selectedSkill").first()
     previouslySelectedDiv.removeClass("selectedSkill")
 
-    selectedSkill = $(this).find('.skillChipText').text()
-    let skillId = "#SkillCalled" + selectedSkill.replaceAll(" ", "_") // The ID has underscores instead of spaces
-    console.log(skillId)
+    selectedChip = $(this).find('.skillChipText').text()
+    let skillId = "#SkillCalled" + selectedChip.replaceAll(" ", "_") // The ID has underscores instead of spaces
     $(document).find(skillId).addClass("selectedSkill")
 
     let title = $(document).find(".evidenceTitle").first()
-    title.text(selectedSkill)
+    title.text(selectedChip)
     showEvidenceWithSkill()
 })
 
