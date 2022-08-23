@@ -23,9 +23,10 @@ class GroupTest {
     private GroupRepository groupRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserRepository repository;
 
-    private TestGroupData testGroupData;
+    @InjectMocks
+    private TestGroupData testGroupData = Mockito.spy(TestGroupData.class);
 
     private final List<User> userList = new ArrayList<>();
 
@@ -33,7 +34,6 @@ class GroupTest {
     @BeforeEach
     void setup() throws PasswordEncryptionException {
         MockitoAnnotations.openMocks(this);
-        testGroupData = new TestGroupData(userRepository, groupRepository);
 
         User test1 = new User(
                 "test1",
@@ -112,7 +112,7 @@ class GroupTest {
 
     @Test
     void TestAddDefaultGroups() {
-        Mockito.when(userRepository.findAll()).thenReturn(userList);
+        Mockito.when(repository.findAll()).thenReturn(userList);
         Mockito.when(groupRepository.findByShortName("Teachers")).thenReturn(java.util.Optional.of(new Group(0, "Teachers", "Teaching Staff")));
         Mockito.when(groupRepository.findByShortName("Non-Group")).thenReturn(java.util.Optional.of(new Group(1, "Non-Group", "Members Without A Group")));
         ArgumentCaptor<Group> groupArgumentCaptor = ArgumentCaptor.forClass(Group.class);

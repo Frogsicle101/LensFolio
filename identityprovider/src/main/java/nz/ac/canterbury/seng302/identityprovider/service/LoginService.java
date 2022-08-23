@@ -24,7 +24,7 @@ public class LoginService {
     /**
      * Enum to store different possible outcomes of attempting to log in
      */
-    public enum LoginStatus {
+    enum LoginStatus {
         VALID,
         USER_INVALID,
         PASSWORD_INVALID

@@ -1,4 +1,4 @@
-package nz.ac.canterbury.seng302.identityprovider.service.grpc;
+package nz.ac.canterbury.seng302.identityprovider.service;
 
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
@@ -6,7 +6,6 @@ import net.devh.boot.grpc.server.service.GrpcService;
 import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.Group;
 import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
-import nz.ac.canterbury.seng302.identityprovider.service.GroupService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import nz.ac.canterbury.seng302.shared.util.PaginationResponseOptions;
@@ -27,10 +26,12 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** The group repository for adding, deleting, updating and retrieving groups. */
-    private final GroupRepository groupRepository;
+    @Autowired
+    private GroupRepository groupRepository;
 
     /** Provides helpful services for adding and removing users from groups. */
-    private final GroupService groupService;
+    @Autowired
+    private GroupService groupService;
 
     private static final int MAX_SHORT_NAME_LENGTH = 50;
     private static final int MAX_LONG_NAME_LENGTH = 100;
@@ -44,13 +45,6 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
 
     /** GroupMemberNumber Comparator */
     Comparator<Group> compareByMemberNumber = Comparator.comparing(Group::getMembersNumber);
-
-
-    @Autowired
-    public GroupsServerService(GroupRepository groupRepository, GroupService groupService) {
-        this.groupRepository = groupRepository;
-        this.groupService = groupService;
-    }
 
 
     /**
@@ -152,22 +146,15 @@ public class GroupsServerService extends GroupsServiceGrpc.GroupsServiceImplBase
             boolean validModification = checkIfValidGroupModification(request, response);
 
             if (validModification) {
-                Optional<Group> optionalGroup = groupRepository.findById(request.getGroupId());
-                if (optionalGroup.isEmpty()) {
-                    logger.error("Unable to modify group {}, group doesn't exist", request.getGroupId());
-                    response.setIsSuccess(false)
-                            .setMessage("Unable to edit the group. Group doesn't exist");
-                } else {
-                    Group group = optionalGroup.get();
+                Group group = groupRepository.findById(request.getGroupId()).get();
 
-                    group.setShortName(request.getShortName());
-                    group.setLongName(request.getLongName());
-                    groupRepository.save(group);
+                group.setShortName(request.getShortName());
+                group.setLongName(request.getLongName());
+                groupRepository.save(group);
 
-                    response.setIsSuccess(true)
-                            .setMessage("Successfully updated details for " + group.getShortName());
-                    logger.info("Group Modify Success - updated group details for group {}", request.getGroupId());
-                }
+                response.setIsSuccess(true)
+                        .setMessage("Successfully updated details for " + group.getShortName());
+                logger.info("Group Modify Success - updated group details for group {}", request.getGroupId());
             }
         } catch (Exception err) {
             logger.error("An error occurred editing modify group request: {} \n See stack trace below \n", request );

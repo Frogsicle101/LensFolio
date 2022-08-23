@@ -14,21 +14,11 @@ import org.springframework.stereotype.Service;
 public class TestUserData {
 
     /** Enables us to directly inject test users into the database*/
-    private final UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
     /** Logs the applications' initialisation process */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-
-    /**
-     * Autowired constructor to inject the repositories.
-     *
-     * @param userRepository - The injected user repository bean.
-     */
-    @Autowired
-    public TestUserData(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
 
     /**

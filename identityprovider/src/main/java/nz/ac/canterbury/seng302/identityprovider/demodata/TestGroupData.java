@@ -18,26 +18,15 @@ import java.util.Optional;
 public class TestGroupData {
 
     /** The repository containing all users */
-    private final UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
     /** The repository containing all groups */
-    private final GroupRepository groupRepository;
+    @Autowired
+    GroupRepository groupRepository;
 
     /** to log the adding of test data */
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-
-    /**
-     * Autowired constructor to inject the repositories.
-     *
-     * @param userRepository - The injected user repository bean.
-     * @param groupRepository - The injected group repository bean.
-     */
-    @Autowired
-    public TestGroupData(UserRepository userRepository, GroupRepository groupRepository) {
-        this.userRepository = userRepository;
-        this.groupRepository = groupRepository;
-    }
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     /**

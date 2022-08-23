@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
-import nz.ac.canterbury.seng302.identityprovider.demodata.DataInitialisationManagerIdentityProvider;
+import nz.ac.canterbury.seng302.identityprovider.demodata.DataInitialisationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,7 +15,7 @@ public class IdentityProviderApplication {
 
     /** Initialised the test and setup data for the IdP */
     @Autowired
-    DataInitialisationManagerIdentityProvider dataInitialiser;
+    DataInitialisationManager dataInitialiser;
 
     /**
      * Initialises test data when the boolean variables are true

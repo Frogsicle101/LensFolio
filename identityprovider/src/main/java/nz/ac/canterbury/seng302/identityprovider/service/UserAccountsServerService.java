@@ -1,11 +1,10 @@
-package nz.ac.canterbury.seng302.identityprovider.service.grpc;
+package nz.ac.canterbury.seng302.identityprovider.service;
 
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
-import nz.ac.canterbury.seng302.identityprovider.service.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;

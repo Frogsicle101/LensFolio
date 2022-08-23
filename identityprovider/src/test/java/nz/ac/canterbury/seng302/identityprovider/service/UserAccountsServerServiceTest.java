@@ -6,7 +6,6 @@ import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.model.Group;
 import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
-import nz.ac.canterbury.seng302.identityprovider.service.grpc.UserAccountsServerService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;

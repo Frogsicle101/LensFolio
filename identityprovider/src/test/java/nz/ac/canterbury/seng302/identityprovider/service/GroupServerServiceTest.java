@@ -7,7 +7,6 @@ import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.model.Group;
 import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
-import nz.ac.canterbury.seng302.identityprovider.service.grpc.GroupsServerService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;
@@ -30,16 +29,15 @@ class GroupServerServiceTest {
 
     private final UserRepository userRepository = Mockito.mock(UserRepository.class);
 
-    private GroupService groupService;
+    @InjectMocks
+    private GroupsServerService groupsServerService = new GroupsServerService();
 
-    private GroupsServerService groupsServerService;
+    @Mock
+    private GroupService groupService = new GroupService(groupRepository, userRepository);
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        groupService = new GroupService(groupRepository, userRepository);
-        groupService = spy(groupService);
-        groupsServerService = new GroupsServerService(groupRepository, groupService);
     }
 
     // ------------------------------------------ Test createGroup -----------------------------------------------------
@@ -165,7 +163,6 @@ class GroupServerServiceTest {
         StreamObserver<DeleteGroupResponse> responseObserver = Mockito.mock(StreamObserver.class);
         Mockito.when(groupRepository.existsById(1)).thenReturn(true);
         Mockito.when(groupRepository.getGroupById(Mockito.any())).thenReturn(new Group("Test", "Test"));
-        Mockito.when(groupRepository.findById(Mockito.any())).thenReturn(Optional.of(new Group("Test", "Test")));
         Mockito.doNothing().when(groupRepository).deleteById(1);
         ArgumentCaptor<DeleteGroupResponse> responseCaptor = ArgumentCaptor.forClass(DeleteGroupResponse.class);
 
@@ -489,9 +486,9 @@ class GroupServerServiceTest {
         ArgumentCaptor<RemoveGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(RemoveGroupMembersResponse.class);
         RemoveGroupMembersRequest request = RemoveGroupMembersRequest.newBuilder().build();
 
+        Mockito.doNothing().when(groupService).removeGroupMembers(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
-        Mockito.doNothing().when(groupService).removeGroupMembers(Mockito.any(), Mockito.any());
 
         groupsServerService.removeGroupMembers(request, responseObserver);
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
@@ -518,12 +515,12 @@ class GroupServerServiceTest {
 
 
     @Test
-    void addGroupMembersTest() throws Exception {
+    void addGroupMembersTest() {
         StreamObserver<AddGroupMembersResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<AddGroupMembersResponse> responseCaptor = ArgumentCaptor.forClass(AddGroupMembersResponse.class);
         AddGroupMembersRequest request = AddGroupMembersRequest.newBuilder().build();
 
-        Mockito.doNothing().when(groupService).addGroupMembers(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(groupService).removeGroupMembers(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
