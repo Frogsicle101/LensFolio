@@ -1,4 +1,4 @@
-package nz.ac.canterbury.seng302.portfolio.repositories;
+package nz.ac.canterbury.seng302.portfolio;
 
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
