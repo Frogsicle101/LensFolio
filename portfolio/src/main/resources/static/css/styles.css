@@ -714,9 +714,10 @@ section {
     cursor: pointer;
 }
 
-.selected {
-    background-color: var(--main-border-colour);
+#groupTableBody .ui-selected {
+    background-color: var(--main-border-colour)
 }
+
 
 .colourForDrag {
     background-color: var(--main-border-colour);
@@ -1224,4 +1225,5 @@ section {
     padding-top: 0.5rem;
     margin-bottom: 0;
 }
+
 
