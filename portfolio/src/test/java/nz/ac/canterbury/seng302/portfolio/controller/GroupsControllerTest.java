@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.PortfolioApplication;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
@@ -57,6 +58,9 @@ class GroupsControllerTest {
 
     @MockBean
     GroupService groupService;
+
+    @MockBean
+    private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
 
 
     @Test

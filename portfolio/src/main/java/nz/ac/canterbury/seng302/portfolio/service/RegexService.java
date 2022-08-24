@@ -65,4 +65,5 @@ public class RegexService {
             throw new CheckException(inputName + " is longer than the maximum length");
         }
     }
+
 }

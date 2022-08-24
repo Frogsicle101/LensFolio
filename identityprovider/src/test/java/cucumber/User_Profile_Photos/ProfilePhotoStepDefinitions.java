@@ -54,9 +54,7 @@ public class ProfilePhotoStepDefinitions {
 
     @Before
     public void setup() {
-        urlService = new UrlService();
 
-        ReflectionTestUtils.setField(urlService, "env", mockEnv);
 
         mockEnv = mock(Environment.class);
         when(mockEnv.getProperty("photoLocation", "src/main/resources/profile-photos/"))
@@ -67,7 +65,7 @@ public class ProfilePhotoStepDefinitions {
         when(mockEnv.getProperty("port", "9001")).thenReturn("9001");
         when(mockEnv.getProperty("rootPath", "")).thenReturn("");
 
-        ReflectionTestUtils.setField(urlService, "env", mockEnv);
+        urlService = new UrlService(mockEnv);
     }
 
     @Given("I am logged in as user id {int}")

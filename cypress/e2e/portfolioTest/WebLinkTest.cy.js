@@ -14,9 +14,9 @@ context("WebLinkTest", () => {
 
         for (let i = 1; i < 11; i++) {
             cy.get('.addWebLinkButton').click();
-            cy.get('#webLinkUrl')
+            cy.get('#webLinkUrl').wait(500)
                 .type('https://www.canterbury.ac.nz/')
-            cy.get('#webLinkName')
+            cy.get('#webLinkName').wait(500)
                 .type('WebLink ' + i.toString())
             cy.get('.addWebLinkButton').click();
         }
