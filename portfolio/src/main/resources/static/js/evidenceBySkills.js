@@ -164,7 +164,7 @@ $(document).on("click", ".categoryChip" , function () {
  *    2. Add the selected class to the clicked div, and assign it as selected
  *    3. Populate the display with the selected evidence details.
  */
-$(document).on("click", ".skillChip" , function () {
+$(document).on("click", ".skillChip" , function (e) {
     let previouslySelectedDiv = $(document).find(".selectedSkill").first()
     previouslySelectedDiv.removeClass("selectedSkill")
 
@@ -174,7 +174,10 @@ $(document).on("click", ".skillChip" , function () {
 
     let title = $(document).find(".evidenceTitle").first()
     title.text(selectedChip)
+
     showEvidenceWithSkill()
+
+    e.stopPropagation() //prevent evidence below chip from being selected
 })
 
 
