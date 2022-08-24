@@ -109,7 +109,7 @@ function appendSprint(springObject, index) {
                 <p class="sprintEnd" style="display: none">${springObject.endDate}</p>
                 <p class="sprintLabel" >Sprint ${index}</p>
                 <div class="mb3">
-                    <h2 class="sprintName">${springObject.name}</h2>
+                    <h2 class="name">${springObject.name}</h2>
                 </div>
                 <div class="row">
                     <div class="col">

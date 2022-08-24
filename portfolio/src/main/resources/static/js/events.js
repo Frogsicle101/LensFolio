@@ -1285,7 +1285,10 @@ function enableToolTips() {
 }
 
 
-// todo
+/**
+ * A helper function to display a live edit notification. This checks if a user has edit privileges and if they are
+ * not the user that made the change.
+ */
 function displayLiveUpdateMessage(message, editorId){
     if (checkPrivilege){
         if (editorId != userIdent){
@@ -1355,10 +1358,6 @@ function handleUpdateEvent(notification) {
         case "sprint" :
             $(".sprintsContainer").empty()
             getSprints()
-            eventDiv = $("#" + occasionId)
-            console.log(occasionId)
-            eventName = eventDiv.find(".sprintLabel");
-            console.log(eventDiv.find(".sprintName"))
             break
         default :
             // Add debug log here
