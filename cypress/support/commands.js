@@ -31,12 +31,20 @@
  * This is more efficient than logging-in through the user interface.
  */
 Cypress.Commands.add('adminLogin', () => {
-    cy.visit(`${Cypress.env('baseUrl')}/login`)
+    cy.visit("/login")
     cy.get('#username')
         .type("admin")
     cy.get('#password')
         .type(`password{enter}`) //add password and submit form
+
+    cy.getCookie('lens-session-token')
+        .should('exist')
+        .then((c) => {
+            // save cookie until we need it
+            cy.setCookie('lens-session-token', c.value)
+        })
 })
+
 
 /**
  * Logs into a student account.
@@ -44,7 +52,7 @@ Cypress.Commands.add('adminLogin', () => {
  * This is more efficient than logging-in through the user interface.
  */
 Cypress.Commands.add('studentLogin', () => {
-    cy.visit(`${Cypress.env('baseUrl')}/login`)
+    cy.visit("/login")
     cy.get('#username')
         .type("Walter.harber")
     cy.get('#password')

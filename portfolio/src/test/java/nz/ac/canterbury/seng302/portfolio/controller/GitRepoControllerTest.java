@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.PortfolioApplication;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
 import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepoRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepository;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
@@ -57,6 +58,9 @@ class GitRepoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
 
 
     @Test

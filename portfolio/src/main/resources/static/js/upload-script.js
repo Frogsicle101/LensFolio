@@ -2,6 +2,16 @@ $(document).ready(() => {
     $(".backButton").click(function () {
         location.href = "account"
     })
+
+    $(".deleteProfilePhotoButton").on("click", () => {
+        $.ajax({
+            url: "deleteProfileImg",
+            type: "DELETE",
+            success: function () {
+                location.reload()
+            }
+        })
+    });
 })
 
 

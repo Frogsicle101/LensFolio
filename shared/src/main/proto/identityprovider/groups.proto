@@ -3,6 +3,7 @@ syntax = "proto3";
 package nz.ac.canterbury.seng302;
 import "identityprovider/user_accounts.proto";
 import "util/validation_error.proto";
+import "util/pagination.proto";
 import "google/protobuf/empty.proto";
 
 option java_multiple_files = true;
@@ -74,15 +75,12 @@ message GroupDetailsResponse {
 }
 
 message GetPaginatedGroupsRequest {
-    int32 Offset = 1;
-    int32 Limit = 2;
-    string OrderBy = 3;
-    bool IsAscendingOrder = 4;
+    PaginationRequestOptions PaginationRequestOptions = 1;
 }
 
 message PaginatedGroupsResponse {
     repeated GroupDetailsResponse Groups = 1;
-    int32 ResultSetSize = 2;
+    PaginationResponseOptions PaginationResponseOptions = 2;
 }
 
 service GroupsService {

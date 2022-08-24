@@ -5,6 +5,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefRepos
 import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefs;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class UserListController {
 
     private int pageNum = 1;
     private int totalPages = 1;
-    private int usersPerPageLimit = 10;
+    private Integer usersPerPageLimit = 10;
     private int offset = 0;
     private int totalNumUsers = 0;
     private String sortOrder = "firstname";
@@ -62,23 +63,10 @@ public class UserListController {
     {
         logger.info("GET REQUEST /user-list - retrieve paginated users for the user list");
 
-        if (Objects.equals(isAscending, "true")){
-            this.isAscending = true;
-        } else if (Objects.equals(isAscending, "false")){
-            this.isAscending = false;
-        }
-
-        if (!(usersPerPage == null)){
-            switch(usersPerPage){
-                case "10" -> usersPerPageLimit = 10;
-                case "20" -> usersPerPageLimit = 20;
-                case "40" -> usersPerPageLimit = 40;
-                case "60" -> usersPerPageLimit = 60;
-                case "all" -> usersPerPageLimit = 999999999;
-            }
-        }
-
-        selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal.getAuthState()), Objects.requireNonNullElse(order, ""));
+        selectSortOrder(PrincipalAttributes.getIdFromPrincipal(principal.getAuthState()),
+                Objects.requireNonNullElse(order, ""),
+                Objects.requireNonNullElse(isAscending, ""),
+                Objects.requireNonNullElse(usersPerPage, ""));
         if (page != null) {
             pageNum = page;
         }
@@ -89,7 +77,7 @@ public class UserListController {
         offset = (pageNum - 1) * usersPerPageLimit;
 
         PaginatedUsersResponse response = getPaginatedUsersFromServer();
-        totalNumUsers = response.getResultSetSize();
+        totalNumUsers = response.getPaginationResponseOptions().getResultSetSize();
         totalPages = totalNumUsers / usersPerPageLimit;
         if ((totalNumUsers % usersPerPageLimit) != 0) {
             totalPages++;
@@ -108,6 +96,7 @@ public class UserListController {
         return new ModelAndView("user-list");
     }
 
+
     /**
      * A helper method to select the user's sort order for the user list
      *
@@ -115,31 +104,45 @@ public class UserListController {
      * @param order  The order that the user send with the request. If they didn't send one, this should be ""
      *               This can be done easily with the line Objects.requireNonNullElse(order, "")
      */
-    private void selectSortOrder(int userId, String order) {
+    private void selectSortOrder(int userId, String order, String isAscending, String usersPerPage) {
         String genericLogMessage = "VIEWING USERS - ID: " + userId + "{}";
         logger.info(genericLogMessage, " : Beginning sort order selection");
-        if (!Objects.equals(order, "")) {
-            logger.info(genericLogMessage, " : order provided, saving preferences");
-            sortOrder = order;
-            prefRepository.save(new UserPrefs(userId, order, isAscending, usersPerPageLimit));
-            logger.info(genericLogMessage, " : preferences saved successfully");
+        UserPrefs user = prefRepository.getUserPrefsByUserId(userId);
+        if (user != null) {
+            logger.info(genericLogMessage, " : user found, fetching preferences...");
+            this.sortOrder = user.getListSortPref();
+            this.isAscending = user.getIsAscending();
+            this.usersPerPageLimit = user.getUsersPerPage();
         } else {
-            //The request doesn't come with a sort order (it's null), so use the one saved
-            logger.info(genericLogMessage, " : no order provided, checking database for user");
-            UserPrefs user;
-            user = prefRepository.getUserPrefsByUserId(userId);
-            if (user != null) {
-                logger.info(genericLogMessage, " : user found, fetching preferences...");
-                sortOrder = user.getListSortPref();
-                isAscending = user.getIsAscending();
-                usersPerPageLimit = user.getUsersPerPage();
-            } else {
-                logger.warn(genericLogMessage, " : The user is null, saving them to the database");
-                sortOrder = "firstname";
-                user = new UserPrefs(userId, sortOrder, isAscending, usersPerPageLimit);
-                prefRepository.save(user);
+            // if empty set default values
+            this.sortOrder = "firstname";
+            this.isAscending = true;
+            this.usersPerPageLimit = 10;
+        }
+
+        // check for new values
+        if (!(usersPerPage == null)){
+            switch(usersPerPage){
+                case "10" -> this.usersPerPageLimit = 10;
+                case "20" -> this.usersPerPageLimit = 20;
+                case "40" -> this.usersPerPageLimit = 40;
+                case "60" -> this.usersPerPageLimit = 60;
+                case "all" -> this.usersPerPageLimit = 999999999;
             }
         }
+
+        if (Objects.equals(isAscending, "true")){
+            this.isAscending = true;
+        } else if (Objects.equals(isAscending, "false")){
+            this.isAscending = false;
+        }
+
+        if (!Objects.equals(order, "")){
+            this.sortOrder = order;
+        }
+
+        prefRepository.save(new UserPrefs(userId, this.sortOrder, this.isAscending, this.usersPerPageLimit));
+        logger.info(genericLogMessage, " : preferences saved successfully");
     }
 
     /**
@@ -160,7 +163,6 @@ public class UserListController {
             model.addAttribute("userCanEdit", false);
         }
 
-
         model.addAttribute("user", user);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("currentPage", pageNum);
@@ -170,6 +172,7 @@ public class UserListController {
         model.addAttribute("possibleRoles", possibleRoles);
         model.addAttribute("sortOrder", sortOrder);
         model.addAttribute("isAscending", isAscending);
+        model.addAttribute("selectedUsersPerPage", usersPerPageLimit.toString());
     }
 
 
@@ -190,7 +193,12 @@ public class UserListController {
         ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
         UserRoleChangeResponse response = userAccountsClientService.removeRoleFromUser(request);
         logger.info("RESOLVED /editUserRole");
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (response.getIsSuccess()){
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(response.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 
@@ -211,7 +219,12 @@ public class UserListController {
         ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
         UserRoleChangeResponse response = userAccountsClientService.addRoleToUser(request);
         logger.info("RESOLVED /editUserRole");
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (response.getIsSuccess()){
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(response.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 
@@ -239,11 +252,14 @@ public class UserListController {
      * @return PaginatedUsersResponse, a type that contains all users for a specific page and the total number of users
      */
     private PaginatedUsersResponse getPaginatedUsersFromServer() {
-        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
                                                                    .setOffset(offset)
                                                                    .setLimit(usersPerPageLimit)
                                                                    .setOrderBy(sortOrder)
                                                                    .setIsAscendingOrder(isAscending)
+                                                                   .build();
+        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+                                                                   .setPaginationRequestOptions(options)
                                                                    .build();
         return userAccountsClientService.getPaginatedUsers(request);
     }

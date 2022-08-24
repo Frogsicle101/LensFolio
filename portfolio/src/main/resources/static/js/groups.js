@@ -31,7 +31,7 @@ $(document).ready(function () {
         selected: function (e, ui) {
             let currentlySelected = $(ui.selected)
 
-            notCtrlClick = !e.ctrlKey
+            notCtrlClick = !e.ctrlKey && !e.metaKey //The meta Key checks the command Key on Mac.
             if (shiftDown) { // Checks if the shift key is currently pressed
                 notCtrlClick = false
                 if (parseInt(currentlySelected.attr("userId")) > parseInt(lastSelectedRow.attr("userId"))) {
@@ -94,6 +94,9 @@ $(document).ready(function () {
          * @param ui The selectable item that has been unselected.
          */
         unselected: function (e, ui) {
+            if (notCtrlClick) {
+                $(ui.unselected).removeClass("selected");
+            }
             $(ui.unselected).removeClass("selected");
             checkToSeeIfHideOrShowOptions()
         }

@@ -18,19 +18,19 @@
         </div>
         <input id="projectId" name="projectId" style="display: none" th:value="${project.getId()}" type="text">
         <div class="mb-3">
-            <label class="form-label" for="projectName">Project Name</label>
+            <label class="form-label" for="projectName">Name</label>
             <input class="form-control canDisable" id="projectName" maxlength="50" name="projectName" required
                    th:value="${project.getName()}" type="text">
         </div>
         <div class="row">
             <div class="col">
-                <label class="form-label" for="projectStartDate">Project Start</label>
+                <label class="form-label" for="projectStartDate">Start Date</label>
                 <input class="form-control canDisable" id="projectStartDate" name="projectStartDate"
                        required th:min="${project.getMinStartDateAsLocalDateTime()}" th:value="${project.getStartDate()}" type="date">
             </div>
 
             <div class="col">
-                <label class="form-label" for="projectEndDate">Project End</label>
+                <label class="form-label" for="projectEndDate">End Date</label>
                 <input class="form-control canDisable" id="projectEndDate" name="projectEndDate"
                        required th:min="${project.getStartDate()}" th:value="${project.getEndDate()}"
                        type="date">
@@ -45,7 +45,7 @@
             </div>
         </div>
         <div class="mb-3">
-            <label class="form-label" for="projectDescription">Project Description</label>
+            <label class="form-label" for="projectDescription">Description</label>
             <textarea class="form-control canDisable" id="projectDescription" maxlength="200" name="projectDescription"
                       th:text="${project.getDescription()}"></textarea>
         </div>

@@ -1,4 +1,3 @@
-
 context('Login page', () => {
    beforeEach(() => {
      cy.visit('http://localhost:9000/anything')

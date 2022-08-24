@@ -1307,7 +1307,11 @@ function handleCreateEvent(notification) {
             break
         case "sprint" :
             $(".sprintsContainer").empty()
-            getSprints()
+            getSprints(() => {
+                refreshDeadlines(projectId);
+                refreshMilestones(projectId);
+                refreshEvents(projectId);
+            })
             break
         default :
             break
@@ -1336,7 +1340,11 @@ function handleUpdateEvent(notification) {
             break
         case "sprint" :
             $(".sprintsContainer").empty()
-            getSprints()
+            getSprints(() => {
+                refreshDeadlines(projectId);
+                refreshMilestones(projectId);
+                refreshEvents(projectId);
+            })
             break
         default :
             // Add debug log here
@@ -1370,7 +1378,11 @@ function handleDeleteEvent(notification) {
             break;
         case "sprint" :
             $(".sprintsContainer").empty()
-            getSprints()
+            getSprints(() => {
+                refreshDeadlines(projectId);
+                refreshMilestones(projectId);
+                refreshEvents(projectId);
+            })
             break
     }
 }
