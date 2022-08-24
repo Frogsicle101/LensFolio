@@ -37,7 +37,7 @@ junit-identityprovider:
   stage: test
   script:
     - cd identityprovider
-    - ./gradlew test --stacktrace
+    - ./gradlew test
   except:
     - dev
     - master
