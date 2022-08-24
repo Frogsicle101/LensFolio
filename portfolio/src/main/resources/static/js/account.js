@@ -25,21 +25,9 @@ $(document).ready(() => {
         }
     })
 
-
     //On upload photo button click
-    $(".uploadPhotoButton").click(() => {
+    $("#uploadPhotoButton").on("click", () => {
         location.href = "uploadImage"; // change location
-    });
-
-
-    $(".deleteProfilePhotoButton").click(() => {
-        $.ajax({
-            url: "deleteProfileImg",
-            type: "DELETE",
-            success: function () {
-                location.reload()
-            }
-        })
     });
 
 
