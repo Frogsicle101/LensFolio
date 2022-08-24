@@ -37,7 +37,6 @@ public class TestGroupData {
         logger.info("Creating default groups");
         Group teachingGroup = new Group( "Teachers", "Teaching Staff");
         Group nonGroupGroup = new Group( "Non-Group", "Members Without A Group");
-
         groupRepository.save(teachingGroup);
         groupRepository.save(nonGroupGroup);
         logger.info("Finished creating default groups");

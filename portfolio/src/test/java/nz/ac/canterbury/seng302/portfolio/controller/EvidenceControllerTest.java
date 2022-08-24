@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
@@ -74,6 +75,9 @@ class EvidenceControllerTest {
     @MockBean
     private GroupsClientService groupsClientService;
 
+    @MockBean
+    private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
+
 
     @BeforeEach
     public void init() {
@@ -92,7 +96,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, evidenceService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -171,7 +175,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, evidenceService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -251,7 +255,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, evidenceService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -312,7 +316,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, evidenceService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -391,7 +395,7 @@ class EvidenceControllerTest {
         long projectId = 1;
         Project project = new Project("Testing");
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, evidenceService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
