@@ -29,6 +29,7 @@ $(document).ready(() => {
     //On Edit Account button click
     $(editUserButton).on("click", toggleEditForm)
 
+
     //On upload photo button click
     $("#uploadPhotoButton").on("click", () => {
         location.href = "uploadImage"; // change location
