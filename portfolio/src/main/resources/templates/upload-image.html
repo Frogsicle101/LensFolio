@@ -13,23 +13,24 @@
 
 <div class="accountBody">
     <div class="accountInfo">
-        <h1>Upload Image</h1>
+        <h1>Edit Profile Photo</h1>
         <p>Please make sure that your photo is 5MB or less, and has the same height and width.<br>
             Otherwise, it will be cropped and/or compressed, potentially lowering your photo's quality.</p>
         <hr>
-        <div class="successBox">
-
+        <div class="successBox"></div>
+        <div class="mb-3">
+            <button class="btn btn-secondary border deleteProfilePhotoButton">Delete Profile Photo</button>
         </div>
         <input accept="image/png, image/jpeg" id="profileImageInput" onChange="processImage()" type='file'/>
         <br>
         <p id="loadingText">Processing Image...</p>
         <br>
-        <!--<button type="button" onclick="resizeImage('profileImagePreview')">Crop/Compress</button>-->
         <br>
         <b>Size:</b> <span id="size"></span>
         <br>
-        <img alt="Profile Photo Preview" id="profileImagePreview" th:src="${profileImageUrl}"/>
-        <br>
+        <div class="mb-2">
+            <img alt="Profile Photo Preview" id="profileImagePreview" class="profilePic" th:src="${user.profileImagePath}"/>
+        </div>
         <button class="btn btn-primary" onclick="sendImagePostRequest()" type="button">Upload</button>
         <button class="btn btn-secondary backButton" type="button">Back</button>
     </div>
