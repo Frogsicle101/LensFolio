@@ -48,7 +48,7 @@ public class PortfolioController {
 
     private static final String ERROR_MESSAGE = "errorMessage";
     
-    private static final String ERROR_PAGE_LOCATION = ERROR_PAGE_LOCATION;
+    private static final String ERROR_PAGE_LOCATION = "errorPage";
 
     private final CheckDateService checkDateService = new CheckDateService();
 
