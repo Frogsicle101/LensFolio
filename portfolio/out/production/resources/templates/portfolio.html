@@ -1,0 +1,292 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Lensfolio | Portfolio</title>
+    <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+            </th:block> /*/-->
+
+
+</head>
+<body>
+<!--The below section <header> pulls the fragment from fragments/general-->
+<header th:insert="fragments/general.html :: header"></header>
+
+<section>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        let projectStart = /*[[${project.getStartDateAsLocalDateTime()}]]*/ 'default';
+        let projectId = /*[[${project.getId()}]]*/ 'default';
+        let projectEnd = /*[[${project.getEndDateAsLocalDateTime()}]]*/ 'default';
+        let eventNameLengthRestriction = /*[[${eventNameLengthRestriction}]]*/ 'default';
+        let titleRegex = /*[[${titleRegex}]]*/ 'default';
+        let descriptionRegex = /*[[${descriptionRegex}]]*/ 'default';
+        let nextMilestoneNumber = /*[[${nextMilestoneNumber}]]*/ 'default';
+        let defaultOccasionDate = /*[[${defaultOccasionDate}]]*/ 'default';
+
+        /*]]>*/
+    </script>
+
+    <!--Below are the divs that handle error messages
+            If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
+            they will be displayed below-->
+    <div th:insert="fragments/general.html :: errorBox"></div>
+    <div th:insert="fragments/general.html :: successBox"></div>
+    <div th:insert="fragments/general.html :: infoBox"></div>
+    <div class="projectDetails">
+        <div id="project-details">
+            <h1 id="projectId" th:text="${project.getId()}" style="display: none"></h1>
+            <div class="mb3">
+                <h1 id="projectName" th:text="${project.getName()}"></h1>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    <h6>Start</h6>
+                    <h6 id="project-start-date" th:text="${project.getStartDateFormatted()}"></h6>
+                </div>
+                <div class="col-2">
+                    <h6>End</h6>
+                    <h6 id="project-end-date" th:text="${project.getEndDateFormatted()}"></h6>
+                </div>
+            </div>
+            <div class="mb-3">
+                <p th:text="${project.getDescription()}"></p>
+            </div>
+        </div>
+
+
+        <div th:if="${userCanEdit == true}">
+            <button class="btn btn-outline-success project-add-sprint-button authenticated-user" id="projectEditSprint">
+                Edit Project
+            </button>
+            <button class="btn btn-outline-success project-add-sprint-button authenticated-user addSprint" id="projectAddSprint"  data-bs-toggle="tooltip" data-bs-placement="top" title="Add Sprint!">
+                Add Sprint
+            </button>
+            <div id="sprintAddInformationBar">
+            </div>
+        </div>
+
+
+    </div>
+    <div class="projectContainer">
+        <div class="eventContainer">
+            <div id="informationBar" class="infoMessageParent alert alert-primary alert-dismissible fade show"
+                 role="alert" style="display: none">
+            </div>
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <button class="nav-link active" id="eventsTab" data-bs-toggle="tab" data-bs-target="#events"
+                            role="tab">Events
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="deadlinesTab" data-bs-toggle="tab" data-bs-target="#deadlines"
+                            role="tab">Deadlines
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="milestonesTab" data-bs-toggle="tab" data-bs-target="#milestones"
+                            role="tab">Milestones
+                    </button>
+                </li>
+
+            </ul>
+
+
+            <div class="tab-content" id="tabContent">
+                <!---------------------------------------- Events tab  ------------------------------------------>
+                <div class="tab-pane fade show active" id="events" role="tabpanel">
+                    <div class="mb-2 occasionAddButton">
+                        <button type="button" class="addOccasionButton addEventButton noStyleButton"
+                                th:if="${userCanEdit == true}"
+                                data-bs-toggle="tooltip" data-bs-placement="right" title="Create Event">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                 class="bi bi-plus-circle addEventSvg" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="eventForm" style="display: none" th:if="${userCanEdit == true}">
+                        <form id="addEventForm">
+                            <div class="mb-1">
+                                <label for="eventName" class="form-label">Event name</label>
+                                <input type="text" class="form-control form-control-sm"
+                                       th:pattern="${titleRegex}" th:maxlength="${eventNameLengthRestriction}"
+                                       name="eventName"
+                                       id="eventName"
+                                       required>
+                                <small class="form-text text-muted countChar">0 characters remaining</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Type of event</label>
+                                <select class="form-select typeOfEvent" id="exampleFormControlInput1">
+                                    <option value="1" selected>Event</option>
+                                    <option value="2">Test</option>
+                                    <option value="3">Meeting</option>
+                                    <option value="4">Workshop</option>
+                                    <option value="5">Special Event</option>
+                                    <option value="6">Attention Required</option>
+                                </select>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col">
+                                    <label for="eventStart" class="form-label">Start</label>
+                                    <input type="datetime-local"
+                                           class="form-control form-control-sm eventInputStartDate"
+                                           th:value="${project.getStartDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}" name="eventStart"
+                                           id="eventStart"
+                                           required>
+                                </div>
+                                <div class="col">
+                                    <label for="eventEnd" class="form-label">End</label>
+                                    <input type="datetime-local" class="form-control form-control-sm eventInputEndDate"
+                                           th:value="${project.getStartDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}" name="eventEnd" id="eventEnd"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="mb-1">
+                                <button type="submit" class="btn btn-primary" id="eventSubmit">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="eventContainer">
+
+
+                    </div>
+                </div>
+                <!--------------------------------------- Deadlines tab  ---------------------------------------->
+                <div class="tab-pane fade show" id="deadlines" role="tabpanel">
+                    <div class="mb-2 occasionAddButton">
+                        <button type="button" class="addDeadlineButton noStyleButton" th:if="${userCanEdit == true}"
+                                data-bs-toggle="tooltip" data-bs-placement="right" title="Create Deadline">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                 class="bi bi-plus-circle addDeadlineSvg" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="deadlineForm" style="display: none" th:if="${userCanEdit == true}">
+                        <form id="addDeadlineForm">
+                            <div class="mb-1">
+                                <label for="deadlineName" class="form-label">Deadline name</label>
+                                <input type="text" class="form-control form-control-sm"
+                                       th:pattern="${titleRegex}" th:maxlength="${eventNameLengthRestriction}" name="occasionName"
+                                       id="deadlineName"
+                                       required>
+                                <small class="form-text text-muted countChar">0 characters remaining</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput3" class="form-label">Type of deadline</label>
+                                <select class="form-select typeOfDeadline" id="exampleFormControlInput3">
+                                    <option value="1" selected>Event</option>
+                                    <option value="2">Test</option>
+                                    <option value="3">Meeting</option>
+                                    <option value="4">Workshop</option>
+                                    <option value="5">Special Event</option>
+                                    <option value="6">Attention Required</option>
+                                </select>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col">
+                                    <label for="deadlineEnd" class="form-label">End</label>
+                                    <input type="datetime-local"
+                                           class="form-control form-control-sm deadlineInputEndDate"
+                                           th:value="${project.getStartDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}" name="deadlineEnd"
+                                           id="deadlineEnd"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="mb-1">
+                                <button type="submit" class="btn btn-primary" id="deadlineSubmit">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="deadlineContainer">
+
+                    </div>
+                </div>
+                <!--------------------------------------- Milestones tab  --------------------------------------->
+                <div class="tab-pane fade show" id="milestones" role="tabpanel">
+                    <div class="mb-2 occasionAddButton">
+                        <button type="button" class="addOccasionButton addMilestoneButton noStyleButton"
+                                th:if="${userCanEdit == true}"
+                                data-bs-toggle="tooltip" data-bs-placement="right" title="Create Milestone">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                 class="bi bi-plus-circle addMilestoneSvg" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="milestoneForm" style="display: none" th:if="${userCanEdit == true}">
+                        <form>
+                            <div class="mb-1">
+                                <label for="milestoneName" class="form-label">Milestone name</label>
+                                <input type="text" class="form-control form-control-sm"
+                                       th:pattern="${titleRegex}"
+                                       th:maxlength="${eventNameLengthRestriction}" name="milestoneName" data-nextNumber="${nextMilestoneNumber}"
+                                       th:placeholder="${'Milestone ' + nextMilestoneNumber}" th:value="${'Milestone ' + nextMilestoneNumber}"
+                                       id="milestoneName"
+                                       required>
+                                <small class="form-text text-muted countChar">0 characters remaining</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput2" class="form-label">Type of milestone</label>
+                                <select class="form-select typeOfMilestone" id="exampleFormControlInput2">
+                                    <option value="1" selected>Event</option>
+                                    <option value="2">Test</option>
+                                    <option value="3">Meeting</option>
+                                    <option value="4">Workshop</option>
+                                    <option value="5">Special Event</option>
+                                    <option value="6">Attention Required</option>
+                                </select>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col">
+                                    <label for="milestoneEnd" class="form-label">End</label>
+                                    <input type="date"
+                                           class="form-control form-control-sm milestoneInputEndDate"
+                                           th:value="${defaultOccasionDate}"
+                                           th:min="${project.getStartDateAsLocalDateTime().toLocalDate()}"
+                                           th:max="${project.getEndDateAsLocalDateTime().toLocalDate()}"
+                                           name="milestoneEnd"
+                                           id="milestoneEnd"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="mb-1">
+                                <button type="submit" class="btn btn-primary" id="milestoneSubmit">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="milestoneContainer">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="sprintsContainer" style="display: none">
+
+        </div>
+
+    </div>
+</section>
+
+
+</body>
+<script type="application/javascript" th:src="@{js/project.js}"></script>
+<script type="application/javascript" th:src="@{js/events.js}"></script>
+</html>

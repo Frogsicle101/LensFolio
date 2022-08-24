@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+    <head>
+
+
+        <meta charset="UTF-8">
+        <title>Lensfolio | Users</title>
+        <!--Make sure to change the below title    -->
+
+        <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
+                </th:block> /*/-->
+        <script type="application/javascript" th:src="@{js/user-list-script.js}"></script>
+    </head>
+    <body>
+    <header th:insert="fragments/general.html :: header"> </header>
+    <section>
+        <div class="listTableDiv">
+            <h1 class="title">Users</h1>
+            <div id="user-list" class="listTable">
+                <table class="tableStyled">
+                    <thead>
+                    <tr>
+                        <th th:switch="${sortOrder}">
+                            <a th:case="'name-increasing'" th:href="@{'user-list?sortField=name-decreasing'}">Name &#8593;</a>
+                            <a th:case="'name-decreasing'" th:href="@{'user-list?sortField=name-increasing'}">Name &#8595;</a>
+                            <a th:case="*" th:href="@{'user-list?sortField=name-increasing'}">Name</a>
+                        </th>
+                        <th th:switch="${sortOrder}">
+                            <a th:case="'username-increasing'" th:href="@{'user-list?sortField=username-decreasing'}">Username &#8593;</a>
+                            <a th:case="'username-decreasing'" th:href="@{'user-list?sortField=username-increasing'}">Username &#8595;</a>
+                            <a th:case="*" th:href="@{'user-list?sortField=username-increasing'}">Username</a>
+                        </th>
+                        <th th:switch="${sortOrder}">
+                            <a th:case="'aliases-increasing'" th:href="@{'user-list?sortField=aliases-decreasing'}">Aliases &#8593;</a>
+                            <a th:case="'aliases-decreasing'" th:href="@{'user-list?sortField=aliases-increasing'}">Aliases &#8595;</a>
+                            <a th:case="*" th:href="@{'user-list?sortField=aliases-increasing'}">Aliases</a>
+                        </th>
+                        <th th:switch="${sortOrder}">
+                            <a th:case="'roles-increasing'" th:href="@{'user-list?sortField=roles-decreasing'}">Roles &#8593;</a>
+                            <a th:case="'roles-decreasing'" th:href="@{'user-list?sortField=roles-increasing'}">Roles &#8595;</a>
+                            <a th:case="*" th:href="@{'user-list?sortField=roles-increasing'}">Roles</a>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="paginatedUser : ${user_list}" class="userRoleRow">
+                        <td class="userId" th:text="${paginatedUser.id}" style="display: none"></td>
+                        <td th:text="${paginatedUser.firstName} +  ' ' + ${paginatedUser.middleName} + ' ' + ${paginatedUser.lastName}">Name</td>
+                        <td class="username" th:text="${paginatedUser.username}">Username</td>
+                        <td th:text="${paginatedUser.nickname}">Nickname</td>
+                        <td class="roleButtonsContainer">
+                            <div th:each="activeRole : ${paginatedUser.rolesList}" class="badge border d-inline-flex align-items-center">
+                                <div class="tagDiv">
+                                    <div class=" text-black roleType" th:text="${activeRole}"></div>
+                                    <button th:if="${userCanEdit}" class="btn-close roleDeleteButton" style="font-size: 0.75em;">x</button>
+                                </div>
+                            </div>
+                            <div th:if="${userCanEdit}">
+                                <button class="btn badge border text-light bg-primary addRolePopUpButton dropdown-toggle"
+                                        aria-expanded="true">+</button>
+                                <ul class="dropdown-menu collapse" data-popper-placement="bottom-start">
+                                    <button class="dropdown-item roleToAddButton" th:each="role : ${possibleRoles}" th:if="${!paginatedUser.rolesList.contains(role)}" th:text="${role}"></button>
+                                </ul>
+                            </div>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-footer listTableFooter">
+                <nav aria-label="Page navigation">
+                    Total Items [[${totalItems}]] : Page [[${currentPage}]] of [[${totalPages}]]
+                    &nbsp; &nbsp; - &nbsp;
+
+                    <a th:if="${currentPage > 1}" th:href="@{user-list?page=1}">First</a>
+                    <span th:unless="${currentPage > 1}">First</span>
+                    &nbsp;&nbsp;
+                    <a th:if="${currentPage > 1}" th:href="@{'user-list?page=' + ${currentPage - 1}}">Previous</a>
+                    <span th:unless="${currentPage > 1}">Previous</span>
+                    &nbsp;&nbsp;
+                    <span th:each="i: ${footerNumberSequence}">
+                    <a th:if="${i != currentPage}" th:href="@{'user-list?page=' + ${i}}">[[${i}]]</a>
+                    <span th:unless="${i != currentPage}">[[${i}]]</span>
+                    &nbsp; &nbsp;
+                </span>
+                    <a th:if="${currentPage < totalPages}" th:href="@{'user-list?page=' + ${currentPage + 1}}">Next</a>
+                    <span th:unless="${currentPage < totalPages}">Next</span>
+                    &nbsp;&nbsp;
+                    <a th:if="${currentPage < totalPages}" th:href="@{'user-list?page=' + ${totalPages}}">Last</a>
+                    <span th:unless="${currentPage < totalPages}">Last</span>
+                </nav>
+            </div>
+
+        </div>
+    </section>
+
+    </body>
+</html>

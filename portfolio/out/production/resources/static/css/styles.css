@@ -1,0 +1,553 @@
+/*General CSS*/
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f6f6f6;
+}
+
+section {
+    margin-top: 4rem;
+}
+
+.center{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+
+/*Colours*/
+
+:root {
+    --main-border-colour: #d7d6d6;
+    --secondary-text-colour: #c4c3c3;
+    --main-text-color: #1f1f1f;
+    --secondary-text-colour-darker: #696969;
+    --select-green: #95fd97;
+    --select-red: #ff0000;
+    --border-radius: 0.4rem;
+    --navbar-colour: #2a2a2a;
+    --background-colour-white: #ffffff;
+}
+
+
+/*CSS relating to Header*/
+
+.headerBar {
+    top: 0;
+    z-index: 4;
+    position: fixed;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #2a2a2a;
+    overflow: visible;
+    height: 4rem;
+    width: 100%;
+    box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+    color: white;
+}
+
+
+/* properties of the dropdown 'zone' */
+.profileDropdown {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    min-width: 10rem;
+
+    margin: 0.1rem;
+    border-radius: var(--border-radius);
+}
+
+.profileDropdown:hover {
+    cursor: pointer;
+    background-color: #17181a;
+}
+
+.profileDropdown p {
+    font-size: 1.25rem;
+    height: 1rem;
+    font-weight: normal;
+    padding: 0 .5rem;
+}
+
+.profileDropdown img {
+    height: 2.5rem;
+}
+
+
+.username {
+    font-weight: bold;
+}
+
+
+.dropdown-content {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+    z-index: 1;
+    background-color: #17181a;
+    width: 10rem;
+}
+
+.dropdown-content a {
+    text-decoration: none;
+    width: 100%;
+    text-align: center;
+    color: #f9f9f9;
+    padding: 0.25rem;
+}
+
+.dropdown-content a:hover {
+    background-color: #626262;
+}
+
+
+/*Account*/
+.accountBody {
+    width: 100%;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.accountInfo {
+    padding: 5rem;
+    width: 100%;
+    max-width: 50rem;
+}
+
+.accountInfoHeader {
+    display: flex;
+    flex-direction: row;
+    padding-top: 100px;
+
+}
+
+.profilePic {
+    border-radius: 100%;
+}
+
+#accountPageImage {
+    height: 15rem;
+}
+
+.required:after {
+    content:"*";
+    color: red;
+}
+
+
+/*Login*/
+.loginSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.loginBox {
+    align-items: center;
+    width: 50rem;
+    padding: 2rem;
+}
+
+.logo {
+    font-family: 'Lobster Two', cursive;
+    font-weight: bold;
+}
+
+.logoBox {
+    align-self: flex-start;
+    padding: 2rem;
+}
+
+
+/*Portfolio*/
+.projectDetails {
+    border-bottom: solid 1px var(--main-border-colour);
+    padding: 2rem;
+    position: relative;
+    background-color: var(--background-colour-white);
+}
+
+.projectDetails h1 {
+    font-weight: bold;
+}
+
+.projectDetails h6 {
+    color: var(--secondary-text-colour-darker);
+}
+
+.projectContainer {
+    display: flex;
+    flex-direction: row;
+    min-height: 80vh;
+    width: 100%;
+
+}
+
+
+/*Portfolio Project*/
+
+
+
+
+
+
+
+/*Porfolio - Events*/
+
+.eventContainer {
+    display: flex;
+    flex-direction: column;
+    min-width: 30rem;
+    border-right: solid 1px var(--main-border-colour);
+    padding-left: 1rem;
+    padding-top: 1rem;
+    padding-right: 1rem;
+    transition: all 1s ease-out;
+    background-color: var(--background-colour-white);
+}
+
+.occasionAddButton {
+    padding-top: 0.7rem;
+    display: flex;
+    flex-direction: row;
+}
+
+.eventName, .milestoneName, .deadlineName {
+    padding-left: 0.5rem;
+    font-weight: bolder;
+    text-decoration-line: underline;
+}
+
+.occasionTitleDiv {
+    display: flex;
+    flex-direction: row;
+    width: 89%;
+}
+
+.occasionIcon {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border: solid 1px var(--secondary-text-colour);
+    border-radius: var(--border-radius);
+    padding: 0.2rem;
+    width: 2rem;
+    height: 2rem;
+}
+
+.editButton {
+    position: absolute;
+    top: 1rem;
+    right: 2.5rem;
+}
+
+.editButton:hover{
+    color: var(--select-green);
+}
+
+.deleteButton{
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.deleteButton:hover{
+    color: var(--select-red);
+}
+
+.occasion {
+    position: relative;
+    margin-bottom: 1rem;
+    border: solid 1px var(--secondary-text-colour);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.addEventSvg, .addMilestoneSvg, .addDeadlineSvg{
+    vertical-align: baseline;
+    transition: transform 200ms;
+}
+
+.rotated {
+    transform: rotate(45deg);
+    color: #ff0000;
+}
+
+
+.event p {
+    margin: 0;
+}
+
+.eventDateDiv {
+    display: flex;
+    flex-direction: column;
+}
+
+.eventDateDiv p {
+    margin: 0 0 0 0;
+}
+
+.eventInSprint {
+    display: flex;
+    flex-direction: row;
+}
+
+.eventInSprint p {
+    padding: 0.1rem;
+    opacity: 70%;
+    margin: 0 0 0 0;
+}
+
+.milestoneInSprint {
+    display: flex;
+    flex-direction: row;
+}
+
+.milestoneInSprint p {
+    padding: 0.1rem;
+    opacity: 70%;
+    margin: 0 0 0 0;
+}
+
+.deadlineInSprint {
+    display: flex;
+    flex-direction: row;
+}
+
+.deadlineInSprint p {
+    padding: 0.1rem;
+    opacity: 70%;
+    margin: 0 0 0 0;
+}
+
+.bold {
+    font-weight: bolder;
+}
+
+
+.beingEdited{
+    border: solid 1px blue;
+}
+
+/*Portfolio - Sprints*/
+.sprintsContainer {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.sprint {
+    position: relative;
+    width: 45rem;
+    padding: 2rem;
+    border: solid 1px var(--main-border-colour);
+    background-color: var(--background-colour-white);
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+    transition: all 0.3s ease-out;
+    will-change: transform;
+}
+
+
+.sprint h6 {
+    color: var(--secondary-text-colour-darker);
+}
+
+.sprintLabel {
+    align-self: flex-start;
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    color: var(--secondary-text-colour);
+
+}
+
+.deleteSprint {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+.deleteSprint:hover {
+    color: #ff5959;
+
+}
+
+.editSprint {
+    position: absolute;
+    top: 0.5rem;
+    right: 2rem;
+}
+
+.editSprint:hover {
+    color: var(--select-green);
+}
+
+
+.noStyleButton {
+    background: none;
+    border: none;
+    color: inherit;
+}
+
+.sprintButton {
+    color: var(--secondary-text-colour-darker);
+    transition: transform 200ms;
+}
+
+.sprintButton:hover {
+    transform: scale(120%);
+
+}
+
+/*edit roles page*/
+.tagDiv {
+    display: flex;
+    flex-direction: row;
+}
+
+.roleAddingDropdown {
+    display: flex;
+    flex-direction: row;
+}
+
+.roleToAddButton {
+    font-size: 0.75em;
+}
+
+#profileImagePreview {
+    width: 10rem;
+    height: 10rem;
+}
+
+#loadingText {
+    display: none;
+}
+
+/*Edit Sprints - editProject*/
+
+.editSprintContainer, .editProjectContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.sprintEditForm, .projectEditForm {
+    margin-top: 5rem;
+    width: 50rem;
+}
+
+/*User-list*/
+
+.listTable, .listTableFooter {
+    width: 70rem;
+}
+
+.listTableDiv {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.listTableFooter {
+    align-self: center;
+}
+
+
+.listTable a {
+    text-decoration: none;
+    color: var(--main-text-color);
+}
+
+.roleButtonsContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+.tableStyled {
+    border-collapse: collapse;
+    font-size: 1rem;
+    min-width: 60rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.tableStyled th, .tableStyled td {
+    padding: 1rem
+}
+
+.tableStyled thead tr {
+    border-radius: var(--border-radius);
+    background-color: var(--navbar-colour);
+    text-align: left;
+}
+
+.tableStyled thead tr a {
+    color: #f9f9f9;
+}
+
+
+.tableStyled tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.tableStyled tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.tableStyled tbody tr:last-of-type {
+    border-bottom: 2px solid #000000;
+}
+
+
+
+/*Calendar*/
+
+.calendar, .calendarDetails{
+    width: 60em;
+}
+
+.fc-event-title{
+    display: none;
+}
+
+.fc-event-skin {
+
+}
+
+.milestoneCalendar, .deadlineCalendar, .eventCalendar {
+    background: white;
+    width: 40px;
+    height: 20px;
+    line-height: 17px;
+}
+
+
+.hover-end{padding:0;margin:0;font-size:75%;text-align:center;position:absolute;bottom:0;width:100%;opacity:.8}
+
+
