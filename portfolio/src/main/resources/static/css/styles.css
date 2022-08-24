@@ -183,6 +183,29 @@ section {
     height: 15rem;
 }
 
+#photoContainer:hover #accountPageImage {
+    /*opacity: 0.4;*/
+    /*background-color: black;*/
+
+    filter: contrast(50%);
+}
+
+#photoContainer:hover #uploadPhotoButton {
+    display: block;
+}
+
+#photoContainer {
+    position: relative;
+}
+
+#uploadPhotoButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+}
+
 .required:after {
     content: "*";
     color: red;
@@ -553,7 +576,7 @@ section {
 }
 
 .userRoleRow:hover :not(.roleButtonsContainer) {
-    cursor: grab;
+    cursor: pointer;
 }
 
 /*Calendar*/
@@ -568,6 +591,11 @@ section {
 
 .fc-event-skin {
 
+}
+
+.fc-daygrid-event-harness {
+    margin-top: 0 !important;
+    top:0 !important;
 }
 
 .milestoneCalendar, .deadlineCalendar, .eventCalendar {

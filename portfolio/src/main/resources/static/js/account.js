@@ -29,23 +29,10 @@ $(document).ready(() => {
     //On Edit Account button click
     $(editUserButton).on("click", toggleEditForm)
 
-
     //On upload photo button click
-    $(".uploadPhotoButton").on("click", () => {
+    $("#uploadPhotoButton").on("click", () => {
         location.href = "uploadImage"; // change location
-    })
-
-
-    $(".deleteProfilePhotoButton").on("click", () => {
-        console.log('Profile photo delete button pressed!')
-        $.ajax({
-            url: "deleteProfileImg",
-            type: "DELETE",
-            success: function () {
-                location.reload()
-            }
-        })
-    })
+    });
 
 
     // On account form submit
