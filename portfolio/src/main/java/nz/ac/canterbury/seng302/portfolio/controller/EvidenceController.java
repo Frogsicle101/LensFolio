@@ -10,7 +10,6 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
@@ -48,9 +47,6 @@ public class EvidenceController {
     /** The repository containing users pieces of evidence. */
     private final EvidenceRepository evidenceRepository;
 
-    /** The repository containing web links. */
-    private final WebLinkRepository webLinkRepository;
-
     /** The repository containing the projects. */
     private final ProjectRepository projectRepository;
 
@@ -61,12 +57,10 @@ public class EvidenceController {
     public EvidenceController(UserAccountsClientService userAccountsClientService,
                            ProjectRepository projectRepository,
                            EvidenceRepository evidenceRepository,
-                           WebLinkRepository webLinkRepository,
                            EvidenceService evidenceService) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
-        this.webLinkRepository = webLinkRepository;
         this.evidenceService = evidenceService;
     }
 

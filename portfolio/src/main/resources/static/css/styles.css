@@ -45,7 +45,6 @@ section {
 
 .navButtonsDiv {
     align-items: flex-start;
-    margin-left: 1rem;
 }
 
 .navButtonsDiv a {
@@ -181,6 +180,29 @@ section {
 
 #accountPageImage {
     height: 15rem;
+}
+
+#photoContainer:hover #accountPageImage {
+    /*opacity: 0.4;*/
+    /*background-color: black;*/
+
+    filter: contrast(50%);
+}
+
+#photoContainer:hover #uploadPhotoButton {
+    display: block;
+}
+
+#photoContainer {
+    position: relative;
+}
+
+#uploadPhotoButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
 }
 
 .required:after {
@@ -568,6 +590,11 @@ section {
 
 .fc-event-skin {
 
+}
+
+.fc-daygrid-event-harness {
+    margin-top: 0 !important;
+    top:0 !important;
 }
 
 .milestoneCalendar, .deadlineCalendar, .eventCalendar {
@@ -1083,7 +1110,11 @@ section {
     display: flex;
     flex-direction: row;
     box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+}
+
+.skillChip:hover{
     cursor: pointer;
+    background-color: lightcyan;
 }
 
 .categoryChip{
@@ -1154,20 +1185,6 @@ section {
     align-content: center;
     cursor: pointer;
 }
-
-
-.categoryListItem {
-    padding: 0.2rem 1rem 0.2rem;
-    position: relative;
-    margin: 0.2rem;
-    background-color: lightgoldenrodyellow;
-    border-radius: var(--border-radius);
-    display: flex;
-    flex-direction: row;
-    box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
-    cursor: pointer;
-}
-
 
 .evidenceTitle {
     text-align: center;
