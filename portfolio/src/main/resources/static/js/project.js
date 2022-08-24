@@ -102,7 +102,7 @@ function appendSprint(springObject, index) {
     index = parseInt(index) + 1
 
     return `
-             <div class="sprint" style="border-left: solid 0.3rem ${springObject.colour}; border-right: solid 0.3rem ${springObject.colour};">
+             <div class="sprint" id=${springObject.id} style="border-left: solid 0.3rem ${springObject.colour}; border-right: solid 0.3rem ${springObject.colour};">
                 <p class="sprintColour" style="display: none">${springObject.colour}</p>
                 <p class="sprintId" style="display: none">${springObject.id}</p>
                 <p class="sprintStart" style="display: none">${springObject.startDate}</p>
