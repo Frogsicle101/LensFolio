@@ -3,8 +3,8 @@ let calendar;
 
 
 /**
- * Runs when a sprint is resized on the calendar, sends a message (error or success) and then sets the handles of the
- * sprints
+ * Runs when a sprint is resized on the calendar.
+ * Sends a message (error or success) and then sets the handles of the sprints displayed on the calendar.
  *
  * @param info - the fullcalendar event information being sent to the function
  */
@@ -52,9 +52,9 @@ function eventResize(info) {
 
 
 /**
- * runs when a sprint has finished resizing. Runs before the eventResize function above. This is used to fix the colours
+ * Runs when a sprint has finished resizing. Runs before the eventResize function above. This is used to fix the colours
  * when the sprint is not actually changed as the eventResize only runs if the dates change, thus causing the colours to
- * revert on the selected sprint
+ * revert on the selected sprint.
  *
  * @param info - the fullcalendar event information being sent to the function
  */
@@ -66,7 +66,7 @@ function eventResizeStop(info) {
 
 
 /**
- * Function to handle event selection when clicked. Called by Full Calendar eventClick property.
+ * Handles event selection when clicked. Called by Full Calendar eventClick property.
  *
  * @param info object supplied by FullCalendar contains various relevant properties
  */
@@ -111,7 +111,8 @@ function eventClick(info) {
 
 
 /**
- * Turns an html string into a Node object to be added into a div
+ * Turns a html string into a Node object to be added into a div.
+ *
  * @param htmlString
  * @returns {ChildNode}
  */
@@ -155,7 +156,7 @@ function formatDateString(date) {
  * $(document).ready fires off a function when the document has finished loading.
  * https://learn.jquery.com/using-jquery-core/document-ready/
  */
-$(document).ready(function () {
+$(function () {
     let projectId = $("#projectId").html();
     let calendarEl = document.getElementById('calendar');
     $("body").tooltip({selector: '[data-toggle=tooltip]'});
@@ -192,7 +193,6 @@ $(document).ready(function () {
             },
             failure: function (err) {
                 console.log(err.responseText)
-
             }
         },
             {
@@ -237,6 +237,7 @@ $(document).ready(function () {
                 },
             }
         ],
+
         eventDidMount: function (info) {
             // Set border colour for all events (Calendar occasions will have this overwritten in the css)
             info.event.setProp("borderColor", '#13CEE2');
@@ -266,8 +267,6 @@ $(document).ready(function () {
             }
         },
     });
-
-
     calendar.render();
 })
 

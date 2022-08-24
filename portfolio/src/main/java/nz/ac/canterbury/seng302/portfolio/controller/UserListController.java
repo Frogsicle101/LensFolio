@@ -193,7 +193,12 @@ public class UserListController {
         ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
         UserRoleChangeResponse response = userAccountsClientService.removeRoleFromUser(request);
         logger.info("RESOLVED /editUserRole");
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (response.getIsSuccess()){
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(response.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 
@@ -214,7 +219,12 @@ public class UserListController {
         ModifyRoleOfUserRequest request = formUserRoleChangeRequest(userId, roleString);
         UserRoleChangeResponse response = userAccountsClientService.addRoleToUser(request);
         logger.info("RESOLVED /editUserRole");
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (response.getIsSuccess()){
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(response.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 
