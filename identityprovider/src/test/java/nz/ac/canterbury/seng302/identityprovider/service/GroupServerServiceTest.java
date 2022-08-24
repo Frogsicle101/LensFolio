@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked") // Suppresses intelliJ's warning for testing with mock StreamObservers
@@ -195,7 +196,9 @@ class GroupServerServiceTest {
         ReflectionTestUtils.setField(group, "userList", new ArrayList<>());
 
         User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user = spy(user);
         User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user2 = spy(user2);
         group.addGroupMember(user);
         group.addGroupMember(user2);
 
@@ -208,6 +211,7 @@ class GroupServerServiceTest {
         when(userRepository.findById(1)).thenReturn(user);
         when(userRepository.findById(2)).thenReturn(user2);
         GetGroupDetailsRequest getGroupRequest = GetGroupDetailsRequest.newBuilder().setGroupId(1).build();
+        mockUserResponses(List.of(user, user2));
 
 
         groupsServerService.getGroupDetails(getGroupRequest, responseObserver);
@@ -247,7 +251,9 @@ class GroupServerServiceTest {
         Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
 
         User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user = spy(user);
         User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user2 = spy(user2);
         List<User> userList = new ArrayList<>();
         userList.add(user);
         userList.add(user2);
@@ -262,6 +268,7 @@ class GroupServerServiceTest {
         when(userRepository.findById(2)).thenReturn(user2);
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
+        mockUserResponses(List.of(user, user2));
 
         groupsServerService.getTeachingStaffGroup(Empty.newBuilder().build(), responseObserver);
 
@@ -316,7 +323,9 @@ class GroupServerServiceTest {
         Group nonGroup = new Group(1, "Non-Group", "Non-Group");
 
         User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user = spy(user);
         User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user2 = spy(user2);
         List<User> userList = new ArrayList<>();
         userList.add(user);
         userList.add(user2);
@@ -331,6 +340,7 @@ class GroupServerServiceTest {
         when(userRepository.findById(2)).thenReturn(user2);
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
+        mockUserResponses(List.of(user, user2));
 
 
         groupsServerService.getMembersWithoutAGroup(Empty.newBuilder().build(), responseObserver);
@@ -622,6 +632,27 @@ class GroupServerServiceTest {
 
     // ----------------------------------------- Test runner helpers -------------------------------------------------
 
+    private void mockUserResponses(List<User> users) {
+        for (User user : users) {
+            UserResponse userResponse = UserResponse.newBuilder()
+                    .setUsername(user.getUsername())
+                    .setFirstName(user.getFirstName())
+                    .setMiddleName(user.getMiddleName())
+                    .setLastName(user.getLastName())
+                    .setNickname(user.getNickname())
+                    .setBio(user.getBio())
+                    .setPersonalPronouns(user.getPronouns())
+                    .setEmail(user.getEmail())
+                    .setCreated(user.getAccountCreatedTime())
+                    .setId(user.getId())
+                    .setProfileImagePath("No Image Path")
+                    .addAllRoles(user.getRoles())
+                    .build();
+
+            Mockito.doReturn(userResponse).when(user).userResponse();
+        }
+    }
+
 
     /**
      * A helper function for running tests for getting paginated groups
@@ -674,8 +705,12 @@ class GroupServerServiceTest {
         groupsList.add(group3);
 
         User user1 = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user1 = spy(user1);
         User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user2 = spy(user2);
         User user3 = new User("Steve3", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user3 = spy(user3);
+        mockUserResponses(List.of(user1, user2, user3));
 
         groupsList.get(1).addGroupMember(user1);
         groupsList.get(1).addGroupMember(user2);
