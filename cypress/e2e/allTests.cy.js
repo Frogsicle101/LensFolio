@@ -1,6 +1,7 @@
 import "./accounttests/RegistrationTest.cy"
 import "./accounttests/LoginTests.cy"
 import "./portfolioTest/CreatingAndDeletingSprintsTests.cy"
+import "./portfolioTest/iconsInSprintTest.cy"
 import "./portfolioTest/WebLinkTest.cy"
 import "./userlist/usersPerPage.cy"
 import "./evidenceTests/FilteringByCategoriesAndSkills.cy"
