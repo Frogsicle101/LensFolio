@@ -3,10 +3,10 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import nz.ac.canterbury.seng302.identityprovider.model.User;
-import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.model.Group;
 import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;
@@ -862,12 +862,12 @@ class UserAccountsServerServiceTest {
 
         PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
         Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
-        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
-        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
-        Assertions.assertEquals("SteveE", response.getUsers(2).getUsername());
-        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
-        Assertions.assertEquals("SteveF", response.getUsers(4).getUsername());
-        Assertions.assertEquals("SteveD", response.getUsers(5).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
     }
 
 
@@ -883,12 +883,12 @@ class UserAccountsServerServiceTest {
 
         PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
         Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
-        Assertions.assertEquals("SteveD", response.getUsers(0).getUsername());
-        Assertions.assertEquals("SteveF", response.getUsers(1).getUsername());
-        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
-        Assertions.assertEquals("SteveE", response.getUsers(3).getUsername());
-        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
-        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(5).getUsername());
     }
 
 
@@ -1047,6 +1047,9 @@ class UserAccountsServerServiceTest {
         user5.addRole(UserRole.STUDENT);
         user6.addRole(UserRole.COURSE_ADMINISTRATOR);
         user6.addRole(UserRole.STUDENT);
+        user2.deleteRole(UserRole.STUDENT);
+        user3.deleteRole(UserRole.STUDENT);
+        user4.deleteRole(UserRole.STUDENT);
         userList.add(user1);
         userList.add(user2);
         userList.add(user3);
