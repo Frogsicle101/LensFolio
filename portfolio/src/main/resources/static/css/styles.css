@@ -570,6 +570,11 @@ section {
 
 }
 
+.fc-daygrid-event-harness {
+    margin-top: 0 !important;
+    top:0 !important;
+}
+
 .milestoneCalendar, .deadlineCalendar, .eventCalendar {
     background: white;
     border-color: white;
