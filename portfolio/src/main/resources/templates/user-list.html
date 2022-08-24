@@ -85,7 +85,7 @@
                                         <a th:href="@{'user-list?sortField=aliases&isAscending=true'}">Aliases</a>
                                     </div>
                                 </th>
-                                <th class="tableHead">
+                                <th id="rolesHeader" class="tableHead">
                                     <div th:if="${sortOrder == 'roles' and isAscending}">
                                         <a th:href="@{'user-list?sortField=roles&isAscending=false'}">Roles &#8593;</a>
                                     </div>
@@ -112,7 +112,7 @@
                                         <div class="tagDiv">
                                             <div class=" text-black roleType" th:text="${activeRole}"></div>
                                             <button class="btn-close roleDeleteButton" style="font-size: 0.75em;"
-                                                    th:if="${userCanEdit}">
+                                                    th:if="${userCanEdit and paginatedUser.rolesList.size() > 1}">
                                             </button>
                                         </div>
                                     </div>

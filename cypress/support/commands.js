@@ -45,6 +45,7 @@ Cypress.Commands.add('adminLogin', () => {
       })
 })
 
+
 /**
  * Logs into a student account.
  *
