@@ -17,14 +17,16 @@ function manageTableSelection() {
 
     $( "#groupTableBody" ).selectable({
         filter: ":not(td)",
-        selected: function (e) {  // overrides library function to enable shift clicking
-            let currentRow = $(this)
+
+        selected: function (e, ui) {  // overrides library function to enable shift clicking
+            let currentRow = $(ui.selected)
+
             if (e.shiftKey) {
                 let currentId = parseInt(currentRow.attr("userId"))
                 let lastId
 
                 if (typeof anchorRow == "undefined") {  // if first selection on table, set anchor to this row
-                    anchorRow = currentRow
+                    anchorRow = $(ui.selected)
                     lastId = currentId
                 } else {
                     lastId = parseInt(anchorRow.attr("userId"))
@@ -39,16 +41,15 @@ function manageTableSelection() {
                         $(row).addClass("ui-selected")
                     })
                 }
+
                 currentRow.addClass("ui-selected")
                 anchorRow.addClass("ui-selected")
+            } else {
+                if (e.ctrlKey && currentRow.hasClass("ui-selected")) {
+                    currentRow.removeClass("ui-selected")
+                }
+                anchorRow = currentRow
             }
-            anchorRow = currentRow
-
-            checkToSeeIfHideOrShowOptions()
-            addDraggable()
-            showDraggableIcons()
-        },
-        unselected: function () {
             checkToSeeIfHideOrShowOptions()
             addDraggable()
             showDraggableIcons()
@@ -77,14 +78,6 @@ function showDraggableIcons() {
  * https://api.jqueryui.com/draggable/
  */
 function addDraggable() {
-    $(".userRow").each(function () {
-        if (!$(this).hasClass("ui-selected") && $(this).find(".dragGrip").hasClass("ui-draggable")) {
-            $(this).find(".dragGrip").hide()
-            try {
-                $(this).draggable("destroy")
-            } catch (err) { /* Do nothing */ }
-        }
-    })
     $(".dragGrip").draggable({
         helper: function () {
             let helper = $("<table class='table colourForDrag'/>")
