@@ -1,3 +1,6 @@
+let liveAlertIsShown;
+let alertIsShown;
+
 $(function () {
     // Checks to see if there is an error message to be displayed
     if (!$(".errorMessage").is(':empty')) {
@@ -57,10 +60,15 @@ function removeElementIfNotAuthorized() {
  * Helper function to remove alert element.
  */
 function removeAlert() {
+    alertIsShown = false;
     let alert = $("#alertPopUp")
     alert.hide("slide", 100, function() {
         alert.remove();
     })
+    if (liveAlertIsShown){
+        let liveAlert = $("#liveAlertPopUp")
+        liveAlert.animate({bottom: 10}, {duration: 100})
+    }
 }
 
 
@@ -83,6 +91,47 @@ function createAlert(alertMessage, isRed, window = "body") {
         })
     } else {
         alert(alertMessage, isRed, window)
+    }
+}
+
+
+/**
+ * Helper function to remove live alert element. Will only remove if the id of the message is the same as the one on
+ * the alert or if there was no message id. This is used for timing out a notification and making sure an old
+ * notification doesn't accidentally delete a new one
+ */
+function removeLiveAlert(messageId) {
+    let liveAlert = $("#liveAlertPopUp")
+    let liveAlertId = liveAlert.find("#alertId").text()
+    if (messageId === liveAlertId || messageId === undefined) {
+        liveAlertIsShown = false;
+        let alert = $("#liveAlertPopUp")
+        alert.hide("slide", 100, function() {
+            alert.remove();
+        })
+    }
+}
+
+
+/**
+ * Displays a dismissible alert down the bottom right of the screen.
+ * If isRed is true, the background colour will be red, otherwise green.
+ *
+ * @param alertMessage
+ * @param isRed
+ * @param window - the location to show the error
+ */
+function createLiveAlert(alertMessage, alertId, window = "body") {
+
+    let CheckAlert = $("#liveAlertPopUp")
+    if (CheckAlert.is(":visible")) {
+        CheckAlert.hide("slide", 100, function() {
+            CheckAlert.remove();
+        }).promise().done(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
+            liveAlert(alertMessage, alertId, window)
+        })
+    } else {
+        liveAlert(alertMessage, alertId, window)
     }
 }
 
@@ -111,6 +160,50 @@ function alert(alertMessage, isRed, window = "body") {
         alert.css("position", "fixed")
     } else {
         alert.css("position","relative")
+    }
+    alertIsShown = true;
+    addAlert(alert)
+}
+
+
+function liveAlert(alertMessage, alertId, window = "body") {
+    let alertDiv = `<div id="liveAlertPopUp" style="display: none">
+                     <div id="alertId" style="display: none">${alertId}</div>
+                     <p id="alertPopUpMessage">${alertMessage}</p>
+                     <button id="alertPopUpCloseButton" onclick="removeLiveAlert()" class="noStyleButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x-circle" viewBox="0 0 16 16">
+                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                     </svg></button>
+
+                 </div>`
+
+    $(window).append(alertDiv)
+    let alert = $("#liveAlertPopUp")
+
+    liveAlertIsShown = true;
+    addLiveAlert(alert)
+}
+
+
+function addLiveAlert(liveAlert){
+    let alert = $("#alertPopUp")
+
+    if (alertIsShown){
+        let height = alert.height()
+        liveAlert.css("bottom", height + 20)
+    } else {
+        liveAlert.css("bottom", "10px")
+    }
+    liveAlert.show("slide", 100)
+}
+
+
+function addAlert(alert){
+    let liveAlert = $("#liveAlertPopUp")
+
+    if (liveAlertIsShown){
+        height = alert.height() + 20
+        liveAlert.animate({bottom: height}, {duration: 100})
     }
     alert.show("slide", 100)
 }
