@@ -16,19 +16,17 @@ function manageTableSelection() {
     let anchorRow
 
     $( "#groupTableBody" ).selectable({
-        selected: function (e, ui) {  // overrides library function to enable shift clicking
-            let currentRow = $(ui.selected)
-            console.log(e.shiftKey)
+        filter: ":not(td)",
+        selected: function (e) {  // overrides library function to enable shift clicking
+            let currentRow = $(this)
             if (e.shiftKey) {
                 let currentId = parseInt(currentRow.attr("userId"))
                 let lastId
 
                 if (typeof anchorRow == "undefined") {  // if first selection on table, set anchor to this row
-                    console.log("first")
-                    anchorRow = $(ui.selected)
+                    anchorRow = currentRow
                     lastId = currentId
                 } else {
-                    console.log("later")
                     lastId = parseInt(anchorRow.attr("userId"))
                 }
 
@@ -43,12 +41,14 @@ function manageTableSelection() {
                 }
                 currentRow.addClass("ui-selected")
                 anchorRow.addClass("ui-selected")
-            } else {
-                if (e.ctrlKey && currentRow.hasClass("ui-selected")) {
-                    currentRow.removeClass("ui-selected")
-                }
-                anchorRow = currentRow
             }
+            anchorRow = currentRow
+
+            checkToSeeIfHideOrShowOptions()
+            addDraggable()
+            showDraggableIcons()
+        },
+        unselected: function () {
             checkToSeeIfHideOrShowOptions()
             addDraggable()
             showDraggableIcons()
@@ -75,10 +75,7 @@ function addDraggable() {
             $(this).find(".dragGrip").hide()
             try {
                 $(this).draggable("destroy")
-                console.log("yass")
-            } catch (err) {
-                console.log(err)
-            }
+            } catch (err) { /* Do nothing */ }
         }
     })
     $(".dragGrip").draggable({
