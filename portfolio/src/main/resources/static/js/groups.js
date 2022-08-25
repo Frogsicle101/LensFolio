@@ -703,34 +703,3 @@ $(document).on("click", ".group", function () {
     $("#groupEditInfo").slideUp();
     $(this).closest(".group").addClass("focusOnGroup");
 })
-
-
-// ******************************* Keydown listeners *******************************
-
-
-$(document).keydown(function (event) {
-    if (event.key === "Control") {
-        controlDown = true;
-    }
-})
-
-
-$(document).keyup(function (event) {
-    if (event.key === "Control") {
-        controlDown = false;
-    }
-})
-
-
-$(document).keydown(function (event) {
-    if (event.key === "Shift") {
-        shiftDown = true;
-    }
-})
-
-
-$(document).keyup(function (event) {
-    if (event.key === "Shift") {
-        shiftDown = false;
-    }
-})
