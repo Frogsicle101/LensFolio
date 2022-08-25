@@ -55,7 +55,15 @@ function manageTableSelection() {
             checkToSeeIfHideOrShowOptions()
             addDraggable()
             showDraggableIcons()
+        },
+
+        unselected: function(e, ui) {
+            let unselected = $(ui.unselected)
+            $(unselected).each(function () {
+                $(this).find(".dragGrip").hide()
+            })
         }
+
     })
 }
 
@@ -73,17 +81,6 @@ function showDraggableIcons() {
  * https://api.jqueryui.com/draggable/
  */
 function addDraggable() {
-    $(".userRow").each(function () {
-        if (!$(this).hasClass("ui-selected") && $(this).find(".dragGrip").hasClass("ui-draggable")) {
-            $(this).find(".dragGrip").hide()
-            try {
-                $(this).draggable("destroy")
-                console.log("yass")
-            } catch (err) {
-                console.log(err)
-            }
-        }
-    })
     $(".dragGrip").draggable({
         helper: function () {
             let helper = $("<table class='table colourForDrag'/>")
