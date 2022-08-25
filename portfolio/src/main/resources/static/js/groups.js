@@ -44,15 +44,11 @@ function manageTableSelection() {
 
                 currentRow.addClass("ui-selected")
                 anchorRow.addClass("ui-selected")
-            } else {
-                if (e.ctrlKey && currentRow.hasClass("ui-selected")) {
-                    currentRow.removeClass("ui-selected")
-                }
-                anchorRow = currentRow
             }
             checkToSeeIfHideOrShowOptions()
             addDraggable()
             showDraggableIcons()
+            anchorRow = currentRow
         },
 
         unselected: function(e, ui) {
