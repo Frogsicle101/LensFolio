@@ -318,7 +318,7 @@ public class PortfolioController {
                           "Sprint with id " + projectId.toString() + " was not found"));
 
       Project project = projectRepository.getProjectById(projectId);
-      Map<String, LocalDate> neighbouringDates = PortfolioService.checkNeighbourDatesForSprint(sprint, sprintRepository);
+      Map<String, LocalDate> neighbouringDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
       String textForPreviousSprint;
       String textForNextSprint;
       modelAndView.addObject("previousSprintEnd", neighbouringDates.get("previousSprintEnd"));
@@ -378,7 +378,7 @@ public class PortfolioController {
     try {
       logger.info("POST REQUEST /sprintSubmit");
       // Checks that the sprint request is acceptable
-      portfolioService.checkSprintRequest(sprintInfo);
+      projectService.checkSprintRequest(sprintInfo);
 
       LocalDate startDate = LocalDate.parse(sprintInfo.getSprintStartDate());
       LocalDate endDate = LocalDate.parse(sprintInfo.getSprintEndDate());
@@ -387,7 +387,7 @@ public class PortfolioController {
         throw new CheckException("Sprint id doesn't correspond to existing sprint");
       }
       Sprint sprint = sprintOptional.get();
-      Map<String, LocalDate> checkSprintDates = PortfolioService.checkNeighbourDatesForSprint(sprint, sprintRepository);
+      Map<String, LocalDate> checkSprintDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
       checkDateService.checkNewSprintDateNotInsideOtherSprints(checkSprintDates.get("previousSprintEnd"), checkSprintDates.get("nextSprintStart"), sprintInfo);
       sprint.setName(sprintInfo.getSprintName());
       sprint.setStartDate(startDate);

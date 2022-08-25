@@ -10,10 +10,9 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepositor
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
-import nz.ac.canterbury.seng302.portfolio.service.ProjectService;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
-import nz.ac.canterbury.seng302.portfolio.service.PortfolioService;
+import nz.ac.canterbury.seng302.portfolio.service.ProjectService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -52,7 +51,6 @@ class PortfolioControllerTest {
     private final SprintRepository sprintRepository = mock(SprintRepository.class);
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
     private final RegexService regexService = spy(RegexService.class);
-    private final PortfolioService portfolioService = spy(PortfolioService.class);
     private final Sprint mockSprint = mock(Sprint.class);
     private final CheckDateService checkDateService = spy(CheckDateService.class);
     private final ProjectService projectService = new ProjectService(projectRepository, sprintRepository);
@@ -75,7 +73,8 @@ class PortfolioControllerTest {
             projectRepository,
             userAccountsClientService,
             regexService,
-            projectService
+            projectService,
+            checkDateService
     );
 
     private final Integer validUserId = 1;
@@ -231,7 +230,7 @@ class PortfolioControllerTest {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().minusYears(2).toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Project cannot start more than a year before today", response.getBody());
+        Assertions.assertEquals("Project cannot start more than a year before its original date", response.getBody());
     }
 
 
