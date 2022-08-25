@@ -1301,10 +1301,11 @@ function enableToolTips() {
  * A helper function to display a live edit notification. This checks if a user has edit privileges and if they are
  * not the user that made the change.
  */
-function displayLiveUpdateMessage(message, editorId){
+function displayLiveUpdateMessage(message, editorId, eventId){
     if (checkPrivilege){
         if (editorId != userIdent){
-            createLiveAlert(message);
+            createLiveAlert(message, eventId);
+            setTimeout(removeLiveAlert, 10000, eventId)
         }
     }
 }
@@ -1343,7 +1344,9 @@ function handleCreateEvent(notification) {
         default :
             break
     }
-    displayLiveUpdateMessage(editorName + " has created a new " + occasionType, editorId);
+    var eventDiv = $("#" + occasionId)
+    var eventName = eventDiv.find(".name").text();
+    displayLiveUpdateMessage(editorName + " has created a new " + occasionType, editorId, occasionId);
 }
 
 
@@ -1383,7 +1386,7 @@ function handleUpdateEvent(notification) {
             // Add debug log here
             break
     }
-    displayLiveUpdateMessage(editorName + " updated " + occasionType + ": " + eventName, editorId);
+    displayLiveUpdateMessage(editorName + " updated " + occasionType + ": " + eventName, editorId, occasionId);
 }
 
 
@@ -1423,7 +1426,7 @@ function handleDeleteEvent(notification) {
             })
             break
     }
-    displayLiveUpdateMessage(editorName + " deleted " + occasionType + ": " + eventName, editorId);
+    displayLiveUpdateMessage(editorName + " deleted " + occasionType + ": " + eventName, editorId, occasionId);
 }
 
 

@@ -96,14 +96,20 @@ function createAlert(alertMessage, isRed, window = "body") {
 
 
 /**
- * Helper function to remove live alert element.
+ * Helper function to remove live alert element. Will only remove if the id of the message is the same as the one on
+ * the alert or if there was no message id. This is used for timing out a notification and making sure an old
+ * notification doesn't accidentally delete a new one
  */
-function removeLiveAlert() {
-    liveAlertIsShown = false;
-    let alert = $("#liveAlertPopUp")
-    alert.hide("slide", 100, function() {
-        alert.remove();
-    })
+function removeLiveAlert(messageId) {
+    let liveAlert = $("#liveAlertPopUp")
+    let liveAlertId = liveAlert.find("#alertId").text()
+    if (messageId === liveAlertId || messageId === undefined) {
+        liveAlertIsShown = false;
+        let alert = $("#liveAlertPopUp")
+        alert.hide("slide", 100, function() {
+            alert.remove();
+        })
+    }
 }
 
 
@@ -115,17 +121,17 @@ function removeLiveAlert() {
  * @param isRed
  * @param window - the location to show the error
  */
-function createLiveAlert(alertMessage, window = "body") {
+function createLiveAlert(alertMessage, alertId, window = "body") {
 
     let CheckAlert = $("#liveAlertPopUp")
     if (CheckAlert.is(":visible")) {
         CheckAlert.hide("slide", 100, function() {
             CheckAlert.remove();
         }).promise().done(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
-            liveAlert(alertMessage, window)
+            liveAlert(alertMessage, alertId, window)
         })
     } else {
-        liveAlert(alertMessage, window)
+        liveAlert(alertMessage, alertId, window)
     }
 }
 
@@ -160,8 +166,9 @@ function alert(alertMessage, isRed, window = "body") {
 }
 
 
-function liveAlert(alertMessage, window = "body") {
+function liveAlert(alertMessage, alertId, window = "body") {
     let alertDiv = `<div id="liveAlertPopUp" style="display: none">
+                     <div id="alertId" style="display: none">${alertId}</div>
                      <p id="alertPopUpMessage">${alertMessage}</p>
                      <button id="alertPopUpCloseButton" onclick="removeLiveAlert()" class="noStyleButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x-circle" viewBox="0 0 16 16">
                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
