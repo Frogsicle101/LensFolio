@@ -9,19 +9,28 @@ const MWAG_GROUP_ID = 2
  * Overrides the "selected" function in jQuery UI, with the following traits:
  * A non-shift select sets an "anchor" row. Shift clicking on either side of the anchor row selects rows between the
  * anchor row and the selected row (inclusive).
- * Ctrl clicking allows non-adjacent rows to be selected, and rows to be deselected.
+ * Ctrl clicks allow non-adjacent rows to be selected and deselected.
  * Ctrl clicks followed by a shift click will deselect all but the latest ctrl click.
  */
-$(function() {
+function manageTableSelection() {
     let anchorRow
 
     $( "#groupTableBody" ).selectable({
         selected: function (e, ui) {  // overrides library function to enable shift clicking
             let currentRow = $(ui.selected)
-
+            console.log(e.shiftKey)
             if (e.shiftKey) {
                 let currentId = parseInt(currentRow.attr("userId"))
-                let lastId = parseInt(anchorRow.attr("userId"))
+                let lastId
+
+                if (typeof anchorRow == "undefined") {  // if first selection on table, set anchor to this row
+                    console.log("first")
+                    anchorRow = $(ui.selected)
+                    lastId = currentId
+                } else {
+                    console.log("later")
+                    lastId = parseInt(anchorRow.attr("userId"))
+                }
 
                 if (currentId > lastId) {  // latest selected row is below the previous selected row
                     currentRow.prevUntil(anchorRow).each((i, row) => {  //for every row between the current and last selected rows
@@ -35,21 +44,17 @@ $(function() {
                 currentRow.addClass("ui-selected")
                 anchorRow.addClass("ui-selected")
             } else {
-                console.log(e.ctrlKey)
-                console.log(currentRow.hasClass("ui-selected"))
                 if (e.ctrlKey && currentRow.hasClass("ui-selected")) {
-                    console.log("removing class")
                     currentRow.removeClass("ui-selected")
                 }
                 anchorRow = currentRow
             }
             checkToSeeIfHideOrShowOptions()
             addDraggable()
-            updateDragGrips()
             showDraggableIcons()
         }
     })
-})
+}
 
 
 /**
@@ -65,6 +70,17 @@ function showDraggableIcons() {
  * https://api.jqueryui.com/draggable/
  */
 function addDraggable() {
+    $(".userRow").each(function () {
+        if (!$(this).hasClass("ui-selected") && $(this).find(".dragGrip").hasClass("ui-draggable")) {
+            $(this).find(".dragGrip").hide()
+            try {
+                $(this).draggable("destroy")
+                console.log("yass")
+            } catch (err) {
+                console.log(err)
+            }
+        }
+    })
     $(".dragGrip").draggable({
         helper: function () {
             let helper = $("<table class='table colourForDrag'/>")
@@ -76,27 +92,12 @@ function addDraggable() {
 }
 
 
-/**
- * Hides drag grips on rows that are draggable but not selected.
- */
-function updateDragGrips() {
-    $(".userRow").each(function (i, row) {
-        if (!$(row).hasClass("ui-selected") && $(row).find(".dragGrip").hasClass("ui-draggable")) {
-            $(row).find(".dragGrip").hide()
-            try {
-                $(row).draggable("destroy")
-            } catch (err) {
-                console.log(err)
-            }
-        }
-    })
-}
-
-
 $(function () {
     if (!checkPrivilege()) {
         return
     }
+
+    manageTableSelection()
 
     let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
     for (let i = 0; i < listOfGroupDivs.length; i++) { // Loops over each div
