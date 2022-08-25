@@ -21,7 +21,10 @@ public enum RegexPattern {
     /** Restricts to valid email format, e.g., example@email.com */
     EMAIL(Pattern.compile("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$"),
             " must be of a valid email format e.g., example@email.com"),
-    ;
+
+    /** Regex that is a valid hex colour code **/
+    HEX_COLOUR(Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"), " must be a valid hex colour.");
+
 
     // Enum attribute declaration
 

@@ -5,6 +5,8 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
+import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -13,6 +15,7 @@ import java.util.List;
 /**
  * Checks if time values are contained in date ranges.
  */
+@Service
 public class CheckDateService {
 
     /**
@@ -41,7 +44,7 @@ public class CheckDateService {
      * @param project The project in question.
      * @param projectRequest The project request that contains all the proposed changes.
      */
-    public static void checkProjectAndItsSprintDates(SprintRepository sprintRepository, Project project, ProjectRequest projectRequest){
+    public void checkProjectAndItsSprintDates(SprintRepository sprintRepository, Project project, ProjectRequest projectRequest){
         List<Sprint> sprints = sprintRepository.findAllByProjectId(project.getId());
         sprints.sort((Comparator.comparing(Sprint::getStartDate)));
         LocalDate newProjectStart = LocalDate.parse(projectRequest.getProjectStartDate());
@@ -64,7 +67,14 @@ public class CheckDateService {
         }
     }
 
-    public static void checkProjectHasRoomForSprints(SprintRepository sprintRepository, Project project) {
+
+    /**
+     * Checks that the project has room to add more sprints in.
+     * Essentially checks that the new sprint start/end dates don't go past the end of the sprint.
+     * @param sprintRepository the repository for sprints
+     * @param project the project in question
+     */
+    public void checkProjectHasRoomForSprints(SprintRepository sprintRepository, Project project) {
         LocalDate startDate = project.getStartDate();
         List<Sprint> sprints = sprintRepository.findAllByProjectId(project.getId());
         sprints.sort((Comparator.comparing(Sprint::getStartDate)));
@@ -75,4 +85,17 @@ public class CheckDateService {
             throw new CheckException("No more room to add sprints within project dates!");
         }
     }
+
+    public void checkNewSprintDateNotInsideOtherSprints(LocalDate previousDateLimit, LocalDate nextDateLimit, SprintRequest sprintRequest){
+        LocalDate startDate = LocalDate.parse(sprintRequest.getSprintStartDate());
+        LocalDate endDate = LocalDate.parse(sprintRequest.getSprintEndDate());
+        if (startDate.isBefore(previousDateLimit)) {
+            throw new CheckException("Start date is before previous sprints end date / project start date");
+        }
+        if (endDate.isAfter(nextDateLimit)) {
+            throw new CheckException("End date is after next sprints start date / project end date");
+        }
+    }
+
+
 }
