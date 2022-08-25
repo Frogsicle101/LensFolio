@@ -1297,6 +1297,20 @@ function enableToolTips() {
 }
 
 
+/**
+ * A helper function to display a live edit notification. This checks if a user has edit privileges and if they are
+ * not the user that made the change.
+ */
+function displayLiveUpdateMessage(message, editorId, eventId){
+    if (checkPrivilege){
+        if (editorId != userIdent){
+            createLiveAlert(message, eventId);
+            setTimeout(removeLiveAlert, 10000, eventId)
+        }
+    }
+}
+
+
 //  ------------------------------- Handle the incoming websocket notifications ---------------------------------------
 
 
@@ -1305,6 +1319,8 @@ function enableToolTips() {
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
 function handleCreateEvent(notification) {
+    const editorId = notification.editorId;
+    const editorName = notification.editorName;
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
     switch (occasionType) {
@@ -1328,6 +1344,9 @@ function handleCreateEvent(notification) {
         default :
             break
     }
+    var eventDiv = $("#" + occasionId)
+    var eventName = eventDiv.find(".name").text();
+    displayLiveUpdateMessage(editorName + " has created a new " + occasionType, editorId, occasionId);
 }
 
 
@@ -1340,6 +1359,11 @@ function handleCreateEvent(notification) {
 function handleUpdateEvent(notification) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
+    const editorId = notification.editorId;
+    const editorName = notification.editorName;
+    var eventDiv = $("#" + occasionId)
+    var eventName = eventDiv.find(".name").text();
+
     switch (occasionType) {
         case 'event' :
             reloadElement(occasionId)
@@ -1362,6 +1386,7 @@ function handleUpdateEvent(notification) {
             // Add debug log here
             break
     }
+    displayLiveUpdateMessage(editorName + " updated " + occasionType + ": " + eventName, editorId, occasionId);
 }
 
 
@@ -1373,6 +1398,10 @@ function handleUpdateEvent(notification) {
 function handleDeleteEvent(notification) {
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
+    const editorId = notification.editorId;
+    const editorName = notification.editorName;
+    let eventDiv = $("#" + occasionId)
+    let eventName = eventDiv.find(".name").text();
 
     removeElement(occasionId) // removes specific event
 
@@ -1397,6 +1426,7 @@ function handleDeleteEvent(notification) {
             })
             break
     }
+    displayLiveUpdateMessage(editorName + " deleted " + occasionType + ": " + eventName, editorId, occasionId);
 }
 
 

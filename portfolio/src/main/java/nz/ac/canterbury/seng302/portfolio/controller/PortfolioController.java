@@ -220,13 +220,14 @@ public class PortfolioController {
       int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
       String sprintName = "Sprint " + amountOfSprints;
       checkDateService.checkProjectHasRoomForSprints(sprintRepository, project);
+      Sprint sprint;
       if (project.getStartDate().plusWeeks(3).isAfter(project.getEndDate())) {
-        sprintRepository.save(
+        sprint = sprintRepository.save(
             new Sprint(project, sprintName, project.getStartDate(), project.getEndDate()));
       } else {
-        sprintRepository.save(new Sprint(project, sprintName, project.getStartDate()));
+        sprint = sprintRepository.save(new Sprint(project, sprintName, project.getStartDate()));
       }
-      return new ResponseEntity<>(HttpStatus.OK);
+      return new ResponseEntity<>(sprint, HttpStatus.OK);
     } catch (CheckException checkException) {
       logger.warn(checkException.getMessage());
       return new ResponseEntity<>(checkException.getMessage(), HttpStatus.BAD_REQUEST);
