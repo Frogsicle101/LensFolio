@@ -16,19 +16,21 @@ function manageTableSelection() {
     let anchorRow
 
     $( "#groupTableBody" ).selectable({
+
+        // Don't allow individual table cell selection.
+        filter: ":not(td)",
+
         selected: function (e, ui) {  // overrides library function to enable shift clicking
             let currentRow = $(ui.selected)
-            console.log(e.shiftKey)
+
             if (e.shiftKey) {
                 let currentId = parseInt(currentRow.attr("userId"))
                 let lastId
 
                 if (typeof anchorRow == "undefined") {  // if first selection on table, set anchor to this row
-                    console.log("first")
                     anchorRow = $(ui.selected)
                     lastId = currentId
                 } else {
-                    console.log("later")
                     lastId = parseInt(anchorRow.attr("userId"))
                 }
 
@@ -41,6 +43,7 @@ function manageTableSelection() {
                         $(row).addClass("ui-selected")
                     })
                 }
+
                 currentRow.addClass("ui-selected")
                 anchorRow.addClass("ui-selected")
             } else {
