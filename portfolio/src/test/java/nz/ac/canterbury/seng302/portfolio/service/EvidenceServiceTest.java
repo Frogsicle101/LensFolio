@@ -45,11 +45,12 @@ class EvidenceServiceTest {
     private final EvidenceRepository evidenceRepository = Mockito.mock(EvidenceRepository.class);
     private final WebLinkRepository webLinkRepository = Mockito.mock(WebLinkRepository.class);
     private final SkillRepository skillRepository = Mockito.mock(SkillRepository.class);
+    private final RegexService regexService = new RegexService();
 
 
     @BeforeEach
     void setUp() {
-        evidenceService = new EvidenceService(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, skillRepository);
+        evidenceService = new EvidenceService(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, skillRepository, regexService);
         evidence = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         when(userAccountsClientService.getUserAccountById(any())).thenReturn(UserResponse.newBuilder().setId(1).build());
         when(evidenceRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
@@ -222,7 +223,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be longer than 1 character"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("title is shorter than the minimum length of 2 characters"));
     }
 
 
@@ -248,7 +249,7 @@ class EvidenceServiceTest {
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         System.out.println(exception.getMessage());
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("cannot be more than 50 characters"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("title is longer than the maximum length of 50 characters"));
     }
 
 
@@ -274,7 +275,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be longer than 1 character"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("description is shorter than the minimum length of 2 characters"));
     }
 
 
@@ -300,7 +301,7 @@ class EvidenceServiceTest {
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         System.out.println(exception.getMessage().toLowerCase());
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("cannot be more than 500 characters"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("description is longer than the maximum length of 500 characters"));
     }
 
 
