@@ -5,7 +5,7 @@ context("Ctrl Selecting Group Members", () => {
         cy.get('#2').click('top');
     })
 
-    it('pressing ctrl select 2 times adjacent', () => {
+    it('ctrl clicking 2 adjacent rows', () => {
         cy.get('.userRow').first()
             .click({ctrlKey: true})
         cy.get('.userRow:not(.selected)').first()
@@ -13,7 +13,7 @@ context("Ctrl Selecting Group Members", () => {
         cy.get('.selected').should('have.length', 2)
     })
 
-    it('pressing ctrl select 2 times non-adjacent', () => {
+    it('ctrl clicking 2 non-adjacent rows', () => {
         cy.get('.userRow').first()
             .click({ctrlKey: true})
         cy.get('.userRow:not(.selected)').last()
@@ -21,7 +21,7 @@ context("Ctrl Selecting Group Members", () => {
         cy.get('.selected').should('have.length', 2)
     })
 
-    it('pressing ctrl select 2 times adjacent, press again to deselect', () => {
+    it('ctrl clicking 2 adjacent rows, then deselecting them', () => {
         cy.get('.userRow').first()
             .click({ctrlKey: true})
         cy.get('.userRow:not(.selected)').first()
@@ -31,7 +31,7 @@ context("Ctrl Selecting Group Members", () => {
         cy.get('.selected').should('have.length', 0)
     })
 
-    it('pressing ctrl select 2 times non-adjacent, press again to deselect', () => {
+    it('ctrl clicking 2 non-adjacent rows, press again to deselect', () => {
         cy.get('.userRow').first()
             .click({ctrlKey: true})
         cy.get('.userRow:not(.selected)').last()
@@ -81,7 +81,7 @@ context("Shift Selecting Group Members", () => {
 })
 
 
-context("Shift and Ctrl Keys Selecting Group Members", () => {
+context("Shift and Ctrl Selecting Group Members", () => {
     beforeEach(() => {
         cy.adminLogin()
         cy.get('.navButtonsDiv').click();

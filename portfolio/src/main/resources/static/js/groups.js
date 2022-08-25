@@ -3,88 +3,6 @@ let group
 const TEACHER_GROUP_ID = 1
 const MWAG_GROUP_ID = 2
 
-/**
- * On load of the page, makes the group user's list a JQuery UI selectable element.
- *
- * Overrides the "selected" function in jQuery UI, with the following traits:
- * A non-shift select sets an "anchor" row. Shift clicking on either side of the anchor row selects rows between the
- * anchor row and the selected row (inclusive).
- * Ctrl clicks allow non-adjacent rows to be selected and deselected.
- * Ctrl clicks followed by a shift click will deselect all but the latest ctrl click.
- */
-function manageTableSelection() {
-    let anchorRow
-
-    $( "#groupTableBody" ).selectable({
-        filter: ":not(td)",
-
-        selected: function (e, ui) {  // overrides library function to enable shift clicking
-            let currentRow = $(ui.selected)
-
-            if (e.shiftKey) {
-                let currentId = parseInt(currentRow.attr("userId"))
-                let lastId
-
-                if (typeof anchorRow == "undefined") {  // if first selection on table, set anchor to this row
-                    anchorRow = $(ui.selected)
-                    lastId = currentId
-                } else {
-                    lastId = parseInt(anchorRow.attr("userId"))
-                }
-
-                if (currentId > lastId) {  // latest selected row is below the previous selected row
-                    currentRow.prevUntil(anchorRow).each((i, row) => {  //for every row between the current and last selected rows
-                        $(row).addClass("ui-selected")
-                    })
-                } else if (currentId < lastId)  {  // latest selected row is above the previous selected row
-                    currentRow.nextUntil(anchorRow).each((i, row) => {
-                        $(row).addClass("ui-selected")
-                    })
-                }
-
-                currentRow.addClass("ui-selected")
-                anchorRow.addClass("ui-selected")
-            }
-            checkToSeeIfHideOrShowOptions()
-            addDraggable()
-            showDraggableIcons()
-            anchorRow = currentRow
-        },
-
-        unselected: function(e, ui) {
-            let unselected = $(ui.unselected)
-            $(unselected).each(function () {
-                $(this).find(".dragGrip").hide()
-            })
-        }
-    })
-}
-
-
-/**
- * Displays the grip element that each table row has
- */
-function showDraggableIcons() {
-    $(".ui-selected").find(".dragGrip").show()
-}
-
-
-/**
- * Makes the selected elements draggable with the cursor.
- * https://api.jqueryui.com/draggable/
- */
-function addDraggable() {
-    $(".dragGrip").draggable({
-        helper: function () {
-            let helper = $("<table class='table colourForDrag'/>")
-            return helper.append($(".ui-selected").clone())
-        },
-        revert: true,
-        appendTo: "body"
-    })
-}
-
-
 $(function () {
     if (!checkPrivilege()) {
         return
@@ -121,12 +39,108 @@ $(function () {
     }
 })
 
-// ******************************* Functions *******************************
-
+//----------------------- jQuery UI User Selection -------------------------
 
 
 /**
- * Ajax post request to the server for moving users from one group to another
+ * Implements the selectable widget from jQuery UI to enable the selection of users in the group members list.
+ */
+function manageTableSelection() {
+    let anchorRow
+
+    $( "#groupTableBody" ).selectable({
+        filter: ":not(td)",
+
+        /**
+         * Overrides the selected method for the jQuery UI selectable widget, to enable shift clicking.
+         *
+         * A non-shift select sets an "anchor" row. Shift clicking on either side of the anchor row selects rows between the
+         * anchor row and the selected row (inclusive).
+         * Ctrl clicks allow non-adjacent rows to be selected and deselected.
+         * Ctrl clicks followed by a shift click will deselect all but the latest ctrl click.
+         *
+         * @param e An event (e.g. a key press)
+         * @param ui The latest selected row
+         */
+        selected: function (e, ui) {  // overrides library function to enable shift clicking
+            let currentRow = $(ui.selected)
+
+            if (e.shiftKey) {
+                let currentId = parseInt(currentRow.attr("userId"))
+                let lastId
+
+                if (typeof anchorRow == "undefined") {  // if first selection on table, set anchor to this row
+                    anchorRow = $(ui.selected)
+                    lastId = currentId
+                } else {
+                    lastId = parseInt(anchorRow.attr("userId"))
+                }
+
+                if (currentId > lastId) {  // latest selected row is below the previous selected row
+                    currentRow.prevUntil(anchorRow).each((i, row) => {  //for every row between the current and last selected rows
+                        $(row).addClass("ui-selected")
+                    })
+                } else if (currentId < lastId)  {  // latest selected row is above the previous selected row
+                    currentRow.nextUntil(anchorRow).each((i, row) => {
+                        $(row).addClass("ui-selected")
+                    })
+                }
+
+                currentRow.addClass("ui-selected")
+                anchorRow.addClass("ui-selected")
+            }
+            checkToSeeIfHideOrShowOptions()
+            addDraggable()
+            showDraggableIcons()
+            anchorRow = currentRow
+        },
+
+        /**
+         * Overrides the unselected method for the jQuery UI selectable widget.
+         * Hides the drag grip on each row that has been unselected.
+         *
+         * @param e An event (unused)
+         * @param ui The unselected rows
+         */
+        unselected: function(e, ui) {
+            let unselected = $(ui.unselected)
+            $(unselected).each(function () {
+                $(this).find(".dragGrip").hide()
+            })
+        }
+    })
+}
+
+
+/**
+ * Implements the jQuery UI draggable widget to enable the dragging of group members between groups.
+ * Reference: https://api.jqueryui.com/draggable/
+ */
+function addDraggable() {
+    $(".dragGrip").draggable({
+        helper: function () {
+            let helper = $("<table class='table colourForDrag'/>")
+            return helper.append($(".ui-selected").clone())
+        },
+        revert: true,
+        appendTo: "body"
+    })
+}
+
+
+/**
+ * Displays the grip element on each jQuery UI selected row.
+ */
+function showDraggableIcons() {
+    $(".ui-selected").find(".dragGrip").show()
+}
+
+
+//------------------------ Other Functions ------------------------------
+
+
+/**
+ * Ajax post request to the server for moving users from one group to another.
  */
 function addUsers(groupId) {
     let arrayOfIds = [];
