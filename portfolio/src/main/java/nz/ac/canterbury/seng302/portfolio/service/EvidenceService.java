@@ -122,11 +122,7 @@ public class EvidenceService {
 
         for (WebLinkDTO dto : webLinks) {
             WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
-            try {
-                regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
-            } catch (CheckException e) {
-                continue;
-            }
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
         }
@@ -153,11 +149,7 @@ public class EvidenceService {
      */
     public void addSkills(Evidence evidence, List<String> skills) {
         for(String skillName: skills){
-            try {
-                regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 2, 30, "skill name");
-            } catch (CheckException e) {
-                continue; // If the skill is invalid, don't add it
-            }
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 2, 30, "skill name");
             Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
             Skill theSkill;
             if (optionalSkill.isEmpty()) {
