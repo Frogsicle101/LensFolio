@@ -38,11 +38,11 @@ Cypress.Commands.add('adminLogin', () => {
         .type(`password{enter}`) //add password and submit form
 
     cy.getCookie('lens-session-token')
-      .should('exist')
-      .then((c) => {
-        // save cookie until we need it
-        cy.setCookie('lens-session-token', c.value)
-      })
+        .should('exist')
+        .then((c) => {
+            // save cookie until we need it
+            cy.setCookie('lens-session-token', c.value)
+        })
 })
 
 

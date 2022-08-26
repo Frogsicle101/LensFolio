@@ -1,106 +1,14 @@
-let controlDown = false;
-let shiftDown = false;
-let selectedGroupId;
-let lastSelectedRow;
-let group;
-let notCtrlClick = true;
+let selectedGroupId
+let group
 const TEACHER_GROUP_ID = 1
 const MWAG_GROUP_ID = 2
 
-
-$(document).ready(function () {
-    let arrayOfSelected = []
+$(function () {
     if (!checkPrivilege()) {
         return
     }
 
-    /**
-     * JQuery UI Selectable interaction
-     * https://api.jqueryui.com/selectable/
-     */
-    $("table > tbody").selectable({ //
-
-        // Don't allow individual table cell selection.
-        filter: ":not(td)",
-
-        /**
-         * Runs a function over every selected element
-         * @param e event
-         * @param ui the selectable item that has been selected
-         */
-        selected: function (e, ui) {
-            let currentlySelected = $(ui.selected)
-
-            notCtrlClick = !e.ctrlKey && !e.metaKey //The meta Key checks the command Key on Mac.
-            if (shiftDown) { // Checks if the shift key is currently pressed
-                notCtrlClick = false
-                if (parseInt(currentlySelected.attr("userId")) > parseInt(lastSelectedRow.attr("userId"))) {
-                    currentlySelected.prevUntil(lastSelectedRow).each(function () {
-                        $(this).addClass("selected")
-                        arrayOfSelected.push($(this))
-                    })
-
-                } else if (currentlySelected.attr("userId") < parseInt(lastSelectedRow.attr("userId"))) {
-                    currentlySelected.nextUntil(lastSelectedRow).each(function () {
-                        $(this).addClass("selected")
-                        arrayOfSelected.push($(this))
-                    })
-
-                }
-                lastSelectedRow.addClass("selected")
-                currentlySelected.addClass("selected");
-                arrayOfSelected.push(lastSelectedRow)
-                arrayOfSelected.push(currentlySelected)
-            } else {
-                arrayOfSelected.push(ui)
-            }
-            lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
-        },
-
-        /**
-         * Triggered at the end of the select operation.
-         */
-        stop: function () {
-            if (arrayOfSelected.length === 1) {
-                if ($(arrayOfSelected[0].selected).hasClass("selected")) {
-                    $(arrayOfSelected[0].selected).removeClass("selected")
-                } else {
-                    $(arrayOfSelected[0].selected).addClass("selected")
-                }
-            }
-            if (notCtrlClick) {
-                $(".selected").removeClass("selected")
-                lastSelectedRow.addClass("selected")
-            }
-            $(".userRow").each(function () {
-                if (!$(this).hasClass("selected") && $(this).find(".dragGrip").hasClass("ui-draggable")) {
-                    $(this).find(".dragGrip").hide()
-                    try {
-                        $(this).draggable("destroy")
-                    } catch (err) {
-                    }
-                }
-            })
-            arrayOfSelected = []
-            checkToSeeIfHideOrShowOptions()
-            addDraggable()
-
-            showDraggableIcon()
-        },
-
-        /**
-         * Triggered at the end of the select operation, on each element removed from the selection.
-         * @param e event
-         * @param ui The selectable item that has been unselected.
-         */
-        unselected: function (e, ui) {
-            if (notCtrlClick) {
-                $(ui.unselected).removeClass("selected");
-            }
-            checkToSeeIfHideOrShowOptions()
-        }
-    });
-
+    manageTableSelection()
 
     let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
     for (let i = 0; i < listOfGroupDivs.length; i++) { // Loops over each div
@@ -124,43 +32,119 @@ $(document).ready(function () {
              */
             drop: function () {
                 addUsers($(this).attr("id"))
-                showDraggableIcon()
+                showDraggableIcons()
             },
             tolerance: "pointer"
         })
     }
 })
 
-// ******************************* Functions *******************************
+//----------------------- jQuery UI User Selection -------------------------
+
 
 /**
- * Displays the grip element that each table row has
+ * Implements the selectable widget from jQuery UI to enable the selection of users in the group members list.
  */
-function showDraggableIcon() {
-    $(".selected").find(".dragGrip").show()
+function manageTableSelection() {
+    let anchorRow
+
+    $( "#groupTableBody" ).selectable({
+        filter: ":not(td)",
+
+        /**
+         * Overrides the selected method for the jQuery UI selectable widget, to enable shift clicking.
+         *
+         * A non-shift select sets an "anchor" row. Shift clicking on either side of the anchor row selects rows between the
+         * anchor row and the selected row (inclusive).
+         * Ctrl clicks allow non-adjacent rows to be selected and deselected.
+         * Ctrl clicks followed by a shift click will deselect all but the latest ctrl click.
+         *
+         * @param e An event (e.g. a key press)
+         * @param ui The latest selected row
+         */
+        selected: function (e, ui) {  // overrides library function to enable shift clicking
+            let currentRow = $(ui.selected)
+
+            if (e.shiftKey) {
+                let currentId = parseInt(currentRow.attr("userId"))
+                let lastId
+
+                if (typeof anchorRow == "undefined") {  // if first selection on table, set anchor to this row
+                    anchorRow = $(ui.selected)
+                    lastId = currentId
+                } else {
+                    lastId = parseInt(anchorRow.attr("userId"))
+                }
+
+                if (currentId > lastId) {  // latest selected row is below the previous selected row
+                    currentRow.prevUntil(anchorRow).each((i, row) => {  //for every row between the current and last selected rows
+                        $(row).addClass("ui-selected")
+                    })
+                } else if (currentId < lastId)  {  // latest selected row is above the previous selected row
+                    currentRow.nextUntil(anchorRow).each((i, row) => {
+                        $(row).addClass("ui-selected")
+                    })
+                }
+
+                currentRow.addClass("ui-selected")
+                anchorRow.addClass("ui-selected")
+            }
+            checkToSeeIfHideOrShowOptions()
+            addDraggable()
+            showDraggableIcons()
+            anchorRow = currentRow
+        },
+
+        /**
+         * Overrides the unselected method for the jQuery UI selectable widget.
+         * Hides the drag grip on each row that has been unselected.
+         *
+         * @param e An event (unused)
+         * @param ui The unselected rows
+         */
+        unselected: function(e, ui) {
+            let unselected = $(ui.unselected)
+            $(unselected).each(function () {
+                $(this).find(".dragGrip").hide()
+            })
+        }
+    })
 }
 
+
 /**
- * Makes the selected elements able to  be draggable with the mouse
- * https://api.jqueryui.com/draggable/
+ * Implements the jQuery UI draggable widget to enable the dragging of group members between groups.
+ * Reference: https://api.jqueryui.com/draggable/
  */
 function addDraggable() {
     $(".dragGrip").draggable({
         helper: function () {
             let helper = $("<table class='table colourForDrag'/>")
-            return helper.append($(".selected").clone())
+            return helper.append($(".ui-selected").clone())
         },
         revert: true,
         appendTo: "body"
     })
 }
 
+
 /**
- * Ajax post request to the server for moving users from one group to another
+ * Displays the grip element on each jQuery UI selected row.
+ */
+function showDraggableIcons() {
+    $(".ui-selected").find(".dragGrip").show()
+}
+
+
+//------------------------ Other Functions ------------------------------
+
+
+/**
+ * Ajax post request to the server for moving users from one group to another.
  */
 function addUsers(groupId) {
     let arrayOfIds = [];
-    let selected = $(".selected")
+    let selected = $(".ui-selected")
     selected.each(function () {
         arrayOfIds.push($(this).attr("userId"))
     })
@@ -198,7 +182,6 @@ function showOptions(show) {
         }
 
     }
-    $(".numSelected").text($(".selected").length + " Selected")
 }
 
 
@@ -234,12 +217,8 @@ function changeToUsersTab() {
  * Helper function that uses the amount of selected users to determine if to call the showOptions function
  */
 function checkToSeeIfHideOrShowOptions() {
-    let amountSelected = $(".selected").length
-    if (amountSelected > 0) {
-        showOptions(true)
-    } else {
-        showOptions(false)
-    }
+    let amountSelected = $(".ui-selected").length
+    showOptions(amountSelected > 0)
 }
 
 
@@ -644,7 +623,7 @@ $(document).on("click", ".cancelGroupEdit", cancelGroupEdit);
  */
 $(document).on("click", "#confirmRemoval", function () {
     let arrayOfIds = [];
-    $(".selected").each(function () {
+    $(".ui-selected").each(function () {
         arrayOfIds.push($(this).attr("userId"))
     })
     $.ajax({
@@ -697,7 +676,7 @@ $(document).on("click", "#selectAllCheckboxGroups", function () {
     $(".selectUserCheckboxGroups").prop("checked", isChecked)
     if (isChecked) {
         $(".userRow").addClass("selected")
-        showDraggableIcon()
+        showDraggableIcons()
     } else {
         let userRow = $(".userRow")
         userRow.removeClass("selected")
@@ -733,35 +712,4 @@ $(document).on("click", ".group", function () {
     $("#confirmationForm").slideUp();
     $("#groupEditInfo").slideUp();
     $(this).closest(".group").addClass("focusOnGroup");
-})
-
-
-// ******************************* Keydown listeners *******************************
-
-
-$(document).keydown(function (event) {
-    if (event.key === "Control") {
-        controlDown = true;
-    }
-})
-
-
-$(document).keyup(function (event) {
-    if (event.key === "Control") {
-        controlDown = false;
-    }
-})
-
-
-$(document).keydown(function (event) {
-    if (event.key === "Shift") {
-        shiftDown = true;
-    }
-})
-
-
-$(document).keyup(function (event) {
-    if (event.key === "Shift") {
-        shiftDown = false;
-    }
 })
