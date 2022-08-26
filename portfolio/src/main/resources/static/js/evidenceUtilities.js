@@ -805,7 +805,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  */
 $('#addEvidenceModal').on('hide.bs.modal', function (e) {
     let alert = $("#alertPopUp")
-    if (alert.is(":visible")){
+    if (alert.is(":visible") && alert.hasClass("backgroundRed") ){
         alert.effect("shake")
         e.preventDefault();
         e.stopPropagation();

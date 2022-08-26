@@ -223,7 +223,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be longer than 1 character"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("is shorter than the minimum length"));
     }
 
 
@@ -248,8 +248,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        System.out.println(exception.getMessage());
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("cannot be more than 50 characters"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("name is longer than the maximum length"));
     }
 
 
@@ -275,7 +274,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be longer than 1 character"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("is shorter than the minimum length"));
     }
 
 
@@ -300,8 +299,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        System.out.println(exception.getMessage().toLowerCase());
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("cannot be more than 500 characters"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("is longer than the maximum length"));
     }
 
 
