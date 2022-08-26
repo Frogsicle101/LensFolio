@@ -25,8 +25,6 @@ import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -45,11 +43,6 @@ public class EvidenceService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * Regex that is all unicode letters, numbers and punctuation
-     */
-    private static final Pattern pattern = Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\s]+", Pattern.CASE_INSENSITIVE);
-
     private final UserAccountsClientService userAccountsClientService;
 
     private final ProjectRepository projectRepository;
@@ -60,45 +53,23 @@ public class EvidenceService {
 
     private final SkillRepository skillRepository;
 
+    private final RegexService regexService;
+
     @Autowired
     public EvidenceService(
             UserAccountsClientService userAccountsClientService,
             ProjectRepository projectRepository,
             EvidenceRepository evidenceRepository,
             WebLinkRepository webLinkRepository,
-            SkillRepository skillRepository
+            SkillRepository skillRepository,
+            RegexService regexService
     ) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
         this.webLinkRepository = webLinkRepository;
         this.skillRepository = skillRepository;
-    }
-
-
-    /**
-     * Checks if the string is too short or matches the pattern provided
-     * if either of these are true then it throws an exception
-     *
-     * @param string A string
-     * @throws CheckException The exception to throw
-     */
-    private void checkString(String string, StringType type) throws CheckException {
-        if (string.length() < 2) {
-            throw new CheckException("Text should be longer than 1 character");
-        } else {
-            Matcher matcher = pattern.matcher(string);
-            boolean matchFound = matcher.matches();
-            if (!matchFound) {
-                throw new CheckException("Text contains characters that aren't allowed");
-            }
-        }
-
-        if (type == StringType.TITLE && string.length() > 50) {
-            throw new CheckException("Title cannot be more than 50 characters");
-        } else if (type == StringType.DESCRIPTION && string.length() > 500){
-            throw new CheckException("Description cannot be more than 500 characters");
-        }
+        this.regexService = regexService;
     }
 
 
@@ -148,9 +119,8 @@ public class EvidenceService {
         Project project = optionalProject.get();
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
-
-        checkString(title, StringType.TITLE);
-        checkString(description, StringType.DESCRIPTION);
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "Evidence name");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "Evidence description");
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
         evidence = evidenceRepository.save(evidence);

@@ -45,11 +45,12 @@ class EvidenceServiceTest {
     private final EvidenceRepository evidenceRepository = Mockito.mock(EvidenceRepository.class);
     private final WebLinkRepository webLinkRepository = Mockito.mock(WebLinkRepository.class);
     private final SkillRepository skillRepository = Mockito.mock(SkillRepository.class);
+    private final RegexService regexService = Mockito.spy(RegexService.class);
 
 
     @BeforeEach
     void setUp() {
-        evidenceService = new EvidenceService(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, skillRepository);
+        evidenceService = new EvidenceService(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, skillRepository, regexService);
         evidence = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         when(userAccountsClientService.getUserAccountById(any())).thenReturn(UserResponse.newBuilder().setId(1).build());
         when(evidenceRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);

@@ -740,6 +740,16 @@ $(document).on("click", ".chipDelete", function () {
 
 
 /**
+ * Due to a weird bug where the page would reload if you closed an alert if the
+ * alert was open in a modal, this was added to stop the form from submitting which
+ * seemed to be the cause of the issue.
+ */
+$(document).on("submit", "#evidenceCreationForm", function(e) {
+    e.preventDefault()
+})
+
+
+/**
  * Saves the evidence input during creating a new piece of evidence
  */
 $(document).on("click", "#evidenceSaveButton", function (event) {
@@ -774,15 +784,13 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "categories": categories
         })
         $.ajax({
-            url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
+            url: 'evidence', type: "POST", contentType: "application/json", data, success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
                 createAlert("Created evidence")
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                $(".address-alert").alert('close') // Close any web link alerts
-                $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
                 createAlert(error.responseText, true, ".modal-body")
@@ -790,6 +798,21 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         })
     }
 })
+
+
+/**
+ * Prevents the modal from being closed if the alert is present.
+ */
+$('#addEvidenceModal').on('hide.bs.modal', function (e) {
+    let alert = $("#alertPopUp")
+    if (alert.is(":visible")){
+        alert.effect("shake")
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+});
+
 
 /**
  * Listens for when add web link button is clicked.
