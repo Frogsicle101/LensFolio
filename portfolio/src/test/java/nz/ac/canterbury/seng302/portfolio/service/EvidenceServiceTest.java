@@ -208,7 +208,7 @@ class EvidenceServiceTest {
         Project project = new Project("Testing");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        String title = "t";
+        String title = "";
         String date = LocalDate.now().toString();
         String description = "Description";
         List<WebLinkDTO> webLinks = new ArrayList<>();
@@ -261,7 +261,7 @@ class EvidenceServiceTest {
 
         String title = "Title";
         String date = LocalDate.now().toString();
-        String description = "D";
+        String description = "";
         List<WebLinkDTO> webLinks = new ArrayList<>();
         List<String> skills = new ArrayList<>();
         List<String> categories = new ArrayList<>();

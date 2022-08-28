@@ -119,8 +119,8 @@ public class EvidenceService {
         Project project = optionalProject.get();
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "Evidence name");
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "Evidence description");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 1, 50, "Evidence name");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 1, 500, "Evidence description");
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
         evidence = evidenceRepository.save(evidence);
