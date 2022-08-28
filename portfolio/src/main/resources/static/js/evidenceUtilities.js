@@ -801,7 +801,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
 
 
 /**
- * Prevents the modal from being closed if the alert is present.
+ * Prevents the add evidence modal from being closed if an alert is present.
  */
 $('#addEvidenceModal').on('hide.bs.modal', function (e) {
     let alert = $("#alertPopUp")
@@ -831,12 +831,12 @@ $(document).on('click', '.addWebLinkButton', function () {
     }
 })
 
+
 /**
  * Handles a web link validated by the back end.
  Validates the alias and then displays an error message or saves the web link and toggles the web link form.
  */
 function validateWebLink(form, alias, address) {
-    //Do some title validation
     if (alias.length === 0) {
         $(".weblink-name-alert").alert('close') //Close any previous alerts
         form.append(`
@@ -916,6 +916,7 @@ function validateWebLinkAtBackend() {
         }
     })
 }
+
 
 /**
  * Toggles the add weblink button,

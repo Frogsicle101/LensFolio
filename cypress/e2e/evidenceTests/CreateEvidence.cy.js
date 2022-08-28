@@ -23,5 +23,4 @@ describe('Create new piece of evidence', () => {
         cy.get("#evidenceSaveButton").click()
         cy.get("#addEvidenceModal").should("not.be.visible")
     })
-
 })
