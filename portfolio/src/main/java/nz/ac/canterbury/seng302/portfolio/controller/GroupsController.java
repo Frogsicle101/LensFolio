@@ -8,7 +8,6 @@ import nz.ac.canterbury.seng302.portfolio.service.UserService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
-import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,18 +84,6 @@ public class GroupsController {
             if (pageNum <= 1) { //to ensure no negative page numbers
                 pageNum = 1;
             }
-            offset = (pageNum - 1) * groupsPerPageLimit;
-            PaginatedGroupsResponse response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
-            totalNumGroups = response.getPaginationResponseOptions().getResultSetSize();
-            totalPages = totalNumGroups / groupsPerPageLimit;
-            if ((totalNumGroups % groupsPerPageLimit) != 0) {
-                totalPages++;
-            }
-            if (pageNum > totalPages) { //to ensure that the last page will be shown if the page number is too large
-                pageNum = totalPages;
-                offset = (pageNum - 1) * groupsPerPageLimit;
-                response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
-            }
             // check for new values
             if (groupsPerPage != null){
                 switch(groupsPerPage){
@@ -107,7 +94,18 @@ public class GroupsController {
                     default -> this.groupsPerPageLimit = 10;
                 }
             }
-
+            offset = (pageNum - 1) * groupsPerPageLimit; // The number to start retrieving groups from
+            PaginatedGroupsResponse response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
+            totalNumGroups = response.getPaginationResponseOptions().getResultSetSize();
+            totalPages = totalNumGroups / groupsPerPageLimit;
+            if ((totalNumGroups % groupsPerPageLimit) != 0) {
+                totalPages++; // Checks if there are leftover groups to display
+            }
+            if (pageNum > totalPages) { //to ensure that the last page will be shown if the page number is too large
+                pageNum = totalPages;
+                offset = (pageNum - 1) * groupsPerPageLimit;
+                response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
+            }
 
             modelAndView.addObject("groups", response.getGroupsList());
             modelAndView.addObject("user", user);
