@@ -3,9 +3,6 @@
  * that can be used across multiple pages.
  */
 
-/** A regex only allowing modern English letters */
-const regExp = new RegExp('[A-Za-z]');
-
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
@@ -29,11 +26,10 @@ let categoriesMapping = new Map([
 ])
 
 $(document).ready(() => {
-
-    // Counting characters
-    let textInput = $(".text-input");
-    textInput.each(countCharacters)
-    textInput.keyup(countCharacters)
+        // Counting characters
+        let textInput = $(".text-input");
+        textInput.each(countCharacters)
+        textInput.keyup(countCharacters)
     }
 )
 
@@ -47,7 +43,7 @@ $(document).ready(() => {
 function addEvidencePreviews(response) {
     let evidencePreviewsContainer = $("#evidenceList")
     evidencePreviewsContainer.empty()
-    for (let pieceOfEvidence in response) {
+    for (let pieceOfEvidence in response.reverse()) {
         evidencePreviewsContainer.append(createEvidencePreview(response[pieceOfEvidence]))
     }
 }
@@ -93,7 +89,6 @@ function setHighlightedEvidenceWebLinks(response) {
 }
 
 
-
 /**
  * Given a web url and an alias, creates and returns a web link element.
  * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
@@ -126,8 +121,8 @@ function webLinkElement(url, alias) {
     }
 
     let slashIndex = url.search("//") + 2
+    let urlSlashed
     if (slashIndex > 1) urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
-
     return (`
         <div class="webLinkElement ${security}" data-value="${url}" >
             ${icon}
@@ -139,18 +134,19 @@ function webLinkElement(url, alias) {
 }
 
 
-
 // --------------------------- Server Queries ------------------------------------
+
+
 /**
-* Gets the evidence data for the chosen user and adds it to the page.
-*
-* On successful retrieval, this adds the elements and calls the functions to populate the page.
-* To see these functions:
-    *     - addEvidencePreviews(response): Populates the left side evidence menus
-*     - showHighlightedEvidenceDetails(): Populates the right side, the details of the highlighted evidence.
-*
-* Note: by default the first element is the highlighted element.
-*/
+ * Gets the evidence data for the chosen user and adds it to the page.
+ *
+ * On successful retrieval, this adds the elements and calls the functions to populate the page.
+ * To see these functions:
+ *     - addEvidencePreviews(response): Populates the left side evidence menus
+ *     - showHighlightedEvidenceDetails(): Populates the right side, the details of the highlighted evidence.
+ *
+ * Note: by default the first element is the highlighted element.
+ */
 function getAndAddEvidencePreviews() {
 
     let title = $(document).find(".evidenceTitle").first()
@@ -168,6 +164,7 @@ function getAndAddEvidencePreviews() {
     })
 }
 
+
 /**
  * This is called to show the evidence details for the selected piece of evidence.
  *
@@ -176,7 +173,6 @@ function getAndAddEvidencePreviews() {
  * message is displayed.
  */
 function getHighlightedEvidenceDetails() {
-
     if (selectedEvidenceId !== "") {
         $.ajax({
             url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
@@ -190,7 +186,6 @@ function getHighlightedEvidenceDetails() {
     } else {
         $("#evidenceDetailsTitle").text("No Evidence Found")
     }
-
 }
 
 
@@ -217,7 +212,8 @@ function getHighlightedEvidenceWeblinks() {
  *
  * @param callback An optional callback function to be called upon successfully retrieving the skills
  */
-function getSkills(callback = () => {}) {
+function getSkills(callback = () => {
+}) {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId, type: "GET",
         success: function (response) {
@@ -299,10 +295,8 @@ function addSkillsToEvidence(skills) {
  */
 function addCategoriesToEvidence(categories) {
     let highlightedEvidenceCategories = $("#evidenceDetailsCategories")
-
     highlightedEvidenceCategories.empty();
-
-    $.each(categories, function(category) {
+    $.each(categories, function (category) {
         let categoryText = categoriesMapping.get(categories[category]);
 
         highlightedEvidenceCategories.append(`
@@ -310,7 +304,6 @@ function addCategoriesToEvidence(categories) {
                 <p class="skillChipText">${categoryText}</p>
             </div>`)
     })
-
 }
 
 
@@ -333,33 +326,29 @@ function createEvidencePreview(evidence) {
             <div class="evidencePreviewTags skillChipDisplay">${categories}</div>
             <div class="evidencePreviewTags skillChipDisplay">${skills}</div>
         </div>`
-
 }
 
 
 function getEvidenceTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
-
     let skillsHTML = ``
     $.each(skills, function (i) {
         skillsHTML += `<div class="skillChip">
                 <p class="skillChipText">${skills[i].name}</p>
             </div>`
     })
-
     return skillsHTML
 }
 
+
 function getCategoryTags(categories) {
     categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
-
     let skillsHTML = ``
     $.each(categories, function (i) {
         skillsHTML += `<div class="categoryChip">
                 <p class="skillChipText">${categoriesMapping.get(categories[i])}</p>
             </div>`
     })
-
     return skillsHTML
 }
 
@@ -396,10 +385,8 @@ function setDetailsToNoEvidenceExists() {
 $(document).on("click", ".evidenceListItem", function () {
     let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
     previouslySelectedDiv.removeClass("selectedEvidence")
-
     let newSelectedDiv = $(this).addClass("selectedEvidence")
     selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
-
     showHighlightedEvidenceDetails()
 })
 
@@ -412,6 +399,7 @@ $(document).on('click', '.addedWebLinkName', function () {
     window.open(destination, '_blank').focus();
 })
 
+
 //---- Tooltip Refresher----
 
 
@@ -422,10 +410,8 @@ function initialiseTooltips() {
     $('[data-bs-toggle="tooltip"]').tooltip();
 }
 
+
 /**
-
-
- /**
  * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
  */
 function checkWeblinkCount() {
@@ -447,7 +433,6 @@ function checkWeblinkCount() {
 function resetWeblink() {
     let addWeblinkButton = $("#addWebLinkButton")
     let weblinkFullTab = $("#webLinkFull")
-
     addWeblinkButton.show()
     weblinkFullTab.hide()
     webLinksCount = 0
@@ -469,10 +454,8 @@ function getWeblinksList() {
             "url": this.querySelector(".addedWebLinkUrl").innerHTML,
             "name": this.querySelector(".addedWebLinkName").innerHTML
         }
-
         weblinksList.push(weblinkDTO)
     })
-
     return weblinksList
 }
 
@@ -490,15 +473,11 @@ function getCategories() {
     $.each(selectedButtons, function (button) {
         categories.push($(selectedButtons[button]).val())
     })
-
     return categories
 }
 
 
 // --------------------------------- Click listeners -----------------------------------------
-
-
-
 
 
 /**
@@ -515,6 +494,7 @@ $(document).on('keypress', '#webLinkUrl', function () {
 $(document).on('keypress', '#webLinkName', function () {
     $(".weblink-name-alert").alert('close')
 })
+
 
 // --------------------------------- Autocomplete -----------------------------------------
 
@@ -618,7 +598,7 @@ function removeDuplicatesFromInput(input) {
     let newArray = []
 
     inputArray.forEach(function (element) {
-        if (regexSkills.test(element)){
+        if (regexSkills.test(element)) {
             while (element.slice(-1) === "_") {
                 element = element.slice(0, -1)
             }
@@ -755,14 +735,12 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const projectId = 1
         let webLinks = getWeblinksList();
         const categories = getCategories();
-
         const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
         skillsArray = [...new Set(skillsArray.concat(skills))];
         $.each(skills, function (i) {
             skills[i] = skills[i].replaceAll("_", " ")
         })
         addSkillsToSideBar();
-
 
         let data = JSON.stringify({
             "title": title,
@@ -791,6 +769,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
     }
 })
 
+
 /**
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
@@ -807,6 +786,7 @@ $(document).on('click', '.addWebLinkButton', function () {
         webLinkButtonToggle()
     }
 })
+
 
 /**
  * Handles a web link validated by the back end.
@@ -830,8 +810,7 @@ function validateWebLink(form, alias, address) {
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
-    }
-    else {
+    } else {
         validateWebLinkAtBackend()
     }
 }
@@ -894,6 +873,7 @@ function validateWebLinkAtBackend() {
     })
 }
 
+
 /**
  * Toggles the add weblink button,
  * and slide-toggles the form
@@ -926,7 +906,6 @@ function submitWebLink() {
     if (alias.val().length > 0) {
         webLinkTitle.show()
         addedWebLinks.append(webLinkElement(url.val(), alias.val()))
-
         initialiseTooltips()
         url.val("")
         alias.val("")
