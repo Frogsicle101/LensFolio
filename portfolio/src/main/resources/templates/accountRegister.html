@@ -56,9 +56,9 @@
                    type="text">
         </div>
         <div class="col">
-            <label class="form-label" for="middleName">Middle name(s)</label>
+            <label class="form-label" for="middlename">Middle name(s)</label>
             <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-            <input class="form-control canDisable" id="middleName" maxlength="50" name="middlename"
+            <input class="form-control canDisable" id="middlename" maxlength="50" name="middlename"
                    th:pattern="${generalUnicodeRegex.getPatternString()}"
                    th:title="${'Middle name' + generalUnicodeRegex.getRequirements()}"
                    type="text">
