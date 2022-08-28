@@ -7,5 +7,4 @@ describe('Deleting Users Role', () => {
         cy.visit('/user-list?sortField=roles')
         cy.get(".roleButtonsContainer").first().find(".tagDiv").find(".roleDeleteButton").should("not.exist")
     })
-
 })
