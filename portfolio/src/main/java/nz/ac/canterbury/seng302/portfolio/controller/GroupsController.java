@@ -61,10 +61,14 @@ public class GroupsController {
         this.userAccountsClientService = userAccountsClientService;
     }
 
+
     /**
      * This endpoint retrieves all groups as a paginated list.
      *
-     * @return a response entity containing the list of GroupDetailsResponse object, and a response status.
+     * @param principal The authentication principal.
+     * @param page The page number to retrieve the groups.
+     * @param groupsPerPage The number of groups you want to retrieve on that page.
+     * @return The ModalAndView that contains the groups.
      */
     @GetMapping("/groups")
     public ModelAndView groups(
