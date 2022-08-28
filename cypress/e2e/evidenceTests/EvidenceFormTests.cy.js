@@ -15,7 +15,6 @@ describe('Testing evidence creation form', () => {
         cy.get('.countCharName').should("have.text", "50 characters remaining")
         cy.get("#evidenceName").should("be.empty")
         cy.get("#evidenceDescription").should("be.empty")
-        cy.get("#evidenceDescription").should("be.empty")
         cy.get("#skillsInput").should("be.empty")
     })
 })
