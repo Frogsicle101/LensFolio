@@ -219,13 +219,13 @@ public class PortfolioController {
       // Gets the amount of sprints belonging to the project
       int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
       String sprintName = "Sprint " + amountOfSprints;
-      checkDateService.checkProjectHasRoomForSprints(sprintRepository, project);
+      LocalDate startDate = checkDateService.checkProjectHasRoomForSprints(sprintRepository, project);
       Sprint sprint;
-      if (project.getStartDate().plusWeeks(3).isAfter(project.getEndDate())) {
+      if (startDate.plusWeeks(3).isAfter(project.getEndDate())) {
         sprint = sprintRepository.save(
-            new Sprint(project, sprintName, project.getStartDate(), project.getEndDate()));
+            new Sprint(project, sprintName, startDate, project.getEndDate()));
       } else {
-        sprint = sprintRepository.save(new Sprint(project, sprintName, project.getStartDate()));
+        sprint = sprintRepository.save(new Sprint(project, sprintName, startDate));
       }
       return new ResponseEntity<>(sprint, HttpStatus.OK);
     } catch (CheckException checkException) {
