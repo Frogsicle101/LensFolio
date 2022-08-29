@@ -4,11 +4,6 @@ describe('Test Adding and Deleting Sprints', () => {
         cy.visit('/portfolio?projectId=1')
     })
 
-    // prevents tests from failing due to uncaught exceptions
-    Cypress.on('uncaught:exception', (err, runnable) => {
-        return false
-    })
-
     it('Deleted sprint confirmation message appears after deleting', () => {
         cy.get(".sprintsContainer").find(".deleteSprint").first().click({force: true})
         cy.get("#alertPopUp").should('be.visible').contains("Sprint deleted!")
