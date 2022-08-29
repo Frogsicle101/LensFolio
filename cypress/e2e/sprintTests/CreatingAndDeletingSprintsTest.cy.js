@@ -4,13 +4,13 @@ describe('Test Adding and Deleting Sprints', () => {
         cy.visit('/portfolio?projectId=1')
     })
 
-    it('Deleted Sprint message appears after deleting', () => {
+    it('Deleted sprint confirmation message appears after deleting', () => {
         cy.get(".sprintsContainer").find(".deleteSprint").first().click()
         cy.get("#alertPopUp").should('be.visible').contains("Sprint deleted!")
     })
 
     it('Events are auto added when new sprint is created', () => {
-        cy.get(".sprintsContainer").first(".deleteSprint").click()
+        cy.get(".sprintsContainer").find(".deleteSprint").first().click({force: true})
         cy.get("#milestonesTab").click()
         cy.get(".addMilestoneButton").click()
         cy.get("#milestoneSubmit").click().wait(500) // wait so that the alert has time to appear
