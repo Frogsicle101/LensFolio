@@ -16,6 +16,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,10 +32,7 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -61,7 +59,7 @@ class CalendarControllerTest {
     private final MilestoneRepository milestoneRepository = mock(MilestoneRepository.class);
 
 
-    private final CalendarController calendarController = new CalendarController(projectRepository, sprintRepository, null, null, null);
+    private final CalendarController calendarController = new CalendarController(projectRepository, sprintRepository, eventRepository, deadlineRepository, milestoneRepository);
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
     private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
 
@@ -236,7 +234,10 @@ class CalendarControllerTest {
      * for the purposes of testing the getEventsAsFeed, getDeadlinesAsFeed, and getMilestonesAsFeed endpoints.
      */
     private void setUpEDM() {
-        Project project = new Project("Testing");
+        LocalDate projectStartDate = LocalDate.of(2022, 1, 1);
+        LocalDate projectEndDate = LocalDate.of(2022, 12, 30);
+        Project project = new Project("Testing", projectStartDate, projectEndDate, "A test project");
+        project.setId(1L);
         LocalDateTime startDate1 = LocalDateTime.of(2022, 2, 24, 12, 30);
         LocalDateTime endDate1 = LocalDateTime.of(2022, 3, 24, 12, 30);
         LocalDateTime startDate2 = LocalDateTime.of(2022, 4, 24, 12, 30);
@@ -267,11 +268,72 @@ class CalendarControllerTest {
         }
     }
 
+    @Test
     void testGetEventsAsFeed() {
         setUpEDM();
+        ResponseEntity<Object> result = calendarController.getEventsAsFeed(1L);
+        String content = Objects.requireNonNull(result.getBody()).toString();
+        Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
 
+        String expectedEvent1Start = "start=2022-02-24, classNames=eventCalendar, end=2022-02-24";
+        String expectedEvent1Middle = "start=2022-03-10, classNames=eventCalendar, end=2022-03-10";
+        String expectedEvent1End = "start=2022-03-23, classNames=eventCalendar, end=2022-03-23";
+        Assertions.assertTrue(content.contains(expectedEvent1Start));
+        Assertions.assertTrue(content.contains(expectedEvent1Middle));
+        Assertions.assertTrue(content.contains(expectedEvent1End));
     }
 
+    @Test
+    void testGetEventsAsFeedInvalidProjectId() {
+        setUpEDM();
+        ResponseEntity<Object> result = calendarController.getEventsAsFeed(-1L);
+        String content = Objects.requireNonNull(result.getBody()).toString();
+        Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
+        Assertions.assertEquals("[]", content); //If the project doesn't exist, it has no events
+    }
 
+    @Test
+    void testGetDeadlinesAsFeed() {
+        setUpEDM();
+        ResponseEntity<Object> result = calendarController.getDeadlinesAsFeed(1L);
+        String content = Objects.requireNonNull(result.getBody()).toString();
+        Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
+
+        String expectedDeadline1End = "start=2022-03-24, classNames=deadlineCalendar, end=2022-03-24";
+        String expectedDeadline2End = "start=2022-05-24, classNames=deadlineCalendar, end=2022-05-24";
+        Assertions.assertTrue(content.contains(expectedDeadline2End));
+        Assertions.assertTrue(content.contains(expectedDeadline1End));
+    }
+
+    @Test
+    void testGetDeadlinesAsFeedInvalidProjectId() {
+        setUpEDM();
+        ResponseEntity<Object> result = calendarController.getDeadlinesAsFeed(-1L);
+        String content = Objects.requireNonNull(result.getBody()).toString();
+        Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
+        Assertions.assertEquals("[]", content); //If the project doesn't exist, it has no deadlines
+    }
+
+    @Test
+    void testGetMilestonesAsFeed() {
+        setUpEDM();
+        ResponseEntity<Object> result = calendarController.getMilestonesAsFeed(1L);
+        String content = Objects.requireNonNull(result.getBody()).toString();
+        Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
+
+        String expectedMilestone1End = "start=2022-03-24, classNames=milestoneCalendar, end=2022-03-24";
+        String expectedMilestone2End = "start=2022-05-24, classNames=milestoneCalendar, end=2022-05-24";
+        Assertions.assertTrue(content.contains(expectedMilestone1End));
+        Assertions.assertTrue(content.contains(expectedMilestone1End));
+    }
+
+    @Test
+    void testGetMilestonesAsFeedInvalidProjectId() {
+        setUpEDM();
+        ResponseEntity<Object> result = calendarController.getMilestonesAsFeed(-1L);
+        String content = Objects.requireNonNull(result.getBody()).toString();
+        Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
+        Assertions.assertEquals("[]", content); //If the project doesn't exist, it has no milestones
+    }
 }
 
