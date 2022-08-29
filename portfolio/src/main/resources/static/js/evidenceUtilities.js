@@ -371,34 +371,6 @@ function setDetailsToNoEvidenceExists() {
 }
 
 
-//---- Click Listeners ----
-
-
-/**
- * When an evidence div is clicked, it becomes selected and is displayed on the main display.
- *
- * There are 3 steps to this:
- *    1. remove the selected class from the previously selected div.
- *    2. Add the selected class to the clicked div, and assign it as selected
- *    3. Populate the display with the selected evidence details.
- */
-$(document).on("click", ".evidenceListItem", function () {
-    let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
-    previouslySelectedDiv.removeClass("selectedEvidence")
-    let newSelectedDiv = $(this).addClass("selectedEvidence")
-    selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
-    showHighlightedEvidenceDetails()
-})
-
-
-/**
- * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
- */
-$(document).on('click', '.addedWebLinkName', function () {
-    let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
-    window.open(destination, '_blank').focus();
-})
-
 
 //---- Tooltip Refresher----
 
@@ -481,6 +453,86 @@ function getCategories() {
 
 
 /**
+ * Listens for when add web link button is clicked.
+ * Slide-toggles the web link portion of the form.
+ */
+$(document).on('click', '.addWebLinkButton', function () {
+    let button = $(".addWebLinkButton");
+    if (button.hasClass("toggled")) {
+        //validate the link
+        let address = $("#webLinkUrl").val()
+        let alias = $("#webLinkName").val()
+        let form = $(".webLinkForm")
+        validateWebLink(form, alias, address)
+    } else {
+        webLinkButtonToggle()
+    }
+})
+
+
+/**
+ * Toggles category button appearance on the evidence creation form.
+ */
+$(".evidenceFormCategoryButton").on("click", function () {
+    let button = $(this)
+    if (button.hasClass("btn-secondary")) {
+        button.removeClass("btn-secondary")
+        button.addClass("btn-success")
+        button.find(".evidenceCategoryTickIcon").show("slide", 200)
+    } else {
+        button.removeClass("btn-success")
+        button.addClass("btn-secondary")
+        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
+    }
+})
+
+
+/**
+ * The below listener trigger the rendering of the skill chips
+ */
+$(document).on("click", ".ui-autocomplete", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
+    displaySkillChips()
+})
+
+
+/**
+ * Cleans up the duplicates in the input when the user clicks away from the input.
+ */
+$(document).on("click", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
+    displaySkillChips()
+})
+
+
+
+/**
+ * When an evidence div is clicked, it becomes selected and is displayed on the main display.
+ *
+ * There are 3 steps to this:
+ *    1. remove the selected class from the previously selected div.
+ *    2. Add the selected class to the clicked div, and assign it as selected
+ *    3. Populate the display with the selected evidence details.
+ */
+$(document).on("click", ".evidenceListItem", function () {
+    let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
+    previouslySelectedDiv.removeClass("selectedEvidence")
+    let newSelectedDiv = $(this).addClass("selectedEvidence")
+    selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
+    showHighlightedEvidenceDetails()
+})
+
+
+/**
+ * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
+ */
+$(document).on('click', '.addedWebLinkName', function () {
+    let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
+    window.open(destination, '_blank').focus();
+})
+
+
+/**
  * Listen for a keypress in the weblink address field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkUrl', function () {
@@ -493,6 +545,72 @@ $(document).on('keypress', '#webLinkUrl', function () {
  */
 $(document).on('keypress', '#webLinkName', function () {
     $(".weblink-name-alert").alert('close')
+})
+
+
+/**
+ * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
+ * skill we are deleting.
+ */
+$(document).on("click", ".chipDelete", function () {
+    let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
+    let skillsInput = $("#skillsInput")
+    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
+        return value.toLowerCase() !== skillText.toLowerCase()
+    })
+    skillsInput.val(inputArray.join(" "))
+    displaySkillChips()
+})
+
+
+/**
+ * Saves the evidence input during creating a new piece of evidence
+ */
+$(document).on("click", "#evidenceSaveButton", function (event) {
+    event.preventDefault()
+    removeDuplicatesFromInput($("#skillsInput"))
+    let evidenceCreationForm = $("#evidenceCreationForm")[0]
+    if (!evidenceCreationForm.checkValidity()) {
+        evidenceCreationForm.reportValidity()
+    } else {
+        const title = $("#evidenceName").val()
+        const date = $("#evidenceDate").val()
+        const description = $("#evidenceDescription").val()
+        const projectId = 1
+        let webLinks = getWeblinksList();
+        const categories = getCategories();
+        const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
+        skillsArray = [...new Set(skillsArray.concat(skills))];
+        $.each(skills, function (i) {
+            skills[i] = skills[i].replaceAll("_", " ")
+        })
+        addSkillsToSideBar();
+
+        let data = JSON.stringify({
+            "title": title,
+            "date": date,
+            "description": description,
+            "projectId": projectId,
+            "webLinks": webLinks,
+            "skills": skills,
+            "categories": categories
+        })
+        $.ajax({
+            url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
+                selectedEvidenceId = response.id
+                getAndAddEvidencePreviews()
+                createAlert("Created evidence")
+                $("#addEvidenceModal").modal('hide')
+                clearAddEvidenceModalValues()
+                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+                $(".address-alert").alert('close') // Close any web link alerts
+                $(".weblink-name-alert").alert('close')
+                resetWeblink()
+            }, error: function (error) {
+                createAlert(error.responseText, true, ".modal-body")
+            }
+        })
+    }
 })
 
 
@@ -634,19 +752,9 @@ function removeDuplicatesFromInput(input) {
  * The below listeners trigger the rendering of the skill chips
  */
 $(document).on("change", "#skillsInput", () => displaySkillChips())
-$(document).on("click", ".ui-autocomplete", () => {
-    removeDuplicatesFromInput($("#skillsInput"))
-    displaySkillChips()
-})
 
 
-/**
- * Cleans up the duplicates in the input when the user clicks away from the input.
- */
-$(document).on("click", () => {
-    removeDuplicatesFromInput($("#skillsInput"))
-    displaySkillChips()
-})
+
 
 
 /**
@@ -702,90 +810,6 @@ function createChip(element) {
                 </svg>
                 </div>`
 }
-
-
-/**
- * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
- * skill we are deleting.
- */
-$(document).on("click", ".chipDelete", function () {
-    let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
-    let skillsInput = $("#skillsInput")
-    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
-        return value.toLowerCase() !== skillText.toLowerCase()
-    })
-    skillsInput.val(inputArray.join(" "))
-    displaySkillChips()
-})
-
-
-/**
- * Saves the evidence input during creating a new piece of evidence
- */
-$(document).on("click", "#evidenceSaveButton", function (event) {
-    event.preventDefault()
-    removeDuplicatesFromInput($("#skillsInput"))
-    let evidenceCreationForm = $("#evidenceCreationForm")[0]
-    if (!evidenceCreationForm.checkValidity()) {
-        evidenceCreationForm.reportValidity()
-    } else {
-        const title = $("#evidenceName").val()
-        const date = $("#evidenceDate").val()
-        const description = $("#evidenceDescription").val()
-        const projectId = 1
-        let webLinks = getWeblinksList();
-        const categories = getCategories();
-        const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
-        skillsArray = [...new Set(skillsArray.concat(skills))];
-        $.each(skills, function (i) {
-            skills[i] = skills[i].replaceAll("_", " ")
-        })
-        addSkillsToSideBar();
-
-        let data = JSON.stringify({
-            "title": title,
-            "date": date,
-            "description": description,
-            "projectId": projectId,
-            "webLinks": webLinks,
-            "skills": skills,
-            "categories": categories
-        })
-        $.ajax({
-            url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
-                selectedEvidenceId = response.id
-                getAndAddEvidencePreviews()
-                createAlert("Created evidence")
-                $("#addEvidenceModal").modal('hide')
-                clearAddEvidenceModalValues()
-                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                $(".address-alert").alert('close') // Close any web link alerts
-                $(".weblink-name-alert").alert('close')
-                resetWeblink()
-            }, error: function (error) {
-                createAlert(error.responseText, true, ".modal-body")
-            }
-        })
-    }
-})
-
-
-/**
- * Listens for when add web link button is clicked.
- * Slide-toggles the web link portion of the form.
- */
-$(document).on('click', '.addWebLinkButton', function () {
-    let button = $(".addWebLinkButton");
-    if (button.hasClass("toggled")) {
-        //validate the link
-        let address = $("#webLinkUrl").val()
-        let alias = $("#webLinkName").val()
-        let form = $(".webLinkForm")
-        validateWebLink(form, alias, address)
-    } else {
-        webLinkButtonToggle()
-    }
-})
 
 
 /**
@@ -996,18 +1020,3 @@ $(document).on("change", ".form-control", function () {
 })
 
 
-/**
- * Toggles category button appearance on the evidence creation form.
- */
-$(".evidenceFormCategoryButton").on("click", function () {
-    let button = $(this)
-    if (button.hasClass("btn-secondary")) {
-        button.removeClass("btn-secondary")
-        button.addClass("btn-success")
-        button.find(".evidenceCategoryTickIcon").show("slide", 200)
-    } else {
-        button.removeClass("btn-success")
-        button.addClass("btn-secondary")
-        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
-    }
-})
