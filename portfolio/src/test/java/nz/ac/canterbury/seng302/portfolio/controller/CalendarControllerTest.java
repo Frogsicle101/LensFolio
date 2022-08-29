@@ -3,6 +3,12 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.DeadlineRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.Event;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -20,8 +26,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +53,12 @@ class CalendarControllerTest {
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
 
     private final SprintRepository sprintRepository = mock(SprintRepository.class);
+
+    private final EventRepository eventRepository = mock(EventRepository.class);
+
+    private  final DeadlineRepository deadlineRepository = mock(DeadlineRepository.class);
+
+    private final MilestoneRepository milestoneRepository = mock(MilestoneRepository.class);
 
 
     private final CalendarController calendarController = new CalendarController(projectRepository, sprintRepository, null, null, null);
@@ -212,6 +226,49 @@ class CalendarControllerTest {
         when(projectRepository.findById(project.getId())).thenThrow(new RuntimeException());
         ResponseEntity<Object> returnValue = calendarController.getProject(project.getId());
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, returnValue.getStatusCode());
+
+    }
+
+    // ------- Events, Deadlines and Milestones tests ----------
+
+    /**
+     * A helper method that sets up some events, deadlines and milestones, as well as mocking them,
+     * for the purposes of testing the getEventsAsFeed, getDeadlinesAsFeed, and getMilestonesAsFeed endpoints.
+     */
+    private void setUpEDM() {
+        Project project = new Project("Testing");
+        LocalDateTime startDate1 = LocalDateTime.of(2022, 2, 24, 12, 30);
+        LocalDateTime endDate1 = LocalDateTime.of(2022, 3, 24, 12, 30);
+        LocalDateTime startDate2 = LocalDateTime.of(2022, 4, 24, 12, 30);
+        LocalDateTime endDate2 = LocalDateTime.of(2022, 5, 24, 12, 30);
+        try {
+            Event event1 = new Event(project, "Event1", startDate1, endDate1.toLocalDate(), endDate1.toLocalTime(), 1);
+            Event event2 = new Event(project, "Event2", startDate2, endDate2.toLocalDate(), endDate2.toLocalTime(), 1);
+            when(eventRepository.findAllByProjectIdOrderByStartDate(project.getId())).thenReturn(List.of(event1, event2));
+        } catch (InvalidNameException e) {
+            Assertions.fail("One of the events has an incorrect name!");
+            //If this happens, our event has an incorrectly formatted name! This shouldn't occur in these tests
+        }
+        try {
+            Deadline deadline1 = new Deadline(project, "Deadline1", endDate1.toLocalDate(), endDate1.toLocalTime(), 1);
+            Deadline deadline2 = new Deadline(project, "Deadline2", endDate2.toLocalDate(), endDate2.toLocalTime(), 1);
+            when(deadlineRepository.findAllByProjectIdOrderByEndDate(project.getId())).thenReturn(List.of(deadline1, deadline2));
+        } catch (InvalidNameException e) {
+            Assertions.fail("One of the Deadlines has an incorrect name!");
+            //If this happens, our deadline has an incorrectly formatted name! This shouldn't occur in these tests
+        }
+        try {
+            Milestone milestone1 = new Milestone(project, "Milestone1", endDate1.toLocalDate(), 1);
+            Milestone milestone2 = new Milestone(project, "Milestone2", endDate2.toLocalDate(), 1);
+            when(milestoneRepository.findAllByProjectIdOrderByEndDate(project.getId())).thenReturn(List.of(milestone1, milestone2));
+        } catch (InvalidNameException e) {
+            Assertions.fail("One of the Milestones has an incorrect name!");
+            //If this happens, our milestone has an incorrectly formatted name! This shouldn't occur in these tests
+        }
+    }
+
+    void testGetEventsAsFeed() {
+        setUpEDM();
 
     }
 
