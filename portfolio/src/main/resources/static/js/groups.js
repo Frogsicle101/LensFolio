@@ -2,41 +2,14 @@ let selectedGroupId
 let group
 const TEACHER_GROUP_ID = 1
 const MWAG_GROUP_ID = 2
+let groupPage
 
 $(function () {
     if (!checkPrivilege()) {
         return
     }
+    getGroups()
 
-    manageTableSelection()
-
-    let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
-    for (let i = 0; i < listOfGroupDivs.length; i++) { // Loops over each div
-        /**
-         * Adds the droppable pluggin to each element that it loops over
-         * https://api.jqueryui.com/droppable/
-         */
-        $(listOfGroupDivs[i]).droppable({
-            /**
-             * Triggered when an accepted draggable is dragged over the droppable (based on the tolerance option).
-             * https://api.jqueryui.com/droppable/#event-over
-             */
-            over: function () {
-                $(this).effect("shake")
-                //https://api.jqueryui.com/category/effects/
-            },
-
-            /**
-             * Triggered when an accepted draggable is dropped on the droppable (based on the tolerance option).
-             * https://api.jqueryui.com/droppable/#event-drop
-             */
-            drop: function () {
-                addUsers($(this).attr("id"))
-                showDraggableIcons()
-            },
-            tolerance: "pointer"
-        })
-    }
 })
 
 //----------------------- jQuery UI User Selection -------------------------
@@ -136,7 +109,181 @@ function showDraggableIcons() {
 }
 
 
+function runAfterGroupsPopulated(){
+    manageTableSelection()
+
+    let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
+    for (let i = 0; i < listOfGroupDivs.length; i++) { // Loops over each div
+        /**
+         * Adds the droppable pluggin to each element that it loops over
+         * https://api.jqueryui.com/droppable/
+         */
+        $(listOfGroupDivs[i]).droppable({
+            /**
+             * Triggered when an accepted draggable is dragged over the droppable (based on the tolerance option).
+             * https://api.jqueryui.com/droppable/#event-over
+             */
+            over: function () {
+                $(this).effect("shake")
+                //https://api.jqueryui.com/category/effects/
+            },
+
+            /**
+             * Triggered when an accepted draggable is dropped on the droppable (based on the tolerance option).
+             * https://api.jqueryui.com/droppable/#event-drop
+             */
+            drop: function () {
+                addUsers($(this).attr("id"))
+                showDraggableIcons()
+            },
+            tolerance: "pointer"
+        })
+    }
+}
 //------------------------ Other Functions ------------------------------
+
+$(document).on("click", ".groupPageLink", function(event) {
+    event.preventDefault()
+    let newPage
+    switch ($(this).text()) {
+        case "First":
+            newPage = 1
+            break
+        case "Previous":
+            newPage = groupPage - 1
+            break
+        case "Next":
+            newPage = groupPage + 1
+            break
+        case "Last":
+            newPage = -1
+            break
+        default:
+            newPage = $(this).text()
+    }
+    getGroups(newPage)
+})
+
+$(document).on("change", "#groupDisplayAmountSelection", function(event) {
+    event.preventDefault()
+    console.log("test")
+    getGroups(groupPage)
+})
+
+/**
+ * Gets the group data from the server for displaying the preview list of groups.
+ */
+function getGroups(page = groupPage){
+    $.ajax({
+        url: "getGroups",
+        type: "GET",
+        data: {
+            "page": page,
+            "groupsPerPage": $("groupDisplayAmountSelection").find("option:selected").text()
+        },
+        success: function(data){
+            groupPage = data.page
+            $(".optionForAmountOfGroups").each((index, element) => {
+                // Iterates over the dropdown menu for the group selector and sets the attribute to selected based on the data from the server.
+                $(element).attr("selected", Number($(element).val()) === data.groupsPerPage)
+            })
+            populateGroupPageSelector(data.footerNumberSequence, data.page)
+            createListOfGroups(data.groups)
+        },
+        error: function(error) {
+            createAlert(error.responseText, true)
+        }
+    }).then(runAfterGroupsPopulated)
+}
+
+
+/**
+ * Populates the group page selector.
+ * Appends the number elements after the "previous" selector
+ * @param data The numbers.
+ * @param currentPage The current page that is being displayed
+ */
+function populateGroupPageSelector(data, currentPage) {
+    $(".groupPageLink").each((index, element) => {
+        if (!$(element).hasClass("specialFooterButton")) {
+            $(element).remove()
+        }
+    })
+    for (const index in data) {
+        $(".groupFooterNext").before(createFooterNumberSelector(data[index]))
+    }
+    $(".groupPageSelector").each((index, element) => {
+        //Goes through the page selectors and adds a class of active if it's the current page we are on
+        if (Number($(element).text()) === currentPage) {
+            $(element).addClass("active")
+        } else {
+            $(element).removeClass("active")
+        }
+        // Below is the code that checks if each special button on the footer navigator should be disabled or not.
+        // For example: If we are on page 1, "first" and "previous" should be disabled.
+        let footerPrevious = $(".groupFooterPrevious")
+        let footerFirst = $(".groupFooterFirst")
+        if (footerPrevious.next().hasClass("active")){
+            footerPrevious.addClass("disabled")
+            footerFirst.addClass("disabled")
+        } else {
+            footerPrevious.removeClass("disabled")
+            footerFirst.removeClass("disabled")
+        }
+        let footerNext = $(".groupFooterNext")
+        let footerLast = $(".groupFooterLast")
+        if (footerNext.prev().hasClass("active")){
+            footerNext.addClass("disabled")
+            footerLast.addClass("disabled")
+        } else {
+            footerNext.removeClass("disabled")
+            footerLast.removeClass("disabled")
+        }
+
+    })
+}
+
+
+/**
+ * Creates the elements that go into the group page selector
+ * @param number The number to go into the selection
+ * @returns {string} A list element
+ */
+function createFooterNumberSelector(number){
+    return `<li class="page-item groupPageSelector groupPageLink"><a class="page-link" href="#">${number}</a></li>`
+}
+
+
+/**
+ * Creates the group elements by iterating over a list of groups.
+ * @param groups The list of groups.
+ */
+function createListOfGroups(groups){
+    let groupOverviewContainer = $(".scrollableGroupOverview")
+    $(".group").each((index, element) => {
+        $(element).remove()
+    })
+    for (const groupsKey in groups) {
+        groupOverviewContainer.append(createGroupPreviewDiv(groups[groupsKey]))
+    }
+
+}
+
+
+/**
+ * Creates the div that holds the group preview.
+ * @param group The group to get the data from
+ * @returns {string} A string that is a div
+ */
+function createGroupPreviewDiv(group){
+    return `<div class="box group" id="${group.groupId}">
+                    <div class="mb3">
+                        <p class="groupId" style="display: none">${group.groupId}</p>
+                        <h2 class="groupShortName showExtraWhitespace">${group.shortName}</h2>
+                        <h3 class="groupLongName showExtraWhitespace">${group.longName}</h3>
+                    </div>
+                </div>`
+}
 
 
 /**

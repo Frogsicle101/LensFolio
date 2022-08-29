@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.model.dto.GroupDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.GroupCreationDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,6 +44,7 @@ public class GroupsController {
     private static final Integer TEACHER_GROUP_ID = 1;
     private static final String ORDER_BY = "shortName";
     private static final Boolean IS_ASCENDING = true;
+    private final ArrayList<Integer> footerNumberSequence = new ArrayList<>();
 
 
     /**
@@ -76,7 +80,7 @@ public class GroupsController {
             @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "groupsPerPage", required = false) String groupsPerPage)
     {
-        logger.info("GET REQUEST /groups - attempt to get all groups");
+        logger.info("GET REQUEST /groups - attempt to get all groups and return modelAndView");
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("groups");
         userService.checkAndAddUserRole(user, modelAndView);
@@ -111,16 +115,73 @@ public class GroupsController {
                 response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
             }
 
+            createFooterNumberSequence();
             modelAndView.addObject("groups", response.getGroupsList());
             modelAndView.addObject("user", user);
+            modelAndView.addObject("footerNumberSequence", footerNumberSequence);
+            modelAndView.addObject("selectedGroupsPerPage", this.groupsPerPageLimit);
 
         } catch (Exception e) {
-            logger.error("ERROR /groups - an error occurred while retrieving groups");
+            logger.error("ERROR /groups - an error occurred while retrieving groups and modelAndView");
             logger.error(e.getMessage());
             return new ModelAndView("errorPage").addObject(e.getMessage(), e);
         }
 
         return modelAndView;
+    }
+
+    @GetMapping("/getGroups")
+    public ResponseEntity<Object> getGroups(
+            @AuthenticationPrincipal Authentication principal,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "groupsPerPage", required = false) String groupsPerPage)
+     {
+         logger.info("GET REQUEST /getGroups - attempt to get all groups");
+         try {
+             if (page != null) {
+                 pageNum = page;
+             }
+             if (pageNum <= 1) { //to ensure no negative page numbers
+                 pageNum = 1;
+             }
+
+             // check for new values
+             if (groupsPerPage != null){
+                 switch(groupsPerPage){
+                     case "20" -> this.groupsPerPageLimit = 20;
+                     case "40" -> this.groupsPerPageLimit = 40;
+                     case "60" -> this.groupsPerPageLimit = 60;
+                     case "all" -> this.groupsPerPageLimit = 999999999;
+                     default -> this.groupsPerPageLimit = 10;
+                 }
+             }
+             offset = (pageNum - 1) * groupsPerPageLimit; // The number to start retrieving groups from
+             PaginatedGroupsResponse response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
+             totalNumGroups = response.getPaginationResponseOptions().getResultSetSize();
+             totalPages = totalNumGroups / groupsPerPageLimit;
+             if ((totalNumGroups % groupsPerPageLimit) != 0) {
+                 totalPages++; // Checks if there are leftover groups to display
+             }
+             if (pageNum > totalPages) { //to ensure that the last page will be shown if the page number is too large
+                 pageNum = totalPages;
+                 offset = (pageNum - 1) * groupsPerPageLimit;
+                 response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
+             }
+             createFooterNumberSequence();
+
+             HashMap<String, Object> returnMap = new HashMap<>();
+             returnMap.put("groups", groupService.createGroupListFromResponse(response));
+             returnMap.put("footerNumberSequence", footerNumberSequence);
+             returnMap.put("groupsPerPage", this.groupsPerPageLimit);
+             returnMap.put("page", pageNum);
+
+             return new ResponseEntity<>(returnMap, HttpStatus.OK);
+         } catch (Exception e) {
+             logger.error("ERROR /getGroups - an error occurred while retrieving groups");
+             logger.error(e.getMessage());
+             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+         }
+
     }
 
 
@@ -367,6 +428,34 @@ public class GroupsController {
             logger.error("ERROR /groups/removeUsers - an error occurred while removing a user from a group");
             logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * This is used to set the numbers at the bottom of the screen for page navigation. Otherwise, at larger page values
+     * it gets very messy. Creates a range of -5 to +5 from the current page if able to
+     */
+    private void createFooterNumberSequence() {
+        footerNumberSequence.clear();
+
+        int minNumber = 1;
+        int maxNumber = 11;
+
+        if (totalPages < 11) {
+            maxNumber = totalPages;
+        } else if (pageNum > 6) {
+            if (pageNum + 5 < totalPages) {
+                minNumber = pageNum - 5;
+                maxNumber = pageNum + 5;
+            } else {
+                maxNumber = totalPages;
+                minNumber = totalPages - 10;
+            }
+        }
+
+        for (int i = minNumber; i <= maxNumber; i++) {
+            footerNumberSequence.add(i);
         }
     }
 }
