@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -193,7 +194,7 @@ class PortfolioControllerTest {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name".repeat(400), LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Project name is longer than the maximum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Project name is longer than the maximum length"));
     }
 
     @Test
@@ -201,7 +202,7 @@ class PortfolioControllerTest {
         ProjectRequest projectRequest = new ProjectRequest("1", "", LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Project name is shorter than the minimum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Project name is shorter than the minimum length"));
     }
 
     @Test
@@ -209,7 +210,7 @@ class PortfolioControllerTest {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description".repeat(400));
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Project description is longer than the maximum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Project description is longer than the maximum length"));
     }
 
 
@@ -305,7 +306,7 @@ class PortfolioControllerTest {
         Mockito.when(mockSprint.getProject()).thenReturn(project);
         ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Sprint name is shorter than the minimum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Sprint name is shorter than the minimum length"));
     }
 
     @Test
@@ -317,7 +318,7 @@ class PortfolioControllerTest {
         Mockito.when(mockSprint.getProject()).thenReturn(project);
         ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Sprint name is longer than the maximum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Sprint name is longer than the maximum length"));
     }
 
     @Test
@@ -329,7 +330,7 @@ class PortfolioControllerTest {
         Mockito.when(mockSprint.getProject()).thenReturn(project);
         ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Sprint name is shorter than the minimum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Sprint name is shorter than the minimum length"));
     }
 
 
@@ -342,7 +343,7 @@ class PortfolioControllerTest {
         Mockito.when(mockSprint.getProject()).thenReturn(project);
         ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Sprint description is longer than the maximum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Sprint description is longer than the maximum length"));
     }
 
 
@@ -355,7 +356,7 @@ class PortfolioControllerTest {
         Mockito.when(mockSprint.getProject()).thenReturn(project);
         ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Sprint colour is longer than the maximum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Sprint colour is longer than the maximum length"));
     }
 
 
