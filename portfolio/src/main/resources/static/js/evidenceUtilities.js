@@ -952,6 +952,8 @@ function clearAddEvidenceModalValues() {
     $("#skillsInput").val("")
     $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
     $(".evidenceCategoryTickIcon").hide();
+    $(".countCharName").html("50 characters remaining")
+    $(".countCharDescription").html("500 characters remaining")
 }
 
 
