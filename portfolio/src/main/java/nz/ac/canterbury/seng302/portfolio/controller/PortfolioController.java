@@ -11,7 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRe
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
-import nz.ac.canterbury.seng302.portfolio.service.PortfolioService;
+import nz.ac.canterbury.seng302.portfolio.service.ProjectService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -35,15 +35,24 @@ import java.util.*;
 @Controller
 public class PortfolioController {
 
-  private static final String ERROR_MESSAGE = "errorMessage";
-  private final UserAccountsClientService userAccountsClientService;
-  private final SprintRepository sprintRepository;
-  private final ProjectRepository projectRepository;
-  private final RegexService regexService;
-  private final PortfolioService portfolioService;
-  private final CheckDateService checkDateService;
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
-  RegexPatterns regexPatterns = new RegexPatterns();
+    private final UserAccountsClientService userAccountsClientService;
+
+    private final SprintRepository sprintRepository;
+
+    private final ProjectRepository projectRepository;
+
+    private final ProjectService projectService;
+
+    private final RegexService regexService;
+
+    private static final String ERROR_MESSAGE = "errorMessage";
+
+    private static final String ERROR_PAGE_LOCATION = "errorPage";
+
+    private final CheckDateService checkDateService ;
+
+    RegexPatterns regexPatterns = new RegexPatterns();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
   /**
@@ -59,13 +68,14 @@ public class PortfolioController {
       ProjectRepository projectRepository,
       UserAccountsClientService userAccountsClientService,
       RegexService regexService,
-      PortfolioService portfolioService,
-      CheckDateService checkDateService) {
+      ProjectService projectService,
+      CheckDateService checkDateService
+  ) {
     this.projectRepository = projectRepository;
     this.sprintRepository = sprintRepository;
     this.userAccountsClientService = userAccountsClientService;
     this.regexService = regexService;
-    this.portfolioService = portfolioService;
+    this.projectService = projectService;
     this.checkDateService = checkDateService;
   }
 
@@ -114,89 +124,131 @@ public class PortfolioController {
       return modelAndView;
     } catch (EntityNotFoundException err) {
       logger.error("GET REQUEST /portfolio", err);
-      return new ModelAndView("errorPage").addObject(ERROR_MESSAGE, err.getMessage());
+      return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err.getMessage());
     } catch (Exception err) {
       logger.error("GET REQUEST /portfolio", err);
-      return new ModelAndView("errorPage").addObject(ERROR_MESSAGE, err);
+      return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err);
     }
   }
 
 
-  /**
-   * Request mapping for /editProject
-   *
-   * @param principal - The Authentication of the user making the request, for authentication
-   * @param projectId The project to edit
-   * @return Returns the project edit page or the error page
-   */
-  @RequestMapping("/editProject")
-  public ModelAndView edit(
-      @AuthenticationPrincipal Authentication principal,
-      @RequestParam(value = "projectId") Long projectId) {
-    try {
-      logger.info("GET REQUEST /editProject: Getting project edit page");
-      UserResponse user =
-          PrincipalAttributes.getUserFromPrincipal(
-              principal.getAuthState(), userAccountsClientService);
-      Optional<Project> projectOptional = projectRepository.findById(projectId);
-      if (projectOptional.isEmpty()) {
-        throw new EntityNotFoundException("Project not found");
-      }
-      Project project = projectOptional.get();
-      ModelAndView modelAndView = new ModelAndView("projectEdit");
-      modelAndView.addObject("project", project);
-      modelAndView.addObject("user", user);
-      return modelAndView;
-    } catch (EntityNotFoundException err) {
-      logger.error("GET REQUEST /editProject", err);
-      return new ModelAndView("errorPage").addObject(ERROR_MESSAGE, err);
-    } catch (Exception err) {
-      logger.error("GET REQUEST /editProject", err);
-      return new ModelAndView("errorPage");
+    /**
+     * Request mapping for /editProject
+     *
+     * @param principal - The Authentication of the user making the request, for authentication
+     * @param projectId The project to edit
+     * @return Returns the project edit page or the error page
+     */
+    @RequestMapping("/editProject")
+    public ModelAndView edit(
+            @AuthenticationPrincipal Authentication principal,
+            @RequestParam(value = "projectId") Long projectId
+    ) {
+        try {
+            logger.info("GET REQUEST /editProject");
+
+            // Get user from server
+            UserResponse user =
+                    PrincipalAttributes.getUserFromPrincipal(
+                            principal.getAuthState(), userAccountsClientService);
+
+            // Gets the project that the request is referring to.
+            Optional<Project> projectOptional = projectRepository.findById(projectId);
+            if (projectOptional.isEmpty()) {
+                throw new EntityNotFoundException("Project not found");
+            }
+            Project project = projectOptional.get();
+
+            // The view we are going to return.
+            ModelAndView modelAndView = new ModelAndView("projectEdit");
+
+            // Adds the project object to the view for use.
+            modelAndView.addObject("project", project);
+
+            // Values to set the max and min of datepicker inputs
+            modelAndView.addObject("minStartDate", projectService.getMinStartDate(project));
+            modelAndView.addObject("maxStartDate", projectService.getMaxStartDate(project));
+            modelAndView.addObject("minEndDate", projectService.getMinEndDate(project));
+
+            // Adds the username and profile photo to the view for use.
+            modelAndView.addObject("user", user);
+
+            return modelAndView;
+
+        } catch (EntityNotFoundException err) {
+            logger.error("GET REQUEST /editProject", err);
+            return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err);
+        } catch (Exception err) {
+            logger.error("GET REQUEST /editProject", err);
+            return new ModelAndView(ERROR_PAGE_LOCATION);
+        }
     }
-  }
 
 
-  /**
-   * Post mapping for /projectEdit, this is called when user submits there project changes.
-   *
-   * @param editInfo A DTO of project from the inputs on the edit page.
-   * @return Returns to the portfolio page.
-   */
-  @PostMapping("/projectEdit")
-  public ResponseEntity<Object> editDetails(
-      @ModelAttribute(name = "editProjectForm") ProjectRequest editInfo) {
-    try {
-      logger.info(
-          "POST REQUEST /projectEdit: user is editing project - {}", editInfo.getProjectId());
-      Project project =
-          projectRepository
-              .findById(Long.parseLong(editInfo.getProjectId()))
-              .orElseThrow(
-                  () ->
-                      new EntityNotFoundException(
-                          "Project with id " + editInfo.getProjectId() + "was not found"));
+    /**
+     * Postmapping for /projectEdit, this is called when user submits there project changes.
+     *
+     * @param editInfo A DTO of project from the inputs on the edit page.
+     * @return Returns to the portfolio page.
+     */
+    @PostMapping("/projectEdit")
+    public ResponseEntity<Object> editDetails(
+            @ModelAttribute(name = "editProjectForm") ProjectRequest editInfo
+    ) {
+        try {
+            logger.info("POST REQUEST /projectEdit: user is editing project - {}", editInfo.getProjectId());
 
-      String projectName = editInfo.getProjectName();
-      String projectDescription = editInfo.getProjectDescription();
-      regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectName, 1, 50, "Project name");
-      regexService.checkInput(
-          RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description");
-      checkDateService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
-      project.setName(editInfo.getProjectName());
-      project.setStartDate(LocalDate.parse(editInfo.getProjectStartDate()));
-      project.setEndDate(LocalDate.parse(editInfo.getProjectEndDate()));
-      project.setDescription(editInfo.getProjectDescription());
-      projectRepository.save(project);
-      return new ResponseEntity<>(HttpStatus.OK);
-    } catch (EntityNotFoundException | CheckException err) {
-      logger.error("POST REQUEST /projectEdit", err);
-      return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
-    } catch (Exception err) {
-      logger.error("POST REQUEST /projectEdit", err);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+
+            LocalDate projectStart = LocalDate.parse(editInfo.getProjectStartDate());
+            LocalDate projectEnd = LocalDate.parse(editInfo.getProjectEndDate());
+
+
+            Project project = projectRepository
+                    .findById(Long.parseLong(editInfo.getProjectId()))
+                    .orElseThrow(() -> new EntityNotFoundException(
+                                    "Project with id " + editInfo.getProjectId() + "was not found"
+                                    )
+                                );
+
+
+            String projectName = editInfo.getProjectName();
+            String projectDescription = editInfo.getProjectDescription();
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectName, 1, 50, "Project name");
+            regexService.checkInput(
+                    RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description"
+            );
+            checkDateService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
+
+            if (projectStart.isBefore(projectService.getMinStartDate(project))) {
+                return new ResponseEntity<>("Project cannot start more than a year before today", HttpStatus.BAD_REQUEST);
+            }
+            if (projectStart.isAfter(projectService.getMaxStartDate(project))) {
+                return new ResponseEntity<>("There is a sprint that starts before that date", HttpStatus.BAD_REQUEST);
+            }
+            if (projectEnd.isBefore(projectService.getMinEndDate(project))) {
+                return new ResponseEntity<>("There is a sprint that extends after that date", HttpStatus.BAD_REQUEST);
+            }
+            if (projectEnd.isBefore(projectStart)) {
+                return new ResponseEntity<>("End date cannot be before start date", HttpStatus.BAD_REQUEST);
+            }
+
+            //Updates the project's details
+            project.setName(editInfo.getProjectName());
+            project.setStartDate(projectStart);
+            project.setEndDate(projectEnd);
+            project.setDescription(editInfo.getProjectDescription());
+            projectRepository.save(project);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (EntityNotFoundException | CheckException err) {
+            logger.error("POST REQUEST /projectEdit", err);
+            return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception err) {
+            logger.error("POST REQUEST /projectEdit", err);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-  }
 
 
   /**
@@ -267,7 +319,7 @@ public class PortfolioController {
                           "Sprint with id " + projectId.toString() + " was not found"));
 
       Project project = projectRepository.getProjectById(projectId);
-      Map<String, LocalDate> neighbouringDates = PortfolioService.checkNeighbourDatesForSprint(sprint, sprintRepository);
+      Map<String, LocalDate> neighbouringDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
       String textForPreviousSprint;
       String textForNextSprint;
       modelAndView.addObject("previousSprintEnd", neighbouringDates.get("previousSprintEnd"));
@@ -327,7 +379,7 @@ public class PortfolioController {
     try {
       logger.info("POST REQUEST /sprintSubmit");
       // Checks that the sprint request is acceptable
-      portfolioService.checkSprintRequest(sprintInfo);
+      projectService.checkSprintRequest(sprintInfo);
 
       LocalDate startDate = LocalDate.parse(sprintInfo.getSprintStartDate());
       LocalDate endDate = LocalDate.parse(sprintInfo.getSprintEndDate());
@@ -336,7 +388,7 @@ public class PortfolioController {
         throw new CheckException("Sprint id doesn't correspond to existing sprint");
       }
       Sprint sprint = sprintOptional.get();
-      Map<String, LocalDate> checkSprintDates = PortfolioService.checkNeighbourDatesForSprint(sprint, sprintRepository);
+      Map<String, LocalDate> checkSprintDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
       checkDateService.checkNewSprintDateNotInsideOtherSprints(checkSprintDates.get("previousSprintEnd"), checkSprintDates.get("nextSprintStart"), sprintInfo);
       sprint.setName(sprintInfo.getSprintName());
       sprint.setStartDate(startDate);

@@ -12,7 +12,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRe
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
-import nz.ac.canterbury.seng302.portfolio.service.PortfolioService;
+import nz.ac.canterbury.seng302.portfolio.service.ProjectService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -45,15 +45,16 @@ class PortfolioControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
     private Project project;
     private final AuthenticateClientService authenticateClientService = mock(AuthenticateClientService.class);
     private final UserAccountsClientService userAccountsClientService = mock(UserAccountsClientService.class);
     private final SprintRepository sprintRepository = mock(SprintRepository.class);
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
     private final RegexService regexService = spy(RegexService.class);
-    private final PortfolioService portfolioService = spy(PortfolioService.class);
     private final Sprint mockSprint = mock(Sprint.class);
     private final CheckDateService checkDateService = spy(CheckDateService.class);
+    private final ProjectService projectService = new ProjectService(projectRepository, sprintRepository);
     @MockBean
     private SkillRepository skillRepository;
 
@@ -68,7 +69,18 @@ class PortfolioControllerTest {
     );
 
     @InjectMocks
-    private final PortfolioController portfolioController = new PortfolioController(sprintRepository, projectRepository, userAccountsClientService, regexService, portfolioService, checkDateService);
+    private final PortfolioController portfolioController = new PortfolioController(
+            sprintRepository,
+            projectRepository,
+            userAccountsClientService,
+            regexService,
+            projectService,
+            checkDateService
+    );
+
+    private final Integer validUserId = 1;
+    private final Integer nonExistentUserId = 2;
+    private final String invalidUserId = "Not an Id";
 
 
     @BeforeEach
@@ -226,20 +238,21 @@ class PortfolioControllerTest {
     @Test
     void testEditProjectNewEndDateIsBeforeSprintsEnd() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().plusDays(1).toString(), LocalDate.now().plusDays(3).toString(), "New Description");
-        when(sprintRepository.findAllByProjectId(Mockito.any())).thenReturn(getSprints());
+        when(sprintRepository.getAllByProjectOrderByEndDateDesc(Mockito.any())).thenReturn(getSprints());
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
+        System.out.println(response.getStatusCode());
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("There is a sprint that falls after these new dates", response.getBody());
+        Assertions.assertEquals("There is a sprint that extends after that date", response.getBody());
     }
 
 
     @Test
     void testEditProjectNewStartDateIsAfterSprintsStart() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().plusMonths(4).toString(), LocalDate.now().plusMonths(4).plusDays(4).toString(), "New Description");
-        when(sprintRepository.findAllByProjectId(Mockito.any())).thenReturn(getSprints());
+        when(sprintRepository.getAllByProjectOrderByStartDateAsc(Mockito.any())).thenReturn(getSprints());
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("There is a sprint that falls before these new dates", response.getBody());
+        Assertions.assertEquals("There is a sprint that starts before that date", response.getBody());
     }
 
     @Test
