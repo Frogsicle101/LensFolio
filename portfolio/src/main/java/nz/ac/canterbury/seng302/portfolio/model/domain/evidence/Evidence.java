@@ -35,7 +35,7 @@ public class Evidence {
     @JoinTable(name = "evidence_skills",
             joinColumns = @JoinColumn(name = "evidenceId"),
             inverseJoinColumns = @JoinColumn(name = "skillId"))
-    private final Set<Skill> skills = new HashSet<>();
+    private final List<Skill> skills = new ArrayList<>();
 
     /** The set of categories, can have SERVICE, QUANTITATIVE and QUALITATIVE. Can be multiple*/
     @Enumerated(EnumType.ORDINAL)
@@ -147,7 +147,7 @@ public class Evidence {
         this.description = description;
     }
 
-    public Set<Skill> getSkills() {
+    public List<Skill> getSkills() {
         return skills;
     }
 
