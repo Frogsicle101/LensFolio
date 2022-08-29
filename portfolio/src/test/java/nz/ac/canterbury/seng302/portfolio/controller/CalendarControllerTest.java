@@ -293,6 +293,14 @@ class CalendarControllerTest {
     }
 
     @Test
+    void testGetEventsAsFeedInternalError() {
+        setUpEDM();
+        when(eventRepository.findAllByProjectIdOrderByStartDate(1L)).thenThrow(new RuntimeException());
+        ResponseEntity<Object> result = calendarController.getEventsAsFeed(1L);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+    }
+
+    @Test
     void testGetDeadlinesAsFeed() {
         setUpEDM();
         ResponseEntity<Object> result = calendarController.getDeadlinesAsFeed(1L);
@@ -315,6 +323,14 @@ class CalendarControllerTest {
     }
 
     @Test
+    void testGetDeadlinesAsFeedInternalError() {
+        setUpEDM();
+        when(deadlineRepository.findAllByProjectIdOrderByEndDate(1L)).thenThrow(new RuntimeException());
+        ResponseEntity<Object> result = calendarController.getDeadlinesAsFeed(1L);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+    }
+
+    @Test
     void testGetMilestonesAsFeed() {
         setUpEDM();
         ResponseEntity<Object> result = calendarController.getMilestonesAsFeed(1L);
@@ -334,6 +350,14 @@ class CalendarControllerTest {
         String content = Objects.requireNonNull(result.getBody()).toString();
         Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
         Assertions.assertEquals("[]", content); //If the project doesn't exist, it has no milestones
+    }
+
+    @Test
+    void testGetMilestonesAsFeedInternalError() {
+        setUpEDM();
+        when(milestoneRepository.findAllByProjectIdOrderByEndDate(1L)).thenThrow(new RuntimeException());
+        ResponseEntity<Object> result = calendarController.getMilestonesAsFeed(1L);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
     }
 }
 
