@@ -1,6 +1,6 @@
 let thisUserIsEditing = false;
 
-$(document).ready(function () {
+$(function () {
 
     let formControl = $(".form-control");
 

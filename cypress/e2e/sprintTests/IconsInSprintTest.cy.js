@@ -1,4 +1,4 @@
-context("iconsInSprintTest", () => {
+describe("iconsInSprintTest", () => {
     beforeEach(() => {
         cy.adminLogin()
         cy.visit('/portfolio?projectId=1')

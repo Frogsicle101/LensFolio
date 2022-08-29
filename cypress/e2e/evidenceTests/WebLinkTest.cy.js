@@ -1,9 +1,8 @@
-context("WebLinkTest", () => {
+describe("WebLinkTest", () => {
     beforeEach(() => {
         cy.adminLogin()
-
-        cy.visit('/evidence')
         cy.viewport(1200, 1024)
+        cy.visit('/evidence')
         cy.get('.createEvidenceButton').click();
     })
 
