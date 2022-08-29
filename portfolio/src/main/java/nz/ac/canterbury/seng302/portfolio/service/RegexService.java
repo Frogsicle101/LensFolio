@@ -48,7 +48,7 @@ public class RegexService {
      */
     private void checkMinLength(String valueToCheck, Integer minLength, String inputName) {
         if (valueToCheck.length() < minLength) {
-            throw new CheckException(inputName + " is shorter than the minimum length");
+            throw new CheckException(inputName + " is shorter than the minimum length of " + minLength + " characters");
         }
     }
 
@@ -62,7 +62,7 @@ public class RegexService {
      */
     private void checkMaxLength(String valueToCheck, Integer maxLength, String inputName) {
         if (valueToCheck.length() > maxLength) {
-            throw new CheckException(inputName + " is longer than the maximum length");
+            throw new CheckException(inputName + " is longer than the maximum length of " + maxLength + " characters");
         }
     }
 

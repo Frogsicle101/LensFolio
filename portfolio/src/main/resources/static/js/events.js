@@ -659,7 +659,7 @@ function appendEventForm(element) {
                         <div class="mb-1">
                         <label for="eventName" class="form-label">Event name</label>
                         <input type="text" class="form-control form-control-sm eventName" pattern="${titleRegex}" value="${eventName}" maxlength="${eventNameLengthRestriction}" name="eventName" required>
-                        <small class="form-text text-muted countChar">0 characters remaining</small>
+                        <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label">Type of event</label>
@@ -718,7 +718,7 @@ function appendMilestoneForm(element) {
                         <div class="mb-1">
                         <label for="milestoneName" class="form-label">Milestone name</label>
                         <input type="text" class="form-control form-control-sm milestoneName" id="milestoneName" value="${milestoneName}" maxlength="${eventNameLengthRestriction}" name="milestoneName" required>
-                        <small class="form-text text-muted countChar">0 characters remaining</small>
+                        <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3" >
                         <label for="exampleFormControlInput2" class="form-label" >Type of milestone</label>
@@ -770,7 +770,7 @@ function appendDeadlineForm(element) {
                         <div class="mb-1">
                         <label for="deadlineName" class="form-label">Event name</label>
                         <input type="text" class="form-control form-control-sm deadlineName" pattern="${titleRegex}" value="${deadlineName}" maxlength="${eventNameLengthRestriction}" name="deadlineName" required>
-                        <small class="form-text text-muted countChar">0 characters remaining</small>
+                        <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label">Type of deadline</label>
