@@ -57,7 +57,7 @@ public class RoleBasedIntercepter implements HandlerInterceptor {
         if (usersRoles.contains(UserRole.TEACHER) || usersRoles.contains(UserRole.COURSE_ADMINISTRATOR)) {
             return true;
         } else {
-            response.sendError(401);
+            response.sendError(401, "Oops! Looks like you don't have permission to do this action. Please reload the page");
             return false;
         }
     }

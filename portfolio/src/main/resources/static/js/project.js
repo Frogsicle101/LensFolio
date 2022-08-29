@@ -36,8 +36,12 @@ $(document).ready(() => {
                 sendNotification("sprint", response.id, "create")
             },
             error: function (error) {
-                createAlert(error.responseText, true)
-
+                var errorMessage = error.responseText
+                if (error.status === 401){
+                    errorMessage = error.responseJSON.message
+                }
+                createAlert(errorMessage, true)
+                console.log(error)
             }
         })
 

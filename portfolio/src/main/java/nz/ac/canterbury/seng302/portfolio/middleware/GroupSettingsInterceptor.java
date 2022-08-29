@@ -77,11 +77,11 @@ public class GroupSettingsInterceptor implements HandlerInterceptor {
             if (usersRoles.contains(UserRole.TEACHER) || usersRoles.contains(UserRole.COURSE_ADMINISTRATOR)) {
                 return true;
             } else {
-                response.sendError(401);
+                response.sendError(401,"Oops! Looks like you don't have permission to do this action. Please reload the page");
                 return false;
             }
         } catch (Exception e) {
-            response.sendError(400);
+            response.sendError(400, "Oops! Something went wrong");
             logger.error(e.getMessage());
             return false;
         }
