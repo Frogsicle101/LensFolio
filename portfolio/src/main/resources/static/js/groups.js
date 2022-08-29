@@ -161,7 +161,13 @@ function addUsers(groupId) {
                 createAlert("User(s) moved", false)
             }
         },
-        error: function () {
+        statusCode: {
+          401: function () {
+              createAlert("You don't have permission to move users. This could be because " +
+                  "your roles have been updated. Try refreshing the page", true)
+          }
+        },
+        error: function (error) {
             createAlert("Couldn't move users", true)
         }
     })
@@ -541,6 +547,12 @@ $(document).on("click", ".deleteButton", function () {
             type: "delete",
             success: function () {
                 window.location.reload()
+            },
+            statusCode: {
+                401: function () {
+                    createAlert("You don't have permission to delete groups. This could be because " +
+                        "your roles have been updated. Try refreshing the page", true)
+                }
             }, error: function () {
                 createAlert("Couldn't delete the group", true)
             }
@@ -604,8 +616,12 @@ $(document).on("submit", "#editGroupForm", function (event) {
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
-        },
-        error: () => {
+        }, statusCode: {
+            401: function () {
+                createAlert("You don't have permission to edit group details. This could be because " +
+                    "your roles have been updated. Try refreshing the page", true)
+            }
+        }, error: () => {
             createAlert("Couldn't edit the group details", true)
         }
     })
@@ -632,6 +648,12 @@ $(document).on("click", "#confirmRemoval", function () {
         success: () => {
             displayGroupUsersList()
             createAlert("User removed", false)
+        },
+        statusCode: {
+            401: function () {
+                createAlert("You don't have permission to remove users. This could be because " +
+                    "your roles have been updated. Try refreshing the page", true)
+            }
         },
         error: () => {
             createAlert("Couldn't remove users from group", true)
