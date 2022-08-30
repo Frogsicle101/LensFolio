@@ -441,7 +441,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void getPaginatedUsers(GetPaginatedUsersRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver) {
-        PaginatedUsersResponse.Builder reply = PaginatedUsersResponse.newBuilder();
+        PaginatedUsersResponse.Builder response = PaginatedUsersResponse.newBuilder();
         List<User> allUsers = (List<User>) userRepository.findAll();
         PaginationRequestOptions request = usersRequest.getPaginationRequestOptions();
         String sortMethod = request.getOrderBy();
@@ -461,13 +461,13 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
-            reply.addUsers(allUsers.get(i).userResponse());
+            response.addUsers(allUsers.get(i).userResponse());
         }
         PaginationResponseOptions options = PaginationResponseOptions.newBuilder()
                                                                      .setResultSetSize(allUsers.size())
                                                                      .build();
-        reply.setPaginationResponseOptions(options);
-        responseObserver.onNext(reply.build());
+        response.setPaginationResponseOptions(options);
+        responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
 }

@@ -99,7 +99,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="userRoleRow" th:each="paginatedUser : ${user_list}">
+                            <tr class="userRoleRow" th:each="paginatedUser : ${userList}">
                                 <td class="userId" style="display: none" th:text="${paginatedUser.id}"></td>
                                 <td th:text="${paginatedUser.firstName}">First Name</td>
                                 <td th:text="${paginatedUser.middleName}">Middle Name</td>
