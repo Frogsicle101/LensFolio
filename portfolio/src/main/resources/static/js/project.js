@@ -36,12 +36,7 @@ $(document).ready(() => {
                 sendNotification("sprint", response.id, "create")
             },
             error: function (error) {
-                var errorMessage = error.responseText
-                if (error.status === 401){
-                    errorMessage = error.responseJSON.message
-                }
-                createAlert(errorMessage, true)
-                console.log(error)
+                createAlert(error.responseText, true)
             }
         })
 
@@ -82,6 +77,9 @@ $(document).on("click", ".deleteSprint", function () {
             createAlert("Sprint deleted!", false)
             sendNotification("sprint", sprintId, "delete")
         },
+        error: function (error) {
+            createAlert(error.responseText, true)
+        }
     }).done(function () {
         $(".sprintsContainer").slideUp(400, function () {
             $(".sprintsContainer").empty()

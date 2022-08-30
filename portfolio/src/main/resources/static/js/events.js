@@ -103,6 +103,9 @@ $(document).on('submit', "#addEventForm", function (event) {
                  */
                 sendNotification("event", response.id, "create");
                 createAlert("Event created!", false)
+            },
+            error: function (error) {
+                createAlert(error.responseText, true)
             }
         })
     }
@@ -130,6 +133,9 @@ $(document).on("submit", ".milestoneForm", function (event) {
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
             sendNotification("milestone", response.id, "create");
+        },
+        error: function (error) {
+            createAlert(error.responseText, true)
         }
     })
 })
@@ -159,6 +165,9 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
             $(".addDeadlineSvg").toggleClass('rotated');
 
             sendNotification("deadline", response.id, "create");
+        },
+        error: function (error) {
+            createAlert(error.responseText, true)
         }
     })
 })
@@ -205,6 +214,9 @@ $(document).on("submit", "#editEventForm", function (event) {
                 createAlert("Event edited successfully!", false)
                 sendNotification("event", eventId, "stop") // Let the server know the event is no longer being edited
                 sendNotification("event", eventId, "update") //Let the server know that other clients should update the element
+            },
+            error: function (error) {
+                createAlert(error.responseText, true)
             }
         })
     }
@@ -235,6 +247,9 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
             createAlert("Milestone edited successfully!", false)
             sendNotification("milestone", milestoneId, "stop") // Let the server know the milestone is no longer being edited
             sendNotification("milestone", milestoneId, "update") //Let the server know that other clients should update the element
+        },
+        error: function (error) {
+            createAlert(error.responseText, true)
         }
     })
 })
@@ -278,6 +293,9 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
                 createAlert("Deadline edited successfully!", false)
                 sendNotification("deadline", deadlineId, "stop") // Let the server know the deadline is no longer being edited
                 sendNotification("deadline", deadlineId, "update") //Let the server know that other clients should update the element
+            },
+            error: function (error) {
+                createAlert(error.responseText, true)
             }
         })
     }
@@ -336,6 +354,9 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 createAlert("Event deleted successfully!", false)
                 sendNotification("event", eventData.eventId, "delete");
+            },
+            error: function (error) {
+                createAlert(error.responseText, true)
             }
         })
     } else if (parent.hasClass('milestone')) {
@@ -347,6 +368,9 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 createAlert("Milestone deleted successfully!", false)
                 sendNotification("milestone", milestoneData.milestoneId, "delete");
+            },
+            error: function (error) {
+                createAlert(error.responseText, true)
             }
         })
     } else if (parent.hasClass('deadline')) {
@@ -358,6 +382,9 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 createAlert("Deadline deleted successfully!", false)
                 sendNotification("deadline", deadlineData.deadlineId, "delete");
+            },
+            error: function (error) {
+                createAlert(error.responseText, true)
             }
         })
     }

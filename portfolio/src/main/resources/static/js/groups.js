@@ -161,8 +161,8 @@ function addUsers(groupId) {
                 createAlert("User(s) moved", false)
             }
         },
-        error: function () {
-            createAlert("Couldn't move users", true)
+        error: function (error) {
+            createAlert(error.responseText, true)
         }
     })
 }
@@ -278,8 +278,8 @@ function displayGroupUsersList() {
             checkToSeeIfHideOrShowOptions()
             checkEditRights(response)
         },
-        error: () => {
-            createAlert("Couldn't retrieve users", true)
+        error: function (error) {
+            createAlert(error.responseText, true)
         }
     })
 }
@@ -339,6 +339,9 @@ function retrieveGroupRepoInformation() {
                 populateGroupRepoInformation(repoInformationContainer, group)
             }
             getRepoCommits();
+        },
+        error: function (error) {
+            createAlert(error.responseText, true)
         }
     })
 }
@@ -541,8 +544,9 @@ $(document).on("click", ".deleteButton", function () {
             type: "delete",
             success: function () {
                 window.location.reload()
-            }, error: function () {
-                createAlert("Couldn't delete the group", true)
+            },
+            error: function (error) {
+                createAlert(error.responseText, true)
             }
         })
     }
@@ -605,8 +609,8 @@ $(document).on("submit", "#editGroupForm", function (event) {
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
         },
-        error: () => {
-            createAlert("Couldn't edit the group details", true)
+        error: function (error) {
+            createAlert(error.responseText, true)
         }
     })
 })
@@ -633,8 +637,8 @@ $(document).on("click", "#confirmRemoval", function () {
             displayGroupUsersList()
             createAlert("User removed", false)
         },
-        error: () => {
-            createAlert("Couldn't remove users from group", true)
+        error: function (error) {
+            createAlert(error.responseText, true)
         }
     })
     $("#confirmationForm").slideUp();
