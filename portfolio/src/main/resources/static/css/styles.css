@@ -79,7 +79,8 @@ section {
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
-    --background-chip-colour: #add8e6;
+    --skill-chip-colour: #add8e6;
+    --category-chip-colour: lightcyan;
 }
 
 /*CSS relating to Header*/
@@ -1134,11 +1135,11 @@ section {
 }
 
 .skillChip {
-    background-color: var(--background-chip-colour);
+    background-color: var(--skill-chip-colour);
 }
 
 .categoryChip{
-    background-color: lightcyan;
+    background-color: var(--category-chip-colour);
 }
 
 .chip:hover{
@@ -1161,7 +1162,7 @@ section {
 }
 
 .chip.selected {
-    filter: contrast(80%);
+    filter: contrast(70%);
 }
 
 .chipDelete:hover{
@@ -1173,7 +1174,12 @@ section {
 /* skills page */
 .flexContainer {
     display: flex;
-    flex-direction: row
+    flex-direction: row;
+}
+
+.flexWrap {
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .skillSideBar {
