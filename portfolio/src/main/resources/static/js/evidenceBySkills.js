@@ -31,12 +31,13 @@ function addSkillsToSideBar() {
         skillsArray.unshift("No Skill")
     }
     for (let skill of skillsArray) {
-        skillsContainer.append(`
-            <div class="skillListItem evidenceFilter ${skill === selectedChip ? 'selectedSkill' : ''}"
-            id="SkillCalled${skill.replaceAll(" ", "_")}"> <!-- This ID has underscores instead of spaces  -->
-            <p class="skillName">${skill.replaceAll("_", " ")}</p> 
-            </div>
-        `)
+        skillsContainer.append(createSkillChip(skill.replaceAll("_", " ")))
+        // skillsContainer.append(`
+        //     <div class="skillListItem evidenceFilter ${skill === selectedChip ? 'selectedSkill' : ''}"
+        //     id="SkillCalled${skill.replaceAll(" ", "_")}"> <!-- This ID has underscores instead of spaces  -->
+        //     <p class="skillName">${skill.replaceAll("_", " ")}</p>
+        //     </div>
+        // `)
     }
 }
 
@@ -47,11 +48,12 @@ function addSkillsToSideBar() {
 function addCategoriesToSidebar() {
     let categoriesList = $('#categoryList')
     for (let category of categoryArray) {
-        categoriesList.append(`
-            <div class="categoryChip evidenceFilter ${category === selectedChip ? 'selectedSkill' : ''}">
-            <p class="skillName skillChipText">${category}</p> 
-            </div>
-        `)
+        categoriesList.append(createCategoryChip(category))
+        // categoriesList.append(`
+        //     <div class="categoryChip ${category === selectedChip ? 'selectedSkill' : ''}">
+        //     <p class="skillName chipText">${category}</p>
+        //     </div>
+        // `)
     }
 }
 
@@ -145,7 +147,7 @@ $(document).on("click", ".categoryChip" , function (e) {
     let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
     previouslySelectedDiv.removeClass("selectedSkill")
 
-    selectedChip = $(this).find('.skillChipText').text()
+    selectedChip = $(this).find('.chipText').text()
 
     let title = $(document).find(".evidenceTitle").first()
     title.text(selectedChip)
@@ -170,7 +172,7 @@ $(document).on("click", ".skillChip" , function (e) {
     let previouslySelectedDiv = $(document).find(".selectedSkill").first()
     previouslySelectedDiv.removeClass("selectedSkill")
 
-    selectedChip = $(this).find('.skillChipText').text()
+    selectedChip = $(this).find('.chipText').text()
     let skillId = "#SkillCalled" + selectedChip.replaceAll(" ", "_") // The ID has underscores instead of spaces
     $(document).find(skillId).addClass("selectedSkill")
 

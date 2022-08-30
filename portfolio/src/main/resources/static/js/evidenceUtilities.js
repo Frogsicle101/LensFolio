@@ -278,16 +278,10 @@ function addSkillsToEvidence(skills) {
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     if (skills.length < 1) {
-        highlightedEvidenceSkills.append(`
-                <div class="skillChip">
-                    <p class="skillChipText">No Skill</p>
-                </div>`)
+        highlightedEvidenceSkills.append(createSkillChip("No Skill"))
     } else {
         $.each(skills, function (i) {
-            highlightedEvidenceSkills.append(`
-                <div class="skillChip">
-                    <p class="skillChipText">${skills[i].name}</p>
-                </div>`)
+            highlightedEvidenceSkills.append(createSkillChip(skills[i].name))
         })
     }
 }
@@ -307,7 +301,7 @@ function addCategoriesToEvidence(categories) {
 
         highlightedEvidenceCategories.append(`
             <div class="categoryChip">
-                <p class="skillChipText">${categoryText}</p>
+                <p class="chipText">${categoryText}</p>
             </div>`)
     })
 
@@ -321,7 +315,7 @@ function addCategoriesToEvidence(categories) {
  * @return the HTML component for previewing evidence of class evidenceListItem
  */
 function createEvidencePreview(evidence) {
-    let skills = getEvidenceTags(evidence.skills)
+    let skills = getSkillTags(evidence.skills)
     let categories = getCategoryTags(evidence.categories)
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
@@ -337,14 +331,12 @@ function createEvidencePreview(evidence) {
 }
 
 
-function getEvidenceTags(skills) {
+function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
 
     let skillsHTML = ``
     $.each(skills, function (i) {
-        skillsHTML += `<div class="skillChip">
-                <p class="skillChipText">${skills[i].name}</p>
-            </div>`
+        skillsHTML += createSkillChip(skills[i].name)
     })
 
     return skillsHTML
@@ -355,9 +347,7 @@ function getCategoryTags(categories) {
 
     let skillsHTML = ``
     $.each(categories, function (i) {
-        skillsHTML += `<div class="categoryChip">
-                <p class="skillChipText">${categoriesMapping.get(categories[i])}</p>
-            </div>`
+        skillsHTML += createCategoryChip(categoriesMapping.get(categories[i]))
     })
 
     return skillsHTML
@@ -683,7 +673,7 @@ function displaySkillChips() {
         element = element.split("_").join(" ")
         chipDisplay.append(createChip(sanitise(element)))
     })
-    chipDisplay.find(".skillChipText").each(function () {
+    chipDisplay.find(".chipText").each(function () {
         if ($(this).text().length < 1) {
             $(this).parent(".skillChip").remove()
         }
@@ -714,8 +704,8 @@ function checkToShowSkillChips() {
  * @returns {string} the html for the chip
  */
 function createChip(element) {
-    return `<div class="skillChip">
-                <p class="skillChipText">${element}</p>  
+    return `<div class="chip skillChip">
+                <p class="chipText">${element}</p>  
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -729,7 +719,7 @@ function createChip(element) {
  * skill we are deleting.
  */
 $(document).on("click", ".chipDelete", function () {
-    let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
+    let skillText = $(this).parent().find(".chipText").text().trim().split(" ").join("_")
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
         return value.toLowerCase() !== skillText.toLowerCase()
@@ -1034,3 +1024,19 @@ $(".evidenceFormCategoryButton").on("click", function () {
         button.find(".evidenceCategoryTickIcon").hide("slide", 200)
     }
 })
+
+
+function createSkillChip(skillName) {
+    return `
+    <div class="chip skillChip">
+        <p class="chipText">${skillName}</p>
+    </div>`
+}
+
+
+function createCategoryChip(categoryName) {
+    return `
+    <div class="chip categoryChip">
+        <p class="chipText">${categoryName}</p>
+    </div>`
+}
