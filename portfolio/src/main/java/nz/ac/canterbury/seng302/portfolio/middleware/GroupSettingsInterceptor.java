@@ -86,8 +86,12 @@ public class GroupSettingsInterceptor implements HandlerInterceptor {
                 return false;
             }
         } catch (Exception e) {
-            response.sendError(400, "Oops! Something went wrong");
             logger.error(e.getMessage());
+            response.setStatus(400);
+            PrintWriter writer = response.getWriter();
+            writer.append("Oops! Something went wrong");
+            writer.close();
+            response.flushBuffer();
             return false;
         }
     }
