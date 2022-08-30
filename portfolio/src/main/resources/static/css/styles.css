@@ -184,9 +184,6 @@ section {
 }
 
 #photoContainer:hover #accountPageImage {
-    /*opacity: 0.4;*/
-    /*background-color: black;*/
-
     filter: contrast(50%);
 }
 
@@ -1128,43 +1125,34 @@ section {
     flex-wrap: wrap;
 }
 
-.skillChip{
+.chip {
     padding: 0.2rem 1rem 0.2rem;
     position: relative;
     margin: 0.2rem;
-    background-color: var(--background-chip-colour);
     border-radius: var(--border-radius);
     display: flex;
     flex-direction: row;
     box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
 }
 
-.skillChip:hover{
-    cursor: pointer;
+.chip.skillChip {
+    background-color: var(--background-chip-colour);
+}
+
+.chip.categoryChip{
     background-color: lightcyan;
 }
 
-.categoryChip{
-    padding: 0.2rem 1rem 0.2rem;
-    position: relative;
-    margin: 0.2rem;
-    background-color: navajowhite;
-    border-radius: var(--border-radius);
-    display: flex;
-    flex-direction: row;
-    box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
-}
-
-.categoryChip:hover{
+.chip:hover{
     cursor: pointer;
-    background-color: antiquewhite;
+    filter: contrast(10%);
 }
 
 .skillChipInvalid{
     background-color: #ee3636;
 }
 
-.skillChipText{
+.chipText{
     margin: auto;
 }
 

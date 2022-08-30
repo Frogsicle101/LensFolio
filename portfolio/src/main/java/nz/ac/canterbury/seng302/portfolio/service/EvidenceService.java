@@ -30,25 +30,12 @@ import java.util.regex.Pattern;
 
 
 /**
- * Used to differentiate the strings that are passed to the stringCheck method
- */
-enum StringType {
-    TITLE,
-    DESCRIPTION,
-}
-
-/**
  * A utility class for more complex actions involving Evidence
  */
 @Service
 public class EvidenceService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    /**
-     * Regex that is all unicode letters, numbers and punctuation
-     */
-    private static final Pattern pattern = Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\s]+", Pattern.CASE_INSENSITIVE);
 
     private final UserAccountsClientService userAccountsClientService;
 
@@ -60,45 +47,23 @@ public class EvidenceService {
 
     private final SkillRepository skillRepository;
 
+    private final RegexService regexService;
+
     @Autowired
     public EvidenceService(
             UserAccountsClientService userAccountsClientService,
             ProjectRepository projectRepository,
             EvidenceRepository evidenceRepository,
             WebLinkRepository webLinkRepository,
-            SkillRepository skillRepository
+            SkillRepository skillRepository,
+            RegexService regexService
     ) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
         this.webLinkRepository = webLinkRepository;
         this.skillRepository = skillRepository;
-    }
-
-
-    /**
-     * Checks if the string is too short or matches the pattern provided
-     * if either of these are true then it throws an exception
-     *
-     * @param string A string
-     * @throws CheckException The exception to throw
-     */
-    private void checkString(String string, StringType type) throws CheckException {
-        if (string.length() < 2) {
-            throw new CheckException("Text should be longer than 1 character");
-        } else {
-            Matcher matcher = pattern.matcher(string);
-            boolean matchFound = matcher.matches();
-            if (!matchFound) {
-                throw new CheckException("Text contains characters that aren't allowed");
-            }
-        }
-
-        if (type == StringType.TITLE && string.length() > 50) {
-            throw new CheckException("Title cannot be more than 50 characters");
-        } else if (type == StringType.DESCRIPTION && string.length() > 500){
-            throw new CheckException("Description cannot be more than 500 characters");
-        }
+        this.regexService = regexService;
     }
 
 
@@ -149,14 +114,15 @@ public class EvidenceService {
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
 
-        checkString(title, StringType.TITLE);
-        checkString(description, StringType.DESCRIPTION);
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "title");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "description");
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
         evidence = evidenceRepository.save(evidence);
 
         for (WebLinkDTO dto : webLinks) {
             WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
         }
@@ -183,9 +149,7 @@ public class EvidenceService {
      */
     public void addSkills(Evidence evidence, List<String> skills) {
         for(String skillName: skills){
-            if (skillName == null || skillName.equals("") || skillName.equals(" ")){
-                continue;
-            }
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 2, 30, "skill name");
             Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
             Skill theSkill;
             if (optionalSkill.isEmpty()) {

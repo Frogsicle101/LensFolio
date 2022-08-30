@@ -77,7 +77,6 @@ class UserListControllerTest {
     void beforeAll() {
         expectedUsersList.clear();
         usersPerPage = 10;
-        //userListController.setUserAccountsClientService(mockClientService);
         UserResponse.Builder user = UserResponse.newBuilder();
         user.setUsername("steve")
                 .setFirstName("Steve")
@@ -89,7 +88,6 @@ class UserListControllerTest {
                 .setEmail("steve@example.com")
                 .setProfileImagePath("a");
         user.addRoles(UserRole.STUDENT);
-
         when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), mockClientService)).thenReturn(user.build());
         addUsersToExpectedList(0, usersPerPage * 4 + 1);
         userPrefRepository.deleteAll();

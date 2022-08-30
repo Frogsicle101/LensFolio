@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.service;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -76,5 +77,27 @@ public class GroupService {
                 .addAllUserIds(userIds)
                 .build();
         return groupsClientService.removeGroupMembers(request);
+    }
+
+
+    /**
+     * Makes a request to the server for the groups
+     * @param offset The offset for the groups
+     * @param orderBy The order to get the groups
+     * @param groupsPerPageLimit The number of groups to get
+     * @param isAscending Ascending or descending
+     * @return A group response from the server.
+     */
+    public PaginatedGroupsResponse getPaginatedGroupsFromServer(int offset, String orderBy, int groupsPerPageLimit, boolean isAscending) {
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                .setOffset(offset)
+                .setOrderBy(orderBy)
+                .setLimit(groupsPerPageLimit)
+                .setIsAscendingOrder(isAscending)
+                .build();
+        GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
+                .setPaginationRequestOptions(options)
+                .build();
+        return groupsClientService.getPaginatedGroups(request);
     }
 }
