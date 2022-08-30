@@ -32,7 +32,7 @@ class WebLinkTest {
         evidenceRepository.save(evidence);
         webLinkRepository.save(webLink);
 
-        Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
+        Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1).get(0);
         Assertions.assertEquals(evidence1.getTitle(), evidence.getTitle());
         Assertions.assertEquals(evidence1.getWebLinks().iterator().next().getUrl(), evidence.getWebLinks().iterator().next().getUrl());
 
@@ -53,7 +53,7 @@ class WebLinkTest {
         webLinkRepository.save(webLink2);
         webLinkRepository.save(webLink3);
 
-        Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
+        Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1).get(0);
         Assertions.assertEquals(evidence1.getTitle(), evidence.getTitle());
         Assertions.assertEquals(evidence1.getWebLinks().iterator().next().getUrl(), evidence.getWebLinks().iterator().next().getUrl());
         Assertions.assertEquals(evidence1.getWebLinks().size(), evidence.getWebLinks().size());

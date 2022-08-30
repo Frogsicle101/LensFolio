@@ -237,7 +237,7 @@ function getSkills(callback = () => {
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
- * @param evidenceDetails The title, date, and description for a piece of evidence.
+ * @param evidenceDetails The title, date, and description, skills, and categories for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")

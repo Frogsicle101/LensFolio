@@ -170,7 +170,7 @@ public class EvidenceController {
     public ResponseEntity<Object> getAllEvidence(@RequestParam("userId") Integer userId) {
         logger.info("GET REQUEST /evidence - attempt to get evidence for user {}", userId);
         try {
-            List<Evidence> evidence = evidenceRepository.findAllByUserIdOrderByDateDesc(userId);
+            List<Evidence> evidence = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(userId);
             if (evidence.isEmpty()) {
                 GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
                 UserResponse userExistsResponse = userAccountsClientService.getUserAccountById(request);
@@ -217,7 +217,7 @@ public class EvidenceController {
             return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

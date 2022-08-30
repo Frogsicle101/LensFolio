@@ -84,7 +84,7 @@ public class SkillController {
         logger.info("GET REQUEST /evidenceLinkedToSkill - attempt to get all evidence for skill: {}", skillName);
         try {
             if (Objects.equals(skillName, "No Skill")) {
-                List<Evidence> evidence = evidenceRepository.findAllByUserIdAndSkillsIsEmptyOrderByDateDesc(userId);
+                List<Evidence> evidence = evidenceRepository.findAllByUserIdAndSkillsIsEmptyOrderByOccurrenceDateDesc(userId);
                 logger.info("GET REQUEST /evidenceLinkedToSkill - No skill evidence retrieved");
                 return new ResponseEntity<>(evidence, HttpStatus.OK);
             }

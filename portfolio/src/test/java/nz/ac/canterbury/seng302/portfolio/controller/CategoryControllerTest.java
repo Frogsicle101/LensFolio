@@ -90,7 +90,6 @@ class CategoryControllerTest {
         evidences.add(evidence1);
         String expectedContent = "["+evidence1.toJsonString()+"]";
 
-
         Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(evidences);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")

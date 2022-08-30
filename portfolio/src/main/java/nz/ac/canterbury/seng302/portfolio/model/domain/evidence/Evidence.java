@@ -21,7 +21,7 @@ public class Evidence {
 
     private int userId;
     private String title;
-    private LocalDate date;
+    private LocalDate occurrenceDate;
     private String description;
 
     /** A list of the web links associated with a piece of Evidence */
@@ -35,7 +35,7 @@ public class Evidence {
     @JoinTable(name = "evidence_skills",
             joinColumns = @JoinColumn(name = "evidenceId"),
             inverseJoinColumns = @JoinColumn(name = "skillId"))
-    private final List<Skill> skills = new ArrayList<>();
+    private final Set<Skill> skills = new HashSet<>();
 
     /** The set of categories, can have SERVICE, QUANTITATIVE and QUALITATIVE. Can be multiple*/
     @Enumerated(EnumType.ORDINAL)
@@ -56,7 +56,7 @@ public class Evidence {
         checkDescriptionLength(description);
         this.userId = userId;
         this.title = title;
-        this.date = date;
+        this.occurrenceDate = date;
         this.description = description;
     }
 
@@ -76,7 +76,7 @@ public class Evidence {
         this.id = evidenceId;
         this.userId = userId;
         this.title = title;
-        this.date = date;
+        this.occurrenceDate = date;
         this.description = description;
     }
 
@@ -118,11 +118,11 @@ public class Evidence {
     }
 
     public LocalDate getDate() {
-        return date;
+        return occurrenceDate;
     }
 
     public void setDate(LocalDate date) {
-        this.date = date;
+        this.occurrenceDate = date;
     }
 
     public String getDescription() {
@@ -147,7 +147,7 @@ public class Evidence {
         this.description = description;
     }
 
-    public List<Skill> getSkills() {
+    public Set<Skill> getSkills() {
         return skills;
     }
 
@@ -174,11 +174,11 @@ public class Evidence {
                 "\"id\":" + id +
                 ",\"userId\":" + userId +
                 ",\"title\":\"" + title +
-                "\",\"date\":\"" + date +
                 "\",\"description\":\"" + description +
                 "\",\"webLinks\":" + "[]" +
                 ",\"skills\":" + "[]" +
                 ",\"categories\":" + "[]" +
+                "," + "\"date\":\"" + occurrenceDate + "\"" +
                 "}";
     }
 

@@ -416,7 +416,7 @@ class EvidenceControllerTest {
         String existingUserId = "1";
         String expectedContent = "[]";
 
-        Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(new ArrayList<>());
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(new ArrayList<>());
 
         MvcResult result = mockMvc.perform(get("/evidenceData")
                 .queryParam("userId", existingUserId))
@@ -436,10 +436,11 @@ class EvidenceControllerTest {
         String existingUserId = "1";
 
         ArrayList<Evidence> usersEvidence = new ArrayList<>();
-        Evidence evidence = new Evidence(1, 2, "Title", LocalDate.now(), "description");
+        Evidence evidence = new Evidence(1, 2, "Title", LocalDate.now()
+, "description");
         usersEvidence.add(evidence);
 
-        Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(usersEvidence);
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
 
         MvcResult result = mockMvc.perform(get("/evidenceData")
                         .queryParam("userId", existingUserId))
@@ -465,7 +466,7 @@ class EvidenceControllerTest {
         usersEvidence.add(evidence1);
         usersEvidence.add(evidence2);
 
-        Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(usersEvidence);
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
 
         MvcResult result = mockMvc.perform(get("/evidenceData")
                         .queryParam("userId", existingUserId))
