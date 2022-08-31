@@ -85,6 +85,14 @@ public class GroupSettingsInterceptor implements HandlerInterceptor {
                 response.flushBuffer();
                 return false;
             }
+        } catch (NumberFormatException e){
+            logger.error(e.getMessage());
+            response.setStatus(400);
+            PrintWriter writer = response.getWriter();
+            writer.append("Oops! Something went wrong");
+            writer.close();
+            response.flushBuffer();
+            return false;
         } catch (Exception e) {
             logger.error(e.getMessage());
             response.setStatus(500);
