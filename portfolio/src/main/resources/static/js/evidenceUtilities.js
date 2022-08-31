@@ -158,7 +158,8 @@ function getAndAddEvidencePreviews() {
 
 
     $.ajax({
-        url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
+        url: "evidenceData?userId=" + userBeingViewedId, success: function (response, status, xhr) {
+            displayNameOrButton(xhr)
             addEvidencePreviews(response)
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
@@ -166,6 +167,23 @@ function getAndAddEvidencePreviews() {
             createAlert(error.responseText, true)
         }
     })
+}
+
+
+/**
+ *  Displays the create evidence button if the evidence being viewed is the logged in user otherwise it displays the
+ *  name of the user
+ */
+function displayNameOrButton(response) {
+    if (userBeingViewedId !== userIdent) {
+        $(".createEvidenceButton").hide();
+        let usersName = response.getResponseHeader("Users-Name");
+        $("#nameHolder").html("Viewing evidence for " + usersName)
+        $("#nameHolder").show()
+    } else{
+        $("#nameHolder").hide()
+        $(".createEvidenceButton").show();
+    }
 }
 
 /**
