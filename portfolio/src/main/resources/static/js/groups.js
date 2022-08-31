@@ -161,6 +161,12 @@ function addUsers(groupId) {
                 createAlert("User(s) moved", false)
             }
         },
+        statusCode: {
+          401: function () {
+              createAlert("You don't have permission to move users. This could be because " +
+                  "your roles have been updated. Try refreshing the page", true)
+          }
+        },
         error: function (error) {
             createAlert(error.responseText, true)
         }
@@ -545,7 +551,12 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 window.location.reload()
             },
-            error: function (error) {
+            statusCode: {
+                401: function () {
+                    createAlert("You don't have permission to delete groups. This could be because " +
+                        "your roles have been updated. Try refreshing the page", true)
+                }
+            }, error: function (error) {
                 createAlert(error.responseText, true)
             }
         })
@@ -608,8 +619,12 @@ $(document).on("submit", "#editGroupForm", function (event) {
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
-        },
-        error: function (error) {
+        }, statusCode: {
+            401: function () {
+                createAlert("You don't have permission to edit group details. This could be because " +
+                    "your roles have been updated. Try refreshing the page", true)
+            }
+        }, error: function (error) {
             createAlert(error.responseText, true)
         }
     })
@@ -636,6 +651,12 @@ $(document).on("click", "#confirmRemoval", function () {
         success: () => {
             displayGroupUsersList()
             createAlert("User removed", false)
+        },
+        statusCode: {
+            401: function () {
+                createAlert("You don't have permission to remove users. This could be because " +
+                    "your roles have been updated. Try refreshing the page", true)
+            }
         },
         error: function (error) {
             createAlert(error.responseText, true)
