@@ -142,33 +142,11 @@ function runAfterGroupsPopulated(){
 }
 //------------------------ Other Functions ------------------------------
 
-$(document).on("click", ".groupPageLink", function(event) {
-    event.preventDefault()
-    let newPage
-    switch ($(this).text()) {
-        case "First":
-            newPage = 1
-            break
-        case "Previous":
-            newPage = groupPage - 1
-            break
-        case "Next":
-            newPage = groupPage + 1
-            break
-        case "Last":
-            newPage = -1
-            break
-        default:
-            newPage = $(this).text()
-    }
-    getGroups(newPage)
-})
-
 /**
  * Listens for a change on the group amount display selector (the dropdown)
  * Calls getGroups.
  */
-$(document).on("change", "#groupDisplayAmountSelection", function(event) {
+$(document).on("change", ".groupDisplayAmountSelection", function(event) {
     event.preventDefault()
     getGroups(groupPage)
 })
@@ -178,7 +156,7 @@ $(document).on("change", "#groupDisplayAmountSelection", function(event) {
  * Gets the group data from the server for displaying the preview list of groups.
  */
 function getGroups(page = groupPage){
-    let groupsPerPage = $("#groupDisplayAmountSelection").find("option:selected").text()
+    let groupsPerPage = $(".groupDisplayAmountSelection").find("option:selected").text()
     groupsPerPage = groupsPerPage.toLowerCase()
     $.ajax({
         url: "getGroups",
@@ -265,12 +243,12 @@ function createFooterNumberSelector(number){
  * @param groups The list of groups.
  */
 function createListOfGroups(groups){
-    let groupOverviewContainer = $(".scrollableGroupOverview")
+    let groupOverviewContainer = $("#groupAmountOptionsTop")
     $(".group").each((index, element) => {
         $(element).remove()
     })
     for (const groupsKey in groups) {
-        groupOverviewContainer.append(createGroupPreviewDiv(groups[groupsKey]))
+        groupOverviewContainer.after(createGroupPreviewDiv(groups[groupsKey]))
     }
 
 }

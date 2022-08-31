@@ -441,9 +441,9 @@ public class GroupsController {
         footerNumberSequence.clear();
 
         int minNumber = 1;
-        int maxNumber = 11;
+        int maxNumber = 10;
 
-        if (totalPages < 11) {
+        if (totalPages < 10) {
             maxNumber = totalPages;
         } else if (pageNum > 6) {
             if (pageNum + 5 < totalPages) {
@@ -451,7 +451,7 @@ public class GroupsController {
                 maxNumber = pageNum + 5;
             } else {
                 maxNumber = totalPages;
-                minNumber = totalPages - 10;
+                minNumber = totalPages - 9;
             }
         }
 
