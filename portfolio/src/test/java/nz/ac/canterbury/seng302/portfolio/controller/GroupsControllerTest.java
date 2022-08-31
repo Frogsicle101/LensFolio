@@ -3,13 +3,12 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.PortfolioApplication;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
-import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.ValidationError;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -23,6 +22,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -66,7 +66,6 @@ class GroupsControllerTest {
     @Test
     void testDeleteGroupUnauthorizedToStudent() throws Exception {
         setUserToStudent();
-        setUpContext();
 
         mockMvc.perform(delete("/groups/edit"))
                 .andExpect(status().isUnauthorized());
@@ -76,7 +75,6 @@ class GroupsControllerTest {
     @Test
     void testCreateGroupUnauthorizedToStudent() throws Exception {
         setUserToStudent();
-        setUpContext();
 
         mockMvc.perform(post("/groups/edit")
                         .param("shortName", "short")
@@ -86,9 +84,50 @@ class GroupsControllerTest {
 
 
     @Test
+    void testRecentDemotionCannotCreateGroup() throws Exception {
+        setUserToTeacher();
+        demoteWithoutUpdatingPrincipal();
+
+        mockMvc.perform(post("/groups/edit")
+                        .param("shortName", "short")
+                        .param("longName", "long"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testRecentDemotionCannotEditGroup() throws Exception {
+        setUserToTeacher();
+        demoteWithoutUpdatingPrincipal();
+
+        mockMvc.perform(post("/groups/edit")
+                        .param("shortName", "short")
+                        .param("longName", "long"))
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    void testRecentDemotionCannotAddUsers() throws Exception {
+        setUserToTeacher();
+        demoteWithoutUpdatingPrincipal();
+        MockHttpServletRequestBuilder request = buildUserAddRequest();
+
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testRecentDemotionCannotRemoveUsers() throws Exception {
+        setUserToTeacher();
+        demoteWithoutUpdatingPrincipal();
+        MockHttpServletRequestBuilder request = buildUserRemoveRequest();
+
+        mockMvc.perform(request).andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
     void testCreateValidShortAndLongName() throws Exception {
         setUserToTeacher();
-        setUpContext();
         String shortName = "Test Name";
         String longName = "Test Name But Longer";
         CreateGroupRequest request = buildCreateRequest(shortName, longName);
@@ -108,7 +147,6 @@ class GroupsControllerTest {
     @Test
     void testCreateGroupInvalidShortName() throws Exception {
         setUserToTeacher();
-        setUpContext();
         String shortName = "Test Name";
         String longName = "Test Name But Longer";
         CreateGroupRequest request = buildCreateRequest(shortName, longName);
@@ -133,7 +171,6 @@ class GroupsControllerTest {
     @Test
     void testCreateGroupInvalidLongName() throws Exception {
         setUserToTeacher();
-        setUpContext();
         String shortName = "Test Name";
         String longName = "Test Name But Longer";
         CreateGroupRequest request = buildCreateRequest(shortName, longName);
@@ -158,7 +195,6 @@ class GroupsControllerTest {
     @Test
     void testEditLongNameValidLongNameAndGroupId() throws Exception {
         setUserToTeacher();
-        setUpContext();
         String longName = "Test Name But Longer";
         String groupId = "2";
         ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"a short name", longName);
@@ -186,7 +222,6 @@ class GroupsControllerTest {
     @Test
     void testEditLongNameInvalidLongName() throws Exception {
         setUserToStudent();
-        setUpContext();
         String longName = "Test Name But Longer";
         String groupId = "2";
         ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"a short name", longName);
@@ -218,7 +253,6 @@ class GroupsControllerTest {
     @Test
     void testEditLongNameInvalidGroupId() throws Exception {
         setUserToStudent();
-        setUpContext();
         String longName = "Test Name But Longer";
         String groupId = "9000";
         ModifyGroupDetailsRequest request = buildModifyRequest(Integer.parseInt(groupId),"a short name", longName);
@@ -250,7 +284,6 @@ class GroupsControllerTest {
     @Test
     void testDeleteGroupValid() throws Exception {
         setUserToTeacher();
-        setUpContext();
         DeleteGroupRequest request = DeleteGroupRequest.newBuilder().setGroupId(1).build();
 
         DeleteGroupResponse response = DeleteGroupResponse.newBuilder()
@@ -269,7 +302,6 @@ class GroupsControllerTest {
     @Test
     void testDeleteGroupInvalid() throws Exception {
         setUserToTeacher();
-        setUpContext();
         DeleteGroupRequest request = DeleteGroupRequest.newBuilder().setGroupId(1).build();
 
         DeleteGroupResponse response = DeleteGroupResponse.newBuilder()
@@ -286,67 +318,31 @@ class GroupsControllerTest {
 
 
     @Test
-    void addUsersToGroup() throws Exception {
+    void testAddUsersToGroup() throws Exception {
         setUserToTeacher();
-        setUpContext();
 
-        String groupId = "3";
-        ArrayList<Integer> userIds = new ArrayList<>();
-        userIds.add(1);
-        userIds.add(2);
+        MockHttpServletRequestBuilder request = buildUserAddRequest();
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        for (Integer userId : userIds) {
-            params.addAll("userIds", Collections.singletonList(userId.toString()));
-
-        }
-
-        AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
-                .setIsSuccess(true)
-                .setMessage("Successfully added users to group")
-                .build();
-
-        Mockito.when(groupService.addUsersToGroup(Integer.parseInt(groupId), userIds)).thenReturn(response);
-
-        mockMvc.perform(post("/groups/addUsers")
-                        .param("groupId", groupId)
-                        .params(params))
+        mockMvc.perform(request)
                 .andExpect(status().isOk());
     }
 
 
     @Test
-    void removeUsers() throws Exception {
+    void testRemoveUsers() throws Exception {
         setUserToTeacher();
-        setUpContext();
-        String groupId = "3";
-        ArrayList<Integer> userIds = new ArrayList<>();
-        userIds.add(1);
-        userIds.add(2);
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        for (Integer userId : userIds) {
-            params.addAll("userIds", Collections.singletonList(userId.toString()));
-        }
+        MockHttpServletRequestBuilder request = buildUserRemoveRequest();
 
-        RemoveGroupMembersResponse response = RemoveGroupMembersResponse.newBuilder()
-                .setIsSuccess(true)
-                .setMessage("Successfully removed users from group")
-                .build();
-
-        Mockito.when(groupService.removeUsersFromGroup(Integer.parseInt(groupId), userIds)).thenReturn(response);
-
-        mockMvc.perform(delete("/groups/removeUsers")
-                        .param("groupId", groupId)
-                        .params(params))
+        mockMvc.perform(request)
                 .andExpect(status().isOk());
+
     }
 
 
     @Test
-    void addUsersToGroupNotAGroup() throws Exception {
+    void testAddUsersToGroupNotAGroup() throws Exception {
         setUserToTeacher();
-        setUpContext();
         String groupId = "3";
         ArrayList<Integer> userIds = new ArrayList<>();
         userIds.add(1);
@@ -372,9 +368,8 @@ class GroupsControllerTest {
 
 
     @Test
-    void addUserToGroupNotUser() throws Exception {
+    void testAddUserToGroupNotUser() throws Exception {
         setUserToTeacher();
-        setUpContext();
         String groupId = "3";
         ArrayList<Integer> userIds = new ArrayList<>();
         userIds.add(1);
@@ -399,9 +394,8 @@ class GroupsControllerTest {
 
 
     @Test
-    void deleteUserNotAGroup() throws Exception {
+    void testDeleteUserNotAGroup() throws Exception {
         setUserToTeacher();
-        setUpContext();
         String groupId = "100";
         ArrayList<Integer> userIds = new ArrayList<>();
         userIds.add(1);
@@ -445,6 +439,53 @@ class GroupsControllerTest {
                 .build();
     }
 
+    private MockHttpServletRequestBuilder buildUserAddRequest() {
+        String groupId = "3";
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+        userIds.add(2);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        for (Integer userId : userIds) {
+            params.addAll("userIds", Collections.singletonList(userId.toString()));
+
+        }
+
+        AddGroupMembersResponse response = AddGroupMembersResponse.newBuilder()
+                .setIsSuccess(true)
+                .setMessage("Successfully added users to group")
+                .build();
+
+        Mockito.when(groupService.addUsersToGroup(Integer.parseInt(groupId), userIds)).thenReturn(response);
+
+        return post("/groups/addUsers")
+                .param("groupId", groupId)
+                .params(params);
+
+    }
+
+
+    private MockHttpServletRequestBuilder buildUserRemoveRequest() {
+        String groupId = "3";
+        ArrayList<Integer> userIds = new ArrayList<>();
+        userIds.add(1);
+        userIds.add(2);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        for (Integer userId : userIds) {
+            params.addAll("userIds", Collections.singletonList(userId.toString()));
+        }
+
+        RemoveGroupMembersResponse response = RemoveGroupMembersResponse.newBuilder()
+                .setIsSuccess(true)
+                .setMessage("Successfully removed users from group")
+                .build();
+
+        Mockito.when(groupService.removeUsersFromGroup(Integer.parseInt(groupId), userIds)).thenReturn(response);
+
+        return delete("/groups/removeUsers").param("groupId", groupId).params(params);
+    }
+
 
     private void setUserToStudent() {
         principal = new Authentication(AuthState.newBuilder()
@@ -457,6 +498,7 @@ class GroupsControllerTest {
         idpUser = UserResponse.newBuilder().setId(1).addRoles(UserRole.STUDENT).build();
 
         Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(idpUser);
+        setUpContext();
     }
 
 
@@ -470,6 +512,12 @@ class GroupsControllerTest {
                 .build());
         idpUser = UserResponse.newBuilder().setId(1).addRoles(UserRole.COURSE_ADMINISTRATOR).build();
 
+        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(idpUser);
+        setUpContext();
+    }
+
+    private void demoteWithoutUpdatingPrincipal() {
+        idpUser = UserResponse.newBuilder().setId(1).addRoles(UserRole.STUDENT).build();
         Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(idpUser);
     }
 
