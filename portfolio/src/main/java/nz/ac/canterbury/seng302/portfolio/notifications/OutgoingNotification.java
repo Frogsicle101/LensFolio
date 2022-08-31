@@ -16,12 +16,12 @@ public class OutgoingNotification {
     private final String editorName;
 
     /**
-     * The subtype of occasion. One of 'event', 'milestone', or 'deadline'
+     * The subtype of occasion. One of 'event', 'milestone', 'deadline', 'addRole', or 'deleteRole'
      */
     private final String occasionType;
 
     /**
-     * The ID of the edited occasion
+     * The ID of the edited occasion or role
      */
     private final String occasionId;
 

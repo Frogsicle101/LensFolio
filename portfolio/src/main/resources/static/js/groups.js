@@ -156,13 +156,13 @@ function addUsers(groupId) {
         success: function () {
             displayGroupUsersList()
             if (parseInt(groupId) === MWAG_GROUP_ID) {
-                createAlert("User(s) moved, and teachers role remains", false)
+                createAlert("User(s) moved, and teachers role remains", "success")
             } else {
-                createAlert("User(s) moved", false)
+                createAlert("User(s) moved", "success")
             }
         },
         error: function () {
-            createAlert("Couldn't move users", true)
+            createAlert("Couldn't move users", "failure")
         }
     })
 }
@@ -279,7 +279,7 @@ function displayGroupUsersList() {
             checkEditRights(response)
         },
         error: () => {
-            createAlert("Couldn't retrieve users", true)
+            createAlert("Couldn't retrieve users", "failure")
         }
     })
 }
@@ -542,7 +542,7 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 window.location.reload()
             }, error: function () {
-                createAlert("Couldn't delete the group", true)
+                createAlert("Couldn't delete the group", "failure")
             }
         })
     }
@@ -606,7 +606,7 @@ $(document).on("submit", "#editGroupForm", function (event) {
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
         },
         error: () => {
-            createAlert("Couldn't edit the group details", true)
+            createAlert("Couldn't edit the group details", "failure")
         }
     })
 })
@@ -631,10 +631,10 @@ $(document).on("click", "#confirmRemoval", function () {
         type: "DELETE",
         success: () => {
             displayGroupUsersList()
-            createAlert("User removed", false)
+            createAlert("User removed", "success")
         },
         error: () => {
-            createAlert("Couldn't remove users from group", true)
+            createAlert("Couldn't remove users from group", "failure")
         }
     })
     $("#confirmationForm").slideUp();

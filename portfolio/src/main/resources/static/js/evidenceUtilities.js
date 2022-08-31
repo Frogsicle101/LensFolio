@@ -28,12 +28,11 @@ let categoriesMapping = new Map([
     ["QUANTITATIVE", "Quantitative"]
 ])
 
-$(document).ready(() => {
-
+$(() => {
     // Counting characters
     let textInput = $(".text-input");
     textInput.each(countCharacters)
-    textInput.keyup(countCharacters)
+    textInput.on("keyup", countCharacters)
     }
 )
 
@@ -163,7 +162,7 @@ function getAndAddEvidencePreviews() {
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -184,7 +183,7 @@ function getHighlightedEvidenceDetails() {
                 getHighlightedEvidenceWeblinks()
             }, error: function (error) {
                 console.log(error)
-                createAlert("Failed to receive active evidence", true)
+                createAlert("Failed to receive active evidence", "failure")
             }
         })
     } else {
@@ -204,7 +203,7 @@ function getHighlightedEvidenceWeblinks() {
             setHighlightedEvidenceWebLinks(response)
         }, error: function (response) {
             if (response.status !== 404) {
-                createAlert("Failed to receive evidence links", true)
+                createAlert("Failed to receive evidence links", "failure")
             }
         }
     })
@@ -442,7 +441,7 @@ function checkWeblinkCount() {
 
 
 /**
- * reset the weblinks count
+ * Resets the weblink count
  */
 function resetWeblink() {
     let addWeblinkButton = $("#addWebLinkButton")
@@ -777,7 +776,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
-                createAlert("Created evidence")
+                createAlert("Created evidence", "failure")
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
@@ -785,7 +784,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, true, ".modal-body")
+                createAlert(error.responseText, "failure", ".modal-body")
             }
         })
     }
@@ -934,7 +933,7 @@ function submitWebLink() {
         checkWeblinkCount()
         $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
     } else {
-        createAlert("Weblink name needs to be 1 char", true);
+        createAlert("Weblink name needs to be 1 char", "failure");
     }
 }
 
