@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.model.dto.GroupDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.GroupCreationDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
@@ -138,9 +137,11 @@ public class GroupsController {
      {
          logger.info("GET REQUEST /getGroups - attempt to get all groups");
          try {
+
              if (page != null) {
                  pageNum = page;
              }
+             boolean goToLastPage = (pageNum == -1); // If page is a -1 then the user wants to go to the last page
              if (pageNum <= 1) { //to ensure no negative page numbers
                  pageNum = 1;
              }
@@ -162,7 +163,7 @@ public class GroupsController {
              if ((totalNumGroups % groupsPerPageLimit) != 0) {
                  totalPages++; // Checks if there are leftover groups to display
              }
-             if (pageNum > totalPages) { //to ensure that the last page will be shown if the page number is too large
+             if (pageNum > totalPages || goToLastPage) { //to ensure that the last page will be shown if the page number is too large
                  pageNum = totalPages;
                  offset = (pageNum - 1) * groupsPerPageLimit;
                  response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
