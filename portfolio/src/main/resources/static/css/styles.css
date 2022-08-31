@@ -972,10 +972,6 @@ section {
     align-self: center;
 }
 
-.createEvidenceButton, #nameHolder {
-    margin-top: 1rem;
-}
-
 .evidenceListTitle {
     text-align: center;
     padding: inherit;
@@ -1203,7 +1199,7 @@ section {
 
 .evidenceTitle {
     text-align: center;
-    padding: 2rem;
+    padding-top: 2rem;
 }
 
 .contentContainer {
@@ -1217,17 +1213,23 @@ section {
     display: flex;
     flex-direction: row;
     width: 100%;
+    padding-top: 1rem;
 }
 
 .skillSideBar h3 {
     text-align: center;
 }
 
-.contentContainer .createEvidenceButton, #nameHolder {
+.createEvidenceButton {
     position: absolute;
     left: 1rem;
     top: 1rem;
     margin-top: 0;
+}
+
+#nameHolder {
+    position: relative;
+    left: 1rem;
 }
 
 .showAllContainer {
