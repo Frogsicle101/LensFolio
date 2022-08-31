@@ -340,7 +340,7 @@ class CalendarControllerTest {
         String expectedMilestone1End = "start=2022-03-24, classNames=milestoneCalendar, end=2022-03-24";
         String expectedMilestone2End = "start=2022-05-24, classNames=milestoneCalendar, end=2022-05-24";
         Assertions.assertTrue(content.contains(expectedMilestone1End));
-        Assertions.assertTrue(content.contains(expectedMilestone1End));
+        Assertions.assertTrue(content.contains(expectedMilestone2End));
     }
 
     @Test
