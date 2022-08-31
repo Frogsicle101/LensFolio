@@ -160,15 +160,13 @@ function addUsers(groupId) {
             } else {
                 createAlert("User(s) moved", false)
             }
-        },
-        statusCode: {
-          401: function () {
-              createAlert("You don't have permission to move users. This could be because " +
-                  "your roles have been updated. Try refreshing the page", true)
-          }
-        },
-        error: function (error) {
-            createAlert(error.responseText, true)
+        }, error: function (error) {
+            if (error.status == 401){
+                createAlert("You don't have permission to move users. This could be because " +
+                                  "your roles have been updated. Try refreshing the page", true)
+            } else {
+                createAlert(error.responseText, true)
+            }
         }
     })
 }
@@ -347,9 +345,31 @@ function retrieveGroupRepoInformation() {
             getRepoCommits();
         },
         error: function (error) {
-            createAlert(error.responseText, true)
+            if (error.status == 401){
+                let repoInformationContainer = $("#gitRepo")
+                repoInformationContainer.empty();
+                displayUnauthorisedRepo(repoInformationContainer)
+                getRepoCommits();
+            }
         }
     })
+}
+
+
+/**
+ *  A function to display tell the user that they are unauthorised to view the repository. This should only occur if a
+ *  user had and then lost edit privileges
+ */
+function displayUnauthorisedRepo(container) {
+    container.append(`
+            <div id="groupSettingsRepoInformationSection">
+                <div id="groupSettingsRepoHeader">
+                    <h3 id="groupSettingsPageRepoName" style="color: red">
+                        Sorry! You don't have permission to see this section. Please refresh the page</h3>
+                </div>
+                <div id="repoSettingsContainer"></div>
+            </div>`
+    )
 }
 
 
@@ -550,14 +570,13 @@ $(document).on("click", ".deleteButton", function () {
             type: "delete",
             success: function () {
                 window.location.reload()
-            },
-            statusCode: {
-                401: function () {
-                    createAlert("You don't have permission to delete groups. This could be because " +
-                        "your roles have been updated. Try refreshing the page", true)
-                }
             }, error: function (error) {
-                createAlert(error.responseText, true)
+                if (error.status == 401){
+                    createAlert("You don't have permission to delete groups. This could be because " +
+                                            "your roles have been updated. Try refreshing the page", true)
+                } else {
+                    createAlert(error.responseText, true)
+                }
             }
         })
     }
@@ -619,13 +638,13 @@ $(document).on("submit", "#editGroupForm", function (event) {
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
-        }, statusCode: {
-            401: function () {
-                createAlert("You don't have permission to edit group details. This could be because " +
-                    "your roles have been updated. Try refreshing the page", true)
-            }
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            if (error.status == 401){
+                createAlert("You don't have permission to edit group details. This could be because " +
+                                    "your roles have been updated. Try refreshing the page", true)
+            } else {
+                createAlert(error.responseText, true)
+            }
         }
     })
 })
@@ -651,15 +670,13 @@ $(document).on("click", "#confirmRemoval", function () {
         success: () => {
             displayGroupUsersList()
             createAlert("User removed", false)
-        },
-        statusCode: {
-            401: function () {
+        }, error: function (error) {
+            if (error.status == 401){
                 createAlert("You don't have permission to remove users. This could be because " +
-                    "your roles have been updated. Try refreshing the page", true)
+                                    "your roles have been updated. Try refreshing the page", true)
+            } else {
+                createAlert(error.responseText, true)
             }
-        },
-        error: function (error) {
-            createAlert(error.responseText, true)
         }
     })
     $("#confirmationForm").slideUp();
