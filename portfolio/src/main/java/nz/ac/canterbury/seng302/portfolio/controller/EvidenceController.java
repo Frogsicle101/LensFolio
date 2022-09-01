@@ -243,9 +243,6 @@ public class EvidenceController {
         String address = request.getUrl();
         logger.info("GET REQUEST /validateWebLink - validating address {}", address);
         try {
-            if (!address.contains("://")) {
-                throw new MalformedURLException("There is no ://");
-            }
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }

@@ -33,6 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -523,7 +524,7 @@ class EvidenceControllerTest {
         setUpContext();
         int evidenceId = 1;
         Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLink testLink = new WebLink(evidence1, "test link", "https://www.canterbury.ac.nz/");
+        WebLink testLink = new WebLink(evidence1, "test link", new URL("https://www.canterbury.ac.nz/"));
         evidence1.addWebLink(testLink);
         when(evidenceRepository.findById(any())).thenReturn(Optional.of(evidence1));
 
@@ -544,7 +545,7 @@ class EvidenceControllerTest {
         setUpContext();
         int evidenceId = 1;
         Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLink testLink = new WebLink(evidence1, "test link", "https://www.canterbury.ac.nz/");
+        WebLink testLink = new WebLink(evidence1, "test link", new URL("https://www.canterbury.ac.nz/"));
         evidence1.addWebLink(testLink);
         when(evidenceRepository.findById(evidenceId)).thenReturn(Optional.of(evidence1));
 
@@ -572,9 +573,9 @@ class EvidenceControllerTest {
         setUpContext();
         int evidenceId = 1;
         Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLink testLink1 = new WebLink(evidence1, "test link 1", "https://www.canterbury.ac.nz/");
-        WebLink testLink2 = new WebLink(evidence1, "test link 2", "https://www.canterbury.ac.nz/");
-        WebLink testLink3 = new WebLink(evidence1, "test link 3", "https://www.canterbury.ac.nz/");
+        WebLink testLink1 = new WebLink(evidence1, "test link 1", new URL("https://www.canterbury.ac.nz/"));
+        WebLink testLink2 = new WebLink(evidence1, "test link 2", new URL("https://www.canterbury.ac.nz/"));
+        WebLink testLink3 = new WebLink(evidence1, "test link 3", new URL("https://www.canterbury.ac.nz/"));
         evidence1.addWebLink(testLink1);
         evidence1.addWebLink(testLink2);
         evidence1.addWebLink(testLink3);
