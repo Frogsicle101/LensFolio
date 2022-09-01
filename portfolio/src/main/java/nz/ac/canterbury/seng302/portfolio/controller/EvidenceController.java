@@ -250,7 +250,7 @@ public class EvidenceController {
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (MalformedURLException | URISyntaxException exception) {
-            logger.info("/validateWebLink - invalid address {}", address);
+            logger.warn("/validateWebLink - invalid address {}", address);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());

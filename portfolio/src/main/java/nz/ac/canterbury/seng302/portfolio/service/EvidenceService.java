@@ -126,6 +126,9 @@ public class EvidenceService {
 
         for (WebLinkDTO dto : webLinks) {
             URL weblinkURL = new URL(dto.getUrl());
+            if (dto.getUrl().contains("&nbsp")) {
+                throw new MalformedURLException("The non-breaking space is not a valid character");
+            }
             try {
                 weblinkURL.toURI(); // The toURI covers cases that the URL constructor does not, so we use both
             } catch (URISyntaxException e) {
