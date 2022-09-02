@@ -46,7 +46,6 @@ class EvidenceServiceTest {
     private final WebLinkRepository webLinkRepository = Mockito.mock(WebLinkRepository.class);
     private final SkillRepository skillRepository = Mockito.mock(SkillRepository.class);
     private final RegexService regexService = Mockito.spy(RegexService.class);
-    private final RegexService regexService = new RegexService();
 
 
     @BeforeEach

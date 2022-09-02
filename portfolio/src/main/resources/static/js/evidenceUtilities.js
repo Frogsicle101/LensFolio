@@ -646,7 +646,7 @@ function removeDuplicatesFromInput(input) {
 
 
 /**
- * The below listeners trigger the rendering of the skill chips
+ * Triggers the rendering of the skill chips
  */
 $(document).on("change", "#skillsInput", () => displaySkillChips())
 $(document).on("click", ".ui-autocomplete", () => {
