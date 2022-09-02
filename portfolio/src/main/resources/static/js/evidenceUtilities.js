@@ -156,7 +156,7 @@ function getAndAddEvidencePreviews() {
 
     let title = $(document).find(".evidenceTitle").first()
     title.text("Evidence");
-
+    $(".selected").removeClass("selected")
 
     $.ajax({
         url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
@@ -297,11 +297,7 @@ function addCategoriesToEvidence(categories) {
     highlightedEvidenceCategories.empty();
     $.each(categories, function (category) {
         let categoryText = categoriesMapping.get(categories[category]);
-
-        highlightedEvidenceCategories.append(`
-            <div class="categoryChip">
-                <p class="chipText">${categoryText}</p>
-            </div>`)
+        highlightedEvidenceCategories.append(createCategoryChip(categoryText))
     })
 }
 
@@ -700,7 +696,7 @@ $(document).on("keyup", "#skillsInput", function (event) {
     if (event.keyCode === $.ui.keyCode.SPACE || event.keyCode === $.ui.keyCode.TAB || event.keyCode === $.ui.keyCode.ENTER) {
         removeDuplicatesFromInput(skillsInput)
     }
-    displaySkillChips()
+    displayInputSkillChips()
 })
 
 
@@ -759,17 +755,27 @@ function removeDuplicatesFromInput(input) {
 /**
  * The below listeners trigger the rendering of the skill chips
  */
-$(document).on("change", "#skillsInput", () => displaySkillChips())
+$(document).on("change", "#skillsInput", () => displayInputSkillChips())
+$(document).on("click", ".ui-autocomplete", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
+    displayInputSkillChips()
+})
 
 
-
+/**
+ * Cleans up the duplicates in the input when the user clicks away from the input.
+ */
+$(document).on("click", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
+    displayInputSkillChips()
+})
 
 
 /**
  * This function gets the input string from the skills input and trims off the extra whitespace
  * then it separates each word into an array and creates chips for them.
  */
-function displaySkillChips() {
+function displayInputSkillChips() {
     checkToShowSkillChips()
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/)
@@ -777,7 +783,7 @@ function displaySkillChips() {
     chipDisplay.empty()
     inputArray.forEach(function (element) {
         element = element.split("_").join(" ")
-        chipDisplay.append(createChip(sanitise(element)))
+        chipDisplay.append(createDeletableSkillChip(sanitise(element)))
     })
     chipDisplay.find(".chipText").each(function () {
         if ($(this).text().length < 1) {
@@ -809,7 +815,7 @@ function checkToShowSkillChips() {
  * @param element the name of the skill
  * @returns {string} the html for the chip
  */
-function createChip(element) {
+function createDeletableSkillChip(element) {
     return `<div class="chip skillChip">
                 <p class="chipText">${element}</p>  
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
@@ -831,7 +837,7 @@ $(document).on("click", ".chipDelete", function () {
         return value.toLowerCase() !== skillText.toLowerCase()
     })
     skillsInput.val(inputArray.join(" "))
-    displaySkillChips()
+    displayInputSkillChips()
 })
 
 
@@ -840,7 +846,8 @@ $(document).on("click", ".chipDelete", function () {
  */
 $(document).on("click", "#evidenceSaveButton", function (event) {
     event.preventDefault()
-    removeDuplicatesFromInput($("#skillsInput"))
+    let skillsInput = $("#skillsInput")
+    removeDuplicatesFromInput(skillsInput)
     let evidenceCreationForm = $("#evidenceCreationForm")[0]
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
@@ -852,7 +859,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         let webLinks = getWeblinksList();
         const categories = getCategories();
 
-        const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
+        const skills = skillsInput.val().split(" ").filter(skill => skill.trim() !== "")
         skillsArray = [...new Set(skillsArray.concat(skills))];
         $.each(skills, function (i) {
             skills[i] = skills[i].replaceAll("_", " ")
@@ -1132,17 +1139,32 @@ $(".evidenceFormCategoryButton").on("click", function () {
 })
 
 
-function createSkillChip(skillName) {
-    return `
-    <div class="chip skillChip">
-        <p class="chipText">${skillName}</p>
-    </div>`
+function createSkillChip(skillName, isMenuItem) {
+    if (isMenuItem) {
+        return `
+            <div id=${"skillCalled" + skillName.replaceAll(" ", "_")} class="chip skillChip">
+                <p class="chipText">${skillName}</p>
+            </div>`
+    } else {
+        return `
+            <div class="chip skillChip">
+                <p class="chipText">${skillName}</p>
+            </div>`
+    }
+
 }
 
 
-function createCategoryChip(categoryName) {
-    return `
-    <div class="chip categoryChip">
-        <p class="chipText">${categoryName}</p>
-    </div>`
+function createCategoryChip(categoryName, isMenuItem) {
+    if (isMenuItem) {
+        return `
+            <div id=${"categoryCalled" + categoryName.replaceAll(" ", "_")} class="chip categoryChip">
+                <p class="chipText">${categoryName}</p>
+            </div>`
+    } else {
+        return `
+            <div class="chip categoryChip">
+                <p class="chipText">${categoryName}</p>
+            </div>`
+    }
 }
