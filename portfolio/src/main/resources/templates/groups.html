@@ -106,13 +106,13 @@
                             <thead>
                             <tr class="tableHeader">
                                 <form action="#">
-                                    <label for="lang">Members per page </label>
-                                    <select name="UsersPerPage" id="lang">
-                                        <option value="10">10</option>
-                                        <option value="20">20</option>
-                                        <option value="40">40</option>
-                                        <option value="60">60</option>
-                                        <option value="all">All</option>
+                                    <label for="membersPerPageSelect">Members per page</label>
+                                    <select id="membersPerPageSelect" name="membersPerPage">
+                                        <option value="10" th:selected="${'10'== selectedMembersPerPage}">10</option>
+                                        <option value="20" th:selected="${'20'== selectedMembersPerPage}">20</option>
+                                        <option value="40" th:selected="${'40'== selectedMembersPerPage}">40</option>
+                                        <option value="60" th:selected="${'60'== selectedMembersPerPage}">60</option>
+                                        <option value="all" th:selected="${'999999999'== selectedMembersPerPage}">All</option>
                                     </select>
                                 </form>
                                 <th scope="col">Id</th>
@@ -124,6 +124,30 @@
                             </thead>
                             <tbody id="groupTableBody"></tbody>
                         </table>
+                        <div class="panel-footer listTableFooter">
+                            <nav aria-label="Page navigation">
+                                Total Items [[${totalItems}]] : Page [[${currentPage}]] of [[${totalPages}]]
+                                <span th:unless="${totalPages < 2}">
+                            &nbsp; &nbsp; - &nbsp;
+                            <a th:href="@{user-list?page=1}" th:if="${currentPage > 1}">First</a>
+                            <span th:unless="${currentPage > 1}">First</span>
+                            &nbsp;&nbsp;
+                            <a th:href="@{'user-list?page=' + ${currentPage - 1}}" th:if="${currentPage > 1}">Previous</a>
+                            <span th:unless="${currentPage > 1}">Previous</span>
+                            &nbsp;&nbsp;
+                            <span th:each="i: ${footerNumberSequence}">
+                            <a th:href="@{'user-list?page=' + ${i}}" th:if="${i != currentPage}">[[${i}]]</a>
+                            <span th:unless="${i != currentPage}">[[${i}]]</span>
+                            &nbsp; &nbsp;
+                            </span>
+                            <a th:href="@{'user-list?page=' + ${currentPage + 1}}" th:if="${currentPage < totalPages}">Next</a>
+                            <span th:unless="${currentPage < totalPages}">Next</span>
+                            &nbsp;&nbsp;
+                            <a th:href="@{'user-list?page=' + ${totalPages}}" th:if="${currentPage < totalPages}">Last</a>
+                            <span th:unless="${currentPage < totalPages}">Last</span>
+                        </span>
+                            </nav>
+                        </div>
                     </div>
                     <div id="pillsSettings" aria-labelledby="pillsSettingsTab" class="tab-pane fade" role="tabpanel">
                         <div id="groupSettingsPage">
