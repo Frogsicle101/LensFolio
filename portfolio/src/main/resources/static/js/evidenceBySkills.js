@@ -31,7 +31,7 @@ function addSkillsToSideBar() {
         skillsArray.unshift("No Skill")
     }
     for (let skill of skillsArray) {
-        skillsContainer.append(createSkillChip(skill.replaceAll("_", " ")))
+        skillsContainer.append(createSkillChip(skill.replaceAll("_", " "), true))
     }
 }
 
@@ -42,7 +42,7 @@ function addSkillsToSideBar() {
 function addCategoriesToSidebar() {
     let categoriesList = $('#categoryList')
     for (let category of categoryArray) {
-        categoriesList.append(createCategoryChip(category))
+        categoriesList.append(createCategoryChip(category, true))
     }
 }
 
@@ -98,79 +98,35 @@ function updateSelectedEvidence() {
 }
 
 
-
 /* ------------ Event Listeners ----------------- */
 
 
 /**
- * When a skill div in the sidebar is clicked, it becomes selected and is displays all evidence with that skill.
+ * When a chip div is clicked, it selects the skill/category in the sidebar and is displays all
+ * evidence with that skill/category.
  *
  * There are 3 steps to this:
- *    1. remove the selected class from the previously selected div.
+ *    1. remove the selected class from selected divs.
  *    2. Add the selected class to the clicked div, and assign it as selected
  *    3. Populate the display with the selected evidence details.
  */
-$(document).on("click", ".skillListItem" , function () {
-    let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
-    previouslySelectedDiv.removeClass("selectedSkill")
+$(document).on("click", ".chip" , function (event) {
+    $(".selected").removeClass("selected")
 
-    $(this).addClass("selectedSkill")
-    selectedChip = $(this).find('.skillName').text()
+    let clicked = $(this)
+    selectedChip = clicked.find('.chipText').text()
+    let isSkill = clicked.hasClass("skillChip")
+    let chipId = isSkill ? ("#skillCalled" + selectedChip.replaceAll(" ", "_")) : ("#categoryCalled" + selectedChip)
+    $(chipId).addClass("selected")
 
-    let title = $(document).find(".evidenceTitle").first()
+    let title = $(".evidenceTitle").first()
     title.text(selectedChip)
-
-    showEvidenceWithSkill()
-})
-
-
-/**
- * When a category div in the sidebar is clicked, it becomes selected and is displays all evidence with that category.
- *
- * There are 3 steps to this:
- *    1. remove the selected class from the previously selected div.
- *    2. Add the selected class to the clicked div, and assign it as selected
- *    3. Populate the display with the selected evidence details.
- */
-$(document).on("click", ".categoryChip" , function (e) {
-    let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
-    previouslySelectedDiv.removeClass("selectedSkill")
-
-    selectedChip = $(this).find('.chipText').text()
-
-    let title = $(document).find(".evidenceTitle").first()
-    title.text(selectedChip)
-
-    showEvidenceWithCategory()
-
-    e.stopPropagation() //prevent evidence below chip from being selected
-})
-
-
-
-/**
- * When a skill div inside a piece of evidence is clicked, it selects the skill in the
- * sidebar and is displays all evidence with that skill.
- *
- * There are 3 steps to this:
- *    1. remove the selected class from the previously selected div.
- *    2. Add the selected class to the clicked div, and assign it as selected
- *    3. Populate the display with the selected evidence details.
- */
-$(document).on("click", ".skillChip" , function (e) {
-    let previouslySelectedDiv = $(document).find(".selectedSkill").first()
-    previouslySelectedDiv.removeClass("selectedSkill")
-
-    selectedChip = $(this).find('.chipText').text()
-    let skillId = "#SkillCalled" + selectedChip.replaceAll(" ", "_") // The ID has underscores instead of spaces
-    $(document).find(skillId).addClass("selectedSkill")
-
-    let title = $(document).find(".evidenceTitle").first()
-    title.text(selectedChip)
-
-    showEvidenceWithSkill()
-
-    e.stopPropagation() //prevent evidence below chip from being selected
+    if (isSkill) {
+        showEvidenceWithSkill()
+    } else {
+        showEvidenceWithCategory()
+    }
+    event.stopPropagation() //prevent evidence below chip from being selected
 })
 
 
