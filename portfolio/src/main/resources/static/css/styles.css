@@ -80,7 +80,7 @@ section {
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
     --skill-chip-colour: #add8e6;
-    --category-chip-colour: lightcyan;
+    --category-chip-colour: #e7f06c;
 }
 
 /*CSS relating to Header*/
@@ -1153,6 +1153,7 @@ section {
 
 .chipText{
     margin: auto;
+    text-align: center;
 }
 
 .chipDelete{

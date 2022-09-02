@@ -155,7 +155,7 @@ function getAndAddEvidencePreviews() {
 
     let title = $(document).find(".evidenceTitle").first()
     title.text("Evidence");
-
+    $(".selected").removeClass("selected")
 
     $.ajax({
         url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
