@@ -10,7 +10,8 @@
 <!--The below section <header> pulls the fragment from fragments/general-->
 <header th:insert="fragments/general.html :: header"></header>
 <section class="editProjectContainer">
-    <form class="projectEditForm" method="post">
+    <!-- The was-validated class allows us to use bootstrap validation   -->
+    <form class="projectEditForm was-validated" method="post">
         <h1>Project</h1>
         <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert"
              style="display: none">

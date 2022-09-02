@@ -257,6 +257,10 @@ section {
 
 /*Portfolio Project*/
 
+.was-validated input[type=color] {
+    width: 5rem;
+}
+
 /*Porfolio - Events*/
 
 .eventContainer {
