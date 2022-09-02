@@ -36,7 +36,7 @@ public class WebLink {
      * @param url      the url of the web link
      * @throws MalformedURLException when the url string is not valid. This Weblink is not allowed to be created.
      */
-    public WebLink(Evidence evidence, String alias, String url) throws MalformedURLException {
+    public WebLink(Evidence evidence, String alias, URL url) throws MalformedURLException {
         if (alias.length() > 20) {
             throw new CheckException("Name should be 20 characters or less");
         }
@@ -45,7 +45,7 @@ public class WebLink {
         }
         this.alias = alias;
         this.evidence = evidence;
-        this.url = new URL(url);
+        this.url = url;
         this.isSecured = Objects.equals(this.url.getProtocol(), "https");
     }
 

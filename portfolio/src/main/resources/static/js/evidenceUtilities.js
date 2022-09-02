@@ -126,7 +126,11 @@ function webLinkElement(url, alias) {
     }
 
     let slashIndex = url.search("//") + 2
-    if (slashIndex > 1) urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    if (slashIndex > 1) {
+        urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    } else {
+        urlSlashed = url // The url does not have a protocol attached to it
+    }
 
     return (`
         <div class="webLinkElement ${security}" data-value="${url}" >
@@ -817,7 +821,7 @@ function validateWebLink(form, alias, address) {
         $(".address-alert").alert('close') //Close any previous alerts
         form.append(`
                     <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
-                      That address is missing a "://" - did you make a typo?
+                      That address is missing a protocol (the part that comes before "://") - did you make a typo?
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
