@@ -21,7 +21,12 @@ public class Evidence {
 
     private int userId;
     private String title;
-    private LocalDate date;
+    private LocalDate occurrenceDate;
+
+    /**
+     * The description of a piece of evidence, which has a character length of 500.
+     */
+    @Column(length = 500)
     private String description;
 
     /** A list of the web links associated with a piece of Evidence */
@@ -56,7 +61,7 @@ public class Evidence {
         checkDescriptionLength(description);
         this.userId = userId;
         this.title = title;
-        this.date = date;
+        this.occurrenceDate = date;
         this.description = description;
     }
 
@@ -76,7 +81,7 @@ public class Evidence {
         this.id = evidenceId;
         this.userId = userId;
         this.title = title;
-        this.date = date;
+        this.occurrenceDate = date;
         this.description = description;
     }
 
@@ -118,11 +123,11 @@ public class Evidence {
     }
 
     public LocalDate getDate() {
-        return date;
+        return occurrenceDate;
     }
 
     public void setDate(LocalDate date) {
-        this.date = date;
+        this.occurrenceDate = date;
     }
 
     public String getDescription() {
@@ -174,11 +179,11 @@ public class Evidence {
                 "\"id\":" + id +
                 ",\"userId\":" + userId +
                 ",\"title\":\"" + title +
-                "\",\"date\":\"" + date +
                 "\",\"description\":\"" + description +
                 "\",\"webLinks\":" + "[]" +
                 ",\"skills\":" + "[]" +
                 ",\"categories\":" + "[]" +
+                "," + "\"date\":\"" + occurrenceDate + "\"" +
                 "}";
     }
 
