@@ -1,13 +1,12 @@
 let thisUserIsEditing = false;
 
-$(function () {
-
+$(() => {
     let formControl = $(".form-control");
 
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)
-    formControl.keyup(countCharacters) // Runs when key is pressed (well released) on form-control elements.
+    formControl.on("keyup", countCharacters) // Runs when key is pressed (well released) on form-control elements.
 })
 
 
@@ -1344,8 +1343,6 @@ function handleCreateEvent(notification) {
         default :
             break
     }
-    var eventDiv = $("#" + occasionId)
-    var eventName = eventDiv.find(".name").text();
     displayLiveUpdateMessage(editorName + " has created a new " + occasionType, editorId, occasionId);
 }
 
@@ -1361,8 +1358,8 @@ function handleUpdateEvent(notification) {
     const occasionId = notification.occasionId;
     const editorId = notification.editorId;
     const editorName = notification.editorName;
-    var eventDiv = $("#" + occasionId)
-    var eventName = eventDiv.find(".name").text();
+    let eventDiv = $("#" + occasionId)
+    let eventName = eventDiv.find(".name").text();
 
     switch (occasionType) {
         case 'event' :

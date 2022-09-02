@@ -278,10 +278,10 @@ function addSkillsToEvidence(skills) {
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     if (skills.length < 1) {
-        highlightedEvidenceSkills.append(createSkillChip("No Skill"))
+        highlightedEvidenceSkills.append(createSkillChip("No Skill", false))
     } else {
         $.each(skills, function (i) {
-            highlightedEvidenceSkills.append(createSkillChip(skills[i].name))
+            highlightedEvidenceSkills.append(createSkillChip(skills[i].name, false))
         })
     }
 }
@@ -297,7 +297,7 @@ function addCategoriesToEvidence(categories) {
     highlightedEvidenceCategories.empty();
     $.each(categories, function (category) {
         let categoryText = categoriesMapping.get(categories[category]);
-        highlightedEvidenceCategories.append(createCategoryChip(categoryText))
+        highlightedEvidenceCategories.append(createCategoryChip(categoryText, false))
     })
 }
 
@@ -332,10 +332,12 @@ function createEvidencePreview(evidence) {
  */
 function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
+
     let skillsHTML = ``
     $.each(skills, function (i) {
-        skillsHTML += createSkillChip(skills[i].name)
+        skillsHTML += createSkillChip(skills[i].name, false)
     })
+
     return skillsHTML
 }
 
@@ -348,10 +350,12 @@ function getSkillTags(skills) {
  */
 function getCategoryTags(categories) {
     categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
+
     let skillsHTML = ``
     $.each(categories, function (i) {
-        skillsHTML += createCategoryChip(categoriesMapping.get(categories[i]))
+        skillsHTML += createCategoryChip(categoriesMapping.get(categories[i]), false)
     })
+
     return skillsHTML
 }
 
@@ -408,6 +412,7 @@ function checkWeblinkCount() {
 function resetWeblink() {
     let addWeblinkButton = $("#addWebLinkButton")
     let weblinkFullTab = $("#webLinkFull")
+
     addWeblinkButton.show()
     weblinkFullTab.hide()
     webLinksCount = 0
@@ -448,6 +453,7 @@ function getCategories() {
     $.each(selectedButtons, function (button) {
         categories.push($(selectedButtons[button]).val())
     })
+
     return categories
 }
 
@@ -495,7 +501,7 @@ $(".evidenceFormCategoryButton").on("click", function () {
  */
 $(document).on("click", ".ui-autocomplete", () => {
     removeDuplicatesFromInput($("#skillsInput"))
-    displaySkillChips()
+    displayInputSkillChips()
 })
 
 
@@ -504,7 +510,7 @@ $(document).on("click", ".ui-autocomplete", () => {
  */
 $(document).on("click", () => {
     removeDuplicatesFromInput($("#skillsInput"))
-    displaySkillChips()
+    displayInputSkillChips()
 })
 
 
@@ -551,72 +557,6 @@ $(document).on('keypress', '#webLinkName', function () {
 })
 
 
-/**
- * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
- * skill we are deleting.
- */
-$(document).on("click", ".chipDelete", function () {
-    let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
-    let skillsInput = $("#skillsInput")
-    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
-        return value.toLowerCase() !== skillText.toLowerCase()
-    })
-    skillsInput.val(inputArray.join(" "))
-    displaySkillChips()
-})
-
-
-/**
- * Saves the evidence input during creating a new piece of evidence
- */
-$(document).on("click", "#evidenceSaveButton", function (event) {
-    event.preventDefault()
-    removeDuplicatesFromInput($("#skillsInput"))
-    let evidenceCreationForm = $("#evidenceCreationForm")[0]
-    if (!evidenceCreationForm.checkValidity()) {
-        evidenceCreationForm.reportValidity()
-    } else {
-        const title = $("#evidenceName").val()
-        const date = $("#evidenceDate").val()
-        const description = $("#evidenceDescription").val()
-        const projectId = 1
-        let webLinks = getWeblinksList();
-        const categories = getCategories();
-        const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
-        skillsArray = [...new Set(skillsArray.concat(skills))];
-        $.each(skills, function (i) {
-            skills[i] = skills[i].replaceAll("_", " ")
-        })
-        addSkillsToSideBar();
-
-        let data = JSON.stringify({
-            "title": title,
-            "date": date,
-            "description": description,
-            "projectId": projectId,
-            "webLinks": webLinks,
-            "skills": skills,
-            "categories": categories
-        })
-        $.ajax({
-            url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
-                selectedEvidenceId = response.id
-                getAndAddEvidencePreviews()
-                createAlert("Created evidence")
-                $("#addEvidenceModal").modal('hide')
-                clearAddEvidenceModalValues()
-                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                $(".address-alert").alert('close') // Close any web link alerts
-                $(".weblink-name-alert").alert('close')
-                resetWeblink()
-            }, error: function (error) {
-                createAlert(error.responseText, true, ".modal-body")
-            }
-        })
-    }
-})
-
-
 // --------------------------------- Autocomplete -----------------------------------------
 
 
@@ -639,7 +579,7 @@ function extractLast(term) {
 $("#skillsInput")
     // don't navigate away from the field on tab when selecting an item
     .on("keydown", function (event) {
-        if (event.keyCode === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
+        if (event.key === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
             event.preventDefault();
         }
     })
@@ -687,13 +627,13 @@ $("#skillsInput")
  */
 $(document).on("keyup", "#skillsInput", function (event) {
     let skillsInput = $("#skillsInput")
-    if (event.keyCode === $.ui.keyCode.DELETE) {
+    if (event.key === "Backspace") {
         event.preventDefault();
         let inputArray = skillsInput.val().trim().split(/\s+/)
         inputArray.pop()
         skillsInput.val(inputArray.join(" "))
     }
-    if (event.keyCode === $.ui.keyCode.SPACE || event.keyCode === $.ui.keyCode.TAB || event.keyCode === $.ui.keyCode.ENTER) {
+    if (event.key === " " || event.key === "Tab" || event.key === "Enter") {
         removeDuplicatesFromInput(skillsInput)
     }
     displayInputSkillChips()
@@ -812,6 +752,7 @@ function checkToShowSkillChips() {
 
 /**
  * This function returns the html for the chips
+ *
  * @param element the name of the skill
  * @returns {string} the html for the chip
  */
@@ -830,7 +771,8 @@ function createDeletableSkillChip(element) {
  * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
  * skill we are deleting.
  */
-$(document).on("click", ".chipDelete", function () {
+$(document).on("click", ".chipDelete", function (event) {
+    event.stopPropagation()
     let skillText = $(this).parent().find(".chipText").text().trim().split(" ").join("_")
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
@@ -859,6 +801,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
     let skillsInput = $("#skillsInput")
     removeDuplicatesFromInput(skillsInput)
     let evidenceCreationForm = $("#evidenceCreationForm")[0]
+
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
     } else {
@@ -917,24 +860,6 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
         return false;
     }
 });
-
-
-/**
- * Listens for when add web link button is clicked.
- * Slide-toggles the web link portion of the form.
- */
-$(document).on('click', '.addWebLinkButton', function () {
-    let button = $(".addWebLinkButton");
-    if (button.hasClass("toggled")) {
-        //validate the link
-        let address = $("#webLinkUrl").val()
-        let alias = $("#webLinkName").val()
-        let form = $(".webLinkForm")
-        validateWebLink(form, alias, address)
-    } else {
-        webLinkButtonToggle()
-    }
-})
 
 
 /**
@@ -1054,6 +979,7 @@ function submitWebLink() {
     if (alias.val().length > 0) {
         webLinkTitle.show()
         addedWebLinks.append(webLinkElement(url.val(), alias.val()))
+
         initialiseTooltips()
         url.val("")
         alias.val("")
@@ -1093,9 +1019,9 @@ function clearAddEvidenceModalValues() {
  */
 function disableEnableSaveButtonOnValidity() {
     if ($("#evidenceCreationForm")[0].checkValidity()) {
-        $("#evidenceSaveButton").attr("disabled", false)
+        $("#evidenceSaveButton").prop("disabled", false)
     } else {
-        $("#evidenceSaveButton").attr("disabled", true)
+        $("#evidenceSaveButton").prop("disabled", true)
     }
 }
 
@@ -1110,7 +1036,7 @@ function checkTextInputRegex() {
     let descriptionVal = description.val()
 
     if (!regex.test(nameVal) || !regex.test(descriptionVal)) {
-        $("#evidenceSaveButton").attr("disabled", true)
+        $("#evidenceSaveButton").prop("disabled", true)
     }
 
     if (!regex.test(nameVal) && nameVal.length > 0) {
@@ -1148,25 +1074,10 @@ $(document).on("change", ".form-control", function () {
 
 
 /**
- * Toggles category button appearance on the evidence creation form.
- */
-$(".evidenceFormCategoryButton").on("click", function () {
-    let button = $(this)
-    if (button.hasClass("btn-secondary")) {
-        button.removeClass("btn-secondary")
-        button.addClass("btn-success")
-        button.find(".evidenceCategoryTickIcon").show("slide", 200)
-    } else {
-        button.removeClass("btn-success")
-        button.addClass("btn-secondary")
-        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
-    }
-})
-
-/**
  * Creates HTMl for a skill chip with the given skill name.
  *
  * @param skillName The name to be displayed in the skill chip.
+ * @param isMenuItem Boolean value reflecting whether the chip will be displayed in the menu bar.
  * @returns {string} The string of HTMl representing the skill chip.
  */
 function createSkillChip(skillName, isMenuItem) {
@@ -1188,6 +1099,7 @@ function createSkillChip(skillName, isMenuItem) {
  * Creates HTMl for a category chip with the given category name.
  *
  * @param categoryName The name to be displayed in the category chip.
+ * @param isMenuItem Boolean value reflecting whether the chip will be displayed in the menu bar.
  * @returns {string} The string of HTMl representing the category chip.
  */
 function createCategoryChip(categoryName, isMenuItem) {
