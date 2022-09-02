@@ -558,6 +558,7 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
+        appendTo: ".addEvidenceModal"
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -768,7 +769,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
                 createAlert("Created evidence")
-                $("#addEvidenceModal").modal('hide')
+                closeModal()
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
                 $(".address-alert").alert('close') // Close any web link alerts
@@ -937,6 +938,7 @@ function clearAddEvidenceModalValues() {
     $("#evidenceDescription").val("")
     $("#webLinkUrl").val("")
     $("#webLinkName").val("")
+    $("#evidenceDate").val(todaysDate)
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
     $("#skillsInput").val("")
