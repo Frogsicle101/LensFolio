@@ -25,11 +25,11 @@ let categoriesMapping = new Map([
     ["QUANTITATIVE", "Quantitative"]
 ])
 
-$(document).ready(() => {
+$(() => {
         // Counting characters
         let textInput = $(".text-input");
         textInput.each(countCharacters)
-        textInput.keyup(countCharacters)
+        textInput.on("keyup", countCharacters)
     }
 )
 
@@ -43,7 +43,7 @@ $(document).ready(() => {
 function addEvidencePreviews(response) {
     let evidencePreviewsContainer = $("#evidenceList")
     evidencePreviewsContainer.empty()
-    for (let pieceOfEvidence in response.reverse()) {
+    for (let pieceOfEvidence in response) {
         evidencePreviewsContainer.append(createEvidencePreview(response[pieceOfEvidence]))
     }
 }
@@ -288,6 +288,7 @@ function addSkillsToEvidence(skills) {
     }
 }
 
+
 /**
  * A function to display all the categories for a piece of evidence
  *
@@ -329,6 +330,12 @@ function createEvidencePreview(evidence) {
 }
 
 
+/**
+ * Produces the HTML for the skill chip for each skill in the provided skills list.
+ *
+ * @param skills The skills to be added to the result.
+ * @returns {string} HTMl to render the given skill names as skill chips.
+ */
 function getEvidenceTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     let skillsHTML = ``
@@ -341,6 +348,12 @@ function getEvidenceTags(skills) {
 }
 
 
+/**
+ * Produces the HTML for the skill chip for each category in the categories.
+ *
+ * @param categories The categories to be added to the result.
+ * @returns {string} HTMl to render the given category names as skill chips.
+ */
 function getCategoryTags(categories) {
     categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
     let skillsHTML = ``
