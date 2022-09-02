@@ -4,10 +4,10 @@ import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.GroupCreationDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
+import nz.ac.canterbury.seng302.portfolio.service.UserService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
-import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,67 +27,89 @@ import java.util.Objects;
 @Controller
 public class GroupsController {
 
-    /**
-     * For logging the requests related to groups
-     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final GroupsClientService groupsClientService;
+    private final GroupService groupService;
+    private final UserService userService;
+    private final UserAccountsClientService userAccountsClientService;
 
-    /**
-     * For making gRpc requests to the IdP.
-     */
-    @Autowired
-    private GroupsClientService groupsClientService;
-
-    /** For performing more complicated operations on groups */
-    @Autowired
-    private GroupService groupService;
-
+    private int pageNum = 1;
+    private int totalPages = 1;
+    private int totalNumGroups = 0;
+    private int groupsPerPageLimit = 10;
+    private int offset = 0;
     private static final Integer TEACHER_GROUP_ID = 1;
-
-    /**
-     * For requesting user information form the IdP.
-     */
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
-
-    private static final int OFFSET = 0;
     private static final String ORDER_BY = "shortName";
     private static final Boolean IS_ASCENDING = true;
-    private static final int LIMIT = 20;
+
+
+    /**
+     * Autowired constructor
+     * @param groupsClientService The service class for GRPC stuff for Groups.
+     * @param groupService The service class for related methods for Groups.
+     * @param userService The service class for related methods for Users.
+     * @param userAccountsClientService The user account service.
+     */
+    @Autowired
+    GroupsController(GroupsClientService groupsClientService,
+                     GroupService groupService,
+                     UserService userService,
+                     UserAccountsClientService userAccountsClientService){
+        this.groupsClientService = groupsClientService;
+        this.groupService = groupService;
+        this.userService = userService;
+        this.userAccountsClientService = userAccountsClientService;
+    }
 
 
     /**
      * This endpoint retrieves all groups as a paginated list.
      *
-     * @return a response entity containing the list of GroupDetailsResponse object, and a response status.
+     * @param principal The authentication principal.
+     * @param page The page number to retrieve the groups.
+     * @param groupsPerPage The number of groups you want to retrieve on that page.
+     * @return The ModalAndView that contains the groups.
      */
     @GetMapping("/groups")
-    public ModelAndView groups(@AuthenticationPrincipal Authentication principal) {
+    public ModelAndView groups(
+            @AuthenticationPrincipal Authentication principal,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "groupsPerPage", required = false) String groupsPerPage)
+    {
         logger.info("GET REQUEST /groups - attempt to get all groups");
-
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("groups");
+        userService.checkAndAddUserRole(user, modelAndView);
 
-        // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
-        List<UserRole> roles = user.getRolesList();
-        if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
-            modelAndView.addObject("userCanEdit", true);
-        } else {
-            modelAndView.addObject("userCanEdit", false);
-        }
-
-        //to populate groups page with groups
         try {
-            PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
-                    .setOffset(OFFSET)
-                    .setOrderBy(ORDER_BY)
-                    .setLimit(LIMIT)
-                    .setIsAscendingOrder(IS_ASCENDING)
-                    .build();
-            GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
-                    .setPaginationRequestOptions(options)
-                    .build();
-            PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
+            if (page != null) {
+                pageNum = page;
+            }
+            if (pageNum <= 1) { //to ensure no negative page numbers
+                pageNum = 1;
+            }
+            // check for new values
+            if (groupsPerPage != null){
+                switch(groupsPerPage){
+                    case "20" -> this.groupsPerPageLimit = 20;
+                    case "40" -> this.groupsPerPageLimit = 40;
+                    case "60" -> this.groupsPerPageLimit = 60;
+                    case "all" -> this.groupsPerPageLimit = 999999999;
+                    default -> this.groupsPerPageLimit = 10;
+                }
+            }
+            offset = (pageNum - 1) * groupsPerPageLimit; // The number to start retrieving groups from
+            PaginatedGroupsResponse response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
+            totalNumGroups = response.getPaginationResponseOptions().getResultSetSize();
+            totalPages = totalNumGroups / groupsPerPageLimit;
+            if ((totalNumGroups % groupsPerPageLimit) != 0) {
+                totalPages++; // Checks if there are leftover groups to display
+            }
+            if (pageNum > totalPages) { //to ensure that the last page will be shown if the page number is too large
+                pageNum = totalPages;
+                offset = (pageNum - 1) * groupsPerPageLimit;
+                response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
+            }
 
             modelAndView.addObject("groups", response.getGroupsList());
             modelAndView.addObject("user", user);

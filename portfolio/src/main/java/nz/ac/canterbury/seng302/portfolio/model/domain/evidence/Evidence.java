@@ -22,6 +22,11 @@ public class Evidence {
     private int userId;
     private String title;
     private LocalDate occurrenceDate;
+
+    /**
+     * The description of a piece of evidence, which has a character length of 500.
+     */
+    @Column(length = 500)
     private String description;
 
     /** A list of the web links associated with a piece of Evidence */

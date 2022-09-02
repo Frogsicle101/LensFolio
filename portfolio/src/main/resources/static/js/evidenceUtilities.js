@@ -122,7 +122,12 @@ function webLinkElement(url, alias) {
 
     let slashIndex = url.search("//") + 2
     let urlSlashed
-    if (slashIndex > 1) urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    if (slashIndex > 1) {
+        urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    } else {
+        urlSlashed = url // The url does not have a protocol attached to it
+    }
+
     return (`
         <div class="webLinkElement ${security}" data-value="${url}" >
             ${icon}
@@ -212,8 +217,7 @@ function getHighlightedEvidenceWeblinks() {
  *
  * @param callback An optional callback function to be called upon successfully retrieving the skills
  */
-function getSkills(callback = () => {
-}) {
+function getSkills(callback = () => {}) {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId, type: "GET",
         success: function (response) {
@@ -274,16 +278,10 @@ function addSkillsToEvidence(skills) {
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     if (skills.length < 1) {
-        highlightedEvidenceSkills.append(`
-                <div class="skillChip">
-                    <p class="skillChipText">No Skill</p>
-                </div>`)
+        highlightedEvidenceSkills.append(createSkillChip("No Skill"))
     } else {
         $.each(skills, function (i) {
-            highlightedEvidenceSkills.append(`
-                <div class="skillChip">
-                    <p class="skillChipText">${skills[i].name}</p>
-                </div>`)
+            highlightedEvidenceSkills.append(createSkillChip(skills[i].name))
         })
     }
 }
@@ -302,7 +300,7 @@ function addCategoriesToEvidence(categories) {
 
         highlightedEvidenceCategories.append(`
             <div class="categoryChip">
-                <p class="skillChipText">${categoryText}</p>
+                <p class="chipText">${categoryText}</p>
             </div>`)
     })
 }
@@ -315,7 +313,7 @@ function addCategoriesToEvidence(categories) {
  * @return the HTML component for previewing evidence of class evidenceListItem
  */
 function createEvidencePreview(evidence) {
-    let skills = getEvidenceTags(evidence.skills)
+    let skills = getSkillTags(evidence.skills)
     let categories = getCategoryTags(evidence.categories)
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
@@ -336,13 +334,11 @@ function createEvidencePreview(evidence) {
  * @param skills The skills to be added to the result.
  * @returns {string} HTMl to render the given skill names as skill chips.
  */
-function getEvidenceTags(skills) {
+function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     let skillsHTML = ``
     $.each(skills, function (i) {
-        skillsHTML += `<div class="skillChip">
-                <p class="skillChipText">${skills[i].name}</p>
-            </div>`
+        skillsHTML += createSkillChip(skills[i].name)
     })
     return skillsHTML
 }
@@ -358,9 +354,7 @@ function getCategoryTags(categories) {
     categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
     let skillsHTML = ``
     $.each(categories, function (i) {
-        skillsHTML += `<div class="categoryChip">
-                <p class="skillChipText">${categoriesMapping.get(categories[i])}</p>
-            </div>`
+        skillsHTML += createCategoryChip(categoriesMapping.get(categories[i]))
     })
     return skillsHTML
 }
@@ -679,6 +673,7 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
+        appendTo: ".addEvidenceModal"
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -784,7 +779,7 @@ function displaySkillChips() {
         element = element.split("_").join(" ")
         chipDisplay.append(createChip(sanitise(element)))
     })
-    chipDisplay.find(".skillChipText").each(function () {
+    chipDisplay.find(".chipText").each(function () {
         if ($(this).text().length < 1) {
             $(this).parent(".skillChip").remove()
         }
@@ -815,8 +810,8 @@ function checkToShowSkillChips() {
  * @returns {string} the html for the chip
  */
 function createChip(element) {
-    return `<div class="skillChip">
-                <p class="skillChipText">${element}</p>  
+    return `<div class="chip skillChip">
+                <p class="chipText">${element}</p>  
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -824,6 +819,90 @@ function createChip(element) {
                 </div>`
 }
 
+
+/**
+ * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
+ * skill we are deleting.
+ */
+$(document).on("click", ".chipDelete", function () {
+    let skillText = $(this).parent().find(".chipText").text().trim().split(" ").join("_")
+    let skillsInput = $("#skillsInput")
+    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
+        return value.toLowerCase() !== skillText.toLowerCase()
+    })
+    skillsInput.val(inputArray.join(" "))
+    displaySkillChips()
+})
+
+
+/**
+ * Saves the evidence input during creating a new piece of evidence
+ */
+$(document).on("click", "#evidenceSaveButton", function (event) {
+    event.preventDefault()
+    removeDuplicatesFromInput($("#skillsInput"))
+    let evidenceCreationForm = $("#evidenceCreationForm")[0]
+    if (!evidenceCreationForm.checkValidity()) {
+        evidenceCreationForm.reportValidity()
+    } else {
+        const title = $("#evidenceName").val()
+        const date = $("#evidenceDate").val()
+        const description = $("#evidenceDescription").val()
+        const projectId = 1
+        let webLinks = getWeblinksList();
+        const categories = getCategories();
+
+        const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
+        skillsArray = [...new Set(skillsArray.concat(skills))];
+        $.each(skills, function (i) {
+            skills[i] = skills[i].replaceAll("_", " ")
+        })
+        addSkillsToSideBar();
+
+
+        let data = JSON.stringify({
+            "title": title,
+            "date": date,
+            "description": description,
+            "projectId": projectId,
+            "webLinks": webLinks,
+            "skills": skills,
+            "categories": categories
+        })
+        $.ajax({
+            url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
+                selectedEvidenceId = response.id
+                getAndAddEvidencePreviews()
+                createAlert("Created evidence")
+                closeModal()
+                clearAddEvidenceModalValues()
+                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+                $(".address-alert").alert('close') // Close any web link alerts
+                $(".weblink-name-alert").alert('close')
+                resetWeblink()
+            }, error: function (error) {
+                createAlert(error.responseText, true, ".modal-body")
+            }
+        })
+    }
+})
+
+/**
+ * Listens for when add web link button is clicked.
+ * Slide-toggles the web link portion of the form.
+ */
+$(document).on('click', '.addWebLinkButton', function () {
+    let button = $(".addWebLinkButton");
+    if (button.hasClass("toggled")) {
+        //validate the link
+        let address = $("#webLinkUrl").val()
+        let alias = $("#webLinkName").val()
+        let form = $(".webLinkForm")
+        validateWebLink(form, alias, address)
+    } else {
+        webLinkButtonToggle()
+    }
+})
 
 /**
  * Handles a web link validated by the back end.
@@ -843,7 +922,7 @@ function validateWebLink(form, alias, address) {
         $(".address-alert").alert('close') //Close any previous alerts
         form.append(`
                     <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
-                      That address is missing a "://" - did you make a typo?
+                      That address is missing a protocol (the part that comes before "://") - did you make a typo?
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
@@ -963,11 +1042,14 @@ function clearAddEvidenceModalValues() {
     $("#evidenceDescription").val("")
     $("#webLinkUrl").val("")
     $("#webLinkName").val("")
+    $("#evidenceDate").val(todaysDate)
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
     $("#skillsInput").val("")
     $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
     $(".evidenceCategoryTickIcon").hide();
+    $(".countCharName").html("50 characters remaining")
+    $(".countCharDescription").html("500 characters remaining")
 }
 
 
@@ -1033,3 +1115,34 @@ $(document).on("change", ".form-control", function () {
 })
 
 
+/**
+ * Toggles category button appearance on the evidence creation form.
+ */
+$(".evidenceFormCategoryButton").on("click", function () {
+    let button = $(this)
+    if (button.hasClass("btn-secondary")) {
+        button.removeClass("btn-secondary")
+        button.addClass("btn-success")
+        button.find(".evidenceCategoryTickIcon").show("slide", 200)
+    } else {
+        button.removeClass("btn-success")
+        button.addClass("btn-secondary")
+        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
+    }
+})
+
+
+function createSkillChip(skillName) {
+    return `
+    <div class="chip skillChip">
+        <p class="chipText">${skillName}</p>
+    </div>`
+}
+
+
+function createCategoryChip(categoryName) {
+    return `
+    <div class="chip categoryChip">
+        <p class="chipText">${categoryName}</p>
+    </div>`
+}

@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 
 @SpringBootTest
@@ -27,7 +28,7 @@ class WebLinkTest {
     @Test
     void createTestEvidenceSingleWebLink() throws MalformedURLException {
         Evidence evidence = new Evidence(1, "test", LocalDate.now(), "test");
-        WebLink webLink = new WebLink(evidence, "Test", "https://www.google.co.nz");
+        WebLink webLink = new WebLink(evidence, "Test", new URL("https://www.google.co.nz"));
         evidence.addWebLink(webLink);
         evidenceRepository.save(evidence);
         webLinkRepository.save(webLink);
@@ -42,9 +43,9 @@ class WebLinkTest {
     @Test
     void createTestEvidenceMultipleWebLinks() throws MalformedURLException {
         Evidence evidence = new Evidence(1, "test", LocalDate.now(), "test");
-        WebLink webLink = new WebLink(evidence, "Test", "https://www.google.co.nz");
-        WebLink webLink2 = new WebLink(evidence, "Test", "https://www.google.co.nz");
-        WebLink webLink3 = new WebLink(evidence, "Test", "https://www.google.co.nz");
+        WebLink webLink = new WebLink(evidence, "Test", new URL("https://www.google.co.nz"));
+        WebLink webLink2 = new WebLink(evidence, "Test", new URL("https://www.google.co.nz"));
+        WebLink webLink3 = new WebLink(evidence, "Test", new URL("https://www.google.co.nz"));
         evidence.addWebLink(webLink);
         evidence.addWebLink(webLink2);
         evidence.addWebLink(webLink3);

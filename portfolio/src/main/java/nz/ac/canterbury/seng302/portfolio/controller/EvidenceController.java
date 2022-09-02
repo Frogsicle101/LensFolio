@@ -243,9 +243,6 @@ public class EvidenceController {
         String address = request.getUrl();
         logger.info("GET REQUEST /validateWebLink - validating address {}", address);
         try {
-            if (!address.contains("://")) {
-                throw new MalformedURLException("There is no ://");
-            }
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }
@@ -253,7 +250,7 @@ public class EvidenceController {
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (MalformedURLException | URISyntaxException exception) {
-            logger.info("/validateWebLink - invalid address {}", address);
+            logger.warn("/validateWebLink - invalid address {}", address);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
