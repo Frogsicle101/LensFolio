@@ -13,7 +13,7 @@ public class ProjectData {
     /** The repository containing the project */
     private final ProjectRepository projectRepository;
 
-    private static final Boolean USE_EXAMPLE_PROJECT = true;
+    private static final boolean USE_EXAMPLE_PROJECT = true;
 
     @Autowired
     public ProjectData(ProjectRepository projectRepository){
@@ -23,7 +23,7 @@ public class ProjectData {
     /**
      * Creates the default project
      */
-    public void createDefaultProject(){
+    public void createDefaultProject() {
         if (USE_EXAMPLE_PROJECT) {
             projectRepository.save(new Project("Project Seng302",
                     LocalDate.parse("2022-02-25"),
@@ -32,7 +32,7 @@ public class ProjectData {
                             " other courses into a systematic development process to" +
                             " create software as a team."));
         } else {
-            projectRepository.save(new Project("Default Project"));
+            projectRepository.save(new Project("Project %s".formatted(LocalDate.now().getYear())));
         }
     }
 }
