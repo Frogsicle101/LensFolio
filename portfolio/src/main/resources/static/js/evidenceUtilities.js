@@ -1056,6 +1056,12 @@ $(".evidenceFormCategoryButton").on("click", function () {
 })
 
 
+/**
+ * Creates HTMl for a skill chip with the given skill name.
+ *
+ * @param skillName The name to be displayed in the skill chip.
+ * @returns {string} The string of HTMl representing the skill chip.
+ */
 function createSkillChip(skillName) {
     return `
     <div class="chip skillChip">
@@ -1064,6 +1070,12 @@ function createSkillChip(skillName) {
 }
 
 
+/**
+ * Creates HTMl for a category chip with the given category name.
+ *
+ * @param categoryName The name to be displayed in the category chip.
+ * @returns {string} The string of HTMl representing the category chip.
+ */
 function createCategoryChip(categoryName) {
     return `
     <div class="chip categoryChip">

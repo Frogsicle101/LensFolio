@@ -3,7 +3,7 @@ let selectedChip;
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
  */
-$(document).ready(function () {
+$(() => {
     let urlParams = new URLSearchParams(window.location.search)
     if (urlParams.has("userId")) {
         userBeingViewedId = urlParams.get('userId')
@@ -32,12 +32,6 @@ function addSkillsToSideBar() {
     }
     for (let skill of skillsArray) {
         skillsContainer.append(createSkillChip(skill.replaceAll("_", " ")))
-        // skillsContainer.append(`
-        //     <div class="skillListItem evidenceFilter ${skill === selectedChip ? 'selectedSkill' : ''}"
-        //     id="SkillCalled${skill.replaceAll(" ", "_")}"> <!-- This ID has underscores instead of spaces  -->
-        //     <p class="skillName">${skill.replaceAll("_", " ")}</p>
-        //     </div>
-        // `)
     }
 }
 
@@ -49,11 +43,6 @@ function addCategoriesToSidebar() {
     let categoriesList = $('#categoryList')
     for (let category of categoryArray) {
         categoriesList.append(createCategoryChip(category))
-        // categoriesList.append(`
-        //     <div class="categoryChip ${category === selectedChip ? 'selectedSkill' : ''}">
-        //     <p class="skillName chipText">${category}</p>
-        //     </div>
-        // `)
     }
 }
 
@@ -201,7 +190,7 @@ $(document).on("click", ".createEvidenceButton" , () => {
 /**
  *  A Listener for the cancel create evidence button. This calls the function to close the modal
  */
-$(document).on("click", "#evidenceCancelButton", function (event) {
+$(document).on("click", "#evidenceCancelButton", function () {
     closeModal()
 })
 
