@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 
 /**
@@ -49,9 +50,9 @@ public class EvidenceData {
             Evidence evidence3 = evidenceRepository.save(new Evidence(9, "Writing Long Descriptions", LocalDate.now(), "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
             Evidence evidence4 = evidenceRepository.save(new Evidence(9, "No Skill Evidence", LocalDate.now(), "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
 
-            WebLink webLink =  webLinkRepository.save(new WebLink(evidence, "localhost", "https://localhost"));
-            WebLink webLink1 = webLinkRepository.save(new WebLink(evidence1,  "evidence1 weblink", "https://localhost/evidence1"));
-            WebLink webLink2 = webLinkRepository.save(new WebLink(evidence1,  "lots of web links", "https://lotsOfTestWeblinks"));
+            WebLink webLink =  webLinkRepository.save(new WebLink(evidence, "localhost", new URL("https://localhost")));
+            WebLink webLink1 = webLinkRepository.save(new WebLink(evidence1,  "evidence1 weblink", new URL("https://localhost/evidence1")));
+            WebLink webLink2 = webLinkRepository.save(new WebLink(evidence1,  "lots of web links", new URL("https://lotsOfTestWeblinks")));
 
             Skill skill = skillRepository.save(new Skill("test"));
             Skill skill1 = skillRepository.save(new Skill("java"));
