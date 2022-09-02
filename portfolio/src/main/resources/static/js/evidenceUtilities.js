@@ -176,7 +176,7 @@ function getAndAddEvidencePreviews() {
  */
 function displayNameOrButton(response) {
     if (userBeingViewedId !== userIdent) {
-        $(".createEvidenceButton").hide();
+        $(".createEvidenceButton").remove();
         let usersName = response.getResponseHeader("Users-Name");
         $("#nameHolder").html("Viewing evidence for " + usersName)
         $("#nameHolder").show()
