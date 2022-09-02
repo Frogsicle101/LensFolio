@@ -79,7 +79,8 @@ section {
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
-    --background-chip-colour: #add8e6;
+    --skill-chip-colour: #add8e6;
+    --category-chip-colour: lightcyan;
 }
 
 /*CSS relating to Header*/
@@ -1043,7 +1044,7 @@ section {
     border-color: red;
 }
 
-.selectedEvidence, .selectedSkill {
+.selectedEvidence {
     background-color: #eaeaea;
 }
 
@@ -1137,17 +1138,15 @@ section {
     overflow-x: hidden;
 }
 
+/* Chips */
+
 .skillChipDisplay, #evidenceDetailsSkills{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 }
 
-#evidenceChipsSection {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-}
+
 
 .chip {
     padding: 0.2rem 1rem 0.2rem;
@@ -1159,17 +1158,17 @@ section {
     box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
 }
 
-.chip.skillChip {
-    background-color: var(--background-chip-colour);
+.skillChip {
+    background-color: var(--skill-chip-colour);
 }
 
-.chip.categoryChip{
-    background-color: lightcyan;
+.categoryChip{
+    background-color: var(--category-chip-colour);
 }
 
 .chip:hover{
     cursor: pointer;
-    filter: contrast(10%);
+    filter: contrast(80%);
 }
 
 .skillChipInvalid{
@@ -1178,13 +1177,18 @@ section {
 
 .chipText{
     margin: auto;
+    text-align: center;
+    word-break: break-word;
 }
 
 .chipDelete{
     position: absolute;
     top: -0.2rem;
     right: -0.2rem;
+}
 
+.chip.selected {
+    filter: contrast(70%);
 }
 
 .chipDelete:hover{
@@ -1194,9 +1198,14 @@ section {
 
 
 /* skills page */
-.skillsPage {
+.flexContainer {
     display: flex;
-    flex-direction: row
+    flex-direction: row;
+}
+
+.flexWrap {
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .skillSideBar {
@@ -1205,7 +1214,6 @@ section {
     overflow: auto;
     border: solid var(--main-border-colour) 1px;
     background: white;
-
 }
 
 .categoriesHeader {
@@ -1214,15 +1222,6 @@ section {
 
 .skillsHeader {
     margin-top: 2rem;
-}
-
-.skillListItem {
-    vertical-align: middle;
-    text-align: center;
-    line-height: 1rem;
-    border-bottom: solid var(--main-border-colour) 1px;
-    align-content: center;
-    cursor: pointer;
 }
 
 .evidenceTitle {
@@ -1254,7 +1253,7 @@ section {
     margin-top: 0;
 }
 
-.showAllContainer {
+.marginTop {
     margin-top: 1rem;
 }
 

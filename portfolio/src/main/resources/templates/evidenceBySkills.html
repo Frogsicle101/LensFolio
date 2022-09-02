@@ -7,9 +7,9 @@
 </head>
 <body>
 <header th:insert="fragments/general.html :: header"></header>
-<section class="skillsPage">
+<section class="flexContainer">
     <div class="skillSideBar">
-        <div class="showAllContainer center">
+        <div class="marginTop center">
             <button id="showAllEvidence" class="btn btn-primary">Show All Evidence</button>
         </div>
         <div class="categoryContainer">
@@ -19,7 +19,7 @@
         <div class="skillContainer">
             <h3 class="skillsHeader">Skills</h3>
             <!-- The skill holding container, pieces are added through JS -->
-            <div id="skillList"></div>
+            <div id="skillList" class="flexContainer flexWrap"></div>
         </div>
     </div>
     <div class="contentContainer">
