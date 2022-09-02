@@ -13,18 +13,23 @@ public class ProjectData {
     /** The repository containing the project */
     private final ProjectRepository projectRepository;
 
-    private static final boolean USE_EXAMPLE_PROJECT = true;
+    private boolean useExampleProject = true;
 
     @Autowired
     public ProjectData(ProjectRepository projectRepository){
         this.projectRepository = projectRepository;
     }
 
+    public ProjectData(ProjectRepository projectRepository, boolean useExampleProject){
+        this.projectRepository = projectRepository;
+        this.useExampleProject = useExampleProject;
+    }
+
     /**
      * Creates the default project
      */
     public void createDefaultProject() {
-        if (USE_EXAMPLE_PROJECT) {
+        if (useExampleProject) {
             projectRepository.save(new Project("Project Seng302",
                     LocalDate.parse("2022-02-25"),
                     LocalDate.parse("2022-09-30"),
