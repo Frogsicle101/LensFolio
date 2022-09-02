@@ -643,7 +643,7 @@ class EvidenceServiceTest {
                 () -> evidenceService.addSkills(evidence, listSkills)
         );
         System.out.println(exception.getMessage());
-        Assertions.assertTrue(exception.getMessage().contains("skill name can only contain unicode letters, numbers, " +
+        Assertions.assertTrue(exception.getMessage().contains("Skill name can only contain unicode letters, numbers, " +
                 "punctuation, symbols (but not emojis) and whitespace"));
     }
 
