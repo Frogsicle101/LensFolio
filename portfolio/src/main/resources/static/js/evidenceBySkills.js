@@ -130,3 +130,42 @@ $(document).on("click", ".chip" , function (event) {
 
 
 $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
+
+
+/**
+ *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling
+ */
+$(document).on("click", ".createEvidenceButton" , () => {
+    $(".addEvidenceModal").show()
+    $(".modal-content").show("drop", {direction: "up"}, 200)
+    $('body,html').css('overflow','hidden');
+})
+
+
+/**
+ *  A Listener for the cancel create evidence button. This calls the function to close the modal
+ */
+$(document).on("click", "#evidenceCancelButton", function (event) {
+    closeModal()
+})
+
+
+/**
+ *  When the mouse is clicked, if the modal is open and the click is outside the modal this will call the function to
+ *  close the modal
+ */
+window.onmousedown = function(event) {
+    let modalDisplay = $(".addEvidenceModal").css("display")
+    if (modalDisplay === "block" && !event.target.closest(".modal-content")) {
+        closeModal()
+    }
+}
+
+
+/**
+ *  A function to close the modal and allow the page below to scroll again
+ */
+function closeModal() {
+    $(".modal-content").hide("drop", {direction: "up"}, 200, () => {$(".addEvidenceModal").hide()})
+    $('body,html').css('overflow','auto');
+}
