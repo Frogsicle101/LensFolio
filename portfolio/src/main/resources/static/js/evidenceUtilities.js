@@ -126,7 +126,11 @@ function webLinkElement(url, alias) {
     }
 
     let slashIndex = url.search("//") + 2
-    if (slashIndex > 1) urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    if (slashIndex > 1) {
+        urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    } else {
+        urlSlashed = url // The url does not have a protocol attached to it
+    }
 
     return (`
         <div class="webLinkElement ${security}" data-value="${url}" >
@@ -553,6 +557,7 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
+        appendTo: ".addEvidenceModal"
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -764,7 +769,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
                 createAlert("Created evidence")
-                $("#addEvidenceModal").modal('hide')
+                closeModal()
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
                 $(".address-alert").alert('close') // Close any web link alerts
@@ -812,7 +817,7 @@ function validateWebLink(form, alias, address) {
         $(".address-alert").alert('close') //Close any previous alerts
         form.append(`
                     <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
-                      That address is missing a "://" - did you make a typo?
+                      That address is missing a protocol (the part that comes before "://") - did you make a typo?
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
@@ -933,6 +938,7 @@ function clearAddEvidenceModalValues() {
     $("#evidenceDescription").val("")
     $("#webLinkUrl").val("")
     $("#webLinkName").val("")
+    $("#evidenceDate").val(todaysDate)
     $("#addedWebLinks").empty()
     $("#webLinkTitle").empty()
     $("#skillsInput").val("")
