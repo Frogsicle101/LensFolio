@@ -15,10 +15,10 @@ let selectedEvidenceId;
 /** WebLinksCount is used to restrict the amount of weblinks on a piece of evidence*/
 let webLinksCount = 0;
 
+/** The existing skills of the user, updated as the users evidence is retrieved */
 let skillsArray = []
 
-let categoryArray = ["Qualitative", "Quantitative", "Service"]
-
+/** Provides the options of categories and maps them to user friendly strings */
 let categoriesMapping = new Map([
     ["SERVICE", "Service"],
     ["QUALITATIVE", "Qualitative"],

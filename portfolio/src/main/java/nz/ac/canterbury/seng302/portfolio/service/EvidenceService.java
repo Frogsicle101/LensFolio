@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -155,7 +156,7 @@ public class EvidenceService {
 
 
     /**
-     * Add a list of skills to a given piece of evidence
+     * Add a list of skills to a given piece of evidence. If the skills name is 'No Skills' it is ignored
      *
      * @param evidence - The  piece of evidence
      * @param skills - The list of the skills in string form
@@ -166,6 +167,9 @@ public class EvidenceService {
             Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
             Skill theSkill;
             if (optionalSkill.isEmpty()) {
+                if (skillName.equalsIgnoreCase("No Skill")) {
+                    continue;
+                }
                 Skill createSkill = new Skill(skillName);
                 theSkill = skillRepository.save(createSkill);
             } else {
