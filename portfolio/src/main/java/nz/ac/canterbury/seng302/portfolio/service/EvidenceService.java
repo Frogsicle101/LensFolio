@@ -22,18 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-
-/**
- * Used to differentiate the strings that are passed to the stringCheck method
- */
-enum StringType {
-    TITLE,
-    DESCRIPTION,
-}
 
 /**
  * A utility class for more complex actions involving Evidence
@@ -115,18 +109,31 @@ public class EvidenceService {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isEmpty()) {
             throw new CheckException("Project Id does not match any project");
+        } else if (webLinks.size() > 10) {
+            throw new CheckException("This piece of evidence has too many weblinks attached to it; 10 is the limit");
         }
         Project project = optionalProject.get();
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "Evidence name");
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "Evidence description");
+
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "title");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "description");
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
         evidence = evidenceRepository.save(evidence);
 
         for (WebLinkDTO dto : webLinks) {
-            WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
+            URL weblinkURL = new URL(dto.getUrl());
+            if (dto.getUrl().contains("&nbsp")) {
+                throw new MalformedURLException("The non-breaking space is not a valid character");
+            }
+            try {
+                weblinkURL.toURI(); // The toURI covers cases that the URL constructor does not, so we use both
+            } catch (URISyntaxException e) {
+                throw new CheckException("The URL for the weblink " + dto.getName() + " is not correctly formatted.");
+            }
+            WebLink webLink = new WebLink(evidence, dto.getName(), weblinkURL);
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
         }
@@ -153,9 +160,7 @@ public class EvidenceService {
      */
     public void addSkills(Evidence evidence, List<String> skills) {
         for(String skillName: skills){
-            if (skillName == null || skillName.equals("") || skillName.equals(" ")){
-                continue;
-            }
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 2, 30, "skill name");
             Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
             Skill theSkill;
             if (optionalSkill.isEmpty()) {

@@ -12,7 +12,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRe
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
-import nz.ac.canterbury.seng302.portfolio.service.PortfolioService;
+import nz.ac.canterbury.seng302.portfolio.service.ProjectService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -44,15 +45,16 @@ class PortfolioControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
     private Project project;
     private final AuthenticateClientService authenticateClientService = mock(AuthenticateClientService.class);
     private final UserAccountsClientService userAccountsClientService = mock(UserAccountsClientService.class);
     private final SprintRepository sprintRepository = mock(SprintRepository.class);
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
     private final RegexService regexService = spy(RegexService.class);
-    private final PortfolioService portfolioService = spy(PortfolioService.class);
     private final Sprint mockSprint = mock(Sprint.class);
     private final CheckDateService checkDateService = spy(CheckDateService.class);
+    private final ProjectService projectService = new ProjectService(projectRepository, sprintRepository);
     @MockBean
     private SkillRepository skillRepository;
 
@@ -67,7 +69,18 @@ class PortfolioControllerTest {
     );
 
     @InjectMocks
-    private final PortfolioController portfolioController = new PortfolioController(sprintRepository, projectRepository, userAccountsClientService, regexService, portfolioService, checkDateService);
+    private final PortfolioController portfolioController = new PortfolioController(
+            sprintRepository,
+            projectRepository,
+            userAccountsClientService,
+            regexService,
+            projectService,
+            checkDateService
+    );
+
+    private final Integer validUserId = 1;
+    private final Integer nonExistentUserId = 2;
+    private final String invalidUserId = "Not an Id";
 
 
     @BeforeEach
@@ -193,7 +206,7 @@ class PortfolioControllerTest {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name".repeat(400), LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Project name is longer than the maximum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Project name is longer than the maximum length"));
     }
 
     @Test
@@ -201,7 +214,7 @@ class PortfolioControllerTest {
         ProjectRequest projectRequest = new ProjectRequest("1", "", LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Project name is shorter than the minimum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Project name is shorter than the minimum length"));
     }
 
     @Test
@@ -209,7 +222,7 @@ class PortfolioControllerTest {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().toString(), LocalDate.now().plusDays(3).toString(), "New Description".repeat(400));
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Project description is longer than the maximum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Project description is longer than the maximum length"));
     }
 
 
@@ -225,20 +238,21 @@ class PortfolioControllerTest {
     @Test
     void testEditProjectNewEndDateIsBeforeSprintsEnd() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().plusDays(1).toString(), LocalDate.now().plusDays(3).toString(), "New Description");
-        when(sprintRepository.findAllByProjectId(Mockito.any())).thenReturn(getSprints());
+        when(sprintRepository.getAllByProjectOrderByEndDateDesc(Mockito.any())).thenReturn(getSprints());
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
+        System.out.println(response.getStatusCode());
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("There is a sprint that falls after these new dates", response.getBody());
+        Assertions.assertEquals("There is a sprint that extends after that date", response.getBody());
     }
 
 
     @Test
     void testEditProjectNewStartDateIsAfterSprintsStart() {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().plusMonths(4).toString(), LocalDate.now().plusMonths(4).plusDays(4).toString(), "New Description");
-        when(sprintRepository.findAllByProjectId(Mockito.any())).thenReturn(getSprints());
+        when(sprintRepository.getAllByProjectOrderByStartDateAsc(Mockito.any())).thenReturn(getSprints());
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("There is a sprint that falls before these new dates", response.getBody());
+        Assertions.assertEquals("There is a sprint that starts before that date", response.getBody());
     }
 
     @Test
@@ -305,7 +319,7 @@ class PortfolioControllerTest {
         Mockito.when(mockSprint.getProject()).thenReturn(project);
         ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Sprint name is shorter than the minimum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Sprint name is shorter than the minimum length"));
     }
 
     @Test
@@ -317,7 +331,7 @@ class PortfolioControllerTest {
         Mockito.when(mockSprint.getProject()).thenReturn(project);
         ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Sprint name is longer than the maximum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Sprint name is longer than the maximum length"));
     }
 
     @Test
@@ -329,7 +343,7 @@ class PortfolioControllerTest {
         Mockito.when(mockSprint.getProject()).thenReturn(project);
         ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Sprint name is shorter than the minimum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Sprint name is shorter than the minimum length"));
     }
 
 
@@ -342,7 +356,7 @@ class PortfolioControllerTest {
         Mockito.when(mockSprint.getProject()).thenReturn(project);
         ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Sprint description is longer than the maximum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Sprint description is longer than the maximum length"));
     }
 
 
@@ -355,7 +369,7 @@ class PortfolioControllerTest {
         Mockito.when(mockSprint.getProject()).thenReturn(project);
         ResponseEntity<Object> response = portfolioController.updateSprint(sprintRequest);
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
-        Assertions.assertEquals("Sprint colour is longer than the maximum length", response.getBody());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Sprint colour is longer than the maximum length"));
     }
 
 

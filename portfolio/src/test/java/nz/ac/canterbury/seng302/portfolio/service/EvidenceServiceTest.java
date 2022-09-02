@@ -46,6 +46,7 @@ class EvidenceServiceTest {
     private final WebLinkRepository webLinkRepository = Mockito.mock(WebLinkRepository.class);
     private final SkillRepository skillRepository = Mockito.mock(SkillRepository.class);
     private final RegexService regexService = Mockito.spy(RegexService.class);
+    private final RegexService regexService = new RegexService();
 
 
     @BeforeEach
@@ -223,7 +224,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("is shorter than the minimum length"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("title is shorter than the minimum length of 2 characters"));
     }
 
 
@@ -248,7 +249,8 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("name is longer than the maximum length"));
+        System.out.println(exception.getMessage());
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("title is longer than the maximum length of 50 characters"));
     }
 
 
@@ -274,7 +276,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("is shorter than the minimum length"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("description is shorter than the minimum length of 2 characters"));
     }
 
 
@@ -299,7 +301,8 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("is longer than the maximum length"));
+        System.out.println(exception.getMessage().toLowerCase());
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("description is longer than the maximum length of 500 characters"));
     }
 
 
@@ -360,6 +363,37 @@ class EvidenceServiceTest {
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be 20 characters or less"));
+    }
+
+    @Test
+    void testWeblinkWithIllegalSymbol() {
+        setUserToStudent();
+
+        Project project = new Project("Testing");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        String title = "Test";
+        String date = LocalDate.now().toString();
+        String description = "Description";
+
+        List<WebLinkDTO> webLinks = new ArrayList<>();
+        webLinks.add(new WebLinkDTO("Hazardous:☢", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
+
+        List<String> skills = new ArrayList<>();
+
+        List<String> categories = new ArrayList<>();
+
+        long projectId = 1L;
+
+
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+
+        CheckException exception = Assertions.assertThrows(
+                CheckException.class,
+                () -> evidenceService.addEvidence(principal, evidenceDTO)
+        );
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("web link name can only contain unicode " +
+                "letters, numbers, punctuation, symbols (but not emojis) and whitespace"));
     }
 
 
@@ -573,6 +607,45 @@ class EvidenceServiceTest {
         Mockito.verify(skillRepository, Mockito.times(2)).findByNameIgnoreCase(Mockito.any());
         Mockito.verify(skillRepository, Mockito.times(1)).save(Mockito.any());
         Mockito.verify(evidenceRepository, Mockito.times(2)).save(Mockito.any());
+    }
+
+    @Test
+    void testAddSkillNameTooShort(){
+        List<String> listSkills = new ArrayList<>();
+        listSkills.add("");
+
+        CheckException exception = Assertions.assertThrows(
+                CheckException.class,
+                () -> evidenceService.addSkills(evidence, listSkills)
+        );
+        Assertions.assertTrue(exception.getMessage().contains("is shorter than the minimum length of"));
+    }
+
+    @Test
+    void testAddSkillNameTooLong(){
+        List<String> listSkills = new ArrayList<>();
+        listSkills.add("A Decently Long Skill Name, Which as of the time of writing " +
+                "should exceed the limit of thirty characters");
+
+        CheckException exception = Assertions.assertThrows(
+                CheckException.class,
+                () -> evidenceService.addSkills(evidence, listSkills)
+        );
+        Assertions.assertTrue(exception.getMessage().contains("is longer than the maximum length of"));
+    }
+
+    @Test
+    void testAddSkillNameContainsIllegalSymbol(){
+        List<String> listSkills = new ArrayList<>();
+        listSkills.add("Dangerous Skill: ☢");
+
+        CheckException exception = Assertions.assertThrows(
+                CheckException.class,
+                () -> evidenceService.addSkills(evidence, listSkills)
+        );
+        System.out.println(exception.getMessage());
+        Assertions.assertTrue(exception.getMessage().contains("skill name can only contain unicode letters, numbers, " +
+                "punctuation, symbols (but not emojis) and whitespace"));
     }
 
 

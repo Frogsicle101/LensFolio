@@ -184,9 +184,6 @@ section {
 }
 
 #photoContainer:hover #accountPageImage {
-    /*opacity: 0.4;*/
-    /*background-color: black;*/
-
     filter: contrast(50%);
 }
 
@@ -1050,6 +1047,30 @@ section {
     background-color: #eaeaea;
 }
 
+.addEvidenceModal {
+  display: none;
+  position: fixed;
+  z-index: 5;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 60vw;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
 .modal-body {
     display: flex;
     flex-direction: column;
@@ -1128,43 +1149,34 @@ section {
     flex-wrap: wrap;
 }
 
-.skillChip{
+.chip {
     padding: 0.2rem 1rem 0.2rem;
     position: relative;
     margin: 0.2rem;
-    background-color: var(--background-chip-colour);
     border-radius: var(--border-radius);
     display: flex;
     flex-direction: row;
     box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
 }
 
-.skillChip:hover{
-    cursor: pointer;
+.chip.skillChip {
+    background-color: var(--background-chip-colour);
+}
+
+.chip.categoryChip{
     background-color: lightcyan;
 }
 
-.categoryChip{
-    padding: 0.2rem 1rem 0.2rem;
-    position: relative;
-    margin: 0.2rem;
-    background-color: navajowhite;
-    border-radius: var(--border-radius);
-    display: flex;
-    flex-direction: row;
-    box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
-}
-
-.categoryChip:hover{
+.chip:hover{
     cursor: pointer;
-    background-color: antiquewhite;
+    filter: contrast(10%);
 }
 
 .skillChipInvalid{
     background-color: #ee3636;
 }
 
-.skillChipText{
+.chipText{
     margin: auto;
 }
 
@@ -1251,5 +1263,3 @@ section {
     padding-top: 0.5rem;
     margin-bottom: 0;
 }
-
-
