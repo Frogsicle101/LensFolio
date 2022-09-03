@@ -12,6 +12,12 @@ public class EvidenceDTO {
     List<WebLinkDTO> webLinks;
     List<String> categories;
     List<String> skills;
+    /**
+     * The users associated with this piece of evidence.
+     * Specifically, the usernames of the associates.
+     * Should NOT include the creator of the evidence.
+     */
+    List<String> associateUserNames;
     Long projectId;
 
 
@@ -24,6 +30,19 @@ public class EvidenceDTO {
         this.projectId = projectId;
         this.skills = skills;
         this.categories = categories;
+        this.associateUserNames = List.of();
+    }
+
+    public EvidenceDTO(String title, String date, String description, List<WebLinkDTO> webLinks,
+                       List<String> skills, List<String> categories, Long projectId, List<String> associateUserNames) {
+        this.title = title;
+        this.date = date;
+        this.description = description;
+        this.webLinks = webLinks;
+        this.projectId = projectId;
+        this.skills = skills;
+        this.categories = categories;
+        this.associateUserNames = associateUserNames;
     }
 
 
@@ -81,5 +100,13 @@ public class EvidenceDTO {
 
     public void setSkills(List<String> skills) {
         this.skills = skills;
+    }
+
+    public List<String> getAssociateUserNames() {
+        return associateUserNames;
+    }
+
+    public void setAssociateUserNames(List<String> associateUserNames) {
+        this.associateUserNames = associateUserNames;
     }
 }

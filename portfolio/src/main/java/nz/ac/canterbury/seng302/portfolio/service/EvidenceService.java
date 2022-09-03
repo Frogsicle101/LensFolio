@@ -108,6 +108,7 @@ public class EvidenceService {
         List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
         String date = evidenceDTO.getDate();
         List<String> categories = evidenceDTO.getCategories();
+        List<String> skills = evidenceDTO.getSkills();
 
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isEmpty()) {
@@ -122,7 +123,23 @@ public class EvidenceService {
         regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "title");
         regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "description");
 
-        Evidence evidence = new Evidence(user.getId(), title, localDate, description);
+        List<String> associates = evidenceDTO.getAssociateUserNames();
+        for (String username : associates) {
+            // Find their ID
+            /*
+            TODO: The goal here is to find the IDs of the associates, but there exists no gRpc contract for this
+             */
+            int associateID;
+            addEvidenceForUser(3, title, description, webLinks, localDate, categories, skills);
+        }
+
+        return addEvidenceForUser(user.getId(), title, description, webLinks, localDate, categories, skills);
+    }
+
+    private Evidence addEvidenceForUser(int userId, String title, String description,
+                                    List<WebLinkDTO> webLinks, LocalDate localDate,
+                                    List<String> categories, List<String> skills) throws MalformedURLException {
+        Evidence evidence = new Evidence(userId, title, localDate, description);
         evidence = evidenceRepository.save(evidence);
 
         for (WebLinkDTO dto : webLinks) {
@@ -141,7 +158,7 @@ public class EvidenceService {
             evidence.addWebLink(webLink);
         }
 
-        this.addSkills(evidence, evidenceDTO.getSkills());
+        this.addSkills(evidence, skills);
 
         for (String categoryString : categories) {
             switch (categoryString) {
