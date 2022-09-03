@@ -16,8 +16,6 @@ import java.util.ArrayList;
  * The UserAccountsClientServices class implements the functionality of the services outlined
  * by the user_accounts.proto gRPC contacts. This allows the client to make requests to the server
  * regarding their account.
- *
- * @author Sam Clark
  */
 @Service
 public class UserAccountsClientService {
@@ -142,4 +140,9 @@ public class UserAccountsClientService {
         return userAccountStub.deleteUserProfilePhoto(request);
     }
 
+
+    //todo
+    public PaginatedUsersResponse getPaginatedUsersFilteredByName(GetPaginatedUsersFilteredRequest request){
+        return userAccountStub.getPaginatedUsersFilteredByName(request);
+    }
 }
