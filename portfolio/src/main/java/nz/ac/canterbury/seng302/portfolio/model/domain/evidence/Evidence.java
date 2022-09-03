@@ -191,6 +191,7 @@ public class Evidence {
                 "\",\"webLinks\":" + "[]" +
                 ",\"skills\":" + "[]" +
                 ",\"categories\":" + "[]" +
+                ",\"associateIds\":" + associateIds +
                 "," + "\"date\":\"" + occurrenceDate + "\"" +
                 "}";
     }
