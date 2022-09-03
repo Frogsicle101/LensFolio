@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,34 +116,52 @@ public class EvidenceService {
         regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "description");
 
         List<Integer> associates = evidenceDTO.getAssociateIds();
-        for (Integer associateID : associates) {
-            addEvidenceForUser(associateID, title, description, webLinks, localDate, categories, skills);
+        if (associates == null) {
+            associates = new ArrayList<>();
         }
-        return addEvidenceForUser(user.getId(), title, description, webLinks, localDate, categories, skills);
+        /*
+        This will save an evidence for each user, including the owner
+        However, because the owner's ID is added last, the last iteration
+        will be the evidence that belongs to the owner, which is what we return
+         */
+        associates.add(user.getId());
+        Evidence ownerEvidence = null;
+        for (Integer associateID : associates) {
+            ownerEvidence = addEvidenceForUser(associateID, title, description, webLinks,
+                    localDate, categories, skills, associates);
+        }
+        return ownerEvidence;
     }
 
+
+    /**
+     * Helper method that adds a piece of evidence to the specified user id
+     *
+     * @param userId The id of the user that you are adding evidence to
+     * @param title The title of the evidence
+     * @param description The description of the evidence
+     * @param webLinks The web links tied to the evidence
+     * @param localDate The date of the evidence, in localDate form
+     * @param categories The categories of the evidence
+     * @param skills The skills of the evidence
+     * @param associateIds The user ids of any associated users.
+     *                     This should include the original creator of the evidence.
+     * @return the evidence object after saving it in the evidence repository
+     * @throws MalformedURLException When a weblink has an invalid URL
+     */
     private Evidence addEvidenceForUser(int userId, String title, String description,
                                     List<WebLinkDTO> webLinks, LocalDate localDate,
-                                    List<String> categories, List<String> skills) throws MalformedURLException {
+                                    List<String> categories, List<String> skills,
+                                        List<Integer> associateIds) throws MalformedURLException {
+        logger.info("CREATING EVIDENCE - attempting to create evidence for user: {}", userId);
         Evidence evidence = new Evidence(userId, title, localDate, description);
 
-        for (WebLinkDTO dto : webLinks) {
-            URL weblinkURL = new URL(dto.getUrl());
-            if (dto.getUrl().contains("&nbsp")) {
-                evidenceRepository.delete(evidence);
-                throw new MalformedURLException("The non-breaking space is not a valid character");
-            }
-            try {
-                weblinkURL.toURI(); // The toURI covers cases that the URL constructor does not, so we use both
-            } catch (URISyntaxException e) {
-                evidenceRepository.delete(evidence);
-                throw new CheckException("The URL for the weblink " + dto.getName() + " is not correctly formatted.");
-            }
-            WebLink webLink = new WebLink(evidence, dto.getName(), weblinkURL);
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
-            webLinkRepository.save(webLink);
-            evidence.addWebLink(webLink);
-        }
+        /*
+        In order to add web links, we have to save the piece of evidence
+        This is because web links are tied to specific pieces of evidence
+         */
+        evidenceRepository.save(evidence);
+        addWeblinks(evidence, webLinks);
 
         try {
             this.addSkills(evidence, skills);
@@ -159,6 +178,12 @@ public class EvidenceService {
                 default -> logger.warn("Evidence service - evidence {} attempted to add category {}", evidence.getId(), categoryString);
             }
         }
+
+        for (Integer associate : associateIds) {
+            logger.info("adding associate ID");
+            evidence.addAssociateId(associate);
+        }
+
         return evidenceRepository.save(evidence);
     }
 
@@ -186,5 +211,34 @@ public class EvidenceService {
             evidence.addSkill(theSkill);
         }
         evidenceRepository.save(evidence);
+    }
+
+
+    /**
+     * Helper method to add a list of weblinks to a piece of evidence
+     *
+     * @param evidence The evidence to add the weblinks to
+     * @param webLinks The list of weblinks to add, in their raw DTO form
+     * @throws MalformedURLException if a weblink has an invalid URL
+     */
+    private void addWeblinks(Evidence evidence, List<WebLinkDTO> webLinks) throws MalformedURLException {
+        for (WebLinkDTO dto : webLinks) {
+            URL weblinkURL = new URL(dto.getUrl());
+            if (dto.getUrl().contains("&nbsp")) {
+                evidenceRepository.delete(evidence);
+                throw new MalformedURLException("The non-breaking space is not a valid character");
+            }
+            try {
+                weblinkURL.toURI(); // The toURI covers cases that the URL constructor does not, so we use both
+            } catch (URISyntaxException e) {
+                evidenceRepository.delete(evidence);
+                throw new CheckException("The URL for the weblink " + dto.getName() + " is not correctly formatted.");
+            }
+            // This requires the evidence object to be saved, since it needs to refer to it
+            WebLink webLink = new WebLink(evidence, dto.getName(), weblinkURL);
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
+            webLinkRepository.save(webLink);
+            evidence.addWebLink(webLink);
+        }
     }
 }

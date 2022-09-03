@@ -47,6 +47,9 @@ public class Evidence {
     @ElementCollection(fetch = FetchType.EAGER)
     private final Set<Category> categories = new HashSet<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    private final List<Integer> associateIds = new ArrayList<>();
+
 
     /**
      * Constructs an instance of the evidence object
@@ -168,6 +171,11 @@ public class Evidence {
         categories.add(category);
     }
 
+    public List<Integer> getAssociateIds() {
+        return associateIds;
+    }
+
+    public void addAssociateId(Integer associateId) { associateIds.add(associateId); }
 
     /**
      * This method is used to help with testing. It returns the expected JSON string created for this object.
