@@ -144,7 +144,7 @@ $(document).on("click", ".createEvidenceButton" , () => {
 
 
 /**
- *  A Listener for the cancel create evidence button. This calls the function to close the modal
+ *  A listener for the cancel create evidence button. Calls the function to close the modal
  */
 $(document).on("click", "#evidenceCancelButton", function () {
     closeModal()
@@ -152,19 +152,19 @@ $(document).on("click", "#evidenceCancelButton", function () {
 
 
 /**
- *  When the mouse is clicked, if the modal is open and the click is outside the modal this will call the function to
- *  close the modal
+ *  When the mouse is clicked, if the modal is open, the click is outside the modal, and the click is not on an alert,
+ *  calls the function to close the modal.
  */
 window.onmousedown = function(event) {
     let modalDisplay = $(".addEvidenceModal").css("display")
-    if (modalDisplay === "block" && !event.target.closest(".modal-content")) {
+    if (modalDisplay === "block" && !event.target.closest(".modal-content") && !event.target.closest(".alert")) {
         closeModal()
     }
 }
 
 
 /**
- *  A function to close the modal and allow the page below to scroll again
+ *  Closes the modal and allows the page below to scroll again
  */
 function closeModal() {
     $(".modal-content").hide("drop", {direction: "up"}, 200, () => {$(".addEvidenceModal").hide()})
