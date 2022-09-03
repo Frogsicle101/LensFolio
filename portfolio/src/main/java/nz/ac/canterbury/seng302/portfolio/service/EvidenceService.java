@@ -1,19 +1,13 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
-import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
@@ -135,17 +129,26 @@ public class EvidenceService {
         for (WebLinkDTO dto : webLinks) {
             URL weblinkURL = new URL(dto.getUrl());
             if (dto.getUrl().contains("&nbsp")) {
+                evidenceRepository.delete(evidence);
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }
             try {
                 weblinkURL.toURI(); // The toURI covers cases that the URL constructor does not, so we use both
             } catch (URISyntaxException e) {
+                evidenceRepository.delete(evidence);
                 throw new CheckException("The URL for the weblink " + dto.getName() + " is not correctly formatted.");
             }
             WebLink webLink = new WebLink(evidence, dto.getName(), weblinkURL);
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
+        }
+
+        try {
+            this.addSkills(evidence, skills);
+        } catch (Exception e) {
+            evidenceRepository.delete(evidence);
+            throw new CheckException(e.getMessage());
         }
 
         for (String categoryString : categories) {
@@ -181,7 +184,7 @@ public class EvidenceService {
                 theSkill = optionalSkill.get();
             }
             evidence.addSkill(theSkill);
-            evidenceRepository.save(evidence);
         }
+        evidenceRepository.save(evidence);
     }
 }

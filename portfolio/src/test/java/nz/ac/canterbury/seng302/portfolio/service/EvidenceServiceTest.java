@@ -1,17 +1,12 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
@@ -562,7 +557,7 @@ class EvidenceServiceTest {
         evidenceService.addSkills(evidence, listSkills);
         Mockito.verify(skillRepository, Mockito.times(2)).findByNameIgnoreCase(Mockito.any());
         Mockito.verify(skillRepository, Mockito.never()).save(Mockito.any());
-        Mockito.verify(evidenceRepository, Mockito.times(2)).save(Mockito.any());
+        Mockito.verify(evidenceRepository, Mockito.times(1)).save(Mockito.any());
     }
 
     @Test
@@ -589,7 +584,7 @@ class EvidenceServiceTest {
 
         Mockito.verify(skillRepository, Mockito.times(2)).findByNameIgnoreCase(Mockito.any());
         Mockito.verify(skillRepository, Mockito.times(2)).save(Mockito.any());
-        Mockito.verify(evidenceRepository, Mockito.times(2)).save(Mockito.any());
+        Mockito.verify(evidenceRepository, Mockito.times(1)).save(Mockito.any());
     }
 
     @Test
@@ -605,7 +600,7 @@ class EvidenceServiceTest {
         evidenceService.addSkills(evidence, listSkills);
         Mockito.verify(skillRepository, Mockito.times(2)).findByNameIgnoreCase(Mockito.any());
         Mockito.verify(skillRepository, Mockito.times(1)).save(Mockito.any());
-        Mockito.verify(evidenceRepository, Mockito.times(2)).save(Mockito.any());
+        Mockito.verify(evidenceRepository, Mockito.times(1)).save(Mockito.any());
     }
 
     @Test
