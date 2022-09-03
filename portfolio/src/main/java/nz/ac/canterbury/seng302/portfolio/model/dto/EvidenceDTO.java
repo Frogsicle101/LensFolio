@@ -14,15 +14,14 @@ public class EvidenceDTO {
     List<String> skills;
     /**
      * The users associated with this piece of evidence.
-     * Specifically, the usernames of the associates.
      * Should NOT include the creator of the evidence.
      */
-    List<String> associateUserNames;
+    List<Integer> associateIds;
     Long projectId;
 
 
     public EvidenceDTO(String title, String date, String description, List<WebLinkDTO> webLinks,
-                       List<String> skills, List<String> categories, Long projectId) {
+                       List<String> skills, List<String> categories, Long projectId, List<Integer> associateIds) {
         this.title = title;
         this.date = date;
         this.description = description;
@@ -30,19 +29,7 @@ public class EvidenceDTO {
         this.projectId = projectId;
         this.skills = skills;
         this.categories = categories;
-        this.associateUserNames = List.of();
-    }
-
-    public EvidenceDTO(String title, String date, String description, List<WebLinkDTO> webLinks,
-                       List<String> skills, List<String> categories, Long projectId, List<String> associateUserNames) {
-        this.title = title;
-        this.date = date;
-        this.description = description;
-        this.webLinks = webLinks;
-        this.projectId = projectId;
-        this.skills = skills;
-        this.categories = categories;
-        this.associateUserNames = associateUserNames;
+        this.associateIds = associateIds;
     }
 
 
@@ -102,11 +89,11 @@ public class EvidenceDTO {
         this.skills = skills;
     }
 
-    public List<String> getAssociateUserNames() {
-        return associateUserNames;
+    public List<Integer> getAssociateIds() {
+        return associateIds;
     }
 
-    public void setAssociateUserNames(List<String> associateUserNames) {
-        this.associateUserNames = associateUserNames;
+    public void setAssociateIds(List<Integer> associateIds) {
+        this.associateIds = associateIds;
     }
 }

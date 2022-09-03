@@ -26,10 +26,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -123,16 +120,10 @@ public class EvidenceService {
         regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "title");
         regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "description");
 
-        List<String> associates = evidenceDTO.getAssociateUserNames();
-        for (String username : associates) {
-            // Find their ID
-            /*
-            TODO: The goal here is to find the IDs of the associates, but there exists no gRpc contract for this
-             */
-            int associateID;
-            addEvidenceForUser(3, title, description, webLinks, localDate, categories, skills);
+        List<Integer> associates = evidenceDTO.getAssociateIds();
+        for (Integer associateID : associates) {
+            addEvidenceForUser(associateID, title, description, webLinks, localDate, categories, skills);
         }
-
         return addEvidenceForUser(user.getId(), title, description, webLinks, localDate, categories, skills);
     }
 
@@ -140,7 +131,6 @@ public class EvidenceService {
                                     List<WebLinkDTO> webLinks, LocalDate localDate,
                                     List<String> categories, List<String> skills) throws MalformedURLException {
         Evidence evidence = new Evidence(userId, title, localDate, description);
-        evidence = evidenceRepository.save(evidence);
 
         for (WebLinkDTO dto : webLinks) {
             URL weblinkURL = new URL(dto.getUrl());
@@ -157,8 +147,6 @@ public class EvidenceService {
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
         }
-
-        this.addSkills(evidence, skills);
 
         for (String categoryString : categories) {
             switch (categoryString) {

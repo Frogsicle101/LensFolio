@@ -66,7 +66,7 @@ class EvidenceServiceTest {
 
         String title = "title";
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L, List.of());
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
@@ -89,7 +89,7 @@ class EvidenceServiceTest {
         String url = "https://www.google.com";
         links.add(new WebLinkDTO("name", url));
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", links, new ArrayList<>(), new ArrayList<>(), 1L);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", links, new ArrayList<>(), new ArrayList<>(), 1L, List.of());
         evidenceService.addEvidence(principal,
                 evidenceDTO);
 
@@ -113,7 +113,7 @@ class EvidenceServiceTest {
         List<WebLinkDTO> webLinks = new ArrayList<>();
         long projectId = 1L;
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L, List.of());
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -139,7 +139,7 @@ class EvidenceServiceTest {
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId, List.of());
 
         Assertions.assertThrows(
                 DateTimeParseException.class,
@@ -165,7 +165,7 @@ class EvidenceServiceTest {
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId, List.of());
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -191,7 +191,7 @@ class EvidenceServiceTest {
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId, List.of());
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -217,7 +217,7 @@ class EvidenceServiceTest {
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId, List.of());
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -242,7 +242,7 @@ class EvidenceServiceTest {
         List<String> categories = new ArrayList<>();
         long projectId = 1L;
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId, List.of());
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -269,7 +269,7 @@ class EvidenceServiceTest {
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId, List.of());
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -294,7 +294,7 @@ class EvidenceServiceTest {
         List<String> categories = new ArrayList<>();
         long projectId = 1L;
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId, List.of());
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -324,7 +324,7 @@ class EvidenceServiceTest {
 
         long projectId = 1L;
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId, List.of());
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -355,7 +355,7 @@ class EvidenceServiceTest {
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId, List.of());
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -385,7 +385,7 @@ class EvidenceServiceTest {
         long projectId = 1L;
 
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, webLinks, skills, categories, projectId, List.of());
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -408,7 +408,7 @@ class EvidenceServiceTest {
 
         List<String> categories = new ArrayList<>();
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), skills, categories, 1L);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), skills, categories, 1L, List.of());
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
@@ -430,7 +430,7 @@ class EvidenceServiceTest {
         List<String> categories = new ArrayList<>();
         categories.add("SERVICE");
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), skills, categories, 1L);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), skills, categories, 1L, List.of());
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
@@ -454,7 +454,7 @@ class EvidenceServiceTest {
         categories.add("QUANTITATIVE");
         categories.add("QUALITATIVE");
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), categories, 1L);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), categories, 1L, List.of());
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
@@ -480,7 +480,7 @@ class EvidenceServiceTest {
         categories.add("QUALITATIVE");
         categories.add("QUALITATIVE");
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), categories, 1L);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), categories, 1L, List.of());
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
@@ -503,7 +503,7 @@ class EvidenceServiceTest {
         List<String> categories = new ArrayList<>();
         categories.add("NOT");
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), categories, 1L);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), categories, 1L, List.of());
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
