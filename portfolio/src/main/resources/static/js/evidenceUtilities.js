@@ -434,7 +434,7 @@ function resetWeblink() {
 /**
  * Retrieves the added web links and creates a list of them in DTO form.
  *
- * @returns {string} A list of web links matching the web link DTO format.
+ * @returns {*[]} A list of web links matching the web link DTO format.
  */
 function getWeblinksList() {
     let evidenceCreationForm = $("#evidenceCreationForm")
@@ -635,7 +635,7 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
-        appendTo: ".addEvidenceModal"
+        appendTo: "#addEvidenceModal"
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -888,24 +888,6 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
 
 
 /**
- * Listens for when add web link button is clicked.
- * Slide-toggles the web link portion of the form.
- */
-$(document).on('click', '.addWebLinkButton', function () {
-    let button = $(".addWebLinkButton");
-    if (button.hasClass("toggled")) {
-        //validate the link
-        let address = $("#webLinkUrl").val()
-        let alias = $("#webLinkName").val()
-        let form = $(".webLinkForm")
-        validateWebLink(form, alias, address)
-    } else {
-        webLinkButtonToggle()
-    }
-})
-
-
-/**
  * Handles a web link validated by the back end.
  Validates the alias and then displays an error message or saves the web link and toggles the web link form.
  */
@@ -1019,6 +1001,7 @@ function submitWebLink() {
     let url = $("#webLinkUrl")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
+
     if (alias.val().length > 0) {
         webLinkTitle.show()
         addedWebLinks.append(webLinkElement(url.val(), alias.val()))

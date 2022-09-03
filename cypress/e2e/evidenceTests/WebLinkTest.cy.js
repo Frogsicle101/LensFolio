@@ -3,7 +3,7 @@ describe("WebLinkTest", () => {
         cy.adminLogin()
         cy.viewport(1200, 1024)
         cy.visit('/evidence')
-        cy.get('.createEvidenceButton').click();
+        cy.get('#createEvidenceButton').click();
     })
 
     it('Up to 10 WebLinks', () => {

@@ -12,7 +12,7 @@ $(() => {
     }
 
     if (userBeingViewedId !== userIdent) {
-        $(".createEvidenceButton").hide();
+        $("#createEvidenceButton").hide();
     }
     getAndAddEvidencePreviews()
     addCategoriesToSidebar()
@@ -135,8 +135,8 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 /**
  *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling
  */
-$(document).on("click", ".createEvidenceButton" , () => {
-    $(".addEvidenceModal").show()
+$(document).on("click", "#createEvidenceButton" , () => {
+    $("#addEvidenceModal").show()
     $(".modal-content").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 })
@@ -155,7 +155,7 @@ $(document).on("click", "#evidenceCancelButton", function () {
  *  calls the function to close the modal.
  */
 window.onmousedown = function(event) {
-    let modalDisplay = $(".addEvidenceModal").css("display")
+    let modalDisplay = $("#addEvidenceModal").css("display")
     if (modalDisplay === "block" && !event.target.closest(".modal-content") && !event.target.closest(".alert")) {
         closeModal()
     }
@@ -166,6 +166,6 @@ window.onmousedown = function(event) {
  *  Closes the modal and allows the page below to scroll again
  */
 function closeModal() {
-    $(".modal-content").hide("drop", {direction: "up"}, 200, () => {$(".addEvidenceModal").hide()})
+    $(".modal-content").hide("drop", {direction: "up"}, 200, () => {$("#addEvidenceModal").hide()})
     $('body,html').css('overflow','auto');
 }

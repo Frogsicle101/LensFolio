@@ -12,7 +12,7 @@ $(document).ready(function () {
 
     if (userBeingViewedId !== userIdent) {
         $(".evidenceDeleteButton").hide()
-        $(".createEvidenceButton").hide();
+        $("#createEvidenceButton").hide();
     }
     resetWeblink()
     getAndAddEvidencePreviews()

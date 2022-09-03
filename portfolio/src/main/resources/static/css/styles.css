@@ -973,7 +973,7 @@ section {
     align-self: center;
 }
 
-.createEvidenceButton {
+#createEvidenceButton {
     margin-top: 1rem;
 }
 
@@ -1048,7 +1048,7 @@ section {
     background-color: #eaeaea;
 }
 
-.addEvidenceModal {
+#addEvidenceModal {
   display: none;
   position: fixed;
   z-index: 5;
@@ -1246,7 +1246,7 @@ section {
     text-align: center;
 }
 
-.contentContainer .createEvidenceButton {
+.contentContainer #createEvidenceButton {
     position: absolute;
     left: 1rem;
     top: 1rem;
