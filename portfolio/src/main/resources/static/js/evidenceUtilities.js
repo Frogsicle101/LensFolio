@@ -239,6 +239,18 @@ function getSkills(callback = () => {}) {
 
 
 /**
+ *  A helper function to take a response from an ajax call and add it to the array of skills
+ */
+function addSkillResponseToArray(response){
+    let skills = []
+    for (let i in response.skills) {
+        skills.push(response.skills[i].name)
+    }
+    skillsArray = [...new Set(skillsArray.concat(skills))];
+}
+
+
+/**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
  * @param evidenceDetails The title, date, and description, skills, and categories for a piece of evidence.
@@ -495,7 +507,7 @@ $(".evidenceFormCategoryButton").on("click", function () {
  */
 $(document).on("click", ".ui-autocomplete", () => {
     removeDuplicatesFromInput($("#skillsInput"))
-    displaySkillChips()
+    displayInputSkillChips()
 })
 
 
@@ -504,9 +516,8 @@ $(document).on("click", ".ui-autocomplete", () => {
  */
 $(document).on("click", () => {
     removeDuplicatesFromInput($("#skillsInput"))
-    displaySkillChips()
+    displayInputSkillChips()
 })
-
 
 
 /**
@@ -562,58 +573,7 @@ $(document).on("click", ".chipDelete", function () {
         return value.toLowerCase() !== skillText.toLowerCase()
     })
     skillsInput.val(inputArray.join(" "))
-    displaySkillChips()
-})
-
-
-/**
- * Saves the evidence input during creating a new piece of evidence
- */
-$(document).on("click", "#evidenceSaveButton", function (event) {
-    event.preventDefault()
-    removeDuplicatesFromInput($("#skillsInput"))
-    let evidenceCreationForm = $("#evidenceCreationForm")[0]
-    if (!evidenceCreationForm.checkValidity()) {
-        evidenceCreationForm.reportValidity()
-    } else {
-        const title = $("#evidenceName").val()
-        const date = $("#evidenceDate").val()
-        const description = $("#evidenceDescription").val()
-        const projectId = 1
-        let webLinks = getWeblinksList();
-        const categories = getCategories();
-        const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
-        skillsArray = [...new Set(skillsArray.concat(skills))];
-        $.each(skills, function (i) {
-            skills[i] = skills[i].replaceAll("_", " ")
-        })
-        addSkillsToSideBar();
-
-        let data = JSON.stringify({
-            "title": title,
-            "date": date,
-            "description": description,
-            "projectId": projectId,
-            "webLinks": webLinks,
-            "skills": skills,
-            "categories": categories
-        })
-        $.ajax({
-            url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
-                selectedEvidenceId = response.id
-                getAndAddEvidencePreviews()
-                createAlert("Created evidence")
-                $("#addEvidenceModal").modal('hide')
-                clearAddEvidenceModalValues()
-                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                $(".address-alert").alert('close') // Close any web link alerts
-                $(".weblink-name-alert").alert('close')
-                resetWeblink()
-            }, error: function (error) {
-                createAlert(error.responseText, true, ".modal-body")
-            }
-        })
-    }
+    displayInputSkillChips()
 })
 
 
@@ -860,12 +820,9 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const categories = getCategories();
 
         const skills = skillsInput.val().split(" ").filter(skill => skill.trim() !== "")
-        skillsArray = [...new Set(skillsArray.concat(skills))];
         $.each(skills, function (i) {
             skills[i] = skills[i].replaceAll("_", " ")
         })
-        addSkillsToSideBar();
-
 
         let data = JSON.stringify({
             "title": title,
@@ -880,6 +837,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
+                addSkillResponseToArray(response)
+                addSkillsToSideBar();
                 createAlert("Created evidence")
                 closeModal()
                 clearAddEvidenceModalValues()
@@ -893,6 +852,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         })
     }
 })
+
 
 /**
  * Listens for when add web link button is clicked.
@@ -910,6 +870,7 @@ $(document).on('click', '.addWebLinkButton', function () {
         webLinkButtonToggle()
     }
 })
+
 
 /**
  * Handles a web link validated by the back end.
@@ -1119,23 +1080,6 @@ $(document).on("keyup", ".text-input", function () {
 $(document).on("change", ".form-control", function () {
     disableEnableSaveButtonOnValidity()
     checkTextInputRegex()
-})
-
-
-/**
- * Toggles category button appearance on the evidence creation form.
- */
-$(".evidenceFormCategoryButton").on("click", function () {
-    let button = $(this)
-    if (button.hasClass("btn-secondary")) {
-        button.removeClass("btn-secondary")
-        button.addClass("btn-success")
-        button.find(".evidenceCategoryTickIcon").show("slide", 200)
-    } else {
-        button.removeClass("btn-success")
-        button.addClass("btn-secondary")
-        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
-    }
 })
 
 
