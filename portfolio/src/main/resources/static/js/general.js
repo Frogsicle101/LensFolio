@@ -266,7 +266,6 @@ function handleRoleChangeEvent(notification, action) {
         } else {
             message = `${editorName} removed from you the role: ${roleChanged}`
         }
-        console.log(message)
         createAlert(message, "roleChange")
     }
 }

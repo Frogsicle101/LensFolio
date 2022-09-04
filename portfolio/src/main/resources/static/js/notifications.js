@@ -62,7 +62,6 @@ function handleNotification(notification) {
     const content = JSON.parse(notification.body);
     for (let message of content) {
         const action = message.action;
-        console.log(message)
         try {
             switch (action) {
                 case 'create':

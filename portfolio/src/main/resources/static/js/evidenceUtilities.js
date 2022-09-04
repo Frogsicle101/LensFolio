@@ -766,7 +766,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
-                createAlert("Created evidence", "failure")
+                createAlert("Created evidence", "success")
                 $("#addEvidenceModal").modal('hide')
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
