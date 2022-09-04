@@ -23,9 +23,8 @@ $(document).ready(function () {
 function addSkillsToSideBar() {
     let skillsContainer = $('#skillList')
     skillsContainer.empty()
-    if (! skillsArray.includes("No Skill")) {
-        skillsArray.unshift("No Skill")
-    }
+
+    skillsContainer.append(createSkillChip("No Skill", true))
     for (let skill of skillsArray) {
         skillsContainer.append(createSkillChip(skill.replaceAll("_", " "), true))
     }
@@ -37,7 +36,7 @@ function addSkillsToSideBar() {
  */
 function addCategoriesToSidebar() {
     let categoriesList = $('#categoryList')
-    for (let category of categoryArray) {
+    for (let category of categoriesMapping.values()) {
         categoriesList.append(createCategoryChip(category, true))
     }
 }
