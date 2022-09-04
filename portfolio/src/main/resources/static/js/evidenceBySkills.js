@@ -8,7 +8,7 @@ $(document).ready(function () {
     if (urlParams.has("userId")) {
         userBeingViewedId = urlParams.get('userId')
     } else {
-        userBeingViewedId = userIdent
+        userBeingViewedId = userIdent.toString()
     }
     getAndAddEvidencePreviews()
     addCategoriesToSidebar()
