@@ -3,6 +3,9 @@
  * that can be used across multiple pages.
  */
 
+/** A regex only allowing modern English letters */
+const regExp = new RegExp('[A-Za-z]');
+
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
@@ -840,7 +843,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 getAndAddEvidencePreviews()
                 addSkillResponseToArray(response)
                 addSkillsToSideBar();
-                createAlert("Created evidence", "failure")
+                createAlert("Created evidence", "success")
                 closeModal()
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
