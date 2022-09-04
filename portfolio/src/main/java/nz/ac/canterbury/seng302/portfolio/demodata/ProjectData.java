@@ -13,18 +13,23 @@ public class ProjectData {
     /** The repository containing the project */
     private final ProjectRepository projectRepository;
 
-    private static final Boolean USE_EXAMPLE_PROJECT = true;
+    private boolean useExampleProject = true;
 
     @Autowired
     public ProjectData(ProjectRepository projectRepository){
         this.projectRepository = projectRepository;
     }
 
+    public ProjectData(ProjectRepository projectRepository, boolean useExampleProject){
+        this.projectRepository = projectRepository;
+        this.useExampleProject = useExampleProject;
+    }
+
     /**
      * Creates the default project
      */
-    public void createDefaultProject(){
-        if (USE_EXAMPLE_PROJECT) {
+    public void createDefaultProject() {
+        if (useExampleProject) {
             projectRepository.save(new Project("Project Seng302",
                     LocalDate.parse("2022-02-25"),
                     LocalDate.parse("2022-09-30"),
@@ -32,7 +37,7 @@ public class ProjectData {
                             " other courses into a systematic development process to" +
                             " create software as a team."));
         } else {
-            projectRepository.save(new Project("Default Project"));
+            projectRepository.save(new Project("Project %s".formatted(LocalDate.now().getYear())));
         }
     }
 }

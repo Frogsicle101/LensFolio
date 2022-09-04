@@ -1,19 +1,13 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
-import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
@@ -22,11 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -109,6 +103,8 @@ public class EvidenceService {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isEmpty()) {
             throw new CheckException("Project Id does not match any project");
+        } else if (webLinks.size() > 10) {
+            throw new CheckException("This piece of evidence has too many weblinks attached to it; 10 is the limit");
         }
         Project project = optionalProject.get();
         LocalDate localDate = LocalDate.parse(date);
@@ -121,13 +117,29 @@ public class EvidenceService {
         evidence = evidenceRepository.save(evidence);
 
         for (WebLinkDTO dto : webLinks) {
-            WebLink webLink = new WebLink(evidence, dto.getName(), dto.getUrl());
+            URL weblinkURL = new URL(dto.getUrl());
+            if (dto.getUrl().contains("&nbsp")) {
+                evidenceRepository.delete(evidence);
+                throw new MalformedURLException("The non-breaking space is not a valid character");
+            }
+            try {
+                weblinkURL.toURI(); // The toURI covers cases that the URL constructor does not, so we use both
+            } catch (URISyntaxException e) {
+                evidenceRepository.delete(evidence);
+                throw new CheckException("The URL for the weblink " + dto.getName() + " is not correctly formatted.");
+            }
+            WebLink webLink = new WebLink(evidence, dto.getName(), weblinkURL);
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
         }
 
-        this.addSkills(evidence, evidenceDTO.getSkills());
+        try {
+            this.addSkills(evidence, evidenceDTO.getSkills());
+        } catch (Exception e) {
+            evidenceRepository.delete(evidence);
+            throw new CheckException(e.getMessage());
+        }
 
         for (String categoryString : categories) {
             switch (categoryString) {
@@ -142,7 +154,7 @@ public class EvidenceService {
 
 
     /**
-     * Add a list of skills to a given piece of evidence
+     * Add a list of skills to a given piece of evidence. If the skills name is 'No Skills' it is ignored
      *
      * @param evidence - The  piece of evidence
      * @param skills - The list of the skills in string form
@@ -153,13 +165,16 @@ public class EvidenceService {
             Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
             Skill theSkill;
             if (optionalSkill.isEmpty()) {
+                if (skillName.equalsIgnoreCase("No Skill")) {
+                    continue;
+                }
                 Skill createSkill = new Skill(skillName);
                 theSkill = skillRepository.save(createSkill);
             } else {
                 theSkill = optionalSkill.get();
             }
             evidence.addSkill(theSkill);
-            evidenceRepository.save(evidence);
         }
+        evidenceRepository.save(evidence);
     }
 }

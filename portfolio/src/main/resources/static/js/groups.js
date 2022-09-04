@@ -161,6 +161,12 @@ function addUsers(groupId) {
                 createAlert("User(s) moved", "success")
             }
         },
+        statusCode: {
+          401: function () {
+              createAlert("You don't have permission to move users. This could be because " +
+                  "your roles have been updated. Try refreshing the page", "failure")
+          }
+        },
         error: function () {
             createAlert("Couldn't move users", "failure")
         }
@@ -170,6 +176,7 @@ function addUsers(groupId) {
 
 /**
  * Displays the options for what to do with selected users.
+ *
  * @param show a boolean of if to show or hide
  */
 function showOptions(show) {
@@ -541,6 +548,12 @@ $(document).on("click", ".deleteButton", function () {
             type: "delete",
             success: function () {
                 window.location.reload()
+            },
+            statusCode: {
+                401: function () {
+                    createAlert("You don't have permission to delete groups. This could be because " +
+                        "your roles have been updated. Try refreshing the page", "failure")
+                }
             }, error: function () {
                 createAlert("Couldn't delete the group", "failure")
             }
@@ -605,6 +618,12 @@ $(document).on("submit", "#editGroupForm", function (event) {
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
         },
+        statusCode: {
+            401: function () {
+                createAlert("You don't have permission to edit group details. This could be because " +
+                    "your roles have been updated. Try refreshing the page", "failure")
+            }
+        },
         error: () => {
             createAlert("Couldn't edit the group details", "failure")
         }
@@ -632,6 +651,12 @@ $(document).on("click", "#confirmRemoval", function () {
         success: () => {
             displayGroupUsersList()
             createAlert("User removed", "success")
+        },
+        statusCode: {
+            401: function () {
+                createAlert("You don't have permission to remove users. This could be because " +
+                    "your roles have been updated. Try refreshing the page", "failure")
+            }
         },
         error: () => {
             createAlert("Couldn't remove users from group", "failure")

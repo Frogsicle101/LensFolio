@@ -170,7 +170,7 @@ public class EvidenceController {
     public ResponseEntity<Object> getAllEvidence(@RequestParam("userId") Integer userId) {
         logger.info("GET REQUEST /evidence - attempt to get evidence for user {}", userId);
         try {
-            List<Evidence> evidence = evidenceRepository.findAllByUserIdOrderByDateDesc(userId);
+            List<Evidence> evidence = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(userId);
             if (evidence.isEmpty()) {
                 GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
                 UserResponse userExistsResponse = userAccountsClientService.getUserAccountById(request);
@@ -217,7 +217,7 @@ public class EvidenceController {
             return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -243,9 +243,6 @@ public class EvidenceController {
         String address = request.getUrl();
         logger.info("GET REQUEST /validateWebLink - validating address {}", address);
         try {
-            if (!address.contains("://")) {
-                throw new MalformedURLException("There is no ://");
-            }
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }
@@ -253,7 +250,7 @@ public class EvidenceController {
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (MalformedURLException | URISyntaxException exception) {
-            logger.info("/validateWebLink - invalid address {}", address);
+            logger.warn("/validateWebLink - invalid address {}", address);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());

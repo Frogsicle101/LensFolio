@@ -3,8 +3,8 @@ package nz.ac.canterbury.seng302.portfolio.model.domain.evidence;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a Skill entity
@@ -23,7 +23,7 @@ public class Skill {
     /** The list of evidence this skill is associated with */
     @JsonIgnore
     @ManyToMany(mappedBy = "skills", fetch = FetchType.EAGER)
-    private final Set<Evidence> evidence = new HashSet<>();
+    private final List<Evidence> evidence = new ArrayList<>();
 
 
     /**
@@ -65,7 +65,7 @@ public class Skill {
         this.name = name;
     }
 
-    public Set<Evidence> getEvidence() {
+    public List<Evidence> getEvidence() {
         return evidence;
     }
 
