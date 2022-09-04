@@ -1312,11 +1312,9 @@ function enableToolTips() {
  * not the user that made the change.
  */
 function displayLiveUpdateMessage(message, editorId, eventId){
-    if (checkPrivilege){
-        if (editorId !== userIdent){
-            createLiveAlert(message, eventId);
-            setTimeout(removeLiveAlert, 10000, eventId)
-        }
+    if (checkPrivilege && editorId != userIdent) {
+        createLiveAlert(message, eventId);
+        setTimeout(removeLiveAlert, 10000, eventId)
     }
 }
 

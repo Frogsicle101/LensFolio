@@ -117,6 +117,8 @@ public class UserListController {
         if (user != null) {
             logger.info(genericLogMessage, " : user found, fetching preferences...");
             this.sortOrder = user.getListSortPref();
+            this.isAscending = user.getIsAscending();
+            this.usersPerPageLimit = user.getUsersPerPage();
         } else {
             // if empty set default values
             this.sortOrder = "firstname";
