@@ -68,7 +68,7 @@ $(document).ready(function () {
  */
 $(document).on("click", ".userRoleRow", function() {
     let userId = $(this).find(".userId").text()
-    window.location.href = "/evidence?userId=" + userId //redirect to the user's evidence page
+    window.location.href = "evidence?userId=" + userId //redirect to the user's evidence page
 })
 
 

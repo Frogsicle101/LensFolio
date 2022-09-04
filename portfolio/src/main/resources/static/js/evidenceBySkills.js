@@ -8,11 +8,7 @@ $(document).ready(function () {
     if (urlParams.has("userId")) {
         userBeingViewedId = urlParams.get('userId')
     } else {
-        userBeingViewedId = userIdent
-    }
-
-    if (userBeingViewedId !== userIdent) {
-        $(".createEvidenceButton").hide();
+        userBeingViewedId = userIdent.toString()
     }
     getAndAddEvidencePreviews()
     addCategoriesToSidebar()
