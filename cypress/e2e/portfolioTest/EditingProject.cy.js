@@ -2,7 +2,6 @@ describe('Test Editing Project', () => {
     beforeEach(() => {
         cy.adminLogin()
         cy.visit('/portfolio?projectId=1')
-
     })
 
     it('Colours valid elements green', () => {
