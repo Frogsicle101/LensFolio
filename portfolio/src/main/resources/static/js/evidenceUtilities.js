@@ -3,6 +3,9 @@
  * that can be used across multiple pages.
  */
 
+/** A regex only allowing modern English letters */
+const regExp = new RegExp('[A-Za-z]');
+
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
@@ -26,10 +29,10 @@ let categoriesMapping = new Map([
 ])
 
 $(() => {
-        // Counting characters
-        let textInput = $(".text-input");
-        textInput.each(countCharacters)
-        textInput.on("keyup", countCharacters)
+    // Counting characters
+    let textInput = $(".text-input");
+    textInput.each(countCharacters)
+    textInput.on("keyup", countCharacters)
     }
 )
 
@@ -159,14 +162,32 @@ function getAndAddEvidencePreviews() {
     $(".selected").removeClass("selected")
 
     $.ajax({
-        url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
+        url: "evidenceData?userId=" + userBeingViewedId, success: function (response, status, xhr) {
+            displayNameOrButton(xhr)
             addEvidencePreviews(response)
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
+}
+
+
+/**
+ *  Displays the create evidence button if the evidence being viewed is the logged in user otherwise it displays the
+ *  name of the user
+ */
+function displayNameOrButton(response) {
+    if (userBeingViewedId !== userIdent.toString()) {
+        $(".createEvidenceButton").remove();
+        let usersName = response.getResponseHeader("Users-Name");
+        $("#nameHolder").html("Viewing evidence for " + usersName)
+        $("#nameHolder").show()
+    } else{
+        $("#nameHolder").hide()
+        $(".createEvidenceButton").show();
+    }
 }
 
 
@@ -185,7 +206,7 @@ function getHighlightedEvidenceDetails() {
                 getHighlightedEvidenceWeblinks()
             }, error: function (error) {
                 console.log(error)
-                createAlert("Failed to receive active evidence", true)
+                createAlert("Failed to receive active evidence", "failure")
             }
         })
     } else {
@@ -204,7 +225,7 @@ function getHighlightedEvidenceWeblinks() {
             setHighlightedEvidenceWebLinks(response)
         }, error: function (response) {
             if (response.status !== 404) {
-                createAlert("Failed to receive evidence links", true)
+                createAlert("Failed to receive evidence links", "failure")
             }
         }
     })
@@ -344,12 +365,10 @@ function createEvidencePreview(evidence) {
  */
 function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
-
     let skillsHTML = ``
     $.each(skills, function (i) {
         skillsHTML += createSkillChip(skills[i].name, false)
     })
-
     return skillsHTML
 }
 
@@ -362,12 +381,10 @@ function getSkillTags(skills) {
  */
 function getCategoryTags(categories) {
     categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
-
     let skillsHTML = ``
     $.each(categories, function (i) {
         skillsHTML += createCategoryChip(categoriesMapping.get(categories[i]), false)
     })
-
     return skillsHTML
 }
 
@@ -419,12 +436,11 @@ function checkWeblinkCount() {
 
 
 /**
- * reset the weblinks count
+ * Resets the weblink count
  */
 function resetWeblink() {
     let addWeblinkButton = $("#addWebLinkButton")
     let weblinkFullTab = $("#webLinkFull")
-
     addWeblinkButton.show()
     weblinkFullTab.hide()
     webLinksCount = 0
@@ -465,7 +481,6 @@ function getCategories() {
     $.each(selectedButtons, function (button) {
         categories.push($(selectedButtons[button]).val())
     })
-
     return categories
 }
 
@@ -477,8 +492,8 @@ function getCategories() {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '.addWebLinkButton', function () {
-    let button = $(".addWebLinkButton");
+$(document).on('click', '#addWebLinkButton', function () {
+    let button = $("#addWebLinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
         let address = $("#webLinkUrl").val()
@@ -858,7 +873,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 getAndAddEvidencePreviews()
                 addSkillResponseToArray(response)
                 addSkillsToSideBar();
-                createAlert("Created evidence")
+                createAlert("Created evidence", "success")
                 closeModal()
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
@@ -866,9 +881,27 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, true, ".modal-body")
+                createAlert(error.responseText, "failure", ".modal-body")
             }
         })
+    }
+})
+
+//TODO check duplicacy
+/**
+ * Listens for when add web link button is clicked.
+ * Slide-toggles the web link portion of the form.
+ */
+$(document).on('click', '#addWebLinkButton', function () {
+    let button = $("#addWebLinkButton");
+    if (button.hasClass("toggled")) {
+        //validate the link
+        let address = $("#webLinkUrl").val()
+        let alias = $("#webLinkName").val()
+        let form = $(".webLinkForm")
+        validateWebLink(form, alias, address)
+    } else {
+        webLinkButtonToggle()
     }
 })
 
@@ -977,7 +1010,7 @@ function validateWebLinkAtBackend() {
  * and slide-toggles the form
  */
 function webLinkButtonToggle() {
-    let button = $(".addWebLinkButton");
+    let button = $("#addWebLinkButton");
     $(".webLinkForm").slideToggle();
     if (button.hasClass("toggled")) {
         button.text("Add Web Link")
@@ -1005,7 +1038,6 @@ function submitWebLink() {
     if (alias.val().length > 0) {
         webLinkTitle.show()
         addedWebLinks.append(webLinkElement(url.val(), alias.val()))
-
         initialiseTooltips()
         url.val("")
         alias.val("")
@@ -1013,7 +1045,7 @@ function submitWebLink() {
         checkWeblinkCount()
         $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
     } else {
-        createAlert("Weblink name needs to be 1 char", true);
+        createAlert("Weblink name needs to be 1 char", "failure");
     }
 }
 

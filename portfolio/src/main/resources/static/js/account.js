@@ -1,4 +1,4 @@
-$(document).ready(() => {
+$(() => {
 
     //Jquery selectors to remove duplicity
     let editUserButton = $(".editUserButton")
@@ -9,7 +9,6 @@ $(document).ready(() => {
     let bio = $("#bio")
     let personalPronouns = $("#personalPronouns")
     let email = $("#email")
-
 
     function toggleEditForm() {
         let canDisable = $(".canDisable")
@@ -54,11 +53,11 @@ $(document).ready(() => {
             type: "post",
             data: accountData,
             success:  () => {
-                createAlert("Updated details successfully!", false)
+                createAlert("Updated details successfully!", "success")
                 toggleEditForm()
             },
             error: function (error) {//Displays error in box on failure
-                createAlert(error.responseText, true)
+                createAlert(error.responseText, "failure")
             }
         })
     })
@@ -78,14 +77,14 @@ $(document).ready(() => {
             data: data,
             url: "edit/password",
             success: function () {
-                createAlert("Password Changed Successfully!", false)
+                createAlert("Password Changed Successfully!", "success")
                 toggleEditForm()
                 $("#OldPassword").val('')
                 $("#NewPassword").val('')
                 $("#ConfirmPassword").val('')
             },
             error: function (error) { // Display errors in box on failure
-                createAlert(error.responseText, true)
+                createAlert(error.responseText, "failure")
             }
         })
     })

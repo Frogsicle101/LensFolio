@@ -101,7 +101,7 @@ $(document).on('submit', "#addEventForm", function (event) {
                 Now you do.
                  */
                 sendNotification("event", response.id, "create");
-                createAlert("Event created!", false)
+                createAlert("Event created!", "success")
             }
         })
     }
@@ -125,7 +125,7 @@ $(document).on("submit", ".milestoneForm", function (event) {
         type: "PUT",
         data: milestoneData,
         success: function (response) {
-            createAlert("Milestone created!", false)
+            createAlert("Milestone created!", "success")
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
             sendNotification("milestone", response.id, "create");
@@ -153,7 +153,7 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
         type: "put",
         data: deadlineData,
         success: function (response) {
-            createAlert("Deadline created!", false)
+            createAlert("Deadline created!", "success")
             $(".deadlineForm").slideUp();
             $(".addDeadlineSvg").toggleClass('rotated');
 
@@ -201,7 +201,7 @@ $(document).on("submit", "#editEventForm", function (event) {
             type: "POST",
             data: eventData,
             success: function () {
-                createAlert("Event edited successfully!", false)
+                createAlert("Event edited successfully!", "success")
                 sendNotification("event", eventId, "stop") // Let the server know the event is no longer being edited
                 sendNotification("event", eventId, "update") //Let the server know that other clients should update the element
             }
@@ -231,7 +231,7 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         type: "POST",
         data: milestoneData,
         success: function () {
-            createAlert("Milestone edited successfully!", false)
+            createAlert("Milestone edited successfully!", "success")
             sendNotification("milestone", milestoneId, "stop") // Let the server know the milestone is no longer being edited
             sendNotification("milestone", milestoneId, "update") //Let the server know that other clients should update the element
         }
@@ -274,7 +274,7 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
             type: "POST",
             data: deadlineData,
             success: function () {
-                createAlert("Deadline edited successfully!", false)
+                createAlert("Deadline edited successfully!", "success")
                 sendNotification("deadline", deadlineId, "stop") // Let the server know the deadline is no longer being edited
                 sendNotification("deadline", deadlineId, "update") //Let the server know that other clients should update the element
             }
@@ -333,7 +333,7 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: eventData,
             success: function () {
-                createAlert("Event deleted successfully!", false)
+                createAlert("Event deleted successfully!", "success")
                 sendNotification("event", eventData.eventId, "delete");
             }
         })
@@ -344,7 +344,7 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: milestoneData,
             success: function () {
-                createAlert("Milestone deleted successfully!", false)
+                createAlert("Milestone deleted successfully!", "success")
                 sendNotification("milestone", milestoneData.milestoneId, "delete");
             }
         })
@@ -355,7 +355,7 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: deadlineData,
             success: function () {
-                createAlert("Deadline deleted successfully!", false)
+                createAlert("Deadline deleted successfully!", "success")
                 sendNotification("deadline", deadlineData.deadlineId, "delete");
             }
         })
@@ -372,12 +372,14 @@ $(document).on("click", ".deleteButton", function () {
 $(document).on("click", ".editButton", function () {
     thisUserIsEditing = true;
     let addOccasionButton = $(".addOccasionButton")
+    let editOccasionButton = $(".editButton")
+    let deleteOccasionButton = $(".deleteButton")
     addOccasionButton.hide()
-    $(".editButton").hide()
-    $(".deleteButton").hide()
+    editOccasionButton.hide()
+    deleteOccasionButton.hide()
     //Hide edit and delete button tooltips
-    $(".editButton").tooltip('hide')
-    $(".deleteButton").tooltip('hide')
+    editOccasionButton.tooltip('hide')
+    deleteOccasionButton.tooltip('hide')
     let parent = $(this).closest(".occasion")
     let id = parent.attr("id")
     if (parent.hasClass("event")) {
@@ -549,6 +551,7 @@ function addMilestonesToSprints() {
     })
 }
 
+
 /**
  * Adds milestone to sprint box
  * @param elementToAppendTo The element that you're appending to
@@ -568,6 +571,7 @@ function appendMilestoneToSprint(elementToAppendTo, milestone) {
                 </div>`
     $(elementToAppendTo).append(milestoneInSprint)
 }
+
 
 /**
  * Adds Deadlines to the sprints
@@ -603,6 +607,7 @@ function addDeadlinesToSprints() {
     })
 }
 
+
 /**
  * Adds milestone to sprint box
  * @param elementToAppendTo The element that you're appending to
@@ -622,6 +627,7 @@ function appendDeadlineToSprint(elementToAppendTo, deadline) {
                 </div>`
     $(elementToAppendTo).append(deadlineInSprint)
 }
+
 
 /**
  * Checks if the user has privilege and then removes all elements with the class
@@ -658,7 +664,7 @@ function appendEventForm(element) {
                         <div class="mb-1">
                         <label for="eventName" class="form-label">Event name</label>
                         <input type="text" class="form-control form-control-sm eventName" pattern="${titleRegex}" value="${eventName}" maxlength="${eventNameLengthRestriction}" name="eventName" required>
-                        <small class="form-text text-muted countChar">0 characters remaining</small>
+                        <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label">Type of event</label>
@@ -717,7 +723,7 @@ function appendMilestoneForm(element) {
                         <div class="mb-1">
                         <label for="milestoneName" class="form-label">Milestone name</label>
                         <input type="text" class="form-control form-control-sm milestoneName" id="milestoneName" value="${milestoneName}" maxlength="${eventNameLengthRestriction}" name="milestoneName" required>
-                        <small class="form-text text-muted countChar">0 characters remaining</small>
+                        <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3" >
                         <label for="exampleFormControlInput2" class="form-label" >Type of milestone</label>
@@ -769,7 +775,7 @@ function appendDeadlineForm(element) {
                         <div class="mb-1">
                         <label for="deadlineName" class="form-label">Event name</label>
                         <input type="text" class="form-control form-control-sm deadlineName" pattern="${titleRegex}" value="${deadlineName}" maxlength="${eventNameLengthRestriction}" name="deadlineName" required>
-                        <small class="form-text text-muted countChar">0 characters remaining</small>
+                        <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label">Type of deadline</label>
@@ -1040,7 +1046,8 @@ function refreshEvents() {
 
 /**
  * Refreshes the milestone div section of the page
- * @param projectId
+ *
+ * @param projectId The Id of the project to be refreshed
  */
 function refreshMilestones(projectId) {
     let milestoneContainer = $("#milestoneContainer")
@@ -1070,17 +1077,15 @@ function refreshMilestones(projectId) {
 
         }, error: function (error) {
             console.log(error)
-
         }
     })
-
-
 }
 
 
 /**
  * Refreshes the deadline div section of the page
- * @param projectId
+ *
+ * @param projectId The Id of the project to be refreshed
  */
 function refreshDeadlines(projectId) {
     let deadlineContainer = $("#deadlineContainer")
@@ -1112,6 +1117,7 @@ function refreshDeadlines(projectId) {
 
 /**
  * Reloads a single element on the page dependent on its classname
+ *
  * @param id the id of the element to reload
  */
 function reloadElement(id) {
@@ -1186,6 +1192,7 @@ function reloadElement(id) {
 
 /**
  * Gets the details of the event and adds it to the page.
+ *
  * @param eventId the event to add.
  */
 function addEvent(eventId) {
@@ -1219,6 +1226,7 @@ function addEvent(eventId) {
 
 /**
  * Gets a single milestone then adds it to the page
+ *
  * @param milestoneId the id of the milestone
  */
 function addMilestone(milestoneId) {
@@ -1252,6 +1260,7 @@ function addMilestone(milestoneId) {
 
 /**
  * Gets the details of the deadline and adds it to the page.
+ *
  * @param deadlineId the event to add.
  */
 function addDeadline(deadlineId) {
@@ -1277,6 +1286,7 @@ function addDeadline(deadlineId) {
 
 /**
  * Checks if element is empty
+ *
  * @param el the element to check
  * @returns {boolean} true if empty, false if not
  */
@@ -1301,11 +1311,9 @@ function enableToolTips() {
  * not the user that made the change.
  */
 function displayLiveUpdateMessage(message, editorId, eventId){
-    if (checkPrivilege){
-        if (editorId != userIdent){
-            createLiveAlert(message, eventId);
-            setTimeout(removeLiveAlert, 10000, eventId)
-        }
+    if (checkPrivilege && editorId != userIdent) {
+        createLiveAlert(message, eventId);
+        setTimeout(removeLiveAlert, 10000, eventId)
     }
 }
 
@@ -1315,6 +1323,7 @@ function displayLiveUpdateMessage(message, editorId, eventId){
 
 /**
  * Processes a create notification by adding boxes for that notification to the DOM
+ *
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
 function handleCreateEvent(notification) {
@@ -1322,17 +1331,18 @@ function handleCreateEvent(notification) {
     const editorName = notification.editorName;
     const occasionType = notification.occasionType;
     const occasionId = notification.occasionId;
+
     switch (occasionType) {
-        case 'event' :
+        case 'event':
             addEvent(occasionId)
             break
-        case 'milestone' :
+        case 'milestone':
             addMilestone(occasionId)
             break
-        case 'deadline' :
+        case 'deadline':
             addDeadline(occasionId)
             break
-        case "sprint" :
+        case "sprint":
             $(".sprintsContainer").empty()
             getSprints(() => {
                 refreshDeadlines(projectId);
@@ -1340,9 +1350,10 @@ function handleCreateEvent(notification) {
                 refreshEvents(projectId);
             })
             break
-        default :
+        default:
             break
     }
+
     displayLiveUpdateMessage(editorName + " has created a new " + occasionType, editorId, occasionId);
 }
 
@@ -1462,6 +1473,7 @@ function handleNotifyEvent(notification) {
 
 /**
  * Reverts all the changes made by handleNotifyEvent
+ *
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
 function handleStopEvent(notification) {

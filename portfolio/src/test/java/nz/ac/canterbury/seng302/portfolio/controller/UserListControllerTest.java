@@ -188,8 +188,8 @@ class UserListControllerTest {
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
-        List<UserResponse> user_list = userListController.getUserResponseList();
-        ArrayList<Integer> footerSequence = userListController.getFooterSequence();
+        List<UserResponse> userList = userListController.getUserResponseList();
+        List<Integer> footerSequence = userListController.getFooterSequence();
         String sortOrder = userListController.getSortOrder();
 
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
@@ -204,8 +204,8 @@ class UserListControllerTest {
         Assertions.assertEquals(expectedTotalPages, totalPages);
         Assertions.assertEquals(expectedCurrentPage, currentPage);
         Assertions.assertEquals(expectedTotalItems, totalItems);
-        Assertions.assertEquals(expectedSubsetSize, user_list.size());
-        Assertions.assertEquals(expectedSubsetOfUsers.toString(), user_list.toString());
+        Assertions.assertEquals(expectedSubsetSize, userList.size());
+        Assertions.assertEquals(expectedSubsetOfUsers.toString(), userList.toString());
         Assertions.assertEquals(expectedFooterSequence.toString(), footerSequence.toString());
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
@@ -218,8 +218,8 @@ class UserListControllerTest {
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
-        List<UserResponse> user_list = userListController.getUserResponseList();
-        ArrayList<Integer> footerSequence = userListController.getFooterSequence();
+        List<UserResponse> userList = userListController.getUserResponseList();
+        List<Integer> footerSequence = userListController.getFooterSequence();
         String sortOrder = userListController.getSortOrder();
 
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(usersPerPage * 4, usersPerPage * 4 + 1);
@@ -234,8 +234,8 @@ class UserListControllerTest {
         Assertions.assertEquals(expectedTotalPages, totalPages);
         Assertions.assertEquals(expectedCurrentPage, currentPage);
         Assertions.assertEquals(expectedTotalItems, totalItems);
-        Assertions.assertEquals(expectedSubsetSize, user_list.size());
-        Assertions.assertEquals(expectedSubsetOfUsers.toString(), user_list.toString());
+        Assertions.assertEquals(expectedSubsetSize, userList.size());
+        Assertions.assertEquals(expectedSubsetOfUsers.toString(), userList.toString());
         Assertions.assertEquals(expectedFooterSequence.toString(), footerSequence.toString());
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
@@ -248,8 +248,8 @@ class UserListControllerTest {
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
-        List<UserResponse> user_list = userListController.getUserResponseList();
-        ArrayList<Integer> footerSequence = userListController.getFooterSequence();
+        List<UserResponse> userList = userListController.getUserResponseList();
+        List<Integer> footerSequence = userListController.getFooterSequence();
         String sortOrder = userListController.getSortOrder();
 
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(usersPerPage * 2, usersPerPage * 3);
@@ -264,8 +264,8 @@ class UserListControllerTest {
         Assertions.assertEquals(expectedTotalPages, totalPages);
         Assertions.assertEquals(expectedCurrentPage, currentPage);
         Assertions.assertEquals(expectedTotalItems, totalItems);
-        Assertions.assertEquals(expectedSubsetSize, user_list.size());
-        Assertions.assertEquals(expectedSubsetOfUsers.toString(), user_list.toString());
+        Assertions.assertEquals(expectedSubsetSize, userList.size());
+        Assertions.assertEquals(expectedSubsetOfUsers.toString(), userList.toString());
         Assertions.assertEquals(expectedFooterSequence.toString(), footerSequence.toString());
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
@@ -279,8 +279,8 @@ class UserListControllerTest {
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
-        List<UserResponse> user_list = userListController.getUserResponseList();
-        ArrayList<Integer> footerSequence = userListController.getFooterSequence();
+        List<UserResponse> userList = userListController.getUserResponseList();
+        List<Integer> footerSequence = userListController.getFooterSequence();
         String sortOrder = userListController.getSortOrder();
 
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(usersPerPage * 4, usersPerPage * 4 + 1);
@@ -295,8 +295,8 @@ class UserListControllerTest {
         Assertions.assertEquals(expectedTotalPages, totalPages);
         Assertions.assertEquals(expectedCurrentPage, currentPage);
         Assertions.assertEquals(expectedTotalItems, totalItems);
-        Assertions.assertEquals(expectedSubsetSize, user_list.size());
-        Assertions.assertEquals(expectedSubsetOfUsers.toString(), user_list.toString());
+        Assertions.assertEquals(expectedSubsetSize, userList.size());
+        Assertions.assertEquals(expectedSubsetOfUsers.toString(), userList.toString());
         Assertions.assertEquals(expectedFooterSequence.toString(), footerSequence.toString());
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
@@ -309,8 +309,8 @@ class UserListControllerTest {
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
-        List<UserResponse> user_list = userListController.getUserResponseList();
-        ArrayList<Integer> footerSequence = userListController.getFooterSequence();
+        List<UserResponse> userList = userListController.getUserResponseList();
+        List<Integer> footerSequence = userListController.getFooterSequence();
         String sortOrder = userListController.getSortOrder();
 
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
@@ -325,8 +325,8 @@ class UserListControllerTest {
         Assertions.assertEquals(expectedTotalPages, totalPages);
         Assertions.assertEquals(expectedCurrentPage, currentPage);
         Assertions.assertEquals(expectedTotalItems, totalItems);
-        Assertions.assertEquals(expectedSubsetSize, user_list.size());
-        Assertions.assertEquals(expectedSubsetOfUsers.toString(), user_list.toString());
+        Assertions.assertEquals(expectedSubsetSize, userList.size());
+        Assertions.assertEquals(expectedSubsetOfUsers.toString(), userList.toString());
         Assertions.assertEquals(expectedFooterSequence.toString(), footerSequence.toString());
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
@@ -339,8 +339,8 @@ class UserListControllerTest {
         Object totalPages = model.getAttribute("totalPages");
         Object currentPage = model.getAttribute("currentPage");
         Object totalItems = model.getAttribute("totalItems");
-        List<UserResponse> user_list = userListController.getUserResponseList();
-        ArrayList<Integer> footerSequence = userListController.getFooterSequence();
+        List<UserResponse> userList = userListController.getUserResponseList();
+        List<Integer> footerSequence = userListController.getFooterSequence();
         String sortOrder = userListController.getSortOrder();
 
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
@@ -351,12 +351,11 @@ class UserListControllerTest {
         String expectedSortOrder = "firstname";
         List<Integer> expectedFooterSequence = Arrays.asList(1, 2, 3, 4, 5);
 
-
         Assertions.assertEquals(expectedTotalPages, totalPages);
         Assertions.assertEquals(expectedCurrentPage, currentPage);
         Assertions.assertEquals(expectedTotalItems, totalItems);
-        Assertions.assertEquals(expectedSubsetSize, user_list.size());
-        Assertions.assertEquals(expectedSubsetOfUsers.toString(), user_list.toString());
+        Assertions.assertEquals(expectedSubsetSize, userList.size());
+        Assertions.assertEquals(expectedSubsetOfUsers.toString(), userList.toString());
         Assertions.assertEquals(expectedFooterSequence.toString(), footerSequence.toString());
         Assertions.assertEquals(expectedSortOrder, sortOrder);
     }
@@ -366,7 +365,7 @@ class UserListControllerTest {
     void footerNumberSequenceLessThanElevenPages() {
         createMockResponse(0, "firstname", "true", null);
         userListController.getUserList(principal, model, 1, null, null, usersPerPage.toString());
-        ArrayList<Integer> footerSequence = userListController.getFooterSequence();
+        List<Integer> footerSequence = userListController.getFooterSequence();
         List<Integer> expectedFooterSequence = Arrays.asList(1, 2, 3, 4, 5);
 
         Assertions.assertEquals(expectedFooterSequence.toString(), footerSequence.toString());
@@ -378,7 +377,7 @@ class UserListControllerTest {
         addUsersToExpectedList(usersPerPage  * 4 + 2, usersPerPage * 18);
         createMockResponse(usersPerPage * 9, "firstname", "true", null);
         userListController.getUserList(principal, model, 10, "firstname", "true", usersPerPage.toString());
-        ArrayList<Integer> footerSequence = userListController.getFooterSequence();
+        List<Integer> footerSequence = userListController.getFooterSequence();
         ArrayList<Integer> expectedFooterSequence = new ArrayList<>();
         for (int i = 5; i <= 15; i++) {
             expectedFooterSequence.add(i);
@@ -393,7 +392,7 @@ class UserListControllerTest {
         addUsersToExpectedList(usersPerPage  * 4 + 2, usersPerPage * 13);
         createMockResponse(usersPerPage * 9, "firstname", "true", null);
         userListController.getUserList(principal, model, 10, "firstname", "true", usersPerPage.toString());
-        ArrayList<Integer> footerSequence = userListController.getFooterSequence();
+        List<Integer> footerSequence = userListController.getFooterSequence();
         ArrayList<Integer> expectedFooterSequence = new ArrayList<>();
         for (int i = 3; i <= 13; i++) {
             expectedFooterSequence.add(i);
@@ -407,11 +406,11 @@ class UserListControllerTest {
     void sortByFirstNameIncreasing() {
         createMockResponse(0, "firstname", "true", null);
         userListController.getUserList(principal, model, 1, "firstname", "true", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByFirstName);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -419,12 +418,12 @@ class UserListControllerTest {
     void sortByFirstNameDecreasing() {
         createMockResponse(0, "firstname", "false", null);
         userListController.getUserList(principal, model, 1, "firstname", "false", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByFirstName);
         Collections.reverse(expectedUsersList);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -432,11 +431,11 @@ class UserListControllerTest {
     void sortByMiddleNameIncreasing() {
         createMockResponse(0, "middlename", "true", null);
         userListController.getUserList(principal, model, 1, "middlename", "true", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByMiddleName);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -444,12 +443,12 @@ class UserListControllerTest {
     void sortByMiddleNameDecreasing() {
         createMockResponse(0, "middlename", "false", null);
         userListController.getUserList(principal, model, 1, "middlename", "false", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByMiddleName);
         Collections.reverse(expectedUsersList);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -457,11 +456,11 @@ class UserListControllerTest {
     void sortByLastNameIncreasing() {
         createMockResponse(0, "lastname", "true", null);
         userListController.getUserList(principal, model, 1, "lastname", "true", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByLastName);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -469,12 +468,12 @@ class UserListControllerTest {
     void sortByLastNameDecreasing() {
         createMockResponse(0, "lastname", "false", null);
         userListController.getUserList(principal, model, 1, "lastname", "false", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByLastName);
         Collections.reverse(expectedUsersList);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -482,11 +481,11 @@ class UserListControllerTest {
     void sortByUsernameIncreasing() {
         createMockResponse(0, "username", "true", null);
         userListController.getUserList(principal, model, 1, "username", "true", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByUsername);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -494,12 +493,12 @@ class UserListControllerTest {
     void sortByUsernameDecreasing() {
         createMockResponse(0, "username", "false", null);
         userListController.getUserList(principal, model, 1, "username", "false", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByUsername);
         Collections.reverse(expectedUsersList);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -507,11 +506,11 @@ class UserListControllerTest {
     void sortByAliasIncreasing() {
         createMockResponse(0, "aliases", "true", null);
         userListController.getUserList(principal, model, 1, "aliases", "true", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByAlias);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -519,12 +518,12 @@ class UserListControllerTest {
     void sortByAliasDecreasing() {
         createMockResponse(0, "aliases", "false", null);
         userListController.getUserList(principal, model, 1, "aliases", "false", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByAlias);
         Collections.reverse(expectedUsersList);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -532,11 +531,11 @@ class UserListControllerTest {
     void sortByRolesIncreasing() {
         createMockResponse(0, "roles", "true", null);
         userListController.getUserList(principal, model, 1, "roles", "true", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByRole);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -544,11 +543,11 @@ class UserListControllerTest {
     void sortByRolesDecreasing() {
         createMockResponse(0, "roles", "false", null);
         userListController.getUserList(principal, model, 1, "roles", "false", usersPerPage.toString());
-        List<UserResponse> user_list = userListController.getUserResponseList();
+        List<UserResponse> userList = userListController.getUserResponseList();
         expectedUsersList.sort(compareByRole);
         List<UserResponse> expectedSubsetOfUsers = expectedUsersList.subList(0, usersPerPage);
 
-        Assertions.assertEquals(expectedSubsetOfUsers, user_list);
+        Assertions.assertEquals(expectedSubsetOfUsers, userList);
     }
 
 
@@ -646,7 +645,7 @@ class UserListControllerTest {
             Object totalPages;
             Object currentPage;
             Object totalItems;
-            Object user_list;
+            Object userList;
             Object possibleRoles;
             Object isAscending;
 
@@ -656,7 +655,7 @@ class UserListControllerTest {
                     case "totalPages" -> totalPages = attributeValue;
                     case "currentPage" -> currentPage = attributeValue;
                     case "totalItems" -> totalItems = attributeValue;
-                    case "user_list" -> user_list = attributeValue;
+                    case "userList" -> userList = attributeValue;
                     case "possibleRoles" -> possibleRoles = attributeValue;
                     case "isAscending" -> isAscending = attributeValue;
                 }
@@ -695,7 +694,7 @@ class UserListControllerTest {
                     case "totalPages" -> toReturn = totalPages;
                     case "currentPage" -> toReturn = currentPage;
                     case "totalItems" -> toReturn = totalItems;
-                    case "user_list" -> toReturn = user_list;
+                    case "userList" -> toReturn = userList;
                     case "possibleRoles" -> toReturn = possibleRoles;
                     case "isAscending" -> toReturn = isAscending;
                 }

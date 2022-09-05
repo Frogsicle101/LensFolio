@@ -96,9 +96,8 @@ public class UserAccountsClientService {
     }
 
     /**
-     * This function is the server side of a bidirctional stream for sending the photos over gRPC. It calls a function
+     * This function is the server side of a bidirectional stream for sending the photos over gRPC. It calls a function
      * in UserAccountServerService which returns a StreamObserver, that is then used to send the file data.
-     * <br>
      *
      * @param photo    - A File object containing a photo
      * @param userId   - The id of the user
@@ -141,5 +140,4 @@ public class UserAccountsClientService {
     public DeleteUserProfilePhotoResponse deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request) {
         return userAccountStub.deleteUserProfilePhoto(request);
     }
-
 }

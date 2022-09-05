@@ -74,23 +74,22 @@ function removeAlert() {
 
 /**
  * Displays a dismissible alert down the bottom right of the screen.
- * If isRed is true, the background colour will be red, otherwise green.
  *
  * @param alertMessage
- * @param isRed
+ * @param type the type of alert. Accepts "success", "fail", and "roleChange".
  * @param window - the location to show the error
  */
-function createAlert(alertMessage, isRed, window = "body") {
+function createAlert(alertMessage, type, window = "body") {
 
     let CheckAlert = $("#alertPopUp")
     if (CheckAlert.is(":visible")) {
         CheckAlert.hide("slide", 100, function() {
             CheckAlert.remove();
         }).promise().done(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
-            alert(alertMessage, isRed, window)
+            alert(alertMessage, type, window)
         })
     } else {
-        alert(alertMessage, isRed, window)
+        alert(alertMessage, type, window)
     }
 }
 
@@ -115,10 +114,9 @@ function removeLiveAlert(messageId) {
 
 /**
  * Displays a dismissible alert down the bottom right of the screen.
- * If isRed is true, the background colour will be red, otherwise green.
  *
  * @param alertMessage
- * @param isRed
+ * @param alertId
  * @param window - the location to show the error
  */
 function createLiveAlert(alertMessage, alertId, window = "body") {
@@ -127,7 +125,7 @@ function createLiveAlert(alertMessage, alertId, window = "body") {
     if (CheckAlert.is(":visible")) {
         CheckAlert.hide("slide", 100, function() {
             CheckAlert.remove();
-        }).promise().done(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
+        }).promise().then(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
             liveAlert(alertMessage, alertId, window)
         })
     } else {
@@ -136,7 +134,17 @@ function createLiveAlert(alertMessage, alertId, window = "body") {
 }
 
 
-function alert(alertMessage, isRed, window = "body") {
+/**
+ * Creates an alert message, and appends it to the window.
+ *
+ * The type of the alert determines the colour of the alert.
+ * "success" = green, "failure" = red, and "roleChange" = yellow.
+ *
+ * @param alertMessage The message to be displayed in the alert box.
+ * @param type The type of the message to be displayed. Determines the alert background colour.
+ * @param window The location to which the alert will be appended.
+ */
+function alert(alertMessage, type, window = "body") {
     let alertDiv = `<div id="alertPopUp" class="alert" style="display: none">
                      <p id="alertPopUpMessage">${alertMessage}</p>
                      <button id="alertPopUpCloseButton" onclick="removeAlert()" class="noStyleButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x-circle" viewBox="0 0 16 16">
@@ -148,13 +156,28 @@ function alert(alertMessage, isRed, window = "body") {
     $(window).append(alertDiv)
     let alert = $("#alertPopUp")
 
-    if(isRed) {
-        alert.removeClass("backgroundGreen")
-        alert.addClass("backgroundRed")
-    } else {
-        alert.addClass("backgroundGreen")
-        alert.removeClass("backgroundRed")
+    alertIsShown = true;
+
+    switch (type) {
+        case "failure":
+            alert.removeClass("backgroundGreen")
+            alert.removeClass("backgroundYellow")
+            alert.addClass("backgroundRed")
+            break;
+        case "success":
+            alert.removeClass("backgroundRed")
+            alert.removeClass("backgroundYellow")
+            alert.addClass("backgroundGreen")
+            break;
+        case "roleChange":
+            alert.removeClass("backgroundRed")
+            alert.removeClass("backgroundGreen")
+            alert.addClass("backgroundYellow")
+            break;
+        default:
+            alertIsShown = false;
     }
+
     if (window === "body") {
         alert.css("position", "fixed")
     } else {
@@ -165,6 +188,13 @@ function alert(alertMessage, isRed, window = "body") {
 }
 
 
+/**
+ * Creates a live alert message, and appends it to the window. This is the same as the alert message, but also has an Id.
+ *
+ * @param alertMessage The message to be displayed.
+ * @param alertId The Id of the alert message.
+ * @param window The location where the alert will be appended.
+ */
 function liveAlert(alertMessage, alertId, window = "body") {
     let alertDiv = `<div id="liveAlertPopUp" class="alert" style="display: none">
                      <div id="alertId" style="display: none">${alertId}</div>
@@ -184,6 +214,11 @@ function liveAlert(alertMessage, alertId, window = "body") {
 }
 
 
+/**
+ * Displays a live alert message in the window.
+ *
+ * @param liveAlert The live alert to be displayed.
+ */
 function addLiveAlert(liveAlert){
     let alert = $("#alertPopUp")
 
@@ -197,6 +232,11 @@ function addLiveAlert(liveAlert){
 }
 
 
+/**
+ * Adds an alert to the user's display for 10 seconds.
+ *
+ * @param alert The alert to be displayed.
+ */
 function addAlert(alert){
     let liveAlert = $("#liveAlertPopUp")
 
@@ -205,6 +245,30 @@ function addAlert(alert){
         liveAlert.animate({bottom: height}, {duration: 100})
     }
     alert.show("slide", 100)
+}
+
+
+/**
+ * Handles the receiving of a role change event notification. If the logged-in user is the same as the user whose role
+ * was changed, the user receives an alert describing the update of their role.
+ *
+ * @param notification The data describing the role that was changed, and the user who changed it.
+ * @param action The action representing the addition of removal of a role.
+ */
+function handleRoleChangeEvent(notification, action) {
+    if (userIdent === parseInt(notification.occasionId)) {
+        const editorName = notification.editorName;
+        let roleChanged = notification.occasionType;
+        roleChanged = roleChanged.replace("_", " ").toLowerCase()
+
+        let message
+        if (action === "add") {
+            message = `${editorName} gave you the role: ${roleChanged}`
+        } else {
+            message = `${editorName} removed from you the role: ${roleChanged}`
+        }
+        createAlert(message, "roleChange")
+    }
 }
 
 
@@ -245,6 +309,7 @@ function countCharacters() {
         helper.text(counter + " character remaining")
     }
 }
+
 
 /**
  * Regex that is all unicode letters, decimal numbers and punctuation

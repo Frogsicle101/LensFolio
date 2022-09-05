@@ -8,10 +8,12 @@ describe("WebLinkTest", () => {
 
     it('Up to 10 WebLinks', () => {
         for (let i = 1; i < 11; i++) {
-            cy.get('.addWebLinkButton').click();
+            cy.get('#addWebLinkButton').click();
             cy.get('#webLinkUrl').wait(500)
                 .type('http://www.a.ac.nz')
             cy.get('#webLinkName').wait(500)
+                .type('WebLink ' + i.toString())
+            cy.get('#addWebLinkButton').click();
                 .type('Wl ' + i.toString())
             cy.get('.addWebLinkButton').click();
         }

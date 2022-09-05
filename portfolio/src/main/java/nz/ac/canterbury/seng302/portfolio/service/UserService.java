@@ -15,6 +15,7 @@ public class UserService {
 
     /**
      * Checks the users role and adds a boolean to the modelAndView so that it can be accessed by the front-end.
+     *
      * @param user The user we want to check
      * @param modelAndView The modelAndView we want to add the boolean too.
      */

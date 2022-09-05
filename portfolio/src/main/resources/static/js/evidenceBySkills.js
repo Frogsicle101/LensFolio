@@ -8,7 +8,7 @@ $(() => {
     if (urlParams.has("userId")) {
         userBeingViewedId = urlParams.get('userId')
     } else {
-        userBeingViewedId = userIdent
+        userBeingViewedId = userIdent.toString() // TODO check if below line is needed
     }
 
     if (userBeingViewedId !== userIdent) {
@@ -59,7 +59,7 @@ function showEvidenceWithSkill() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -78,7 +78,7 @@ function showEvidenceWithCategory() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }
