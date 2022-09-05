@@ -12,7 +12,7 @@ $(document).ready(() => {
      * When project edit button is clicked.
      * Redirect page.
      */
-    $("#projectEditSprint").click(() => {
+    $("#editProject").on("click", () => {
         location.href = "editProject?projectId=" + projectId;
     })
 
