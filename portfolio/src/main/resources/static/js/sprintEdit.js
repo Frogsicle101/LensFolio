@@ -69,7 +69,7 @@ $(document).ready(function () {
                 window.history.back();
             },
             error: function (error) {
-                createAlert(error.responseText, true)
+                createAlert(error.responseText, "failure")
             }
         })
     })

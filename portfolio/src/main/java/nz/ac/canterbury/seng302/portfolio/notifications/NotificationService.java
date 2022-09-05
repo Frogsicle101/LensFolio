@@ -37,6 +37,7 @@ public class NotificationService {
      */
     private final HashMap<String, HashSet<String>> editorIdIndex = new HashMap<>();
 
+
     /**
      * Stores the outgoing notification, to be later sent to other users.
      * This should only be done for actions where we need to handle its 'in-progress' state
@@ -56,6 +57,7 @@ public class NotificationService {
         editorIdIndex.put(notification.getEditorId(), keychain);
     }
 
+
     /**
      * Removes the outgoing notification from storage. If the notification exists in storage,
      * it will be removed; otherwise nothing will happen.
@@ -72,6 +74,7 @@ public class NotificationService {
         editorIdIndex.put(notification.getEditorId(), keychain);
     }
 
+
     /**
      * returns a collection of all the active edit notifications.
      * This should be used to then send these notifications,
@@ -83,6 +86,7 @@ public class NotificationService {
         logger.info("SERVICE - SENDING STORED NOTIFICATIONS");
         return activeEditNotifications.values();
     }
+
 
     /**
      * Will remove all the outgoing notifications that have the provided editor id from storage
@@ -103,5 +107,4 @@ public class NotificationService {
         logger.info("Removed {} notifications from existing notifications.", removedNotifications.size());
         return removedNotifications;
     }
-
 }

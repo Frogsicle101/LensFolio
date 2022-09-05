@@ -25,7 +25,7 @@ class CategoriesTest {
         evidence.addCategory(Category.QUANTITATIVE);
         evidenceRepository.save(evidence);
 
-        Evidence evidenceOptional = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
+        Evidence evidenceOptional = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1).get(0);
 
         Assertions.assertEquals(1, evidenceOptional.getCategories().size());
         Assertions.assertTrue(evidenceOptional.getCategories().contains(Category.QUANTITATIVE));
@@ -39,7 +39,7 @@ class CategoriesTest {
         evidence.addCategory(Category.SERVICE);
         evidenceRepository.save(evidence);
 
-        Evidence evidenceOptional = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
+        Evidence evidenceOptional = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1).get(0);
 
         Assertions.assertEquals(2, evidenceOptional.getCategories().size());
         Assertions.assertTrue(evidenceOptional.getCategories().contains(Category.QUANTITATIVE));

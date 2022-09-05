@@ -7,9 +7,9 @@
 </head>
 <body>
 <header th:insert="fragments/general.html :: header"></header>
-<section class="skillsPage">
+<section class="flexContainer">
     <div class="skillSideBar">
-        <div class="showAllContainer center">
+        <div class="marginTop center">
             <button id="showAllEvidence" class="btn btn-primary">Show All Evidence</button>
         </div>
         <div class="categoryContainer">
@@ -19,14 +19,13 @@
         <div class="skillContainer">
             <h3 class="skillsHeader">Skills</h3>
             <!-- The skill holding container, pieces are added through JS -->
-            <div id="skillList"></div>
+            <div id="skillList" class="flexContainer flexWrap"></div>
         </div>
     </div>
     <div class="contentContainer">
         <h2 class="evidenceTitle">Evidence</h2>
-        <button class="btn btn-primary createEvidenceButton" type="button">
-            Create New Evidence
-        </button>
+        <button class="btn btn-primary createEvidenceButton" type="button" style="display: none">Create Evidence</button>
+        <h5 id="nameHolder" style="display: none"></h5>
 
         <div class="evidenceContainer">
             <div class="col">
@@ -206,5 +205,6 @@
 </body>
 <script th:src="@{js/evidenceUtilities.js}" type="application/javascript"></script>
 <script th:src="@{js/evidenceBySkills.js}" type="application/javascript"></script>
+<script th:src="@{js/notifications.js}" type="application/javascript"></script>
 <script th:inline="javascript"> var todaysDate =/*[[${currentDate}]]*/ </script>
 </html>

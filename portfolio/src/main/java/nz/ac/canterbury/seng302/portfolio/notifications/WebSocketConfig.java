@@ -14,7 +14,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      * Websocket config.
      * This designates the /notifications/sending prefix for messages
      * that are bound for our message-handling methods
-     * <p>
+     *
      * It also sets up a broker to carry messages back to the client
      * on destinations prefixed with /notifications/receiving
      *
@@ -39,5 +39,4 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .withSockJS()
                 .setClientLibraryUrl("../webjars/sockjs-client/dist/sockjs.min.js");
     }
-
 }
