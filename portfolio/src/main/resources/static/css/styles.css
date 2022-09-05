@@ -1078,7 +1078,14 @@ section {
     flex-direction: column;
 }
 
-.addWebLinkButton {
+#addWebLinkButton {
+    margin-right: 1.5rem;
+    max-width: fit-content;
+    align-self: self-end;
+    margin-top: 1rem;
+}
+
+#addUserToEvidenceButton {
     margin-right: 1.5rem;
     max-width: fit-content;
     align-self: self-end;
