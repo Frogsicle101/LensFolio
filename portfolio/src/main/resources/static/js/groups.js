@@ -156,16 +156,16 @@ function addUsers(groupId) {
         success: function () {
             displayGroupUsersList()
             if (parseInt(groupId) === MWAG_GROUP_ID) {
-                createAlert("User(s) moved, and teachers role remains", false)
+                createAlert("User(s) moved, and teachers role remains", "success")
             } else {
-                createAlert("User(s) moved", false)
+                createAlert("User(s) moved", "success")
             }
         }, error: function (error) {
             if (error.status == 401){
                 createAlert("You don't have permission to move users. This could be because " +
-                                  "your roles have been updated. Try refreshing the page", true)
+                                  "your roles have been updated. Try refreshing the page", "failure")
             } else {
-                createAlert(error.responseText, true)
+                createAlert(error.responseText, "failure")
             }
         }
     })
@@ -174,6 +174,7 @@ function addUsers(groupId) {
 
 /**
  * Displays the options for what to do with selected users.
+ *
  * @param show a boolean of if to show or hide
  */
 function showOptions(show) {
@@ -283,7 +284,7 @@ function displayGroupUsersList() {
             checkEditRights(response)
         },
         error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -573,9 +574,9 @@ $(document).on("click", ".deleteButton", function () {
             }, error: function (error) {
                 if (error.status == 401){
                     createAlert("You don't have permission to delete groups. This could be because " +
-                                            "your roles have been updated. Try refreshing the page", true)
+                                            "your roles have been updated. Try refreshing the page", "failure")
                 } else {
-                    createAlert(error.responseText, true)
+                    createAlert(error.responseText, "failure")
                 }
             }
         })
@@ -641,9 +642,9 @@ $(document).on("submit", "#editGroupForm", function (event) {
         }, error: function (error) {
             if (error.status == 401){
                 createAlert("You don't have permission to edit group details. This could be because " +
-                                    "your roles have been updated. Try refreshing the page", true)
+                                    "your roles have been updated. Try refreshing the page", "failure")
             } else {
-                createAlert(error.responseText, true)
+                createAlert(error.responseText, "failure")
             }
         }
     })
@@ -673,9 +674,9 @@ $(document).on("click", "#confirmRemoval", function () {
         }, error: function (error) {
             if (error.status == 401){
                 createAlert("You don't have permission to remove users. This could be because " +
-                                    "your roles have been updated. Try refreshing the page", true)
+                                    "your roles have been updated. Try refreshing the page", "failure")
             } else {
-                createAlert(error.responseText, true)
+                createAlert(error.responseText, "failure")
             }
         }
     })

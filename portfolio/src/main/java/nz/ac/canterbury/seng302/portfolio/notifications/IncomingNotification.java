@@ -6,17 +6,17 @@ package nz.ac.canterbury.seng302.portfolio.notifications;
 public class IncomingNotification {
 
     /**
-     * The subtype of occasion. One of 'event', 'milestone', or 'deadline'
+     * The subtype of occasion or role being changed.
      */
     private final String occasionType;
 
     /**
-     * The ID of the edited occasion
+     * The ID of the edited occasion or user whose roles have been updated
      */
     private final String occasionId;
 
     /**
-     * The ID of the person making the edit
+     * The action that has been performed. One of create, delete, edit, stop, add role, or delete role.
      */
     private final String action;
 
@@ -26,7 +26,7 @@ public class IncomingNotification {
      *
      * @param occasionType The type of occasion we are editing
      * @param occasionId   The ID of that occasion
-     * @param action       The action that has been performed. One of create, delete, edit, or stop.
+     * @param action       The action that has been performed. One of create, delete, edit, stop, or roleChange.
      */
     public IncomingNotification(String occasionType, String occasionId, String action) {
         this.occasionType = occasionType;
