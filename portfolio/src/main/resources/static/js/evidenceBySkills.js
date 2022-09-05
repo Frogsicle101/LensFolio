@@ -3,16 +3,12 @@ let selectedChip;
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
  */
-$(document).ready(function () {
+$(() => {
     let urlParams = new URLSearchParams(window.location.search)
     if (urlParams.has("userId")) {
         userBeingViewedId = urlParams.get('userId')
     } else {
-        userBeingViewedId = userIdent
-    }
-
-    if (userBeingViewedId !== userIdent) {
-        $(".createEvidenceButton").hide();
+        userBeingViewedId = userIdent.toString()
     }
     getAndAddEvidencePreviews()
     addCategoriesToSidebar()
@@ -59,7 +55,7 @@ function showEvidenceWithSkill() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -78,7 +74,7 @@ function showEvidenceWithCategory() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }

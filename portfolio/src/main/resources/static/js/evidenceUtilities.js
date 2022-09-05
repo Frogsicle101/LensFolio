@@ -3,6 +3,9 @@
  * that can be used across multiple pages.
  */
 
+/** A regex only allowing modern English letters */
+const regExp = new RegExp('[A-Za-z]');
+
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
@@ -26,10 +29,10 @@ let categoriesMapping = new Map([
 ])
 
 $(() => {
-        // Counting characters
-        let textInput = $(".text-input");
-        textInput.each(countCharacters)
-        textInput.on("keyup", countCharacters)
+    // Counting characters
+    let textInput = $(".text-input");
+    textInput.each(countCharacters)
+    textInput.on("keyup", countCharacters)
     }
 )
 
@@ -159,14 +162,32 @@ function getAndAddEvidencePreviews() {
     $(".selected").removeClass("selected")
 
     $.ajax({
-        url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
+        url: "evidenceData?userId=" + userBeingViewedId, success: function (response, status, xhr) {
+            displayNameOrButton(xhr)
             addEvidencePreviews(response)
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
+}
+
+
+/**
+ *  Displays the create evidence button if the evidence being viewed is the logged in user otherwise it displays the
+ *  name of the user
+ */
+function displayNameOrButton(response) {
+    if (userBeingViewedId !== userIdent.toString()) {
+        $(".createEvidenceButton").remove();
+        let usersName = response.getResponseHeader("Users-Name");
+        $("#nameHolder").html("Viewing evidence for " + usersName)
+        $("#nameHolder").show()
+    } else{
+        $("#nameHolder").hide()
+        $(".createEvidenceButton").show();
+    }
 }
 
 
@@ -185,7 +206,7 @@ function getHighlightedEvidenceDetails() {
                 getHighlightedEvidenceWeblinks()
             }, error: function (error) {
                 console.log(error)
-                createAlert("Failed to receive active evidence", true)
+                createAlert("Failed to receive active evidence", "failure")
             }
         })
     } else {
@@ -204,7 +225,7 @@ function getHighlightedEvidenceWeblinks() {
             setHighlightedEvidenceWebLinks(response)
         }, error: function (response) {
             if (response.status !== 404) {
-                createAlert("Failed to receive evidence links", true)
+                createAlert("Failed to receive evidence links", "failure")
             }
         }
     })
@@ -236,6 +257,18 @@ function getSkills(callback = () => {}) {
 
 
 // --------------------------- Functional HTML Components ------------------------------------
+
+
+/**
+ *  A helper function to take a response from an ajax call and add it to the array of skills
+ */
+function addSkillResponseToArray(response){
+    let skills = []
+    for (let i in response.skills) {
+        skills.push(response.skills[i].name)
+    }
+    skillsArray = [...new Set(skillsArray.concat(skills))];
+}
 
 
 /**
@@ -403,7 +436,7 @@ function checkWeblinkCount() {
 
 
 /**
- * reset the weblinks count
+ * Resets the weblink count
  */
 function resetWeblink() {
     let addWeblinkButton = $("#addWebLinkButton")
@@ -495,7 +528,7 @@ $(".evidenceFormCategoryButton").on("click", function () {
  */
 $(document).on("click", ".ui-autocomplete", () => {
     removeDuplicatesFromInput($("#skillsInput"))
-    displaySkillChips()
+    displayInputSkillChips()
 })
 
 
@@ -504,9 +537,8 @@ $(document).on("click", ".ui-autocomplete", () => {
  */
 $(document).on("click", () => {
     removeDuplicatesFromInput($("#skillsInput"))
-    displaySkillChips()
+    displayInputSkillChips()
 })
-
 
 
 /**
@@ -562,58 +594,7 @@ $(document).on("click", ".chipDelete", function () {
         return value.toLowerCase() !== skillText.toLowerCase()
     })
     skillsInput.val(inputArray.join(" "))
-    displaySkillChips()
-})
-
-
-/**
- * Saves the evidence input during creating a new piece of evidence
- */
-$(document).on("click", "#evidenceSaveButton", function (event) {
-    event.preventDefault()
-    removeDuplicatesFromInput($("#skillsInput"))
-    let evidenceCreationForm = $("#evidenceCreationForm")[0]
-    if (!evidenceCreationForm.checkValidity()) {
-        evidenceCreationForm.reportValidity()
-    } else {
-        const title = $("#evidenceName").val()
-        const date = $("#evidenceDate").val()
-        const description = $("#evidenceDescription").val()
-        const projectId = 1
-        let webLinks = getWeblinksList();
-        const categories = getCategories();
-        const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
-        skillsArray = [...new Set(skillsArray.concat(skills))];
-        $.each(skills, function (i) {
-            skills[i] = skills[i].replaceAll("_", " ")
-        })
-        addSkillsToSideBar();
-
-        let data = JSON.stringify({
-            "title": title,
-            "date": date,
-            "description": description,
-            "projectId": projectId,
-            "webLinks": webLinks,
-            "skills": skills,
-            "categories": categories
-        })
-        $.ajax({
-            url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
-                selectedEvidenceId = response.id
-                getAndAddEvidencePreviews()
-                createAlert("Created evidence")
-                $("#addEvidenceModal").modal('hide')
-                clearAddEvidenceModalValues()
-                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                $(".address-alert").alert('close') // Close any web link alerts
-                $(".weblink-name-alert").alert('close')
-                resetWeblink()
-            }, error: function (error) {
-                createAlert(error.responseText, true, ".modal-body")
-            }
-        })
-    }
+    displayInputSkillChips()
 })
 
 
@@ -812,6 +793,7 @@ function checkToShowSkillChips() {
 
 /**
  * This function returns the html for the chips
+ *
  * @param element the name of the skill
  * @returns {string} the html for the chip
  */
@@ -860,12 +842,9 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const categories = getCategories();
 
         const skills = skillsInput.val().split(" ").filter(skill => skill.trim() !== "")
-        skillsArray = [...new Set(skillsArray.concat(skills))];
         $.each(skills, function (i) {
             skills[i] = skills[i].replaceAll("_", " ")
         })
-        addSkillsToSideBar();
-
 
         let data = JSON.stringify({
             "title": title,
@@ -880,7 +859,9 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
-                createAlert("Created evidence")
+                addSkillResponseToArray(response)
+                addSkillsToSideBar();
+                createAlert("Created evidence", "success")
                 closeModal()
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
@@ -888,11 +869,12 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, true, ".modal-body")
+                createAlert(error.responseText, "failure", ".modal-body")
             }
         })
     }
 })
+
 
 /**
  * Listens for when add web link button is clicked.
@@ -910,6 +892,7 @@ $(document).on('click', '.addWebLinkButton', function () {
         webLinkButtonToggle()
     }
 })
+
 
 /**
  * Handles a web link validated by the back end.
@@ -1036,7 +1019,7 @@ function submitWebLink() {
         checkWeblinkCount()
         $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
     } else {
-        createAlert("Weblink name needs to be 1 char", true);
+        createAlert("Weblink name needs to be 1 char", "failure");
     }
 }
 
@@ -1119,23 +1102,6 @@ $(document).on("keyup", ".text-input", function () {
 $(document).on("change", ".form-control", function () {
     disableEnableSaveButtonOnValidity()
     checkTextInputRegex()
-})
-
-
-/**
- * Toggles category button appearance on the evidence creation form.
- */
-$(".evidenceFormCategoryButton").on("click", function () {
-    let button = $(this)
-    if (button.hasClass("btn-secondary")) {
-        button.removeClass("btn-secondary")
-        button.addClass("btn-success")
-        button.find(".evidenceCategoryTickIcon").show("slide", 200)
-    } else {
-        button.removeClass("btn-success")
-        button.addClass("btn-secondary")
-        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
-    }
 })
 
 

@@ -21,6 +21,7 @@ import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -176,15 +177,18 @@ public class EvidenceController {
         logger.info("GET REQUEST /evidence - attempt to get evidence for user {}", userId);
         try {
             List<Evidence> evidence = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(userId);
-            if (evidence.isEmpty()) {
-                GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
-                UserResponse userExistsResponse = userAccountsClientService.getUserAccountById(request);
-                if (userExistsResponse.getId() == -1) {
-                    logger.info("GET REQUEST /evidence - user {} does not exist", userId);
-                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                }
+            GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
+            UserResponse userResponse = userAccountsClientService.getUserAccountById(request);
+            if (userResponse.getId() == -1) {
+                logger.info("GET REQUEST /evidence - user {} does not exist", userId);
+                return new ResponseEntity<>("Error: User not found", HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(evidence, HttpStatus.OK);
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set("Users-Name", userResponse.getFirstName() + ' ' + userResponse.getLastName());
+
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .body(evidence);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
