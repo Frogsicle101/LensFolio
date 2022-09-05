@@ -1,4 +1,4 @@
-$(document).ready(() => {
+$(() => {
     //Gets the project Id
     const projectId = $("#projectId").html()
     getSprints(() => {
@@ -90,7 +90,10 @@ $(document).on("click", ".deleteSprint", function () {
     })
 })
 
-
+/**
+ * Gets a list of sprint objects from the backend and adds them to the page
+ * @param callback A function to call when the ajax request returns
+ */
 function getSprints(callback = ()=>{}) {
     $.ajax({
         url: 'getSprintList',
@@ -108,33 +111,38 @@ function getSprints(callback = ()=>{}) {
     })
 }
 
-
-function appendSprint(springObject, index) {
+/**
+ * Creates a sting containing html to display the given sprint on the page
+ * @param sprintObject An object containing the properties of the sprint
+ * @param index Used for generating sprint labels. Is this sprint 1, sprint 2, etc
+ * @returns {string} HTML to be appended
+ */
+function appendSprint(sprintObject, index) {
     index = parseInt(index) + 1
 
     return `
-             <div class="sprint" id=${springObject.id} style="border-left: solid 0.3rem ${springObject.colour}; border-right: solid 0.3rem ${springObject.colour};">
-                <p class="sprintColour" style="display: none">${springObject.colour}</p>
-                <p class="sprintId" style="display: none">${springObject.id}</p>
-                <p class="sprintStart" style="display: none">${springObject.startDate}</p>
-                <p class="sprintEnd" style="display: none">${springObject.endDate}</p>
+             <div class="sprint" id=${sprintObject.id} style="border-left: solid 0.3rem ${sprintObject.colour}; border-right: solid 0.3rem ${sprintObject.colour};">
+                <p class="sprintColour" style="display: none">${sprintObject.colour}</p>
+                <p class="sprintId" style="display: none">${sprintObject.id}</p>
+                <p class="sprintStart" style="display: none">${sprintObject.startDate}</p>
+                <p class="sprintEnd" style="display: none">${sprintObject.endDate}</p>
                 <p class="sprintLabel" >Sprint ${index}</p>
                 <div class="mb3">
-                    <h2 class="name">${springObject.name}</h2>
+                    <h2 class="name">${sprintObject.name}</h2>
                 </div>
                 <div class="row">
                     <div class="col">
                         <h6>Start</h6>
-                        <h6>${springObject.startDateFormatted}</h6>
+                        <h6>${sprintObject.startDateFormatted}</h6>
                     </div>
                     <div class="col">
                         <h6>End</h6>
-                        <h6>${springObject.endDateFormatted}</h6>
+                        <h6>${sprintObject.endDateFormatted}</h6>
                     </div>
                 </div>
                 
                 <div class="mb-3">
-                    <p>${springObject.description}</p>
+                    <p>${sprintObject.description}</p>
                 </div>
                 <div class="mb3 hasTeacherOrAbove">
                     <button type="button" class="deleteSprint noStyleButton sprintButton" data-bs-toggle="tooltip"

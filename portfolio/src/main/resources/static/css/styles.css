@@ -256,9 +256,13 @@ section {
 }
 
 /*Portfolio Project*/
-
-.was-validated input[type=color] {
-    width: 5rem;
+#sprintColour {
+    border-color: #ced4da;
+    padding: 0.375rem;
+    background-image: unset;
+    background-repeat: unset;
+    background-position: unset;
+    background-size: unset;
 }
 
 /*Porfolio - Events*/
