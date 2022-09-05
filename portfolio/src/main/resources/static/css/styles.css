@@ -1078,14 +1078,14 @@ section {
     flex-direction: column;
 }
 
-.addWebLinkButton {
+#addWeblinkButton #linkUsersToEvidenceButton {
     margin-right: 1.5rem;
     max-width: fit-content;
     align-self: self-end;
     margin-top: 1rem;
 }
 
-.webLinkForm {
+#weblinkForm {
     padding-right: 1.5rem;
     align-self: flex-end;
 }

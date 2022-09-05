@@ -492,13 +492,13 @@ function getCategories() {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '.addWebLinkButton', function () {
-    let button = $(".addWebLinkButton");
+$(document).on('click', '#addWeblinkButton', function () {
+    let button = $("#addWeblinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
         let address = $("#webLinkUrl").val()
         let alias = $("#webLinkName").val()
-        let form = $(".webLinkForm")
+        let form = $("#weblinkForm")
         validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()
@@ -880,13 +880,13 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '.addWebLinkButton', function () {
-    let button = $(".addWebLinkButton");
+$(document).on('click', '#addWeblinkButton', function () {
+    let button = $("#addWeblinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
         let address = $("#webLinkUrl").val()
         let alias = $("#webLinkName").val()
-        let form = $(".webLinkForm")
+        let form = $("#weblinkForm")
         validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()
@@ -959,7 +959,7 @@ function handleInvalidWebLink(form, error) {
  */
 function validateWebLinkAtBackend() {
     let address = $("#webLinkUrl").val()
-    let form = $(".webLinkForm")
+    let form = $("#weblinkForm")
     let data = JSON.stringify({
         "url": address,
         "name": $("#webLinkName").val()
@@ -985,8 +985,8 @@ function validateWebLinkAtBackend() {
  * and slide-toggles the form
  */
 function webLinkButtonToggle() {
-    let button = $(".addWebLinkButton");
-    $(".webLinkForm").slideToggle();
+    let button = $("#addWeblinkButton");
+    $("#weblinkForm").slideToggle();
     if (button.hasClass("toggled")) {
         button.text("Add Web Link")
         button.removeClass("toggled")
