@@ -2,11 +2,12 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
-import nz.ac.canterbury.seng302.identityprovider.model.User;
-import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.model.Group;
 import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.BasicStringFilteringOptions;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -977,6 +978,58 @@ class UserAccountsServerServiceTest {
         Assertions.assertEquals(2, response.getUsersList().size());
         Assertions.assertEquals("SteveC", response.getUsers(0).getUsername());
         Assertions.assertEquals("SteveD", response.getUsers(1).getUsername());
+    }
+
+
+    @Test
+    void getPaginatedFilteredUsers() throws PasswordEncryptionException {
+        User user1 = new User("John", "password", "John", "", "Wayne", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user2 = new User("Johnny", "password", "John", "", "Smith", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user3 = new User("Amy", "password", "Amy", "", "Johnson", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user4 = new User("Steve", "password", "Steve", "", "Stevenson", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user5 = new User("Tom", "password", "Tom", "", "Biggs", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user6 = new User("Connor", "password", "Connor", "", "Donaldson", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        List<User> userList = new ArrayList<>();
+        userList.add(user1);
+        userList.add(user2);
+        userList.add(user3);
+        userList.add(user4);
+        userList.add(user5);
+        userList.add(user6);
+        List<User> listOfUsers = userToSpy(userList);
+        Mockito.when(userRepository.findAll()).thenReturn(listOfUsers);
+        mockUserResponses(listOfUsers);
+
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                .setOffset(0)
+                .setLimit(999999)
+                .setOrderBy("name")
+                .setIsAscendingOrder(true)
+                .build();
+        BasicStringFilteringOptions filter = BasicStringFilteringOptions.newBuilder()
+                .setFilterText("John")
+                .build();
+        GetPaginatedUsersFilteredRequest request = GetPaginatedUsersFilteredRequest.newBuilder()
+                .setPaginationRequestOptions(options)
+                .setFilteringOptions(filter)
+                .build();
+
+        StreamObserver<PaginatedUsersResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<PaginatedUsersResponse> responseCaptor = ArgumentCaptor.forClass(PaginatedUsersResponse.class);
+
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+
+        userAccountsServerService.getPaginatedUsersFilteredByName(request, responseObserver);
+
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+
+        PaginatedUsersResponse response = responseCaptor.getValue();
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(3, response.getUsersList().size());
+        Assertions.assertEquals("Amy", response.getUsers(0).getUsername());
+        Assertions.assertEquals("Johnny", response.getUsers(1).getUsername());
+        Assertions.assertEquals("John", response.getUsers(2).getUsername());
     }
 
     // ----------------------------------------- Test runner helpers -------------------------------------------------

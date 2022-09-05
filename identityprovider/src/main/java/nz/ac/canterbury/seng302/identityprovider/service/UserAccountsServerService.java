@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -413,7 +414,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 response.setIsSuccess(true)
                         .setMessage(MessageFormat.format("Successfully removed role {0} from user {1}",
                                 request.getRole(), userToUpdate.getId()));
-
             } catch (IllegalStateException e) {
                 //The user has only one role - we can't delete it!
                 logger.info("Role Removal Failure - user {} has 1 role. Users cannot have 0 roles", request.getUserId());
@@ -444,32 +444,44 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void getPaginatedUsers(GetPaginatedUsersRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver) {
-        PaginatedUsersResponse.Builder reply = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
-        responseObserver.onNext(reply.build());
+        PaginatedUsersResponse.Builder response = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
+        responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
 
 
-    //todo
-    @Override
+    /**
+     * Follows the gRPC contract for retrieving the paginated users and filtering them. Does this by calling a helper
+     * function that gets the paginated users and then filters them by their last and first name
+     *
+     * @param usersRequest the GetPaginatedUsersFilteredRequest passed through from the client service
+     * @param responseObserver Used to return the response to the client side.
+     */
     public void getPaginatedUsersFilteredByName(GetPaginatedUsersFilteredRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver){
-        PaginatedUsersResponse.Builder reply = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
+        PaginatedUsersResponse.Builder response = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
+
         BasicStringFilteringOptions filteringOptions = usersRequest.getFilteringOptions();
+        Predicate<UserResponse> byName = user -> (user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
+                user.getLastName().toLowerCase(Locale.ROOT))
+                .contains(filteringOptions.getFilterText().toLowerCase(Locale.ROOT));
+        List<UserResponse> result = response.getUsersList().stream().filter(byName)
+                .collect(Collectors.toList());
+        response.clearUsers();
+        response.addAllUsers(result);
 
-        Predicate<UserResponse> byName = user -> user.getFirstName().contains(filteringOptions.getFilterText());
-
-        List<UserResponse> result = reply.getUsersList().stream().filter(byName).toList();
-
-
-        reply.clearUsers();
-        reply.addAllUsers(result);
-        responseObserver.onNext(reply.build());
+        responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
 
-    //todo
+
+    /**
+     * A helper function to get all the users, sort them, and select the ones needed for the requested page
+     *
+     * @param request the PaginationRequestOptions passed through from the client service
+     * @return a builder for the PaginatedUsersResponse populated with the paginated users
+     */
     private PaginatedUsersResponse.Builder getPaginatedUsersHelper(PaginationRequestOptions request){
-        PaginatedUsersResponse.Builder reply = PaginatedUsersResponse.newBuilder();
+        PaginatedUsersResponse.Builder response = PaginatedUsersResponse.newBuilder();
         List<User> allUsers = (List<User>) userRepository.findAll();
         String sortMethod = request.getOrderBy();
 
@@ -488,12 +500,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
-            reply.addUsers(allUsers.get(i).userResponse());
+            response.addUsers(allUsers.get(i).userResponse());
         }
         PaginationResponseOptions options = PaginationResponseOptions.newBuilder()
                 .setResultSetSize(allUsers.size())
                 .build();
-        reply.setPaginationResponseOptions(options);
-        return reply;
+        response.setPaginationResponseOptions(options);
+        return response;
     }
 }

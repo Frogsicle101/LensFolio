@@ -268,23 +268,37 @@ public class EvidenceController {
         }
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<Object> tester(@RequestParam("name") String name){
-        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
-                .setOffset(0)
-                .setLimit(100)
-                .setOrderBy("name")
-                .setIsAscendingOrder(true)
-                .build();
-        BasicStringFilteringOptions filter = BasicStringFilteringOptions.newBuilder()
-                .setFilterText("John")
-                .build();
-        GetPaginatedUsersFilteredRequest request = GetPaginatedUsersFilteredRequest.newBuilder()
-                .setPaginationRequestOptions(options)
-                .setFilteringOptions(filter)
-                .build();
-        PaginatedUsersResponse response = userAccountsClientService.getPaginatedUsersFilteredByName(request);
-        return new ResponseEntity<>(response.getUsersList().toString(), HttpStatus.OK);
+
+    /**
+     * A get request for retrieving the users that match the string being typed
+     *
+     * @param name The name that is being typed by the user
+     * @return A ResponseEntity. This entity includes the filtered users if successful, otherwise an error message
+     */
+    @GetMapping("/filteredUsers")
+    public ResponseEntity<Object> getFilteredUsers(@RequestParam("name") String name){
+        try {
+            logger.info("GET REQUEST /filteredUsers - retrieving filtered users with string {}", name);
+            PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                    .setOffset(0)
+                    .setLimit(999999999) // we want to retrieve all users
+                    .setOrderBy("name")
+                    .setIsAscendingOrder(true)
+                    .build();
+            BasicStringFilteringOptions filter = BasicStringFilteringOptions.newBuilder()
+                    .setFilterText(name)
+                    .build();
+            GetPaginatedUsersFilteredRequest request = GetPaginatedUsersFilteredRequest.newBuilder()
+                    .setPaginationRequestOptions(options)
+                    .setFilteringOptions(filter)
+                    .build();
+            PaginatedUsersResponse response = userAccountsClientService.getPaginatedUsersFilteredByName(request);
+            return new ResponseEntity<>(response.getUsersList(), HttpStatus.OK);
+        } catch (Exception e){
+            logger.warn(e.getClass().getName());
+            logger.warn(e.getMessage());
+            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
