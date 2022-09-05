@@ -300,5 +300,4 @@ public class EvidenceController {
             return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
