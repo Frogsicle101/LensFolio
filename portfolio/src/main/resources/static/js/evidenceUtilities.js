@@ -3,6 +3,9 @@
  * that can be used across multiple pages.
  */
 
+/** A regex only allowing modern English letters */
+const regExp = new RegExp('[A-Za-z]');
+
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
@@ -26,10 +29,10 @@ let categoriesMapping = new Map([
 ])
 
 $(() => {
-        // Counting characters
-        let textInput = $(".text-input");
-        textInput.each(countCharacters)
-        textInput.on("keyup", countCharacters)
+    // Counting characters
+    let textInput = $(".text-input");
+    textInput.each(countCharacters)
+    textInput.on("keyup", countCharacters)
     }
 )
 
@@ -165,7 +168,7 @@ function getAndAddEvidencePreviews() {
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -203,7 +206,7 @@ function getHighlightedEvidenceDetails() {
                 getHighlightedEvidenceWeblinks()
             }, error: function (error) {
                 console.log(error)
-                createAlert("Failed to receive active evidence", true)
+                createAlert("Failed to receive active evidence", "failure")
             }
         })
     } else {
@@ -222,7 +225,7 @@ function getHighlightedEvidenceWeblinks() {
             setHighlightedEvidenceWebLinks(response)
         }, error: function (response) {
             if (response.status !== 404) {
-                createAlert("Failed to receive evidence links", true)
+                createAlert("Failed to receive evidence links", "failure")
             }
         }
     })
@@ -433,7 +436,7 @@ function checkWeblinkCount() {
 
 
 /**
- * reset the weblinks count
+ * Resets the weblink count
  */
 function resetWeblink() {
     let addWeblinkButton = $("#addWebLinkButton")
@@ -790,6 +793,7 @@ function checkToShowSkillChips() {
 
 /**
  * This function returns the html for the chips
+ *
  * @param element the name of the skill
  * @returns {string} the html for the chip
  */
@@ -857,7 +861,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 getAndAddEvidencePreviews()
                 addSkillResponseToArray(response)
                 addSkillsToSideBar();
-                createAlert("Created evidence")
+                createAlert("Created evidence", "success")
                 closeModal()
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
@@ -865,7 +869,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, true, ".modal-body")
+                createAlert(error.responseText, "failure", ".modal-body")
             }
         })
     }
@@ -1015,7 +1019,7 @@ function submitWebLink() {
         checkWeblinkCount()
         $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
     } else {
-        createAlert("Weblink name needs to be 1 char", true);
+        createAlert("Weblink name needs to be 1 char", "failure");
     }
 }
 

@@ -67,12 +67,12 @@ $(document).on("submit", "#editRepoForm", function (event) {
         type: "post",
         data: repoData,
         success: function () {
-            createAlert("Changes submitted");
+            createAlert("Changes submitted", "success");
             cancelRepoEdit();
             retrieveGroupRepoInformation()
         },
         error: (error) => {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 })

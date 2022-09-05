@@ -76,6 +76,7 @@ section {
     --alert-red: rgba(222, 121, 121, 0.95);
     --alert-green: rgba(140, 222, 121, 0.95);
     --alert-blue: rgba(180, 255, 255, 0.95);
+    --alert-yellow: rgba(255, 255, 159, 0.95);
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
@@ -910,6 +911,10 @@ section {
 
 .backgroundRed {
     background-color: var(--alert-red);
+}
+
+.backgroundYellow {
+    background-color: var(--alert-yellow);
 }
 
 #alertPopUpCloseButton {

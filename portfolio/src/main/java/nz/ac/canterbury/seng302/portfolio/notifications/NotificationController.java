@@ -19,7 +19,7 @@ import java.util.Objects;
 
 /**
  * Controls sending and subscribing to event notifications, such as editing of events.
- * <p>
+ *
  * This controller interacts with the Notification Service class which deals with the sending and subscribing functions
  */
 @RestController
@@ -57,7 +57,7 @@ public class NotificationController {
      * Make a string that will be the content of our editing notification
      * Put it into a OutgoingNotification object
      * Send it off to /notifications/receiving/occasions, for any and all STOMP clients subscribed to that endpoint
-     * <p>
+     *
      * Don't call this method directly. This is a spring method; it'll call itself when the time is right.
      *
      * @param message A model for the edit details
@@ -66,15 +66,16 @@ public class NotificationController {
     @MessageMapping("/message")
     @SendTo("notifications/sending/occasions")
     public Collection<OutgoingNotification> receiveIncomingNotification(@AuthenticationPrincipal Principal principal, IncomingNotification message) {
-        logger.info("Received {} message", message.getAction() );
+        logger.info("Received {} message", message.getAction());
         PreAuthenticatedAuthenticationToken auth = (PreAuthenticatedAuthenticationToken) principal;
         Authentication authentication = (Authentication) auth.getPrincipal();
         AuthState state = authentication.getAuthState();
         String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
         OutgoingNotification notification = new OutgoingNotification(editorId, state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
         //If we want to notify other users,
-        logger.info("Received message {}", message.getAction());
         if (Objects.equals(message.getAction(), "edit")) {
+            notificationService.storeOutgoingNotification(notification);
+        } else if (Objects.equals(message.getAction(), "roleChange")) {
             notificationService.storeOutgoingNotification(notification);
         } else if (Objects.equals(message.getAction(), "stop")) {
             notificationService.removeOutgoingNotification(notification);
