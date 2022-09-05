@@ -36,11 +36,9 @@ $(() => {
                 sendNotification("sprint", response.id, "create")
             },
             error: function (error) {
-                createAlert(error.responseText, true)
-
+                createAlert(error.responseText, "failure")
             }
         })
-
     })
 
     $(".collapseAlert").click(function () {
