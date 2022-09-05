@@ -1,54 +1,21 @@
-$(document).ready(() => {
+$(() => {
 
     let projectName = $("#projectName")
     let projectStart = $("#projectStartDate")
     let projectEnd = $("#projectEndDate")
     let projectId = $("#projectId")
     let projectDescription = $("#projectDescription")
-    let dateAlert = $(".dateAlert")
-
 
     // The following two chunks of code are related to the date inputs
     // They check that the projectStart or projectEnd are not the wrong way (start after end etc)
-    projectStart.on("change", function () {
-        let projectStart = $(this).val()
-        let projectEnd = $("#projectEndDate").val()
-        if (projectStart >= projectEnd) {
-            dateAlert.slideUp()
-            dateAlert.slideDown()
-            $(".canDisable").attr("disabled", true)
-            $(this).attr("disabled", false)
-            $(this).addClass("is-invalid")
-        } else {
-            $(".canDisable").attr("disabled", false)
-            $(this).removeClass("is-invalid")
-            $(".dateAlert").slideUp()
-
-        }
-    })
+    projectStart.on("change", checkDateOrder)
 
 
-    projectEnd.on("change", function () {
-        let projectStart = $("#projectStartDate").val()
-        let projectEnd = $(this).val()
-        if (projectStart >= projectEnd) {
-            dateAlert.slideUp()
-            dateAlert.slideDown()
-            $(".canDisable").attr("disabled", true)
-            $(this).attr("disabled", false)
-            $(this).addClass("is-invalid")
-        } else {
-            $(".canDisable").attr("disabled", false)
-            $(".startDateAlert").slideUp()
-            $(this).removeClass("is-invalid")
-            $(".dateAlert").slideUp()
-
-        }
-    })
+    projectEnd.on("change", checkDateOrder)
 
 
     //When the submit button is clicked on the form.
-    $(".projectEditForm").submit(function (event) {
+    $(".projectEditForm").on("submit", function (event) {
         event.preventDefault()
 
         let dataToSend = {
@@ -71,3 +38,22 @@ $(document).ready(() => {
         })
     })
 })
+
+/**
+ * Compares the values of the start and end date inputs, and if they are invalid (the start date after the end date),
+ * displays an error message
+ */
+function checkDateOrder() {
+    let dateAlert = $(".dateAlert")
+    let projectStart = $("#projectStartDate").val()
+    let projectEnd = $("#projectEndDate").val()
+    if (projectStart >= projectEnd) {
+        dateAlert.slideDown()
+        $(".canDisable").attr("disabled", true)
+        $(".date").addClass("is-invalid")
+    } else {
+        $(".canDisable").attr("disabled", false)
+        $(".date").removeClass("is-invalid")
+        dateAlert.slideUp();
+    }
+}
