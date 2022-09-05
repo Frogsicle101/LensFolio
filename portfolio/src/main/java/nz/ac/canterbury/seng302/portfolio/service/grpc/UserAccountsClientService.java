@@ -140,7 +140,12 @@ public class UserAccountsClientService {
     }
 
 
-    //todo
+    /**
+     * Sends a request to the server to retrieved paginated users whose names match the filtered text
+     *
+     * @param request The request with the filtered text to match
+     * @return the paginated users that match the given text
+     */
     public PaginatedUsersResponse getPaginatedUsersFilteredByName(GetPaginatedUsersFilteredRequest request){
         return userAccountStub.getPaginatedUsersFilteredByName(request);
     }
