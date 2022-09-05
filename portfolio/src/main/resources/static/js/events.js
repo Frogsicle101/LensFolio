@@ -105,7 +105,7 @@ $(document).on('submit', "#addEventForm", function (event) {
                 createAlert("Event created!", "success")
             },
             error: function (error) {
-                createAlert(error.responseText, "error")
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -135,7 +135,7 @@ $(document).on("submit", ".milestoneForm", function (event) {
             sendNotification("milestone", response.id, "create");
         },
         error: function (error) {
-            createAlert(error.responseText, "error")
+            createAlert(error.responseText, "failure")
         }
     })
 })
@@ -167,7 +167,7 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
             sendNotification("deadline", response.id, "create");
         },
         error: function (error) {
-            createAlert(error.responseText, "error")
+            createAlert(error.responseText, "failure")
         }
     })
 })
@@ -216,7 +216,7 @@ $(document).on("submit", "#editEventForm", function (event) {
                 sendNotification("event", eventId, "update") //Let the server know that other clients should update the element
             },
             error: function (error) {
-                createAlert(error.responseText, "Error")
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -249,7 +249,7 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
             sendNotification("milestone", milestoneId, "update") //Let the server know that other clients should update the element
         },
         error: function (error) {
-            createAlert(error.responseText, "error")
+            createAlert(error.responseText, "failure")
         }
     })
 })
@@ -295,7 +295,7 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
                 sendNotification("deadline", deadlineId, "update") //Let the server know that other clients should update the element
             },
             error: function (error) {
-                createAlert(error.responseText, "error")
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -356,7 +356,7 @@ $(document).on("click", ".deleteButton", function () {
                 sendNotification("event", eventData.eventId, "delete");
             },
             error: function (error) {
-                createAlert(error.responseText, "error")
+                createAlert(error.responseText, "failure")
             }
         })
     } else if (parent.hasClass('milestone')) {
@@ -370,7 +370,7 @@ $(document).on("click", ".deleteButton", function () {
                 sendNotification("milestone", milestoneData.milestoneId, "delete");
             },
             error: function (error) {
-                createAlert(error.responseText, "error")
+                createAlert(error.responseText, "failure")
             }
         })
     } else if (parent.hasClass('deadline')) {
@@ -384,7 +384,7 @@ $(document).on("click", ".deleteButton", function () {
                 sendNotification("deadline", deadlineData.deadlineId, "delete");
             },
             error: function (error) {
-                createAlert(error.responseText, "error")
+                createAlert(error.responseText, "failure")
             }
         })
     }
