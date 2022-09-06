@@ -519,7 +519,7 @@ class EvidenceServiceTest {
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         // Verify that it saved more than usual - currently evidenceRepository.save is called three times per user id
-        Mockito.verify(evidenceRepository, times(associates.size() * 3)).save(captor.capture());
+        Mockito.verify(evidenceRepository, times(associates.size() * 2)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
         Assertions.assertEquals(associates, evidence.getAssociateIds());
@@ -539,10 +539,10 @@ class EvidenceServiceTest {
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
         // Verify that it saved more than usual - currently evidenceRepository.save is called three times per user id
-        Mockito.verify(evidenceRepository, times(associates.size() * 3)).save(captor.capture());
+        Mockito.verify(evidenceRepository, times(associates.size() * 2)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
-        Assertions.assertEquals(associates.size(), 1); // The creator is considered an associate, so expected size is 1
+        Assertions.assertEquals(1, associates.size()); // The creator is considered an associate, so expected size is 1
         Assertions.assertEquals(associates, evidence.getAssociateIds());
         Assertions.assertTrue(associates.contains(evidence.getUserId()));
     }
