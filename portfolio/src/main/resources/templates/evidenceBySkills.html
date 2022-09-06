@@ -153,7 +153,7 @@
                             <div id="addedWebLinks"></div>
                         </div>
                         <div class="col">
-                            <div class="row">
+                            <div>
                                 <div id="weblinkForm" style="display:none">
                                     <div class="form-group ">
                                         <label for="webLinkUrl" class="col-form-label">Link:</label>
@@ -188,11 +188,11 @@
                                 </svg>
                                 <h5 id="webLinkFull" style="display:none">10 web links have been added</h5>
                             </div>
-                            <div class="row">
+                            <div>
                                 <button id="linkUsersToEvidenceButton"
                                         type="button"
                                         class="btn btn-secondary">
-                                    Add Users
+                                    Link Users
                                 </button>
                             </div>
                         </div>
@@ -209,12 +209,10 @@
             </form>
         </div>
     </div>
-
-
 </section>
 </body>
 <script th:src="@{js/evidenceUtilities.js}" type="application/javascript"></script>
 <script th:src="@{js/evidenceBySkills.js}" type="application/javascript"></script>
 <script th:src="@{js/notifications.js}" type="application/javascript"></script>
-<script th:inline="javascript"> var todaysDate =/*[[${currentDate}]]*/ </script>
+<script th:inline="javascript"> let todaysDate =/*[[${currentDate}]]*/ </script>
 </html>
