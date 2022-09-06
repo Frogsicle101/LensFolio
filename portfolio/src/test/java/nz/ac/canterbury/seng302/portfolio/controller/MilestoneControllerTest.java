@@ -4,6 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.MilestoneRepository;
+import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +31,7 @@ class MilestoneControllerTest {
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
 
 
-    private final MilestoneController milestoneController = new MilestoneController(mockProjectRepository, mockMilestoneRepository);
+    private final MilestoneController milestoneController = new MilestoneController(mockProjectRepository, mockMilestoneRepository, new RegexService());
 
     private final Project project = new Project("test");
 
@@ -82,7 +83,7 @@ class MilestoneControllerTest {
         Milestone milestone = new Milestone(project, "@", LocalDate.now(), 1);
         ResponseEntity<Object> response = milestoneController.addMilestone(milestone.getProject().getId(), milestone.getName(), milestone.getEndDate().toString(), milestone.getType());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Name does not match required pattern", response.getBody());
+        Assertions.assertEquals("Milestone title can only contain letters, numbers and spaces", response.getBody());
     }
 
     @Test

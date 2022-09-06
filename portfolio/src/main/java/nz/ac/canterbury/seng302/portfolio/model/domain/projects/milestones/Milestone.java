@@ -68,7 +68,7 @@ public class Milestone {
      * @param endDate The end date being validated.
      * @throws DateTimeException If the end date is before the project start or after the project end.
      */
-    public void validateDate(Project project, LocalDate endDate) throws DateTimeException {
+    private void validateDate(Project project, LocalDate endDate) throws DateTimeException {
 
         if (endDate.isAfter(project.getEndDate()) || endDate.isBefore(project.getStartDate())) {
             throw new DateTimeException("End date must occur during project");

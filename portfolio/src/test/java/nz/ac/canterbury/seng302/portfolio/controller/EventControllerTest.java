@@ -4,6 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
@@ -30,17 +31,11 @@ class EventControllerTest {
     private final ProjectRepository mockProjectRepository = mock(ProjectRepository.class);
     private final EventRepository mockEventRepository = mock(EventRepository.class);
 
-    @Autowired
-    private EventRepository eventRepository;
-
-    @Autowired
-    private ProjectRepository projectRepository;
-
     private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
 
 
-    private final EventController eventController = new EventController(mockProjectRepository, mockEventRepository);
+    private final EventController eventController = new EventController(mockProjectRepository, mockEventRepository, new RegexService());
 
     private Project project;
 
@@ -98,7 +93,7 @@ class EventControllerTest {
 
         ResponseEntity<Object> response = eventController.addEvent(project.getId(), "test@Event", start.toString(), end.toString(), 1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Name does not match required pattern", response.getBody());
+        Assertions.assertEquals("Event title can only contain letters, numbers and spaces", response.getBody());
 
     }
 
@@ -109,7 +104,7 @@ class EventControllerTest {
 
         ResponseEntity<Object> response = eventController.addEvent(project.getId(), "", start.toString(), end.toString(), 1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Name does not match required pattern", response.getBody());
+        Assertions.assertEquals("Event title is shorter than the minimum length of 1 character", response.getBody());
 
     }
 
@@ -224,7 +219,7 @@ class EventControllerTest {
         Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
         ResponseEntity<String> response = eventController.editEvent(event.getId(), "changed@Name", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Name does not match required pattern", response.getBody());
+        Assertions.assertEquals("Event title can only contain letters, numbers and spaces", response.getBody());
 
     }
 

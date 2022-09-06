@@ -48,10 +48,10 @@ public class DeadlineController {
      * Mapping for a put request to add a deadline.
      * The method first parses a date and time string that is passed as a request parameter.
      * The parser converts it to the standard LocalDate format and a LocalTime format
-     * <p>
+     *
      * The project is then grabbed from the repository by its ID.
      * If the project can't be found, it throws an EntityNotFoundException
-     * <p>
+     *
      * The deadline is then created with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *

@@ -1,7 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
@@ -51,7 +50,6 @@ public class PortfolioController {
 
     private final DateTimeService dateTimeService;
 
-    RegexPatterns regexPatterns = new RegexPatterns();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -119,8 +117,7 @@ public class PortfolioController {
       modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
       modelAndView.addObject("user", user);
       modelAndView.addObject("projectId", projectId);
-      modelAndView.addObject("titleRegex", regexPatterns.getTitleRegex().toString());
-      modelAndView.addObject("descriptionRegex", regexPatterns.getDescriptionRegex().toString());
+      modelAndView.addObject("titleRegex", RegexPattern.OCCASION_TITLE);
       return modelAndView;
     } catch (EntityNotFoundException err) {
       logger.error("GET REQUEST /portfolio", err);

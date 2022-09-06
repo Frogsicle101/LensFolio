@@ -1,13 +1,16 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 
-import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
+import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.Event;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.EventRepository;
+import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
+import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,18 +29,31 @@ import java.util.NoSuchElementException;
 @RestController
 public class EventController {
 
-    private final ProjectRepository projectRepository;
-
-    private final EventRepository eventRepository;
-
-    private final RegexPatterns regexPatterns = new RegexPatterns();
-
+    /** For logging the processes of this controller */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /** To retrieve and edit information about projects */
+    private final ProjectRepository projectRepository;
 
-    public EventController(ProjectRepository projectRepository, EventRepository eventRepository) {
+    /** To retrieve and edit information about events */
+    private final EventRepository eventRepository;
+
+    /** For checking the inputs against the regex */
+    private final RegexService regexService;
+
+
+    /**
+     * Autowired constructor to inject the required dependencies.
+     *
+     * @param projectRepository - To retrieve and edit information about projects
+     * @param eventRepository - To retrieve and edit information about events
+     * @param regexService - For checking the inputs against the regex
+     */
+    @Autowired
+    public EventController(ProjectRepository projectRepository, EventRepository eventRepository, RegexService regexService) {
         this.projectRepository = projectRepository;
         this.eventRepository = eventRepository;
+        this.regexService = regexService;
     }
 
 
@@ -46,10 +62,10 @@ public class EventController {
      * The method first parses the two date strings that are passed as request parameters.
      * They are being passed in, in a format called ISO_DATE_TIME, the parsers converts them from that to the standard
      * LocalDateTime format that we use.
-     * <p>
+     *
      * The project is then grabbed from the repository by its ID.
      * If the project can't be found, it throws an EntityNotFoundException
-     * <p>
+     *
      * The Event is then created with the parameters passed, and saved to the event repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -80,12 +96,7 @@ public class EventController {
                     "Project with id " + projectId + " was not found"
             ));
 
-            if (!regexPatterns.getTitleRegex().matcher(name).matches()) {
-
-                String returnMessage = "Name does not match required pattern";
-                logger.warn("PUT /addEvent: {}", returnMessage);
-                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
-            }
+            regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Event title");
 
             if (project.getStartDate().isAfter(LocalDate.from(eventStart)) || project.getEndDate().isBefore(LocalDate.from(eventEnd))) {
                 String returnMessage = "Date(s) exist outside of project dates";
@@ -103,18 +114,19 @@ public class EventController {
             Event eventReturn = eventRepository.save(event);
             logger.info("PUT /addEvent: Success");
             return new ResponseEntity<>(eventReturn, HttpStatus.OK);
-
-        } catch (EntityNotFoundException err) {
-            logger.warn("PUT /addEvent: {}", err.getMessage());
+        } catch (CheckException exception) {
+            logger.warn("PUT /addEvent: {}", exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (EntityNotFoundException exception) {
+            logger.warn("PUT /addEvent: {}", exception.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (DateTimeParseException err) {
-            logger.warn("PUT /addEvent: {}", err.getMessage());
+        } catch (DateTimeParseException exception) {
+            logger.warn("PUT /addEvent: {}", exception.getMessage());
             return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
-        } catch (Exception err) {
-            logger.error("PUT /addEvent: {}", err.getMessage());
+        } catch (Exception exception) {
+            logger.error("PUT /addEvent: {}", exception.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
 
@@ -186,12 +198,7 @@ public class EventController {
             LocalDateTime eventStart = LocalDateTime.parse(start, DateTimeFormatter.ISO_DATE_TIME);
             LocalDateTime eventEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
 
-
-            if (!regexPatterns.getTitleRegex().matcher(name).matches()) {
-                String returnMessage = "Name does not match required pattern";
-                logger.warn("POST /editEvent: {}", returnMessage);
-                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
-            }
+            regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Event title");
 
             Project project = event.getProject();
             if (project.getStartDate().isAfter(LocalDate.from(eventStart)) || project.getEndDate().isBefore(LocalDate.from(eventEnd))) {
@@ -207,16 +214,18 @@ public class EventController {
             eventRepository.save(event);
             logger.info("POST /editEvent: Success");
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (EntityNotFoundException err) {
-            logger.warn("POST /editEvent: {}", err.getMessage());
+        } catch (CheckException exception) {
+            logger.warn("POST /editEvent: {}", exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (EntityNotFoundException exception) {
+            logger.warn("POST /editEvent: {}", exception.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (DateTimeException err) {
-            logger.warn("POST /editEvent: {}", err.getMessage());
+        } catch (DateTimeException exception) {
+            logger.warn("POST /editEvent: {}", exception.getMessage());
             return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
-        } catch (Exception err) {
-            logger.error("POST /editEvent: {}", err.getMessage());
+        } catch (Exception exception) {
+            logger.error("POST /editEvent: {}", exception.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-
         }
     }
 
