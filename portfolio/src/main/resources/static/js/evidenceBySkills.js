@@ -8,7 +8,7 @@ $(() => {
     if (urlParams.has("userId")) {
         userBeingViewedId = urlParams.get('userId')
     } else {
-        userBeingViewedId = userIdent.toString() // TODO check if below line is needed
+        userBeingViewedId = userIdent.toString()
     }
 
     getAndAddEvidencePreviews()
