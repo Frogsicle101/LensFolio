@@ -4,9 +4,9 @@ describe('Test Registration', () => {
   })
 
   it('Fills in the registration details with correct information', () => {
-    cy.get("#firstname").type("A test")
+    cy.get("#firstname").type("Aaron")
     cy.get("#middlename").type("A test")
-    cy.get("#lastname").type("A test")
+    cy.get("#lastname").type("A")
     cy.get("#username").type("User" + Math.floor(Math.random() * 100))
     cy.get("#password").type("password")
     cy.get("#email").type("test@test.com")

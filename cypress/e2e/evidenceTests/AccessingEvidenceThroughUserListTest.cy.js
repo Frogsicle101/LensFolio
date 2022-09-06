@@ -11,7 +11,7 @@ describe('Viewing evidence through the user list', () => {
     it("can view other users evidence through the user list", () => {
         cy.visit('/user-list?sortField=aliases&isAscending=true')
         cy.get(".userRoleRow").first().click({force: true})
-        cy.get("#nameHolder").contains("Viewing evidence for Alexander Fuller")
+        cy.get("#nameHolder").contains("Viewing evidence for Aaron A")
         cy.get("#createEvidenceButton").should("not.exist")
     })
 

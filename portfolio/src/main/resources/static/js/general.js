@@ -80,12 +80,11 @@ function removeAlert() {
  * @param window - the location to show the error
  */
 function createAlert(alertMessage, type, window = "body") {
-
     let CheckAlert = $("#alertPopUp")
     if (CheckAlert.is(":visible")) {
         CheckAlert.hide("slide", 100, function() {
             CheckAlert.remove();
-        }).promise().done(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
+        }).promise().then(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
             alert(alertMessage, type, window)
         })
     } else {

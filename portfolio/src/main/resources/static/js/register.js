@@ -42,7 +42,7 @@ $(() => {
 /**
  * Initiates removal of invalid characters from the user bio when input is changed.
  */
-$('#bio').on("bind", 'input propertychange', function() {
+$('#bio').on('input propertychange', function() {
     let bio = $("#bio")
     bio.val(cleanInput(bio.val()));
 });

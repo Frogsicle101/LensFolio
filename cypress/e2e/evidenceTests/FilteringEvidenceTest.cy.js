@@ -4,11 +4,11 @@ describe('filtering by categories and skills', () => {
         cy.visit('/evidence')
     })
 
-    it("can filter by 'Qualitative' category", () => {
+    it("can filter by 'Service' category", () => {
         cy.get('#categoryList').find(".chip").first().click({force: true}).wait(100) //wait for page to load
-        cy.get(".evidenceTitle").should("have.text", "Qualitative")
+        cy.get(".evidenceTitle").should("have.text", "Service")
         cy.get(".evidenceListItem").each(($el) => {
-            cy.wrap($el).find(".skillChipDisplay").contains("Qualitative")
+            cy.wrap($el).find(".skillChipDisplay").contains("Service")
         })
     })
 

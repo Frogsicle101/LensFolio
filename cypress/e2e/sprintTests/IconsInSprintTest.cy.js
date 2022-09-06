@@ -1,4 +1,4 @@
-describe("iconsInSprintTest", () => {
+describe("Icons Appear In Sprints ", () => {
     beforeEach(() => {
         cy.adminLogin()
         cy.visit('/portfolio?projectId=1')
