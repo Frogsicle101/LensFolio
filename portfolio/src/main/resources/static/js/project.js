@@ -12,7 +12,7 @@ $(document).ready(() => {
      * When project edit button is clicked.
      * Redirect page.
      */
-    $("#projectEditSprint").click(() => {
+    $("#editProject").on("click", () => {
         location.href = "editProject?projectId=" + projectId;
     })
 
@@ -134,7 +134,7 @@ function appendSprint(springObject, index) {
                 </div>
                 
                 <div class="mb-3">
-                    <p>${sanitise(springObject.description)}</p>
+                    <p class="description">${sanitise(springObject.description)}</p>
                 </div>
                 <div class="mb3 hasTeacherOrAbove">
                     <button type="button" class="deleteSprint noStyleButton sprintButton" data-bs-toggle="tooltip"
