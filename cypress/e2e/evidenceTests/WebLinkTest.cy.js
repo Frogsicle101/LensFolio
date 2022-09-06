@@ -34,9 +34,9 @@ context("WebLinkTest", () => {
     it("Weblink form does not empty on close", () => {
         cy.get("#addWeblinkButton").click();
         cy.get("#webLinkUrl").wait(500)
-                .type("https")
-            cy.get("#webLinkName").wait(500)
-                .type("name")
+            .type("https")
+        cy.get("#webLinkName").wait(500)
+            .type("name")
         cy.get("#cancelWeblinkButton").click()
         cy.get("#addWeblinkButton").click()
         cy.get("#webLinkUrl").should("have.value", "https")
@@ -46,9 +46,9 @@ context("WebLinkTest", () => {
     it("Saved weblinks remain on form cancel", () => {
         cy.get("#addWeblinkButton").click();
         cy.get("#webLinkUrl").wait(500)
-                .type("https://www.a.ac.nz/")
-            cy.get("#webLinkName").wait(500)
-                .type("name")
+            .type("https://www.a.ac.nz/")
+        cy.get("#webLinkName").wait(500)
+            .type("name")
         cy.get("#addWeblinkButton").click()
         cy.get("#addWeblinkButton").click()
         cy.get("#cancelWeblinkButton").click()
@@ -56,18 +56,18 @@ context("WebLinkTest", () => {
     })
 
     it("Warning displayed on invalid address", () => {
-         cy.get("#addWeblinkButton").click();
-            cy.get("#webLinkName").wait(500)
-                .type("name")
+        cy.get("#addWeblinkButton").click();
+        cy.get("#webLinkName").wait(500)
+            .type("name")
         cy.get("#addWeblinkButton").click()
         cy.get("#weblinkAddressAlert").should("be.visible")
         cy.get("#weblinkNameAlert").should("not.exist")
     })
 
     it("Warning displayed on invalid name", () => {
-         cy.get("#addWeblinkButton").click();
+        cy.get("#addWeblinkButton").click();
         cy.get("#webLinkUrl").wait(500)
-                .type("https://www.a.ac.nz/")
+            .type("https://www.a.ac.nz/")
         cy.get("#addWeblinkButton").click()
         cy.get("#weblinkAddressAlert").should("not.exist")
         cy.get("#weblinkNameAlert").should("be.visible")
