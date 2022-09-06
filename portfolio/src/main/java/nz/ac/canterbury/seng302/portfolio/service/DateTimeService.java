@@ -84,7 +84,7 @@ public class DateTimeService {
      * @param sprintRepository the repository for sprints
      * @param project the project in question
      */
-    public void checkProjectHasRoomForSprints(SprintRepository sprintRepository, Project project) {
+    public LocalDate checkProjectHasRoomForSprints(SprintRepository sprintRepository, Project project) {
         LocalDate startDate = project.getStartDate();
         List<Sprint> sprints = sprintRepository.findAllByProjectId(project.getId());
         sprints.sort((Comparator.comparing(Sprint::getStartDate)));
@@ -94,6 +94,7 @@ public class DateTimeService {
         if (startDate.isAfter(project.getEndDate())) {
             throw new CheckException("No more room to add sprints within project dates!");
         }
+        return startDate;
     }
 
 
