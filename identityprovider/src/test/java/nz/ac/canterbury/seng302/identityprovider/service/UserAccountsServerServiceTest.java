@@ -251,7 +251,6 @@ class UserAccountsServerServiceTest {
 
     @Test
     void getUserAccountById() {
-
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
         request.setId(initialUser.getId());
 
