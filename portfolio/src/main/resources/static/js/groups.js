@@ -315,7 +315,7 @@ function appendMembersToGroup(group) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-grip-vertical dragGrip" style="display: none" viewBox="0 0 16 16">
                                     <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
                             </svg>
-                            ${user.id}</td>
+                            ${sanitise(user.id)}</td>
                         <td>
                             <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
                         </td>
@@ -542,7 +542,7 @@ $(document).on("click", "#groupRemoveUser", function () {
  * currently selected group.
  */
 $(document).on("click", ".deleteButton", function () {
-    if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
+    if (window.confirm(`Are you sure you want to delete this group? ${sanitise(group.userList.length)} members will be removed. This action cannot be undone.`)) {
         $.ajax({
             url: `groups/edit?groupId=${group.id}`,
             type: "delete",

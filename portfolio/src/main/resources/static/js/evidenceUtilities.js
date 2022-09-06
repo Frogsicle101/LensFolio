@@ -132,11 +132,11 @@ function webLinkElement(url, alias) {
     }
 
     return (`
-        <div class="webLinkElement ${security}" data-value="${url}" >
+        <div class="webLinkElement ${security}" data-value="${sanitise(url)}" >
             ${icon}
             <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
-            <div class="addedWebLinkUrl" style="display: none">${url}</div>
+            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${sanitise(alias)}</div>
+            <div class="addedWebLinkUrl" style="display: none">${sanitise(url)}</div>
         </div>
     `)
 }
@@ -347,9 +347,9 @@ function createEvidencePreview(evidence) {
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
             <div class="row evidenceListItemHeader">
-                <p class="evidenceId" style="display: none">${evidence.id}</p>
-                <p class="col evidenceListItemTitle">${evidence.title}</p>
-                <p class="col evidenceListItemDate">${evidence.date}</p>
+                <p class="evidenceId" style="display: none">${sanitise(evidence.id)}</p>
+                <p class="col evidenceListItemTitle">${sanitise(evidence.title)}</p>
+                <p class="col evidenceListItemDate">${sanitise(evidence.date)}</p>
             </div>
             <div class="evidencePreviewTags skillChipDisplay">${categories}</div>
             <div class="evidencePreviewTags skillChipDisplay">${skills}</div>
@@ -799,7 +799,7 @@ function checkToShowSkillChips() {
  */
 function createDeletableSkillChip(element) {
     return `<div class="chip skillChip">
-                <p class="chipText">${element}</p>  
+                <p class="chipText">${sanitise(element)}</p>  
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -1108,13 +1108,13 @@ $(document).on("change", ".form-control", function () {
 function createSkillChip(skillName, isMenuItem) {
     if (isMenuItem) {
         return `
-            <div id=${"skillCalled" + skillName.replaceAll(" ", "_")} class="chip skillChip">
-                <p class="chipText">${skillName}</p>
+            <div id=${sanitise("skillCalled" + skillName.replaceAll(" ", "_"))} class="chip skillChip">
+                <p class="chipText">${sanitise(skillName)}</p>
             </div>`
     } else {
         return `
             <div class="chip skillChip">
-                <p class="chipText">${skillName}</p>
+                <p class="chipText">${sanitise(skillName)}</p>
             </div>`
     }
 
@@ -1124,13 +1124,13 @@ function createSkillChip(skillName, isMenuItem) {
 function createCategoryChip(categoryName, isMenuItem) {
     if (isMenuItem) {
         return `
-            <div id=${"categoryCalled" + categoryName.replaceAll(" ", "_")} class="chip categoryChip">
-                <p class="chipText">${categoryName}</p>
+            <div id=${sanitise("categoryCalled" + categoryName.replaceAll(" ", "_"))} class="chip categoryChip">
+                <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
     } else {
         return `
             <div class="chip categoryChip">
-                <p class="chipText">${categoryName}</p>
+                <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
     }
 }
