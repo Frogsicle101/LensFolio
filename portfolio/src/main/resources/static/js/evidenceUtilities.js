@@ -492,8 +492,8 @@ function getCategories() {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '.addWebLinkButton', function () {
-    let button = $(".addWebLinkButton");
+$(document).on('click', '#addWebLinkButton', function () {
+    let button = $("#addWebLinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
         let address = $("#webLinkUrl").val()
@@ -880,8 +880,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '.addWebLinkButton', function () {
-    let button = $(".addWebLinkButton");
+$(document).on('click', '#addWebLinkButton', function () {
+    let button = $("#addWebLinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
         let address = $("#webLinkUrl").val()
@@ -985,7 +985,7 @@ function validateWebLinkAtBackend() {
  * and slide-toggles the form
  */
 function webLinkButtonToggle() {
-    let button = $(".addWebLinkButton");
+    let button = $("#addWebLinkButton");
     $(".webLinkForm").slideToggle();
     if (button.hasClass("toggled")) {
         button.text("Add Web Link")

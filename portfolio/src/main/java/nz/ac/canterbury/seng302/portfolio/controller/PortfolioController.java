@@ -11,7 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
-import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.ProjectService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
@@ -50,7 +50,7 @@ public class PortfolioController {
 
     private static final String ERROR_PAGE_LOCATION = "errorPage";
 
-    private final CheckDateService checkDateService ;
+    private final DateTimeService dateTimeService;
 
     RegexPatterns regexPatterns = new RegexPatterns();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -70,14 +70,14 @@ public class PortfolioController {
       UserAccountsClientService userAccountsClientService,
       RegexService regexService,
       ProjectService projectService,
-      CheckDateService checkDateService
+      DateTimeService dateTimeService
   ) {
     this.projectRepository = projectRepository;
     this.sprintRepository = sprintRepository;
     this.userAccountsClientService = userAccountsClientService;
     this.regexService = regexService;
     this.projectService = projectService;
-    this.checkDateService = checkDateService;
+    this.dateTimeService = dateTimeService;
   }
 
 
@@ -111,7 +111,7 @@ public class PortfolioController {
           (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)));
       LocalDate defaultOccasionDate =
           project.getStartDate(); // Today is in a sprint, the start of the project otherwise
-      if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
+      if (dateTimeService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
         defaultOccasionDate = LocalDate.now();
       }
       modelAndView.addObject("project", project);
@@ -219,7 +219,7 @@ public class PortfolioController {
             regexService.checkInput(
                     RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description"
             );
-            checkDateService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
+            dateTimeService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
 
             if (projectStart.isBefore(projectService.getMinStartDate(project))) {
                 return new ResponseEntity<>("Project cannot start more than a year before today", HttpStatus.BAD_REQUEST);
@@ -272,7 +272,7 @@ public class PortfolioController {
       // Gets the amount of sprints belonging to the project
       int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
       String sprintName = "Sprint " + amountOfSprints;
-      LocalDate startDate = checkDateService.checkProjectHasRoomForSprints(sprintRepository, project);
+      LocalDate startDate = dateTimeService.checkProjectHasRoomForSprints(sprintRepository, project);
       Sprint sprint;
       if (startDate.plusWeeks(3).isAfter(project.getEndDate())) {
         sprint = sprintRepository.save(
@@ -400,7 +400,7 @@ public class PortfolioController {
       }
       Sprint sprint = sprintOptional.get();
       Map<String, LocalDate> checkSprintDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
-      checkDateService.checkNewSprintDateNotInsideOtherSprints(checkSprintDates.get("previousSprintEnd"), checkSprintDates.get("nextSprintStart"), sprintInfo);
+      dateTimeService.checkNewSprintDateNotInsideOtherSprints(checkSprintDates.get("previousSprintEnd"), checkSprintDates.get("nextSprintStart"), sprintInfo);
       sprint.setName(sprintInfo.getSprintName());
       sprint.setStartDate(startDate);
       sprint.setEndDate(endDate);

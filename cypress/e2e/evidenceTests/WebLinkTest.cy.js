@@ -12,12 +12,12 @@ context("WebLinkTest", () => {
 
     it('Up to 10 WebLinks', () => {
         for (let i = 1; i < 11; i++) {
-            cy.get('.addWebLinkButton').click();
+            cy.get('#addWebLinkButton').click();
             cy.get('#webLinkUrl').wait(500)
                 .type('https://www.canterbury.ac.nz/')
             cy.get('#webLinkName').wait(500)
                 .type('WebLink ' + i.toString())
-            cy.get('.addWebLinkButton').click();
+            cy.get('#addWebLinkButton').click();
         }
 
         cy.get('#webLinkFull').should('be.visible');
