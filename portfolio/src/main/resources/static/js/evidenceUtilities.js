@@ -862,8 +862,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '#addWeblinkButton', function () {
-    let button = $("#addWeblinkButton");
+$(document).on('click', '#addWebLinkButton', function () {
+    let button = $("#addWebLinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
         let address = $("#webLinkUrl").val()
