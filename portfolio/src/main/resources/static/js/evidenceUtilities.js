@@ -23,9 +23,9 @@ let skillsArray = []
 
 /** Provides the options of categories and maps them to user friendly strings */
 let categoriesMapping = new Map([
-    ["SERVICE", "Service"],
     ["QUALITATIVE", "Qualitative"],
-    ["QUANTITATIVE", "Quantitative"]
+    ["QUANTITATIVE", "Quantitative"],
+    ["SERVICE", "Service"]
 ])
 
 $(() => {
@@ -351,7 +351,7 @@ function createEvidencePreview(evidence) {
                 <p class="col evidenceListItemTitle">${evidence.title}</p>
                 <p class="col evidenceListItemDate">${evidence.date}</p>
             </div>
-            <div class="evidencePreviewTags skillChipDisplay">${categories}</div>
+            <div class="evidencePreviewTags categoryChipDisplay">${categories}</div>
             <div class="evidencePreviewTags skillChipDisplay">${skills}</div>
         </div>`
 }
@@ -381,11 +381,11 @@ function getSkillTags(skills) {
  */
 function getCategoryTags(categories) {
     categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
-    let skillsHTML = ``
+    let categoriesHTML = ``
     $.each(categories, function (i) {
-        skillsHTML += createCategoryChip(categoriesMapping.get(categories[i]))
+        categoriesHTML += createCategoryChip(categoriesMapping.get(categories[i]))
     })
-    return skillsHTML
+    return categoriesHTML
 }
 
 

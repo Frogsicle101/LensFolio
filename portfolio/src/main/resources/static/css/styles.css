@@ -1148,7 +1148,7 @@ section {
 
 /* Chips */
 
-.skillChipDisplay, #evidenceDetailsSkills{
+.evidencePreviewTags, #evidenceDetailsSkills{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
