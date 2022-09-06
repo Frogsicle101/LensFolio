@@ -9,6 +9,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepositor
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
+import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +95,7 @@ public class EvidenceService {
      */
     public Evidence addEvidence(Authentication principal,
                                 EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
+        logger.info("CREATING EVIDENCE - Attempting to create evidence with title: {}", evidenceDTO.getTitle());
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         long projectId = evidenceDTO.getProjectId();
         String title = evidenceDTO.getTitle();
@@ -128,6 +130,7 @@ public class EvidenceService {
         associates.add(user.getId());
         Evidence ownerEvidence = null;
         for (Integer associateID : associates) {
+            checkAssociateId(associateID);
             ownerEvidence = addEvidenceForUser(associateID, title, description, localDate, categories, associates);
             addWeblinks(ownerEvidence, webLinks);
             addSkills(ownerEvidence, skills);
@@ -243,6 +246,22 @@ public class EvidenceService {
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
             evidenceRepository.save(evidence);
+        }
+    }
+
+
+    /**
+     * Helper method that checks if a user exists.
+     * Tries to find the user with the specific ID.
+     * If it can't find it, throw an exception.
+     * @param associateId the ID of the associate/user you want to find
+     */
+    private void checkAssociateId(int associateId) {
+        GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(associateId).build();
+        UserResponse associate = userAccountsClientService.getUserAccountById(request);
+        if (associate.getId() < 1) {
+            logger.error("CREATING EVIDENCE: Bad id: {}", associateId);
+            throw new CheckException("Could not find associated user with ID: " + associateId);
         }
     }
 }

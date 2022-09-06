@@ -10,6 +10,7 @@ import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
+import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -518,7 +519,7 @@ class EvidenceServiceTest {
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L, associates);
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
-        // Verify that it saved more than usual - currently evidenceRepository.save is called three times per user id
+        // Verify that it saved more than usual - currently evidenceRepository.save is called two times per user id
         Mockito.verify(evidenceRepository, times(associates.size() * 2)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
@@ -546,6 +547,26 @@ class EvidenceServiceTest {
         Assertions.assertEquals(associates, evidence.getAssociateIds());
         Assertions.assertTrue(associates.contains(evidence.getUserId()));
     }
+
+    @Test
+    void addEvidenceWithAssociatedUsersInvalidAssociateId() {
+        setUserToStudent();
+
+        Project project = new Project("Testing");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        String title = "title";
+        List<Integer> associates = new ArrayList<>(List.of(12, 13, -14));
+        GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(-14).build();
+        when(userAccountsClientService.getUserAccountById(request)).thenReturn(UserResponse.newBuilder().setId(-1).build());
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L, associates);
+
+        Assertions.assertThrows(CheckException.class, () -> {
+            evidenceService.addEvidence(principal, evidenceDTO);
+        });
+    }
+
+
 
 
     // ----------------------------- Add Skill Tests --------------------------
