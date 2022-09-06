@@ -8,9 +8,11 @@ function checkDateOrder(startDate, endDate) {
         dateAlert.slideDown()
         $(".canDisable").attr("disabled", true)
         $(".date").addClass("is-invalid")
+        $(".editForm").removeClass("was-validated")
     } else {
         $(".canDisable").attr("disabled", false)
         $(".date").removeClass("is-invalid")
+        $(".editForm").addClass("was-validated")
         dateAlert.slideUp();
     }
 }
