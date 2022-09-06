@@ -1,7 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
@@ -328,7 +327,7 @@ public class PortfolioController {
       modelAndView.addObject("previousSprintEnd", previousSprintEnd);
       modelAndView.addObject("nextSprintStart", nextSprintStart);
 
-      String formattedPreviousDate = previousSprintEnd.format(DateTimeFormat.dayMonthYear());
+      String formattedPreviousDate = previousSprintEnd.format(DateTimeService.dayMonthYear());
       String textForPreviousSprint;
       if (previousSprintEnd.equals(project.getStartDate())) {
         textForPreviousSprint =
@@ -339,7 +338,7 @@ public class PortfolioController {
       }
       modelAndView.addObject("textForPrevSprint", textForPreviousSprint);
 
-      String formattedNextDate = nextSprintStart.format(DateTimeFormat.dayMonthYear());
+      String formattedNextDate = nextSprintStart.format(DateTimeService.dayMonthYear());
       String textForNextSprint;
       if (nextSprintStart.equals(project.getEndDate())) {
         textForNextSprint =

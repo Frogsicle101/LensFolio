@@ -170,4 +170,12 @@ public class DateTimeService {
     public static DateTimeFormatter yearMonthDay() {
         return DateTimeFormatter.ofPattern("yyyy-MM-dd");
     }
+
+    /**
+     * Formats a date into dd/MM/yyyy format.
+     * @return the formatted date,
+     */
+    public static DateTimeFormatter dayMonthYear() {
+        return DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    }
 }
