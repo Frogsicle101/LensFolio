@@ -489,24 +489,6 @@ function getCategories() {
 
 
 /**
- * Listens for when add web link button is clicked.
- * Slide-toggles the web link portion of the form.
- */
-$(document).on('click', '#addWeblinkButton', function () {
-    let button = $("#addWeblinkButton");
-    if (button.hasClass("toggled")) {
-        //validate the link
-        let address = $("#webLinkUrl").val()
-        let alias = $("#webLinkName").val()
-        let form = $("#weblinkForm")
-        validateWebLink(form, alias, address)
-    } else {
-        webLinkButtonToggle()
-    }
-})
-
-
-/**
  * Toggles category button appearance on the evidence creation form.
  */
 $(".evidenceFormCategoryButton").on("click", function () {
@@ -571,7 +553,7 @@ $(document).on('click', '.addedWebLinkName', function () {
  * Listen for a keypress in the weblink address field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkUrl', function () {
-    $(".address-alert").alert('close')
+    $("#weblinkAddressAlert").alert('close')
 })
 
 
@@ -579,7 +561,7 @@ $(document).on('keypress', '#webLinkUrl', function () {
  * Listen for a keypress in the weblink name field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkName', function () {
-    $(".weblink-name-alert").alert('close')
+    $("#weblinkNameAlert").alert('close')
 })
 
 
@@ -865,8 +847,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 closeModal()
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                $(".address-alert").alert('close') // Close any web link alerts
-                $(".weblink-name-alert").alert('close')
+                $("#weblinkAddressAlert").alert('close') // Close any web link alerts
+                $("#weblinkNameAlert").alert('close')
                 resetWeblink()
             }, error: function (error) {
                 createAlert(error.responseText, "failure", ".modal-body")
@@ -895,23 +877,31 @@ $(document).on('click', '#addWeblinkButton', function () {
 
 
 /**
+ * Closes the add weblink form and resets weblink form buttons when the weblink add is cancelled.
+ */
+$(document).on('click', '#cancelWeblinkButton', () => {
+    webLinkButtonToggle()
+})
+
+
+/**
  * Handles a web link validated by the back end.
  Validates the alias and then displays an error message or saves the web link and toggles the web link form.
  */
 function validateWebLink(form, alias, address) {
     //Do some title validation
     if (alias.length === 0) {
-        $(".weblink-name-alert").alert('close') //Close any previous alerts
+        $("#weblinkNameAlert").alert('close') //Close any previous alerts
         form.append(`
-                    <div class="alert alert-danger alert-dismissible show weblink-name-alert" role="alert">
+                    <div id="weblinkNameAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
                       Please include a name for your web link
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
     } else if (address.search("://") === -1) {
-        $(".address-alert").alert('close') //Close any previous alerts
+        $("#weblinkAddressAlert").alert('close') //Close any previous alerts
         form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                    <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
                       That address is missing a protocol (the part that comes before "://") - did you make a typo?
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
@@ -926,7 +916,7 @@ function validateWebLink(form, alias, address) {
  * Handles the error messages for an invalid web link.
  */
 function handleInvalidWebLink(form, error) {
-    $(".address-alert").alert('close') //Close any previous alerts
+    $("#weblinkAddressAlert").alert('close') //Close any previous alerts
     switch (error.status) {
         case 400:
             // The URL is invalid
@@ -985,18 +975,22 @@ function validateWebLinkAtBackend() {
  * and slide-toggles the form
  */
 function webLinkButtonToggle() {
-    let button = $("#addWeblinkButton");
+    let saveButton = $("#addWeblinkButton");
+    let cancelButton = $("#cancelWeblinkButton")
     $("#weblinkForm").slideToggle();
-    if (button.hasClass("toggled")) {
-        button.text("Add Web Link")
-        button.removeClass("toggled")
-        button.removeClass("btn-primary")
-        button.addClass("btn-secondary")
+    if (saveButton.hasClass("toggled")) {
+        saveButton.text("Add Web Link")
+        saveButton.removeClass("toggled")
+        saveButton.removeClass("btn-primary")
+        saveButton.addClass("btn-secondary")
+        $(".weblinkAlert").alert('close')
+        cancelButton.hide()
     } else {
-        button.text("Save Web Link")
-        button.addClass("toggled")
-        button.removeClass("btn-secondary")
-        button.addClass("btn-primary")
+        saveButton.text("Save Web Link")
+        saveButton.addClass("toggled")
+        saveButton.removeClass("btn-secondary")
+        saveButton.addClass("btn-primary")
+        cancelButton.show()
     }
 }
 
