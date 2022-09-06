@@ -29,10 +29,10 @@ let categoriesMapping = new Map([
 ])
 
 $(() => {
-    // Counting characters
-    let textInput = $(".text-input");
-    textInput.each(countCharacters)
-    textInput.on("keyup", countCharacters)
+        // Counting characters
+        let textInput = $(".text-input");
+        textInput.each(countCharacters)
+        textInput.on("keyup", countCharacters)
     }
 )
 
@@ -184,7 +184,7 @@ function displayNameOrButton(response) {
         let usersName = response.getResponseHeader("Users-Name");
         $("#nameHolder").html("Viewing evidence for " + usersName)
         $("#nameHolder").show()
-    } else{
+    } else {
         $("#nameHolder").hide()
         $(".createEvidenceButton").show();
     }
@@ -238,7 +238,8 @@ function getHighlightedEvidenceWeblinks() {
  *
  * @param callback An optional callback function to be called upon successfully retrieving the skills
  */
-function getSkills(callback = () => {}) {
+function getSkills(callback = () => {
+}) {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId, type: "GET",
         success: function (response) {
@@ -262,7 +263,7 @@ function getSkills(callback = () => {}) {
 /**
  *  A helper function to take a response from an ajax call and add it to the array of skills
  */
-function addSkillResponseToArray(response){
+function addSkillResponseToArray(response) {
     let skills = []
     for (let i in response.skills) {
         skills.push(response.skills[i].name)
@@ -405,7 +406,6 @@ function setDetailsToNoEvidenceExists() {
     highlightedEvidenceDate.hide()
     highlightedEvidenceDescription.hide()
 }
-
 
 
 //---- Tooltip Refresher----
