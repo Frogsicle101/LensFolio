@@ -39,6 +39,7 @@ public class UserAccountsClientService {
         return userAccountStub.getUserAccountById(request);
     }
 
+
     /**
      * Sends a request to the UserAccountServerService to register a new user, with a UserRegisterRequest message
      *
@@ -49,6 +50,7 @@ public class UserAccountsClientService {
         logger.info("SERVICE - send register request to server");
         return userAccountStub.register(request);
     }
+
 
     /**
      * Sends a request to the UserAccountServerService to edit the details of a user, with a EditUserRequest message
@@ -61,6 +63,7 @@ public class UserAccountsClientService {
         return userAccountStub.editUser(request);
     }
 
+
     /**
      * Sends a request to the UserAccountServerService to change the password of a user, with a ChangePasswordRequest message
      *
@@ -72,11 +75,25 @@ public class UserAccountsClientService {
         return userAccountStub.changeUserPassword(request);
     }
 
+
+    /**
+     * Sends a request to the UserAccountServerService to add a role to a user, with a ModifyRoleOfUserRequest message
+     *
+     * @param modifyRoleOfUserRequest The request to add a role with the id of the user to be added to
+     * @return The response from the server regarding adding the specified role to the user
+     */
     public UserRoleChangeResponse addRoleToUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
         logger.info("SERVICE - send ModifyRoleOfUserRequest add role request to server");
         return userAccountStub.addRoleToUser(modifyRoleOfUserRequest);
     }
 
+
+    /**
+     * Sends a request to the UserAccountServerService to delete a role from a user, with a ModifyRoleOfUserRequest message
+     *
+     * @param modifyRoleOfUserRequest The request to remove a role with the id of the user to be removed from
+     * @return The response from the server regarding deleting the specified role from the user
+     */
     public UserRoleChangeResponse removeRoleFromUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
         logger.info("SERVICE - send ModifyRoleOfUserRequest remove role request to server");
         return userAccountStub.removeRoleFromUser(modifyRoleOfUserRequest);
@@ -95,6 +112,7 @@ public class UserAccountsClientService {
         logger.info("SERVICE - send GetPaginatedUsersRequest request to server");
         return userAccountStub.getPaginatedUsers(request);
     }
+
 
     /**
      * This function is the server side of a bidirectional stream for sending the photos over gRPC. It calls a function
@@ -137,6 +155,14 @@ public class UserAccountsClientService {
 
     }
 
+
+    /**
+     * Sends a request to the UserAccountServerService to delete the profile photo of a user, with a
+     * DeleteUserProfilePhotoRequest message
+     *
+     * @param request The request to remove a profile photo with the if of the user to be removed from
+     * @return The response from the server regarding deleting the profile photo
+     */
     public DeleteUserProfilePhotoResponse deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request) {
         logger.info("SERVICE - send DeleteUserProfilePhotoRequest request to server");
         return userAccountStub.deleteUserProfilePhoto(request);
