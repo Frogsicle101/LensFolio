@@ -11,9 +11,6 @@ $(() => {
         userBeingViewedId = userIdent.toString() // TODO check if below line is needed
     }
 
-    if (userBeingViewedId !== userIdent) {
-        $("#createEvidenceButton").hide();
-    }
     getAndAddEvidencePreviews()
     addCategoriesToSidebar()
     getSkills(addSkillsToSideBar)

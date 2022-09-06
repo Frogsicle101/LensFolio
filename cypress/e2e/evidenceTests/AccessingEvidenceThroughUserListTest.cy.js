@@ -12,13 +12,13 @@ describe('Viewing evidence through the user list', () => {
         cy.visit('/user-list?sortField=aliases&isAscending=true')
         cy.get(".userRoleRow").first().click({force: true})
         cy.get("#nameHolder").contains("Viewing evidence for Alexander Fuller")
-        cy.get(".createEvidenceButton").should("not.exist")
+        cy.get("#createEvidenceButton").should("not.exist")
     })
 
     it("can view my own evidence and still edit", () => {
         cy.visit('/user-list?sortField=roles&isAscending=true')
         cy.get(".userRoleRow").first().click({force: true})
         cy.get("#nameHolder").should('not.visible')
-        cy.get(".createEvidenceButton").should("exist")
+        cy.get("#createEvidenceButton").should("exist")
     })
 })

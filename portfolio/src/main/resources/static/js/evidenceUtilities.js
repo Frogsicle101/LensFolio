@@ -3,9 +3,6 @@
  * that can be used across multiple pages.
  */
 
-/** A regex only allowing modern English letters */
-const regExp = new RegExp('[A-Za-z]');
-
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
@@ -18,10 +15,10 @@ let selectedEvidenceId;
 /** WebLinksCount is used to restrict the amount of weblinks on a piece of evidence*/
 let webLinksCount = 0;
 
-/** The existing skills of the user, updated as the users evidence is retrieved */
+/** The existing skills of the user, updated as the user's evidence is retrieved */
 let skillsArray = []
 
-/** Provides the options of categories and maps them to user friendly strings */
+/** Provides the options of categories and maps them to user-friendly strings */
 let categoriesMapping = new Map([
     ["SERVICE", "Service"],
     ["QUALITATIVE", "Qualitative"],
@@ -162,7 +159,8 @@ function getAndAddEvidencePreviews() {
     $(".selected").removeClass("selected")
 
     $.ajax({
-        url: "evidenceData?userId=" + userBeingViewedId, success: function (response, status, xhr) {
+        url: "evidenceData?userId=" + userBeingViewedId,
+        success: function (response, status, xhr) {
             displayNameOrButton(xhr)
             addEvidencePreviews(response)
             updateSelectedEvidence();
@@ -175,18 +173,19 @@ function getAndAddEvidencePreviews() {
 
 
 /**
- *  Displays the create evidence button if the evidence being viewed is the logged in user otherwise it displays the
+ *  Displays the create evidence button if the evidence being viewed is the logged-in user otherwise it displays the
  *  name of the user
  */
 function displayNameOrButton(response) {
+    let nameHolder = $("#nameHolder")
     if (userBeingViewedId !== userIdent.toString()) {
-        $(".createEvidenceButton").remove();
+        $("#createEvidenceButton").remove();
         let usersName = response.getResponseHeader("Users-Name");
-        $("#nameHolder").html("Viewing evidence for " + usersName)
-        $("#nameHolder").show()
+        nameHolder.html("Viewing evidence for " + usersName)
+        nameHolder.show()
     } else{
-        $("#nameHolder").hide()
-        $(".createEvidenceButton").show();
+        nameHolder.hide()
+        $("#createEvidenceButton").show();
     }
 }
 
@@ -486,24 +485,6 @@ function getCategories() {
 
 
 // --------------------------------- Click listeners -----------------------------------------
-
-
-/**
- * Listens for when add web link button is clicked.
- * Slide-toggles the web link portion of the form.
- */
-$(document).on('click', '#addWebLinkButton', function () {
-    let button = $("#addWebLinkButton");
-    if (button.hasClass("toggled")) {
-        //validate the link
-        let address = $("#webLinkUrl").val()
-        let alias = $("#webLinkName").val()
-        let form = $(".webLinkForm")
-        validateWebLink(form, alias, address)
-    } else {
-        webLinkButtonToggle()
-    }
-})
 
 
 /**
@@ -887,7 +868,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
     }
 })
 
-//TODO check duplicacy
+
 /**
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
