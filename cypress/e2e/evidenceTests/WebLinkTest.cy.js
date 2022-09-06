@@ -1,4 +1,4 @@
-describe("WebLinkTest", () => {
+describe("Adding Weblinks to Evidence", () => {
     beforeEach(() => {
         cy.adminLogin()
         cy.viewport(1200, 1024)
@@ -12,10 +12,8 @@ describe("WebLinkTest", () => {
             cy.get('#webLinkUrl').wait(500)
                 .type('http://www.a.ac.nz')
             cy.get('#webLinkName').wait(500)
-                .type('WebLink ' + i.toString())
-            cy.get('#addWebLinkButton').click()
                 .type('Wl ' + i.toString())
-            cy.get('.addWebLinkButton').click()
+            cy.get('#addWebLinkButton').click()
         }
 
         cy.get('#webLinkFull').should('be.visible');
