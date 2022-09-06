@@ -24,9 +24,8 @@
     </div>
     <div class="contentContainer">
         <h2 class="evidenceTitle">Evidence</h2>
-        <button class="btn btn-primary createEvidenceButton" type="button" style="display: none">Create Evidence</button>
+        <button class="btn btn-primary" id="createEvidenceButton" type="button" style="display: none">Create Evidence</button>
         <h5 id="nameHolder" style="display: none"></h5>
-
         <div class="evidenceContainer">
             <div class="col">
                 <!-- The evidence holding container, pieces are added through JS -->
@@ -50,7 +49,7 @@
         </div>
     </div>
 
-    <div class="addEvidenceModal">
+    <div id="addEvidenceModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addEvidenceTitle">Add Evidence</h5>
@@ -129,7 +128,7 @@
                         <label class="col-form-label">Categories:</label>
                         <div class="row">
                             <div class="col center">
-                                <button type="button" class="btn inlineText btn-secondary evidenceFormCategoryButton"
+                                <button type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
                                         value="QUALITATIVE">
                                     Qualitative
                                     <label class="evidenceCategoryTickIcon">&#10003;</label>
@@ -186,7 +185,6 @@
                             </svg>
                             <h5 id="webLinkFull" style="display:none">10 web links have been added</h5>
                         </div>
-
                     </div>
                 </div>
                 <div class="modal-footer">

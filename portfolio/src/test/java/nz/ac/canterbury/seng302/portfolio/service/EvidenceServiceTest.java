@@ -40,7 +40,7 @@ class EvidenceServiceTest {
     private final EvidenceRepository evidenceRepository = Mockito.mock(EvidenceRepository.class);
     private final WebLinkRepository webLinkRepository = Mockito.mock(WebLinkRepository.class);
     private final SkillRepository skillRepository = Mockito.mock(SkillRepository.class);
-    private final RegexService regexService = new RegexService();
+    private final RegexService regexService = Mockito.spy(RegexService.class);
 
 
     @BeforeEach
@@ -203,7 +203,7 @@ class EvidenceServiceTest {
         Project project = new Project("Testing");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        String title = "t";
+        String title = "";
         String date = LocalDate.now().toString();
         String description = "Description";
         List<WebLinkDTO> webLinks = new ArrayList<>();
@@ -257,7 +257,7 @@ class EvidenceServiceTest {
 
         String title = "Title";
         String date = LocalDate.now().toString();
-        String description = "D";
+        String description = "";
         List<WebLinkDTO> webLinks = new ArrayList<>();
         List<String> skills = new ArrayList<>();
         List<String> categories = new ArrayList<>();
@@ -638,7 +638,7 @@ class EvidenceServiceTest {
                 () -> evidenceService.addSkills(evidence, listSkills)
         );
         System.out.println(exception.getMessage());
-        Assertions.assertTrue(exception.getMessage().contains("skill name can only contain unicode letters, numbers, " +
+        Assertions.assertTrue(exception.getMessage().contains("Skill name can only contain unicode letters, numbers, " +
                 "punctuation, symbols (but not emojis) and whitespace"));
     }
 

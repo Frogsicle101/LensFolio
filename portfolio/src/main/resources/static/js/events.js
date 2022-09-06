@@ -1,13 +1,12 @@
 let thisUserIsEditing = false;
 
-$(document).ready(function () {
-
+$(() => {
     let formControl = $(".form-control");
 
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)
-    formControl.keyup(countCharacters) // Runs when key is pressed (well released) on form-control elements.
+    formControl.on("keyup", countCharacters) // Runs when key is pressed (well released) on form-control elements.
 })
 
 
