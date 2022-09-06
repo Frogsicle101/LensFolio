@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
 import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
@@ -320,25 +321,35 @@ public class PortfolioController {
 
       Project project = projectRepository.getProjectById(projectId);
       Map<String, LocalDate> neighbouringDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
+      LocalDate previousSprintEnd = neighbouringDates.get("previousSprintEnd");
+      LocalDate nextSprintStart = neighbouringDates.get("nextSprintStart");
+
+
+      modelAndView.addObject("previousSprintEnd", previousSprintEnd);
+      modelAndView.addObject("nextSprintStart", nextSprintStart);
+
+      String formattedPreviousDate = previousSprintEnd.format(DateTimeFormat.dayMonthYear());
       String textForPreviousSprint;
-      String textForNextSprint;
-      modelAndView.addObject("previousSprintEnd", neighbouringDates.get("previousSprintEnd"));
-      if (neighbouringDates.get("previousSprintEnd").equals(project.getStartDate())) {
+      if (previousSprintEnd.equals(project.getStartDate())) {
         textForPreviousSprint =
-            "No previous sprints, Project starts on " + neighbouringDates.get("previousSprintEnd");
+            "No previous sprints, Project starts on " + formattedPreviousDate;
       } else {
         textForPreviousSprint =
-            "Previous sprint ends on " + neighbouringDates.get("previousSprintEnd");
+            "Previous sprint ends on " + formattedPreviousDate;
       }
       modelAndView.addObject("textForPrevSprint", textForPreviousSprint);
-      modelAndView.addObject("nextSprintStart", neighbouringDates.get("nextSprintStart"));
-      if (neighbouringDates.get("nextSprintStart").equals(project.getEndDate())) {
+
+      String formattedNextDate = nextSprintStart.format(DateTimeFormat.dayMonthYear());
+      String textForNextSprint;
+      if (nextSprintStart.equals(project.getEndDate())) {
         textForNextSprint =
-            "No next sprint, project ends on  " + neighbouringDates.get("nextSprintStart");
+            "No next sprint, project ends on  " + formattedNextDate;
       } else {
-        textForNextSprint = "Next sprint starts on " + neighbouringDates.get("nextSprintStart");
+        textForNextSprint = "Next sprint starts on " + formattedNextDate;
       }
       modelAndView.addObject("textForNextSprint", textForNextSprint);
+
+
       // Adds the username to the view for use.
       modelAndView.addObject("user", user);
       // Add the sprint to the view for use.
