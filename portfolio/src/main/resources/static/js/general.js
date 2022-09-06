@@ -288,7 +288,7 @@ function sanitise(string) {
         "/": '&#x2F;',
     };
     const reg = /[&<>"'/]/ig;
-    return string.replace(reg, (match)=>(map[match]));
+    return string.toString().replace(reg, (match)=>(map[match]));
 }
 
 

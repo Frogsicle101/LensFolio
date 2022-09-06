@@ -310,7 +310,7 @@ function appendMembersToGroup(group) {
         }
 
         membersContainer.append(`
-                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${user.id}>
+                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${sanitise(user.id)}>
                         <td class="userRowId">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-grip-vertical dragGrip" style="display: none" viewBox="0 0 16 16">
                                     <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
@@ -319,9 +319,9 @@ function appendMembersToGroup(group) {
                         <td>
                             <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
                         </td>
-                        <td>${user.firstName}</td>
-                        <td>${user.lastName}</td>
-                        <td>${user.username}</td>
+                        <td>${sanitise(user.firstName)}</td>
+                        <td>${sanitise(user.lastName)}</td>
+                        <td>${sanitise(user.username)}</td>
                     </tr>`
         )
     })
@@ -387,7 +387,7 @@ function populateGroupRepoInformation(container, repo) {
     container.append(`
         <div id="groupSettingsRepoInformationSection">
             <div id="groupSettingsRepoHeader">
-                <h3 id="groupSettingsPageRepoName">${repo.alias}</h3>
+                <h3 id="groupSettingsPageRepoName">${sanitise(repo.alias)}</h3>
                 <button type="button" class="editRepo noStyleButton marginSides1" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Edit Repository Settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
@@ -401,11 +401,11 @@ function populateGroupRepoInformation(container, repo) {
             <div id="repoInfo" class="row marginSides1">
                 <div class="inlineText col">
                     <p>Project Id:&nbsp;</p>
-                    <p class="groupSettingsPageProjectId greyText">${repo.projectId}</p>
+                    <p class="groupSettingsPageProjectId greyText">${sanitise(repo.projectId)}</p>
                 </div>
                 <div class="inlineText col">
                     <p>Access Token:&nbsp;</p>
-                    <p class="groupSettingsPageAccessToken greyText">${repo.accessToken}</p>
+                    <p class="groupSettingsPageAccessToken greyText">${sanitise(repo.accessToken)}</p>
                 </div>
             </div>
             <div id="repoSettingsContainer"></div>
@@ -461,7 +461,7 @@ function populateCommitContainer(commitContainer, data) {
                     <div class="row">
                         <div class="inlineText">
                             <p>Commit:&nbsp;</p>
-                            <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                            <a class="greyText" href="${commit.web_url}">${sanitise(commit.short_id)}</a>
                         </div>
                     </div>
                     <div class="row">
@@ -472,7 +472,7 @@ function populateCommitContainer(commitContainer, data) {
                             <p class="greyText">${sanitise(commit.author_name)}</p>
                         </div>
                         <div class="col commitDate">
-                            <p class="greyText">${commit.committed_date.split("T")[0]}</p>
+                            <p class="greyText">${sanitise(commit.committed_date).split("T")[0]}</p>
                         </div>
                     </div>
                 </div>
