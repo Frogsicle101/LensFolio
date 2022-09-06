@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 /**
@@ -92,7 +93,7 @@ public class EvidenceService {
      * @throws MalformedURLException When one of the web links has a malformed url
      */
     public Evidence addEvidence(Authentication principal,
-                                EvidenceDTO evidenceDTO) throws MalformedURLException {
+                                EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         long projectId = evidenceDTO.getProjectId();
         String title = evidenceDTO.getTitle();
@@ -127,8 +128,9 @@ public class EvidenceService {
         associates.add(user.getId());
         Evidence ownerEvidence = null;
         for (Integer associateID : associates) {
-            ownerEvidence = addEvidenceForUser(associateID, title, description, webLinks,
-                    localDate, categories, skills, associates);
+            ownerEvidence = addEvidenceForUser(associateID, title, description, localDate, categories, associates);
+            addWeblinks(ownerEvidence, webLinks);
+            addSkills(ownerEvidence, skills);
         }
         return ownerEvidence;
     }
@@ -140,35 +142,16 @@ public class EvidenceService {
      * @param userId The id of the user that you are adding evidence to
      * @param title The title of the evidence
      * @param description The description of the evidence
-     * @param webLinks The web links tied to the evidence
      * @param localDate The date of the evidence, in localDate form
      * @param categories The categories of the evidence
-     * @param skills The skills of the evidence
      * @param associateIds The user ids of any associated users.
      *                     This should include the original creator of the evidence.
      * @return the evidence object after saving it in the evidence repository
-     * @throws MalformedURLException When a weblink has an invalid URL
      */
-    private Evidence addEvidenceForUser(int userId, String title, String description,
-                                    List<WebLinkDTO> webLinks, LocalDate localDate,
-                                    List<String> categories, List<String> skills,
-                                        List<Integer> associateIds) throws MalformedURLException {
+    private Evidence addEvidenceForUser(int userId, String title, String description, LocalDate localDate,
+                                    List<String> categories, List<Integer> associateIds) {
         logger.info("CREATING EVIDENCE - attempting to create evidence for user: {}", userId);
         Evidence evidence = new Evidence(userId, title, localDate, description);
-
-        /*
-        In order to add web links, we have to save the piece of evidence
-        This is because web links are tied to specific pieces of evidence
-         */
-        evidenceRepository.save(evidence);
-        addWeblinks(evidence, webLinks);
-
-        try {
-            this.addSkills(evidence, skills);
-        } catch (Exception e) {
-            evidenceRepository.delete(evidence);
-            throw new CheckException(e.getMessage());
-        }
 
         for (String categoryString : categories) {
             switch (categoryString) {
@@ -196,7 +179,13 @@ public class EvidenceService {
      */
     public void addSkills(Evidence evidence, List<String> skills) {
         for(String skillName: skills){
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 2, 30, "skill name");
+            try {
+                regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 1, 30, "skill name");
+            } catch (CheckException e) {
+                removeWeblinks(evidence);
+                evidenceRepository.delete(evidence);
+                throw new CheckException(e.getMessage());
+            }
             Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
             Skill theSkill;
             if (optionalSkill.isEmpty()) {
@@ -211,6 +200,20 @@ public class EvidenceService {
             evidence.addSkill(theSkill);
         }
         evidenceRepository.save(evidence);
+    }
+
+
+    /**
+     * Deletes all the weblinks associated with a piece of evidence. This is needed as we are unable to delete evidence
+     * if it has weblinks saved to it
+     *
+     * @param evidence The evidence with weblinks to delete
+     */
+    private void removeWeblinks(Evidence evidence) {
+        Set<WebLink> webLinks = evidence.getWebLinks();
+        for (WebLink weblink : webLinks){
+            webLinkRepository.delete(weblink);
+        }
     }
 
 
@@ -239,6 +242,7 @@ public class EvidenceService {
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
+            evidenceRepository.save(evidence);
         }
     }
 }
