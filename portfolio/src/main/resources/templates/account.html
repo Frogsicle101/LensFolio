@@ -50,11 +50,11 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="middleName">Middle name</label>
+                        <label class="form-label" for="middlename">Middle name</label>
                         <!--/*@thymesVar id="user" type="nz.ac.canterbury.seng302.shared.identityprovider.UserResponse"*/-->
                         <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-                        <input class="form-control canDisable" disabled id="middleName" maxlength="50"
-                               name="middleName"
+                        <input class="form-control canDisable" disabled id="middlename" maxlength="50"
+                               name="middlename"
                                th:pattern="${generalUnicodeRegex.getPatternString()}"
                                th:title="${'Middle name' + generalUnicodeRegex.getRequirements()}"
                                th:value="${user.getMiddleName()}"
