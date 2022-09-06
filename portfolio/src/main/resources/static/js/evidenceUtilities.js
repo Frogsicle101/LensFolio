@@ -423,7 +423,7 @@ function initialiseTooltips() {
  * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
  */
 function checkWeblinkCount() {
-    let addWeblinkButton = $("#addWebLinkButton")
+    let addWeblinkButton = $("#addWeblinkButton")
     let weblinkFullTab = $("#webLinkFull")
     if (webLinksCount > 9) {
         addWeblinkButton.hide()
@@ -439,7 +439,7 @@ function checkWeblinkCount() {
  * Resets the weblink count
  */
 function resetWeblink() {
-    let addWeblinkButton = $("#addWebLinkButton")
+    let addWeblinkButton = $("#addWeblinkButton")
     let weblinkFullTab = $("#webLinkFull")
     addWeblinkButton.show()
     weblinkFullTab.hide()
@@ -862,8 +862,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '#addWebLinkButton', function () {
-    let button = $("#addWebLinkButton");
+$(document).on('click', '#addWeblinkButton', function () {
+    let button = $("#addWeblinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
         let address = $("#webLinkUrl").val()
