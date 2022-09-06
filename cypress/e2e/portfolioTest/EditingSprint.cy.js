@@ -3,7 +3,6 @@ describe('Test Editing Sprint', () => {
         cy.adminLogin()
         cy.visit('/portfolio?projectId=1')
         cy.get(".sprintsContainer").find(".editSprint").first().click({force: true});
-
     })
 
     it('Colours valid elements green', () => {

@@ -3,7 +3,6 @@ describe('Test Editing Project', () => {
         cy.adminLogin()
         cy.visit('/portfolio?projectId=1')
         cy.get("#editProject").click();
-
     })
 
     it('Colours valid elements green', () => {
