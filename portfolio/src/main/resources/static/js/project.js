@@ -32,11 +32,11 @@ $(document).ready(() => {
                         refreshEvents(projectId);
                     })
                 })
-                createAlert("Sprint created!", false)
+                createAlert("Sprint created!", "success")
                 sendNotification("sprint", response.id, "create")
             },
             error: function (error) {
-                createAlert(error.responseText, true)
+                createAlert(error.responseText, "failure")
 
             }
         })
@@ -75,7 +75,7 @@ $(document).on("click", ".deleteSprint", function () {
         type: "DELETE",
         data: {"sprintId": sprintId},
         success: function () {
-            createAlert("Sprint deleted!", false)
+            createAlert("Sprint deleted!", "success")
             sendNotification("sprint", sprintId, "delete")
         },
     }).done(function () {

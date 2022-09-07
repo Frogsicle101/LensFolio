@@ -1,7 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.projects.events;
 
 
-import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 
@@ -45,7 +45,7 @@ public class Event extends Deadline {
     }
 
     public String getStartDateFormatted() {
-        return getStartDate().format(DateTimeFormat.timeDateMonthYear());
+        return getStartDate().format(DateTimeService.timeDateMonthYear());
     }
 
     public LocalDateTime getStartDate() {

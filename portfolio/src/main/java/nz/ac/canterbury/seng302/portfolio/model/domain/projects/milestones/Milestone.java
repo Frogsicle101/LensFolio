@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones;
 
-import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 
 import javax.naming.InvalidNameException;
@@ -120,7 +120,7 @@ public class Milestone {
     }
 
     public String getEndDateFormatted() {
-        return getEndDate().format(DateTimeFormat.dayDateMonthYear());
+        return getEndDate().format(DateTimeService.dayDateMonthYear());
     }
 
     public int getType() {

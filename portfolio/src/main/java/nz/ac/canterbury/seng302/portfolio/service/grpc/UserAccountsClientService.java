@@ -16,8 +16,6 @@ import java.util.ArrayList;
  * The UserAccountsClientServices class implements the functionality of the services outlined
  * by the user_accounts.proto gRPC contacts. This allows the client to make requests to the server
  * regarding their account.
- *
- * @author Sam Clark
  */
 @Service
 public class UserAccountsClientService {
@@ -41,6 +39,7 @@ public class UserAccountsClientService {
         return userAccountStub.getUserAccountById(request);
     }
 
+
     /**
      * Sends a request to the UserAccountServerService to register a new user, with a UserRegisterRequest message
      *
@@ -51,6 +50,7 @@ public class UserAccountsClientService {
         logger.info("SERVICE - send register request to server");
         return userAccountStub.register(request);
     }
+
 
     /**
      * Sends a request to the UserAccountServerService to edit the details of a user, with a EditUserRequest message
@@ -63,6 +63,7 @@ public class UserAccountsClientService {
         return userAccountStub.editUser(request);
     }
 
+
     /**
      * Sends a request to the UserAccountServerService to change the password of a user, with a ChangePasswordRequest message
      *
@@ -74,11 +75,27 @@ public class UserAccountsClientService {
         return userAccountStub.changeUserPassword(request);
     }
 
+
+    /**
+     * Sends a request to the UserAccountServerService to add a role to a user, with a ModifyRoleOfUserRequest message
+     *
+     * @param modifyRoleOfUserRequest The request to add a role with the id of the user to be added to
+     * @return The response from the server regarding adding the specified role to the user
+     */
     public UserRoleChangeResponse addRoleToUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
+        logger.info("SERVICE - send ModifyRoleOfUserRequest add role request to server");
         return userAccountStub.addRoleToUser(modifyRoleOfUserRequest);
     }
 
+
+    /**
+     * Sends a request to the UserAccountServerService to delete a role from a user, with a ModifyRoleOfUserRequest message
+     *
+     * @param modifyRoleOfUserRequest The request to remove a role with the id of the user to be removed from
+     * @return The response from the server regarding deleting the specified role from the user
+     */
     public UserRoleChangeResponse removeRoleFromUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
+        logger.info("SERVICE - send ModifyRoleOfUserRequest remove role request to server");
         return userAccountStub.removeRoleFromUser(modifyRoleOfUserRequest);
     }
 
@@ -92,13 +109,14 @@ public class UserAccountsClientService {
      * @return response - a PaginatedUsersResponse, a response with a list of users and the total amount of users
      */
     public PaginatedUsersResponse getPaginatedUsers(GetPaginatedUsersRequest request) {
+        logger.info("SERVICE - send GetPaginatedUsersRequest request to server");
         return userAccountStub.getPaginatedUsers(request);
     }
 
+
     /**
-     * This function is the server side of a bidirctional stream for sending the photos over gRPC. It calls a function
+     * This function is the server side of a bidirectional stream for sending the photos over gRPC. It calls a function
      * in UserAccountServerService which returns a StreamObserver, that is then used to send the file data.
-     * <br>
      *
      * @param photo    - A File object containing a photo
      * @param userId   - The id of the user
@@ -113,7 +131,6 @@ public class UserAccountsClientService {
                 .setUserId(userId)
                 .setFileType(fileType)
                 .build();
-
 
         requestChunks.add(UploadUserProfilePhotoRequest.newBuilder()
                 .setMetaData(metadata)
@@ -138,8 +155,28 @@ public class UserAccountsClientService {
 
     }
 
+
+    /**
+     * Sends a request to the UserAccountServerService to delete the profile photo of a user, with a
+     * DeleteUserProfilePhotoRequest message
+     *
+     * @param request The request to remove a profile photo with the if of the user to be removed from
+     * @return The response from the server regarding deleting the profile photo
+     */
     public DeleteUserProfilePhotoResponse deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request) {
+        logger.info("SERVICE - send DeleteUserProfilePhotoRequest request to server");
         return userAccountStub.deleteUserProfilePhoto(request);
     }
 
+
+    /**
+     * Sends a request to the server to retrieve paginated users whose names match the filtered text
+     *
+     * @param request The request with the filtered text to match
+     * @return the paginated users that match the given text
+     */
+    public PaginatedUsersResponse getPaginatedUsersFilteredByName(GetPaginatedUsersFilteredRequest request){
+        logger.info("SERVICE - send GetPaginatedUsersFilteredRequest request to server");
+        return userAccountStub.getPaginatedUsersFilteredByName(request);
+    }
 }

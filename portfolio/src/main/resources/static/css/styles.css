@@ -76,6 +76,7 @@ section {
     --alert-red: rgba(222, 121, 121, 0.95);
     --alert-green: rgba(140, 222, 121, 0.95);
     --alert-blue: rgba(180, 255, 255, 0.95);
+    --alert-yellow: rgba(255, 255, 159, 0.95);
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffffff;
@@ -912,6 +913,10 @@ section {
     background-color: var(--alert-red);
 }
 
+.backgroundYellow {
+    background-color: var(--alert-yellow);
+}
+
 #alertPopUpCloseButton {
     position: absolute;
     top: 0.1rem;
@@ -973,7 +978,7 @@ section {
     align-self: center;
 }
 
-.createEvidenceButton {
+#createEvidenceButton {
     margin-top: 1rem;
 }
 
@@ -1048,7 +1053,7 @@ section {
     background-color: #eaeaea;
 }
 
-.addEvidenceModal {
+#addEvidenceModal {
   display: none;
   position: fixed;
   z-index: 5;
@@ -1077,7 +1082,14 @@ section {
     flex-direction: column;
 }
 
-.addWebLinkButton {
+#addWebLinkButton {
+    margin-right: 1.5rem;
+    max-width: fit-content;
+    align-self: self-end;
+    margin-top: 1rem;
+}
+
+#addUserToEvidenceButton {
     margin-right: 1.5rem;
     max-width: fit-content;
     align-self: self-end;
@@ -1140,7 +1152,7 @@ section {
 
 /* Chips */
 
-.skillChipDisplay, #evidenceDetailsSkills{
+.evidencePreviewTags, #evidenceDetailsSkills{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -1226,7 +1238,7 @@ section {
 
 .evidenceTitle {
     text-align: center;
-    padding: 2rem;
+    padding-top: 2rem;
 }
 
 .contentContainer {
@@ -1240,17 +1252,23 @@ section {
     display: flex;
     flex-direction: row;
     width: 100%;
+    padding-top: 1rem;
 }
 
 .skillSideBar h3 {
     text-align: center;
 }
 
-.contentContainer .createEvidenceButton {
+.contentContainer #createEvidenceButton {
     position: absolute;
     left: 1rem;
     top: 1rem;
     margin-top: 0;
+}
+
+#nameHolder {
+    position: relative;
+    left: 1rem;
 }
 
 .marginTop {

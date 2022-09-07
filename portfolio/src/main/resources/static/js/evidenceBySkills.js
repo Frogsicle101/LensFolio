@@ -3,17 +3,14 @@ let selectedChip;
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
  */
-$(document).ready(function () {
+$(() => {
     let urlParams = new URLSearchParams(window.location.search)
     if (urlParams.has("userId")) {
         userBeingViewedId = urlParams.get('userId')
     } else {
-        userBeingViewedId = userIdent
+        userBeingViewedId = userIdent.toString()
     }
 
-    if (userBeingViewedId !== userIdent) {
-        $(".createEvidenceButton").hide();
-    }
     getAndAddEvidencePreviews()
     addCategoriesToSidebar()
     getSkills(addSkillsToSideBar)
@@ -59,7 +56,7 @@ function showEvidenceWithSkill() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -78,7 +75,7 @@ function showEvidenceWithCategory() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -98,6 +95,7 @@ function updateSelectedEvidence() {
 
 
 /* ------------ Event Listeners ----------------- */
+
 
 /**
  * When a chip div is clicked, it selects the skill/category in the sidebar and is displays all
@@ -134,37 +132,37 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 /**
  *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling
  */
-$(document).on("click", ".createEvidenceButton" , () => {
-    $(".addEvidenceModal").show()
+$(document).on("click", "#createEvidenceButton" , () => {
+    $("#addEvidenceModal").show()
     $(".modal-content").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 })
 
 
 /**
- *  A Listener for the cancel create evidence button. This calls the function to close the modal
+ *  A listener for the cancel create evidence button. Calls the function to close the modal
  */
-$(document).on("click", "#evidenceCancelButton", function (event) {
+$(document).on("click", "#evidenceCancelButton", function () {
     closeModal()
 })
 
 
 /**
- *  When the mouse is clicked, if the modal is open and the click is outside the modal this will call the function to
- *  close the modal
+ *  When the mouse is clicked, if the modal is open, the click is outside the modal, and the click is not on an alert,
+ *  calls the function to close the modal.
  */
 window.onmousedown = function(event) {
-    let modalDisplay = $(".addEvidenceModal").css("display")
-    if (modalDisplay === "block" && !event.target.closest(".modal-content")) {
+    let modalDisplay = $("#addEvidenceModal").css("display")
+    if (modalDisplay === "block" && !event.target.closest(".modal-content") && !event.target.closest(".alert")) {
         closeModal()
     }
 }
 
 
 /**
- *  A function to close the modal and allow the page below to scroll again
+ *  Closes the modal and allows the page below to scroll again
  */
 function closeModal() {
-    $(".modal-content").hide("drop", {direction: "up"}, 200, () => {$(".addEvidenceModal").hide()})
+    $(".modal-content").hide("drop", {direction: "up"}, 200, () => {$("#addEvidenceModal").hide()})
     $('body,html').css('overflow','auto');
 }

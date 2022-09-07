@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines;
 
-import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 
@@ -53,7 +53,7 @@ public class Deadline extends Milestone {
      */
     @Override
     public String getEndDateFormatted() {
-        return LocalDateTime.of(this.getEndDate(), this.endTime).format(DateTimeFormat.timeDateMonthYear());
+        return LocalDateTime.of(this.getEndDate(), this.endTime).format(DateTimeService.timeDateMonthYear());
     }
 
 
