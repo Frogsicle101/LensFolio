@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints;
 
-import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.Event;
@@ -134,11 +134,11 @@ public class Sprint {
     }
 
     public String getStartDateFormatted() {
-        return startDate.format(DateTimeFormat.dayDateMonthYear());
+        return startDate.format(DateTimeService.dayDateMonthYear());
     }
 
     public String getEndDateFormatted() {
-        return endDate.format(DateTimeFormat.dayDateMonthYear());
+        return endDate.format(DateTimeService.dayDateMonthYear());
     }
 
     public String getId() {

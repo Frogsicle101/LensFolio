@@ -110,8 +110,8 @@ public class EvidenceService {
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
 
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "title");
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "description");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "Title");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "Description");
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
         evidence = evidenceRepository.save(evidence);
@@ -129,7 +129,7 @@ public class EvidenceService {
                 throw new CheckException("The URL for the weblink " + dto.getName() + " is not correctly formatted.");
             }
             WebLink webLink = new WebLink(evidence, dto.getName(), weblinkURL);
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "Web link name");
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
         }
@@ -161,7 +161,7 @@ public class EvidenceService {
      */
     public void addSkills(Evidence evidence, List<String> skills) {
         for(String skillName: skills){
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 2, 30, "skill name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 1, 30, "Skill name");
             Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
             Skill theSkill;
             if (optionalSkill.isEmpty()) {

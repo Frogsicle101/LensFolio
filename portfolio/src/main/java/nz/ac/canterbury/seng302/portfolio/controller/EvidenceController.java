@@ -1,7 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -91,13 +91,13 @@ public class EvidenceController {
         LocalDate projectStartDate = project.getStartDate();
         LocalDate currentDate = LocalDate.now();
         LocalDate evidenceMaxDate = LocalDate.now();
-        modelAndView.addObject("currentDate", currentDate.format(DateTimeFormat.yearMonthDay()));
-        modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeFormat.yearMonthDay()));
+        modelAndView.addObject("currentDate", currentDate.format(DateTimeService.yearMonthDay()));
+        modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;
         }
-        modelAndView.addObject("evidenceMaxDate", evidenceMaxDate.format(DateTimeFormat.yearMonthDay()));
+        modelAndView.addObject("evidenceMaxDate", evidenceMaxDate.format(DateTimeService.yearMonthDay()));
 
         return modelAndView;
     }

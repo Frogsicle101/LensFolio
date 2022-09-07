@@ -11,7 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
-import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.ProjectService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
@@ -53,7 +53,7 @@ class PortfolioControllerTest {
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
     private final RegexService regexService = spy(RegexService.class);
     private final Sprint mockSprint = mock(Sprint.class);
-    private final CheckDateService checkDateService = spy(CheckDateService.class);
+    private final DateTimeService dateTimeService = spy(DateTimeService.class);
     private final ProjectService projectService = new ProjectService(projectRepository, sprintRepository);
     @MockBean
     private SkillRepository skillRepository;
@@ -75,7 +75,7 @@ class PortfolioControllerTest {
             userAccountsClientService,
             regexService,
             projectService,
-            checkDateService
+            dateTimeService
     );
 
     private final Integer validUserId = 1;

@@ -978,6 +978,10 @@ section {
     align-self: center;
 }
 
+#createEvidenceButton {
+    margin-top: 1rem;
+}
+
 .evidenceListTitle {
     text-align: center;
     padding: inherit;
@@ -1049,7 +1053,7 @@ section {
     background-color: #eaeaea;
 }
 
-.addEvidenceModal {
+#addEvidenceModal {
   display: none;
   position: fixed;
   z-index: 5;
@@ -1078,7 +1082,14 @@ section {
     flex-direction: column;
 }
 
-.addWebLinkButton {
+#addWebLinkButton {
+    margin-right: 1.5rem;
+    max-width: fit-content;
+    align-self: self-end;
+    margin-top: 1rem;
+}
+
+#addUserToEvidenceButton {
     margin-right: 1.5rem;
     max-width: fit-content;
     align-self: self-end;
@@ -1248,7 +1259,7 @@ section {
     text-align: center;
 }
 
-.createEvidenceButton {
+.contentContainer #createEvidenceButton {
     position: absolute;
     left: 1rem;
     top: 1rem;
