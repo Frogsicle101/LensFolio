@@ -11,6 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepositor
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.DeadlineRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
@@ -125,7 +126,7 @@ public class OccasionFeature {
 
     private final ArrayList<Deadline> deadlines = new ArrayList<>();
     private Project project;
-    private final DeadlineController deadlineController = new DeadlineController(mockProjectRepository, deadlineRepository);
+    private final DeadlineController deadlineController = new DeadlineController(mockProjectRepository, deadlineRepository, new RegexService());
     private Milestone milestone;
 
     @Given("the user is authenticated: {string}")
@@ -178,7 +179,7 @@ public class OccasionFeature {
         try {
             LocalDate parsedDate = LocalDate.parse(milestoneDate);
             milestone = new Milestone(project, milestoneName, parsedDate, type);
-        } catch (DateTimeException | NullPointerException | InvalidNameException e) {
+        } catch (DateTimeException | NullPointerException e) {
             milestone = null;
         }
     }

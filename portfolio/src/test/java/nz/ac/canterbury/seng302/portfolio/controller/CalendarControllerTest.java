@@ -258,14 +258,9 @@ class CalendarControllerTest {
             Assertions.fail("One of the Deadlines has an incorrect name!");
             //If this happens, our deadline has an incorrectly formatted name! This shouldn't occur in these tests
         }
-        try {
-            Milestone milestone1 = new Milestone(project, "Milestone1", endDate1.toLocalDate(), 1);
-            Milestone milestone2 = new Milestone(project, "Milestone2", endDate2.toLocalDate(), 1);
-            when(milestoneRepository.findAllByProjectIdOrderByEndDate(project.getId())).thenReturn(List.of(milestone1, milestone2));
-        } catch (InvalidNameException e) {
-            Assertions.fail("One of the Milestones has an incorrect name!");
-            //If this happens, our milestone has an incorrectly formatted name! This shouldn't occur in these tests
-        }
+        Milestone milestone1 = new Milestone(project, "Milestone1", endDate1.toLocalDate(), 1);
+        Milestone milestone2 = new Milestone(project, "Milestone2", endDate2.toLocalDate(), 1);
+        when(milestoneRepository.findAllByProjectIdOrderByEndDate(project.getId())).thenReturn(List.of(milestone1, milestone2));
     }
 
     @Test

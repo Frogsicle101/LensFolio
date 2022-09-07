@@ -4,6 +4,7 @@ package nz.ac.canterbury.seng302.portfolio.model.domain.projects.events;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.service.OccasionService;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.Entity;
@@ -19,7 +20,6 @@ import java.time.LocalTime;
 public class Event extends Deadline {
 
     private LocalDateTime startDate;
-    private String startDateColour;
 
     /**
      * Default JPA event constructor.
@@ -41,6 +41,7 @@ public class Event extends Deadline {
      */
     public Event(Project project, String name, LocalDateTime startDate, LocalDate endDate, LocalTime endTime, int type) throws DateTimeException, InvalidNameException {
         super(project, name, endDate, endTime, type);
+        OccasionService.validateDate(project, startDate.toLocalDate());
         this.startDate = startDate;
     }
 
@@ -52,16 +53,8 @@ public class Event extends Deadline {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(LocalDateTime startDate) throws DateTimeException {
+        OccasionService.validateDate(this.getProject(), startDate.toLocalDate());
         this.startDate = startDate;
     }
-
-    public String getStartDateColour() {
-        return startDateColour;
-    }
-
-    public void setStartDateColour(String startDateColour) {
-        this.startDateColour = startDateColour;
-    }
-
 }

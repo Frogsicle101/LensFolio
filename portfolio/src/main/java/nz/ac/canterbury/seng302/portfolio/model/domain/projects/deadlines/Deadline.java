@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.service.OccasionService;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.Entity;
@@ -69,8 +70,9 @@ public class Deadline extends Milestone {
         return this.dateTime;
     }
 
-    public void setDateTime(LocalDateTime eventEnd) {
+    public void setDateTime(LocalDateTime eventEnd) throws DateTimeException {
         this.dateTime = eventEnd;
+        OccasionService.validateDate(this.getProject(), eventEnd.toLocalDate());
         setEndTime(eventEnd.toLocalTime());
         setEndDate(eventEnd.toLocalDate());
     }

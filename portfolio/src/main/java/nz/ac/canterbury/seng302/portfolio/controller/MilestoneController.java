@@ -26,7 +26,8 @@ import java.util.NoSuchElementException;
  * The controller for managing requests to access and edit milestones.
  */
 @RestController
-public class MilestoneController {
+public class MilestoneController {    /** For checking the inputs against the regex */
+private final RegexService regexService;
 
     /** For logging the requests related to milestones. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -37,8 +38,7 @@ public class MilestoneController {
     /** To retrieve and edit information about milestones */
     private final MilestoneRepository milestoneRepository;
 
-    /** For checking the inputs against the regex */
-    private final RegexService regexService;
+
 
 
     /**
@@ -82,8 +82,8 @@ public class MilestoneController {
             @RequestParam(defaultValue = "1", value = "typeOfOccasion") int typeOfOccasion
     ) {
         String methodLoggingTemplate = "PUT /addMilestone: {}";
+        logger.info(methodLoggingTemplate, "Called");
         try {
-            logger.info(methodLoggingTemplate, "Called");
             LocalDate milestoneEnd = LocalDate.parse(end);
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Could not find Project with id " + projectId
@@ -138,22 +138,19 @@ public class MilestoneController {
             @RequestParam(defaultValue = "1", value = "typeOfMilestone") int typeOfOccasion
     ) {
         String methodLoggingTemplate = "PUT /editMilestone: {}";
+        logger.info(methodLoggingTemplate, "Called");
         try {
-            logger.info(methodLoggingTemplate, "Called");
             Milestone milestone = milestoneRepository.findById(milestoneId).orElseThrow(() -> new EntityNotFoundException(
                     "Milestone with id " + milestoneId + " was not found"
             ));
 
-            LocalDate milestoneDate = LocalDate.parse(date);
-
             regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Milestone title");
 
             milestone.setName(name);
-            milestone.setEndDate(milestoneDate);
+            milestone.setEndDate(LocalDate.parse(date));
             milestone.setType(typeOfOccasion);
 
             milestoneRepository.save(milestone);
-
             logger.info(methodLoggingTemplate, "Success");
             return new ResponseEntity<>(milestone.getId(), HttpStatus.OK);
         } catch (CheckException exception) {

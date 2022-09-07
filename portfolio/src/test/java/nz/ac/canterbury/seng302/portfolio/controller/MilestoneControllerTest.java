@@ -61,7 +61,7 @@ class MilestoneControllerTest {
     }
 
     @Test
-    void testAddMilestone() throws InvalidNameException {
+    void testAddMilestone() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now(), 1);
         ResponseEntity<Object> response = milestoneController.addMilestone(milestone.getProject().getId(), milestone.getName(), milestone.getEndDate().toString(), milestone.getType());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -69,7 +69,7 @@ class MilestoneControllerTest {
     }
 
     @Test
-    void testAddMilestoneNoProject() throws InvalidNameException {
+    void testAddMilestoneNoProject() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now(), 1);
         Mockito.when(mockProjectRepository.findById(Mockito.any())).thenReturn(Optional.empty());
         ResponseEntity<Object> response = milestoneController.addMilestone(milestone.getProject().getId(), milestone.getName(), milestone.getEndDate().toString(), milestone.getType());
@@ -79,7 +79,7 @@ class MilestoneControllerTest {
 
 
     @Test
-    void testAddMilestoneBadTitle() throws InvalidNameException {
+    void testAddMilestoneBadTitle() {
         Milestone milestone = new Milestone(project, "@", LocalDate.now(), 1);
         ResponseEntity<Object> response = milestoneController.addMilestone(milestone.getProject().getId(), milestone.getName(), milestone.getEndDate().toString(), milestone.getType());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -87,7 +87,7 @@ class MilestoneControllerTest {
     }
 
     @Test
-    void testAddMilestoneBadDate() throws InvalidNameException {
+    void testAddMilestoneBadDate() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now(), 1);
         ResponseEntity<Object> response = milestoneController.addMilestone(milestone.getProject().getId(), milestone.getName(), LocalDate.now().minusYears(1).toString(), milestone.getType());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -96,7 +96,7 @@ class MilestoneControllerTest {
 
 
     @Test
-    void testAddMilestoneBadDateCantParse() throws InvalidNameException {
+    void testAddMilestoneBadDateCantParse() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now(), 1);
         ResponseEntity<Object> response = milestoneController.addMilestone(milestone.getProject().getId(), milestone.getName(), "cheese", milestone.getType());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -105,7 +105,7 @@ class MilestoneControllerTest {
 
 
     @Test
-    void testEditMilestone() throws InvalidNameException {
+    void testEditMilestone() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now(), 1);
         Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.of(milestone));
         ResponseEntity<Object> response = milestoneController.editMilestone(milestone.getId(), "Name", String.valueOf(LocalDate.now().plusDays(1)), 2);
@@ -113,7 +113,7 @@ class MilestoneControllerTest {
     }
 
     @Test
-    void testEditMilestoneNoMilestone() throws InvalidNameException {
+    void testEditMilestoneNoMilestone() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now(), 1);
         Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.empty());
         ResponseEntity<Object> response = milestoneController.editMilestone(milestone.getId(), "Name", String.valueOf(LocalDate.now().plusDays(1)), 2);
@@ -121,7 +121,7 @@ class MilestoneControllerTest {
     }
 
     @Test
-    void testEditMilestoneBadParse() throws InvalidNameException {
+    void testEditMilestoneBadParse() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now(), 1);
         Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.of(milestone));
         ResponseEntity<Object> response = milestoneController.editMilestone(milestone.getId(), "Name", "cheese", 2);
@@ -130,7 +130,7 @@ class MilestoneControllerTest {
     }
 
     @Test
-    void testEditMilestoneBadDate() throws InvalidNameException {
+    void testEditMilestoneBadDate() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now(), 1);
         Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.of(milestone));
         ResponseEntity<Object> response = milestoneController.editMilestone(milestone.getId(), "Name", String.valueOf(LocalDate.now().minusYears(1)), 2);
@@ -140,7 +140,7 @@ class MilestoneControllerTest {
 
 
     @Test
-    void testGetMilestoneList() throws InvalidNameException {
+    void testGetMilestoneList() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now().plusDays(1), 1);
         Milestone milestone2 = new Milestone(project, "testMilestone", LocalDate.now().plusDays(3), 1);
         Milestone milestone3 = new Milestone(project, "testMilestone", LocalDate.now(), 1);
@@ -162,7 +162,7 @@ class MilestoneControllerTest {
 
 
     @Test
-    void testGetMilestone() throws InvalidNameException {
+    void testGetMilestone() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now().plusDays(1), 1);
         Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.of(milestone));
         ResponseEntity<Object> response = milestoneController.getMilestone(milestone.getId());
@@ -171,7 +171,7 @@ class MilestoneControllerTest {
     }
 
     @Test
-    void testGetMilestoneNotFound() throws InvalidNameException {
+    void testGetMilestoneNotFound() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now().plusDays(1), 1);
         Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.empty());
         ResponseEntity<Object> response = milestoneController.getMilestone(milestone.getId());
@@ -180,7 +180,7 @@ class MilestoneControllerTest {
 
 
     @Test
-    void testDeleteMilestone() throws InvalidNameException {
+    void testDeleteMilestone() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now().plusDays(1), 1);
         Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.of(milestone));
         ResponseEntity<Object> response = milestoneController.deleteMilestone(milestone.getId());
@@ -189,15 +189,12 @@ class MilestoneControllerTest {
     }
 
     @Test
-    void testDeleteMilestoneNotFound() throws InvalidNameException {
+    void testDeleteMilestoneNotFound() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now().plusDays(1), 1);
         Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.empty());
         ResponseEntity<Object> response = milestoneController.deleteMilestone(milestone.getId());
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-
     }
-
-
 }
 
 

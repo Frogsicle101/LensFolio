@@ -1,9 +1,12 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.DeadlineRepository;
+import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
+import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.InvalidNameException;
 import javax.persistence.EntityNotFoundException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -37,17 +39,24 @@ public class DeadlineController {
     /** To retrieve and edit information about deadlines */
     private final DeadlineRepository deadlineRepository;
 
+    /** For checking the inputs against the regex */
+    private final RegexService regexService;
+
 
     /**
      * Autowired constructor to inject the required dependencies into the controller.
      *
      * @param projectRepository - To retrieve and edit information about projects
      * @param deadlineRepository - To retrieve and edit information about deadlines
+     * @param regexService - For checking the inputs against the regex
      */
     @Autowired
-    public DeadlineController(ProjectRepository projectRepository, DeadlineRepository deadlineRepository) {
+    public DeadlineController(ProjectRepository projectRepository,
+                              DeadlineRepository deadlineRepository,
+                              RegexService regexService) {
         this.projectRepository = projectRepository;
         this.deadlineRepository = deadlineRepository;
+        this.regexService = regexService;
     }
 
 
@@ -80,48 +89,21 @@ public class DeadlineController {
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Project with id " + projectId + " was not found"
             ));
-
-            if (name == null) {
-                Long count = deadlineRepository.countDeadlineByProjectId(projectId);
-                name = "Deadline " + (count + 1);
-            } else if (name.length() > 50) {
-                throw new InvalidNameException("The name of a deadline cannot be more than 50 characters");
-            }
-            //  Get the deadline end dateTime.
-            // end returns a string in the format "1986-01-28T11:38:00.01"
-            // DateTimeFormatter.ISO_DATE_TIME helps parse that string by declaring its format.
-            LocalDateTime deadlineEnd;
-            if (end == null) {  // if the date is empty then set it as the start of the project or today's date
-                if (LocalDate.now().isAfter(project.getStartDate())) {
-                    deadlineEnd = LocalDateTime.now();
-                } else {
-                    deadlineEnd = project.getStartDateAsLocalDateTime();
-                }
-            } else {
-                deadlineEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
-            }
-            //Check to see if the dates are within the correct range
-            if (deadlineEnd.isAfter(project.getEndDateAsLocalDateTime()) || deadlineEnd.isBefore(project.getStartDateAsLocalDateTime())) {
-                String returnMessage = "Date(s) exist outside of project dates";
-                logger.warn(methodLoggingTemplate, returnMessage);
-                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
-            }
-            //Check if the type of occasion is valid
-            if (typeOfOccasion < 1) {
-                String returnMessage = "Invalid type of occasion";
-                logger.warn(methodLoggingTemplate, returnMessage);
-                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
-            }
+            regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Deadline title");
+            LocalDateTime deadlineEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
 
             Deadline deadline = new Deadline(project, name, deadlineEnd.toLocalDate(), deadlineEnd.toLocalTime(), typeOfOccasion);
             Deadline deadlineReturn = deadlineRepository.save(deadline);
 
             logger.info("PUT /addDeadline: Success");
             return new ResponseEntity<>(deadlineReturn, HttpStatus.OK);
+        } catch (CheckException exception) {
+            logger.warn(methodLoggingTemplate, exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (EntityNotFoundException err) {
             logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (InvalidNameException | IllegalArgumentException | DateTimeException err) {
+        } catch (IllegalArgumentException | DateTimeException err) {
             logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
@@ -142,7 +124,6 @@ public class DeadlineController {
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
      * @param deadlineId     the ID of the deadline being edited.
-     * @param projectId      id of project to add deadline to.
      * @param name           the new name of the deadline.
      * @param dateEnd        the new date of the deadline.
      * @param timeEnd        the new time of the deadline
@@ -152,7 +133,6 @@ public class DeadlineController {
     @PostMapping("/editDeadline")
     public ResponseEntity<String> editDeadline(
             @RequestParam(value = "deadlineId") String deadlineId,
-            @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "deadlineName") String name,
             @RequestParam(value = "deadlineDate") String dateEnd,
             @RequestParam(value = "deadlineTime") String timeEnd,
@@ -165,47 +145,23 @@ public class DeadlineController {
                     "Deadline with id " + deadlineId + " was not found"
             ));
 
-            Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
-                    "Project with id " + projectId + " was not found"
-            ));
+            regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Deadline title");
 
-            // if no name is given then keep the name it has already
-            if (name != null) {
-                if (name.length() > 50) {
-                    throw new InvalidNameException("The name of a deadline cannot be more than 50 characters");
-                } else {
-                    deadline.setName(name);
-                }
-            }
-
-            LocalDate deadlineEndDate;
-            LocalTime deadlineEndTime;
-            if (dateEnd != null) {  // if the date is empty then keep it as it is
-                deadlineEndDate = LocalDate.parse(dateEnd);
-                if (deadlineEndDate.isAfter(project.getEndDate()) || deadlineEndDate.isBefore(project.getStartDate())) {
-                    throw new DateTimeException("The deadline date cannot be outside of the project");
-                }
-                deadline.setEndDate(deadlineEndDate);
-            }
-
-            if (timeEnd != null) { // if the time is empty then keep it as it is
-                deadlineEndTime = LocalTime.parse(timeEnd);
-                deadline.setEndTime(deadlineEndTime);
-            }
-            if (typeOfOccasion != null) {
-                if (typeOfOccasion < 1) {
-                    throw new IllegalArgumentException("The type of the deadline is not a valid");
-                }
-                deadline.setType(typeOfOccasion);
-            }
+            deadline.setName(name);
+            deadline.setEndTime(LocalTime.parse(timeEnd));
+            deadline.setEndDate(LocalDate.parse(dateEnd));
+            deadline.setType(typeOfOccasion);
 
             deadlineRepository.save(deadline);
             logger.info("PUT /deleteDeadline: Success");
             return new ResponseEntity<>(HttpStatus.OK);
+        } catch (CheckException exception) {
+            logger.warn(methodLoggingTemplate, exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (EntityNotFoundException err) {
             logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (InvalidNameException | IllegalArgumentException | DateTimeException err) {
+        } catch (IllegalArgumentException | DateTimeException err) {
             logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
