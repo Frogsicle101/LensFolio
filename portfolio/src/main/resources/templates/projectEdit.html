@@ -12,7 +12,7 @@
 <section class="editProjectContainer">
     <!-- The was-validated class allows us to use bootstrap validation   -->
     <form class="editForm was-validated" method="post">
-        <h1>Project</h1>
+        <h1>Edit Project</h1>
         <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert"
              style="display: none">
             <p class="errorMessage"></p>
@@ -59,14 +59,6 @@
                 <input class="form-control date" id="projectEndDate" name="projectEndDate"
                        required th:min="${minEndDate}" th:value="${project.getEndDate()}"
                        type="date">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <div class="dateAlert alert alert-danger alert-dismissible fade show" role="alert"
-                     style="display: none">
-                    <strong>Oh no!</strong> You should probably make the start date be before the end date
-                </div>
             </div>
         </div>
         <div class="mb-3">

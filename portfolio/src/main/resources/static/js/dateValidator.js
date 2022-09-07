@@ -3,16 +3,13 @@
  * displays an error message
  */
 function checkDateOrder(startDate, endDate) {
-    let dateAlert = $(".dateAlert")
+    let pickers = $(".date").get()
+    for (let picker of pickers) {
+        picker.setCustomValidity("");
+    }
     if (startDate >= endDate) {
-        dateAlert.slideDown()
-        $(".canDisable").attr("disabled", true)
-        $(".date").addClass("is-invalid")
-        $(".editForm").removeClass("was-validated")
-    } else {
-        $(".canDisable").attr("disabled", false)
-        $(".date").removeClass("is-invalid")
-        $(".editForm").addClass("was-validated")
-        dateAlert.slideUp();
+        for (let picker of pickers) {
+            picker.setCustomValidity("Start date must be before end date");
+        }
     }
 }

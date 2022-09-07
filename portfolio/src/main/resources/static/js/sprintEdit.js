@@ -15,7 +15,7 @@ $(() => {
 
 
     // When submit button is clicked on sprint edit form
-    $(".sprintEditForm").on("submit", function (event) {
+    $(".editForm").on("submit", function (event) {
         event.preventDefault()
 
         let dataToSend = {

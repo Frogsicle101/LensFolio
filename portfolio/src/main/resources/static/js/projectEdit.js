@@ -6,16 +6,24 @@ $(() => {
     let projectId = $("#projectId")
     let projectDescription = $("#projectDescription")
 
-    // The following two chunks of code are related to the date inputs
-    // They check that the projectStart or projectEnd are not the wrong way (start after end etc)
-    projectStart.on("change", () => checkDateOrder(projectStart.val(), projectEnd.val()))
+    projectStart.on("change", () => {
+        checkDateOrder(projectStart.val(), projectEnd.val())
+        if (projectStart.val() > projectStart[0].max) {
+            const maxDateFormatted = new Date(projectStart[0].max).toLocaleDateString();
+            projectStart[0].setCustomValidity("There are sprints that start before that date. Please select a date earlier than " + maxDateFormatted);
+        }
+    })
 
-
-    projectEnd.on("change", () => checkDateOrder(projectStart.val(), projectEnd.val()))
-
+    projectEnd.on("change", () => {
+        checkDateOrder(projectStart.val(), projectEnd.val())
+        if (projectEnd.val() < projectEnd[0].min) {
+            const minDateFormatted = new Date(projectEnd[0].min).toLocaleDateString();
+            projectEnd[0].setCustomValidity("There are sprints that end before that date. Please select a date after " + minDateFormatted);
+        }
+    })
 
     //When the submit button is clicked on the form.
-    $(".projectEditForm").on("submit", function (event) {
+    $(".editForm").on("submit", function (event) {
         event.preventDefault()
 
         let dataToSend = {
