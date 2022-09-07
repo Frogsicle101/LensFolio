@@ -147,6 +147,7 @@ public class DateTimeService {
 
     /**
      * Formats a date into E d MMMM y format.
+     *
      * @return the formatted date.
      */
     public static DateTimeFormatter dayDateMonthYear() {
@@ -156,6 +157,7 @@ public class DateTimeService {
 
     /**
      * Formats a date into hh:mma E d MMMM y format.
+     *
      * @return the formatted date.
      */
     public static DateTimeFormatter timeDateMonthYear() {
@@ -165,15 +167,18 @@ public class DateTimeService {
 
     /**
      * Formats a date into yyyy-MM-dd format.
-     * @return the formatted date,
+     *
+     * @return the formatted date.
      */
     public static DateTimeFormatter yearMonthDay() {
         return DateTimeFormatter.ofPattern("yyyy-MM-dd");
     }
 
+
     /**
      * Formats a date into dd/MM/yyyy format.
-     * @return the formatted date,
+     *
+     * @return the formatted date.
      */
     public static DateTimeFormatter dayMonthYear() {
         return DateTimeFormatter.ofPattern("dd/MM/yyyy");

@@ -89,7 +89,8 @@ $(document).on("click", ".deleteSprint", function () {
 })
 
 /**
- * Gets a list of sprint objects from the backend and adds them to the page
+ * Gets a list of sprint objects from the backend and adds them to the page.
+ *
  * @param callback A function to call when the ajax request returns
  */
 function getSprints(callback = ()=>{}) {
@@ -110,10 +111,11 @@ function getSprints(callback = ()=>{}) {
 }
 
 /**
- * Creates a sting containing html to display the given sprint on the page
- * @param sprintObject An object containing the properties of the sprint
- * @param index Used for generating sprint labels. Is this sprint 1, sprint 2, etc
- * @returns {string} HTML to be appended
+ * Creates a sting containing html to display the given sprint on the page.
+ *
+ * @param sprintObject An object containing the properties of the sprint.
+ * @param index Used for generating sprint labels. Is this sprint 1, sprint 2, etc.
+ * @returns {string} HTML to be appended.
  */
 function appendSprint(sprintObject, index) {
     index = parseInt(index) + 1
@@ -138,7 +140,6 @@ function appendSprint(sprintObject, index) {
                         <h6>${sprintObject.endDateFormatted}</h6>
                     </div>
                 </div>
-                
                 <div class="mb-3">
                     <p>${sprintObject.description}</p>
                 </div>

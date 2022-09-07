@@ -1,4 +1,4 @@
-$(function () {
+$(() => {
 
     let sprintId = $("#sprintId")
     let sprintName = $("#sprintName")
@@ -12,6 +12,7 @@ $(function () {
 
 
     sprintEndDate.on("change", () => checkDateOrder(sprintStartDate.val(), sprintEndDate.val()))
+
 
     // When submit button is clicked on sprint edit form
     $(".sprintEditForm").on("submit", function (event) {
