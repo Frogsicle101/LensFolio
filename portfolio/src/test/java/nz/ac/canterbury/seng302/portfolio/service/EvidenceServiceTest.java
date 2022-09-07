@@ -539,9 +539,9 @@ class EvidenceServiceTest {
     @Test
     void testAddMultipleSkillsToEvidenceWhenSkillsExist() {
         Skill usersSkill1 = new Skill(1, "Skill 1");
-        Mockito.when(skillRepository.findByNameIgnoreCase("Skill 1")).thenReturn(Optional.of(usersSkill1));
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("Skill 1"))).thenReturn(Optional.of(usersSkill1));
         Skill usersSkill2 = new Skill(1, "Skill 2");
-        Mockito.when(skillRepository.findByNameIgnoreCase("Skill 2")).thenReturn(Optional.of(usersSkill2));
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("Skill 2"))).thenReturn(Optional.of(usersSkill2));
 
         List<String> listSkills = new ArrayList<>();
         listSkills.add("Skill 1");
