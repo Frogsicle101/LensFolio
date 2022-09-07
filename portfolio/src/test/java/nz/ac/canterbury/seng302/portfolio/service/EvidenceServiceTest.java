@@ -554,9 +554,7 @@ class EvidenceServiceTest {
         when(userAccountsClientService.getUserAccountById(request)).thenReturn(UserResponse.newBuilder().setId(-1).build());
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L, associates);
 
-        Assertions.assertThrows(CheckException.class, () -> {
-            evidenceService.addEvidence(principal, evidenceDTO);
-        });
+        Assertions.assertThrows(CheckException.class, () -> evidenceService.addEvidence(principal, evidenceDTO));
     }
 
 
@@ -691,8 +689,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addSkills(evidence, listSkills)
         );
-        System.out.println(exception.getMessage());
-        Assertions.assertTrue(exception.getMessage().contains("Skill name can only contain unicode letters, numbers, " +
+        Assertions.assertTrue(exception.getMessage().contains("skill name can only contain unicode letters, numbers, " +
                 "punctuation, symbols (but not emojis) and whitespace"));
     }
 
