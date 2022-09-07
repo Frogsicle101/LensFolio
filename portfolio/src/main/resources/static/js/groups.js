@@ -613,7 +613,7 @@ $(document).on("submit", "#editGroupForm", function (event) {
         type: type,
         data: groupData,
         success: function () {
-            createAlert("Changes submitted");
+            createAlert("Changes submitted", "success");
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
