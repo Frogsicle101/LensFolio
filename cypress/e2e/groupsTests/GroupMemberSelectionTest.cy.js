@@ -1,44 +1,46 @@
 context("Ctrl Selecting Group Members", () => {
     beforeEach(() => {
         cy.adminLogin()
-        cy.get('.navButtonsDiv').click();
-        cy.get('#2').click('top');
+        cy.visit('/groups')
+        cy.get('#2').click() // selects non-group
     })
 
     it('ctrl clicking 2 adjacent rows', () => {
         cy.get('.userRow').first()
             .click({ctrlKey: true})
-        cy.get('.userRow:not(.selected)').first()
+        cy.get('.userRow:not(.ui-selected)').first()
             .click({ctrlKey: true})
-        cy.get('.selected').should('have.length', 2)
+        cy.get('.ui-selected').should('have.length', 2)
     })
 
     it('ctrl clicking 2 non-adjacent rows', () => {
         cy.get('.userRow').first()
             .click({ctrlKey: true})
-        cy.get('.userRow:not(.selected)').last()
+        cy.get('.userRow:not(.ui-selected)').last()
             .click({ctrlKey: true})
-        cy.get('.selected').should('have.length', 2)
+        cy.get('.ui-selected').should('have.length', 2)
     })
 
     it('ctrl clicking 2 adjacent rows, then deselecting them', () => {
         cy.get('.userRow').first()
             .click({ctrlKey: true})
-        cy.get('.userRow:not(.selected)').first()
+        cy.get('.userRow:not(.ui-selected)').first()
             .click({ctrlKey: true})
-        cy.get('.selected').first().click({ctrlKey: true})
-        cy.get('.selected').first().click({ctrlKey: true})
-        cy.get('.selected').should('have.length', 0)
+        cy.get('.ui-selected').first().click()
+        cy.get('.ui-selected').first().click({ctrlKey: true, force: true})
+
+        cy.get('.ui-selected').should('have.length', 0)
     })
 
     it('ctrl clicking 2 non-adjacent rows, press again to deselect', () => {
         cy.get('.userRow').first()
             .click({ctrlKey: true})
-        cy.get('.userRow:not(.selected)').last()
+        cy.get('.userRow:not(.ui-selected)').last()
             .click({ctrlKey: true})
-        cy.get('.selected').first().click({ctrlKey: true})
-        cy.get('.selected').first().click({ctrlKey: true})
-        cy.get('.selected').should('have.length', 0)
+        cy.get('.ui-selected').first().click()
+        cy.get('.ui-selected').first().click({ctrlKey: true, force: true})
+
+        cy.get('.ui-selected').should('have.length', 0)
     })
 })
 
@@ -46,7 +48,7 @@ context("Ctrl Selecting Group Members", () => {
 context("Shift Selecting Group Members", () => {
     beforeEach(() => {
         cy.adminLogin()
-        cy.get('.navButtonsDiv').click();
+        cy.visit('/groups')
         cy.get('#2').click('top');
     })
 
@@ -55,26 +57,20 @@ context("Shift Selecting Group Members", () => {
 
         cy.get('.userRow').first()
             .click({shiftKey: true})
-        cy.get('body')
-            .type('{shift}', {release: false})
         cy.get('.userRow').last()
-            .click()
+            .click({shiftKey: true})
 
-        cy.get('.selected').should('have.length', (numRows))
+        cy.get('.ui-selected').should('have.length', numRows)
     })
-
 
     it('shift selecting and deselecting the whole group members list except one', () => {
         cy.get('.userRow').first()
             .click({shiftKey: true})
-        cy.get('body')
-            .type('{shift}', {release: false})
         cy.get('.userRow').last()
-            .click()
-        cy.get('body')
-            .type('{shift}', )
+            .click({shiftKey: true})
         cy.contains('Shirley').click()
-        cy.get('.selected')
+
+        cy.get('.ui-selected')
             .should('have.length', 1)
             .find('td').first().should('contain.text', '15')
     })
@@ -84,26 +80,23 @@ context("Shift Selecting Group Members", () => {
 context("Shift and Ctrl Selecting Group Members", () => {
     beforeEach(() => {
         cy.adminLogin()
-        cy.get('.navButtonsDiv').click();
+        cy.visit('/groups')
         cy.get('#2').click('top');
     })
 
     it('shift selecting and deselecting the whole group members list except one', () => {
-        const numRows = Cypress.$('.userRow').length
+        const numRows = Cypress.$('.userRow').length - 1
 
         cy.get('.userRow').first()
             .click({shiftKey: true})
-        cy.get('body')
-            .type('{shift}', {release: false})
         cy.get('.userRow').last()
-            .click()
-        cy.get('body')
-            .type('{shift}', )
+            .click({shiftKey: true})
         cy.contains('Shirley')
-            .click({ctrlKey: true})
-        cy.get('.selected')
-            .should('have.length', numRows-1)
-        cy.get('.userRow:not(.selected)').first()
+            .click({ctrlKey: true, force: true})
+
+        cy.get('.ui-selected')
+            .should('have.length', numRows)
+        cy.get('.userRow:not(.ui-selected)').first()
             .should('contain.text', '15')
     })
 })
