@@ -1,6 +1,3 @@
-/** A regex only allowing English characters */
-const regExp = new RegExp('[A-Za-z]');
-
 
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
@@ -15,21 +12,10 @@ $(document).ready(function () {
 
     if (userBeingViewedId !== userIdent) {
         $(".evidenceDeleteButton").hide()
-        $(".createEvidenceButton").hide();
+        $("#createEvidenceButton").hide();
     }
     resetWeblink()
     getAndAddEvidencePreviews()
     checkToShowSkillChips()
     getSkills()
 })
-
-
-
-// --------------------------- Functional HTML Components ------------------------------------
-
-
-
-
-
-
-
