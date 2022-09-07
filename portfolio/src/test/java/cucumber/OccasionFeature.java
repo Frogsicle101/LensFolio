@@ -130,7 +130,6 @@ public class OccasionFeature {
 
     @Given("the user is authenticated: {string}")
     public void the_user_is_authenticated(String isAuthenticatedString) {
-        deadlineController.setUserAccountsClientService(clientService);
         boolean isAuthenticated = Boolean.parseBoolean(isAuthenticatedString);
         UserResponse.Builder user = UserResponse.newBuilder();
         user.setUsername("steve")
@@ -166,7 +165,7 @@ public class OccasionFeature {
         if (deadlineName.equals("left blank")) {
             deadlineName = null;
         }
-        ResponseEntity<Object> stat = deadlineController.addDeadline(new Authentication(principal), project.getId(), deadlineName, dateTime, 1);
+        ResponseEntity<Object> stat = deadlineController.addDeadline(project.getId(), deadlineName, dateTime, 1);
     }
 
     @When("a user creates a milestone for {string} with name {string} and type {int}")
@@ -195,5 +194,4 @@ public class OccasionFeature {
         boolean deadlineExists = Boolean.parseBoolean(milestoneExistsString);
         assertEquals(deadlineExists, milestone != null);
     }
-
 }

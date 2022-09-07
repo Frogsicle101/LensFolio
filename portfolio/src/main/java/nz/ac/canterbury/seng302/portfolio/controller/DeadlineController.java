@@ -1,19 +1,14 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.DeadlineRepository;
-import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.InvalidNameException;
@@ -27,17 +22,29 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * The controller for managing requests to access and edit deadlines.
+ */
 @RestController
 public class DeadlineController {
 
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
-
-    private final ProjectRepository projectRepository;
-    private final DeadlineRepository deadlineRepository;
+    /** For logging the requests related to milestones. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /** To retrieve and edit information about projects */
+    private final ProjectRepository projectRepository;
 
+    /** To retrieve and edit information about deadlines */
+    private final DeadlineRepository deadlineRepository;
+
+
+    /**
+     * Autowired constructor to inject the required dependencies into the controller.
+     *
+     * @param projectRepository - To retrieve and edit information about projects
+     * @param deadlineRepository - To retrieve and edit information about deadlines
+     */
+    @Autowired
     public DeadlineController(ProjectRepository projectRepository, DeadlineRepository deadlineRepository) {
         this.projectRepository = projectRepository;
         this.deadlineRepository = deadlineRepository;
@@ -55,7 +62,6 @@ public class DeadlineController {
      * The deadline is then created with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
-     * @param principal The AuthState of the user making the request, for authentication
      * @param projectId id of project to add deadline to.
      * @param name      Name of milestone.
      * @param end       end of the deadline
@@ -63,21 +69,13 @@ public class DeadlineController {
      */
     @PutMapping("/addDeadline")
     public ResponseEntity<Object> addDeadline(
-            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "deadlineName") String name,
             @RequestParam(value = "deadlineEnd") String end,
             @RequestParam(defaultValue = "1", value = "typeOfOccasion") int typeOfOccasion
     ) {
-        logger.info("PUT /addDeadline");
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-
-        // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
-        List<UserRole> roles = userResponse.getRolesList();
-        if (!roles.contains(UserRole.TEACHER) && !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
-            logger.info("PUT /addDeadline: Unauthorised User");
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        String methodLoggingTemplate = "PUT /addDeadline: {}";
+        logger.info(methodLoggingTemplate, "Called");
         try {
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
                     "Project with id " + projectId + " was not found"
@@ -105,13 +103,13 @@ public class DeadlineController {
             //Check to see if the dates are within the correct range
             if (deadlineEnd.isAfter(project.getEndDateAsLocalDateTime()) || deadlineEnd.isBefore(project.getStartDateAsLocalDateTime())) {
                 String returnMessage = "Date(s) exist outside of project dates";
-                logger.warn("PUT /addDeadline: {}", returnMessage);
+                logger.warn(methodLoggingTemplate, returnMessage);
                 return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
             }
             //Check if the type of occasion is valid
             if (typeOfOccasion < 1) {
                 String returnMessage = "Invalid type of occasion";
-                logger.warn("PUT /addDeadline: {}", returnMessage);
+                logger.warn(methodLoggingTemplate, returnMessage);
                 return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
             }
 
@@ -121,13 +119,13 @@ public class DeadlineController {
             logger.info("PUT /addDeadline: Success");
             return new ResponseEntity<>(deadlineReturn, HttpStatus.OK);
         } catch (EntityNotFoundException err) {
-            logger.warn("PUT /addDeadline: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (InvalidNameException | IllegalArgumentException | DateTimeException err) {
-            logger.warn("PUT /addDeadline: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
-            logger.warn("PUT /addDeadline: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -143,7 +141,6 @@ public class DeadlineController {
      * The deadline is then edited with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
-     * @param principal      The Authentication of the user making the request, for authentication
      * @param deadlineId     the ID of the deadline being edited.
      * @param projectId      id of project to add deadline to.
      * @param name           the new name of the deadline.
@@ -154,7 +151,6 @@ public class DeadlineController {
      */
     @PostMapping("/editDeadline")
     public ResponseEntity<String> editDeadline(
-            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "deadlineId") String deadlineId,
             @RequestParam(value = "projectId") Long projectId,
             @RequestParam(value = "deadlineName") String name,
@@ -162,15 +158,8 @@ public class DeadlineController {
             @RequestParam(value = "deadlineTime") String timeEnd,
             @RequestParam(value = "typeOfOccasion") Integer typeOfOccasion
     ) {
-        logger.info("PUT /editDeadline");
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-
-        // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
-        List<UserRole> roles = userResponse.getRolesList();
-        if (!roles.contains(UserRole.TEACHER) && !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
-            logger.info("PUT /editDeadline: Unauthorised User");
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        String methodLoggingTemplate = "PUT /editDeadline: {}";
+        logger.info(methodLoggingTemplate, "Called");
         try {
             Deadline deadline = deadlineRepository.findById(deadlineId).orElseThrow(() -> new EntityNotFoundException(
                     "Deadline with id " + deadlineId + " was not found"
@@ -214,13 +203,13 @@ public class DeadlineController {
             logger.info("PUT /deleteDeadline: Success");
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException err) {
-            logger.warn("PUT /editDeadline: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (InvalidNameException | IllegalArgumentException | DateTimeException err) {
-            logger.warn("PUT /editDeadline: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
-            logger.warn("PUT /editDeadline: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -231,23 +220,13 @@ public class DeadlineController {
      * The method attempts to get the deadline from the repository and if it cannot it will throw an EntityNotFoundException
      * Otherwise it will delete the deadline from the repository.
      *
-     * @param principal  The Authentication of the user making the request, for authentication
      * @param deadlineId The UUID of the deadline to be deleted
      * @return A response indicating either success, or an error-code as to why it failed.
      */
     @DeleteMapping("/deleteDeadline")
     public ResponseEntity<Object> deleteDeadline(
-            @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "deadlineId") String deadlineId) {
         logger.info("PUT /deleteDeadline");
-        UserResponse userResponse = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-
-        // Checks what role the user has and if it's not a teacher or a course admin it returns a forbidden response
-        List<UserRole> roles = userResponse.getRolesList();
-        if (!roles.contains(UserRole.TEACHER) && !roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
-            logger.info("PUT /deleteDeadline: Unauthorised User");
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
         try {
             Deadline deadline = deadlineRepository.findById(deadlineId).orElseThrow(() -> new EntityNotFoundException(
                     "Deadline with id " + deadlineId + " was not found"
@@ -308,15 +287,5 @@ public class DeadlineController {
             logger.error("GET /getDeadline: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-
-    /**
-     * Used to set a userAccountClientService if not using the autowired one. Useful for testing and mocking
-     *
-     * @param service The userAccountClientService to be used
-     */
-    public void setUserAccountsClientService(UserAccountsClientService service) {
-        this.userAccountsClientService = service;
     }
 }
