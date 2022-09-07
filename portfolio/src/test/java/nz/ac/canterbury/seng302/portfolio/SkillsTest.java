@@ -108,14 +108,14 @@ class SkillsTest {
     @Test
     void testSkillNameUniqueToUser() {
         Evidence evidence1 = new Evidence(1, "test", LocalDate.now(), "test");
+        Evidence evidence2 = new Evidence(2, "test", LocalDate.now(), "test");
         Skill skill1 = new Skill("TESTING 1");
         Skill skill2 = new Skill("testing 1");
         evidence1.addSkill(skill1);
-        skillRepository.save(skill1);
-        evidenceRepository.save(evidence1);
-        Evidence evidence2 = new Evidence(2, "test", LocalDate.now(), "test");
         evidence2.addSkill(skill2);
+        skillRepository.save(skill1);
         skillRepository.save(skill2);
+        evidenceRepository.save(evidence1);
         evidenceRepository.save(evidence2);
 
         List<Skill> skillsForUser1 = skillRepository.findDistinctByEvidenceUserId(1);

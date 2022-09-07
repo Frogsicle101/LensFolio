@@ -24,24 +24,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.when;
 
 class EvidenceServiceTest {
 
-    private Authentication principal;
-
-    private Evidence evidence;
-
-    private EvidenceService evidenceService;
     private final UserAccountsClientService userAccountsClientService = Mockito.mock(UserAccountsClientService.class);
     private final ProjectRepository projectRepository = Mockito.mock(ProjectRepository.class);
     private final EvidenceRepository evidenceRepository = Mockito.mock(EvidenceRepository.class);
     private final WebLinkRepository webLinkRepository = Mockito.mock(WebLinkRepository.class);
     private final SkillRepository skillRepository = Mockito.mock(SkillRepository.class);
     private final RegexService regexService = Mockito.spy(RegexService.class);
-
+    private Authentication principal;
+    private Evidence evidence;
+    private EvidenceService evidenceService;
 
     @BeforeEach
     void setUp() {
@@ -512,14 +509,14 @@ class EvidenceServiceTest {
 
 
     @Test
-    void testAddSkillToEvidenceWhenNoSkill(){
+    void testAddSkillToEvidenceWhenNoSkill() {
         List<String> listSkills = new ArrayList<>();
         evidenceService.addSkills(evidence, listSkills);
         Mockito.verify(skillRepository, Mockito.never()).findByNameIgnoreCase(Mockito.any());
     }
 
     @Test
-    void testAddSkillToEvidenceWhenSkillExist(){
+    void testAddSkillToEvidenceWhenSkillExist() {
         Skill usersSkill1 = new Skill(1, "Skill_1");
         Mockito.when(skillRepository.findByNameIgnoreCase("Skill_1")).thenReturn(Optional.of(usersSkill1));
         List<String> listSkills = new ArrayList<>();
@@ -532,7 +529,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void testAddSkillToEvidenceWhenSkillExistInDiffCase(){
+    void testAddSkillToEvidenceWhenSkillExistInDiffCase() {
         Skill usersSkill1 = new Skill(1, "Skill 1");
         Mockito.when(skillRepository.findByNameIgnoreCase("sKILL 1")).thenReturn(Optional.of(usersSkill1));
         List<String> listSkills = new ArrayList<>();
@@ -544,7 +541,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void testAddMultipleSkillsToEvidenceWhenSkillsExist(){
+    void testAddMultipleSkillsToEvidenceWhenSkillsExist() {
         Skill usersSkill1 = new Skill(1, "Skill 1");
         Mockito.when(skillRepository.findByNameIgnoreCase("Skill 1")).thenReturn(Optional.of(usersSkill1));
         Skill usersSkill2 = new Skill(1, "Skill 2");
@@ -561,7 +558,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void testAddSkillToEvidenceWhenSkillNotExist(){
+    void testAddSkillToEvidenceWhenSkillNotExist() {
         Mockito.when(skillRepository.findByNameIgnoreCase("Skill_1")).thenReturn(Optional.empty());
 
         List<String> listSkills = new ArrayList<>();
@@ -574,7 +571,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void testAddMultipleSkillsToEvidenceWhenSkillsNotExist(){
+    void testAddMultipleSkillsToEvidenceWhenSkillsNotExist() {
         Mockito.when(skillRepository.findByNameIgnoreCase("Skill 1")).thenReturn(Optional.empty());
         Mockito.when(skillRepository.findByNameIgnoreCase("Skill 2")).thenReturn(Optional.empty());
         List<String> listSkills = new ArrayList<>();
@@ -588,7 +585,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void testAddMultipleSkillsToEvidenceWhenSomeSkillsExistSomeNot(){
+    void testAddMultipleSkillsToEvidenceWhenSomeSkillsExistSomeNot() {
         Skill usersSkill1 = new Skill(1, "Skill 1");
         Mockito.when(skillRepository.findByNameIgnoreCase("Skill 1")).thenReturn(Optional.of(usersSkill1));
         Mockito.when(skillRepository.findByNameIgnoreCase("Skill 2")).thenReturn(Optional.empty());
@@ -604,7 +601,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void testAddSkillNameTooShort(){
+    void testAddSkillNameTooShort() {
         List<String> listSkills = new ArrayList<>();
         listSkills.add("");
 
@@ -616,7 +613,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void testAddSkillNameTooLong(){
+    void testAddSkillNameTooLong() {
         List<String> listSkills = new ArrayList<>();
         listSkills.add("A Decently Long Skill Name, Which as of the time of writing " +
                 "should exceed the limit of thirty characters");
@@ -629,7 +626,7 @@ class EvidenceServiceTest {
     }
 
     @Test
-    void testAddSkillNameContainsIllegalSymbol(){
+    void testAddSkillNameContainsIllegalSymbol() {
         List<String> listSkills = new ArrayList<>();
         listSkills.add("Dangerous Skill: ☢");
 
@@ -642,6 +639,17 @@ class EvidenceServiceTest {
                 "punctuation, symbols (but not emojis) and whitespace"));
     }
 
+
+    @Test
+    void testSkillSavesUniquelyToUser() {
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("SKILL"))).thenReturn(Optional.empty());
+
+        List<String> newSkill = new ArrayList<>();
+        newSkill.add("SKILL");
+        evidenceService.addSkills(evidence, newSkill);
+
+        Mockito.verify(skillRepository, Mockito.times(1)).save(Mockito.any());
+    }
 
     // ---------------------------------------------------
 
