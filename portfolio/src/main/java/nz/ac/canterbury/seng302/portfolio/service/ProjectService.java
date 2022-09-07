@@ -56,7 +56,7 @@ public class ProjectService {
             indexOfPrevSprint = indexOfPrevSprint - 1;
             // Adds an object to the view that limits the calendar to dates past the previous sprints end.
             neighbouringSprintDates.put(
-                    "previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate().plusDays(1));
+                    "previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate());
         } else {
             // Else adds an object to the view that limits the calendar to project start .
             neighbouringSprintDates.put("previousSprintEnd", project.getStartDate());
@@ -66,7 +66,7 @@ public class ProjectService {
             indexOfNextSprint = indexOfNextSprint + 1;
             // Adds an object to the view that limits the calendar to dates before the next sprints starts.
             neighbouringSprintDates.put(
-                    "nextSprintStart", sprintList.get(indexOfNextSprint).getStartDate().minusDays(1));
+                    "nextSprintStart", sprintList.get(indexOfNextSprint).getStartDate());
         } else {
             // Else adds an object to the view that limits the calendar to be before the project end.
             neighbouringSprintDates.put("nextSprintStart", project.getEndDate());

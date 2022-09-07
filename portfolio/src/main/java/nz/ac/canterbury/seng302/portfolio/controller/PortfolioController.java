@@ -324,8 +324,8 @@ public class PortfolioController {
       LocalDate nextSprintStart = neighbouringDates.get("nextSprintStart");
 
 
-      modelAndView.addObject("previousSprintEnd", previousSprintEnd);
-      modelAndView.addObject("nextSprintStart", nextSprintStart);
+      modelAndView.addObject("previousSprintEnd", previousSprintEnd.plusDays(1));
+      modelAndView.addObject("nextSprintStart", nextSprintStart.minusDays(1));
 
       String formattedPreviousDate = previousSprintEnd.format(DateTimeService.dayMonthYear());
       String textForPreviousSprint;

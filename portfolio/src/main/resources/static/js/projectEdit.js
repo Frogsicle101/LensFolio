@@ -12,6 +12,11 @@ $(() => {
             const maxDateFormatted = new Date(projectStart[0].max).toLocaleDateString();
             projectStart[0].setCustomValidity("There are sprints that start before that date. Please select a date earlier than " + maxDateFormatted);
         }
+
+        if (projectStart.val() < projectStart[0].min) {
+            const minDateFormatted = new Date(projectStart[0].min).toLocaleDateString();
+            projectStart[0].setCustomValidity("Date must be less than a year ago. Please select a date earlier than " + minDateFormatted);
+        }
     })
 
     projectEnd.on("change", () => {
