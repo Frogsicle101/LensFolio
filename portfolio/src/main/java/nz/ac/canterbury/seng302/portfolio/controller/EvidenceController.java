@@ -293,7 +293,8 @@ public class EvidenceController {
                     .setFilteringOptions(filter)
                     .build();
             PaginatedUsersResponse response = userAccountsClientService.getPaginatedUsersFilteredByName(request);
-            return new ResponseEntity<>(response.getUsersList(), HttpStatus.OK);
+            List<UserResponse> users = response.getUsersList();
+            return new ResponseEntity<>(users.toString(), HttpStatus.OK);
         } catch (Exception e){
             logger.warn(e.getClass().getName());
             logger.warn(e.getMessage());

@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -457,7 +456,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      * @param usersRequest the GetPaginatedUsersFilteredRequest passed through from the client service
      * @param responseObserver Used to return the response to the client side.
      */
+    @Override
     public void getPaginatedUsersFilteredByName(GetPaginatedUsersFilteredRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver){
+        logger.info("Getting filtered users");
         PaginatedUsersResponse.Builder response = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
 
         BasicStringFilteringOptions filteringOptions = usersRequest.getFilteringOptions();
@@ -465,7 +466,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 user.getLastName().toLowerCase(Locale.ROOT))
                 .contains(filteringOptions.getFilterText().toLowerCase(Locale.ROOT));
         List<UserResponse> result = response.getUsersList().stream().filter(byName)
-                .collect(Collectors.toList());
+                .toList();
+
         response.clearUsers();
         response.addAllUsers(result);
 

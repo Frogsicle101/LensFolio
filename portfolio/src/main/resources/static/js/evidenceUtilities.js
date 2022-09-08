@@ -653,7 +653,15 @@ $("#linkUsersInput")
         minLength: 1,
         delay: 500,
         source: function (request, response) {
-
+            $.ajax({
+                url: 'filteredUsers?name=' + request.term.toString(), type: "GET", contentType: "application/json", success: function (res) {
+                    console.log(res)
+                }, error: function (error) {
+                    console.log("here")
+                    console.log(error)
+                    createAlert(error.responseText, "failure", ".modal-body")
+                }
+            })
             // delegate back to autocomplete, but extract the last term
             let responseList = $.ui.autocomplete.filter(["hello", "there", "hi", "hola"], request.term)
             response(responseList.sort((element1, element2) => {
@@ -1036,6 +1044,16 @@ function webLinkButtonToggle() {
         saveButton.addClass("btn-primary")
         cancelButton.show()
     }
+    $.ajax({
+        url: 'filteredUsers?name=' + "john", success: function (res) {
+            console.log(res)
+
+        }, error: function (error) {
+            console.log("here")
+            console.log(error)
+            createAlert(error.responseText, "failure", ".modal-body")
+        }
+    })
 }
 
 
