@@ -6,7 +6,6 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Miles
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.service.OccasionService;
 
-import javax.naming.;
 import javax.persistence.Entity;
 import java.time.DateTimeException;
 import java.time.LocalDate;
