@@ -20,16 +20,16 @@ let skillsArray = []
 
 /** Provides the options of categories and maps them to user-friendly strings */
 let categoriesMapping = new Map([
-    ["SERVICE", "Service"],
     ["QUALITATIVE", "Qualitative"],
-    ["QUANTITATIVE", "Quantitative"]
+    ["QUANTITATIVE", "Quantitative"],
+    ["SERVICE", "Service"]
 ])
 
 $(() => {
-    // Counting characters
-    let textInput = $(".text-input");
-    textInput.each(countCharacters)
-    textInput.on("keyup", countCharacters)
+        // Counting characters
+        let textInput = $(".text-input");
+        textInput.each(countCharacters)
+        textInput.on("keyup", countCharacters)
     }
 )
 
@@ -237,7 +237,8 @@ function getHighlightedEvidenceWeblinks() {
  *
  * @param callback An optional callback function to be called upon successfully retrieving the skills
  */
-function getSkills(callback = () => {}) {
+function getSkills(callback = () => {
+}) {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId, type: "GET",
         success: function (response) {
@@ -261,7 +262,7 @@ function getSkills(callback = () => {}) {
 /**
  *  A helper function to take a response from an ajax call and add it to the array of skills
  */
-function addSkillResponseToArray(response){
+function addSkillResponseToArray(response) {
     let skills = []
     for (let i in response.skills) {
         skills.push(response.skills[i].name)
@@ -350,7 +351,7 @@ function createEvidencePreview(evidence) {
                 <p class="col evidenceListItemTitle">${sanitise(evidence.title)}</p>
                 <p class="col evidenceListItemDate">${sanitise(evidence.date)}</p>
             </div>
-            <div class="evidencePreviewTags skillChipDisplay">${categories}</div>
+            <div class="evidencePreviewTags categoryChipDisplay">${categories}</div>
             <div class="evidencePreviewTags skillChipDisplay">${skills}</div>
         </div>`
 }
@@ -380,11 +381,11 @@ function getSkillTags(skills) {
  */
 function getCategoryTags(categories) {
     categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
-    let skillsHTML = ``
+    let categoriesHTML = ``
     $.each(categories, function (i) {
-        skillsHTML += createCategoryChip(categoriesMapping.get(categories[i]), false)
+        categoriesHTML += createCategoryChip(categoriesMapping.get(categories[i]), false)
     })
-    return skillsHTML
+    return categoriesHTML
 }
 
 
@@ -406,7 +407,6 @@ function setDetailsToNoEvidenceExists() {
 }
 
 
-
 //---- Tooltip Refresher----
 
 
@@ -422,7 +422,7 @@ function initialiseTooltips() {
  * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
  */
 function checkWeblinkCount() {
-    let addWeblinkButton = $("#addWebLinkButton")
+    let addWeblinkButton = $("#addWeblinkButton")
     let weblinkFullTab = $("#webLinkFull")
     if (webLinksCount > 9) {
         addWeblinkButton.hide()
@@ -438,7 +438,7 @@ function checkWeblinkCount() {
  * Resets the weblink count
  */
 function resetWeblink() {
-    let addWeblinkButton = $("#addWebLinkButton")
+    let addWeblinkButton = $("#addWeblinkButton")
     let weblinkFullTab = $("#webLinkFull")
     addWeblinkButton.show()
     weblinkFullTab.hide()
@@ -552,7 +552,7 @@ $(document).on('click', '.addedWebLinkName', function () {
  * Listen for a keypress in the weblink address field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkUrl', function () {
-    $(".address-alert").alert('close')
+    $("#weblinkAddressAlert").alert('close')
 })
 
 
@@ -560,7 +560,7 @@ $(document).on('keypress', '#webLinkUrl', function () {
  * Listen for a keypress in the weblink name field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkName', function () {
-    $(".weblink-name-alert").alert('close')
+    $("#weblinkNameAlert").alert('close')
 })
 
 
@@ -858,8 +858,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 closeModal()
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                $(".address-alert").alert('close') // Close any web link alerts
-                $(".weblink-name-alert").alert('close')
+                $("#weblinkAddressAlert").alert('close') // Close any web link alerts
+                $("#weblinkNameAlert").alert('close')
                 resetWeblink()
             }, error: function (error) {
                 createAlert(error.responseText, "failure", ".modal-body")
@@ -873,17 +873,25 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '#addWebLinkButton', function () {
-    let button = $("#addWebLinkButton");
+$(document).on('click', '#addWeblinkButton', function () {
+    let button = $("#addWeblinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
         let address = $("#webLinkUrl").val()
         let alias = $("#webLinkName").val()
-        let form = $(".webLinkForm")
+        let form = $("#weblinkForm")
         validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()
     }
+})
+
+
+/**
+ * Closes the add weblink form and resets weblink form buttons when the weblink add is cancelled.
+ */
+$(document).on('click', '#cancelWeblinkButton', () => {
+    webLinkButtonToggle()
 })
 
 
@@ -907,17 +915,17 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
  */
 function validateWebLink(form, alias, address) {
     if (alias.length === 0) {
-        $(".weblink-name-alert").alert('close') //Close any previous alerts
+        $("#weblinkNameAlert").alert('close') //Close any previous alerts
         form.append(`
-                    <div class="alert alert-danger alert-dismissible show weblink-name-alert" role="alert">
+                    <div id="weblinkNameAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
                       Please include a name for your web link
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
     } else if (address.search("://") === -1) {
-        $(".address-alert").alert('close') //Close any previous alerts
+        $("#weblinkAddressAlert").alert('close') //Close any previous alerts
         form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                    <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
                       That address is missing a protocol (the part that comes before "://") - did you make a typo?
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
@@ -932,7 +940,7 @@ function validateWebLink(form, alias, address) {
  * Handles the error messages for an invalid web link.
  */
 function handleInvalidWebLink(form, error) {
-    $(".address-alert").alert('close') //Close any previous alerts
+    $("#weblinkAddressAlert").alert('close') //Close any previous alerts
     switch (error.status) {
         case 400:
             // The URL is invalid
@@ -965,7 +973,7 @@ function handleInvalidWebLink(form, error) {
  */
 function validateWebLinkAtBackend() {
     let address = $("#webLinkUrl").val()
-    let form = $(".webLinkForm")
+    let form = $("#weblinkForm")
     let data = JSON.stringify({
         "url": address,
         "name": $("#webLinkName").val()
@@ -991,18 +999,22 @@ function validateWebLinkAtBackend() {
  * and slide-toggles the form
  */
 function webLinkButtonToggle() {
-    let button = $("#addWebLinkButton");
-    $(".webLinkForm").slideToggle();
-    if (button.hasClass("toggled")) {
-        button.text("Add Web Link")
-        button.removeClass("toggled")
-        button.removeClass("btn-primary")
-        button.addClass("btn-secondary")
+    let saveButton = $("#addWeblinkButton");
+    let cancelButton = $("#cancelWeblinkButton")
+    $("#weblinkForm").slideToggle();
+    if (saveButton.hasClass("toggled")) {
+        saveButton.text("Add Web Link")
+        saveButton.removeClass("toggled")
+        saveButton.removeClass("btn-primary")
+        saveButton.addClass("btn-secondary")
+        $(".weblinkAlert").alert('close')
+        cancelButton.hide()
     } else {
-        button.text("Save Web Link")
-        button.addClass("toggled")
-        button.removeClass("btn-secondary")
-        button.addClass("btn-primary")
+        saveButton.text("Save Web Link")
+        saveButton.addClass("toggled")
+        saveButton.removeClass("btn-secondary")
+        saveButton.addClass("btn-primary")
+        cancelButton.show()
     }
 }
 

@@ -59,8 +59,8 @@ section {
 
 /* Change the color of links on hover */
 .navButtonsDiv a:hover {
-  background-color: #ddd;
-  color: black;
+    background-color: #ddd;
+    color: black;
 }
 
 
@@ -594,7 +594,7 @@ section {
 
 .fc-daygrid-event-harness {
     margin-top: 0 !important;
-    top:0 !important;
+    top: 0 !important;
 }
 
 .milestoneCalendar, .deadlineCalendar, .eventCalendar {
@@ -767,17 +767,17 @@ section {
     align-content: center;
 }
 
-.moveToDiv{
+.moveToDiv {
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-#newGroupSelector{
+#newGroupSelector {
     margin: 1rem;
 }
 
-.clickableRow:hover, .evidenceListItem :hover{
+.clickableRow:hover, .evidenceListItem :hover {
     cursor: pointer;
 }
 
@@ -859,7 +859,7 @@ section {
     position: relative;
     bottom: 10px;
     left: 10px;
-    width:25%;
+    width: 25%;
     min-width: 10rem;
     min-height: 5rem;
     border-radius: var(--border-radius);
@@ -879,7 +879,7 @@ section {
     background-color: var(--alert-blue);
     position: fixed;
     left: 10px;
-    width:25%;
+    width: 25%;
     min-width: 10rem;
     min-height: 5rem;
     border-radius: var(--border-radius);
@@ -972,7 +972,7 @@ section {
     max-width: 30%;
     padding-right: 0;
     padding-left: 0;
- }
+}
 
 .evidenceListMenu, .evidenceList {
     align-self: center;
@@ -1016,7 +1016,7 @@ section {
     justify-content: flex-end;
 }
 
-.evidenceFormName, .evidenceFormDate ,.evidenceFormDescription {
+.evidenceFormName, .evidenceFormDate, .evidenceFormDescription {
     padding-bottom: 1.5rem;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
@@ -1040,7 +1040,7 @@ section {
     display: none
 }
 
-.evidenceFormSkills{
+.evidenceFormSkills {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
@@ -1068,13 +1068,13 @@ section {
 }
 
 .modal-content {
-  position: relative;
-  background-color: #fefefe;
-  margin: auto;
-  padding: 0;
-  border: 1px solid #888;
-  width: 60vw;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 60vw;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .modal-body {
@@ -1082,21 +1082,14 @@ section {
     flex-direction: column;
 }
 
-#addWebLinkButton {
+.evidenceFormButton {
+    margin-top: 0.5rem;
     margin-right: 1.5rem;
     max-width: fit-content;
     align-self: self-end;
-    margin-top: 1rem;
 }
 
-#addUserToEvidenceButton {
-    margin-right: 1.5rem;
-    max-width: fit-content;
-    align-self: self-end;
-    margin-top: 1rem;
-}
-
-.webLinkForm {
+#weblinkForm {
     padding-right: 1.5rem;
     align-self: flex-end;
 }
@@ -1124,7 +1117,7 @@ section {
     margin-right: 0.5rem;
 }
 
-.address-alert, .weblink-name-alert {
+.weblinkAlert {
     margin-top: 0.5rem;
     margin-bottom: 0;
 }
@@ -1152,12 +1145,11 @@ section {
 
 /* Chips */
 
-.skillChipDisplay, #evidenceDetailsSkills{
+.evidencePreviewTags, #evidenceDetailsSkills{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 }
-
 
 
 .chip {
@@ -1167,33 +1159,34 @@ section {
     border-radius: var(--border-radius);
     display: flex;
     flex-direction: row;
-    box-shadow: rgba(60, 64, 67, 0.3)0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+    max-width: fit-content;
+    box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
 }
 
 .skillChip {
     background-color: var(--skill-chip-colour);
 }
 
-.categoryChip{
+.categoryChip {
     background-color: var(--category-chip-colour);
 }
 
-.chip:hover{
+.chip:hover {
     cursor: pointer;
     filter: contrast(80%);
 }
 
-.skillChipInvalid{
+.skillChipInvalid {
     background-color: #ee3636;
 }
 
-.chipText{
+.chipText {
     margin: auto;
     text-align: center;
     word-break: break-word;
 }
 
-.chipDelete{
+.chipDelete {
     position: absolute;
     top: -0.2rem;
     right: -0.2rem;
@@ -1203,7 +1196,7 @@ section {
     filter: contrast(70%);
 }
 
-.chipDelete:hover{
+.chipDelete:hover {
     cursor: pointer;
     color: red;
 }
