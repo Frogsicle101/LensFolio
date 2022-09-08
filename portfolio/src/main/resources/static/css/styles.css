@@ -1268,3 +1268,7 @@ section {
     padding-top: 0.5rem;
     margin-bottom: 0;
 }
+
+#linkUsersForm {
+    padding-top: 1rem;
+}

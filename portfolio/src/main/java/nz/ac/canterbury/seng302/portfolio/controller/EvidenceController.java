@@ -1,7 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -10,10 +9,15 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
+import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.PaginatedUsersResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.util.BasicStringFilteringOptions;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -263,4 +267,24 @@ public class EvidenceController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/test")
+    public ResponseEntity<Object> tester(@RequestParam("name") String name){
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                .setOffset(0)
+                .setLimit(100)
+                .setOrderBy("name")
+                .setIsAscendingOrder(true)
+                .build();
+        BasicStringFilteringOptions filter = BasicStringFilteringOptions.newBuilder()
+                .setFilterText("John")
+                .build();
+        GetPaginatedUsersFilteredRequest request = GetPaginatedUsersFilteredRequest.newBuilder()
+                .setPaginationRequestOptions(options)
+                .setFilteringOptions(filter)
+                .build();
+        PaginatedUsersResponse response = userAccountsClientService.getPaginatedUsersFilteredByName(request);
+        return new ResponseEntity<>(response.getUsersList().toString(), HttpStatus.OK);
+    }
+
 }

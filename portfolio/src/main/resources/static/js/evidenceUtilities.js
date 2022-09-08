@@ -644,6 +644,50 @@ $("#skillsInput")
 
 
 /**
+ * Autocomplete widget provided by jQueryUi
+ * https://jqueryui.com/autocomplete/
+ */
+$("#linkUsersInput")
+    .autocomplete({
+        autoFocus: true, // This default selects the top result
+        minLength: 1,
+        delay: 500,
+        source: function (request, response) {
+
+            // delegate back to autocomplete, but extract the last term
+            let responseList = $.ui.autocomplete.filter(["hello", "there", "hi", "hola"], request.term)
+            response(responseList.sort((element1, element2) => {
+                // This sorts the response list (the drop-down list) so that it shows the shortest match first
+                return element1.length - element2.length
+            }));
+        },
+        focus: function () {
+            // prevent value inserted on focus
+            return false;
+        },
+        select: function (event, ui) {
+            let terms = split(this.value);
+            // remove the current input
+            terms.pop();
+            // add the selected item
+            terms.push(ui.item.value);
+            // add placeholder to get the space at the end
+            terms.push("");
+            this.value = terms.join(" ");
+            return false;
+        },
+        appendTo: ".addEvidenceModal"
+    })
+    .data('ui-autocomplete')._renderItem = function (ul, item) {
+    //This handles the display of the drop-down menu.
+    return $("<li></li>")
+        .data("ui-autocomplete-item", item)
+        .append('<a>' + item.label + '</a>')
+        .appendTo(ul);
+};
+
+
+/**
  * Listens out for a keyup event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
  * If it is a space, tab or enter then it checks for duplicates
@@ -993,6 +1037,23 @@ function webLinkButtonToggle() {
         cancelButton.show()
     }
 }
+
+
+/**
+ * Toggles the add Linked Users button and slide-toggles the form
+ */
+$(document).on('click', '#linkUsersToEvidenceButton', function () {
+    let linkedUsersForm = $("#linkUsersForm")
+    let linkButton = $("#linkUsersToEvidenceButton");
+    if (linkButton.hasClass("toggled")) {
+        linkButton.text("Link Users")
+        linkButton.removeClass("toggled")
+    } else {
+        linkButton.text("Cancel")
+        linkButton.addClass("toggled")
+    }
+    linkedUsersForm.slideToggle();
+})
 
 
 /**

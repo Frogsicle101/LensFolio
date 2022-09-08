@@ -7,6 +7,7 @@ import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
+import nz.ac.canterbury.seng302.shared.util.BasicStringFilteringOptions;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import nz.ac.canterbury.seng302.shared.util.PaginationResponseOptions;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Predicate;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -442,9 +444,33 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void getPaginatedUsers(GetPaginatedUsersRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver) {
-        PaginatedUsersResponse.Builder response = PaginatedUsersResponse.newBuilder();
+        PaginatedUsersResponse.Builder reply = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
+        responseObserver.onNext(reply.build());
+        responseObserver.onCompleted();
+    }
+
+
+    //todo
+    @Override
+    public void getPaginatedUsersFilteredByName(GetPaginatedUsersFilteredRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver){
+        PaginatedUsersResponse.Builder reply = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
+        BasicStringFilteringOptions filteringOptions = usersRequest.getFilteringOptions();
+
+        Predicate<UserResponse> byName = user -> user.getFirstName().contains(filteringOptions.getFilterText());
+
+        List<UserResponse> result = reply.getUsersList().stream().filter(byName).toList();
+
+
+        reply.clearUsers();
+        reply.addAllUsers(result);
+        responseObserver.onNext(reply.build());
+        responseObserver.onCompleted();
+    }
+
+    //todo
+    private PaginatedUsersResponse.Builder getPaginatedUsersHelper(PaginationRequestOptions request){
+        PaginatedUsersResponse.Builder reply = PaginatedUsersResponse.newBuilder();
         List<User> allUsers = (List<User>) userRepository.findAll();
-        PaginationRequestOptions request = usersRequest.getPaginationRequestOptions();
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
@@ -462,13 +488,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
-            response.addUsers(allUsers.get(i).userResponse());
+            reply.addUsers(allUsers.get(i).userResponse());
         }
         PaginationResponseOptions options = PaginationResponseOptions.newBuilder()
-                                                                     .setResultSetSize(allUsers.size())
-                                                                     .build();
-        response.setPaginationResponseOptions(options);
-        responseObserver.onNext(response.build());
-        responseObserver.onCompleted();
+                .setResultSetSize(allUsers.size())
+                .build();
+        reply.setPaginationResponseOptions(options);
+        return reply;
     }
 }
