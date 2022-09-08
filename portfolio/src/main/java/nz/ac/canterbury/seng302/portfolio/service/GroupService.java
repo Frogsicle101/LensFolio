@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
-import nz.ac.canterbury.seng302.portfolio.model.dto.GroupDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -110,13 +110,10 @@ public class GroupService {
      * @param paginatedGroupsResponse The paginated group response to create the list from.
      * @return A list of group objects.
      */
-    public List<GroupDTO> createGroupListFromResponse(PaginatedGroupsResponse paginatedGroupsResponse){
-        List<GroupDTO> groupDTOS = new ArrayList<>();
+    public List<GroupResponseDTO> createGroupListFromResponse(PaginatedGroupsResponse paginatedGroupsResponse){
+        List<GroupResponseDTO> groupDTOS = new ArrayList<>();
         for(GroupDetailsResponse groupDetailsResponse: paginatedGroupsResponse.getGroupsList()) {
-            int id = groupDetailsResponse.getGroupId();
-            String shortName = groupDetailsResponse.getShortName();
-            String longName = groupDetailsResponse.getLongName();
-            GroupDTO groupDTO = new GroupDTO(id, shortName, longName);
+            GroupResponseDTO groupDTO = new GroupResponseDTO(groupDetailsResponse);
             groupDTOS.add(groupDTO);
         }
         return groupDTOS;

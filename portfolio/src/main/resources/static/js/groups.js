@@ -260,9 +260,9 @@ function createListOfGroups(groups){
  * @returns {string} A string that is a div
  */
 function createGroupPreviewDiv(group){
-    return `<div class="box group" id="${group.groupId}">
+    return `<div class="box group" id="${group.id}">
                     <div class="mb3">
-                        <p class="groupId" style="display: none">${group.groupId}</p>
+                        <p class="groupId" style="display: none">${group.id}</p>
                         <h2 class="groupShortName showExtraWhitespace">${group.shortName}</h2>
                         <h3 class="groupLongName showExtraWhitespace">${group.longName}</h3>
                     </div>
