@@ -17,7 +17,7 @@ public class Skill {
     @GeneratedValue
     private Integer id;
 
-    @Column(unique = true)
+    @Column
     private String name;
 
     /** The list of evidence this skill is associated with */

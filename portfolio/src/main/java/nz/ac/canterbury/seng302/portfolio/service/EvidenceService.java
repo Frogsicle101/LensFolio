@@ -75,7 +75,7 @@ public class EvidenceService {
             throw new CheckException("Date is outside project dates");
         }
 
-        if (evidenceDate.isAfter(LocalDate.now())){
+        if (evidenceDate.isAfter(LocalDate.now())) {
             throw new CheckException("Date is in the future");
         }
     }
@@ -85,8 +85,7 @@ public class EvidenceService {
      * Creates a new evidence object and saves it to the repository. Adds and saves any web link objects and categories
      * to the evidence object.
      *
-     * @param principal   The authentication principal
-     *
+     * @param principal The authentication principal
      * @return The evidence object, after it has been added to the database.
      * @throws MalformedURLException When one of the web links has a malformed url
      */
@@ -110,8 +109,8 @@ public class EvidenceService {
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
 
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "title");
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "description");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "Title");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "Description");
 
         Evidence evidence = new Evidence(user.getId(), title, localDate, description);
         evidence = evidenceRepository.save(evidence);
@@ -129,7 +128,7 @@ public class EvidenceService {
                 throw new CheckException("The URL for the weblink " + dto.getName() + " is not correctly formatted.");
             }
             WebLink webLink = new WebLink(evidence, dto.getName(), weblinkURL);
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "Web link name");
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
         }
@@ -157,12 +156,12 @@ public class EvidenceService {
      * Add a list of skills to a given piece of evidence. If the skills name is 'No Skills' it is ignored
      *
      * @param evidence - The  piece of evidence
-     * @param skills - The list of the skills in string form
+     * @param skills   - The list of the skills in string form
      */
     public void addSkills(Evidence evidence, List<String> skills) {
-        for(String skillName: skills){
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 2, 30, "skill name");
-            Optional<Skill> optionalSkill = skillRepository.findByNameIgnoreCase(skillName);
+        for (String skillName : skills) {
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 1, 30, "Skill name");
+            Optional<Skill> optionalSkill = skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(evidence.getUserId(), skillName);
             Skill theSkill;
             if (optionalSkill.isEmpty()) {
                 if (skillName.equalsIgnoreCase("No Skill")) {

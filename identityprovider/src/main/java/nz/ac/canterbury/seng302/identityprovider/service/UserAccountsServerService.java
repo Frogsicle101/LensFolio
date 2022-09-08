@@ -23,6 +23,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -413,6 +415,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 response.setIsSuccess(true)
                         .setMessage(MessageFormat.format("Successfully removed role {0} from user {1}",
                                 request.getRole(), userToUpdate.getId()));
+
             } catch (IllegalStateException e) {
                 //The user has only one role - we can't delete it!
                 logger.info("Role Removal Failure - user {} has 1 role. Users cannot have 0 roles", request.getUserId());
@@ -458,7 +461,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void getPaginatedUsersFilteredByName(GetPaginatedUsersFilteredRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver){
-        logger.info("Getting filtered users");
         PaginatedUsersResponse.Builder response = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
 
         BasicStringFilteringOptions filteringOptions = usersRequest.getFilteringOptions();

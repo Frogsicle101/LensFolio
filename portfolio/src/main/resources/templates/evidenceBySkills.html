@@ -10,22 +10,21 @@
 <section class="flexContainer">
     <div class="skillSideBar">
         <div class="marginTop center">
-            <button class="btn btn-primary" id="showAllEvidence">Show All Evidence</button>
+            <button id="showAllEvidence" class="btn btn-primary">Show All Evidence</button>
         </div>
         <div class="categoryContainer">
             <h3 class="categoriesHeader">Categories</h3>
-            <div id="categoryList"></div>
+            <div id="categoryList" class="flexContainer flexWrap"></div>
         </div>
         <div class="skillContainer">
             <h3 class="skillsHeader">Skills</h3>
             <!-- The skill holding container, pieces are added through JS -->
-            <div class="flexContainer flexWrap" id="skillList"></div>
+            <div id="skillList" class="flexContainer flexWrap"></div>
         </div>
     </div>
     <div class="contentContainer">
         <h2 class="evidenceTitle">Evidence</h2>
-        <button class="btn btn-primary createEvidenceButton" style="display: none" type="button">Create Evidence
-        </button>
+        <button class="btn btn-primary" id="createEvidenceButton" type="button" style="display: none">Create Evidence</button>
         <h5 id="nameHolder" style="display: none"></h5>
         <div class="evidenceContainer">
             <div class="col">
@@ -35,20 +34,21 @@
             <div class="col">
                 <div class="box evidenceDetailsContainer">
                     <div class="row evidenceDetailsHeader">
-                        <p class="col evidenceDetailsDate" id="evidenceDetailsDate"></p>
-                        <h2 class="evidenceDetailsTitle" id="evidenceDetailsTitle"></h2>
+                        <p id="evidenceDetailsDate" class="col evidenceDetailsDate"></p>
+                        <h2 id="evidenceDetailsTitle" class="evidenceDetailsTitle"></h2>
                     </div>
-                    <div class="skillChipDisplay" id="evidenceDetailsCategories"></div>
+                    <div id="evidenceDetailsCategories" class="evidencePreviewTags"></div>
+
                     <hr style="margin-top: 1rem">
                     <div id="evidenceWebLinks"></div>
                     <hr>
-                    <div class="evidenceDetails" id="evidenceDetailsDescription"></div>
-                    <div class="skillChipDisplay" id="evidenceDetailsSkills"></div>
+                    <div id="evidenceDetailsDescription" class="evidenceDetails"></div>
+                    <div id="evidenceDetailsSkills" class="evidencePreviewTags"></div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="addEvidenceModal">
+    <div id="addEvidenceModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addEvidenceTitle">Add Evidence</h5>
@@ -56,7 +56,7 @@
             <form id="evidenceCreationForm">
                 <div class="modal-body">
                     <div class="form-group evidenceFormName">
-                        <label class="col-form-label required" for="evidenceName">Name:</label>
+                        <label for="evidenceName" class="col-form-label required">Name:</label>
                         <small class="form-text text-muted">Name must include letters. </small>
                         <input class="form-control text-input" id="evidenceName"
                                maxlength="50"
@@ -84,66 +84,65 @@
                         <input class="form-control form-control-sm milestoneInputEndDate"
                                id="evidenceDate"
                                name="evidenceDate"
-                               required
-                               th:max="${evidenceMaxDate}"
-                               th:min="${projectStartDate}"
                                th:value="${currentDate}"
+                               th:min="${projectStartDate}"
+                               th:max="${evidenceMaxDate}"
+                               required
                                type="date">
                     </div>
                     <div class="form-group evidenceFormDescription">
-                        <label class="col-form-label required" for="evidenceDescription">Description:</label>
+                        <label for="evidenceDescription" class="col-form-label required">Description:</label>
                         <small class="form-text text-muted">Description must include letters. </small>
                         <textarea class="form-control text-input"
                                   id="evidenceDescription"
+                                  rows="4"
+                                  placeholder="Description"
                                   maxlength="500"
                                   minlength="2"
-                                  placeholder="Description"
-                                  required
-                                  rows="4"></textarea>
-                        <small class="form-text text-muted form-text-counted countCharDescription">0 characters
-                            remaining</small>
+                                  required></textarea>
+                        <small class="form-text text-muted form-text-counted countCharDescription">0 characters remaining</small>
                     </div>
                     <div class="form-group evidenceFormSkills ui-widget">
-                        <label class="col-form-label" for="skillsInput">Skills:</label>
-                        <svg class="bi bi-question-circle"
-                             data-bs-custom-class="custom-tooltip"
-                             data-bs-placement="top"
-                             data-bs-title="Skills cannot be longer than 30 characters."
-                             data-bs-toggle="tooltip"
-                             fill="currentColor"
-                             height="16" viewBox="0 0 16 16"
+                        <label for="skillsInput" class="col-form-label">Skills:</label>
+                        <svg xmlns="http://www.w3.org/2000/svg"
                              width="16"
-                             xmlns="http://www.w3.org/2000/svg">
+                             height="16"
+                             fill="currentColor"
+                             class="bi bi-question-circle"
+                             viewBox="0 0 16 16"
+                             data-bs-toggle="tooltip" data-bs-placement="top"
+                             data-bs-custom-class="custom-tooltip"
+                             data-bs-title="Skills cannot be longer than 30 characters.">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
                         </svg>
-                        <div class="skillChipDisplay" id="skillChipDisplay" style="display: none">
+                        <div id="skillChipDisplay" class="skillChipDisplay" style="display: none">
                         </div>
-                        <input class="form-control text-input" id="skillsInput"
-                               placeholder="Skills"
-                               type="text">
-                        <small class="form-text text-muted">Type in your skills and separate them with a space. If they
-                            are multiple words, separate them with an underscore eg: Intra-team_Communication</small>
+                        <input type="text" class="form-control text-input"
+                               id="skillsInput"
+                               placeholder="Skills">
+                        <small class="form-text text-muted">Type in your skills and separate them with a space. If they are multiple words, separate them with an underscore eg: Intra-team_Communication</small>
+
                     </div>
-                    <div class="form-group" id="evidenceFormCategories">
+                    <div id="evidenceFormCategories" class="form-group">
                         <label class="col-form-label">Categories:</label>
                         <div class="row">
                             <div class="col center">
-                                <button class="btn inlineText btn-secondary evidenceFormCategoryButton" type="button"
+                                <button type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
                                         value="QUALITATIVE">
                                     Qualitative
                                     <label class="evidenceCategoryTickIcon">&#10003;</label>
                                 </button>
                             </div>
                             <div class="col center">
-                                <button class="btn btn-secondary inlineText evidenceFormCategoryButton" type="button"
+                                <button type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
                                         value="QUANTITATIVE">
                                     Quantitative
                                     <label class="evidenceCategoryTickIcon">&#10003;</label>
                                 </button>
                             </div>
                             <div class="col center">
-                                <button class="btn btn-secondary inlineText evidenceFormCategoryButton" type="button"
+                                <button type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
                                         value="SERVICE">
                                     Service
                                     <label class="evidenceCategoryTickIcon">&#10003;</label>

@@ -3,22 +3,22 @@ Cypress.on('uncaught:exception', () => {
     return false
 })
 
-context("WebLinkTest", () => {
+describe("Adding Weblinks to Evidence", () => {
     beforeEach(() => {
         cy.adminLogin()
         cy.visit("/evidence")
         cy.viewport(1200, 1024)
-        cy.get('.createEvidenceButton').click();
+        cy.get('#createEvidenceButton').click();
     })
 
     it('Can add max 10 weblinks', () => {
         for (let i = 1; i < 11; i++) {
-            cy.get('#addWeblinkButton').click()
+            cy.get('#addWebLinkButton').click()
             cy.get('#webLinkUrl').wait(500)
-                .type('https://www.canterbury.ac.nz/')
+                .type('http://www.a.ac.nz')
             cy.get('#webLinkName').wait(500)
-                .type('WebLink ' + i.toString())
-            cy.get('#addWeblinkButton').click();
+                .type('Wl ' + i.toString())
+            cy.get('#addWebLinkButton').click()
         }
 
         cy.get('#webLinkFull').should('be.visible');

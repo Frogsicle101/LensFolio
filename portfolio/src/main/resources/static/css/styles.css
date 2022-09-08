@@ -978,6 +978,10 @@ section {
     align-self: center;
 }
 
+#createEvidenceButton {
+    margin-top: 1rem;
+}
+
 .evidenceListTitle {
     text-align: center;
     padding: inherit;
@@ -1049,18 +1053,18 @@ section {
     background-color: #eaeaea;
 }
 
-.addEvidenceModal {
-    display: none;
-    position: fixed;
-    z-index: 5;
-    padding-top: 100px;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0, 0, 0);
-    background-color: rgba(0, 0, 0, 0.4);
+#addEvidenceModal {
+  display: none;
+  position: fixed;
+  z-index: 5;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
 }
 
 .modal-content {
@@ -1141,7 +1145,7 @@ section {
 
 /* Chips */
 
-.skillChipDisplay, #evidenceDetailsSkills {
+.evidencePreviewTags, #evidenceDetailsSkills{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -1155,6 +1159,7 @@ section {
     border-radius: var(--border-radius);
     display: flex;
     flex-direction: row;
+    max-width: fit-content;
     box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
 }
 
@@ -1247,7 +1252,7 @@ section {
     text-align: center;
 }
 
-.createEvidenceButton {
+.contentContainer #createEvidenceButton {
     position: absolute;
     left: 1rem;
     top: 1rem;

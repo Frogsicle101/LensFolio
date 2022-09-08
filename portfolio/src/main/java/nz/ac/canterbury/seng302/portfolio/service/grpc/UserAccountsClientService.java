@@ -83,6 +83,7 @@ public class UserAccountsClientService {
      * @return The response from the server regarding adding the specified role to the user
      */
     public UserRoleChangeResponse addRoleToUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
+        logger.info("SERVICE - send ModifyRoleOfUserRequest add role request to server");
         return userAccountStub.addRoleToUser(modifyRoleOfUserRequest);
     }
 
@@ -94,6 +95,7 @@ public class UserAccountsClientService {
      * @return The response from the server regarding deleting the specified role from the user
      */
     public UserRoleChangeResponse removeRoleFromUser(ModifyRoleOfUserRequest modifyRoleOfUserRequest) {
+        logger.info("SERVICE - send ModifyRoleOfUserRequest remove role request to server");
         return userAccountStub.removeRoleFromUser(modifyRoleOfUserRequest);
     }
 
@@ -107,6 +109,7 @@ public class UserAccountsClientService {
      * @return response - a PaginatedUsersResponse, a response with a list of users and the total amount of users
      */
     public PaginatedUsersResponse getPaginatedUsers(GetPaginatedUsersRequest request) {
+        logger.info("SERVICE - send GetPaginatedUsersRequest request to server");
         return userAccountStub.getPaginatedUsers(request);
     }
 
@@ -128,7 +131,6 @@ public class UserAccountsClientService {
                 .setUserId(userId)
                 .setFileType(fileType)
                 .build();
-
 
         requestChunks.add(UploadUserProfilePhotoRequest.newBuilder()
                 .setMetaData(metadata)
@@ -162,17 +164,19 @@ public class UserAccountsClientService {
      * @return The response from the server regarding deleting the profile photo
      */
     public DeleteUserProfilePhotoResponse deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request) {
+        logger.info("SERVICE - send DeleteUserProfilePhotoRequest request to server");
         return userAccountStub.deleteUserProfilePhoto(request);
     }
 
 
     /**
-     * Sends a request to the server to retrieved paginated users whose names match the filtered text
+     * Sends a request to the server to retrieve paginated users whose names match the filtered text
      *
      * @param request The request with the filtered text to match
      * @return the paginated users that match the given text
      */
     public PaginatedUsersResponse getPaginatedUsersFilteredByName(GetPaginatedUsersFilteredRequest request){
+        logger.info("SERVICE - send GetPaginatedUsersFilteredRequest request to server");
         return userAccountStub.getPaginatedUsersFilteredByName(request);
     }
 }

@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -178,7 +178,7 @@ class SkillsControllerTest {
     void testGetEvidenceForSkillWhenSkillHasNoEvidence() throws Exception {
         Skill testSkill = new Skill(1, "writing_tests");
 
-        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(1, testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         mockMvc.perform(get("/evidenceLinkedToSkill")
                 .param("skillName", "writing_tests")
@@ -193,7 +193,7 @@ class SkillsControllerTest {
         Evidence evidence1 = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         testSkill.getEvidence().add(evidence1);
 
-        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq(testSkill.getName()))).thenReturn(Optional.of(testSkill));
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
                         .param("skillName", "writing_tests")
@@ -217,7 +217,7 @@ class SkillsControllerTest {
         testSkill.getEvidence().add(evidence2);
         testSkill.getEvidence().add(evidence3);
 
-        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(1, testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
                         .param("skillName", "writing_tests")
@@ -246,7 +246,7 @@ class SkillsControllerTest {
     void testGetEvidenceForSkillWhenInternalErrorOccurs() throws Exception {
         Skill testSkill = new Skill(1, "writing_tests");
         RuntimeException e = new RuntimeException();
-        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenThrow(e);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(1, testSkill.getName())).thenThrow(e);
 
         mockMvc.perform(get("/evidenceLinkedToSkill")
                         .param("skillName", "writing_tests")
