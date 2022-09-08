@@ -88,7 +88,7 @@ public class SkillController {
                 logger.info("GET REQUEST /evidenceLinkedToSkill - No skill evidence retrieved");
                 return new ResponseEntity<>(evidence, HttpStatus.OK);
             }
-            Optional<Skill> skill = skillRepository.findByNameIgnoreCase(skillName);
+            Optional<Skill> skill = skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(userId, skillName);
             if (skill.isEmpty()) {
                 logger.info("GET REQUEST /evidenceLinkedToSkill - skill {} does not exist", skillName);
                 return new ResponseEntity<>("Skill does not exist", HttpStatus.NOT_FOUND);
