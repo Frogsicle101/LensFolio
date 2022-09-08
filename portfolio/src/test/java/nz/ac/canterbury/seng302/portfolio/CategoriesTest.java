@@ -53,10 +53,10 @@ class CategoriesTest {
         evidence.addCategory(Category.QUANTITATIVE);
         evidenceRepository.save(evidence);
 
-        ArrayList<Evidence> evidenceExists = evidenceRepository.findAllByUserIdAndCategoriesContaining(1, Category.QUANTITATIVE);
-        ArrayList<Evidence> evidenceDoesntExist1 = evidenceRepository.findAllByUserIdAndCategoriesContaining(1, Category.SERVICE);
-        ArrayList<Evidence> evidenceDoesntExist2 = evidenceRepository.findAllByUserIdAndCategoriesContaining(2, Category.QUANTITATIVE);
-        ArrayList<Evidence> evidenceDoesntExist3 = evidenceRepository.findAllByUserIdAndCategoriesContaining(2, Category.SERVICE);
+        ArrayList<Evidence> evidenceExists = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(1, Category.QUANTITATIVE);
+        ArrayList<Evidence> evidenceDoesntExist1 = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(1, Category.SERVICE);
+        ArrayList<Evidence> evidenceDoesntExist2 = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(2, Category.QUANTITATIVE);
+        ArrayList<Evidence> evidenceDoesntExist3 = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(2, Category.SERVICE);
 
         Assertions.assertEquals(1, evidenceExists.size());
         Assertions.assertTrue(evidenceExists.get(0).getCategories().contains(Category.QUANTITATIVE));

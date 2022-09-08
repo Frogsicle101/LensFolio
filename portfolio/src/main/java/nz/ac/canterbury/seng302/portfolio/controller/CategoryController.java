@@ -48,7 +48,7 @@ public class CategoryController {
                 return new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
             }
 
-            ArrayList <Evidence> evidence = evidenceRepository.findAllByUserIdAndCategoriesContaining(userId, optionalCategory.get());
+            ArrayList <Evidence> evidence = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(userId, optionalCategory.get());
             logger.info("GET REQUEST /evidenceLinkedToCategory - found and returned {} evidences for category: {}", evidence.size() ,category);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
 
