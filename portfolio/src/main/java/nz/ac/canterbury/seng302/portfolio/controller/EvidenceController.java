@@ -1,22 +1,27 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
-import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
+import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.PaginatedUsersResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.util.BasicStringFilteringOptions;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,8 +29,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.net.*;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -85,13 +91,13 @@ public class EvidenceController {
         LocalDate projectStartDate = project.getStartDate();
         LocalDate currentDate = LocalDate.now();
         LocalDate evidenceMaxDate = LocalDate.now();
-        modelAndView.addObject("currentDate", currentDate.format(DateTimeFormat.yearMonthDay()));
-        modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeFormat.yearMonthDay()));
+        modelAndView.addObject("currentDate", currentDate.format(DateTimeService.yearMonthDay()));
+        modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;
         }
-        modelAndView.addObject("evidenceMaxDate", evidenceMaxDate.format(DateTimeFormat.yearMonthDay()));
+        modelAndView.addObject("evidenceMaxDate", evidenceMaxDate.format(DateTimeService.yearMonthDay()));
 
         return modelAndView;
     }
@@ -170,16 +176,19 @@ public class EvidenceController {
     public ResponseEntity<Object> getAllEvidence(@RequestParam("userId") Integer userId) {
         logger.info("GET REQUEST /evidence - attempt to get evidence for user {}", userId);
         try {
-            List<Evidence> evidence = evidenceRepository.findAllByUserIdOrderByDateDesc(userId);
-            if (evidence.isEmpty()) {
-                GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
-                UserResponse userExistsResponse = userAccountsClientService.getUserAccountById(request);
-                if (userExistsResponse.getId() == -1) {
-                    logger.info("GET REQUEST /evidence - user {} does not exist", userId);
-                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                }
+            List<Evidence> evidence = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(userId);
+            GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
+            UserResponse userResponse = userAccountsClientService.getUserAccountById(request);
+            if (userResponse.getId() == -1) {
+                logger.info("GET REQUEST /evidence - user {} does not exist", userId);
+                return new ResponseEntity<>("Error: User not found", HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(evidence, HttpStatus.OK);
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set("Users-Name", userResponse.getFirstName() + ' ' + userResponse.getLastName());
+
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .body(evidence);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
@@ -217,7 +226,7 @@ public class EvidenceController {
             return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -243,9 +252,6 @@ public class EvidenceController {
         String address = request.getUrl();
         logger.info("GET REQUEST /validateWebLink - validating address {}", address);
         try {
-            if (!address.contains("://")) {
-                throw new MalformedURLException("There is no ://");
-            }
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }
@@ -253,12 +259,45 @@ public class EvidenceController {
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (MalformedURLException | URISyntaxException exception) {
-            logger.info("/validateWebLink - invalid address {}", address);
+            logger.warn("/validateWebLink - invalid address {}", address);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * A get request for retrieving the users that match the string being typed
+     *
+     * @param name The name that is being typed by the user
+     * @return A ResponseEntity. This entity includes the filtered users if successful, otherwise an error message
+     */
+    @GetMapping("/filteredUsers")
+    public ResponseEntity<Object> getFilteredUsers(@RequestParam("name") String name){
+        try {
+            logger.info("GET REQUEST /filteredUsers - retrieving filtered users with string {}", name);
+            PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                    .setOffset(0)
+                    .setLimit(999999999) // we want to retrieve all users
+                    .setOrderBy("name")
+                    .setIsAscendingOrder(true)
+                    .build();
+            BasicStringFilteringOptions filter = BasicStringFilteringOptions.newBuilder()
+                    .setFilterText(name)
+                    .build();
+            GetPaginatedUsersFilteredRequest request = GetPaginatedUsersFilteredRequest.newBuilder()
+                    .setPaginationRequestOptions(options)
+                    .setFilteringOptions(filter)
+                    .build();
+            PaginatedUsersResponse response = userAccountsClientService.getPaginatedUsersFilteredByName(request);
+            return new ResponseEntity<>(response.getUsersList(), HttpStatus.OK);
+        } catch (Exception e){
+            logger.warn(e.getClass().getName());
+            logger.warn(e.getMessage());
+            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

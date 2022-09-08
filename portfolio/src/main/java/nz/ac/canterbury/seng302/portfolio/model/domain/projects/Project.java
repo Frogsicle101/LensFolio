@@ -1,7 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.projects;
 
 import com.google.type.DateTime;
-import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -123,7 +123,7 @@ public class Project {
     }
 
     public String getStartDateFormatted() {
-        return startDate.format(DateTimeFormat.dayDateMonthYear());
+        return startDate.format(DateTimeService.dayDateMonthYear());
     }
 
     /**
@@ -145,7 +145,7 @@ public class Project {
     }
 
     public String getEndDateFormatted() {
-        return endDate.format(DateTimeFormat.dayDateMonthYear());
+        return endDate.format(DateTimeService.dayDateMonthYear());
     }
 
     /**

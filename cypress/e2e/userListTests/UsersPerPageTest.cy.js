@@ -1,6 +1,6 @@
 describe('users per page', () => {
     beforeEach(() => {
-     cy.adminLogin()
+        cy.adminLogin()
     })
 
     it("can display 20 users per page", () => {

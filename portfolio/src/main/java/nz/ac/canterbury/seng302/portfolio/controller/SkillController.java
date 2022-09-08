@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Controller for all the Skill based end points
@@ -85,17 +84,17 @@ public class SkillController {
         logger.info("GET REQUEST /evidenceLinkedToSkill - attempt to get all evidence for skill: {}", skillName);
         try {
             if (Objects.equals(skillName, "No Skill")) {
-                List<Evidence> evidence = evidenceRepository.findAllByUserIdAndSkillsIsEmptyOrderByDateDesc(userId);
+                List<Evidence> evidence = evidenceRepository.findAllByUserIdAndSkillsIsEmptyOrderByOccurrenceDateDesc(userId);
                 logger.info("GET REQUEST /evidenceLinkedToSkill - No skill evidence retrieved");
                 return new ResponseEntity<>(evidence, HttpStatus.OK);
             }
-            Optional<Skill> skill = skillRepository.findByNameIgnoreCase(skillName);
+            Optional<Skill> skill = skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(userId, skillName);
             if (skill.isEmpty()) {
                 logger.info("GET REQUEST /evidenceLinkedToSkill - skill {} does not exist", skillName);
                 return new ResponseEntity<>("Skill does not exist", HttpStatus.NOT_FOUND);
             }
 
-            Set<Evidence> evidence = skill.get().getEvidence();
+            List<Evidence> evidence = skill.get().getEvidence();
             logger.info("GET REQUEST /evidenceLinkedToSkill - found and returned {} evidences for skill: {}", evidence.size() ,skillName);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
 

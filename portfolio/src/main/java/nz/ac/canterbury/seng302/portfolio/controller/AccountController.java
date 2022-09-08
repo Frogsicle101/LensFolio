@@ -4,8 +4,8 @@ import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.dto.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.LoginService;
-import nz.ac.canterbury.seng302.portfolio.service.ReadableTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -95,8 +95,8 @@ public class AccountController {
             model.addObject("generalUnicodeNoSpacesRegex", RegexPattern.GENERAL_UNICODE_NO_SPACES);
             model.addObject("emailRegex", RegexPattern.EMAIL);
             model.addObject("user", user);
-            String memberSince = ReadableTimeService.getReadableDate(user.getCreated())
-                    + " (" + ReadableTimeService.getReadableTimeSince(user.getCreated()) + ")";
+            String memberSince = DateTimeService.getReadableDate(user.getCreated())
+                    + " (" + DateTimeService.getReadableTimeSince(user.getCreated()) + ")";
             model.addObject("membersince", memberSince);
             logger.info("Account details populated for {}", user.getUsername());
             return model;

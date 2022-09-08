@@ -287,19 +287,19 @@ function addUsers(groupId) {
         success: function () {
             displayGroupUsersList()
             if (parseInt(groupId) === MWAG_GROUP_ID) {
-                createAlert("User(s) moved, and teachers role remains", false)
+                createAlert("User(s) moved, and teachers role remains", "success")
             } else {
-                createAlert("User(s) moved", false)
+                createAlert("User(s) moved", "success")
             }
         },
         statusCode: {
           401: function () {
               createAlert("You don't have permission to move users. This could be because " +
-                  "your roles have been updated. Try refreshing the page", true)
+                  "your roles have been updated. Try refreshing the page", "failure")
           }
         },
-        error: function (error) {
-            createAlert("Couldn't move users", true)
+        error: function () {
+            createAlert("Couldn't move users", "failure")
         }
     })
 }
@@ -307,6 +307,7 @@ function addUsers(groupId) {
 
 /**
  * Displays the options for what to do with selected users.
+ *
  * @param show a boolean of if to show or hide
  */
 function showOptions(show) {
@@ -416,7 +417,7 @@ function displayGroupUsersList() {
             checkEditRights(response)
         },
         error: () => {
-            createAlert("Couldn't retrieve users", true)
+            createAlert("Couldn't retrieve users", "failure")
         }
     })
 }
@@ -709,10 +710,10 @@ $(document).on("click", ".deleteButton", function () {
             statusCode: {
                 401: function () {
                     createAlert("You don't have permission to delete groups. This could be because " +
-                        "your roles have been updated. Try refreshing the page", true)
+                        "your roles have been updated. Try refreshing the page", "failure")
                 }
             }, error: function () {
-                createAlert("Couldn't delete the group", true)
+                createAlert("Couldn't delete the group", "failure")
             }
         })
     }
@@ -770,17 +771,19 @@ $(document).on("submit", "#editGroupForm", function (event) {
         type: type,
         data: groupData,
         success: function () {
-            createAlert("Changes submitted");
+            createAlert("Changes submitted", "success");
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
-        }, statusCode: {
+        },
+        statusCode: {
             401: function () {
                 createAlert("You don't have permission to edit group details. This could be because " +
-                    "your roles have been updated. Try refreshing the page", true)
+                    "your roles have been updated. Try refreshing the page", "failure")
             }
-        }, error: () => {
-            createAlert("Couldn't edit the group details", true)
+        },
+        error: () => {
+            createAlert("Couldn't edit the group details", "failure")
         }
     })
 })
@@ -805,16 +808,16 @@ $(document).on("click", "#confirmRemoval", function () {
         type: "DELETE",
         success: () => {
             displayGroupUsersList()
-            createAlert("User removed", false)
+            createAlert("User removed", "success")
         },
         statusCode: {
             401: function () {
                 createAlert("You don't have permission to remove users. This could be because " +
-                    "your roles have been updated. Try refreshing the page", true)
+                    "your roles have been updated. Try refreshing the page", "failure")
             }
         },
         error: () => {
-            createAlert("Couldn't remove users from group", true)
+            createAlert("Couldn't remove users from group", "failure")
         }
     })
     $("#confirmationForm").slideUp();
