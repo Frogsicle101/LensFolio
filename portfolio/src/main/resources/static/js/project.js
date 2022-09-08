@@ -12,7 +12,7 @@ $(document).ready(() => {
      * When project edit button is clicked.
      * Redirect page.
      */
-    $("#projectEditSprint").click(() => {
+    $("#editProject").on("click", () => {
         location.href = "editProject?projectId=" + projectId;
     })
 
@@ -115,28 +115,28 @@ function appendSprint(springObject, index) {
     index = parseInt(index) + 1
 
     return `
-             <div class="sprint" id=${springObject.id} style="border-left: solid 0.3rem ${springObject.colour}; border-right: solid 0.3rem ${springObject.colour};">
-                <p class="sprintColour" style="display: none">${springObject.colour}</p>
-                <p class="sprintId" style="display: none">${springObject.id}</p>
-                <p class="sprintStart" style="display: none">${springObject.startDate}</p>
-                <p class="sprintEnd" style="display: none">${springObject.endDate}</p>
-                <p class="sprintLabel" >Sprint ${index}</p>
+             <div class="sprint" id=${sanitise(springObject.id)} style="border-left: solid 0.3rem ${sanitise(springObject.colour)}; border-right: solid 0.3rem ${sanitise(springObject.colour)};">
+                <p class="sprintColour" style="display: none">${sanitise(springObject.colour)}</p>
+                <p class="sprintId" style="display: none">${sanitise(springObject.id)}</p>
+                <p class="sprintStart" style="display: none">${sanitise(springObject.startDate)}</p>
+                <p class="sprintEnd" style="display: none">${sanitise(springObject.endDate)}</p>
+                <p class="sprintLabel" >Sprint ${sanitise(index)}</p>
                 <div class="mb3">
-                    <h2 class="name">${springObject.name}</h2>
+                    <h2 class="name">${sanitise(springObject.name)}</h2>
                 </div>
                 <div class="row">
                     <div class="col">
                         <h6>Start</h6>
-                        <h6>${springObject.startDateFormatted}</h6>
+                        <h6>${sanitise(springObject.startDateFormatted)}</h6>
                     </div>
                     <div class="col">
                         <h6>End</h6>
-                        <h6>${springObject.endDateFormatted}</h6>
+                        <h6>${sanitise(springObject.endDateFormatted)}</h6>
                     </div>
                 </div>
                 
                 <div class="mb-3">
-                    <p>${springObject.description}</p>
+                    <p class="description">${sanitise(springObject.description)}</p>
                 </div>
                 <div class="mb3 hasTeacherOrAbove">
                     <button type="button" class="deleteSprint noStyleButton sprintButton" data-bs-toggle="tooltip"

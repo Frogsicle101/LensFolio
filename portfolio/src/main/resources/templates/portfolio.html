@@ -47,13 +47,13 @@
                 </div>
             </div>
             <div class="mb-3">
-                <p th:text="${project.getDescription()}"></p>
+                <p id="projectDescription" th:text="${project.getDescription()}"></p>
             </div>
         </div>
 
 
         <div th:if="${userCanEdit == true}">
-            <button class="btn btn-outline-success project-add-sprint-button authenticated-user" id="projectEditSprint">
+            <button class="btn btn-outline-success project-add-sprint-button authenticated-user" id="editProject">
                 Edit Project
             </button>
             <button class="btn btn-outline-success project-add-sprint-button authenticated-user addSprint"
