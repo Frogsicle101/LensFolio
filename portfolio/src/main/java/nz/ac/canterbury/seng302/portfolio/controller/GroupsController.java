@@ -38,7 +38,7 @@ public class GroupsController {
     private int pageNum = 1;
     private int totalPages = 1;
     private int totalNumGroups = 0;
-    private int groupsPerPageLimit = 20;
+    private int groupsPerPageLimit = 10;
     private int offset = 0;
     private static final Integer TEACHER_GROUP_ID = 1;
     private static final String ORDER_BY = "shortName";
@@ -96,7 +96,6 @@ public class GroupsController {
 
     @GetMapping("/getGroups")
     public ResponseEntity<Object> getGroups(
-            @AuthenticationPrincipal Authentication principal,
             @RequestParam(name = "page", required = false) Integer page,
             @RequestParam(name = "groupsPerPage", required = false) String groupsPerPage)
      {

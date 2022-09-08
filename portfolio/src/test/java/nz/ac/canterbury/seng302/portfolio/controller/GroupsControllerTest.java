@@ -5,6 +5,7 @@ import io.cucumber.gherkin.internal.com.eclipsesource.json.JsonArray;
 import nz.ac.canterbury.seng302.portfolio.PortfolioApplication;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
+import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.service.UserService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
@@ -457,10 +458,10 @@ class GroupsControllerTest {
         setUpContext();
         createMockResponse(0, "10");
         addExpectedGroupsToList(0, 40);
-        MvcResult result = mockMvc.perform(get("/groups"))
+        MvcResult result = mockMvc.perform(get("/getGroups"))
                 .andExpect(status().isOk())
                 .andReturn();
-        String groups = result.getModelAndView().getModel().get("groups").toString();
+        String groups = result.getResponse().getContentAsString();
         Assertions.assertTrue(groups.contains("Test Name 0"));
         Assertions.assertTrue(groups.contains("Test Name 9"));
         Assertions.assertFalse(groups.contains("Test Name 10"));
@@ -473,10 +474,10 @@ class GroupsControllerTest {
         createMockResponse(groupsPerPage * 4, "10");
         addExpectedGroupsToList(0, 40);
 
-        MvcResult result = mockMvc.perform((get("/groups")).param("page", "4"))
+        MvcResult result = mockMvc.perform((get("/getGroups")).param("page", "4"))
                 .andExpect(status().isOk())
                 .andReturn();
-        String groups = result.getModelAndView().getModel().get("groups").toString();
+        String groups = result.getResponse().getContentAsString();
         Assertions.assertTrue(groups.contains("Test Name 40"));
         Assertions.assertFalse(groups.contains("Test Name 39"));
     }
@@ -487,10 +488,10 @@ class GroupsControllerTest {
         setUpContext();
         createMockResponse(groupsPerPage * 4, "10");
         addExpectedGroupsToList(0, 40);
-        MvcResult result = mockMvc.perform((get("/groups")).param("page", "10"))
+        MvcResult result = mockMvc.perform((get("/getGroups")).param("page", "10"))
                 .andExpect(status().isOk())
                 .andReturn();
-        String groups = result.getModelAndView().getModel().get("groups").toString();
+        String groups = result.getResponse().getContentAsString();
         Assertions.assertTrue(groups.contains("Test Name 40"));
         Assertions.assertFalse(groups.contains("Test Name 39"));
     }
@@ -501,10 +502,10 @@ class GroupsControllerTest {
         setUpContext();
         createMockResponse(0, "20");
         addExpectedGroupsToList(0, 40);
-        MvcResult result = mockMvc.perform(get("/groups").param("groupsPerPage", "20"))
+        MvcResult result = mockMvc.perform(get("/getGroups").param("groupsPerPage", "20"))
                 .andExpect(status().isOk())
                 .andReturn();
-        String groups = result.getModelAndView().getModel().get("groups").toString();
+        String groups = result.getResponse().getContentAsString();
         Assertions.assertTrue(groups.contains("Test Name 0"));
         Assertions.assertTrue(groups.contains("Test Name 9"));
         Assertions.assertTrue(groups.contains("Test Name 10"));
@@ -526,6 +527,7 @@ class GroupsControllerTest {
     private void createMockResponse(int offset, String groupsPerPage) {
         if (groupsPerPage != null){
             switch(groupsPerPage){
+                case "10" -> this.groupsPerPage = 10;
                 case "20" -> this.groupsPerPage = 20;
                 case "40" -> this.groupsPerPage = 40;
                 case "60" -> this.groupsPerPage = 60;
@@ -556,11 +558,13 @@ class GroupsControllerTest {
                 .build();
 
         response.setPaginationResponseOptions(responseOptions);
+
         when(groupService.getPaginatedGroupsFromServer(0, "shortName", this.groupsPerPage, true)).thenReturn(response.build());
         when(groupService.getPaginatedGroupsFromServer(60, "shortName", this.groupsPerPage, true)).thenReturn(response.build());
         when(groupService.getPaginatedGroupsFromServer(30, "shortName", this.groupsPerPage, true)).thenReturn(response.build());
         when(groupService.getPaginatedGroupsFromServer(40, "shortName", this.groupsPerPage, true)).thenReturn(response.build());
         when(groupService.getPaginatedGroupsFromServer(90, "shortName", this.groupsPerPage, true)).thenReturn(response.build());
+        when(groupService.createGroupListFromResponse(response.build())).thenReturn(createGroupListFromResponse(response.build()));
         when(groupsClientService.getPaginatedGroups(request)).thenReturn(response.build());
     }
 
@@ -570,6 +574,15 @@ class GroupsControllerTest {
             String longName = "Test Name But Longer " + i;
             expectedGroupsList.add(buildCreateResponse(i, shortName, longName));
         }
+    }
+
+    public List<GroupResponseDTO> createGroupListFromResponse(PaginatedGroupsResponse paginatedGroupsResponse){
+        List<GroupResponseDTO> groupDTOS = new ArrayList<>();
+        for(GroupDetailsResponse groupDetailsResponse: paginatedGroupsResponse.getGroupsList()) {
+            GroupResponseDTO groupDTO = new GroupResponseDTO(groupDetailsResponse);
+            groupDTOS.add(groupDTO);
+        }
+        return groupDTOS;
     }
 
     private GroupDetailsResponse buildCreateResponse(int groupId, String shortName, String longName) {
