@@ -14,7 +14,7 @@
         </div>
         <div class="categoryContainer">
             <h3 class="categoriesHeader">Categories</h3>
-            <div id="categoryList"></div>
+            <div id="categoryList" class="flexContainer flexWrap"></div>
         </div>
         <div class="skillContainer">
             <h3 class="skillsHeader">Skills</h3>
@@ -24,9 +24,8 @@
     </div>
     <div class="contentContainer">
         <h2 class="evidenceTitle">Evidence</h2>
-        <button class="btn btn-primary createEvidenceButton" type="button" style="display: none">Create Evidence</button>
+        <button class="btn btn-primary" id="createEvidenceButton" type="button" style="display: none">Create Evidence</button>
         <h5 id="nameHolder" style="display: none"></h5>
-
         <div class="evidenceContainer">
             <div class="col">
                 <!-- The evidence holding container, pieces are added through JS -->
@@ -38,19 +37,19 @@
                         <p id="evidenceDetailsDate" class="col evidenceDetailsDate"></p>
                         <h2 id="evidenceDetailsTitle" class="evidenceDetailsTitle"></h2>
                     </div>
-                    <div id="evidenceDetailsCategories" class="skillChipDisplay"></div>
+                    <div id="evidenceDetailsCategories" class="evidencePreviewTags"></div>
 
                     <hr style="margin-top: 1rem">
                     <div id="evidenceWebLinks"></div>
                     <hr>
                     <div id="evidenceDetailsDescription" class="evidenceDetails"></div>
-                    <div id="evidenceDetailsSkills" class="skillChipDisplay"></div>
+                    <div id="evidenceDetailsSkills" class="evidencePreviewTags"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="addEvidenceModal">
+    <div id="addEvidenceModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addEvidenceTitle">Add Evidence</h5>
@@ -129,7 +128,7 @@
                         <label class="col-form-label">Categories:</label>
                         <div class="row">
                             <div class="col center">
-                                <button type="button" class="btn inlineText btn-secondary evidenceFormCategoryButton"
+                                <button type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
                                         value="QUALITATIVE">
                                     Qualitative
                                     <label class="evidenceCategoryTickIcon">&#10003;</label>
@@ -186,7 +185,6 @@
                             </svg>
                             <h5 id="webLinkFull" style="display:none">10 web links have been added</h5>
                         </div>
-
                     </div>
                 </div>
                 <div class="modal-footer">

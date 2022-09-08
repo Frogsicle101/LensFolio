@@ -978,6 +978,10 @@ section {
     align-self: center;
 }
 
+#createEvidenceButton {
+    margin-top: 1rem;
+}
+
 .evidenceListTitle {
     text-align: center;
     padding: inherit;
@@ -1049,7 +1053,7 @@ section {
     background-color: #eaeaea;
 }
 
-.addEvidenceModal {
+#addEvidenceModal {
   display: none;
   position: fixed;
   z-index: 5;
@@ -1148,7 +1152,7 @@ section {
 
 /* Chips */
 
-.skillChipDisplay, #evidenceDetailsSkills{
+.evidencePreviewTags, #evidenceDetailsSkills{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -1255,7 +1259,7 @@ section {
     text-align: center;
 }
 
-.createEvidenceButton {
+.contentContainer #createEvidenceButton {
     position: absolute;
     left: 1rem;
     top: 1rem;
