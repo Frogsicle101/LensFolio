@@ -256,14 +256,12 @@ class EventControllerTest {
 
 
         Event event1 = new Event(project, "testEvent1", LocalDateTime.now(), LocalDate.now().plusDays(1), LocalTime.now(), 1);
-        Event event2 = new Event(project, "testEvent2", LocalDateTime.now().plusDays(1), LocalDate.now().plusDays(1), LocalTime.now(), 1);
-        Event event3 = new Event(project, "testEvent3", LocalDateTime.now().minusDays(3), LocalDate.now().plusDays(1), LocalTime.now(), 1);
-        eventController.addEvent(project.getId(), "testEvent1", LocalDateTime.now().toString(), LocalDate.now().plusDays(1).toString(), 1);
-        eventController.addEvent(project.getId(), "testEvent2", LocalDateTime.now().plusDays(1).toString(), LocalDate.now().plusDays(1).toString(), 1);
+        Event event2 = new Event(project, "testEvent2", LocalDateTime.now().plusDays(4), LocalDate.now().plusDays(5), LocalTime.now(), 1);
+        Event event3 = new Event(project, "testEvent3", LocalDateTime.now().plusDays(2), LocalDate.now().plusDays(4), LocalTime.now(), 1);
         List<Event> returnList = new ArrayList<>();
         returnList.add(event1);
-        returnList.add(event2);
         returnList.add(event3);
+        returnList.add(event2);
 
         Mockito.when(mockEventRepository.findAllByProjectIdOrderByStartDate(Mockito.anyLong())).thenReturn(returnList);
 
@@ -272,7 +270,9 @@ class EventControllerTest {
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertEquals(3, eventList2.size());
 
-        Assertions.assertEquals(eventList2.get(0).getStartDate(), event3.getStartDate());
+        Assertions.assertEquals(eventList2.get(0).getName(), event1.getName());
+        Assertions.assertEquals(eventList2.get(2).getName(), event2.getName());
+        Assertions.assertEquals(eventList2.get(1).getName(), event3.getName());
 
     }
 

@@ -113,6 +113,14 @@ class MilestoneControllerTest {
     }
 
     @Test
+    void testEditMilestoneBadName() {
+        Milestone milestone = new Milestone(project, "test", LocalDate.now(), 1);
+        Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.of(milestone));
+        ResponseEntity<Object> response = milestoneController.editMilestone(milestone.getId(), "$$BAD_NAME$$", String.valueOf(LocalDate.now().plusDays(1)), 2);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
     void testEditMilestoneNoMilestone() {
         Milestone milestone = new Milestone(project, "testMilestone", LocalDate.now(), 1);
         Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.empty());
@@ -185,7 +193,6 @@ class MilestoneControllerTest {
         Mockito.when(mockMilestoneRepository.findById(Mockito.any())).thenReturn(Optional.of(milestone));
         ResponseEntity<Object> response = milestoneController.deleteMilestone(milestone.getId());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-
     }
 
     @Test

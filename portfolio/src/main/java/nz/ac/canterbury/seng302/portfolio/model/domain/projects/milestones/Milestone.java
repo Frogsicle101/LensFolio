@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -44,7 +45,7 @@ public class Milestone {
      * @param endDate The end date of the milestone.
      * @param type    The type of the milestone.
      */
-    public Milestone(Project project, String name, LocalDate endDate, int type) {
+    public Milestone(Project project, String name, LocalDate endDate, int type) throws CheckException, DateTimeException {
         OccasionService.validateDate(project, endDate);
         this.id = UUID.randomUUID().toString();
         this.project = project;

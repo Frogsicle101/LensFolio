@@ -1,11 +1,12 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines;
 
+import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.service.OccasionService;
 
-import javax.naming.InvalidNameException;
+import javax.naming.;
 import javax.persistence.Entity;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -38,9 +39,8 @@ public class Deadline extends Milestone {
      * @param endTime The end time of the deadline.
      * @param type    The type of the deadline.
      * @throws DateTimeException    If the deadline's date does not occur between the project's start and end dates.
-     * @throws InvalidNameException If the deadline's name is null or has length greater than fifty characters.
      */
-    public Deadline(Project project, String name, LocalDate endDate, LocalTime endTime, int type) throws DateTimeException, InvalidNameException {
+    public Deadline(Project project, String name, LocalDate endDate, LocalTime endTime, int type) throws CheckException, DateTimeException {
         super(project, name, endDate, type);
         this.endTime = endTime;
         this.dateTime = LocalDateTime.of(endDate, endTime);

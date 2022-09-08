@@ -39,8 +39,6 @@ private final RegexService regexService;
     private final MilestoneRepository milestoneRepository;
 
 
-
-
     /**
      * Autowired constructor to inject the required dependencies into the controller.
      *

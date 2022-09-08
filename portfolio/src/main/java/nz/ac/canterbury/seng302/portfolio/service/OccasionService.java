@@ -13,6 +13,7 @@ public class OccasionService {
     /** To hide the public constructor as the methods of this class are static */
     private OccasionService() {}
 
+
     /**
      * Checks that the end date occurs between the project's start and end dates.
      *
