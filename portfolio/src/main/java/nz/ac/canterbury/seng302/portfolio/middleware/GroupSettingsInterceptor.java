@@ -16,6 +16,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.util.List;
 
 /**
@@ -77,12 +78,28 @@ public class GroupSettingsInterceptor implements HandlerInterceptor {
             if (usersRoles.contains(UserRole.TEACHER) || usersRoles.contains(UserRole.COURSE_ADMINISTRATOR)) {
                 return true;
             } else {
-                response.sendError(401);
+                response.setStatus(401);
+                PrintWriter writer = response.getWriter();
+                writer.append("Oops! Looks like you don't have permission to do this action. Please reload the page");
+                writer.close();
+                response.flushBuffer();
                 return false;
             }
-        } catch (Exception e) {
-            response.sendError(400);
+        } catch (NumberFormatException e){
             logger.error(e.getMessage());
+            response.setStatus(400);
+            PrintWriter writer = response.getWriter();
+            writer.append("Oops! Something went wrong");
+            writer.close();
+            response.flushBuffer();
+            return false;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            response.setStatus(500);
+            PrintWriter writer = response.getWriter();
+            writer.append("Oops! Something went wrong");
+            writer.close();
+            response.flushBuffer();
             return false;
         }
     }
