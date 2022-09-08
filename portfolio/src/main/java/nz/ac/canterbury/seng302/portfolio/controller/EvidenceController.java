@@ -8,6 +8,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
@@ -34,6 +35,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -293,8 +295,11 @@ public class EvidenceController {
                     .setFilteringOptions(filter)
                     .build();
             PaginatedUsersResponse response = userAccountsClientService.getPaginatedUsersFilteredByName(request);
-            List<UserResponse> users = response.getUsersList();
-            return new ResponseEntity<>(users.toString(), HttpStatus.OK);
+            ArrayList<UserDTO> users = new ArrayList<>();
+            for (UserResponse user : response.getUsersList()){
+                users.add(new UserDTO(user));
+            }
+            return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e){
             logger.warn(e.getClass().getName());
             logger.warn(e.getMessage());

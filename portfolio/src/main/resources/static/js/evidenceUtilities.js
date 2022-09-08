@@ -655,19 +655,17 @@ $("#linkUsersInput")
         source: function (request, response) {
             $.ajax({
                 url: 'filteredUsers?name=' + request.term.toString(), type: "GET", contentType: "application/json", success: function (res) {
-                    console.log(res)
+                    var users = [];
+                    $.each(res, function (i) {
+                        users.push(`Id: ${res[i].id}  ${res[i].firstName} ${res[i].lastName}`)
+                    })
+                    response(users)
                 }, error: function (error) {
                     console.log("here")
                     console.log(error)
                     createAlert(error.responseText, "failure", ".modal-body")
                 }
             })
-            // delegate back to autocomplete, but extract the last term
-            let responseList = $.ui.autocomplete.filter(["hello", "there", "hi", "hola"], request.term)
-            response(responseList.sort((element1, element2) => {
-                // This sorts the response list (the drop-down list) so that it shows the shortest match first
-                return element1.length - element2.length
-            }));
         },
         focus: function () {
             // prevent value inserted on focus
@@ -1044,16 +1042,6 @@ function webLinkButtonToggle() {
         saveButton.addClass("btn-primary")
         cancelButton.show()
     }
-    $.ajax({
-        url: 'filteredUsers?name=' + "john", success: function (res) {
-            console.log(res)
-
-        }, error: function (error) {
-            console.log("here")
-            console.log(error)
-            createAlert(error.responseText, "failure", ".modal-body")
-        }
-    })
 }
 
 
