@@ -98,7 +98,8 @@
                         <button class="addOccasionButton addEventButton noStyleButton" data-bs-placement="right"
                                 data-bs-toggle="tooltip"
                                 th:if="${userCanEdit == true}" title="Create Event" type="button">
-                            <svg class="bi bi-plus-circle addEventSvg" fill="currentColor" height="20" viewBox="0 0 16 16"
+                            <svg class="bi bi-plus-circle addEventSvg" fill="currentColor" height="20"
+                                 viewBox="0 0 16 16"
                                  width="20" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
@@ -135,7 +136,8 @@
                                            id="eventStart"
                                            name="eventStart"
                                            required
-                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
                                            th:value="${project.getStartDateAsLocalDateTime()}"
                                            type="datetime-local">
                                 </div>
@@ -144,7 +146,9 @@
                                     <input class="form-control form-control-sm eventInputEndDate" id="eventEnd"
                                            name="eventEnd"
                                            required
-                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}" th:value="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:value="${project.getStartDateAsLocalDateTime()}"
                                            type="datetime-local">
                                 </div>
                             </div>
@@ -162,9 +166,11 @@
                 <!--------------------------------------- Deadlines tab  ---------------------------------------->
                 <div class="tab-pane fade show" id="deadlines" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button class="addDeadlineButton noStyleButton" data-bs-placement="right" data-bs-toggle="tooltip"
+                        <button class="addDeadlineButton noStyleButton" data-bs-placement="right"
+                                data-bs-toggle="tooltip"
                                 th:if="${userCanEdit == true}" title="Create Deadline" type="button">
-                            <svg class="bi bi-plus-circle addDeadlineSvg" fill="currentColor" height="20" viewBox="0 0 16 16"
+                            <svg class="bi bi-plus-circle addDeadlineSvg" fill="currentColor" height="20"
+                                 viewBox="0 0 16 16"
                                  width="20" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
@@ -201,7 +207,8 @@
                                            id="deadlineEnd"
                                            name="deadlineEnd"
                                            required
-                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
                                            th:value="${project.getStartDateAsLocalDateTime()}"
                                            type="datetime-local">
                                 </div>
@@ -221,7 +228,8 @@
                         <button class="addOccasionButton addMilestoneButton noStyleButton" data-bs-placement="right"
                                 data-bs-toggle="tooltip"
                                 th:if="${userCanEdit == true}" title="Create Milestone" type="button">
-                            <svg class="bi bi-plus-circle addMilestoneSvg" fill="currentColor" height="20" viewBox="0 0 16 16"
+                            <svg class="bi bi-plus-circle addMilestoneSvg" fill="currentColor" height="20"
+                                 viewBox="0 0 16 16"
                                  width="20" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
