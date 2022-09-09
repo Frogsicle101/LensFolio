@@ -17,7 +17,6 @@ $(() => {
  */
 function removeElement(elementId) {
     let element = $("#" + elementId)
-
     element.slideUp(400, function () {
         element.remove()
     })
@@ -63,6 +62,31 @@ function triggerEventAlertForDate() {
 
 
 // <--------------------------- Listener Functions --------------------------->
+
+
+/**
+ * Listens for a change to an event date input picker.
+ * When it detects a change it checks that the event end date isn't before the event start date.
+ * If it is then it disables the event submit button, adds an invalid class to the event date pickers and shows the
+ * feedback.
+ */
+$(document).on("change", ".eventDateInput", function() {
+    let eventForm = $(this).parents("form")
+    let eventStart =  eventForm.find(".eventInputStartDate").val()
+    let eventEnd = eventForm.find(".eventInputEndDate").val()
+    let eventSubmitButton = eventForm.find("button[type=submit]")
+    let eventDateInput = eventForm.find(".eventDateInput")
+    let eventInvalidFeedback = eventForm.find(".invalid-feedback")
+    if (eventEnd < eventStart) {
+        eventDateInput.addClass("invalid")
+        eventInvalidFeedback.show()
+        eventSubmitButton.attr("disabled", "disabled")
+    } else {
+        eventDateInput.removeClass("invalid")
+        eventInvalidFeedback.hide()
+        eventSubmitButton.removeAttr("disabled")
+    }
+})
 
 
 /**
@@ -393,7 +417,6 @@ $(document).on("click", ".editButton", function () {
     let addOccasionButton = $(".addOccasionButton")
     let editOccasionButton = $(".editButton")
     let deleteOccasionButton = $(".deleteButton")
-    addOccasionButton.hide()
     editOccasionButton.hide()
     deleteOccasionButton.hide()
     //Hide edit and delete button tooltips
@@ -411,7 +434,6 @@ $(document).on("click", ".editButton", function () {
         sendNotification("deadline", id, "edit");
         appendDeadlineForm(parent)
     }
-    addOccasionButton.show()
 })
 
 
@@ -425,6 +447,7 @@ $(document).on("click", ".cancelEdit", function () {
     $(".addOccasionButton").show()
     $(".editButton").show()
     $(".deleteButton").show()
+    $(".eventDateInput").removeClass("is-invalid")
 
     let parent = $(this).closest(".occasion")
     let form = parent.find("form")
@@ -432,6 +455,7 @@ $(document).on("click", ".cancelEdit", function () {
     form.slideUp(400, function () {
         form.remove();
     })
+
 
     if (parent.hasClass("event")) {
         sendNotification("event", id, "stop");
@@ -696,16 +720,17 @@ function appendEventForm(element) {
                             <option value="6">Attention Required</option>
                         </select>
                     </div>
-                    <div class="row mb-1">
+                    <div class="row mb-1 eventDatePickerDiv">
                         <div class="col">
                             <label for="eventStart" class="form-label">Start</label>
-                            <input type="datetime-local" class="form-control form-control-sm eventInputStartDate eventStart" value="${sanitise(eventStart)}" min="${projectStart}" max="${projectEnd}" name="eventStart" required>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputStartDate eventStart eventDateInput" value="${sanitise(eventStart)}" min="${projectStart}" max="${projectEnd}" name="eventStart" required>
                         </div>
                         <div class="col">
                             <label for="eventEnd" class="form-label">End</label>
-                            <input type="datetime-local" class="form-control form-control-sm eventInputEndDate eventEnd" value="${sanitise(eventEnd)}" min="${projectStart}" max="${projectEnd}" name="eventEnd" required>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputEndDate eventEnd eventDateInput" value="${sanitise(eventEnd)}" min="${projectStart}" max="${projectEnd}" name="eventEnd" required>
                         </div>
                     </div>
+                    <div class="invalid-feedback">Start date must be before end date</div>
                     <div class="mb-1">
                         <button type="submit" class="btn btn-primary existingEventSubmit">Save</button>
                         <button type="button" class="btn btn-secondary cancelEdit" >Cancel</button>
