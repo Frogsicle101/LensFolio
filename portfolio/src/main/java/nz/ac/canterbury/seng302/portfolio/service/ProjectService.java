@@ -59,7 +59,7 @@ public class ProjectService {
                     "previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate());
         } else {
             // Else adds an object to the view that limits the calendar to project start .
-            neighbouringSprintDates.put("previousSprintEnd", project.getStartDate());
+            neighbouringSprintDates.put("previousSprintEnd", project.getStartDate().minusDays(1));
         }
         // Checks if the selected sprint is not the last on the list
         if (indexOfNextSprint < sprintList.size() - 1) {
