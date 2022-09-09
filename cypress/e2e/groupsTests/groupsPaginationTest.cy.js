@@ -6,7 +6,7 @@ context("Test group pagination", () => {
         })
 
         it('There should be a selector for groups', () => {
-            cy.get('#groupDisplayAmountSelectionTop').should("be.visible")
+            cy.get('#groupDisplayAmountSelection').should("be.visible")
         })
 
         it('Check buttons disable themselves', () => {
@@ -26,13 +26,13 @@ context("Test group pagination", () => {
         it('Check amount of groups to display changes', () => {
             cy.contains('[class="page-link"]', "1").click()
             cy.get(".scrollableGroupOverview").scrollTo("top")
-            cy.get("#groupDisplayAmountSelectionTop").select("10")
+            cy.get("#groupDisplayAmountSelection").select("10")
             cy.get(".group ").should("have.length", 10)
             cy.get(".scrollableGroupOverview").scrollTo("top")
-            cy.get("#groupDisplayAmountSelectionTop").select("20").wait(1000)
+            cy.get("#groupDisplayAmountSelection").select("20").wait(1000)
             cy.contains('[class="page-link"]', "1").click()
             cy.get(".group ").should("have.length", 20)
-            cy.get("#groupDisplayAmountSelectionTop").select("All")
+            cy.get("#groupDisplayAmountSelection").select("All")
             cy.get(".group ").should("have.length.at.least", 70)
         })
     }
