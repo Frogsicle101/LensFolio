@@ -1108,16 +1108,23 @@ function submitWebLink() {
 }
 
 
-//todo
+/**
+ * Adds the user to be linked to the create evidence modal
+ */
 function addLinkedUser(user) {
     let linkedUsersDiv = $("#linkedUsers")
     $("#linkedUsersTitle").show()
-    linkedUsersDiv.append(linkedUserElement(user))
+    if ($('#linkedUserId' + user.id).length === 0) {
+        linkedUsersDiv.append(linkedUserElement(user))
+    }
 }
 
-//todo
+
+/**
+ * Creates the element for displaying the linked user
+ */
 function linkedUserElement(user) {
-    return `<div id="linkedUserId"${user.id}>Id: ${user.id} - Name: ${user.firstName} ${user.lastName}</div>`
+    return `<div id=linkedUserId${user.id}>Id: ${user.id} - Name: ${user.firstName} ${user.lastName}</div>`
 }
 
 
@@ -1131,8 +1138,10 @@ function clearAddEvidenceModalValues() {
     $("#webLinkName").val("")
     $("#evidenceDate").val(todaysDate)
     $("#addedWebLinks").empty()
-    $("#webLinkTitle").empty()
+    $("#linkedUsers").empty()
+    $("#webLinkTitle").hide()
     $("#skillsInput").val("")
+    $("#linkedUsersTitle").hide()
     $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
     $(".evidenceCategoryTickIcon").hide();
     $(".countCharName").html("50 characters remaining")
