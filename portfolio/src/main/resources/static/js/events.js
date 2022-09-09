@@ -306,8 +306,6 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
  * Rotates the button and shows the event form via a slide-down transition
  */
 $(document).on('click', '.addEventButton', function () {
-
-    $(".addEventSvg").toggleClass('rotated');
     $(".eventForm").slideToggle();
 })
 
