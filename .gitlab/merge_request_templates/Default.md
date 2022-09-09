@@ -2,7 +2,7 @@
 (summarise what task has been done, and what changes have been made)
 
 ### DoD
- - [ ] Acceptence Criteria met
+ - [ ] Acceptance Criteria met
  - [ ] Tests are written - including edge cases and non-blue sky scenarios
  - [ ] Documentation - class and Javadoc, and comments where code is unclear (try to make it clear if possible). Getters and setters do not need Javadoc
  - [ ] No commented-out blocks of code
