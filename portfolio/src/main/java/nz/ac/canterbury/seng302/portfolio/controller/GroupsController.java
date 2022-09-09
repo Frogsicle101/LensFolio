@@ -4,6 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.GroupCreationDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
+import nz.ac.canterbury.seng302.portfolio.service.PaginationService;
 import nz.ac.canterbury.seng302.portfolio.service.UserService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -34,6 +35,7 @@ public class GroupsController {
     private final GroupService groupService;
     private final UserService userService;
     private final UserAccountsClientService userAccountsClientService;
+    private final PaginationService paginationService;
 
     private int pageNum = 1;
     private int totalPages = 1;
@@ -43,7 +45,7 @@ public class GroupsController {
     private static final Integer TEACHER_GROUP_ID = 1;
     private static final String ORDER_BY = "shortName";
     private static final Boolean IS_ASCENDING = true;
-    private final ArrayList<Integer> footerNumberSequence = new ArrayList<>();
+    private ArrayList<Integer> footerNumberSequence = new ArrayList<>();
 
 
     /**
@@ -53,16 +55,19 @@ public class GroupsController {
      * @param groupService The service class for related methods for Groups.
      * @param userService The service class for related methods for Users.
      * @param userAccountsClientService The user account service.
+     * @param paginationService The pagination service class.
      */
     @Autowired
     GroupsController(GroupsClientService groupsClientService,
                      GroupService groupService,
                      UserService userService,
-                     UserAccountsClientService userAccountsClientService){
+                     UserAccountsClientService userAccountsClientService,
+                     PaginationService paginationService){
         this.groupsClientService = groupsClientService;
         this.groupService = groupService;
         this.userService = userService;
         this.userAccountsClientService = userAccountsClientService;
+        this.paginationService = paginationService;
     }
 
 
@@ -81,7 +86,7 @@ public class GroupsController {
         ModelAndView modelAndView = new ModelAndView("groups");
         userService.checkAndAddUserRole(user, modelAndView);
         try {
-            createFooterNumberSequence();
+            footerNumberSequence = paginationService.createFooterNumberSequence(footerNumberSequence, totalPages, pageNum);
             modelAndView.addObject("user", user);
             modelAndView.addObject("footerNumberSequence", footerNumberSequence);
             modelAndView.addObject("selectedGroupsPerPage", this.groupsPerPageLimit);
@@ -133,7 +138,7 @@ public class GroupsController {
                  offset = (pageNum - 1) * groupsPerPageLimit;
                  response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
              }
-             createFooterNumberSequence();
+             footerNumberSequence = paginationService.createFooterNumberSequence(footerNumberSequence, totalPages, pageNum);
 
              HashMap<String, Object> returnMap = new HashMap<>();
              returnMap.put("groups", groupService.createGroupListFromResponse(response));
@@ -395,34 +400,6 @@ public class GroupsController {
             logger.error("ERROR /groups/removeUsers - an error occurred while removing a user from a group");
             logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    /**
-     * This is used to set the numbers at the bottom of the screen for page navigation. Otherwise, at larger page values
-     * it gets very messy. Creates a range of -5 to +5 from the current page if able to
-     */
-    private void createFooterNumberSequence() {
-        footerNumberSequence.clear();
-
-        int minNumber = 1;
-        int maxNumber = 10;
-
-        if (totalPages < 10) {
-            maxNumber = totalPages;
-        } else if (pageNum > 6) {
-            if (pageNum + 5 < totalPages) {
-                minNumber = pageNum - 5;
-                maxNumber = pageNum + 5;
-            } else {
-                maxNumber = totalPages;
-                minNumber = totalPages - 9;
-            }
-        }
-
-        for (int i = minNumber; i <= maxNumber; i++) {
-            footerNumberSequence.add(i);
         }
     }
 }

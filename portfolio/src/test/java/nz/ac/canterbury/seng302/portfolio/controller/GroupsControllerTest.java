@@ -6,6 +6,7 @@ import nz.ac.canterbury.seng302.portfolio.PortfolioApplication;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
 import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.service.PaginationService;
 import nz.ac.canterbury.seng302.portfolio.service.UserService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
@@ -78,6 +79,9 @@ class GroupsControllerTest {
 
     @MockBean
     UserService userService;
+
+    @MockBean
+    PaginationService paginationService;
 
     @MockBean
     private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
