@@ -31,7 +31,6 @@ function removeElement(elementId) {
  */
 function removeClass(elementClass) {
     let elements = $("." + elementClass);
-
     for (let element of elements) {
         element.remove();
     }
@@ -46,15 +45,20 @@ function removeClass(elementClass) {
  * @param dateElement the date to sort by
  */
 function sortElementsByDate(div, childrenElement, dateElement) {
-
     let result = $(div).children(childrenElement).sort(function (a, b) {
-
         let contentA = Date.parse($(a).find(dateElement).text());
         let contentB = Date.parse($(b).find(dateElement).text());
         return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;
     });
-
     $(div).html(result);
+}
+
+
+/**
+ * Displays the alert for when dates are the wrong way around (end before start)
+ */
+function triggerEventAlertForDate() {
+    createAlert("Your event end date shouldn't be before your event start date!", "failure")
 }
 
 
@@ -78,12 +82,7 @@ $(document).on('submit', "#addEventForm", function (event) {
     }
 
     if (eventData.eventEnd < eventData.eventStart) {
-        $(this).closest("#addEventForm").append(`
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>Oh no!</strong> Your event end date shouldn't be before your event start date!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`)
-
+        triggerEventAlertForDate()
     } else {
         $.ajax({
             url: "addEvent",
@@ -199,11 +198,7 @@ $(document).on("submit", "#editEventForm", function (event) {
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
     } else if (eventData.eventEnd < eventData.eventStart) {
-        $(this).closest(".existingEventForm").append(`
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>Oh no!</strong> Your event end date shouldn't be before your event start date!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`)
+        triggerEventAlertForDate()
     } else {
         $.ajax({
             url: "editEvent",
@@ -306,7 +301,6 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
  * Rotates the button and shows the event form via a slide-down transition
  */
 $(document).on('click', '.addEventButton', function () {
-
     $(".addEventSvg").toggleClass('rotated');
     $(".eventForm").slideToggle();
 })
@@ -317,7 +311,6 @@ $(document).on('click', '.addEventButton', function () {
  * Rotates the button and shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addMilestoneButton', function () {
-
     $(".addMilestoneSvg").toggleClass('rotated');
     $(".milestoneForm").slideToggle();
 })
@@ -328,7 +321,6 @@ $(document).on('click', '.addMilestoneButton', function () {
  * Rotates the button and shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addDeadlineButton', function () {
-
     $(".addDeadlineSvg").toggleClass('rotated');
     $(".deadlineForm").slideToggle();
 })
@@ -1481,12 +1473,16 @@ function handleNotifyEvent(notification) {
         let infoContainer = $("#informationBar");
         let eventDiv = $("#" + occasionId)
         let noticeSelector = $("#notice" + occasionId)
-
+        if (eventDiv.length < 1){
+            // Solves the race condition that was happening when a user refreshed their page.
+            // The element that lets the user know if another user is editing the page was working too fast.
+            setTimeout(() => handleNotifyEvent(notification), 200)
+            return
+        }
         let eventName = eventDiv.find(".name").text();
-
         if (!noticeSelector.length) {
             let infoString = editorName + " is editing element: " + eventName
-            infoContainer.append(`<p class="infoMessage text-truncate noticeEditor${sanitise(editorId)}" id="notice${sanitise(occasionId)}"> ` + infoString + `</p>`)
+            infoContainer.append(`<p class="infoMessage noticeEditor${sanitise(editorId)}" id="notice${sanitise(occasionId)}"> ` + infoString + `</p>`)
             eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
             eventDiv.addClass("editor" + editorId)
             if (eventDiv.hasClass("beingEdited")) {
@@ -1509,10 +1505,8 @@ function handleStopEvent(notification) {
     const editorId = notification.editorId
 
     if (checkPrivilege()) {
-
         let elementDiv;
         let notice;
-
         if (occasionId === "*") { // A websocket disconnected, so we need to remove the element by the editorId
             notice = $(".noticeEditor" + editorId);
             elementDiv = $(".editor" + editorId);
@@ -1520,20 +1514,16 @@ function handleStopEvent(notification) {
             elementDiv = $("#" + occasionId);
             notice = $("#notice" + occasionId);
         }
-
         notice.remove();
-
         elementDiv.removeClass("beingEdited")
         elementDiv.removeClass("editor" + editorId);
-
         if (!thisUserIsEditing) {
-            elementDiv.find(".controlButtons").show()
+            $(".controlButtons").show()
+            $(".beingEdited ").find(".controlButtons").hide()
         }
-
         if (elementDiv.hasClass("beingEdited")) {
             elementDiv.find(".controlButtons").hide()
         }
-
         let infoContainer = $("#informationBar");
         if (isEmpty(infoContainer)) {
             infoContainer.slideUp() // Hide the notice.

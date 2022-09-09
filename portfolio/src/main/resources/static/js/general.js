@@ -20,6 +20,7 @@ $(function () {
     })
 
     removeElementIfNotAuthorized()
+
 });
 
 
@@ -222,8 +223,9 @@ function addLiveAlert(liveAlert){
     let alert = $("#alertPopUp")
 
     if (alertIsShown){
-        let height = alert.height()
-        liveAlert.css("bottom", height + 20)
+        let height = alert.outerHeight()
+        console.log(height)
+        liveAlert.css("bottom", height + 20 + "px")
     } else {
         liveAlert.css("bottom", "10px")
     }
@@ -240,8 +242,8 @@ function addAlert(alert){
     let liveAlert = $("#liveAlertPopUp")
 
     if (liveAlertIsShown){
-        height = alert.height() + 20
-        liveAlert.animate({bottom: height}, {duration: 100})
+        let height = liveAlert.outerHeight()
+        liveAlert.animate({bottom: height + 20 + "px"}, {duration: 100})
     }
     alert.show("slide", 100)
 }
