@@ -75,6 +75,7 @@ public class ProjectService {
         return neighbouringSprintDates;
     }
 
+
     /**
      * Checks the SprintRequest DTO is all good and correct
      *
@@ -98,6 +99,7 @@ public class ProjectService {
         }
     }
 
+
     /**
      * Gets the minimum start date for a project.
      * If the current start date is more than a year ago, returns that, otherwise returns exactly a year before today.
@@ -111,6 +113,7 @@ public class ProjectService {
             return LocalDate.now().minusYears(1);
         }
     }
+
 
     /**
      * Gets the max start date for a project. This will be the start date of the first sprint, or LocalDate.MAX if the
@@ -144,6 +147,4 @@ public class ProjectService {
             return project.getStartDate();
         }
     }
-
-
 }
