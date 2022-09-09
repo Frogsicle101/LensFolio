@@ -1335,7 +1335,7 @@ function enableToolTips() {
  * A helper function to display a live edit notification. This checks if a user has edit privileges and if they are
  * not the user that made the change.
  */
-function displayLiveUpdateMessage(message, editorId, eventId){
+function displayLiveUpdateMessage(message, editorId, eventId) {
     if (checkPrivilege() && editorId != userIdent) {
         createLiveAlert(message, eventId);
         setTimeout(removeLiveAlert, 10000, eventId)

@@ -56,7 +56,8 @@
             <button class="btn btn-outline-success project-add-sprint-button authenticated-user" id="editProject">
                 Edit Project
             </button>
-            <button class="btn btn-outline-success project-add-sprint-button authenticated-user addSprint" id="projectAddSprint">
+            <button class="btn btn-outline-success project-add-sprint-button authenticated-user addSprint"
+                    id="projectAddSprint">
                 Add Sprint
             </button>
             <div id="sprintAddInformationBar">
@@ -94,7 +95,8 @@
                 <!---------------------------------------- Events tab  ------------------------------------------>
                 <div class="tab-pane fade show active" id="events" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button class="btn btn-outline-primary addOccasionButton addEventButton" th:if="${userCanEdit == true}" type="button">
+                        <button class="btn btn-outline-primary addOccasionButton addEventButton"
+                                th:if="${userCanEdit == true}" type="button">
                             Create Event
                         </button>
                     </div>
@@ -128,7 +130,8 @@
                                            id="eventStart"
                                            name="eventStart"
                                            required
-                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
                                            th:value="${project.getStartDateAsLocalDateTime()}"
                                            type="datetime-local">
                                 </div>
@@ -137,7 +140,9 @@
                                     <input class="form-control form-control-sm eventInputEndDate" id="eventEnd"
                                            name="eventEnd"
                                            required
-                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}" th:value="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:value="${project.getStartDateAsLocalDateTime()}"
                                            type="datetime-local">
                                 </div>
                             </div>
@@ -155,7 +160,8 @@
                 <!--------------------------------------- Deadlines tab  ---------------------------------------->
                 <div class="tab-pane fade show" id="deadlines" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button class="btn btn-outline-primary addDeadlineButton addEventButton" th:if="${userCanEdit == true}" type="button">
+                        <button class="btn btn-outline-primary addDeadlineButton addEventButton"
+                                th:if="${userCanEdit == true}" type="button">
                             Create Deadline
                         </button>
                     </div>
@@ -189,7 +195,8 @@
                                            id="deadlineEnd"
                                            name="deadlineEnd"
                                            required
-                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
                                            th:value="${project.getStartDateAsLocalDateTime()}"
                                            type="datetime-local">
                                 </div>
@@ -206,7 +213,8 @@
                 <!--------------------------------------- Milestones tab  --------------------------------------->
                 <div class="tab-pane fade show" id="milestones" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button class="btn btn-outline-primary addMilestoneButton addOccasionButton" th:if="${userCanEdit == true}" type="button">
+                        <button class="btn btn-outline-primary addMilestoneButton addOccasionButton"
+                                th:if="${userCanEdit == true}" type="button">
                             Create Milestone
                         </button>
                     </div>
