@@ -1,17 +1,15 @@
 context("Test group pagination", () => {
         beforeEach(() => {
             cy.adminLogin()
+            cy.visit('/groups')
             cy.viewport(1200,1024)
         })
 
         it('There should be a selector for groups', () => {
-            cy.visit('/groups')
             cy.get('#groupDisplayAmountSelectionTop').should("be.visible")
         })
 
         it('Check buttons disable themselves', () => {
-            cy.visit('/groups')
-            cy.get('#groupDisplayAmountSelectionTop').should("be.visible")
             cy.contains('[class="page-link"]', "1").click()
             cy.get(".groupFooterFirst").should("have.class", "disabled")
             cy.get(".groupFooterPrevious").should("have.class", "disabled")
@@ -26,7 +24,6 @@ context("Test group pagination", () => {
         })
 
         it('Check amount of groups to display changes', () => {
-            cy.visit('/groups')
             cy.contains('[class="page-link"]', "1").click()
             cy.get(".scrollableGroupOverview").scrollTo("top")
             cy.get("#groupDisplayAmountSelectionTop").select("10")

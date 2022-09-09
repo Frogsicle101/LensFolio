@@ -48,6 +48,7 @@ public class GroupsController {
 
     /**
      * Autowired constructor
+     * 
      * @param groupsClientService The service class for GRPC stuff for Groups.
      * @param groupService The service class for related methods for Groups.
      * @param userService The service class for related methods for Users.
@@ -175,6 +176,7 @@ public class GroupsController {
 
     /**
      * The get request to get the create group html
+     *
      * @param principal - The user who made the request
      * @return ModelAndView - the model and view of the group creation page
      */
@@ -254,7 +256,7 @@ public class GroupsController {
 
 
     /**
-     * Restricted to teachers and course administrators, This endpoint modify a group details.
+     * Restricted to teachers and course administrators, this endpoint modifies a group details.
      *
      * @param principal The user who made the request.
      * @param groupId The id of the group to be modified.

@@ -46,11 +46,12 @@ public class EvidenceData {
         try {
             LocalDate date = LocalDate.now();
 
-            Evidence evidence = evidenceRepository.save(new Evidence(109, "Title", date, "Description"));
-            Evidence evidence1 = evidenceRepository.save(new Evidence(109, "Created test Data", date, "Created a selection of default evidence objects for testing"));
-            Evidence evidence2 = evidenceRepository.save(new Evidence(109, "making more evidence", date, "Description of another one"));
-            Evidence evidence3 = evidenceRepository.save(new Evidence(109, "Writing Long Descriptions", date, "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
-            Evidence evidence4 = evidenceRepository.save(new Evidence(109, "No Skill Evidence", date, "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
+            int adminId = 109;
+            Evidence evidence = evidenceRepository.save(new Evidence(adminId, "Title", date, "Description"));
+            Evidence evidence1 = evidenceRepository.save(new Evidence(adminId, "Created test Data", date, "Created a selection of default evidence objects for testing"));
+            Evidence evidence2 = evidenceRepository.save(new Evidence(adminId, "making more evidence", date, "Description of another one"));
+            Evidence evidence3 = evidenceRepository.save(new Evidence(adminId, "Writing Long Descriptions", date, "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
+            Evidence evidence4 = evidenceRepository.save(new Evidence(adminId, "No Skill Evidence", date, "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
 
             WebLink webLink =  webLinkRepository.save(new WebLink(evidence, "localhost", new URL("https://localhost")));
             WebLink webLink1 = webLinkRepository.save(new WebLink(evidence1,  "evidence1 weblink", new URL("https://localhost/evidence1")));
