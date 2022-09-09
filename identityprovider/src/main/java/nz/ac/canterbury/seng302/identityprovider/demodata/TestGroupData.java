@@ -54,6 +54,10 @@ public class TestGroupData {
         Group groupFour = new Group("Team 400", "Seng 302 Team 400");
         Group groupFive = new Group("Team 500", "Seng 302 Team 500");
         Group groupSix = new Group("Team 600", "The Best SENG 302 Team");
+        for (int i = 0; i < 100; i++) {
+          Group group = new Group("Team " + i, "Seng 302 Team " + i);
+          groupRepository.save(group);
+        }
 
         groupRepository.save(groupOne);
         groupRepository.save(groupTwo);
