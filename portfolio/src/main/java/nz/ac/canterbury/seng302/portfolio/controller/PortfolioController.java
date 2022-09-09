@@ -10,10 +10,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
-import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
-import nz.ac.canterbury.seng302.portfolio.service.ProjectService;
-import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
-import nz.ac.canterbury.seng302.portfolio.service.RegexService;
+import nz.ac.canterbury.seng302.portfolio.service.*;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
@@ -144,8 +141,9 @@ public class PortfolioController {
             @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "projectId") Long projectId
     ) {
+        final String logMessage = "GET REQUEST /editProject";
         try {
-            logger.info("GET REQUEST /editProject");
+            logger.info(logMessage);
 
             // Get user from server
             UserResponse user =
@@ -166,9 +164,9 @@ public class PortfolioController {
             modelAndView.addObject("project", project);
 
             // Values to set the max and min of datepicker inputs
-            modelAndView.addObject("minStartDate", projectService.getMinStartDate(project));
-            modelAndView.addObject("maxStartDate", projectService.getMaxStartDate(project));
-            modelAndView.addObject("minEndDate", projectService.getMinEndDate(project));
+            modelAndView.addObject("minStartDate", projectService.getMinProjectStartDate(project));
+            modelAndView.addObject("maxStartDate", projectService.getMaxProjectStartDate(project));
+            modelAndView.addObject("minEndDate", projectService.getMinProjectEndDate(project));
 
             // Adds the username and profile photo to the view for use.
             modelAndView.addObject("user", user);
@@ -176,10 +174,10 @@ public class PortfolioController {
             return modelAndView;
 
         } catch (EntityNotFoundException err) {
-            logger.error("GET REQUEST /editProject", err);
+            logger.error(logMessage, err);
             return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err);
         } catch (Exception err) {
-            logger.error("GET REQUEST /editProject", err);
+            logger.error(logMessage, err);
             return new ModelAndView(ERROR_PAGE_LOCATION);
         }
     }
@@ -219,13 +217,13 @@ public class PortfolioController {
             );
             dateTimeService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
 
-            if (projectStart.isBefore(projectService.getMinStartDate(project))) {
+            if (projectStart.isBefore(projectService.getMinProjectStartDate(project))) {
                 return new ResponseEntity<>("Project cannot start more than a year before today", HttpStatus.BAD_REQUEST);
             }
-            if (projectStart.isAfter(projectService.getMaxStartDate(project))) {
+            if (projectStart.isAfter(projectService.getMaxProjectStartDate(project))) {
                 return new ResponseEntity<>("There is a sprint that starts before that date", HttpStatus.BAD_REQUEST);
             }
-            if (projectEnd.isBefore(projectService.getMinEndDate(project))) {
+            if (projectEnd.isBefore(projectService.getMinProjectEndDate(project))) {
                 return new ResponseEntity<>("There is a sprint that extends after that date", HttpStatus.BAD_REQUEST);
             }
             if (projectEnd.isBefore(projectStart)) {
@@ -318,9 +316,9 @@ public class PortfolioController {
                                                     "Sprint with id " + projectId.toString() + " was not found"));
 
             Project project = projectRepository.getProjectById(projectId);
-            Map<String, LocalDate> neighbouringDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
-            LocalDate previousSprintEnd = neighbouringDates.get("previousSprintEnd");
-            LocalDate nextSprintStart = neighbouringDates.get("nextSprintStart");
+            SprintValidationService sprintValidator = new SprintValidationService(sprintRepository, sprint);
+            LocalDate previousSprintEnd = sprintValidator.getMinSprintStartDate();
+            LocalDate nextSprintStart = sprintValidator.getMaxSprintEndDate();
 
             modelAndView.addObject("previousSprintEnd", previousSprintEnd.plusDays(1));
             modelAndView.addObject("nextSprintStart", nextSprintStart.minusDays(1));
@@ -377,32 +375,34 @@ public class PortfolioController {
     /**
      * Takes the request to update the sprint. Tries to update the sprint then redirects user.
      *
-     * @param sprintInfo the thymeleaf-created form object
+     * @param sprintRequest the thymeleaf-created form object
      * @return redirect to portfolio
      */
     @PostMapping("/sprintSubmit")
     public ResponseEntity<Object> updateSprint(
-            @ModelAttribute(name = "sprintEditForm") SprintRequest sprintInfo) {
+            @ModelAttribute(name = "sprintEditForm") SprintRequest sprintRequest) {
 
         try {
             logger.info("POST REQUEST /sprintSubmit");
             // Checks that the sprint request is acceptable
-            projectService.checkSprintRequest(sprintInfo);
+            projectService.checkSprintRequest(sprintRequest);
 
-            LocalDate startDate = LocalDate.parse(sprintInfo.getSprintStartDate());
-            LocalDate endDate = LocalDate.parse(sprintInfo.getSprintEndDate());
-            Optional<Sprint> sprintOptional = sprintRepository.findById(sprintInfo.getSprintId());
+            LocalDate startDate = LocalDate.parse(sprintRequest.getSprintStartDate());
+            LocalDate endDate = LocalDate.parse(sprintRequest.getSprintEndDate());
+            Optional<Sprint> sprintOptional = sprintRepository.findById(sprintRequest.getSprintId());
             if (sprintOptional.isEmpty()) {
                 throw new CheckException("Sprint id doesn't correspond to existing sprint");
             }
             Sprint sprint = sprintOptional.get();
-            Map<String, LocalDate> checkSprintDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
-            dateTimeService.checkNewSprintDateNotInsideOtherSprints(checkSprintDates.get("previousSprintEnd"), checkSprintDates.get("nextSprintStart"), sprintInfo);
-            sprint.setName(sprintInfo.getSprintName());
+
+            SprintValidationService sprintValidator = new SprintValidationService(sprintRepository, sprint);
+            sprintValidator.checkNewSprintDateNotInsideOtherSprints(sprintRequest);
+
+            sprint.setName(sprintRequest.getSprintName());
             sprint.setStartDate(startDate);
             sprint.setEndDate(endDate);
-            sprint.setDescription(sprintInfo.getSprintDescription());
-            sprint.setColour(sprintInfo.getSprintColour());
+            sprint.setDescription(sprintRequest.getSprintDescription());
+            sprint.setColour(sprintRequest.getSprintColour());
             sprintRepository.save(sprint);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (CheckException checkException) {
