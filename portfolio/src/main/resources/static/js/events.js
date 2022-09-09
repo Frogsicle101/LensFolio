@@ -17,7 +17,6 @@ $(() => {
  */
 function removeElement(elementId) {
     let element = $("#" + elementId)
-
     element.slideUp(400, function () {
         element.remove()
     })
@@ -31,7 +30,6 @@ function removeElement(elementId) {
  */
 function removeClass(elementClass) {
     let elements = $("." + elementClass);
-
     for (let element of elements) {
         element.remove();
     }
@@ -46,19 +44,49 @@ function removeClass(elementClass) {
  * @param dateElement the date to sort by
  */
 function sortElementsByDate(div, childrenElement, dateElement) {
-
     let result = $(div).children(childrenElement).sort(function (a, b) {
-
         let contentA = Date.parse($(a).find(dateElement).text());
         let contentB = Date.parse($(b).find(dateElement).text());
         return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;
     });
-
     $(div).html(result);
 }
 
 
+/**
+ * Displays the alert for when dates are the wrong way around (end before start)
+ */
+function triggerEventAlertForDate() {
+    createAlert("Your event end date shouldn't be before your event start date!", "failure")
+}
+
+
 // <--------------------------- Listener Functions --------------------------->
+
+
+/**
+ * Listens for a change to an event date input picker.
+ * When it detects a change it checks that the event end date isn't before the event start date.
+ * If it is then it disables the event submit button, adds an invalid class to the event date pickers and shows the
+ * feedback.
+ */
+$(document).on("change", ".eventDateInput", function() {
+    let eventForm = $(this).parents("form")
+    let eventStart =  eventForm.find(".eventInputStartDate").val()
+    let eventEnd = eventForm.find(".eventInputEndDate").val()
+    let eventSubmitButton = eventForm.find("button[type=submit]")
+    let eventDateInput = eventForm.find(".eventDateInput")
+    let eventInvalidFeedback = eventForm.find(".invalid-feedback")
+    if (eventEnd < eventStart) {
+        eventDateInput.addClass("invalid")
+        eventInvalidFeedback.show()
+        eventSubmitButton.attr("disabled", "disabled")
+    } else {
+        eventDateInput.removeClass("invalid")
+        eventInvalidFeedback.hide()
+        eventSubmitButton.removeAttr("disabled")
+    }
+})
 
 
 /**
@@ -78,12 +106,7 @@ $(document).on('submit', "#addEventForm", function (event) {
     }
 
     if (eventData.eventEnd < eventData.eventStart) {
-        $(this).closest("#addEventForm").append(`
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>Oh no!</strong> Your event end date shouldn't be before your event start date!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`)
-
+        triggerEventAlertForDate()
     } else {
         $.ajax({
             url: "addEvent",
@@ -102,6 +125,9 @@ $(document).on('submit', "#addEventForm", function (event) {
                  */
                 sendNotification("event", response.id, "create");
                 createAlert("Event created!", "success")
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -129,6 +155,9 @@ $(document).on("submit", ".milestoneForm", function (event) {
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
             sendNotification("milestone", response.id, "create");
+        },
+        error: function (error) {
+            createAlert(error.responseText, "failure")
         }
     })
 })
@@ -158,6 +187,9 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
             $(".addDeadlineSvg").toggleClass('rotated');
 
             sendNotification("deadline", response.id, "create");
+        },
+        error: function (error) {
+            createAlert(error.responseText, "failure")
         }
     })
 })
@@ -190,11 +222,7 @@ $(document).on("submit", "#editEventForm", function (event) {
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
     } else if (eventData.eventEnd < eventData.eventStart) {
-        $(this).closest(".existingEventForm").append(`
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>Oh no!</strong> Your event end date shouldn't be before your event start date!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>`)
+        triggerEventAlertForDate()
     } else {
         $.ajax({
             url: "editEvent",
@@ -204,6 +232,9 @@ $(document).on("submit", "#editEventForm", function (event) {
                 createAlert("Event edited successfully!", "success")
                 sendNotification("event", eventId, "stop") // Let the server know the event is no longer being edited
                 sendNotification("event", eventId, "update") //Let the server know that other clients should update the element
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -234,6 +265,9 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
             createAlert("Milestone edited successfully!", "success")
             sendNotification("milestone", milestoneId, "stop") // Let the server know the milestone is no longer being edited
             sendNotification("milestone", milestoneId, "update") //Let the server know that other clients should update the element
+        },
+        error: function (error) {
+            createAlert(error.responseText, "failure")
         }
     })
 })
@@ -277,6 +311,9 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
                 createAlert("Deadline edited successfully!", "success")
                 sendNotification("deadline", deadlineId, "stop") // Let the server know the deadline is no longer being edited
                 sendNotification("deadline", deadlineId, "update") //Let the server know that other clients should update the element
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -288,7 +325,6 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
  * Rotates the button and shows the event form via a slide-down transition
  */
 $(document).on('click', '.addEventButton', function () {
-
     $(".addEventSvg").toggleClass('rotated');
     $(".eventForm").slideToggle();
 })
@@ -299,7 +335,6 @@ $(document).on('click', '.addEventButton', function () {
  * Rotates the button and shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addMilestoneButton', function () {
-
     $(".addMilestoneSvg").toggleClass('rotated');
     $(".milestoneForm").slideToggle();
 })
@@ -310,7 +345,6 @@ $(document).on('click', '.addMilestoneButton', function () {
  * Rotates the button and shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addDeadlineButton', function () {
-
     $(".addDeadlineSvg").toggleClass('rotated');
     $(".deadlineForm").slideToggle();
 })
@@ -335,6 +369,9 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 createAlert("Event deleted successfully!", "success")
                 sendNotification("event", eventData.eventId, "delete");
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     } else if (parent.hasClass('milestone')) {
@@ -346,6 +383,9 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 createAlert("Milestone deleted successfully!", "success")
                 sendNotification("milestone", milestoneData.milestoneId, "delete");
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     } else if (parent.hasClass('deadline')) {
@@ -357,6 +397,9 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 createAlert("Deadline deleted successfully!", "success")
                 sendNotification("deadline", deadlineData.deadlineId, "delete");
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -374,7 +417,6 @@ $(document).on("click", ".editButton", function () {
     let addOccasionButton = $(".addOccasionButton")
     let editOccasionButton = $(".editButton")
     let deleteOccasionButton = $(".deleteButton")
-    addOccasionButton.hide()
     editOccasionButton.hide()
     deleteOccasionButton.hide()
     //Hide edit and delete button tooltips
@@ -392,7 +434,6 @@ $(document).on("click", ".editButton", function () {
         sendNotification("deadline", id, "edit");
         appendDeadlineForm(parent)
     }
-    addOccasionButton.show()
 })
 
 
@@ -406,6 +447,7 @@ $(document).on("click", ".cancelEdit", function () {
     $(".addOccasionButton").show()
     $(".editButton").show()
     $(".deleteButton").show()
+    $(".eventDateInput").removeClass("is-invalid")
 
     let parent = $(this).closest(".occasion")
     let form = parent.find("form")
@@ -413,6 +455,7 @@ $(document).on("click", ".cancelEdit", function () {
     form.slideUp(400, function () {
         form.remove();
     })
+
 
     if (parent.hasClass("event")) {
         sendNotification("event", id, "stop");
@@ -502,15 +545,15 @@ function appendEventToSprint(elementToAppendTo, event) {
     let eventInSprint = `
                 <div class="row">
                     <div class="col">
-                        <div class="eventInSprint eventInSprint${event.id}" >
+                        <div class="eventInSprint eventInSprint${sanitise(event.id)}" >
                             <svg data-toggle="tooltip" id="eventIconInSprint"
                                     xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-calendar3-event-fill calendarOccasion" viewBox="-3 -3 20 20">
                                     <path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2h16a2 2 0 0 0-2-2H2zM0 14V3h16v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm12-8a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
                                     </svg>
-                            <p class="sprintEventName text-truncate">${event.name} : </p>
-                            <p class="sprintEventStart">${event.startDateFormatted}</p>
+                            <p class="sprintEventName text-truncate">${sanitise(event.name)} : </p>
+                            <p class="sprintEventStart">${sanitise(event.startDateFormatted)}</p>
                             <p>-</p>
-                            <p class="sprintEventEnd">${event.endDateFormatted}</p>
+                            <p class="sprintEventEnd">${sanitise(event.endDateFormatted)}</p>
                         </div>
                     </div>
                 </div>`
@@ -560,13 +603,13 @@ function addMilestonesToSprints() {
 function appendMilestoneToSprint(elementToAppendTo, milestone) {
     let milestoneInSprint = `
                 <div class="row" >
-                    <div class="milestoneInSprint milestoneInSprint${milestone.id}">
+                    <div class="milestoneInSprint milestoneInSprint${sanitise(milestone.id)}">
                         <svg data-toggle="tooltip" id="milestoneIconInSprint"
                                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trophy-fill calendarOccasion" viewBox="-3 -3 20 20">
                                    <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5c0 .538-.012 1.05-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33.076 33.076 0 0 1 2.5.5zm.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935zm10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935z"/>
                                    </svg>
-                        <p class="sprintMilestoneName text-truncate">${milestone.name} :&#160</p>
-                        <p class="sprintMilestoneEnd">${milestone.endDateFormatted}</p>
+                        <p class="sprintMilestoneName text-truncate">${sanitise(milestone.name)} :&#160</p>
+                        <p class="sprintMilestoneEnd">${sanitise(milestone.endDateFormatted)}</p>
                     </div>
                 </div>`
     $(elementToAppendTo).append(milestoneInSprint)
@@ -616,13 +659,13 @@ function addDeadlinesToSprints() {
 function appendDeadlineToSprint(elementToAppendTo, deadline) {
     let deadlineInSprint = `
                 <div class="row" >
-                    <div class="deadlineInSprint deadlineInSprint${deadline.id}">
+                    <div class="deadlineInSprint deadlineInSprint${sanitise(deadline.id)}">
                         <svg data-toggle="tooltip" id="deadlineIconInSprint"
                                     xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-hourglass-split calendarOccasion" viewBox="-3 -3 20 20">
                                     <path d="M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11zm2-13v1c0 .537.12 1.045.337 1.5h6.326c.216-.455.337-.963.337-1.5V2h-7zm3 6.35c0 .701-.478 1.236-1.011 1.492A3.5 3.5 0 0 0 4.5 13s.866-1.299 3-1.48V8.35zm1 0v3.17c2.134.181 3 1.48 3 1.48a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351z"/>
                                     </svg>
-                        <p class="sprintDeadlineName text-truncate">${deadline.name}</p>
-                        <p class="sprintDeadlineEnd">${deadline.endDateFormatted}</p>
+                        <p class="sprintDeadlineName text-truncate">${sanitise(deadline.name)}</p>
+                        <p class="sprintDeadlineEnd">${sanitise(deadline.endDateFormatted)}</p>
                     </div>
                 </div>`
     $(elementToAppendTo).append(deadlineInSprint)
@@ -663,7 +706,7 @@ function appendEventForm(element) {
                 <form class="existingEventForm" id="editEventForm" style="display: none">
                         <div class="mb-1">
                         <label for="eventName" class="form-label">Event name</label>
-                        <input type="text" class="form-control form-control-sm eventName" pattern="${titleRegex}" value="${eventName}" maxlength="${eventNameLengthRestriction}" name="eventName" required>
+                        <input type="text" class="form-control form-control-sm eventName" pattern="${titleRegex}" value="${sanitise(eventName)}" maxlength="${eventNameLengthRestriction}" name="eventName" required>
                         <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
@@ -677,16 +720,17 @@ function appendEventForm(element) {
                             <option value="6">Attention Required</option>
                         </select>
                     </div>
-                    <div class="row mb-1">
+                    <div class="row mb-1 eventDatePickerDiv">
                         <div class="col">
                             <label for="eventStart" class="form-label">Start</label>
-                            <input type="datetime-local" class="form-control form-control-sm eventInputStartDate eventStart" value="${eventStart}" min="${projectStart}" max="${projectEnd}" name="eventStart" required>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputStartDate eventStart eventDateInput" value="${sanitise(eventStart)}" min="${projectStart}" max="${projectEnd}" name="eventStart" required>
                         </div>
                         <div class="col">
                             <label for="eventEnd" class="form-label">End</label>
-                            <input type="datetime-local" class="form-control form-control-sm eventInputEndDate eventEnd" value="${eventEnd}" min="${projectStart}" max="${projectEnd}" name="eventEnd" required>
+                            <input type="datetime-local" class="form-control form-control-sm eventInputEndDate eventEnd eventDateInput" value="${sanitise(eventEnd)}" min="${projectStart}" max="${projectEnd}" name="eventEnd" required>
                         </div>
                     </div>
+                    <div class="invalid-feedback">Start date must be before end date</div>
                     <div class="mb-1">
                         <button type="submit" class="btn btn-primary existingEventSubmit">Save</button>
                         <button type="button" class="btn btn-secondary cancelEdit" >Cancel</button>
@@ -722,7 +766,7 @@ function appendMilestoneForm(element) {
                 <form class="existingMilestoneForm" id="milestoneEditForm" style="display: none">
                         <div class="mb-1">
                         <label for="milestoneName" class="form-label">Milestone name</label>
-                        <input type="text" class="form-control form-control-sm milestoneName" id="milestoneName" value="${milestoneName}" maxlength="${eventNameLengthRestriction}" name="milestoneName" required>
+                        <input type="text" class="form-control form-control-sm milestoneName" id="milestoneName" value="${sanitise(milestoneName)}" maxlength="${eventNameLengthRestriction}" name="milestoneName" required>
                         <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3" >
@@ -739,7 +783,7 @@ function appendMilestoneForm(element) {
                     <div class="row mb-1">
                         <div class="col">
                             <label for="milestoneEnd" class="form-label">End</label>
-                            <input type="date" class="form-control form-control-sm milestoneInputEndDate milestoneEnd" value="${milestoneEnd}" min="${projectStartDate}" max="${projectEndDate}" name="milestoneEnd" required>
+                            <input type="date" class="form-control form-control-sm milestoneInputEndDate milestoneEnd" value="${sanitise(milestoneEnd)}" min="${projectStartDate}" max="${projectEndDate}" name="milestoneEnd" required>
                         </div>
                     </div>
                     <div class="mb-1">
@@ -774,7 +818,7 @@ function appendDeadlineForm(element) {
                 <form class="existingDeadlineForm" id="editDeadlineForm" style="display: none">
                         <div class="mb-1">
                         <label for="deadlineName" class="form-label">Event name</label>
-                        <input type="text" class="form-control form-control-sm deadlineName" pattern="${titleRegex}" value="${deadlineName}" maxlength="${eventNameLengthRestriction}" name="deadlineName" required>
+                        <input type="text" class="form-control form-control-sm deadlineName" pattern="${titleRegex}" value="${sanitise(deadlineName)}" maxlength="${eventNameLengthRestriction}" name="deadlineName" required>
                         <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
@@ -791,7 +835,7 @@ function appendDeadlineForm(element) {
                     <div class="row mb-1">
                         <div class="col">
                             <label for="deadlineEnd" class="form-label">End</label>
-                            <input type="datetime-local" class="form-control form-control-sm deadlineInputEndDate deadlineEnd" value="${deadlineEnd}" min="${projectStart}" max="${projectEnd}" name="deadlineEnd" required>
+                            <input type="datetime-local" class="form-control form-control-sm deadlineInputEndDate deadlineEnd" value="${sanitise(deadlineEnd)}" min="${projectStart}" max="${projectEnd}" name="deadlineEnd" required>
                         </div>
                     </div>
                     <div class="mb-1">
@@ -843,16 +887,16 @@ function createEventDiv(eventObject) {
     }
 
     return `
-            <div class="occasion event" id="${eventObject.id}">
-                <p class="eventId" style="display: none">` + eventObject.id + `</p>
-                <p class="eventStartDateNilFormat" style="display: none">${eventObject.start}</p>
-                <p class="eventEndDateNilFormat" style="display: none">${eventObject.end}</p>
-                <p class="typeOfEvent" style="display: none">${eventObject.typeOfEvent}</p>
+            <div class="occasion event" id="${sanitise(eventObject.id)}">
+                <p class="eventId" style="display: none">${sanitise(eventObject.id)}</p>
+                <p class="eventStartDateNilFormat" style="display: none">${sanitise(eventObject.start)}</p>
+                <p class="eventEndDateNilFormat" style="display: none">${sanitise(eventObject.end)}</p>
+                <p class="typeOfEvent" style="display: none">${sanitise(eventObject.typeOfEvent)}</p>
                 <div class="mb-2 occasionTitleDiv">
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="eventName name text-truncate" >${eventObject.name}</p>
+                    <p class="eventName name text-truncate" >${sanitise(eventObject.name)}</p>
                 </div>
                 <div class="controlButtons">
                     <button class="editButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Event">
@@ -870,8 +914,8 @@ function createEventDiv(eventObject) {
                 </div>
                 
                 <div class="eventDateDiv">
-                    <p class="eventStart">Start Date: ${eventObject.startFormatted}</p>
-                    <p class="eventEnd">End Date: ${eventObject.endFormatted}</p>
+                    <p class="eventStart">Start Date: ${sanitise(eventObject.startFormatted)}</p>
+                    <p class="eventEnd">End Date: ${sanitise(eventObject.endFormatted)}</p>
                 </div>
             </div>`;
 }
@@ -908,16 +952,16 @@ function createMilestoneDiv(milestoneObject) {
     }
 
     return `
-            <div class="occasion milestone" id="${milestoneObject.id}">
-                <p class="milestoneId" style="display: none">${milestoneObject.id}</p>
-                <p class="milestoneEndDateNilFormat" style="display: none">${milestoneObject.endDate}</p>
-                <p class="typeOfMilestone" style="display: none">${milestoneObject.type}</p>
+            <div class="occasion milestone" id="${sanitise(milestoneObject.id)}">
+                <p class="milestoneId" style="display: none">${sanitise(milestoneObject.id)}</p>
+                <p class="milestoneEndDateNilFormat" style="display: none">${sanitise(milestoneObject.endDate)}</p>
+                <p class="typeOfMilestone" style="display: none">${sanitise(milestoneObject.type)}</p>
                 
                 <div class="mb-2 occasionTitleDiv">
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="milestoneName name text-truncate">${milestoneObject.name}</p>
+                    <p class="milestoneName name text-truncate">${sanitise(milestoneObject.name)}</p>
                 </div>
                 <div class="controlButtons">
                     <button class="editButton noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Milestone">
@@ -937,7 +981,7 @@ function createMilestoneDiv(milestoneObject) {
                 </div>
                 
                 <div class="milestoneDateDiv">
-                    <p class="milestoneEnd">${milestoneObject.endDateFormatted}</p>
+                    <p class="milestoneEnd">${sanitise(milestoneObject.endDateFormatted)}</p>
                 </div>
             </div>
             `;
@@ -975,15 +1019,15 @@ function createDeadlineDiv(deadlineObject) {
     }
 
     return `
-            <div class="occasion deadline" id="${deadlineObject.id}">
-                <p class="deadlineId" style="display: none">${deadlineObject.id}</p>
-                <p class="deadlineEndDateNilFormat" style="display: none">${deadlineObject.dateTime}</p>
-                <p class="typeOfDeadline" style="display: none">${deadlineObject.type}</p>
+            <div class="occasion deadline" id="${sanitise(deadlineObject.id)}">
+                <p class="deadlineId" style="display: none">${sanitise(deadlineObject.id)}</p>
+                <p class="deadlineEndDateNilFormat" style="display: none">${sanitise(deadlineObject.dateTime)}</p>
+                <p class="typeOfDeadline" style="display: none">${sanitise(deadlineObject.type)}</p>
                 <div class="mb-2 occasionTitleDiv">
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="deadlineName name text-truncate">${deadlineObject.name}</p>
+                    <p class="deadlineName name text-truncate">${sanitise(deadlineObject.name)}</p>
                 </div>
                 <div class="controlButtons">
                         <button class="editButton noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Deadline">
@@ -1002,7 +1046,7 @@ function createDeadlineDiv(deadlineObject) {
                         </button>
                 </div>
                         <div class="deadlineDateDiv">
-                            <p class="deadlineEnd">${deadlineObject.endDateFormatted}</p>
+                            <p class="deadlineEnd">${sanitise(deadlineObject.endDateFormatted)}</p>
                         </div>
             </div>`;
 }
@@ -1310,8 +1354,8 @@ function enableToolTips() {
  * A helper function to display a live edit notification. This checks if a user has edit privileges and if they are
  * not the user that made the change.
  */
-function displayLiveUpdateMessage(message, editorId, eventId){
-    if (checkPrivilege && editorId != userIdent) {
+function displayLiveUpdateMessage(message, editorId, eventId) {
+    if (checkPrivilege() && editorId != userIdent) {
         createLiveAlert(message, eventId);
         setTimeout(removeLiveAlert, 10000, eventId)
     }
@@ -1454,12 +1498,16 @@ function handleNotifyEvent(notification) {
         let infoContainer = $("#informationBar");
         let eventDiv = $("#" + occasionId)
         let noticeSelector = $("#notice" + occasionId)
-
+        if (eventDiv.length < 1) {
+            // Solves the race condition that was happening when a user refreshed their page.
+            // The element that lets the user know if another user is editing the page was working too fast.
+            setTimeout(() => handleNotifyEvent(notification), 200)
+            return
+        }
         let eventName = eventDiv.find(".name").text();
-
         if (!noticeSelector.length) {
             let infoString = editorName + " is editing element: " + eventName
-            infoContainer.append(`<p class="infoMessage text-truncate noticeEditor${editorId}" id="notice${occasionId}"> ` + infoString + `</p>`)
+            infoContainer.append(`<p class="infoMessage noticeEditor${sanitise(editorId)}" id="notice${sanitise(occasionId)}"> ` + infoString + `</p>`)
             eventDiv.addClass("beingEdited") // Add class that shows which event is being edited
             eventDiv.addClass("editor" + editorId)
             if (eventDiv.hasClass("beingEdited")) {
@@ -1482,10 +1530,8 @@ function handleStopEvent(notification) {
     const editorId = notification.editorId
 
     if (checkPrivilege()) {
-
         let elementDiv;
         let notice;
-
         if (occasionId === "*") { // A websocket disconnected, so we need to remove the element by the editorId
             notice = $(".noticeEditor" + editorId);
             elementDiv = $(".editor" + editorId);
@@ -1493,20 +1539,16 @@ function handleStopEvent(notification) {
             elementDiv = $("#" + occasionId);
             notice = $("#notice" + occasionId);
         }
-
         notice.remove();
-
         elementDiv.removeClass("beingEdited")
         elementDiv.removeClass("editor" + editorId);
-
         if (!thisUserIsEditing) {
-            elementDiv.find(".controlButtons").show()
+            $(".controlButtons").show()
+            $(".beingEdited ").find(".controlButtons").hide()
         }
-
         if (elementDiv.hasClass("beingEdited")) {
             elementDiv.find(".controlButtons").hide()
         }
-
         let infoContainer = $("#informationBar");
         if (isEmpty(infoContainer)) {
             infoContainer.slideUp() // Hide the notice.

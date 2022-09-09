@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(() => {
 
     let sprintId = $("#sprintId")
     let sprintName = $("#sprintName")
@@ -6,49 +6,16 @@ $(document).ready(function () {
     let sprintEndDate = $("#sprintEndDate")
     let sprintDescription = $("#sprintDescription")
     let sprintColour = $("#sprintColour")
-    let dateAlert = $(".dateAlert")
-
 
     // Checks when the start date changes that its not past the end date.
-    sprintStartDate.on("change", function () {
-        let sprintStart = $(this).val()
-        let sprintEnd = $("#sprintEndDate").val()
-        if (sprintStart >= sprintEnd) {
-            dateAlert.slideUp()
-            dateAlert.slideDown()
-            $(".canDisable").attr("disabled", true)
-            $(this).attr("disabled", false)
-            $(this).addClass("is-invalid")
-        } else {
-            $(".canDisable").attr("disabled", false)
-            $(this).removeClass("is-invalid")
-            $(".dateAlert").slideUp()
-
-        }
-    })
+    sprintStartDate.on("change", () => checkDateOrder(sprintStartDate.val(), sprintEndDate.val()))
 
 
-    // Checks when the sprint end date changes that its not before the start date.
-    sprintEndDate.on("change", function () {
-        let sprintStart = $("#sprintStartDate").val()
-        let sprintEnd = $(this).val()
-        if (sprintStart >= sprintEnd) {
-            dateAlert.slideUp()
-            dateAlert.slideDown()
-            $(".canDisable").attr("disabled", true)
-            $(this).attr("disabled", false)
-            $(this).addClass("is-invalid")
-        } else {
-            $(".canDisable").attr("disabled", false)
-            $(this).removeClass("is-invalid")
-            $(".dateAlert").slideUp()
-
-        }
-    })
+    sprintEndDate.on("change", () => checkDateOrder(sprintStartDate.val(), sprintEndDate.val()))
 
 
     // When submit button is clicked on sprint edit form
-    $(".sprintEditForm").submit(function (event) {
+    $(".editForm").on("submit", function (event) {
         event.preventDefault()
 
         let dataToSend = {

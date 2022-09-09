@@ -258,6 +258,14 @@ section {
 }
 
 /*Portfolio Project*/
+#sprintColour {
+    border-color: #ced4da;
+    padding: 0.375rem;
+    background-image: unset;
+    background-repeat: unset;
+    background-position: unset;
+    background-size: unset;
+}
 
 /*Porfolio - Events*/
 
@@ -502,7 +510,7 @@ section {
 
 }
 
-.sprintEditForm, .projectEditForm {
+.editForm {
     margin-top: 5rem;
     width: 50rem;
 }
@@ -681,6 +689,33 @@ section {
     overflow-y: scroll;
 
 }
+
+.groupAmountOptions{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.groupAmountSelectorDiv{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+    width: 40rem;
+    padding: 1rem;
+}
+
+.labelForGroupDisplayAmount{
+    padding-right: 1rem;
+}
+
+#groupDisplayAmountSelection{
+    width: 10rem;
+}
+
 
 .scrollableGroupDetails {
     position: absolute;
