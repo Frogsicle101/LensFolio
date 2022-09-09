@@ -93,7 +93,7 @@ public class ProjectService {
             if (sprintEndDate.isBefore(sprintStartDate)) {
                 throw new CheckException("Sprint end date is before sprint start date");
             }
-        }catch (DateTimeParseException err) {
+        } catch (DateTimeParseException err) {
             throw new CheckException("Date(s) is in incorrect format");
         }
     }

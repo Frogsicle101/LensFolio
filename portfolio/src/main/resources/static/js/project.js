@@ -96,7 +96,8 @@ $(document).on("click", ".deleteSprint", function () {
  *
  * @param callback A function to call when the ajax request returns
  */
-function getSprints(callback = ()=>{}) {
+function getSprints(callback = () => {
+}) {
     $.ajax({
         url: 'getSprintList',
         type: 'GET',

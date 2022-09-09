@@ -50,10 +50,10 @@ public class DateTimeService {
      * Also checks that the project's new date doesn't fall more than a year before the original start date.
      *
      * @param sprintRepository The repository that stores the sprints.
-     * @param project The project in question.
-     * @param projectRequest The project request that contains all the proposed changes.
+     * @param project          The project in question.
+     * @param projectRequest   The project request that contains all the proposed changes.
      */
-    public void checkProjectAndItsSprintDates(SprintRepository sprintRepository, Project project, ProjectRequest projectRequest){
+    public void checkProjectAndItsSprintDates(SprintRepository sprintRepository, Project project, ProjectRequest projectRequest) {
         List<Sprint> sprints = sprintRepository.findAllByProjectId(project.getId());
         sprints.sort((Comparator.comparing(Sprint::getStartDate)));
         LocalDate newProjectStart = LocalDate.parse(projectRequest.getProjectStartDate());
@@ -61,7 +61,7 @@ public class DateTimeService {
         if (newProjectStart.isBefore(project.getStartDate().minusYears(1))) {
             throw new CheckException("Project cannot start more than a year before its original date");
         }
-        if (newProjectStart.isAfter(newProjectEnd)){
+        if (newProjectStart.isAfter(newProjectEnd)) {
             throw new CheckException("End date cannot be before start date");
         }
         if (!sprints.isEmpty()) {
@@ -69,7 +69,7 @@ public class DateTimeService {
             if (firstSprint.getEndDate().isAfter(newProjectEnd) || firstSprint.getStartDate().isAfter(newProjectEnd)) {
                 throw new CheckException("There is a sprint that falls after these new dates");
             }
-            Sprint lastSprint = sprints.get(sprints.size()-1);
+            Sprint lastSprint = sprints.get(sprints.size() - 1);
             if (lastSprint.getStartDate().isBefore(newProjectStart) || lastSprint.getEndDate().isBefore(newProjectStart)) {
                 throw new CheckException("There is a sprint that falls before these new dates");
             }
@@ -82,14 +82,14 @@ public class DateTimeService {
      * Essentially checks that the new sprint start/end dates don't go past the end of the sprint.
      *
      * @param sprintRepository the repository for sprints
-     * @param project the project in question
+     * @param project          the project in question
      */
     public LocalDate checkProjectHasRoomForSprints(SprintRepository sprintRepository, Project project) {
         LocalDate startDate = project.getStartDate();
         List<Sprint> sprints = sprintRepository.findAllByProjectId(project.getId());
         sprints.sort((Comparator.comparing(Sprint::getStartDate)));
         if (!sprints.isEmpty()) {
-            startDate = sprints.get(sprints.size()-1).getEndDate().plusDays(1);
+            startDate = sprints.get(sprints.size() - 1).getEndDate().plusDays(1);
         }
         if (startDate.isAfter(project.getEndDate())) {
             throw new CheckException("No more room to add sprints within project dates!");
@@ -102,10 +102,10 @@ public class DateTimeService {
      * Ensures the given sprint date is outside all other sprint dates.
      *
      * @param previousDateLimit The end date of the previous sprint.
-     * @param nextDateLimit The start date of the next sprint.
-     * @param sprintRequest The sprint request containing the proposed sprint start and end dates.
+     * @param nextDateLimit     The start date of the next sprint.
+     * @param sprintRequest     The sprint request containing the proposed sprint start and end dates.
      */
-    public void checkNewSprintDateNotInsideOtherSprints(LocalDate previousDateLimit, LocalDate nextDateLimit, SprintRequest sprintRequest){
+    public void checkNewSprintDateNotInsideOtherSprints(LocalDate previousDateLimit, LocalDate nextDateLimit, SprintRequest sprintRequest) {
         LocalDate startDate = LocalDate.parse(sprintRequest.getSprintStartDate());
         LocalDate endDate = LocalDate.parse(sprintRequest.getSprintEndDate());
         if (startDate.isBefore(previousDateLimit)) {
@@ -126,7 +126,7 @@ public class DateTimeService {
         return df.format(date);
     }
 
-    
+
     /**
      * Gets the time since a timestamp in months and years
      */
