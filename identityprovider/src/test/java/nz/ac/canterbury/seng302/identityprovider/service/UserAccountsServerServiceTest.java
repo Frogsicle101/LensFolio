@@ -1026,9 +1026,9 @@ class UserAccountsServerServiceTest {
         PaginatedUsersResponse response = responseCaptor.getValue();
         Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
         Assertions.assertEquals(3, response.getUsersList().size());
-        Assertions.assertEquals("Amy", response.getUsers(0).getUsername());
-        Assertions.assertEquals("Johnny", response.getUsers(1).getUsername());
-        Assertions.assertEquals("John", response.getUsers(2).getUsername());
+        Assertions.assertEquals("Johnny", response.getUsers(0).getUsername());
+        Assertions.assertEquals("John", response.getUsers(1).getUsername());
+        Assertions.assertEquals("Amy", response.getUsers(2).getUsername());
     }
 
     // ----------------------------------------- Test runner helpers -------------------------------------------------
