@@ -125,27 +125,27 @@ function appendSprint(sprintObject, index) {
     index = parseInt(index) + 1
 
     return `
-             <div class="sprint" id=${sprintObject.id} style="border-left: solid 0.3rem ${sprintObject.colour}; border-right: solid 0.3rem ${sprintObject.colour};">
-                <p class="sprintColour" style="display: none">${sprintObject.colour}</p>
-                <p class="sprintId" style="display: none">${sprintObject.id}</p>
-                <p class="sprintStart" style="display: none">${sprintObject.startDate}</p>
-                <p class="sprintEnd" style="display: none">${sprintObject.endDate}</p>
-                <p class="sprintLabel" >Sprint ${index}</p>
+             <div class="sprint" id=${sanitise(sprintObject.id)} style="border-left: solid 0.3rem ${sanitise(sprintObject.colour)}; border-right: solid 0.3rem ${sanitise(sprintObject.colour)};">
+                <p class="sprintColour" style="display: none">${sanitise(sprintObject.colour)}</p>
+                <p class="sprintId" style="display: none">${sanitise(sprintObject.id)}</p>
+                <p class="sprintStart" style="display: none">${sanitise(sprintObject.startDate)}</p>
+                <p class="sprintEnd" style="display: none">${sanitise(sprintObject.endDate)}</p>
+                <p class="sprintLabel" >Sprint ${sanitise(index)}</p>
                 <div class="mb3">
-                    <h2 class="name">${sprintObject.name}</h2>
+                    <h2 class="name">${sanitise(sprintObject.name)}</h2>
                 </div>
                 <div class="row">
                     <div class="col">
                         <h6>Start</h6>
-                        <h6>${sprintObject.startDateFormatted}</h6>
+                        <h6>${sanitise(sprintObject.startDateFormatted)}</h6>
                     </div>
                     <div class="col">
                         <h6>End</h6>
-                        <h6>${sprintObject.endDateFormatted}</h6>
+                        <h6>${sanitise(sprintObject.endDateFormatted)}</h6>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <p>${sprintObject.description}</p>
+                    <p>${sanitise(sprintObject.description)}</p>
                 </div>
                 <div class="mb3 hasTeacherOrAbove">
                     <button type="button" class="deleteSprint noStyleButton sprintButton" data-bs-toggle="tooltip"
