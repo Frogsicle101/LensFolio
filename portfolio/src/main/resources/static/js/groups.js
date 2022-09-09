@@ -108,8 +108,11 @@ function showDraggableIcons() {
     $(".ui-selected").find(".dragGrip").show()
 }
 
-
-function runAfterGroupsPopulated(){
+/**
+ * Handles the selecting, dragging, and dropping of group members.
+ * Implemented using JQuery UI droppable https://api.jqueryui.com/droppable/
+ */
+function manageGroupTableInteraction() {
     manageTableSelection()
 
     let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
@@ -140,7 +143,10 @@ function runAfterGroupsPopulated(){
         })
     }
 }
+
+
 //------------------------ Other Functions ------------------------------
+
 
 /**
  * Listens for a change on the group amount display selector (the dropdown)
@@ -177,13 +183,14 @@ function getGroups(page = groupPage){
         error: function(error) {
             createAlert(error.responseText, true)
         }
-    }).then(runAfterGroupsPopulated)
+    }).then(manageGroupTableInteraction)
 }
 
 
 /**
  * Populates the group page selector.
  * Appends the number elements after the "previous" selector
+ *
  * @param data The numbers.
  * @param currentPage The current page that is being displayed
  */
@@ -223,13 +230,13 @@ function populateGroupPageSelector(data, currentPage) {
             footerNext.removeClass("disabled")
             footerLast.removeClass("disabled")
         }
-
     })
 }
 
 
 /**
  * Creates the elements that go into the group page selector
+ *
  * @param number The number to go into the selection
  * @returns {string} A list element
  */
@@ -240,6 +247,7 @@ function createFooterNumberSelector(number){
 
 /**
  * Creates the group elements by iterating over a list of groups.
+ *
  * @param groups The list of groups.
  */
 function createListOfGroups(groups){
@@ -250,12 +258,12 @@ function createListOfGroups(groups){
     for (const groupsKey in groups) {
         groupOverviewContainer.after(createGroupPreviewDiv(groups[groupsKey]))
     }
-
 }
 
 
 /**
  * Creates the div that holds the group preview.
+ *
  * @param group The group to get the data from
  * @returns {string} A string that is a div
  */
@@ -334,12 +342,12 @@ function changeToUsersTab() {
     let groupUsersPage = $("#pillsUsers")
     let GroupSettingsPage = $("#pillsSettings")
 
-    groupUsersTab.attr("aria-selected", true)
-    groupSettingsTab.attr("aria-selected", false)
+    groupUsersTab.prop("aria-selected", true)
+    groupSettingsTab.prop("aria-selected", false)
 
-    groupUsersButton.attr("aria-selected", true)
+    groupUsersButton.prop("aria-selected", true)
     groupUsersButton.addClass("active")
-    groupSettingsButton.attr("aria-selected", false)
+    groupSettingsButton.prop("aria-selected", false)
     groupSettingsButton.removeClass("active")
 
     groupUsersTab.addClass('active')
