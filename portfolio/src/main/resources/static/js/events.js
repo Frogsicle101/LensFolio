@@ -1329,7 +1329,7 @@ function enableToolTips() {
  * A helper function to display a live edit notification. This checks if a user has edit privileges and if they are
  * not the user that made the change.
  */
-function displayLiveUpdateMessage(message, editorId, eventId){
+function displayLiveUpdateMessage(message, editorId, eventId) {
     if (checkPrivilege() && editorId != userIdent) {
         createLiveAlert(message, eventId);
         setTimeout(removeLiveAlert, 10000, eventId)
@@ -1473,7 +1473,7 @@ function handleNotifyEvent(notification) {
         let infoContainer = $("#informationBar");
         let eventDiv = $("#" + occasionId)
         let noticeSelector = $("#notice" + occasionId)
-        if (eventDiv.length < 1){
+        if (eventDiv.length < 1) {
             // Solves the race condition that was happening when a user refreshed their page.
             // The element that lets the user know if another user is editing the page was working too fast.
             setTimeout(() => handleNotifyEvent(notification), 200)
