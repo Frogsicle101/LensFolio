@@ -2,7 +2,9 @@ package nz.ac.canterbury.seng302.portfolio.service;
 
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
-
+/**
+ * A service class providing helper methods for pagination.  
+ */
 @Service
 public class PaginationService {
 
@@ -10,6 +12,7 @@ public class PaginationService {
     /**
      * This is used to set the numbers at the bottom of the screen for page navigation. Otherwise, at larger page values
      * it gets very messy. Creates a range of -5 to +5 from the current page if possible.
+     *
      * @param footerNumberSequence The current footer number sequence.
      * @param totalPages The total number of pages.
      * @param pageNum The page number that the user is currently on.
