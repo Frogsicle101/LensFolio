@@ -18,5 +18,5 @@ import "./sprintTests/IconsInSprintTest.cy"
 import "./userListTests/DeleteUserRoleTest.cy"
 import "./userListTests/UsersPerPageTest.cy"
 
-import "./portfolioTest/EditingProject.cy"
-import "./portfolioTest/EditingSprint.cy"
+import "./portfolioTest/EditingProjectTest.cy"
+import "./portfolioTest/EditingSprintTest.cy"
