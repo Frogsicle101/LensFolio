@@ -122,7 +122,7 @@ public class EvidenceService {
             associates = new ArrayList<>();
         }
         /*
-        This will save an evidence for each user, including the owner
+        This will save a piece of evidence for each user, including the owner
         However, because the owner's ID is added last, the last iteration
         will be the evidence that belongs to the owner, which is what we return
          */
@@ -163,9 +163,8 @@ public class EvidenceService {
                 default -> logger.warn("Evidence service - evidence {} attempted to add category {}", evidence.getId(), categoryString);
             }
         }
-
+        logger.info("Adding associate IDs: {}", associateIds);
         for (Integer associate : associateIds) {
-            logger.info("adding associate ID");
             evidence.addAssociateId(associate);
         }
 
@@ -182,7 +181,7 @@ public class EvidenceService {
     public void addSkills(Evidence evidence, List<String> skills) {
         for(String skillName: skills){
             try {
-                regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 1, 30, "skill name");
+                regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 1, 30, "Skill name");
             } catch (CheckException e) {
                 removeWeblinks(evidence);
                 evidenceRepository.delete(evidence);
@@ -212,10 +211,7 @@ public class EvidenceService {
      * @param evidence The evidence with weblinks to delete
      */
     private void removeWeblinks(Evidence evidence) {
-        Set<WebLink> webLinks = evidence.getWebLinks();
-        for (WebLink weblink : webLinks){
-            webLinkRepository.delete(weblink);
-        }
+        webLinkRepository.deleteAll(evidence.getWebLinks());
     }
 
 
@@ -253,6 +249,7 @@ public class EvidenceService {
      * Helper method that checks if a user exists.
      * Tries to find the user with the specific ID.
      * If it can't find it, throw an exception.
+     *
      * @param associateId the ID of the associate/user you want to find
      */
     private void checkAssociateId(int associateId) {
