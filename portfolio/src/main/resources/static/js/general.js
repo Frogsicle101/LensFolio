@@ -224,7 +224,6 @@ function addLiveAlert(liveAlert){
 
     if (alertIsShown){
         let height = alert.outerHeight()
-        console.log(height)
         liveAlert.css("bottom", height + 20 + "px")
     } else {
         liveAlert.css("bottom", "10px")
