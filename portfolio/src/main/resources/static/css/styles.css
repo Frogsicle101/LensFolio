@@ -1126,6 +1126,15 @@ section {
     width: fit-content;
 }
 
+#linkUsers {
+    padding-left: 1.5rem;
+    padding-top: 1rem;
+}
+
+#linkedUsers {
+    padding-left: 0.5rem;
+}
+
 .webLinkTooltip.tooltip-arrow {
     padding-left: 2rem;
 }

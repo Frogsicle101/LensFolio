@@ -18,13 +18,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.Predicate;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -464,14 +459,22 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         PaginatedUsersResponse.Builder response = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
 
         BasicStringFilteringOptions filteringOptions = usersRequest.getFilteringOptions();
-        Predicate<UserResponse> byName = user -> (user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
-                user.getLastName().toLowerCase(Locale.ROOT))
+        // Filtered by first, last and then full name so that the order for the auto-complete is more natural
+        Predicate<UserResponse> firstName = user -> (user.getFirstName().toLowerCase(Locale.ROOT))
                 .contains(filteringOptions.getFilterText().toLowerCase(Locale.ROOT));
-        List<UserResponse> result = response.getUsersList().stream().filter(byName)
-                .toList();
+        Predicate<UserResponse> lastName = user -> (user.getLastName().toLowerCase(Locale.ROOT))
+                .contains(filteringOptions.getFilterText().toLowerCase(Locale.ROOT));
+        Predicate<UserResponse> fullName = user -> (user.getFirstName().toLowerCase(Locale.ROOT) + " " +
+                user.getLastName().toLowerCase(Locale.ROOT))
+                .contains((filteringOptions.getFilterText().toLowerCase(Locale.ROOT)));
+
+        ArrayList<UserResponse> filteredUsers = new ArrayList<>();
+        filteredUsers.addAll(response.getUsersList().parallelStream().filter(firstName).toList());
+        filteredUsers.addAll(response.getUsersList().stream().filter(lastName).toList());
+        filteredUsers.addAll(response.getUsersList().stream().filter(fullName).toList());
 
         response.clearUsers();
-        response.addAllUsers(result);
+        response.addAllUsers(new ArrayList<>(new LinkedHashSet<>(filteredUsers))); // to remove duplicates
 
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();

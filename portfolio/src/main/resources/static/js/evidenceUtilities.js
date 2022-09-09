@@ -631,7 +631,7 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
-        appendTo: "#addEvidenceModal"
+        appendTo: ".modal-content"
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -650,18 +650,18 @@ $("#linkUsersInput")
     .autocomplete({
         autoFocus: true, // This default selects the top result
         minLength: 1,
-        delay: 500,
+        delay: 700,
+        appendTo: ".modal-content",
         source: function (request, response) {
             $.ajax({
                 url: 'filteredUsers?name=' + request.term.toString(), type: "GET", contentType: "application/json", success: function (res) {
                     var users = [];
                     $.each(res, function (i) {
-                        users.push(`Id: ${res[i].id}  ${res[i].firstName} ${res[i].lastName}`)
+                        let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i] }
+                        users.push(user)
                     })
                     response(users)
                 }, error: function (error) {
-                    console.log("here")
-                    console.log(error)
                     createAlert(error.responseText, "failure", ".modal-body")
                 }
             })
@@ -675,13 +675,11 @@ $("#linkUsersInput")
             // remove the current input
             terms.pop();
             // add the selected item
-            terms.push(ui.item.value);
-            // add placeholder to get the space at the end
-            terms.push("");
-            this.value = terms.join(" ");
+            let user = ui.item.value
+            addLinkedUser(user);
+            $(this).val('')
             return false;
-        },
-        appendTo: ".addEvidenceModal"
+        }
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -1107,6 +1105,19 @@ function submitWebLink() {
     } else {
         createAlert("Weblink name needs to be 1 char", "failure");
     }
+}
+
+
+//todo
+function addLinkedUser(user) {
+    let linkedUsersDiv = $("#linkedUsers")
+    $("#linkedUsersTitle").show()
+    linkedUsersDiv.append(linkedUserElement(user))
+}
+
+//todo
+function linkedUserElement(user) {
+    return `<div id="linkedUserId"${user.id}>Id: ${user.id} - Name: ${user.firstName} ${user.lastName}</div>`
 }
 
 
