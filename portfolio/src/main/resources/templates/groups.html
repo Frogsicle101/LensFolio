@@ -17,13 +17,13 @@
             <div class="scrollableGroupOverview">
                 <div id="groupAmountOptionsTop" class="groupAmountOptions">
                     <div id="groupAmountSelectorDivTop" class="groupAmountSelectorDiv">
-                        <label for="groupDisplayAmountSelectionTop" class="form-label labelForGroupDisplayAmount">Number of groups to display</label>
-                        <select class="form-select groupDisplayAmountSelection" id="groupDisplayAmountSelectionTop" aria-label="Select the amount of groups to display">
-                            <option value="10" class="optionForAmountOfGroups" th:selected="${'10'== selectedGroupsPerPage}">10</option>
-                            <option value="20" class="optionForAmountOfGroups" th:selected="${'20'== selectedGroupsPerPage}">20</option>
-                            <option value="40" class="optionForAmountOfGroups" th:selected="${'40'== selectedGroupsPerPage}">40</option>
-                            <option value="60" class="optionForAmountOfGroups" th:selected="${'60'== selectedGroupsPerPage}">60</option>
-                            <option value="all" class="optionForAmountOfGroups" th:selected="${'999999999'== selectedGroupsPerPage}">All</option>
+                        <label for="groupDisplayAmountSelection" class="form-label labelForGroupDisplayAmount">Number of groups to display</label>
+                        <select class="form-select" id="groupDisplayAmountSelection" aria-label="Select the amount of groups to display">
+                            <option value="10" class="optionForAmountOfGroups">10</option>
+                            <option value="20" class="optionForAmountOfGroups">20</option>
+                            <option value="40" class="optionForAmountOfGroups">40</option>
+                            <option value="60" class="optionForAmountOfGroups">60</option>
+                            <option value="all" class="optionForAmountOfGroups">All</option>
                         </select>
                     </div>
                     <nav aria-label="Group pagination selector">

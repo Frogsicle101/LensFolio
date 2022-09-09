@@ -152,7 +152,7 @@ function manageGroupTableInteraction() {
  * Listens for a change on the group amount display selector (the dropdown)
  * Calls getGroups.
  */
-$(document).on("change", ".groupDisplayAmountSelection", function(event) {
+$(document).on("change", "#groupDisplayAmountSelection", function(event) {
     event.preventDefault()
     getGroups(groupPage)
 })
@@ -162,7 +162,7 @@ $(document).on("change", ".groupDisplayAmountSelection", function(event) {
  * Gets the group data from the server for displaying the preview list of groups.
  */
 function getGroups(page = groupPage){
-    let groupsPerPage = $(".groupDisplayAmountSelection").find("option:selected").text()
+    let groupsPerPage = $("#groupDisplayAmountSelection").find("option:selected").text()
     groupsPerPage = groupsPerPage.toLowerCase()
     $.ajax({
         url: "getGroups",
@@ -203,34 +203,42 @@ function populateGroupPageSelector(data, currentPage) {
     for (const index in data) {
         $(".groupFooterNext").before(createFooterNumberSelector(data[index]))
     }
-    $(".groupPageSelector").each((index, element) => {
+    let groupPageSelector = $(".groupPageSelector")
+    groupPageSelector.removeClass("active")
+    groupPageSelector.each((index, element) => {
         //Goes through the page selectors and adds a class of active if it's the current page we are on
         if (Number($(element).text()) === currentPage) {
             $(element).addClass("active")
-        } else {
-            $(element).removeClass("active")
-        }
-        // Below is the code that checks if each special button on the footer navigator should be disabled or not.
-        // For example: If we are on page 1, "first" and "previous" should be disabled.
-        let footerPrevious = $(".groupFooterPrevious")
-        let footerFirst = $(".groupFooterFirst")
-        if (footerPrevious.next().hasClass("active")){
-            footerPrevious.addClass("disabled")
-            footerFirst.addClass("disabled")
-        } else {
-            footerPrevious.removeClass("disabled")
-            footerFirst.removeClass("disabled")
-        }
-        let footerNext = $(".groupFooterNext")
-        let footerLast = $(".groupFooterLast")
-        if (footerNext.prev().hasClass("active")){
-            footerNext.addClass("disabled")
-            footerLast.addClass("disabled")
-        } else {
-            footerNext.removeClass("disabled")
-            footerLast.removeClass("disabled")
+            return false
         }
     })
+    toggleGroupNavigationButtons()
+}
+
+
+/**
+ * Checks if each special button on the footer navigator should be disabled or not.
+ * For example: If we are on page 1, "first" and "previous" should be disabled.
+ */
+function toggleGroupNavigationButtons(){
+    let footerPrevious = $(".groupFooterPrevious")
+    let footerFirst = $(".groupFooterFirst")
+    if (footerPrevious.next().hasClass("active")){
+        footerPrevious.addClass("disabled")
+        footerFirst.addClass("disabled")
+    } else {
+        footerPrevious.removeClass("disabled")
+        footerFirst.removeClass("disabled")
+    }
+    let footerNext = $(".groupFooterNext")
+    let footerLast = $(".groupFooterLast")
+    if (footerNext.prev().hasClass("active")){
+        footerNext.addClass("disabled")
+        footerLast.addClass("disabled")
+    } else {
+        footerNext.removeClass("disabled")
+        footerLast.removeClass("disabled")
+    }
 }
 
 
