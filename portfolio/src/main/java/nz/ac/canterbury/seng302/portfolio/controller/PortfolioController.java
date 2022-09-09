@@ -322,7 +322,6 @@ public class PortfolioController {
             LocalDate previousSprintEnd = neighbouringDates.get("previousSprintEnd");
             LocalDate nextSprintStart = neighbouringDates.get("nextSprintStart");
 
-
             modelAndView.addObject("previousSprintEnd", previousSprintEnd.plusDays(1));
             modelAndView.addObject("nextSprintStart", nextSprintStart.minusDays(1));
 
