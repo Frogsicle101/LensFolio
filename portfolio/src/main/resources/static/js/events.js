@@ -1,13 +1,12 @@
 let thisUserIsEditing = false;
 
-$(document).ready(function () {
-
+$(() => {
     let formControl = $(".form-control");
 
     removeElementIfNotAuthorized()
 
     formControl.each(countCharacters)
-    formControl.keyup(countCharacters) // Runs when key is pressed (well released) on form-control elements.
+    formControl.on("keyup", countCharacters) // Runs when key is pressed (well released) on form-control elements.
 })
 
 
@@ -103,6 +102,9 @@ $(document).on('submit', "#addEventForm", function (event) {
                  */
                 sendNotification("event", response.id, "create");
                 createAlert("Event created!", "success")
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -130,6 +132,9 @@ $(document).on("submit", ".milestoneForm", function (event) {
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
             sendNotification("milestone", response.id, "create");
+        },
+        error: function (error) {
+            createAlert(error.responseText, "failure")
         }
     })
 })
@@ -159,6 +164,9 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
             $(".addDeadlineSvg").toggleClass('rotated');
 
             sendNotification("deadline", response.id, "create");
+        },
+        error: function (error) {
+            createAlert(error.responseText, "failure")
         }
     })
 })
@@ -205,6 +213,9 @@ $(document).on("submit", "#editEventForm", function (event) {
                 createAlert("Event edited successfully!", "success")
                 sendNotification("event", eventId, "stop") // Let the server know the event is no longer being edited
                 sendNotification("event", eventId, "update") //Let the server know that other clients should update the element
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -235,6 +246,9 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
             createAlert("Milestone edited successfully!", "success")
             sendNotification("milestone", milestoneId, "stop") // Let the server know the milestone is no longer being edited
             sendNotification("milestone", milestoneId, "update") //Let the server know that other clients should update the element
+        },
+        error: function (error) {
+            createAlert(error.responseText, "failure")
         }
     })
 })
@@ -278,6 +292,9 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
                 createAlert("Deadline edited successfully!", "success")
                 sendNotification("deadline", deadlineId, "stop") // Let the server know the deadline is no longer being edited
                 sendNotification("deadline", deadlineId, "update") //Let the server know that other clients should update the element
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -336,6 +353,9 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 createAlert("Event deleted successfully!", "success")
                 sendNotification("event", eventData.eventId, "delete");
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     } else if (parent.hasClass('milestone')) {
@@ -347,6 +367,9 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 createAlert("Milestone deleted successfully!", "success")
                 sendNotification("milestone", milestoneData.milestoneId, "delete");
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     } else if (parent.hasClass('deadline')) {
@@ -358,6 +381,9 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 createAlert("Deadline deleted successfully!", "success")
                 sendNotification("deadline", deadlineData.deadlineId, "delete");
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
             }
         })
     }
@@ -1312,7 +1338,7 @@ function enableToolTips() {
  * not the user that made the change.
  */
 function displayLiveUpdateMessage(message, editorId, eventId){
-    if (checkPrivilege && editorId != userIdent) {
+    if (checkPrivilege() && editorId != userIdent) {
         createLiveAlert(message, eventId);
         setTimeout(removeLiveAlert, 10000, eventId)
     }

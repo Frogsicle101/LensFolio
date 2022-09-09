@@ -1,8 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.GroupCreationDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.model.dto.GroupCreationDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
 import nz.ac.canterbury.seng302.portfolio.service.UserService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
@@ -142,7 +142,7 @@ public class GroupsController {
         } catch (Exception exception) {
             logger.error("ERROR /group - an error occurred while retrieving group {}", groupId);
             logger.error(exception.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("An error occurred while retrieving the group", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -192,7 +192,7 @@ public class GroupsController {
         } catch (Exception e) {
             logger.error("ERROR /groups/edit - an error occurred while deleting a group");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An error occurred while deleting the group", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -301,7 +301,7 @@ public class GroupsController {
         } catch (Exception e) {
             logger.error("ERROR /groups/edit/ - an error occurred while modifying a group's details");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An error occurred when editing the group", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -329,7 +329,7 @@ public class GroupsController {
         } catch (Exception e) {
             logger.error("ERROR /groups/addUsers - an error occurred while adding a user to a group");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An error occurred while adding a user to the group", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -366,7 +366,7 @@ public class GroupsController {
         } catch (Exception e) {
             logger.error("ERROR /groups/removeUsers - an error occurred while removing a user from a group");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An error occurred while removing a user from the group", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

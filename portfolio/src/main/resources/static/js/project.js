@@ -76,6 +76,9 @@ $(document).on("click", ".deleteSprint", function () {
             createAlert("Sprint deleted!", "success")
             sendNotification("sprint", sprintId, "delete")
         },
+        error: function (error) {
+            createAlert(error.responseText, "failure")
+        }
     }).done(function () {
         $(".sprintsContainer").slideUp(400, function () {
             $(".sprintsContainer").empty()
