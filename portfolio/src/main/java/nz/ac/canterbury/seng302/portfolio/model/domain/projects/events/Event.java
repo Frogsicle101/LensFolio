@@ -4,7 +4,6 @@ package nz.ac.canterbury.seng302.portfolio.model.domain.projects.events;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.service.OccasionService;
 
 import javax.naming.InvalidNameException;
 import javax.persistence.Entity;
@@ -41,10 +40,11 @@ public class Event extends Deadline {
      */
     public Event(Project project, String name, LocalDateTime startDate, LocalDate endDate, LocalTime endTime, int type) throws DateTimeException, InvalidNameException {
         super(project, name, endDate, endTime, type);
-        OccasionService.validateDate(project, startDate.toLocalDate());
+        DateTimeService.checkDateInProject(project, startDate.toLocalDate());
         this.startDate = startDate;
     }
 
+    /* Ignore the unused method warning, this method is used by the frontend to format the dates */
     public String getStartDateFormatted() {
         return getStartDate().format(DateTimeService.timeDateMonthYear());
     }
@@ -54,7 +54,7 @@ public class Event extends Deadline {
     }
 
     public void setStartDate(LocalDateTime startDate) throws DateTimeException {
-        OccasionService.validateDate(this.getProject(), startDate.toLocalDate());
+        DateTimeService.checkDateInProject(this.getProject(), startDate.toLocalDate());
         this.startDate = startDate;
     }
 }

@@ -4,7 +4,6 @@ import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.service.OccasionService;
 
 import javax.persistence.Entity;
 import java.time.DateTimeException;
@@ -71,7 +70,7 @@ public class Deadline extends Milestone {
 
     public void setDateTime(LocalDateTime eventEnd) throws DateTimeException {
         this.dateTime = eventEnd;
-        OccasionService.validateDate(this.getProject(), eventEnd.toLocalDate());
+        DateTimeService.checkDateInProject(this.getProject(), eventEnd.toLocalDate());
         setEndTime(eventEnd.toLocalTime());
         setEndDate(eventEnd.toLocalDate());
     }

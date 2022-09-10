@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -113,6 +114,21 @@ public class DateTimeService {
         }
         if (endDate.isAfter(nextDateLimit)) {
             throw new CheckException("End date is after next sprints start date / project end date");
+        }
+    }
+
+
+    /**
+     * Checks that the end date occurs between the project's start and end dates.
+     *
+     * @param project The project defining the earliest and latest dates the end date can be.
+     * @param date The end date being validated.
+     * @throws DateTimeException If the end date is before the project start or after the project end.
+     */
+    public static void checkDateInProject(Project project, LocalDate date) throws DateTimeException {
+
+        if (date.isAfter(project.getEndDate()) || date.isBefore(project.getStartDate())) {
+            throw new DateTimeException("Date(s) must occur during the project");
         }
     }
 

@@ -3,7 +3,6 @@ package nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.service.OccasionService;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,8 +36,9 @@ public class Milestone {
     protected Milestone() {
     }
 
+
     /**
-     * Constructs an instance of the milestone object.s
+     * Constructs an instance of the milestone object.
      *
      * @param project The project in which the milestone occurs.
      * @param name    The name of the milestone.
@@ -46,7 +46,7 @@ public class Milestone {
      * @param type    The type of the milestone.
      */
     public Milestone(Project project, String name, LocalDate endDate, int type) throws CheckException, DateTimeException {
-        OccasionService.validateDate(project, endDate);
+        DateTimeService.checkDateInProject(project, endDate);
         this.id = UUID.randomUUID().toString();
         this.project = project;
         this.name = name;
@@ -63,7 +63,7 @@ public class Milestone {
 
     /**
      * This sets the ID
-     * <p>
+     *
      * SHOULD ONLY BE USED FOR TESTING PURPOSES
      *
      * @param id the UUID to be set
@@ -85,7 +85,7 @@ public class Milestone {
     }
 
     public void setEndDate(LocalDate endDate) {
-        OccasionService.validateDate(this.getProject(), endDate);
+        DateTimeService.checkDateInProject(this.getProject(), endDate);
         this.endDate = endDate;
     }
 
@@ -93,6 +93,7 @@ public class Milestone {
         return this.endDate;
     }
 
+    /* Ignore the unused method warning, this method is used by the frontend to format the dates */
     public String getEndDateFormatted() {
         return getEndDate().format(DateTimeService.dayDateMonthYear());
     }

@@ -44,12 +44,18 @@ public class EventController {
     private final RegexService regexService;
 
 
+    /* Reused Log statements */
+    private static final String CALLED_LOG = "Called";
+    private static final String SUCCESS_LOG = "Success";
+    private static final String NOT_FOUND_MESSAGE = " was not found";
+
+
     /**
      * Autowired constructor to inject the required dependencies.
      *
-     * @param projectRepository - To retrieve and edit information about projects
-     * @param eventRepository - To retrieve and edit information about events
-     * @param regexService - For checking the inputs against the regex
+     * @param projectRepository To retrieve and edit information about projects
+     * @param eventRepository To retrieve and edit information about events
+     * @param regexService For checking the inputs against the regex
      */
     @Autowired
     public EventController(ProjectRepository projectRepository, EventRepository eventRepository, RegexService regexService) {
@@ -87,7 +93,7 @@ public class EventController {
     ) {
         String methodLoggingTemplate = "PUT /addEvent: {}";
         try {
-            logger.info(methodLoggingTemplate, "Called");
+            logger.info(methodLoggingTemplate, CALLED_LOG);
 
             // eventStart and eventEnd return a string in the format "1986-01-28T11:38:00.01"
             // DateTimeFormatter.ISO_DATE_TIME helps parse that string by declaring its format.
@@ -95,7 +101,7 @@ public class EventController {
             LocalDateTime eventEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
 
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
-                    "Project with id " + projectId + " was not found"
+                    "Project with id " + projectId + NOT_FOUND_MESSAGE
             ));
 
             regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Event title");
@@ -114,7 +120,7 @@ public class EventController {
 
             Event event = new Event(project, name, eventStart, eventEnd.toLocalDate(), eventEnd.toLocalTime(), typeOfEvent);
             Event eventReturn = eventRepository.save(event);
-            logger.info(methodLoggingTemplate, "Success");
+            logger.info(methodLoggingTemplate, SUCCESS_LOG);
             return new ResponseEntity<>(eventReturn, HttpStatus.OK);
         } catch (CheckException exception) {
             logger.warn(methodLoggingTemplate, exception.getMessage());
@@ -147,12 +153,12 @@ public class EventController {
     ) {
         String methodLoggingTemplate = "DELETE /deleteEvent: {}";
         try {
-            logger.info(methodLoggingTemplate, "Called");
+            logger.info(methodLoggingTemplate, CALLED_LOG);
             Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(
-                    "Event with id " + eventId + " was not found"
+                    "Event with id " + eventId + NOT_FOUND_MESSAGE
             ));
             eventRepository.delete(event);
-            logger.info(methodLoggingTemplate, "Success");
+            logger.info(methodLoggingTemplate, SUCCESS_LOG);
             return new ResponseEntity<>(HttpStatus.OK);
 
         } catch (EntityNotFoundException err) {
@@ -192,9 +198,9 @@ public class EventController {
     ) {
         String methodLoggingTemplate = "POST /editEvent: {}";
         try {
-            logger.info(methodLoggingTemplate, "Called");
+            logger.info(methodLoggingTemplate, CALLED_LOG);
             Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(
-                    "Event with id " + eventId + " was not found"
+                    "Event with id " + eventId + NOT_FOUND_MESSAGE
             ));
 
             // eventStart and eventEnd return a string in the format "1986-01-28T11:38:00.01"
@@ -216,7 +222,7 @@ public class EventController {
             event.setDateTime(eventEnd);
             event.setType(typeOfEvent);
             eventRepository.save(event);
-            logger.info(methodLoggingTemplate, "Success");
+            logger.info(methodLoggingTemplate, SUCCESS_LOG);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (CheckException exception) {
             logger.warn(methodLoggingTemplate, exception.getMessage());
@@ -246,10 +252,10 @@ public class EventController {
     ) {
         String methodLoggingTemplate = "GET /getEventsList: {}";
         try {
-            logger.info(methodLoggingTemplate, "Called");
+            logger.info(methodLoggingTemplate, CALLED_LOG);
             List<Event> eventList = eventRepository.findAllByProjectIdOrderByStartDate(projectId);
             eventList.sort(Comparator.comparing(Event::getStartDate));
-            logger.info(methodLoggingTemplate, "Success");
+            logger.info(methodLoggingTemplate, SUCCESS_LOG);
             return new ResponseEntity<>(eventList, HttpStatus.OK);
         } catch (Exception err) {
             logger.error(methodLoggingTemplate, err.getMessage());
@@ -270,9 +276,9 @@ public class EventController {
     ) {
         String methodLoggingTemplate = "GET /getEvent: {}";
         try {
-            logger.info(methodLoggingTemplate, "Called");
+            logger.info(methodLoggingTemplate, CALLED_LOG);
             Event event = eventRepository.findById(eventId).orElseThrow();
-            logger.info(methodLoggingTemplate, "Success");
+            logger.info(methodLoggingTemplate, SUCCESS_LOG);
             return new ResponseEntity<>(event, HttpStatus.OK);
         } catch (NoSuchElementException err) {
             logger.warn(methodLoggingTemplate, err.getMessage());

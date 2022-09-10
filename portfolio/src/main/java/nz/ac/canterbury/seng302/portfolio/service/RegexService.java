@@ -15,11 +15,11 @@ public class RegexService {
     /**
      * Checks the given input against the general allowed characters regex
      *
-     * @param pattern -
-     * @param valueToCheck - The string input by the user to be checked against the regex
-     * @param minLength - The min length of the input after trimming occurs, set to 0 if no min length
-     * @param maxLength - The max length of the input after trimming occurs
-     * @param inputName - The name of the input for specific error messages
+     * @param pattern The regex pattern the string will be checked against
+     * @param valueToCheck The string input by the user to be checked against the regex
+     * @param minLength The min length of the input after trimming occurs, set to 0 if no min length
+     * @param maxLength The max length of the input after trimming occurs
+     * @param inputName The name of the input for specific error messages
      */
     public void checkInput(RegexPattern pattern, String valueToCheck, Integer minLength, Integer maxLength, String inputName) {
         if (valueToCheck == null) {

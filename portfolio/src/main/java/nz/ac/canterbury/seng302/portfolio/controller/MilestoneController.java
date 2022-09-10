@@ -26,8 +26,10 @@ import java.util.NoSuchElementException;
  * The controller for managing requests to access and edit milestones.
  */
 @RestController
-public class MilestoneController {    /** For checking the inputs against the regex */
-private final RegexService regexService;
+public class MilestoneController {
+
+    /** For checking the inputs against the regex */
+    private final RegexService regexService;
 
     /** For logging the requests related to milestones. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -43,6 +43,10 @@ public class DeadlineController {
     private final RegexService regexService;
 
 
+    /* Reused Log statements */
+    private static final String NOT_FOUND_MESSAGE = " was not found";
+
+
     /**
      * Autowired constructor to inject the required dependencies into the controller.
      *
@@ -87,7 +91,7 @@ public class DeadlineController {
         logger.info(methodLoggingTemplate, "Called");
         try {
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
-                    "Project with id " + projectId + " was not found"
+                    "Project with id " + projectId + NOT_FOUND_MESSAGE
             ));
             regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Deadline title");
             LocalDateTime deadlineEnd = LocalDateTime.parse(end, DateTimeFormatter.ISO_DATE_TIME);
@@ -116,10 +120,10 @@ public class DeadlineController {
     /**
      * Mapping for a post request to edit a deadline.
      * The method first gets the deadline from the repository. If the deadline cannot be retrieved, it throws an EntityNotFound exception.
-     * <p>
+     *
      * The method then parses a date string and a time string that is passed as a request parameter.
      * The parser converts it to the standard LocalDate format.
-     * <p>
+     *
      * The deadline is then edited with the parameters passed, and saved to the deadline repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -142,7 +146,7 @@ public class DeadlineController {
         logger.info(methodLoggingTemplate, "Called");
         try {
             Deadline deadline = deadlineRepository.findById(deadlineId).orElseThrow(() -> new EntityNotFoundException(
-                    "Deadline with id " + deadlineId + " was not found"
+                    "Deadline with id " + deadlineId + NOT_FOUND_MESSAGE
             ));
 
             regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Deadline title");
@@ -185,7 +189,7 @@ public class DeadlineController {
         logger.info("PUT /deleteDeadline");
         try {
             Deadline deadline = deadlineRepository.findById(deadlineId).orElseThrow(() -> new EntityNotFoundException(
-                    "Deadline with id " + deadlineId + " was not found"
+                    "Deadline with id " + deadlineId + NOT_FOUND_MESSAGE
             ));
             deadlineRepository.delete(deadline);
             logger.info("PUT /deleteDeadline: Success");

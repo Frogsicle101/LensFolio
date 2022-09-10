@@ -141,8 +141,9 @@ public class PortfolioController {
             @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "projectId") Long projectId
     ) {
+        String methodLoggingTemplate = "GET REQUEST /editProject {}";
+        logger.info(methodLoggingTemplate, "Called");
         try {
-            logger.info("GET REQUEST /editProject");
 
             // Get user from server
             UserResponse user =
@@ -173,17 +174,17 @@ public class PortfolioController {
             return modelAndView;
 
         } catch (EntityNotFoundException err) {
-            logger.error("GET REQUEST /editProject", err);
+            logger.error(methodLoggingTemplate, "Error - " + err.getMessage());
             return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err);
         } catch (Exception err) {
-            logger.error("GET REQUEST /editProject", err);
+            logger.error(methodLoggingTemplate, "Error - " + err.getMessage());
             return new ModelAndView(ERROR_PAGE_LOCATION);
         }
     }
 
 
     /**
-     * Postmapping for /projectEdit, this is called when user submits there project changes.
+     * Post mapping for /projectEdit, this is called when user submits there project changes.
      *
      * @param editInfo A DTO of project from the inputs on the edit page.
      * @return Returns to the portfolio page.
@@ -205,13 +206,10 @@ public class PortfolioController {
                                     "Project with id " + editInfo.getProjectId() + "was not found"
                             )
                     );
-
             String projectName = editInfo.getProjectName();
             String projectDescription = editInfo.getProjectDescription();
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectName, 1, 50, "Project name");
-            regexService.checkInput(
-                    RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description"
-            );
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description");
             dateTimeService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
 
             if (projectStart.isBefore(projectService.getMinStartDate(project))) {
