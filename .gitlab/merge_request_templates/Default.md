@@ -7,7 +7,6 @@
  - [ ] Documentation - class and Javadoc, and comments where code is unclear (try to make it clear if possible). Getters and setters do not need Javadoc
  - [ ] No commented-out blocks of code
  - [ ] No unused imports
- - [ ] Run Code->Reformat File in IntelliJ to automatically clean up code.
  - [ ] No merge conflicts with target branch (Gitlab should tell you this near the merge button)
 
  ### Review
