@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Controller for all the Skill based end points
@@ -30,16 +31,30 @@ public class SkillController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** Holds persisted information about skills */
-    @Autowired
-    private SkillRepository skillRepository;
+    private final SkillRepository skillRepository;
 
     /** Holds persisted information about evidence */
-    @Autowired
-    private EvidenceRepository evidenceRepository;
+    private final EvidenceRepository evidenceRepository;
 
     /** For checking is a user exists and getting their details. */
+    private final UserAccountsClientService userAccountsClientService;
+
+
+    /**
+     * Autowired constructor for injecting the required beans.
+     *
+     * @param skillRepository Holds persisted information about skills
+     * @param evidenceRepository Holds persisted information about evidence
+     * @param userAccountsClientService For checking is a user exists and getting their details.
+     */
     @Autowired
-    private UserAccountsClientService userAccountsClientService;
+    public SkillController(SkillRepository skillRepository,
+                           EvidenceRepository evidenceRepository,
+                           UserAccountsClientService userAccountsClientService) {
+        this.skillRepository = skillRepository;
+        this.evidenceRepository = evidenceRepository;
+        this.userAccountsClientService = userAccountsClientService;
+    }
 
 
     /**
@@ -94,7 +109,7 @@ public class SkillController {
                 return new ResponseEntity<>("Skill does not exist", HttpStatus.NOT_FOUND);
             }
 
-            List<Evidence> evidence = skill.get().getEvidence();
+            Set<Evidence> evidence = skill.get().getEvidence();
             logger.info("GET REQUEST /evidenceLinkedToSkill - found and returned {} evidences for skill: {}", evidence.size() ,skillName);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
 
