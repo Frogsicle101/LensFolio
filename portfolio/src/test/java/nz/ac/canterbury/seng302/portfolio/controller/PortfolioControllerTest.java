@@ -78,10 +78,6 @@ class PortfolioControllerTest {
             dateTimeService
     );
 
-    private final Integer validUserId = 1;
-    private final Integer nonExistentUserId = 2;
-    private final String invalidUserId = "Not an Id";
-
 
     @BeforeEach
     public void setup() {
