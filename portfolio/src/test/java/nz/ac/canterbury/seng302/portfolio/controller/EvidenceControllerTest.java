@@ -10,6 +10,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
@@ -473,7 +474,8 @@ class EvidenceControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String expectedContent = "[" + evidence.toJsonString() + "]";
+        EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence);
+        String expectedContent = "[" + expectedResponse.toJsonString() + "]";
         String responseContent = result.getResponse().getContentAsString();
         Assertions.assertEquals(expectedContent, responseContent);
     }
@@ -497,8 +499,10 @@ class EvidenceControllerTest {
         MvcResult result = mockMvc.perform(get("/evidenceData")
                         .queryParam("userId", existingUserId))
                 .andReturn();
+        EvidenceResponseDTO expectedResponse1 = new EvidenceResponseDTO(evidence1);
+        EvidenceResponseDTO expectedResponse2 = new EvidenceResponseDTO(evidence2);
 
-        String expectedContent = "[" + evidence1.toJsonString() + "," + evidence2.toJsonString() + "]";
+        String expectedContent = "[" + expectedResponse1.toJsonString() + "," + expectedResponse2.toJsonString() + "]";
         String responseContent = result.getResponse().getContentAsString();
         Assertions.assertEquals(expectedContent, responseContent);
     }
@@ -538,6 +542,33 @@ class EvidenceControllerTest {
 
         mockMvc.perform(get("/evidenceData"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void TestGetEvidenceWhenUserExistsAndHasNoAssociates() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String existingUserId = "1";
+
+        ArrayList<Evidence> usersEvidence = new ArrayList<>();
+        Evidence evidence = new Evidence(1, 1, "Title", LocalDate.now()
+                , "description");
+        usersEvidence.add(evidence);
+        evidence.addAssociateId(1); // The user themselves should be considered an associate
+
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
+
+
+        MvcResult result = mockMvc.perform(get("/evidenceData")
+                        .queryParam("userId", existingUserId))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence);
+        String expectedContent = "[" + expectedResponse.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedContent, responseContent);
     }
 
 
@@ -693,6 +724,8 @@ class EvidenceControllerTest {
         userBuilder.addRoles(UserRole.STUDENT);
         UserResponse userResponse = userBuilder.build();
 
+        GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(1).build();
+        when(userAccountsClientService.getUserAccountById(request)).thenReturn(userResponse);
         when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService)).thenReturn(userResponse);
         Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal.getAuthState());
 

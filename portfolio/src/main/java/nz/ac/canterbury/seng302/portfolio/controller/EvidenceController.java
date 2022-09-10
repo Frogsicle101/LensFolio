@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
@@ -34,6 +35,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -124,7 +126,8 @@ public class EvidenceController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-            return new ResponseEntity<>(evidence.get(), HttpStatus.OK);
+            EvidenceResponseDTO response = new EvidenceResponseDTO(evidence.get(), getUsers(evidence.get().getAssociateIds()));
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
@@ -176,19 +179,26 @@ public class EvidenceController {
     public ResponseEntity<Object> getAllEvidence(@RequestParam("userId") Integer userId) {
         logger.info("GET REQUEST /evidence - attempt to get evidence for user {}", userId);
         try {
-            List<Evidence> evidence = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(userId);
+
             GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
             UserResponse userResponse = userAccountsClientService.getUserAccountById(request);
             if (userResponse.getId() == -1) {
                 logger.info("GET REQUEST /evidence - user {} does not exist", userId);
                 return new ResponseEntity<>("Error: User not found", HttpStatus.NOT_FOUND);
             }
+            List<Evidence> evidences = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(userId);
+            List<EvidenceResponseDTO> response = new ArrayList<>();
+            for (Evidence evidence : evidences) {
+                EvidenceResponseDTO dto = new EvidenceResponseDTO(evidence, getUsers(evidence.getAssociateIds()));
+                response.add(dto);
+            }
+
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.set("Users-Name", userResponse.getFirstName() + ' ' + userResponse.getLastName());
 
             return ResponseEntity.ok()
                     .headers(responseHeaders)
-                    .body(evidence);
+                    .body(response);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
@@ -299,5 +309,22 @@ public class EvidenceController {
             logger.warn(e.getMessage());
             return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    /**
+     * Helper method that returns a list of all users in a given list
+     * @param userIds The ids of the users
+     * @return A list of Users, populated with their details.
+     * If any users in userIds list do not exist, they will not be added.
+     */
+    private List<UserResponse> getUsers(List<Integer> userIds) {
+        List<UserResponse> associates = new ArrayList<>();
+        for (Integer associate : userIds) {
+            GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(associate).build();
+            UserResponse user = userAccountsClientService.getUserAccountById(request);
+            if (user.getId() > 0) associates.add(user);
+        }
+        return associates;
     }
 }
