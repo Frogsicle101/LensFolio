@@ -12,11 +12,16 @@ public class EvidenceDTO {
     List<WebLinkDTO> webLinks;
     List<String> categories;
     List<String> skills;
+    /**
+     * The users associated with this piece of evidence.
+     * Should NOT include the creator of the evidence.
+     */
+    List<Integer> associateIds;
     Long projectId;
 
 
     public EvidenceDTO(String title, String date, String description, List<WebLinkDTO> webLinks,
-                       List<String> skills, List<String> categories, Long projectId) {
+                       List<String> skills, List<String> categories, Long projectId, List<Integer> associateIds) {
         this.title = title;
         this.date = date;
         this.description = description;
@@ -24,6 +29,7 @@ public class EvidenceDTO {
         this.projectId = projectId;
         this.skills = skills;
         this.categories = categories;
+        this.associateIds = associateIds;
     }
 
 
@@ -81,5 +87,13 @@ public class EvidenceDTO {
 
     public void setSkills(List<String> skills) {
         this.skills = skills;
+    }
+
+    public List<Integer> getAssociateIds() {
+        return associateIds;
+    }
+
+    public void setAssociateIds(List<Integer> associateIds) {
+        this.associateIds = associateIds;
     }
 }

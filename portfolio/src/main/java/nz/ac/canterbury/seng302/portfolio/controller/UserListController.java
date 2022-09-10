@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefs;
+import nz.ac.canterbury.seng302.portfolio.service.PaginationService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
@@ -23,11 +24,9 @@ import java.util.*;
 @Controller
 public class UserListController {
 
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
-
-    @Autowired
+    private final UserAccountsClientService userAccountsClientService;
     private UserPrefRepository prefRepository;
+    private final PaginationService paginationService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -38,9 +37,24 @@ public class UserListController {
     private int totalNumUsers = 0;
     private String sortOrder = "firstname";
     private boolean isAscending = true;
-    private final ArrayList<Integer> footerNumberSequence = new ArrayList<>();
+    private ArrayList<Integer> footerNumberSequence = new ArrayList<>();
     private List<UserResponse> userResponseList;
     private final HashMap<String, UserRole> stringToRole = setUserRolesDict();
+
+
+    /**
+     * Autowired constructor
+     * @param userAccountsClientService The user account service.
+     * @param userPrefRepository The user account preference service.
+     */
+    @Autowired
+    UserListController(UserAccountsClientService userAccountsClientService,
+                       UserPrefRepository userPrefRepository,
+                       PaginationService paginationService) {
+        this.userAccountsClientService = userAccountsClientService;
+        this.prefRepository = userPrefRepository;
+        this.paginationService = paginationService;
+    }
 
 
     /**
@@ -92,7 +106,7 @@ public class UserListController {
             response = getPaginatedUsersFromServer();
         }
 
-        createFooterNumberSequence();
+        footerNumberSequence = paginationService.createFooterNumberSequence(footerNumberSequence, totalPages, pageNum);
         userResponseList = response.getUsersList();
         addAttributesToModel(principal.getAuthState(), model);
 
@@ -262,34 +276,6 @@ public class UserListController {
                                                                    .setPaginationRequestOptions(options)
                                                                    .build();
         return userAccountsClientService.getPaginatedUsers(request);
-    }
-
-
-    /**
-     * This is used to set the numbers at the bottom of the screen for page navigation. Otherwise, at larger page values
-     * it gets very messy. Creates a range of -5 to +5 from the current page if possible.
-     */
-    private void createFooterNumberSequence() {
-        footerNumberSequence.clear();
-
-        int minNumber = 1;
-        int maxNumber = 11;
-
-        if (totalPages < 11) {
-            maxNumber = totalPages;
-        } else if (pageNum > 6) {
-            if (pageNum + 5 < totalPages) {
-                minNumber = pageNum - 5;
-                maxNumber = pageNum + 5;
-            } else {
-                maxNumber = totalPages;
-                minNumber = totalPages - 10;
-            }
-        }
-
-        for (int i = minNumber; i <= maxNumber; i++) {
-            footerNumberSequence.add(i);
-        }
     }
 
 

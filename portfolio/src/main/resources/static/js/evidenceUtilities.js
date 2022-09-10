@@ -26,10 +26,10 @@ let categoriesMapping = new Map([
 ])
 
 $(() => {
-    // Counting characters
-    let textInput = $(".text-input");
-    textInput.each(countCharacters)
-    textInput.on("keyup", countCharacters)
+        // Counting characters
+        let textInput = $(".text-input");
+        textInput.each(countCharacters)
+        textInput.on("keyup", countCharacters)
     }
 )
 
@@ -129,11 +129,11 @@ function webLinkElement(url, alias) {
     }
 
     return (`
-        <div class="webLinkElement ${security}" data-value="${url}" >
+        <div class="webLinkElement ${security}" data-value="${sanitise(url)}" >
             ${icon}
             <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
-            <div class="addedWebLinkUrl" style="display: none">${url}</div>
+            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${sanitise(alias)}</div>
+            <div class="addedWebLinkUrl" style="display: none">${sanitise(url)}</div>
         </div>
     `)
 }
@@ -237,7 +237,8 @@ function getHighlightedEvidenceWeblinks() {
  *
  * @param callback An optional callback function to be called upon successfully retrieving the skills
  */
-function getSkills(callback = () => {}) {
+function getSkills(callback = () => {
+}) {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId, type: "GET",
         success: function (response) {
@@ -261,7 +262,7 @@ function getSkills(callback = () => {}) {
 /**
  *  A helper function to take a response from an ajax call and add it to the array of skills
  */
-function addSkillResponseToArray(response){
+function addSkillResponseToArray(response) {
     let skills = []
     for (let i in response.skills) {
         skills.push(response.skills[i].name)
@@ -346,9 +347,9 @@ function createEvidencePreview(evidence) {
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
             <div class="row evidenceListItemHeader">
-                <p class="evidenceId" style="display: none">${evidence.id}</p>
-                <p class="col evidenceListItemTitle">${evidence.title}</p>
-                <p class="col evidenceListItemDate">${evidence.date}</p>
+                <p class="evidenceId" style="display: none">${sanitise(evidence.id)}</p>
+                <p class="col evidenceListItemTitle">${sanitise(evidence.title)}</p>
+                <p class="col evidenceListItemDate">${sanitise(evidence.date)}</p>
             </div>
             <div class="evidencePreviewTags categoryChipDisplay">${categories}</div>
             <div class="evidencePreviewTags skillChipDisplay">${skills}</div>
@@ -406,7 +407,6 @@ function setDetailsToNoEvidenceExists() {
 }
 
 
-
 //---- Tooltip Refresher----
 
 
@@ -422,7 +422,7 @@ function initialiseTooltips() {
  * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
  */
 function checkWeblinkCount() {
-    let addWeblinkButton = $("#addWebLinkButton")
+    let addWeblinkButton = $("#addWeblinkButton")
     let weblinkFullTab = $("#webLinkFull")
     if (webLinksCount > 9) {
         addWeblinkButton.hide()
@@ -438,7 +438,7 @@ function checkWeblinkCount() {
  * Resets the weblink count
  */
 function resetWeblink() {
-    let addWeblinkButton = $("#addWebLinkButton")
+    let addWeblinkButton = $("#addWeblinkButton")
     let weblinkFullTab = $("#webLinkFull")
     addWeblinkButton.show()
     weblinkFullTab.hide()
@@ -552,7 +552,7 @@ $(document).on('click', '.addedWebLinkName', function () {
  * Listen for a keypress in the weblink address field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkUrl', function () {
-    $(".address-alert").alert('close')
+    $("#weblinkAddressAlert").alert('close')
 })
 
 
@@ -560,7 +560,7 @@ $(document).on('keypress', '#webLinkUrl', function () {
  * Listen for a keypress in the weblink name field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkName', function () {
-    $(".weblink-name-alert").alert('close')
+    $("#weblinkNameAlert").alert('close')
 })
 
 
@@ -780,7 +780,7 @@ function checkToShowSkillChips() {
  */
 function createDeletableSkillChip(element) {
     return `<div class="chip skillChip">
-                <p class="chipText">${element}</p>  
+                <p class="chipText">${sanitise(element)}</p>  
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -858,8 +858,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 closeModal()
                 clearAddEvidenceModalValues()
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                $(".address-alert").alert('close') // Close any web link alerts
-                $(".weblink-name-alert").alert('close')
+                $("#weblinkAddressAlert").alert('close') // Close any web link alerts
+                $("#weblinkNameAlert").alert('close')
                 resetWeblink()
             }, error: function (error) {
                 createAlert(error.responseText, "failure", ".modal-body")
@@ -873,17 +873,25 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '#addWebLinkButton', function () {
-    let button = $("#addWebLinkButton");
+$(document).on('click', '#addWeblinkButton', function () {
+    let button = $("#addWeblinkButton");
     if (button.hasClass("toggled")) {
         //validate the link
         let address = $("#webLinkUrl").val()
         let alias = $("#webLinkName").val()
-        let form = $(".webLinkForm")
+        let form = $("#weblinkForm")
         validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()
     }
+})
+
+
+/**
+ * Closes the add weblink form and resets weblink form buttons when the weblink add is cancelled.
+ */
+$(document).on('click', '#cancelWeblinkButton', () => {
+    webLinkButtonToggle()
 })
 
 
@@ -907,17 +915,17 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
  */
 function validateWebLink(form, alias, address) {
     if (alias.length === 0) {
-        $(".weblink-name-alert").alert('close') //Close any previous alerts
+        $("#weblinkNameAlert").alert('close') //Close any previous alerts
         form.append(`
-                    <div class="alert alert-danger alert-dismissible show weblink-name-alert" role="alert">
+                    <div id="weblinkNameAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
                       Please include a name for your web link
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
     } else if (address.search("://") === -1) {
-        $(".address-alert").alert('close') //Close any previous alerts
+        $("#weblinkAddressAlert").alert('close') //Close any previous alerts
         form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                    <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
                       That address is missing a protocol (the part that comes before "://") - did you make a typo?
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
@@ -932,7 +940,7 @@ function validateWebLink(form, alias, address) {
  * Handles the error messages for an invalid web link.
  */
 function handleInvalidWebLink(form, error) {
-    $(".address-alert").alert('close') //Close any previous alerts
+    $("#weblinkAddressAlert").alert('close') //Close any previous alerts
     switch (error.status) {
         case 400:
             // The URL is invalid
@@ -965,7 +973,7 @@ function handleInvalidWebLink(form, error) {
  */
 function validateWebLinkAtBackend() {
     let address = $("#webLinkUrl").val()
-    let form = $(".webLinkForm")
+    let form = $("#weblinkForm")
     let data = JSON.stringify({
         "url": address,
         "name": $("#webLinkName").val()
@@ -991,18 +999,22 @@ function validateWebLinkAtBackend() {
  * and slide-toggles the form
  */
 function webLinkButtonToggle() {
-    let button = $("#addWebLinkButton");
-    $(".webLinkForm").slideToggle();
-    if (button.hasClass("toggled")) {
-        button.text("Add Web Link")
-        button.removeClass("toggled")
-        button.removeClass("btn-primary")
-        button.addClass("btn-secondary")
+    let saveButton = $("#addWeblinkButton");
+    let cancelButton = $("#cancelWeblinkButton")
+    $("#weblinkForm").slideToggle();
+    if (saveButton.hasClass("toggled")) {
+        saveButton.text("Add Web Link")
+        saveButton.removeClass("toggled")
+        saveButton.removeClass("btn-primary")
+        saveButton.addClass("btn-secondary")
+        $(".weblinkAlert").alert('close')
+        cancelButton.hide()
     } else {
-        button.text("Save Web Link")
-        button.addClass("toggled")
-        button.removeClass("btn-secondary")
-        button.addClass("btn-primary")
+        saveButton.text("Save Web Link")
+        saveButton.addClass("toggled")
+        saveButton.removeClass("btn-secondary")
+        saveButton.addClass("btn-primary")
+        cancelButton.show()
     }
 }
 
@@ -1122,13 +1134,13 @@ $(document).on("change", ".form-control", function () {
 function createSkillChip(skillName, isMenuItem) {
     if (isMenuItem) {
         return `
-            <div id=${"skillCalled" + skillName.replaceAll(" ", "_")} class="chip skillChip">
-                <p class="chipText">${skillName}</p>
+            <div id=${sanitise("skillCalled" + skillName.replaceAll(" ", "_"))} class="chip skillChip">
+                <p class="chipText">${sanitise(skillName)}</p>
             </div>`
     } else {
         return `
             <div class="chip skillChip">
-                <p class="chipText">${skillName}</p>
+                <p class="chipText">${sanitise(skillName)}</p>
             </div>`
     }
 }
@@ -1145,13 +1157,13 @@ function createSkillChip(skillName, isMenuItem) {
 function createCategoryChip(categoryName, isMenuItem) {
     if (isMenuItem) {
         return `
-            <div id=${"categoryCalled" + categoryName.replaceAll(" ", "_")} class="chip categoryChip">
-                <p class="chipText">${categoryName}</p>
+            <div id=${sanitise("categoryCalled" + categoryName.replaceAll(" ", "_"))} class="chip categoryChip">
+                <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
     } else {
         return `
             <div class="chip categoryChip">
-                <p class="chipText">${categoryName}</p>
+                <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
     }
 }

@@ -23,15 +23,15 @@ $(document).on("click", ".editRepo", () => {
         `<form id="editRepoForm" class="marginSides1">
             <div class="mb-1">
                 <label class="form-label">Repository Name (cannot be empty):</label>
-                <input type="text" id="repoName" class="form-control" required minlength=1 value="${$("#groupSettingsPageRepoName").text()}">
+                <input type="text" id="repoName" class="form-control" required minlength=1 value="${sanitise($("#groupSettingsPageRepoName").text())}">
             </div>
             <div class="mb-1">
                 <label class="form-label">Project ID (must be a number):</label>
-                <input type="number" id="projectId" class="form-control" required value="${$(".groupSettingsPageProjectId").text()}">
+                <input type="number" id="projectId" class="form-control" required value="${sanitise($(".groupSettingsPageProjectId").text())}">
             </div>
             <div class="mb-1">
                 <label class="form-label">Access Token (minimum 20 characters):</label>
-                <input type="text" id="accessToken" class="form-control" required minlength=20 value="${$(".groupSettingsPageAccessToken").text()}">
+                <input type="text" id="accessToken" class="form-control" required minlength=20 value="${sanitise($(".groupSettingsPageAccessToken").text())}">
             </div>
             <div class="mb-3 mt-3">
                 <button type="submit" class="btn btn-primary">Save</button>

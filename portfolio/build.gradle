@@ -111,8 +111,6 @@ test {
 
 tasks.named('test') {
     useJUnitPlatform()
-
-
 }
 
 
@@ -141,5 +139,3 @@ sonarqube {
         property "sonar.login", "75aa849c70fb6805df04e63e7f42b1b93e9207cb"
     }
 }
-
-

@@ -2,41 +2,14 @@ let selectedGroupId
 let group
 const TEACHER_GROUP_ID = 1
 const MWAG_GROUP_ID = 2
+let groupPage
 
 $(function () {
     if (!checkPrivilege()) {
         return
     }
+    getGroups()
 
-    manageTableSelection()
-
-    let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
-    for (let i = 0; i < listOfGroupDivs.length; i++) { // Loops over each div
-        /**
-         * Adds the droppable pluggin to each element that it loops over
-         * https://api.jqueryui.com/droppable/
-         */
-        $(listOfGroupDivs[i]).droppable({
-            /**
-             * Triggered when an accepted draggable is dragged over the droppable (based on the tolerance option).
-             * https://api.jqueryui.com/droppable/#event-over
-             */
-            over: function () {
-                $(this).effect("shake")
-                //https://api.jqueryui.com/category/effects/
-            },
-
-            /**
-             * Triggered when an accepted draggable is dropped on the droppable (based on the tolerance option).
-             * https://api.jqueryui.com/droppable/#event-drop
-             */
-            drop: function () {
-                addUsers($(this).attr("id"))
-                showDraggableIcons()
-            },
-            tolerance: "pointer"
-        })
-    }
 })
 
 //----------------------- jQuery UI User Selection -------------------------
@@ -135,8 +108,182 @@ function showDraggableIcons() {
     $(".ui-selected").find(".dragGrip").show()
 }
 
+/**
+ * Handles the selecting, dragging, and dropping of group members.
+ * Implemented using JQuery UI droppable https://api.jqueryui.com/droppable/
+ */
+function manageGroupTableInteraction() {
+    manageTableSelection()
+
+    let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
+    for (let i = 0; i < listOfGroupDivs.length; i++) { // Loops over each div
+        /**
+         * Adds the droppable pluggin to each element that it loops over
+         * https://api.jqueryui.com/droppable/
+         */
+        $(listOfGroupDivs[i]).droppable({
+            /**
+             * Triggered when an accepted draggable is dragged over the droppable (based on the tolerance option).
+             * https://api.jqueryui.com/droppable/#event-over
+             */
+            over: function () {
+                $(this).effect("shake")
+                //https://api.jqueryui.com/category/effects/
+            },
+
+            /**
+             * Triggered when an accepted draggable is dropped on the droppable (based on the tolerance option).
+             * https://api.jqueryui.com/droppable/#event-drop
+             */
+            drop: function () {
+                addUsers($(this).attr("id"))
+                showDraggableIcons()
+            },
+            tolerance: "pointer"
+        })
+    }
+}
+
 
 //------------------------ Other Functions ------------------------------
+
+
+/**
+ * Listens for a change on the group amount display selector (the dropdown)
+ * Calls getGroups.
+ */
+$(document).on("change", "#groupDisplayAmountSelection", function(event) {
+    event.preventDefault()
+    getGroups(groupPage)
+})
+
+
+/**
+ * Gets the group data from the server for displaying the preview list of groups.
+ */
+function getGroups(page = groupPage){
+    let groupsPerPage = $("#groupDisplayAmountSelection").find("option:selected").text()
+    groupsPerPage = groupsPerPage.toLowerCase()
+    $.ajax({
+        url: "getGroups",
+        type: "GET",
+        data: {
+            "page": page,
+            "groupsPerPage": groupsPerPage
+        },
+        success: function(data){
+            groupPage = data.page
+            $(".optionForAmountOfGroups").each((index, element) => {
+                // Iterates over the dropdown menu for the group selector and sets the attribute to selected based on the data from the server.
+                $(element).attr("selected", Number($(element).val()) === data.groupsPerPage)
+            })
+            populateGroupPageSelector(data.footerNumberSequence, data.page)
+            createListOfGroups(data.groups)
+        },
+        error: function(error) {
+            createAlert(error.responseText, true)
+        }
+    }).then(manageGroupTableInteraction)
+}
+
+
+/**
+ * Populates the group page selector.
+ * Appends the number elements after the "previous" selector
+ *
+ * @param data The numbers.
+ * @param currentPage The current page that is being displayed
+ */
+function populateGroupPageSelector(data, currentPage) {
+    $(".groupPageLink").each((index, element) => {
+        if (!$(element).hasClass("specialFooterButton")) {
+            $(element).remove()
+        }
+    })
+    for (const index in data) {
+        $(".groupFooterNext").before(createFooterNumberSelector(data[index]))
+    }
+    let groupPageSelector = $(".groupPageSelector")
+    groupPageSelector.removeClass("active")
+    groupPageSelector.each((index, element) => {
+        //Goes through the page selectors and adds a class of active if it's the current page we are on
+        if (Number($(element).text()) === currentPage) {
+            $(element).addClass("active")
+            return false
+        }
+    })
+    toggleGroupNavigationButtons()
+}
+
+
+/**
+ * Checks if each special button on the footer navigator should be disabled or not.
+ * For example: If we are on page 1, "first" and "previous" should be disabled.
+ */
+function toggleGroupNavigationButtons(){
+    let footerPrevious = $(".groupFooterPrevious")
+    let footerFirst = $(".groupFooterFirst")
+    if (footerPrevious.next().hasClass("active")){
+        footerPrevious.addClass("disabled")
+        footerFirst.addClass("disabled")
+    } else {
+        footerPrevious.removeClass("disabled")
+        footerFirst.removeClass("disabled")
+    }
+    let footerNext = $(".groupFooterNext")
+    let footerLast = $(".groupFooterLast")
+    if (footerNext.prev().hasClass("active")){
+        footerNext.addClass("disabled")
+        footerLast.addClass("disabled")
+    } else {
+        footerNext.removeClass("disabled")
+        footerLast.removeClass("disabled")
+    }
+}
+
+
+/**
+ * Creates the elements that go into the group page selector
+ *
+ * @param number The number to go into the selection
+ * @returns {string} A list element
+ */
+function createFooterNumberSelector(number){
+    return `<li class="page-item groupPageSelector groupPageLink"><a class="page-link" href="#">${number}</a></li>`
+}
+
+
+/**
+ * Creates the group elements by iterating over a list of groups.
+ *
+ * @param groups The list of groups.
+ */
+function createListOfGroups(groups){
+    let groupOverviewContainer = $("#groupAmountOptionsTop")
+    $(".group").each((index, element) => {
+        $(element).remove()
+    })
+    for (const groupsKey in groups) {
+        groupOverviewContainer.after(createGroupPreviewDiv(groups[groupsKey]))
+    }
+}
+
+
+/**
+ * Creates the div that holds the group preview.
+ *
+ * @param group The group to get the data from
+ * @returns {string} A string that is a div
+ */
+function createGroupPreviewDiv(group){
+    return `<div class="box group" id="${group.id}">
+                    <div class="mb3">
+                        <p class="groupId" style="display: none">${group.id}</p>
+                        <h2 class="groupShortName showExtraWhitespace">${group.shortName}</h2>
+                        <h3 class="groupLongName showExtraWhitespace">${group.longName}</h3>
+                    </div>
+                </div>`
+}
 
 
 /**
@@ -160,15 +307,13 @@ function addUsers(groupId) {
             } else {
                 createAlert("User(s) moved", "success")
             }
-        },
-        statusCode: {
-          401: function () {
-              createAlert("You don't have permission to move users. This could be because " +
-                  "your roles have been updated. Try refreshing the page", "failure")
-          }
-        },
-        error: function () {
-            createAlert("Couldn't move users", "failure")
+        }, error: function (error) {
+            if (error.status == 401){
+                createAlert("You don't have permission to move users. This could be because " +
+                                  "your roles have been updated. Try refreshing the page", "failure")
+            } else {
+                createAlert(error.responseText, "failure")
+            }
         }
     })
 }
@@ -203,12 +348,12 @@ function changeToUsersTab() {
     let groupUsersPage = $("#pillsUsers")
     let GroupSettingsPage = $("#pillsSettings")
 
-    groupUsersTab.attr("aria-selected", true)
-    groupSettingsTab.attr("aria-selected", false)
+    groupUsersTab.prop("aria-selected", true)
+    groupSettingsTab.prop("aria-selected", false)
 
-    groupUsersButton.attr("aria-selected", true)
+    groupUsersButton.prop("aria-selected", true)
     groupUsersButton.addClass("active")
-    groupSettingsButton.attr("aria-selected", false)
+    groupSettingsButton.prop("aria-selected", false)
     groupSettingsButton.removeClass("active")
 
     groupUsersTab.addClass('active')
@@ -285,8 +430,8 @@ function displayGroupUsersList() {
             checkToSeeIfHideOrShowOptions()
             checkEditRights(response)
         },
-        error: () => {
-            createAlert("Couldn't retrieve users", "failure")
+        error: function (error) {
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -310,18 +455,18 @@ function appendMembersToGroup(group) {
         }
 
         membersContainer.append(`
-                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${user.id}>
+                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${sanitise(user.id)}>
                         <td class="userRowId">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-grip-vertical dragGrip" style="display: none" viewBox="0 0 16 16">
                                     <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
                             </svg>
-                            ${user.id}</td>
+                            ${sanitise(user.id)}</td>
                         <td>
                             <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
                         </td>
-                        <td>${user.firstName}</td>
-                        <td>${user.lastName}</td>
-                        <td>${user.username}</td>
+                        <td>${sanitise(user.firstName)}</td>
+                        <td>${sanitise(user.lastName)}</td>
+                        <td>${sanitise(user.username)}</td>
                     </tr>`
         )
     })
@@ -346,8 +491,33 @@ function retrieveGroupRepoInformation() {
                 populateGroupRepoInformation(repoInformationContainer, group)
             }
             getRepoCommits();
+        },
+        error: function (error) {
+            if (error.status == 401){
+                let repoInformationContainer = $("#gitRepo")
+                repoInformationContainer.empty();
+                displayUnauthorisedRepo(repoInformationContainer)
+                getRepoCommits();
+            }
         }
     })
+}
+
+
+/**
+ *  A function to display tell the user that they are unauthorised to view the repository. This should only occur if a
+ *  user had and then lost edit privileges
+ */
+function displayUnauthorisedRepo(container) {
+    container.append(`
+            <div id="groupSettingsRepoInformationSection">
+                <div id="groupSettingsRepoHeader">
+                    <h3 id="groupSettingsPageRepoName" style="color: red">
+                        Sorry! You don't have permission to see this section. Please refresh the page</h3>
+                </div>
+                <div id="repoSettingsContainer"></div>
+            </div>`
+    )
 }
 
 
@@ -387,7 +557,7 @@ function populateGroupRepoInformation(container, repo) {
     container.append(`
         <div id="groupSettingsRepoInformationSection">
             <div id="groupSettingsRepoHeader">
-                <h3 id="groupSettingsPageRepoName">${repo.alias}</h3>
+                <h3 id="groupSettingsPageRepoName">${sanitise(repo.alias)}</h3>
                 <button type="button" class="editRepo noStyleButton marginSides1" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Edit Repository Settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
@@ -401,11 +571,11 @@ function populateGroupRepoInformation(container, repo) {
             <div id="repoInfo" class="row marginSides1">
                 <div class="inlineText col">
                     <p>Project Id:&nbsp;</p>
-                    <p class="groupSettingsPageProjectId greyText">${repo.projectId}</p>
+                    <p class="groupSettingsPageProjectId greyText">${sanitise(repo.projectId)}</p>
                 </div>
                 <div class="inlineText col">
                     <p>Access Token:&nbsp;</p>
-                    <p class="groupSettingsPageAccessToken greyText">${repo.accessToken}</p>
+                    <p class="groupSettingsPageAccessToken greyText">${sanitise(repo.accessToken)}</p>
                 </div>
             </div>
             <div id="repoSettingsContainer"></div>
@@ -461,7 +631,7 @@ function populateCommitContainer(commitContainer, data) {
                     <div class="row">
                         <div class="inlineText">
                             <p>Commit:&nbsp;</p>
-                            <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                            <a class="greyText" href="${commit.web_url}">${sanitise(commit.short_id)}</a>
                         </div>
                     </div>
                     <div class="row">
@@ -472,7 +642,7 @@ function populateCommitContainer(commitContainer, data) {
                             <p class="greyText">${sanitise(commit.author_name)}</p>
                         </div>
                         <div class="col commitDate">
-                            <p class="greyText">${commit.committed_date.split("T")[0]}</p>
+                            <p class="greyText">${sanitise(commit.committed_date).split("T")[0]}</p>
                         </div>
                     </div>
                 </div>
@@ -529,6 +699,33 @@ function updateGroupName(shortname, longname) {
 
 
 /**
+ * Listens for a click on a group page navigation link (one of the page numbers etc)
+ * Uses a switch statement to determine what "group page number" to send to the server.
+ */
+$(document).on("click", ".groupPageLink", function(event) {
+    event.preventDefault()
+    let newPage
+    switch ($(this).text()) {
+        case "First":
+            newPage = 1
+            break
+        case "Previous":
+            newPage = groupPage - 1
+            break
+        case "Next":
+            newPage = groupPage + 1
+            break
+        case "Last":
+            newPage = -1
+            break
+        default:
+            newPage = $(this).text()
+    }
+    getGroups(newPage)
+})
+
+
+/**
  * When the remove button is clicked, a popup prompts confirmation of the action.
  */
 $(document).on("click", "#groupRemoveUser", function () {
@@ -542,20 +739,19 @@ $(document).on("click", "#groupRemoveUser", function () {
  * currently selected group.
  */
 $(document).on("click", ".deleteButton", function () {
-    if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
+    if (window.confirm(`Are you sure you want to delete this group? ${sanitise(group.userList.length)} members will be removed. This action cannot be undone.`)) {
         $.ajax({
             url: `groups/edit?groupId=${group.id}`,
             type: "delete",
             success: function () {
                 window.location.reload()
-            },
-            statusCode: {
-                401: function () {
+            }, error: function (error) {
+                if (error.status == 401){
                     createAlert("You don't have permission to delete groups. This could be because " +
-                        "your roles have been updated. Try refreshing the page", "failure")
+                                            "your roles have been updated. Try refreshing the page", "failure")
+                } else {
+                    createAlert(error.responseText, "failure")
                 }
-            }, error: function () {
-                createAlert("Couldn't delete the group", "failure")
             }
         })
     }
@@ -617,15 +813,13 @@ $(document).on("submit", "#editGroupForm", function (event) {
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
-        },
-        statusCode: {
-            401: function () {
+        }, error: function (error) {
+            if (error.status == 401){
                 createAlert("You don't have permission to edit group details. This could be because " +
-                    "your roles have been updated. Try refreshing the page", "failure")
+                                    "your roles have been updated. Try refreshing the page", "failure")
+            } else {
+                createAlert(error.responseText, "failure")
             }
-        },
-        error: () => {
-            createAlert("Couldn't edit the group details", "failure")
         }
     })
 })
@@ -650,16 +844,14 @@ $(document).on("click", "#confirmRemoval", function () {
         type: "DELETE",
         success: () => {
             displayGroupUsersList()
-            createAlert("User removed", "success")
-        },
-        statusCode: {
-            401: function () {
+            createAlert("User removed", false)
+        }, error: function (error) {
+            if (error.status == 401){
                 createAlert("You don't have permission to remove users. This could be because " +
-                    "your roles have been updated. Try refreshing the page", "failure")
+                                    "your roles have been updated. Try refreshing the page", "failure")
+            } else {
+                createAlert(error.responseText, "failure")
             }
-        },
-        error: () => {
-            createAlert("Couldn't remove users from group", "failure")
         }
     })
     $("#confirmationForm").slideUp();
