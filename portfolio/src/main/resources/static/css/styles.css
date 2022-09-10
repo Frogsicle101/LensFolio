@@ -852,6 +852,7 @@ section {
 
 .groupRepoInfo {
     overflow-wrap: anywhere;
+    padding-left: 0.5rem;
 }
 
 .editRepo:hover {
