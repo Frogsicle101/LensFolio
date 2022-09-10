@@ -178,7 +178,7 @@ function getAndAddEvidencePreviews() {
  */
 function displayNameOrButton(response) {
     let nameHolder = $("#nameHolder")
-    if (userBeingViewedId !== userIdent.toString()) {
+    if (userBeingViewedId.toString() !== userIdent.toString()) {
         $("#createEvidenceButton").remove();
         let usersName = response.getResponseHeader("Users-Name");
         nameHolder.html("Viewing evidence for " + usersName)
@@ -210,6 +210,7 @@ function getHighlightedEvidenceDetails() {
         })
     } else {
         $("#evidenceDetailsTitle").text("No Evidence Found")
+        $("#deleteEvidenceButton").hide()
     }
 }
 
@@ -292,9 +293,11 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     addCategoriesToEvidence(evidenceDetails.categories)
 
     if (userBeingViewedId === userIdent) {
-        $(".evidenceDeleteButton").show()
+        console.log("showing button")
+        $("#deleteEvidenceButton").show()
     } else {
-        $(".evidenceDeleteButton").hide()
+        console.log("Viewing: " + userBeingViewedId + "\nCurrent user: " + userIdent)
+        $("#deleteEvidenceButton").hide()
     }
 }
 
