@@ -4,7 +4,6 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
-import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,21 +15,37 @@ import java.util.Set;
  */
 public class EvidenceResponseDTO {
 
-    /** The ID of the user who created/owns the evidence. */
+    /**
+     * The ID of the user who created/owns the evidence.
+     */
     private int userId;
-    /** The title of the evidence. */
+    /**
+     * The title of the evidence.
+     */
     private String title;
-    /** This is the date the evidence occurred, not the date it was created. */
+    /**
+     * This is the date the evidence occurred, not the date it was created.
+     */
     private LocalDate date;
-    /** The description of the evidence. */
+    /**
+     * The description of the evidence.
+     */
     private String description;
-    /** The weblinks associated to the evidence. */
+    /**
+     * The weblinks associated to the evidence.
+     */
     private final Set<WebLink> webLinks;
-    /** The skills associated to the evidence. */
+    /**
+     * The skills associated to the evidence.
+     */
     private final Set<Skill> skills;
-    /** The categories associated to the evidence. */
+    /**
+     * The categories associated to the evidence.
+     */
     private final Set<Category> categories;
-    /** The ids of users associated to the evidence. The owner is an associate. */
+    /**
+     * The ids of users associated to the evidence. The owner is an associate.
+     */
     private final List<Integer> associateIds;
     /**
      * The associated users to the piece of evidence.
@@ -42,7 +57,8 @@ public class EvidenceResponseDTO {
     /**
      * Constructor that will convert an Evidence object into an EvidenceResponseDTO object.
      * Takes an additional argument to add a list of associates.
-     * @param evidence The evidence you are converting from
+     *
+     * @param evidence   The evidence you are converting from
      * @param associates The list of associate UserResponses
      */
     public EvidenceResponseDTO(Evidence evidence, List<UserDTO> associates) {
@@ -59,6 +75,7 @@ public class EvidenceResponseDTO {
 
     /**
      * Constructor that will convert an Evidence object into an EvidenceResponseDTO object.
+     *
      * @param evidence The evidence you are converting from
      */
     public EvidenceResponseDTO(Evidence evidence) {
@@ -80,11 +97,13 @@ public class EvidenceResponseDTO {
      */
     public String toJsonString() {
         StringBuilder associateUsers = new StringBuilder("[");
-        for (int i = 0 ; i < associates.size() ; i++) {
+        for (int i = 0; i < associates.size(); i++) {
             associateUsers.append(associates.get(i).toJsonString());
             if (i < associates.size() - 1) associateUsers.append(",");
         }
         associateUsers.append("]");
+        //The JSON returns without spaces in between elements, so we remove them.
+        String associateIdsNoSpaces = associateIds.toString().replaceAll(" ", "");
         return "{" +
                 "\"userId\":" + userId +
                 "," + "\"title\":\"" + title + "\"" +
@@ -93,7 +112,7 @@ public class EvidenceResponseDTO {
                 "," + "\"webLinks\":" + webLinks +
                 "," + "\"skills\":" + skills +
                 "," + "\"categories\":" + categories +
-                "," + "\"associateIds\":" + associateIds +
+                "," + "\"associateIds\":" + associateIdsNoSpaces +
                 "," + "\"associates\":" + associateUsers +
                 "}";
     }

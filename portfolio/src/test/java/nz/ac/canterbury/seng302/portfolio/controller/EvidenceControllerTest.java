@@ -556,6 +556,31 @@ class EvidenceControllerTest {
         Evidence evidence = new Evidence(1, 1, "Title", LocalDate.now()
                 , "description");
         usersEvidence.add(evidence);
+
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
+
+        MvcResult result = mockMvc.perform(get("/evidenceData")
+                        .queryParam("userId", existingUserId))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence);
+        String expectedContent = "[" + expectedResponse.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedContent, responseContent);
+    }
+
+    @Test
+    void TestGetEvidenceWhenUserExistsAndHasOneAssociate() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String existingUserId = "1";
+
+        ArrayList<Evidence> usersEvidence = new ArrayList<>();
+        Evidence evidence = new Evidence(1, 1, "Title", LocalDate.now()
+                , "description");
+        usersEvidence.add(evidence);
         evidence.addAssociateId(1); // The user themselves should be considered an associate
 
         GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(1).build();
@@ -583,6 +608,47 @@ class EvidenceControllerTest {
 
         UserDTO expectedUser = new UserDTO(userResponse);
         EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence, List.of(expectedUser));
+        String expectedContent = "[" + expectedResponse.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedContent, responseContent);
+    }
+
+    @Test
+    void TestGetEvidenceWhenUserExistsAndHasMultipleAssociates() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String existingUserId = "1";
+
+        ArrayList<Evidence> usersEvidence = new ArrayList<>();
+        Evidence evidence = new Evidence(1, 1, "Title", LocalDate.now()
+                , "description");
+        usersEvidence.add(evidence);
+        evidence.addAssociateId(1); // The user themselves should be considered an associate
+        evidence.addAssociateId(2);
+        evidence.addAssociateId(3);
+
+        List<UserDTO> expectedUsers = new ArrayList<>();
+        for (int i = 1 ; i <= 3 ; i++) {
+            UserResponse.Builder userBuilder = UserResponse.newBuilder().setId(i);
+            userBuilder.addRoles(UserRole.STUDENT);
+            UserResponse userResponse = userBuilder.build();
+
+            GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(i).build();
+            when(userAccountsClientService.getUserAccountById(request)).thenReturn(userResponse);
+
+            UserDTO expectedUser = new UserDTO(userResponse);
+            expectedUsers.add(expectedUser);
+        }
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
+
+        MvcResult result = mockMvc.perform(get("/evidenceData")
+                        .queryParam("userId", existingUserId))
+                .andExpect(status().isOk())
+                .andReturn();
+
+
+        EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence, expectedUsers);
         String expectedContent = "[" + expectedResponse.toJsonString() + "]";
         String responseContent = result.getResponse().getContentAsString();
         Assertions.assertEquals(expectedContent, responseContent);
