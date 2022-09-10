@@ -53,7 +53,7 @@ class PortfolioControllerTest {
     private final ProjectRepository projectRepository = mock(ProjectRepository.class);
     private final RegexService regexService = spy(RegexService.class);
     private final Sprint mockSprint = mock(Sprint.class);
-    private final DateTimeService dateTimeService = spy(DateTimeService.class);
+    private final DateTimeService dateTimeService = spy(new DateTimeService(sprintRepository));
     private final ProjectService projectService = new ProjectService(projectRepository, sprintRepository);
     @MockBean
     private SkillRepository skillRepository;
@@ -240,7 +240,6 @@ class PortfolioControllerTest {
         ProjectRequest projectRequest = new ProjectRequest("1", "New Name", LocalDate.now().plusDays(1).toString(), LocalDate.now().plusDays(3).toString(), "New Description");
         when(sprintRepository.getAllByProjectOrderByEndDateDesc(Mockito.any())).thenReturn(getSprints());
         ResponseEntity<Object> response = portfolioController.editDetails(projectRequest);
-        System.out.println(response.getStatusCode());
         Assertions.assertTrue(response.getStatusCode().is4xxClientError());
         Assertions.assertEquals("There is a sprint that extends after that date", response.getBody());
     }
