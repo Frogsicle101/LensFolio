@@ -37,7 +37,7 @@ public class EvidenceResponseDTO {
      * This list has the details of each user within it.
      * The owner is an associate.
      */
-    private List<UserResponse> associates;
+    private List<UserDTO> associates;
 
     /**
      * Constructor that will convert an Evidence object into an EvidenceResponseDTO object.
@@ -45,7 +45,7 @@ public class EvidenceResponseDTO {
      * @param evidence The evidence you are converting from
      * @param associates The list of associate UserResponses
      */
-    public EvidenceResponseDTO(Evidence evidence, List<UserResponse> associates) {
+    public EvidenceResponseDTO(Evidence evidence, List<UserDTO> associates) {
         this.userId = evidence.getUserId();
         this.title = evidence.getTitle();
         this.date = evidence.getDate();
@@ -79,6 +79,12 @@ public class EvidenceResponseDTO {
      * @return the Json string the represents this piece of evidence.
      */
     public String toJsonString() {
+        StringBuilder associateUsers = new StringBuilder("[");
+        for (int i = 0 ; i < associates.size() ; i++) {
+            associateUsers.append(associates.get(i).toJsonString());
+            if (i < associates.size() - 1) associateUsers.append(",");
+        }
+        associateUsers.append("]");
         return "{" +
                 "\"userId\":" + userId +
                 "," + "\"title\":\"" + title + "\"" +
@@ -88,7 +94,7 @@ public class EvidenceResponseDTO {
                 "," + "\"skills\":" + skills +
                 "," + "\"categories\":" + categories +
                 "," + "\"associateIds\":" + associateIds +
-                "," + "\"associates\":" + associates +
+                "," + "\"associates\":" + associateUsers +
                 "}";
     }
 
@@ -140,11 +146,11 @@ public class EvidenceResponseDTO {
         return associateIds;
     }
 
-    public List<UserResponse> getAssociates() {
+    public List<UserDTO> getAssociates() {
         return associates;
     }
 
-    public void setAssociates(List<UserResponse> associates) {
+    public void setAssociates(List<UserDTO> associates) {
         this.associates = associates;
     }
 }

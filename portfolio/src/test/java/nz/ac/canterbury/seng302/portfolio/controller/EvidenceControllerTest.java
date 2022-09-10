@@ -11,6 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepositor
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
@@ -557,6 +558,21 @@ class EvidenceControllerTest {
         usersEvidence.add(evidence);
         evidence.addAssociateId(1); // The user themselves should be considered an associate
 
+        GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(1).build();
+        UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setId(1)
+                .setUsername("steve")
+                .setFirstName("Steve")
+                .setMiddleName("McSteve")
+                .setLastName("Steveson")
+                .setNickname("Stev")
+                .setBio("kdsflkdjf")
+                .setPersonalPronouns("Steve/Steve")
+                .setEmail("steve@example.com")
+                .setProfileImagePath("a");
+        userBuilder.addRoles(UserRole.STUDENT);
+        UserResponse userResponse = userBuilder.build();
+        when(userAccountsClientService.getUserAccountById(request)).thenReturn(userResponse);
         Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
 
 
@@ -565,7 +581,8 @@ class EvidenceControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence);
+        UserDTO expectedUser = new UserDTO(userResponse);
+        EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence, List.of(expectedUser));
         String expectedContent = "[" + expectedResponse.toJsonString() + "]";
         String responseContent = result.getResponse().getContentAsString();
         Assertions.assertEquals(expectedContent, responseContent);
@@ -724,8 +741,6 @@ class EvidenceControllerTest {
         userBuilder.addRoles(UserRole.STUDENT);
         UserResponse userResponse = userBuilder.build();
 
-        GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(1).build();
-        when(userAccountsClientService.getUserAccountById(request)).thenReturn(userResponse);
         when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService)).thenReturn(userResponse);
         Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal.getAuthState());
 

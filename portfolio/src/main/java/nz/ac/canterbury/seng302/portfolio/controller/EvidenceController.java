@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
@@ -318,12 +319,15 @@ public class EvidenceController {
      * @return A list of Users, populated with their details.
      * If any users in userIds list do not exist, they will not be added.
      */
-    private List<UserResponse> getUsers(List<Integer> userIds) {
-        List<UserResponse> associates = new ArrayList<>();
+    private List<UserDTO> getUsers(List<Integer> userIds) {
+        List<UserDTO> associates = new ArrayList<>();
         for (Integer associate : userIds) {
             GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(associate).build();
             UserResponse user = userAccountsClientService.getUserAccountById(request);
-            if (user.getId() > 0) associates.add(user);
+            if (user.getId() < 0) continue; // If their id is negative the user doesn't exist
+
+            UserDTO userDTO = new UserDTO(user);
+            associates.add(userDTO);
         }
         return associates;
     }
