@@ -209,8 +209,7 @@ function getHighlightedEvidenceDetails() {
             }
         })
     } else {
-        $("#evidenceDetailsTitle").text("No Evidence Found")
-        $("#deleteEvidenceButton").hide()
+        setDetailsToNoEvidenceExists()
     }
 }
 
@@ -399,14 +398,16 @@ function getCategoryTags(categories) {
  */
 function setDetailsToNoEvidenceExists() {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
-    let highlightedEvidenceDate = $("#evidenceDetailsDate")
-    let highlightedEvidenceDescription = $("#evidenceDetailsDescription")
 
     highlightedEvidenceTitle.text("No Evidence")
-    $(".evidenceDeleteButton").hide()
     highlightedEvidenceTitle.show()
-    highlightedEvidenceDate.hide()
-    highlightedEvidenceDescription.hide()
+    $("#evidenceDetailsDate").hide()
+    $("#evidenceDetailsDescription").hide()
+    $("#deleteEvidenceButton").hide()
+    $("#evidenceDetailsCategories").empty()
+    $("#evidenceWebLinks").empty()
+    $("#evidenceDetailsSkills").empty()
+
 }
 
 
@@ -1139,6 +1140,7 @@ $(document).on("click", "#deleteEvidenceButton", function () {
             url: `evidence?evidenceId=${evidenceId}`,
             type: "DELETE",
             success: () => {
+                selectedEvidenceId = null
                 getAndAddEvidencePreviews()
                 createAlert("Successfully deleted evidence: " + sanitise(evidenceName), "success")
             }, error: (response) => {
