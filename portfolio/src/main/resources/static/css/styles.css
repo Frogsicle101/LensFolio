@@ -689,6 +689,33 @@ section {
 
 }
 
+.groupAmountOptions{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.groupAmountSelectorDiv{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+    width: 40rem;
+    padding: 1rem;
+}
+
+.labelForGroupDisplayAmount{
+    padding-right: 1rem;
+}
+
+#groupDisplayAmountSelection{
+    width: 10rem;
+}
+
+
 .scrollableGroupDetails {
     position: absolute;
     width: 49%;
@@ -1168,7 +1195,6 @@ section {
     border-radius: var(--border-radius);
     display: flex;
     flex-direction: row;
-    max-width: fit-content;
     box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
 }
 
@@ -1188,6 +1214,11 @@ section {
 .skillChipInvalid {
     background-color: #ee3636;
 }
+
+#skillChipDisplay {
+    justify-content: left;
+}
+
 
 .chipText {
     margin: auto;
@@ -1283,3 +1314,4 @@ section {
     padding-top: 0.5rem;
     margin-bottom: 0;
 }
+

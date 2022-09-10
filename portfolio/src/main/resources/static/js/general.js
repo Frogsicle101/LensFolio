@@ -20,6 +20,7 @@ $(function () {
     })
 
     removeElementIfNotAuthorized()
+
 });
 
 
@@ -62,10 +63,10 @@ function removeElementIfNotAuthorized() {
 function removeAlert() {
     alertIsShown = false;
     let alert = $("#alertPopUp")
-    alert.hide("slide", 100, function() {
+    alert.hide("slide", 100, function () {
         alert.remove();
     })
-    if (liveAlertIsShown){
+    if (liveAlertIsShown) {
         let liveAlert = $("#liveAlertPopUp")
         liveAlert.animate({bottom: 10}, {duration: 100})
     }
@@ -82,9 +83,9 @@ function removeAlert() {
 function createAlert(alertMessage, type, window = "body") {
     let CheckAlert = $("#alertPopUp")
     if (CheckAlert.is(":visible")) {
-        CheckAlert.hide("slide", 100, function() {
+        CheckAlert.hide("slide", 100, function () {
             CheckAlert.remove();
-        }).promise().then(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
+        }).promise().then(function () { // If the alert is already displayed it removes it and then once that is done, runs the alert function
             alert(alertMessage, type, window)
         })
     } else {
@@ -104,7 +105,7 @@ function removeLiveAlert(messageId) {
     if (messageId === liveAlertId || messageId === undefined) {
         liveAlertIsShown = false;
         let alert = $("#liveAlertPopUp")
-        alert.hide("slide", 100, function() {
+        alert.hide("slide", 100, function () {
             alert.remove();
         })
     }
@@ -122,9 +123,9 @@ function createLiveAlert(alertMessage, alertId, window = "body") {
 
     let CheckAlert = $("#liveAlertPopUp")
     if (CheckAlert.is(":visible")) {
-        CheckAlert.hide("slide", 100, function() {
+        CheckAlert.hide("slide", 100, function () {
             CheckAlert.remove();
-        }).promise().then(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
+        }).promise().then(function () { // If the alert is already displayed it removes it and then once that is done, runs the alert function
             liveAlert(alertMessage, alertId, window)
         })
     } else {
@@ -180,7 +181,7 @@ function alert(alertMessage, type, window = "body") {
     if (window === "body") {
         alert.css("position", "fixed")
     } else {
-        alert.css("position","relative")
+        alert.css("position", "relative")
     }
     alertIsShown = true;
     addAlert(alert)
@@ -218,12 +219,11 @@ function liveAlert(alertMessage, alertId, window = "body") {
  *
  * @param liveAlert The live alert to be displayed.
  */
-function addLiveAlert(liveAlert){
+function addLiveAlert(liveAlert) {
     let alert = $("#alertPopUp")
-
-    if (alertIsShown){
-        let height = alert.height()
-        liveAlert.css("bottom", height + 20)
+    if (alertIsShown) {
+        let height = alert.outerHeight()
+        liveAlert.css("bottom", height + 20 + "px")
     } else {
         liveAlert.css("bottom", "10px")
     }
@@ -236,12 +236,12 @@ function addLiveAlert(liveAlert){
  *
  * @param alert The alert to be displayed.
  */
-function addAlert(alert){
+function addAlert(alert) {
     let liveAlert = $("#liveAlertPopUp")
 
-    if (liveAlertIsShown){
-        height = alert.height() + 20
-        liveAlert.animate({bottom: height}, {duration: 100})
+    if (liveAlertIsShown) {
+        let height = liveAlert.outerHeight()
+        liveAlert.animate({bottom: height + 20 + "px"}, {duration: 100})
     }
     alert.show("slide", 100)
 }
@@ -288,7 +288,7 @@ function sanitise(string) {
         "/": '&#x2F;',
     };
     const reg = /[&<>"'/]/ig;
-    return string.toString().replace(reg, (match)=>(map[match]));
+    return string.toString().replace(reg, (match) => (map[match]));
 }
 
 
