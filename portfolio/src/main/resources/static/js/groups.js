@@ -445,7 +445,18 @@ function appendMembersToGroup(group) {
     let membersContainer = $("#groupTableBody")
     let imageSource;
 
-    $.each(group.userList, function (member) {
+
+    let currentPage = 1;
+
+    // cut the userList by number of members per page
+    let perPage = $("#membersPerPageSelect");
+    let tempLists = [[]];
+    for(let i = 0, len = group.userList.length; i < len; i += perPage) {
+        tempLists.push(group.userList.slice(i, i + perPage))
+    }
+
+
+    $.each(tempLists[currentPage], function (member) {
         let user = group.userList[member]
         if (user.imagePath.length === 0) {
             imageSource = "defaultProfile.png"
