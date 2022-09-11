@@ -49,6 +49,7 @@ Cypress.Commands.add('studentLogin', () => {
     })
 })
 
+
 // prevents tests from failing due to uncaught exceptions
 Cypress.on('uncaught:exception', () => {
     return false

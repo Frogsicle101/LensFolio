@@ -19,7 +19,8 @@
         let projectId = /*[[${project.getId()}]]*/ 'default';
         let projectEnd = /*[[${project.getEndDateAsLocalDateTime()}]]*/ 'default';
         let eventNameLengthRestriction = /*[[${eventNameLengthRestriction}]]*/ 'default';
-        let titleRegex = /*[[${titleRegex}]]*/ 'default';
+        let titleRegex = /*[[${titleRegex.getPatternString()}]]*/ 'default';
+        let titleRegexMessage = /*[[${titleRegex.getRequirements()}]]*/ 'default';
         let nextMilestoneNumber = /*[[${nextMilestoneNumber}]]*/ 'default';
         /*]]>*/
     </script>
@@ -103,10 +104,13 @@
                         <form id="addEventForm">
                             <div class="mb-1">
                                 <label class="form-label" for="eventName">Event name</label>
+                                <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                                <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
                                 <input class="form-control form-control-sm" id="eventName"
                                        name="eventName" required
                                        th:maxlength="${eventNameLengthRestriction}"
-                                       th:pattern="${titleRegex}"
+                                       th:pattern="${titleRegex.getPatternString()}"
+                                       th:title="${'Event title' + titleRegex.getRequirements()}"
                                        type="text">
                                 <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                             </div>
@@ -171,10 +175,13 @@
                         <form id="addDeadlineForm">
                             <div class="mb-1">
                                 <label class="form-label" for="deadlineName">Deadline name</label>
+                                <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                                <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
                                 <input class="form-control form-control-sm" id="deadlineName"
                                        name="occasionName" required
                                        th:maxlength="${eventNameLengthRestriction}"
-                                       th:pattern="${titleRegex}"
+                                       th:pattern="${titleRegex.getPatternString()}"
+                                       th:title="${'Deadline title' + titleRegex.getRequirements()}"
                                        type="text">
                                 <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                             </div>
@@ -230,11 +237,14 @@
                         <form>
                             <div class="mb-1">
                                 <label class="form-label" for="milestoneName">Milestone name</label>
+                                <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                                <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
                                 <input class="form-control form-control-sm" data-nextNumber="${nextMilestoneNumber}"
                                        id="milestoneName"
                                        name="milestoneName" required
                                        th:maxlength="${eventNameLengthRestriction}"
-                                       th:pattern="${titleRegex}"
+                                       th:pattern="${titleRegex.getPatternString()}"
+                                       th:title="${'Milestone title' + titleRegex.getRequirements()}"
                                        type="text">
                                 <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                             </div>

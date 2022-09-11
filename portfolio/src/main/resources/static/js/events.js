@@ -706,7 +706,7 @@ function appendEventForm(element) {
                 <form class="existingEventForm" id="editEventForm" style="display: none">
                         <div class="mb-1">
                         <label for="eventName" class="form-label">Event name</label>
-                        <input type="text" class="form-control form-control-sm eventName" pattern="${titleRegex}" value="${sanitise(eventName)}" maxlength="${eventNameLengthRestriction}" name="eventName" required>
+                        <input type="text" class="form-control form-control-sm eventName" pattern="${titleRegex}" title="${'Event title ' + titleRegexMessage}" value="${sanitise(eventName)}" maxlength="${eventNameLengthRestriction}" name="eventName" required>
                         <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
@@ -766,7 +766,7 @@ function appendMilestoneForm(element) {
                 <form class="existingMilestoneForm" id="milestoneEditForm" style="display: none">
                         <div class="mb-1">
                         <label for="milestoneName" class="form-label">Milestone name</label>
-                        <input type="text" class="form-control form-control-sm milestoneName" id="milestoneName" value="${sanitise(milestoneName)}" maxlength="${eventNameLengthRestriction}" name="milestoneName" required>
+                        <input type="text" class="form-control form-control-sm milestoneName" id="milestoneName" pattern="${titleRegex}" title="${'Milestone title ' + titleRegexMessage}" value="${sanitise(milestoneName)}" maxlength="${eventNameLengthRestriction}" name="milestoneName" required>
                         <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3" >
@@ -818,7 +818,7 @@ function appendDeadlineForm(element) {
                 <form class="existingDeadlineForm" id="editDeadlineForm" style="display: none">
                         <div class="mb-1">
                         <label for="deadlineName" class="form-label">Event name</label>
-                        <input type="text" class="form-control form-control-sm deadlineName" pattern="${titleRegex}" value="${sanitise(deadlineName)}" maxlength="${eventNameLengthRestriction}" name="deadlineName" required>
+                        <input type="text" class="form-control form-control-sm deadlineName" pattern="${titleRegex}" title="${'Deadline title ' + titleRegexMessage}" value="${sanitise(deadlineName)}" maxlength="${eventNameLengthRestriction}" name="deadlineName" required>
                         <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
                     <div class="mb-3">
