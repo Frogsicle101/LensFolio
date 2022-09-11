@@ -20,7 +20,7 @@ public class Skill {
     @Column
     private String name;
 
-    /** The list of evidence this skill is associated with */
+    /** The set of evidence this skill is associated with */
     @JsonIgnore
     @ManyToMany(mappedBy = "skills", fetch = FetchType.EAGER)
     private final Set<Evidence> evidence = new HashSet<>();

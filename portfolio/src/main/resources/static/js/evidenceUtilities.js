@@ -165,8 +165,8 @@ function getAndAddEvidencePreviews() {
             addEvidencePreviews(response)
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
-        }, error: function (error) {
-            createAlert(error.responseText, "failure")
+        }, error: function () {
+            createAlert("Could not retrieve evidence data", "failure")
         }
     })
 }
@@ -178,7 +178,7 @@ function getAndAddEvidencePreviews() {
  */
 function displayNameOrButton(response) {
     let nameHolder = $("#nameHolder")
-    if (userBeingViewedId.toString() !== userIdent.toString()) {
+    if (userBeingViewedId !== userIdent) {
         $("#createEvidenceButton").remove();
         let usersName = response.getResponseHeader("Users-Name");
         nameHolder.html("Viewing evidence for " + usersName)
@@ -242,12 +242,13 @@ function getSkills(callback = () => {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId, type: "GET",
         success: function (response) {
+            skillsArray = []
             $.each(response, function (i) {
                 if (!skillsArray.includes(response[i].name)) {
                     skillsArray.push(response[i].name)
                 }
-                callback()
             })
+            callback()
         },
         error: function (response) {
             console.log(response)
@@ -1142,6 +1143,7 @@ $(document).on("click", "#deleteEvidenceButton", function () {
             success: () => {
                 selectedEvidenceId = null
                 getAndAddEvidencePreviews()
+                getSkills(addSkillsToSideBar)
                 createAlert("Successfully deleted evidence: " + sanitise(evidenceName), "success")
             }, error: (response) => {
                 createAlert(response.responseText, "failure")

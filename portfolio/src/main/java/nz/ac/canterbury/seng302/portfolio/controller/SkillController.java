@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Controller for all the Skill based end points
@@ -108,11 +107,9 @@ public class SkillController {
                 logger.info("GET REQUEST /evidenceLinkedToSkill - skill {} does not exist", skillName);
                 return new ResponseEntity<>("Skill does not exist", HttpStatus.NOT_FOUND);
             }
-
-            Set<Evidence> evidence = skill.get().getEvidence();
+            List<Evidence> evidence = evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(userId, skill.get());
             logger.info("GET REQUEST /evidenceLinkedToSkill - found and returned {} evidences for skill: {}", evidence.size() ,skillName);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
-
         } catch (Exception exception) {
             logger.error("GET REQUEST /evidenceLinkedToSkill - Internal Server Error attempt skill: {}", skillName);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
