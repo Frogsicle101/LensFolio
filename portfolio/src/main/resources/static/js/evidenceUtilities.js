@@ -1124,7 +1124,7 @@ function addLinkedUser(user) {
  * Creates the element for displaying the linked user
  */
 function linkedUserElement(user) {
-    return `<div id=linkedUserId${user.id}>Id: ${user.id} - Name: ${user.firstName} ${user.lastName}</div>`
+    return `<div id=linkedUserId${user.id}>${user.firstName} ${user.lastName} (${user.username})</div>`
 }
 
 

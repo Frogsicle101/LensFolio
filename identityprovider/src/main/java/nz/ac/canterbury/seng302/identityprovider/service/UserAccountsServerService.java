@@ -314,6 +314,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     }
 
 
+    /**
+     * Follows the gRPC contract for deleting a users profile photo.
+     *
+     * @param request The request with the users id to delete the profile photo from
+     * @param responseObserver Used to return the response to the client side.
+     */
     @Override
     public void deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request, StreamObserver<DeleteUserProfilePhotoResponse> responseObserver) {
         DeleteUserProfilePhotoResponse.Builder response = DeleteUserProfilePhotoResponse.newBuilder();
@@ -469,7 +475,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 .contains((filteringOptions.getFilterText().toLowerCase(Locale.ROOT)));
 
         ArrayList<UserResponse> filteredUsers = new ArrayList<>();
-        filteredUsers.addAll(response.getUsersList().parallelStream().filter(firstName).toList());
+        filteredUsers.addAll(response.getUsersList().stream().filter(firstName).toList());
         filteredUsers.addAll(response.getUsersList().stream().filter(lastName).toList());
         filteredUsers.addAll(response.getUsersList().stream().filter(fullName).toList());
 
