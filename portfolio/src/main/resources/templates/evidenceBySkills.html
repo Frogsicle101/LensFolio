@@ -152,8 +152,14 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            <h6 id="webLinkTitle" style="display: none">Added Links:</h6>
-                            <div id="addedWebLinks"></div>
+                            <div id="webLinks">
+                                <h6 id="webLinkTitle" style="display: none">Added Links:</h6>
+                                <div id="addedWebLinks"></div>
+                            </div>
+                            <div id="linkUsers">
+                                <h6 id="linkedUsersTitle" style="display: none">Linked Users:</h6>
+                                <div id="linkedUsers"></div>
+                            </div>
                         </div>
                         <div class="col">
                             <div>
@@ -198,6 +204,14 @@
                                 <h5 id="webLinkFull" style="display:none">10 web links have been added</h5>
                             </div>
                             <div>
+                                <div id="linkUsersForm" style="display:none">
+                                    <div class="form-group ">
+                                        <label class="col-form-label" for="linkUsersInput">Link Users:</label>
+                                        <input class="form-control"
+                                               id="linkUsersInput"
+                                               type="text">
+                                    </div>
+                                </div>
                                 <button class="btn btn-secondary evidenceFormButton"
                                         id="linkUsersToEvidenceButton"
                                         type="button">

@@ -18,12 +18,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -300,7 +296,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * The gRPC implementation of bidirectional streaming used to receive uploaded user profile images.
-     * <br>
+     * 
      * The server creates a stream observer and defines its actions when the client calls the OnNext, onError and
      * onComplete methods.
      *
@@ -308,7 +304,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      *                           client side actions to be called from the server side. E.g., if bytes have been
      *                           received from the client successfully, the server will call
      *                           responseObserver.onNext(FileUploadStatusResponse) to inform the client to send more.
-     *
      * @return requestObserver - Contains an observer defined by the server, so that the client can call server side
      *                           actions. Therefore, this method defines the servers actions when the client calls them.
      */
@@ -318,6 +313,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     }
 
 
+    /**
+     * Follows the gRPC contract for deleting a users profile photo.
+     *
+     * @param request The request with the users id to delete the profile photo from
+     * @param responseObserver Used to return the response to the client side.
+     */
     @Override
     public void deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request, StreamObserver<DeleteUserProfilePhotoResponse> responseObserver) {
         DeleteUserProfilePhotoResponse.Builder response = DeleteUserProfilePhotoResponse.newBuilder();
@@ -463,13 +464,22 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         PaginatedUsersResponse.Builder response = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
 
         BasicStringFilteringOptions filteringOptions = usersRequest.getFilteringOptions();
-        Predicate<UserResponse> byName = user -> (user.getFirstName().toLowerCase(Locale.ROOT) + ' ' +
-                user.getLastName().toLowerCase(Locale.ROOT))
+        // Filtered by first, last and then full name so that the order for the auto-complete is more natural
+        Predicate<UserResponse> firstName = user -> (user.getFirstName().toLowerCase(Locale.ROOT))
                 .contains(filteringOptions.getFilterText().toLowerCase(Locale.ROOT));
-        List<UserResponse> result = response.getUsersList().stream().filter(byName)
-                .toList();
+        Predicate<UserResponse> lastName = user -> (user.getLastName().toLowerCase(Locale.ROOT))
+                .contains(filteringOptions.getFilterText().toLowerCase(Locale.ROOT));
+        Predicate<UserResponse> fullName = user -> (user.getFirstName().toLowerCase(Locale.ROOT) + " " +
+                user.getLastName().toLowerCase(Locale.ROOT))
+                .contains((filteringOptions.getFilterText().toLowerCase(Locale.ROOT)));
+
+        ArrayList<UserResponse> filteredUsers = new ArrayList<>();
+        filteredUsers.addAll(response.getUsersList().stream().filter(firstName).toList());
+        filteredUsers.addAll(response.getUsersList().stream().filter(lastName).toList());
+        filteredUsers.addAll(response.getUsersList().stream().filter(fullName).toList());
+
         response.clearUsers();
-        response.addAllUsers(result);
+        response.addAllUsers(new ArrayList<>(new LinkedHashSet<>(filteredUsers))); // to remove duplicates
 
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
