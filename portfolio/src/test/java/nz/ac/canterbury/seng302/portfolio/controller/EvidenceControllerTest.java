@@ -1,20 +1,20 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
-import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -36,6 +36,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -464,7 +465,7 @@ class EvidenceControllerTest {
         String existingUserId = "1";
 
         ArrayList<Evidence> usersEvidence = new ArrayList<>();
-        Evidence evidence = new Evidence(1, 2, "Title", LocalDate.now()
+        Evidence evidence = new Evidence(2, "Title", LocalDate.now()
 , "description");
         usersEvidence.add(evidence);
 
@@ -490,8 +491,8 @@ class EvidenceControllerTest {
         String existingUserId = "1";
 
         ArrayList<Evidence> usersEvidence = new ArrayList<>();
-        Evidence evidence1 = new Evidence(1, 2, "Title", LocalDate.now(), "description");
-        Evidence evidence2 = new Evidence(3, 4, "Title 2", LocalDate.now(), "description 2");
+        Evidence evidence1 = new Evidence(2, "Title", LocalDate.now(), "description");
+        Evidence evidence2 = new Evidence(4, "Title 2", LocalDate.now(), "description 2");
         usersEvidence.add(evidence1);
         usersEvidence.add(evidence2);
 
@@ -553,7 +554,7 @@ class EvidenceControllerTest {
         String existingUserId = "1";
 
         ArrayList<Evidence> usersEvidence = new ArrayList<>();
-        Evidence evidence = new Evidence(1, 1, "Title", LocalDate.now()
+        Evidence evidence = new Evidence(1, "Title", LocalDate.now()
                 , "description");
         usersEvidence.add(evidence);
 

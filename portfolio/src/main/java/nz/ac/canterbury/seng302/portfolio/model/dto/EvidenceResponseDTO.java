@@ -110,7 +110,8 @@ public class EvidenceResponseDTO {
         //The JSON returns without spaces in between elements, so we remove them.
         String associateIdsNoSpaces = associateIds.toString().replaceAll(" ", "");
         return "{" +
-                "\"userId\":" + userId +
+                "\"id\":" + id +
+                "," + "\"userId\":" + userId +
                 "," + "\"title\":\"" + title + "\"" +
                 "," + "\"date\":\"" + date + "\"" +
                 "," + "\"description\":\"" + description + "\"" +
