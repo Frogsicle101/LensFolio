@@ -274,7 +274,7 @@ function addSkillResponseToArray(response) {
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
- * @param evidenceDetails The title, date, and description, skills, and categories for a piece of evidence.
+ * @param evidenceDetails The title, date, and description, skills, categories and associates for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
@@ -284,6 +284,7 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
+    addLinkedUsersToEvidence(evidenceDetails)
     addSkillsToEvidence(evidenceDetails.skills)
 
     highlightedEvidenceTitle.show()
@@ -295,6 +296,36 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
         $(".evidenceDeleteButton").show()
     } else {
         $(".evidenceDeleteButton").hide()
+    }
+}
+
+
+/**
+ * Takes all the linked users associated with a piece of evidence and displays them on the evidence page, apart from the
+ * owner as this is rather obvious
+ *
+ * @param evidenceDetails The title, date, and description, skills, categories and associates for a piece of evidence.
+ */
+
+function addLinkedUsersToEvidence(evidenceDetails) {
+    let users = evidenceDetails.associates
+    let ownersId = evidenceDetails.userId
+    let linkedUsersTitle = $("#evidenceDetailsLinkedUsersTitle")
+    let linkedUsersDiv = $("#evidenceDetailsLinkedUsers")
+    linkedUsersDiv.empty()
+    if (users.length > 1){
+        linkedUsersTitle.show()
+        $.each(users, function (i) {
+            if (users[i].id != ownersId) { // prevents adding the owners id to the linked users
+                linkedUsersDiv.append(`
+                    <div id=linkedAssociateId${users[i].id}>
+                        ${users[i].firstName} ${users[i].lastName} (${users[i].username})
+                    </div>`
+                )
+            }
+        })
+    } else {
+        linkedUsersTitle.hide()
     }
 }
 
@@ -821,6 +852,27 @@ function checkToShowSkillChips() {
 
 
 /**
+ * Returns all the linked users id's from the evidence creation form
+ *
+ * @returns [integer] the list of user id's to be attached
+ */
+function getLinkedUsers() {
+    let linkedUsers = $("#linkedUsers").children()
+    let userIds = [];
+    $.each(linkedUsers, function (i) {
+        try {
+            var userId = parseInt(linkedUsers[i].id.replace("linkedUserId",""));
+        }
+        catch(error) {
+            createAlert("Oops! there was an error with one or more of the linked users", "failure")
+        }
+        userIds.push(userId)
+    })
+    return userIds;
+}
+
+
+/**
  * This function returns the html for the chips
  *
  * @param element the name of the skill
@@ -880,6 +932,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const description = $("#evidenceDescription").val()
         const projectId = 1
         let webLinks = getWeblinksList();
+        const linkedUsers = getLinkedUsers();
         const categories = getCategories();
 
         const skills = skillsInput.val().split(" ").filter(skill => skill.trim() !== "")
@@ -894,7 +947,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "projectId": projectId,
             "webLinks": webLinks,
             "skills": skills,
-            "categories": categories
+            "categories": categories,
+            "associateIds": linkedUsers
         })
         $.ajax({
             url: 'evidence', type: "POST", contentType: "application/json", data, success: function (response) {
@@ -1124,7 +1178,7 @@ function addLinkedUser(user) {
  * Creates the element for displaying the linked user
  */
 function linkedUserElement(user) {
-    return `<div id=linkedUserId${user.id}>${user.firstName} ${user.lastName} (${user.username})</div>`
+    return `<div class="linkedUser" id=linkedUserId${user.id}>${user.firstName} ${user.lastName} (${user.username})</div>`
 }
 
 

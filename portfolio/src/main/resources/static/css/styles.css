@@ -996,6 +996,11 @@ section {
     position: absolute;
 }
 
+#evidenceDetailsLinkedUsers {
+    word-break: break-word;
+    padding-left: 0.5rem;
+}
+
 .evidenceDetailsHeader {
     margin-bottom: 1rem;
 }

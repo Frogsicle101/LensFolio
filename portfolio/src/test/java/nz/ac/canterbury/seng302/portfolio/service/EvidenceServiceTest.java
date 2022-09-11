@@ -508,7 +508,7 @@ class EvidenceServiceTest {
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
         String title = "title";
-        List<Integer> associates = new ArrayList<>(List.of(12, 13, 14));
+        List<Integer> associates = new ArrayList<>(List.of(12, 13, 14, 1));
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L, associates);
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
@@ -528,7 +528,7 @@ class EvidenceServiceTest {
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
         String title = "title";
-        List<Integer> associates = new ArrayList<>();
+        List<Integer> associates = new ArrayList<>(List.of(1));
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L, associates);
         evidenceService.addEvidence(principal, evidenceDTO);
         ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
