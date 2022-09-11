@@ -54,7 +54,7 @@ class SprintValidationServiceTest {
         service = new SprintValidationService(repository, sprint);
 
         assertEquals(project.getStartDate(), service.getMinSprintStartDate());
-        assertEquals(sprintList.get(1).getStartDate(), service.getMaxSprintEndDate());
+        assertEquals(sprintList.get(1).getStartDate().minusDays(1), service.getMaxSprintEndDate());
     }
 
     @Test
@@ -75,7 +75,7 @@ class SprintValidationServiceTest {
         service = new SprintValidationService(repository, sprint);
 
         assertEquals(sprintList.get(0).getEndDate().plusDays(1), service.getMinSprintStartDate());
-        assertEquals(sprintList.get(2).getStartDate(), service.getMaxSprintEndDate());
+        assertEquals(sprintList.get(2).getStartDate().minusDays(1), service.getMaxSprintEndDate());
     }
 
     void initTwoSprints() {

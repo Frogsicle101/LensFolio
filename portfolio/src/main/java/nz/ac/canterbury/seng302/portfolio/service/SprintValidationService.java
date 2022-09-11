@@ -11,18 +11,16 @@ import java.util.List;
 
 public class SprintValidationService {
 
-
     private final Project project;
     private final List<Sprint> sprintList;
     private final int sprintIndex;
-
 
     /**
      * Constructs a new SprintValidationService. We call the constructor ourselves instead of using spring so that we
      * can initialise the service with the sprint we want to check.
      *
      * @param sprintRepository A reference to the sprint repository
-     * @param sprint The sprint we wish to validate
+     * @param sprint           The sprint we wish to validate
      */
     public SprintValidationService(SprintRepository sprintRepository, Sprint sprint) {
         this.project = sprint.getProject();
@@ -31,9 +29,10 @@ public class SprintValidationService {
 
     }
 
+
     /**
-     * Gets the minimum allowed start date for a sprint. This will be either the end date of the previous sprint,
-     * or the start date of the project.
+     * Gets the minimum allowed start date for a sprint. This will be either one day after the end date
+     * of the previous sprint, or the start date of the project.
      *
      * @return A LocalDate representing the minimum allowed start date for a sprint
      */
@@ -48,9 +47,10 @@ public class SprintValidationService {
         }
     }
 
+
     /**
-     * Gets the maximum allowed end date for a sprint. This will either be the start date of the next sprint,
-     * or the end date of the project.
+     * Gets the maximum allowed end date for a sprint. This will either be one day before
+     * the start date of the next sprint, or the end date of the project.
      *
      * @return A LocalDate representing the maximum allowed end date for a sprint
      */
@@ -58,7 +58,7 @@ public class SprintValidationService {
         // Checks if the selected sprint is not the last on the list
         if (sprintIndex < sprintList.size() - 1) {
             // Limit the calendar to dates before the next sprints starts.
-            return sprintList.get(sprintIndex + 1).getStartDate();
+            return sprintList.get(sprintIndex + 1).getStartDate().minusDays(1);
         } else {
             // Else limit the calendar to be before the project end.
             return project.getEndDate();

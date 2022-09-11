@@ -320,33 +320,34 @@ public class PortfolioController {
 
             Project project = projectRepository.getProjectById(projectId);
             SprintValidationService sprintValidator = new SprintValidationService(sprintRepository, sprint);
-            LocalDate previousSprintEnd = sprintValidator.getMinSprintStartDate();
-            LocalDate nextSprintStart = sprintValidator.getMaxSprintEndDate();
+            LocalDate minDate = sprintValidator.getMinSprintStartDate();
+            LocalDate maxDate = sprintValidator.getMaxSprintEndDate();
 
-            modelAndView.addObject("previousSprintEnd", previousSprintEnd);
-            modelAndView.addObject("nextSprintStart", nextSprintStart.minusDays(1));
+            modelAndView.addObject("minDate", minDate);
+            modelAndView.addObject("maxDate", maxDate);
 
-            String formattedPreviousDate = previousSprintEnd.minusDays(1).format(DateTimeService.dayMonthYear());
             String textForPreviousSprint;
-            if (previousSprintEnd.equals(project.getStartDate())) {
+            if (minDate.equals(project.getStartDate())) {
+                String formattedPreviousDate = minDate.format(DateTimeService.dayMonthYear());
                 textForPreviousSprint =
                         "No previous sprints, Project starts on " + formattedPreviousDate;
             } else {
+                String formattedPreviousDate = minDate.format(DateTimeService.dayMonthYear());
                 textForPreviousSprint =
                         "Previous sprint ends on " + formattedPreviousDate;
             }
             modelAndView.addObject("textForPrevSprint", textForPreviousSprint);
 
-            String formattedNextDate = nextSprintStart.format(DateTimeService.dayMonthYear());
             String textForNextSprint;
-            if (nextSprintStart.equals(project.getEndDate())) {
+            if (maxDate.equals(project.getEndDate())) {
+                String formattedNextDate = maxDate.format(DateTimeService.dayMonthYear());
                 textForNextSprint =
                         "No next sprint, project ends on  " + formattedNextDate;
             } else {
+                String formattedNextDate = maxDate.plusDays(1).format(DateTimeService.dayMonthYear());
                 textForNextSprint = "Next sprint starts on " + formattedNextDate;
             }
             modelAndView.addObject("textForNextSprint", textForNextSprint);
-
 
             // Adds the username to the view for use.
             modelAndView.addObject("user", user);
