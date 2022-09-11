@@ -23,7 +23,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 
 /**
@@ -95,6 +94,7 @@ public class EvidenceService {
     public Evidence addEvidence(Authentication principal,
                                 EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
         logger.info("CREATING EVIDENCE - Attempting to create evidence with title: {}", evidenceDTO.getTitle());
+
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         long projectId = evidenceDTO.getProjectId();
         String title = evidenceDTO.getTitle();
