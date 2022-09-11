@@ -1164,6 +1164,7 @@ section {
 #linkUsers {
     padding-left: 1.5rem;
     padding-top: 1rem;
+    word-break: break-word;
 }
 
 #linkedUsers {
