@@ -16,6 +16,10 @@ import java.util.Set;
 public class EvidenceResponseDTO {
 
     /**
+     * The ID of the evidence.
+     */
+    private int id;
+    /**
      * The ID of the user who created/owns the evidence.
      */
     private int userId;
@@ -62,6 +66,7 @@ public class EvidenceResponseDTO {
      * @param associates The list of associate UserResponses
      */
     public EvidenceResponseDTO(Evidence evidence, List<UserDTO> associates) {
+        this.id = evidence.getId();
         this.userId = evidence.getUserId();
         this.title = evidence.getTitle();
         this.date = evidence.getDate();
@@ -115,6 +120,14 @@ public class EvidenceResponseDTO {
                 "," + "\"associateIds\":" + associateIdsNoSpaces +
                 "," + "\"associates\":" + associateUsers +
                 "}";
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getUserId() {
