@@ -871,7 +871,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
     let skillsInput = $("#skillsInput")
     removeDuplicatesFromInput(skillsInput)
     let evidenceCreationForm = $("#evidenceCreationForm")[0]
-    toggleRequiredIfCheckURLInputsAreEmpty()
+
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
     } else {
@@ -921,20 +921,14 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '#addWeblinkButton', function (e) {
+$(document).on('click', '#addWeblinkButton', function () {
     let button = $("#addWeblinkButton");
     if (button.hasClass("toggled")) {
-        e.preventDefault()
-        let webLinkUrl = $("#webLinkUrl");
-        let webLinkName = $("#webLinkName");
-        if (!webLinkUrl[0].checkValidity() || !webLinkName[0].checkValidity()) {
-            webLinkUrl[0].reportValidity()
-            webLinkName[0].reportValidity()
-            return false
-        }
         //validate the link
+        let address = $("#webLinkUrl").val()
+        let alias = $("#webLinkName").val()
         let form = $("#weblinkForm")
-        validateWebLink(form, webLinkName.val(), webLinkUrl.val())
+        validateWebLink(form, alias, address)
     } else {
         webLinkButtonToggle()
     }
@@ -968,7 +962,15 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
  Validates the alias and then displays an error message or saves the web link and toggles the web link form.
  */
 function validateWebLink(form, alias, address) {
-    if (address.search("://") === -1) {
+    if (alias.length === 0) {
+        $("#weblinkNameAlert").alert('close') //Close any previous alerts
+        form.append(`
+                    <div id="weblinkNameAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
+                      Please include a name for your web link
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `)
+    } else if (address.search("://") === -1) {
         $("#weblinkAddressAlert").alert('close') //Close any previous alerts
         form.append(`
                     <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
@@ -992,7 +994,7 @@ function handleInvalidWebLink(form, error) {
             // The URL is invalid
             form.append(`
                     <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
-                      ${error.responseText}
+                      Please enter a valid address, like https://www.w3.org/WWW/
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
@@ -1006,28 +1008,6 @@ function handleInvalidWebLink(form, error) {
                     </div>
                     `)
             break
-    }
-}
-
-
-/**
- * This disabled the requirement for the web link forms to be filled out if they are empty.
- * This was because the overall "Add Evidence" form does a validation of all its fields when something changes.
- * Because these fields are required to both be filled then they don't allow that check to pass if they are empty.
- * This now disables those requirements if nothing is in them so that a form can be submitted if they are both empty.
- * It re-enables them if a user starts to type in them.
- */
-function toggleRequiredIfCheckURLInputsAreEmpty() {
-    let webLinkUrl = $("#webLinkUrl")
-    let webLinkName = $("#webLinkName")
-    if (webLinkUrl.val() < 1 && webLinkName.val() < 1) {
-        webLinkUrl.removeAttr("required")
-        webLinkName.removeAttr("required")
-        webLinkName.removeAttr("minlength")
-    } else {
-        webLinkUrl.attr("required", "required")
-        webLinkName.attr("required", "required")
-        webLinkName.attr("minlength", "1")
     }
 }
 
@@ -1176,7 +1156,6 @@ function clearAddEvidenceModalValues() {
  * Checks the form is valid, enables or disables the save button depending on validity.
  */
 function disableEnableSaveButtonOnValidity() {
-    toggleRequiredIfCheckURLInputsAreEmpty()
     if ($("#evidenceCreationForm")[0].checkValidity()) {
         $("#evidenceSaveButton").prop("disabled", false)
     } else {

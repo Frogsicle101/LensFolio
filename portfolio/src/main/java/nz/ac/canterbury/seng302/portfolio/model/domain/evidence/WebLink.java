@@ -14,14 +14,11 @@ import java.util.Objects;
 @Entity
 public class WebLink {
 
-    public static final int maxURLLength = 2000;
-
     @Id
     @GeneratedValue
     private int id;
 
     private String alias;
-    @Column(length = maxURLLength)
     private URL url;
     private Boolean isSecured;
 
@@ -95,9 +92,6 @@ public class WebLink {
         return evidence;
     }
 
-    public int getMaxURLLength() {
-        return maxURLLength;
-    }
 
     /**
      * This method is used to help with testing. It returns the expected JSON string created for this object.
@@ -110,7 +104,6 @@ public class WebLink {
                 ",\"alias\":\"" + alias + "\"" +
                 ",\"url\":\"" + url +
                 "\",\"isSecured\":" + isSecured +
-                ",\"maxURLLength\":" + getMaxURLLength() +
                 "}";
     }
 }

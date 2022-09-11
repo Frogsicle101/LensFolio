@@ -15,9 +15,9 @@ describe("Adding Weblinks to Evidence", () => {
         for (let i = 1; i < 11; i++) {
             cy.get('#addWeblinkButton').click()
             cy.get('#webLinkUrl').wait(500)
-                .invoke('val', 'http://www.a.ac.nz')
+                .type('http://www.a.ac.nz')
             cy.get('#webLinkName').wait(500)
-                .invoke('val', 'Wl ' + i.toString())
+                .type('Wl ' + i.toString())
             cy.get('#addWeblinkButton').click()
         }
 
@@ -57,8 +57,6 @@ describe("Adding Weblinks to Evidence", () => {
 
     it("Warning displayed on invalid address", () => {
         cy.get("#addWeblinkButton").click();
-        cy.get("#webLinkUrl").wait(500)
-            .type("name")
         cy.get("#webLinkName").wait(500)
             .type("name")
         cy.get("#addWeblinkButton").click()
@@ -66,24 +64,13 @@ describe("Adding Weblinks to Evidence", () => {
         cy.get("#weblinkNameAlert").should("not.exist")
     })
 
-    it("Warning displayed on invalid address that is too long", () => {
-        cy.get("#addWeblinkButton").click();
-        cy.get("#webLinkUrl").should("have.attr", "maxlength")
-        cy.get("#webLinkUrl").invoke('removeAttr', 'maxlength')
-        cy.get("#webLinkUrl").wait(500).invoke('val', "a".repeat(2000))
-        cy.get("#webLinkName").wait(500)
-            .type("Test")
-        cy.get("#addWeblinkButton").click()
-        cy.get("#weblinkAddressAlert").should("be.visible")
-    })
-
     it("Warning displayed on invalid name", () => {
         cy.get("#addWeblinkButton").click();
         cy.get("#webLinkUrl").wait(500)
             .type("https://www.a.ac.nz/")
         cy.get("#addWeblinkButton").click()
-        cy.get('#webLinkName:invalid').invoke('prop', 'validationMessage')
-            .should('contain', 'Please fill ')
+        cy.get("#weblinkAddressAlert").should("not.exist")
+        cy.get("#weblinkNameAlert").should("be.visible")
     })
 
     it("Weblink alerts are removed on cancel", () => {

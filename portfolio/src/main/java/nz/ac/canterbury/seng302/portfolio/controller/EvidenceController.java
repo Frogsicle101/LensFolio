@@ -1,6 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -8,7 +11,6 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
@@ -96,7 +98,6 @@ public class EvidenceController {
         LocalDate evidenceMaxDate = LocalDate.now();
         modelAndView.addObject("currentDate", currentDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
-        modelAndView.addObject("webLinkMaxLength", WebLink.maxURLLength);
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;
@@ -263,24 +264,15 @@ public class EvidenceController {
         String address = request.getUrl();
         logger.info("GET REQUEST /validateWebLink - validating address {}", address);
         try {
-
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
-            }
-            if (address.length() > WebLink.maxURLLength) {
-                throw new CheckException("URL address is longer than the maximum of " + WebLink.maxURLLength);
             }
             new URL(address).toURI(); //The constructor does all the validation for us
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (CheckException exception) {
-            logger.warn("/validateWebLink - Invalid address: {}", address);
-            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>(exception.getMessage(),HttpStatus.BAD_REQUEST);
         } catch (MalformedURLException | URISyntaxException exception) {
-            logger.warn("/validateWebLink - Invalid address: {}", address);
-            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/",HttpStatus.BAD_REQUEST);
+            logger.warn("/validateWebLink - invalid address {}", address);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
