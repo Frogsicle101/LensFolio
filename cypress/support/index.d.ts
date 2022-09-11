@@ -7,9 +7,15 @@
 declare namespace Cypress {
     interface Chainable<Subject = any> {
         /**
-         * Custom command to ... add your description here
-         * @example cy.clickOnMyJourneyInCandidateCabinet()
+         * Programmatically logs in to the student account "Walter.harber".
+         * Sets the session token cookie from login.
          */
-        clickOnMyJourneyInCandidateCabinet(): Chainable<null>;
+        studentLogin(): Chainable;
+
+        /**
+         * Programmatically logs in to the admin account "admin".
+         * Sets the session token cookie from login.
+         */
+        adminLogin(): Chainable;
     }
 }

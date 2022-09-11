@@ -209,7 +209,6 @@ function populateGroupPageSelector(data, currentPage) {
         //Goes through the page selectors and adds a class of active if it's the current page we are on
         if (Number($(element).text()) === currentPage) {
             $(element).addClass("active")
-            return false
         }
     })
     toggleGroupNavigationButtons()
