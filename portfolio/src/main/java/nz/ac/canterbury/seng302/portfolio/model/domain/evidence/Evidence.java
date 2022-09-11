@@ -21,7 +21,7 @@ public class Evidence {
 
     private int userId;
     private String title;
-    private LocalDate date;
+    private LocalDate occurrenceDate;
 
     /**
      * The description of a piece of evidence, which has a character length of 500.
@@ -47,6 +47,13 @@ public class Evidence {
     @ElementCollection(fetch = FetchType.EAGER)
     private final Set<Category> categories = new HashSet<>();
 
+    /** A list of associates; people who also worked on this evidence.
+     * Takes the form of their user IDs.
+     * The owner is considered an associate.
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    private final List<Integer> associateIds = new ArrayList<>();
+
 
     /**
      * Constructs an instance of the evidence object
@@ -61,7 +68,7 @@ public class Evidence {
         checkDescriptionLength(description);
         this.userId = userId;
         this.title = title;
-        this.date = date;
+        this.occurrenceDate = date;
         this.description = description;
     }
 
@@ -81,7 +88,7 @@ public class Evidence {
         this.id = evidenceId;
         this.userId = userId;
         this.title = title;
-        this.date = date;
+        this.occurrenceDate = date;
         this.description = description;
     }
 
@@ -123,11 +130,11 @@ public class Evidence {
     }
 
     public LocalDate getDate() {
-        return date;
+        return occurrenceDate;
     }
 
     public void setDate(LocalDate date) {
-        this.date = date;
+        this.occurrenceDate = date;
     }
 
     public String getDescription() {
@@ -168,6 +175,11 @@ public class Evidence {
         categories.add(category);
     }
 
+    public List<Integer> getAssociateIds() {
+        return associateIds;
+    }
+
+    public void addAssociateId(Integer associateId) { associateIds.add(associateId); }
 
     /**
      * This method is used to help with testing. It returns the expected JSON string created for this object.
@@ -179,11 +191,12 @@ public class Evidence {
                 "\"id\":" + id +
                 ",\"userId\":" + userId +
                 ",\"title\":\"" + title +
-                "\",\"date\":\"" + date +
                 "\",\"description\":\"" + description +
                 "\",\"webLinks\":" + "[]" +
                 ",\"skills\":" + "[]" +
                 ",\"categories\":" + "[]" +
+                ",\"associateIds\":" + associateIds +
+                "," + "\"date\":\"" + occurrenceDate + "\"" +
                 "}";
     }
 

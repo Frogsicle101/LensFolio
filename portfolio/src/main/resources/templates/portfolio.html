@@ -19,7 +19,8 @@
         let projectId = /*[[${project.getId()}]]*/ 'default';
         let projectEnd = /*[[${project.getEndDateAsLocalDateTime()}]]*/ 'default';
         let eventNameLengthRestriction = /*[[${eventNameLengthRestriction}]]*/ 'default';
-        let titleRegex = /*[[${titleRegex}]]*/ 'default';
+        let titleRegex = /*[[${titleRegex.getPatternString()}]]*/ 'default';
+        let titleRegexMessage = /*[[${titleRegex.getRequirements()}]]*/ 'default';
         let nextMilestoneNumber = /*[[${nextMilestoneNumber}]]*/ 'default';
         /*]]>*/
     </script>
@@ -47,13 +48,11 @@
                 </div>
             </div>
             <div class="mb-3">
-                <p th:text="${project.getDescription()}"></p>
+                <p id="projectDescription" th:text="${project.getDescription()}"></p>
             </div>
         </div>
-
-
         <div th:if="${userCanEdit == true}">
-            <button class="btn btn-outline-success project-add-sprint-button authenticated-user" id="projectEditSprint">
+            <button class="btn btn-outline-success project-add-sprint-button authenticated-user" id="editProject">
                 Edit Project
             </button>
             <button class="btn btn-outline-success project-add-sprint-button authenticated-user addSprint"
@@ -64,8 +63,6 @@
             </div>
         </div>
     </div>
-
-
     <div class="projectContainer">
         <div class="eventContainer">
             <div class="infoMessageParent alert alert-primary alert-dismissible fade show" id="informationBar"
@@ -87,10 +84,7 @@
                             role="tab">Milestones
                     </button>
                 </li>
-
             </ul>
-
-
             <div class="tab-content" id="tabContent">
                 <!---------------------------------------- Events tab  ------------------------------------------>
                 <div class="tab-pane fade show active" id="events" role="tabpanel">
@@ -98,22 +92,25 @@
                         <button class="addOccasionButton addEventButton noStyleButton" data-bs-placement="right"
                                 data-bs-toggle="tooltip"
                                 th:if="${userCanEdit == true}" title="Create Event" type="button">
-                            <svg class="bi bi-plus-circle addEventSvg" fill="currentColor" height="20" viewBox="0 0 16 16"
+                            <svg class="bi bi-plus-circle addEventSvg" fill="currentColor" height="20"
+                                 viewBox="0 0 16 16"
                                  width="20" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                             </svg>
                         </button>
                     </div>
-
                     <div class="eventForm" style="display: none" th:if="${userCanEdit == true}">
                         <form id="addEventForm">
                             <div class="mb-1">
                                 <label class="form-label" for="eventName">Event name</label>
+                                <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                                <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
                                 <input class="form-control form-control-sm" id="eventName"
                                        name="eventName" required
                                        th:maxlength="${eventNameLengthRestriction}"
-                                       th:pattern="${titleRegex}"
+                                       th:pattern="${titleRegex.getPatternString()}"
+                                       th:title="${'Event title' + titleRegex.getRequirements()}"
                                        type="text">
                                 <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                             </div>
@@ -131,55 +128,60 @@
                             <div class="row mb-1">
                                 <div class="col">
                                     <label class="form-label" for="eventStart">Start</label>
-                                    <input class="form-control form-control-sm eventInputStartDate"
+                                    <input class="form-control form-control-sm eventInputStartDate eventDateInput"
                                            id="eventStart"
                                            name="eventStart"
                                            required
-                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
                                            th:value="${project.getStartDateAsLocalDateTime()}"
                                            type="datetime-local">
                                 </div>
                                 <div class="col">
                                     <label class="form-label" for="eventEnd">End</label>
-                                    <input class="form-control form-control-sm eventInputEndDate" id="eventEnd"
+                                    <input class="form-control form-control-sm eventInputEndDate eventDateInput" id="eventEnd"
                                            name="eventEnd"
                                            required
-                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}" th:value="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:value="${project.getStartDateAsLocalDateTime()}"
                                            type="datetime-local">
                                 </div>
                             </div>
+                            <div class="invalid-feedback">Start date must be before end date</div>
                             <div class="mb-1">
                                 <button class="btn btn-primary" id="eventSubmit" type="submit">Submit</button>
                             </div>
                         </form>
                     </div>
-
                     <div id="eventContainer">
-
-
                     </div>
                 </div>
                 <!--------------------------------------- Deadlines tab  ---------------------------------------->
                 <div class="tab-pane fade show" id="deadlines" role="tabpanel">
                     <div class="mb-2 occasionAddButton">
-                        <button class="addDeadlineButton noStyleButton" data-bs-placement="right" data-bs-toggle="tooltip"
+                        <button class="addDeadlineButton noStyleButton" data-bs-placement="right"
+                                data-bs-toggle="tooltip"
                                 th:if="${userCanEdit == true}" title="Create Deadline" type="button">
-                            <svg class="bi bi-plus-circle addDeadlineSvg" fill="currentColor" height="20" viewBox="0 0 16 16"
+                            <svg class="bi bi-plus-circle addDeadlineSvg" fill="currentColor" height="20"
+                                 viewBox="0 0 16 16"
                                  width="20" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                             </svg>
                         </button>
                     </div>
-
                     <div class="deadlineForm" style="display: none" th:if="${userCanEdit == true}">
                         <form id="addDeadlineForm">
                             <div class="mb-1">
                                 <label class="form-label" for="deadlineName">Deadline name</label>
+                                <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                                <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
                                 <input class="form-control form-control-sm" id="deadlineName"
                                        name="occasionName" required
                                        th:maxlength="${eventNameLengthRestriction}"
-                                       th:pattern="${titleRegex}"
+                                       th:pattern="${titleRegex.getPatternString()}"
+                                       th:title="${'Deadline title' + titleRegex.getRequirements()}"
                                        type="text">
                                 <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                             </div>
@@ -201,7 +203,8 @@
                                            id="deadlineEnd"
                                            name="deadlineEnd"
                                            required
-                                           th:max="${project.getEndDateAsLocalDateTime()}" th:min="${project.getStartDateAsLocalDateTime()}"
+                                           th:max="${project.getEndDateAsLocalDateTime()}"
+                                           th:min="${project.getStartDateAsLocalDateTime()}"
                                            th:value="${project.getStartDateAsLocalDateTime()}"
                                            type="datetime-local">
                                 </div>
@@ -221,7 +224,8 @@
                         <button class="addOccasionButton addMilestoneButton noStyleButton" data-bs-placement="right"
                                 data-bs-toggle="tooltip"
                                 th:if="${userCanEdit == true}" title="Create Milestone" type="button">
-                            <svg class="bi bi-plus-circle addMilestoneSvg" fill="currentColor" height="20" viewBox="0 0 16 16"
+                            <svg class="bi bi-plus-circle addMilestoneSvg" fill="currentColor" height="20"
+                                 viewBox="0 0 16 16"
                                  width="20" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
@@ -233,11 +237,14 @@
                         <form>
                             <div class="mb-1">
                                 <label class="form-label" for="milestoneName">Milestone name</label>
+                                <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                                <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
                                 <input class="form-control form-control-sm" data-nextNumber="${nextMilestoneNumber}"
                                        id="milestoneName"
                                        name="milestoneName" required
                                        th:maxlength="${eventNameLengthRestriction}"
-                                       th:pattern="${titleRegex}"
+                                       th:pattern="${titleRegex.getPatternString()}"
+                                       th:title="${'Milestone title' + titleRegex.getRequirements()}"
                                        type="text">
                                 <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                             </div>

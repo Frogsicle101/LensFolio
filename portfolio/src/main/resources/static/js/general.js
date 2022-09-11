@@ -20,6 +20,7 @@ $(function () {
     })
 
     removeElementIfNotAuthorized()
+
 });
 
 
@@ -62,10 +63,10 @@ function removeElementIfNotAuthorized() {
 function removeAlert() {
     alertIsShown = false;
     let alert = $("#alertPopUp")
-    alert.hide("slide", 100, function() {
+    alert.hide("slide", 100, function () {
         alert.remove();
     })
-    if (liveAlertIsShown){
+    if (liveAlertIsShown) {
         let liveAlert = $("#liveAlertPopUp")
         liveAlert.animate({bottom: 10}, {duration: 100})
     }
@@ -74,23 +75,21 @@ function removeAlert() {
 
 /**
  * Displays a dismissible alert down the bottom right of the screen.
- * If isRed is true, the background colour will be red, otherwise green.
  *
  * @param alertMessage
- * @param isRed
+ * @param type the type of alert. Accepts "success", "fail", and "roleChange".
  * @param window - the location to show the error
  */
-function createAlert(alertMessage, isRed, window = "body") {
-
+function createAlert(alertMessage, type, window = "body") {
     let CheckAlert = $("#alertPopUp")
     if (CheckAlert.is(":visible")) {
-        CheckAlert.hide("slide", 100, function() {
+        CheckAlert.hide("slide", 100, function () {
             CheckAlert.remove();
-        }).promise().done(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
-            alert(alertMessage, isRed, window)
+        }).promise().then(function () { // If the alert is already displayed it removes it and then once that is done, runs the alert function
+            alert(alertMessage, type, window)
         })
     } else {
-        alert(alertMessage, isRed, window)
+        alert(alertMessage, type, window)
     }
 }
 
@@ -106,7 +105,7 @@ function removeLiveAlert(messageId) {
     if (messageId === liveAlertId || messageId === undefined) {
         liveAlertIsShown = false;
         let alert = $("#liveAlertPopUp")
-        alert.hide("slide", 100, function() {
+        alert.hide("slide", 100, function () {
             alert.remove();
         })
     }
@@ -115,19 +114,18 @@ function removeLiveAlert(messageId) {
 
 /**
  * Displays a dismissible alert down the bottom right of the screen.
- * If isRed is true, the background colour will be red, otherwise green.
  *
  * @param alertMessage
- * @param isRed
+ * @param alertId
  * @param window - the location to show the error
  */
 function createLiveAlert(alertMessage, alertId, window = "body") {
 
     let CheckAlert = $("#liveAlertPopUp")
     if (CheckAlert.is(":visible")) {
-        CheckAlert.hide("slide", 100, function() {
+        CheckAlert.hide("slide", 100, function () {
             CheckAlert.remove();
-        }).promise().done(function() { // If the alert is already displayed it removes it and then once that is done, runs the alert function
+        }).promise().then(function () { // If the alert is already displayed it removes it and then once that is done, runs the alert function
             liveAlert(alertMessage, alertId, window)
         })
     } else {
@@ -136,40 +134,71 @@ function createLiveAlert(alertMessage, alertId, window = "body") {
 }
 
 
-function alert(alertMessage, isRed, window = "body") {
-    let alertDiv = `<div id="alertPopUp" style="display: none">
-                     <p id="alertPopUpMessage">${alertMessage}</p>
+/**
+ * Creates an alert message, and appends it to the window.
+ *
+ * The type of the alert determines the colour of the alert.
+ * "success" = green, "failure" = red, and "roleChange" = yellow.
+ *
+ * @param alertMessage The message to be displayed in the alert box.
+ * @param type The type of the message to be displayed. Determines the alert background colour.
+ * @param window The location to which the alert will be appended.
+ */
+function alert(alertMessage, type, window = "body") {
+    let alertDiv = `<div id="alertPopUp" class="alert" style="display: none">
+                     <p id="alertPopUpMessage">${sanitise(alertMessage)}</p>
                      <button id="alertPopUpCloseButton" onclick="removeAlert()" class="noStyleButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x-circle" viewBox="0 0 16 16">
                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                      </svg></button>
-                     
                  </div>`
 
     $(window).append(alertDiv)
     let alert = $("#alertPopUp")
 
-    if(isRed) {
-        alert.removeClass("backgroundGreen")
-        alert.addClass("backgroundRed")
-    } else {
-        alert.addClass("backgroundGreen")
-        alert.removeClass("backgroundRed")
+    alertIsShown = true;
+
+    switch (type) {
+        case "failure":
+            alert.removeClass("backgroundGreen")
+            alert.removeClass("backgroundYellow")
+            alert.addClass("backgroundRed")
+            break;
+        case "success":
+            alert.removeClass("backgroundRed")
+            alert.removeClass("backgroundYellow")
+            alert.addClass("backgroundGreen")
+            break;
+        case "roleChange":
+            alert.removeClass("backgroundRed")
+            alert.removeClass("backgroundGreen")
+            alert.addClass("backgroundYellow")
+            break;
+        default:
+            alertIsShown = false;
     }
+
     if (window === "body") {
         alert.css("position", "fixed")
     } else {
-        alert.css("position","relative")
+        alert.css("position", "relative")
     }
     alertIsShown = true;
     addAlert(alert)
 }
 
 
+/**
+ * Creates a live alert message, and appends it to the window. This is the same as the alert message, but also has an Id.
+ *
+ * @param alertMessage The message to be displayed.
+ * @param alertId The Id of the alert message.
+ * @param window The location where the alert will be appended.
+ */
 function liveAlert(alertMessage, alertId, window = "body") {
-    let alertDiv = `<div id="liveAlertPopUp" style="display: none">
-                     <div id="alertId" style="display: none">${alertId}</div>
-                     <p id="alertPopUpMessage">${alertMessage}</p>
+    let alertDiv = `<div id="liveAlertPopUp" class="alert" style="display: none">
+                     <div id="alertId" style="display: none">${sanitise(alertId)}</div>
+                     <p id="alertPopUpMessage">${sanitise(alertMessage)}</p>
                      <button id="alertPopUpCloseButton" onclick="removeLiveAlert()" class="noStyleButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x-circle" viewBox="0 0 16 16">
                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -185,12 +214,16 @@ function liveAlert(alertMessage, alertId, window = "body") {
 }
 
 
-function addLiveAlert(liveAlert){
+/**
+ * Displays a live alert message in the window.
+ *
+ * @param liveAlert The live alert to be displayed.
+ */
+function addLiveAlert(liveAlert) {
     let alert = $("#alertPopUp")
-
-    if (alertIsShown){
-        let height = alert.height()
-        liveAlert.css("bottom", height + 20)
+    if (alertIsShown) {
+        let height = alert.outerHeight()
+        liveAlert.css("bottom", height + 20 + "px")
     } else {
         liveAlert.css("bottom", "10px")
     }
@@ -198,14 +231,43 @@ function addLiveAlert(liveAlert){
 }
 
 
-function addAlert(alert){
+/**
+ * Adds an alert to the user's display for 10 seconds.
+ *
+ * @param alert The alert to be displayed.
+ */
+function addAlert(alert) {
     let liveAlert = $("#liveAlertPopUp")
 
-    if (liveAlertIsShown){
-        height = alert.height() + 20
-        liveAlert.animate({bottom: height}, {duration: 100})
+    if (liveAlertIsShown) {
+        let height = liveAlert.outerHeight()
+        liveAlert.animate({bottom: height + 20 + "px"}, {duration: 100})
     }
     alert.show("slide", 100)
+}
+
+
+/**
+ * Handles the receiving of a role change event notification. If the logged-in user is the same as the user whose role
+ * was changed, the user receives an alert describing the update of their role.
+ *
+ * @param notification The data describing the role that was changed, and the user who changed it.
+ * @param action The action representing the addition of removal of a role.
+ */
+function handleRoleChangeEvent(notification, action) {
+    if (userIdent === parseInt(notification.occasionId)) {
+        const editorName = notification.editorName;
+        let roleChanged = notification.occasionType;
+        roleChanged = roleChanged.replace("_", " ").toLowerCase()
+
+        let message
+        if (action === "add") {
+            message = `${editorName} gave you the role: ${roleChanged}`
+        } else {
+            message = `${editorName} removed from you the role: ${roleChanged}`
+        }
+        createAlert(message, "roleChange")
+    }
 }
 
 
@@ -226,7 +288,7 @@ function sanitise(string) {
         "/": '&#x2F;',
     };
     const reg = /[&<>"'/]/ig;
-    return string.replace(reg, (match)=>(map[match]));
+    return string.toString().replace(reg, (match) => (map[match]));
 }
 
 
@@ -246,6 +308,7 @@ function countCharacters() {
         helper.text(counter + " character remaining")
     }
 }
+
 
 /**
  * Regex that is all unicode letters, decimal numbers and punctuation

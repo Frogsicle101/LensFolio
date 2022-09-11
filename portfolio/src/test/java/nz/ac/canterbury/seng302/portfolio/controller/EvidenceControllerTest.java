@@ -1,17 +1,20 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -33,10 +36,12 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -99,7 +104,7 @@ class EvidenceControllerTest {
 
         EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
 
@@ -116,7 +121,7 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(1).toString();
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Date is in the future"));
         mockMvc.perform(post("/evidence")
@@ -135,7 +140,7 @@ class EvidenceControllerTest {
         String date = LocalDate.now().minusDays(1).toString();
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Date is outside project dates"));
         mockMvc.perform(post("/evidence")
@@ -154,7 +159,7 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Title should be longer than 1 character"));
         mockMvc.perform(post("/evidence")
@@ -178,7 +183,7 @@ class EvidenceControllerTest {
 
         EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
 
@@ -195,7 +200,7 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Title cannot be more than 50 characters"));
         mockMvc.perform(post("/evidence")
@@ -214,7 +219,7 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Title shouldn't be strange"));
         mockMvc.perform(post("/evidence")
@@ -233,7 +238,7 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Text should be longer than 1 character"));
 
@@ -258,7 +263,7 @@ class EvidenceControllerTest {
 
         EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
 
@@ -275,7 +280,7 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "This should almost definitely be past 500 characters in length?                                                                                                                                                                                                                                                                      This should almost definitely be past 500 characters in length?                                                                                                                                                                                                                                                                      ";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Description cannot be more than 500 characters"));
         mockMvc.perform(post("/evidence")
@@ -295,7 +300,7 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "@@@";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Text shouldn't be strange"));
         mockMvc.perform(post("/evidence")
@@ -319,7 +324,7 @@ class EvidenceControllerTest {
 
         EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
 
@@ -337,7 +342,7 @@ class EvidenceControllerTest {
         String description = "testing";
         long projectId = 1;
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Project Id does not match any project"));
         mockMvc.perform(post("/evidence")
@@ -356,7 +361,7 @@ class EvidenceControllerTest {
         String date = "WOW this shouldn't work";
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new DateTimeParseException("test", "test", 0));
         mockMvc.perform(post("/evidence")
@@ -375,7 +380,7 @@ class EvidenceControllerTest {
         String date = "";
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new DateTimeParseException("test", "test", 0));
         mockMvc.perform(post("/evidence")
@@ -398,12 +403,35 @@ class EvidenceControllerTest {
 
         EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId);
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(principal, evidenceDTO)).thenThrow(new RuntimeException());
 
         ResponseEntity<Object> responseEntity = evidenceController.addEvidence(principal, evidenceDTO);
         Assertions.assertEquals(500, responseEntity.getStatusCode().value());
+    }
+
+    @Test
+    void testAddEvidenceInvalidAssociateId() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        String title = "test";
+        String date = LocalDate.now().plusDays(2).toString();
+        String description = "testing";
+        List<WebLinkDTO> webLinks = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
+        List<String> skills = new ArrayList<>();
+        List<String> associateIds = new ArrayList<>(List.of("5", "My dear friend Joe"));
+        long projectId = 1;
+        mockMvc.perform(post("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"title\": \"" + title + "\", \"date\": \"" + date + "\", " +
+                                "\"description\": \"" + description + "\", \"webLinks\": " + webLinks + ", " +
+                                "\"categories\": " + categories + ", \"skills\": " + skills + ", " +
+                                "\"associateIds\": " + associateIds + ", \"projectId\": \"" + projectId + "\"" +
+                                "}")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
 
@@ -417,7 +445,7 @@ class EvidenceControllerTest {
         String existingUserId = "1";
         String expectedContent = "[]";
 
-        Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(new ArrayList<>());
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(new ArrayList<>());
 
         MvcResult result = mockMvc.perform(get("/evidenceData")
                 .queryParam("userId", existingUserId))
@@ -437,17 +465,19 @@ class EvidenceControllerTest {
         String existingUserId = "1";
 
         ArrayList<Evidence> usersEvidence = new ArrayList<>();
-        Evidence evidence = new Evidence(1, 2, "Title", LocalDate.now(), "description");
+        Evidence evidence = new Evidence(2, "Title", LocalDate.now()
+, "description");
         usersEvidence.add(evidence);
 
-        Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(usersEvidence);
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
 
         MvcResult result = mockMvc.perform(get("/evidenceData")
                         .queryParam("userId", existingUserId))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String expectedContent = "[" + evidence.toJsonString() + "]";
+        EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence);
+        String expectedContent = "[" + expectedResponse.toJsonString() + "]";
         String responseContent = result.getResponse().getContentAsString();
         Assertions.assertEquals(expectedContent, responseContent);
     }
@@ -461,18 +491,20 @@ class EvidenceControllerTest {
         String existingUserId = "1";
 
         ArrayList<Evidence> usersEvidence = new ArrayList<>();
-        Evidence evidence1 = new Evidence(1, 2, "Title", LocalDate.now(), "description");
-        Evidence evidence2 = new Evidence(3, 4, "Title 2", LocalDate.now(), "description 2");
+        Evidence evidence1 = new Evidence(2, "Title", LocalDate.now(), "description");
+        Evidence evidence2 = new Evidence(4, "Title 2", LocalDate.now(), "description 2");
         usersEvidence.add(evidence1);
         usersEvidence.add(evidence2);
 
-        Mockito.when(evidenceRepository.findAllByUserIdOrderByDateDesc(1)).thenReturn(usersEvidence);
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
 
         MvcResult result = mockMvc.perform(get("/evidenceData")
                         .queryParam("userId", existingUserId))
                 .andReturn();
+        EvidenceResponseDTO expectedResponse1 = new EvidenceResponseDTO(evidence1);
+        EvidenceResponseDTO expectedResponse2 = new EvidenceResponseDTO(evidence2);
 
-        String expectedContent = "[" + evidence1.toJsonString() + "," + evidence2.toJsonString() + "]";
+        String expectedContent = "[" + expectedResponse1.toJsonString() + "," + expectedResponse2.toJsonString() + "]";
         String responseContent = result.getResponse().getContentAsString();
         Assertions.assertEquals(expectedContent, responseContent);
     }
@@ -512,6 +544,115 @@ class EvidenceControllerTest {
 
         mockMvc.perform(get("/evidenceData"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void TestGetEvidenceWhenUserExistsAndHasNoAssociates() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String existingUserId = "1";
+
+        ArrayList<Evidence> usersEvidence = new ArrayList<>();
+        Evidence evidence = new Evidence(1, "Title", LocalDate.now()
+                , "description");
+        usersEvidence.add(evidence);
+
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
+
+        MvcResult result = mockMvc.perform(get("/evidenceData")
+                        .queryParam("userId", existingUserId))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence);
+        String expectedContent = "[" + expectedResponse.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedContent, responseContent);
+    }
+
+    @Test
+    void TestGetEvidenceWhenUserExistsAndHasOneAssociate() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String existingUserId = "1";
+
+        ArrayList<Evidence> usersEvidence = new ArrayList<>();
+        Evidence evidence = new Evidence(1, 1, "Title", LocalDate.now()
+                , "description");
+        usersEvidence.add(evidence);
+        evidence.addAssociateId(1); // The user themselves should be considered an associate
+
+        GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(1).build();
+        UserResponse.Builder userBuilder = UserResponse.newBuilder()
+                .setId(1)
+                .setUsername("steve")
+                .setFirstName("Steve")
+                .setMiddleName("McSteve")
+                .setLastName("Steveson")
+                .setNickname("Stev")
+                .setBio("kdsflkdjf")
+                .setPersonalPronouns("Steve/Steve")
+                .setEmail("steve@example.com")
+                .setProfileImagePath("a");
+        userBuilder.addRoles(UserRole.STUDENT);
+        UserResponse userResponse = userBuilder.build();
+        when(userAccountsClientService.getUserAccountById(request)).thenReturn(userResponse);
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
+
+
+        MvcResult result = mockMvc.perform(get("/evidenceData")
+                        .queryParam("userId", existingUserId))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        UserDTO expectedUser = new UserDTO(userResponse);
+        EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence, List.of(expectedUser));
+        String expectedContent = "[" + expectedResponse.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedContent, responseContent);
+    }
+
+    @Test
+    void TestGetEvidenceWhenUserExistsAndHasMultipleAssociates() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        initialiseGetRequestMocks();
+        String existingUserId = "1";
+
+        ArrayList<Evidence> usersEvidence = new ArrayList<>();
+        Evidence evidence = new Evidence(1, 1, "Title", LocalDate.now()
+                , "description");
+        usersEvidence.add(evidence);
+        evidence.addAssociateId(1); // The user themselves should be considered an associate
+        evidence.addAssociateId(2);
+        evidence.addAssociateId(3);
+
+        List<UserDTO> expectedUsers = new ArrayList<>();
+        for (int i = 1 ; i <= 3 ; i++) {
+            UserResponse.Builder userBuilder = UserResponse.newBuilder().setId(i);
+            userBuilder.addRoles(UserRole.STUDENT);
+            UserResponse userResponse = userBuilder.build();
+
+            GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(i).build();
+            when(userAccountsClientService.getUserAccountById(request)).thenReturn(userResponse);
+
+            UserDTO expectedUser = new UserDTO(userResponse);
+            expectedUsers.add(expectedUser);
+        }
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(usersEvidence);
+
+        MvcResult result = mockMvc.perform(get("/evidenceData")
+                        .queryParam("userId", existingUserId))
+                .andExpect(status().isOk())
+                .andReturn();
+
+
+        EvidenceResponseDTO expectedResponse = new EvidenceResponseDTO(evidence, expectedUsers);
+        String expectedContent = "[" + expectedResponse.toJsonString() + "]";
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedContent, responseContent);
     }
 
 

@@ -1,7 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.projects.events;
 
 
-import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 
@@ -19,7 +19,6 @@ import java.time.LocalTime;
 public class Event extends Deadline {
 
     private LocalDateTime startDate;
-    private String startDateColour;
 
     /**
      * Default JPA event constructor.
@@ -41,27 +40,21 @@ public class Event extends Deadline {
      */
     public Event(Project project, String name, LocalDateTime startDate, LocalDate endDate, LocalTime endTime, int type) throws DateTimeException, InvalidNameException {
         super(project, name, endDate, endTime, type);
+        DateTimeService.checkDateInProject(project, startDate.toLocalDate());
         this.startDate = startDate;
     }
 
+    /* Ignore the unused method warning, this method is used by the frontend to format the dates */
     public String getStartDateFormatted() {
-        return getStartDate().format(DateTimeFormat.timeDateMonthYear());
+        return getStartDate().format(DateTimeService.timeDateMonthYear());
     }
 
     public LocalDateTime getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(LocalDateTime startDate) throws DateTimeException {
+        DateTimeService.checkDateInProject(this.getProject(), startDate.toLocalDate());
         this.startDate = startDate;
     }
-
-    public String getStartDateColour() {
-        return startDateColour;
-    }
-
-    public void setStartDateColour(String startDateColour) {
-        this.startDateColour = startDateColour;
-    }
-
 }

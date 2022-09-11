@@ -21,12 +21,12 @@ public interface EvidenceRepository extends CrudRepository<Evidence, Integer> {
 
     /** Returns an arrayList of all the evidence for a user in order by date descending */
     @Query
-    ArrayList<Evidence> findAllByUserIdOrderByDateDesc(int id);
+    ArrayList<Evidence> findAllByUserIdOrderByOccurrenceDateDesc(int id);
 
     /** Returns an arrayList that contains all the evidence of a user of a certain category. */
     @Query
-    ArrayList<Evidence> findAllByUserIdAndCategoriesContaining(int id, Category category);
+    ArrayList<Evidence> findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(int id, Category category);
 
     @Query
-    List<Evidence> findAllByUserIdAndSkillsIsEmptyOrderByDateDesc(int userId);
+    List<Evidence> findAllByUserIdAndSkillsIsEmptyOrderByOccurrenceDateDesc(int userId);
 }

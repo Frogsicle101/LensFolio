@@ -7,6 +7,7 @@ import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
+import nz.ac.canterbury.seng302.shared.util.BasicStringFilteringOptions;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import nz.ac.canterbury.seng302.shared.util.PaginationResponseOptions;
@@ -17,10 +18,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -297,7 +296,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * The gRPC implementation of bidirectional streaming used to receive uploaded user profile images.
-     * <br>
+     * 
      * The server creates a stream observer and defines its actions when the client calls the OnNext, onError and
      * onComplete methods.
      *
@@ -305,7 +304,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      *                           client side actions to be called from the server side. E.g., if bytes have been
      *                           received from the client successfully, the server will call
      *                           responseObserver.onNext(FileUploadStatusResponse) to inform the client to send more.
-     *
      * @return requestObserver - Contains an observer defined by the server, so that the client can call server side
      *                           actions. Therefore, this method defines the servers actions when the client calls them.
      */
@@ -315,6 +313,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     }
 
 
+    /**
+     * Follows the gRPC contract for deleting a users profile photo.
+     *
+     * @param request The request with the users id to delete the profile photo from
+     * @param responseObserver Used to return the response to the client side.
+     */
     @Override
     public void deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request, StreamObserver<DeleteUserProfilePhotoResponse> responseObserver) {
         DeleteUserProfilePhotoResponse.Builder response = DeleteUserProfilePhotoResponse.newBuilder();
@@ -411,6 +415,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 response.setIsSuccess(true)
                         .setMessage(MessageFormat.format("Successfully removed role {0} from user {1}",
                                 request.getRole(), userToUpdate.getId()));
+
             } catch (IllegalStateException e) {
                 //The user has only one role - we can't delete it!
                 logger.info("Role Removal Failure - user {} has 1 role. Users cannot have 0 roles", request.getUserId());
@@ -441,9 +446,55 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      */
     @Override
     public void getPaginatedUsers(GetPaginatedUsersRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver) {
-        PaginatedUsersResponse.Builder reply = PaginatedUsersResponse.newBuilder();
+        PaginatedUsersResponse.Builder response = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
+
+
+    /**
+     * Follows the gRPC contract for retrieving the paginated users and filtering them. Does this by calling a helper
+     * function that gets the paginated users and then filters them by their last and first name
+     *
+     * @param usersRequest the GetPaginatedUsersFilteredRequest passed through from the client service
+     * @param responseObserver Used to return the response to the client side.
+     */
+    @Override
+    public void getPaginatedUsersFilteredByName(GetPaginatedUsersFilteredRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver){
+        PaginatedUsersResponse.Builder response = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
+
+        BasicStringFilteringOptions filteringOptions = usersRequest.getFilteringOptions();
+        // Filtered by first, last and then full name so that the order for the auto-complete is more natural
+        Predicate<UserResponse> firstName = user -> (user.getFirstName().toLowerCase(Locale.ROOT))
+                .contains(filteringOptions.getFilterText().toLowerCase(Locale.ROOT));
+        Predicate<UserResponse> lastName = user -> (user.getLastName().toLowerCase(Locale.ROOT))
+                .contains(filteringOptions.getFilterText().toLowerCase(Locale.ROOT));
+        Predicate<UserResponse> fullName = user -> (user.getFirstName().toLowerCase(Locale.ROOT) + " " +
+                user.getLastName().toLowerCase(Locale.ROOT))
+                .contains((filteringOptions.getFilterText().toLowerCase(Locale.ROOT)));
+
+        ArrayList<UserResponse> filteredUsers = new ArrayList<>();
+        filteredUsers.addAll(response.getUsersList().stream().filter(firstName).toList());
+        filteredUsers.addAll(response.getUsersList().stream().filter(lastName).toList());
+        filteredUsers.addAll(response.getUsersList().stream().filter(fullName).toList());
+
+        response.clearUsers();
+        response.addAllUsers(new ArrayList<>(new LinkedHashSet<>(filteredUsers))); // to remove duplicates
+
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
+
+
+    /**
+     * A helper function to get all the users, sort them, and select the ones needed for the requested page
+     *
+     * @param request the PaginationRequestOptions passed through from the client service
+     * @return a builder for the PaginatedUsersResponse populated with the paginated users
+     */
+    private PaginatedUsersResponse.Builder getPaginatedUsersHelper(PaginationRequestOptions request){
+        PaginatedUsersResponse.Builder response = PaginatedUsersResponse.newBuilder();
         List<User> allUsers = (List<User>) userRepository.findAll();
-        PaginationRequestOptions request = usersRequest.getPaginationRequestOptions();
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
@@ -461,13 +512,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
-            reply.addUsers(allUsers.get(i).userResponse());
+            response.addUsers(allUsers.get(i).userResponse());
         }
         PaginationResponseOptions options = PaginationResponseOptions.newBuilder()
-                                                                     .setResultSetSize(allUsers.size())
-                                                                     .build();
-        reply.setPaginationResponseOptions(options);
-        responseObserver.onNext(reply.build());
-        responseObserver.onCompleted();
+                .setResultSetSize(allUsers.size())
+                .build();
+        response.setPaginationResponseOptions(options);
+        return response;
     }
 }

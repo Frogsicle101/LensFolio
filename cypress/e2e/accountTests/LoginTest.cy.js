@@ -1,4 +1,4 @@
-context('Login page', () => {
+describe('Login page', () => {
    beforeEach(() => {
      cy.visit('http://localhost:9000/anything')
    })
@@ -21,7 +21,7 @@ context('Login page', () => {
  })
 
 
-context("logging out", () => {
+describe("logging out", () => {
   beforeEach(() => {
     cy.studentLogin()
   })

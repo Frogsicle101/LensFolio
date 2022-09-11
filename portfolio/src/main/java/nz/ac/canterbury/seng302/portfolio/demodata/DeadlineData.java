@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.demodata;
 
+import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
@@ -9,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.naming.InvalidNameException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.NoSuchElementException;
@@ -55,7 +55,7 @@ public class DeadlineData {
             deadlineRepository.save(deadline2);
             deadlineRepository.save(deadline3);
             deadlineRepository.save(deadline4);
-        } catch(NoSuchElementException | InvalidNameException exception) {
+        } catch(NoSuchElementException | CheckException exception) {
             logger.error("Error occurred loading default deadlines");
             logger.error(exception.getMessage());
         }

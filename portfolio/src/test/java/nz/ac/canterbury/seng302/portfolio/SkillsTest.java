@@ -34,7 +34,7 @@ class SkillsTest {
         evidence.addSkill(skill);
         evidenceRepository.save(evidence);
 
-        Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
+        Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1).get(0);
         Assertions.assertEquals(evidence1.getTitle(), evidence.getTitle());
         Assertions.assertEquals(evidence1.getSkills().size(), evidence.getSkills().size());
         Assertions.assertEquals(1, evidence.getSkills().size());
@@ -55,7 +55,7 @@ class SkillsTest {
         skillRepository.save(skill3);
         evidenceRepository.save(evidence);
 
-        Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
+        Evidence evidence1 = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1).get(0);
         Assertions.assertEquals(evidence1.getTitle(), evidence.getTitle());
         Assertions.assertEquals(evidence1.getSkills().size(), evidence.getSkills().size());
         Assertions.assertEquals(3, evidence.getSkills().size());
@@ -102,5 +102,26 @@ class SkillsTest {
         Skill foundSkill = optionalSkill.get();
         Assertions.assertNotEquals(foundSkill.getName(), differentCaseSearchQuery);
         Assertions.assertEquals(skill1.getName(), foundSkill.getName());
+    }
+
+
+    @Test
+    void testSkillNameUniqueToUser() {
+        Evidence evidence1 = new Evidence(1, "test", LocalDate.now(), "test");
+        Evidence evidence2 = new Evidence(2, "test", LocalDate.now(), "test");
+        Skill skill1 = new Skill("TESTING 1");
+        Skill skill2 = new Skill("testing 1");
+        evidence1.addSkill(skill1);
+        evidence2.addSkill(skill2);
+        skillRepository.save(skill1);
+        skillRepository.save(skill2);
+        evidenceRepository.save(evidence1);
+        evidenceRepository.save(evidence2);
+
+        List<Skill> skillsForUser1 = skillRepository.findDistinctByEvidenceUserId(1);
+        List<Skill> skillsForUser2 = skillRepository.findDistinctByEvidenceUserId(2);
+
+        Assertions.assertEquals(skill1.getName(), skillsForUser1.get(0).getName());
+        Assertions.assertEquals(skill2.getName(), skillsForUser2.get(0).getName());
     }
 }

@@ -1,7 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
@@ -10,7 +9,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
-import nz.ac.canterbury.seng302.portfolio.service.CheckDateService;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.ProjectService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
@@ -49,35 +48,34 @@ public class PortfolioController {
 
     private static final String ERROR_PAGE_LOCATION = "errorPage";
 
-    private final CheckDateService checkDateService ;
+    private final DateTimeService dateTimeService;
 
-    RegexPatterns regexPatterns = new RegexPatterns();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-  /**
-   * Autowired constructor for PortfolioController to inject the required beans
-   *
-   * @param sprintRepository repository
-   * @param projectRepository repository
-   * @param userAccountsClientService The bean used to get user information
-   */
-  @Autowired
-  public PortfolioController(
-      SprintRepository sprintRepository,
-      ProjectRepository projectRepository,
-      UserAccountsClientService userAccountsClientService,
-      RegexService regexService,
-      ProjectService projectService,
-      CheckDateService checkDateService
-  ) {
-    this.projectRepository = projectRepository;
-    this.sprintRepository = sprintRepository;
-    this.userAccountsClientService = userAccountsClientService;
-    this.regexService = regexService;
-    this.projectService = projectService;
-    this.checkDateService = checkDateService;
-  }
+    /**
+     * Autowired constructor for PortfolioController to inject the required beans
+     *
+     * @param sprintRepository          repository
+     * @param projectRepository         repository
+     * @param userAccountsClientService The bean used to get user information
+     */
+    @Autowired
+    public PortfolioController(
+            SprintRepository sprintRepository,
+            ProjectRepository projectRepository,
+            UserAccountsClientService userAccountsClientService,
+            RegexService regexService,
+            ProjectService projectService,
+            DateTimeService dateTimeService
+    ) {
+        this.projectRepository = projectRepository;
+        this.sprintRepository = sprintRepository;
+        this.userAccountsClientService = userAccountsClientService;
+        this.regexService = regexService;
+        this.projectService = projectService;
+        this.dateTimeService = dateTimeService;
+    }
 
 
   /**
@@ -110,7 +108,7 @@ public class PortfolioController {
           (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)));
       LocalDate defaultOccasionDate =
           project.getStartDate(); // Today is in a sprint, the start of the project otherwise
-      if (checkDateService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
+      if (dateTimeService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
         defaultOccasionDate = LocalDate.now();
       }
       modelAndView.addObject("project", project);
@@ -119,8 +117,7 @@ public class PortfolioController {
       modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
       modelAndView.addObject("user", user);
       modelAndView.addObject("projectId", projectId);
-      modelAndView.addObject("titleRegex", regexPatterns.getTitleRegex().toString());
-      modelAndView.addObject("descriptionRegex", regexPatterns.getDescriptionRegex().toString());
+      modelAndView.addObject("titleRegex", RegexPattern.OCCASION_TITLE);
       return modelAndView;
     } catch (EntityNotFoundException err) {
       logger.error("GET REQUEST /portfolio", err);
@@ -144,8 +141,9 @@ public class PortfolioController {
             @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "projectId") Long projectId
     ) {
+        String methodLoggingTemplate = "GET REQUEST /editProject {}";
+        logger.info(methodLoggingTemplate, "Called");
         try {
-            logger.info("GET REQUEST /editProject");
 
             // Get user from server
             UserResponse user =
@@ -176,17 +174,17 @@ public class PortfolioController {
             return modelAndView;
 
         } catch (EntityNotFoundException err) {
-            logger.error("GET REQUEST /editProject", err);
+            logger.error(methodLoggingTemplate, "Error - " + err.getMessage());
             return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err);
         } catch (Exception err) {
-            logger.error("GET REQUEST /editProject", err);
+            logger.error(methodLoggingTemplate, "Error - " + err.getMessage());
             return new ModelAndView(ERROR_PAGE_LOCATION);
         }
     }
 
 
     /**
-     * Postmapping for /projectEdit, this is called when user submits there project changes.
+     * Post mapping for /projectEdit, this is called when user submits there project changes.
      *
      * @param editInfo A DTO of project from the inputs on the edit page.
      * @return Returns to the portfolio page.
@@ -198,8 +196,6 @@ public class PortfolioController {
         try {
             logger.info("POST REQUEST /projectEdit: user is editing project - {}", editInfo.getProjectId());
 
-
-
             LocalDate projectStart = LocalDate.parse(editInfo.getProjectStartDate());
             LocalDate projectEnd = LocalDate.parse(editInfo.getProjectEndDate());
 
@@ -208,17 +204,13 @@ public class PortfolioController {
                     .findById(Long.parseLong(editInfo.getProjectId()))
                     .orElseThrow(() -> new EntityNotFoundException(
                                     "Project with id " + editInfo.getProjectId() + "was not found"
-                                    )
-                                );
-
-
+                            )
+                    );
             String projectName = editInfo.getProjectName();
             String projectDescription = editInfo.getProjectDescription();
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectName, 1, 50, "Project name");
-            regexService.checkInput(
-                    RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description"
-            );
-            checkDateService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description");
+            dateTimeService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
 
             if (projectStart.isBefore(projectService.getMinStartDate(project))) {
                 return new ResponseEntity<>("Project cannot start more than a year before today", HttpStatus.BAD_REQUEST);
@@ -251,172 +243,181 @@ public class PortfolioController {
     }
 
 
-  /**
-   * Get mapping for portfolio/addSprint This is called when user wants to add a sprint.
-   *
-   * @param projectId Project to add the sprint to.
-   * @return a response entity response
-   */
-  @GetMapping("/portfolio/addSprint")
-  public ResponseEntity<Object> addSprint(@RequestParam(value = "projectId") Long projectId) {
-    try {
-      logger.info("GET REQUEST /portfolio/addSprint");
-      Project project =
-          projectRepository
-              .findById(projectId)
-              .orElseThrow(
-                  () ->
-                      new EntityNotFoundException(
-                          "Project with id " + projectId + " was not found"));
-      // Gets the amount of sprints belonging to the project
-      int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
-      String sprintName = "Sprint " + amountOfSprints;
-      LocalDate startDate = checkDateService.checkProjectHasRoomForSprints(sprintRepository, project);
-      Sprint sprint;
-      if (startDate.plusWeeks(3).isAfter(project.getEndDate())) {
-        sprint = sprintRepository.save(
-            new Sprint(project, sprintName, startDate, project.getEndDate()));
-      } else {
-        sprint = sprintRepository.save(new Sprint(project, sprintName, startDate));
-      }
-      return new ResponseEntity<>(sprint, HttpStatus.OK);
-    } catch (CheckException checkException) {
-      logger.warn(checkException.getMessage());
-      return new ResponseEntity<>(checkException.getMessage(), HttpStatus.BAD_REQUEST);
-    } catch (Exception err) {
-      logger.error("GET REQUEST /portfolio/addSprint", err);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    /**
+     * Get mapping for portfolio/addSprint This is called when user wants to add a sprint.
+     *
+     * @param projectId Project to add the sprint to.
+     * @return a response entity response
+     */
+    @GetMapping("/portfolio/addSprint")
+    public ResponseEntity<Object> addSprint(@RequestParam(value = "projectId") Long projectId) {
+        try {
+            logger.info("GET REQUEST /portfolio/addSprint");
+            Project project =
+                    projectRepository
+                            .findById(projectId)
+                            .orElseThrow(
+                                    () ->
+                                            new EntityNotFoundException(
+                                                    "Project with id " + projectId + " was not found"));
+            // Gets the amount of sprints belonging to the project
+            int amountOfSprints = sprintRepository.findAllByProjectId(projectId).size() + 1;
+            String sprintName = "Sprint " + amountOfSprints;
+            LocalDate startDate = dateTimeService.checkProjectHasRoomForSprints(sprintRepository, project);
+            Sprint sprint;
+            if (startDate.plusWeeks(3).isAfter(project.getEndDate())) {
+                sprint = sprintRepository.save(
+                        new Sprint(project, sprintName, startDate, project.getEndDate()));
+            } else {
+                sprint = sprintRepository.save(new Sprint(project, sprintName, startDate));
+            }
+            return new ResponseEntity<>(sprint, HttpStatus.OK);
+        } catch (CheckException checkException) {
+            logger.warn(checkException.getMessage());
+            return new ResponseEntity<>(checkException.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception err) {
+            logger.error("GET REQUEST /portfolio/addSprint", err);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-  }
 
 
-  /**
-   * Mapping for /sprintEdit. Looks for a sprint that matches the id and then populates the form.
-   *
-   * @param principal The authentication state
-   * @param sprintId The sprint id
-   * @return Thymeleaf template
-   */
-  @RequestMapping("/sprintEdit")
-  public ModelAndView sprintEdit(
-      @AuthenticationPrincipal Authentication principal,
-      @RequestParam(value = "sprintId") String sprintId,
-      @RequestParam(value = "projectId") Long projectId,
-      RedirectAttributes attributes) {
-    try {
-      logger.info("GET REQUEST /sprintEdit");
-      ModelAndView modelAndView = new ModelAndView("sprintEdit");
-      UserResponse user =
-          PrincipalAttributes.getUserFromPrincipal(
-              principal.getAuthState(), userAccountsClientService);
+    /**
+     * Mapping for /sprintEdit. Looks for a sprint that matches the id and then populates the form.
+     *
+     * @param principal The authentication state
+     * @param sprintId  The sprint id
+     * @return Thymeleaf template
+     */
+    @RequestMapping("/sprintEdit")
+    public ModelAndView sprintEdit(
+            @AuthenticationPrincipal Authentication principal,
+            @RequestParam(value = "sprintId") String sprintId,
+            @RequestParam(value = "projectId") Long projectId,
+            RedirectAttributes attributes) {
+        try {
+            logger.info("GET REQUEST /sprintEdit");
+            ModelAndView modelAndView = new ModelAndView("sprintEdit");
+            UserResponse user =
+                    PrincipalAttributes.getUserFromPrincipal(
+                            principal.getAuthState(), userAccountsClientService);
 
-      Sprint sprint =
-          sprintRepository
-              .findById(String.valueOf(sprintId))
-              .orElseThrow(
-                  () ->
-                      new EntityNotFoundException(
-                          "Sprint with id " + projectId.toString() + " was not found"));
+            Sprint sprint =
+                    sprintRepository
+                            .findById(String.valueOf(sprintId))
+                            .orElseThrow(
+                                    () ->
+                                            new EntityNotFoundException(
+                                                    "Sprint with id " + projectId.toString() + " was not found"));
 
-      Project project = projectRepository.getProjectById(projectId);
-      Map<String, LocalDate> neighbouringDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
-      String textForPreviousSprint;
-      String textForNextSprint;
-      modelAndView.addObject("previousSprintEnd", neighbouringDates.get("previousSprintEnd"));
-      if (neighbouringDates.get("previousSprintEnd").equals(project.getStartDate())) {
-        textForPreviousSprint =
-            "No previous sprints, Project starts on " + neighbouringDates.get("previousSprintEnd");
-      } else {
-        textForPreviousSprint =
-            "Previous sprint ends on " + neighbouringDates.get("previousSprintEnd");
-      }
-      modelAndView.addObject("textForPrevSprint", textForPreviousSprint);
-      modelAndView.addObject("nextSprintStart", neighbouringDates.get("nextSprintStart"));
-      if (neighbouringDates.get("nextSprintStart").equals(project.getEndDate())) {
-        textForNextSprint =
-            "No next sprint, project ends on  " + neighbouringDates.get("nextSprintStart");
-      } else {
-        textForNextSprint = "Next sprint starts on " + neighbouringDates.get("nextSprintStart");
-      }
-      modelAndView.addObject("textForNextSprint", textForNextSprint);
-      // Adds the username to the view for use.
-      modelAndView.addObject("user", user);
-      // Add the sprint to the view for use.
-      modelAndView.addObject("sprint", sprint);
-      return modelAndView;
-    } catch (Exception err) {
-      logger.error("GET REQUEST /sprintEdit", err);
-      attributes.addFlashAttribute(ERROR_MESSAGE, err);
-      return new ModelAndView("redirect:/portfolio?projectId=" + projectId);
+            Project project = projectRepository.getProjectById(projectId);
+            Map<String, LocalDate> neighbouringDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
+            LocalDate previousSprintEnd = neighbouringDates.get("previousSprintEnd");
+            LocalDate nextSprintStart = neighbouringDates.get("nextSprintStart");
+
+            modelAndView.addObject("previousSprintEnd", previousSprintEnd.plusDays(1));
+            modelAndView.addObject("nextSprintStart", nextSprintStart.minusDays(1));
+
+            String formattedPreviousDate = previousSprintEnd.format(DateTimeService.dayMonthYear());
+            String textForPreviousSprint;
+            if (previousSprintEnd.equals(project.getStartDate())) {
+                textForPreviousSprint =
+                        "No previous sprints, Project starts on " + formattedPreviousDate;
+            } else {
+                textForPreviousSprint =
+                        "Previous sprint ends on " + formattedPreviousDate;
+            }
+            modelAndView.addObject("textForPrevSprint", textForPreviousSprint);
+
+            String formattedNextDate = nextSprintStart.format(DateTimeService.dayMonthYear());
+            String textForNextSprint;
+            if (nextSprintStart.equals(project.getEndDate())) {
+                textForNextSprint =
+                        "No next sprint, project ends on  " + formattedNextDate;
+            } else {
+                textForNextSprint = "Next sprint starts on " + formattedNextDate;
+            }
+            modelAndView.addObject("textForNextSprint", textForNextSprint);
+
+
+            // Adds the username to the view for use.
+            modelAndView.addObject("user", user);
+            // Add the sprint to the view for use.
+            modelAndView.addObject("sprint", sprint);
+            return modelAndView;
+        } catch (Exception err) {
+            logger.error("GET REQUEST /sprintEdit", err);
+            attributes.addFlashAttribute(ERROR_MESSAGE, err);
+            return new ModelAndView("redirect:/portfolio?projectId=" + projectId);
+        }
     }
-  }
 
 
-  /**
-   * Get a list of all the sprints in a project by the project ID.
-   *
-   * @param projectId - The project that contains the sprints
-   * @return A response entity containing the sprints and the HTTP status
-   */
-  @GetMapping("/getSprintList")
-  public ResponseEntity<Object> getSprintList(@RequestParam(value = "projectId") Long projectId) {
-    List<Sprint> sprintList = sprintRepository.findAllByProjectId(projectId);
-    sprintList.sort(Comparator.comparing(Sprint::getStartDate));
-    return new ResponseEntity<>(sprintList, HttpStatus.OK);
-  }
-
-
-  /**
-   * Takes the request to update the sprint. Tries to update the sprint then redirects user.
-   *
-   * @param sprintInfo the thymeleaf-created form object
-   * @return redirect to portfolio
-   */
-  @PostMapping("/sprintSubmit")
-  public ResponseEntity<Object> updateSprint(
-      @ModelAttribute(name = "sprintEditForm") SprintRequest sprintInfo) {
-
-    try {
-      logger.info("POST REQUEST /sprintSubmit");
-      // Checks that the sprint request is acceptable
-      projectService.checkSprintRequest(sprintInfo);
-
-      LocalDate startDate = LocalDate.parse(sprintInfo.getSprintStartDate());
-      LocalDate endDate = LocalDate.parse(sprintInfo.getSprintEndDate());
-      Optional<Sprint> sprintOptional = sprintRepository.findById(sprintInfo.getSprintId());
-      if (sprintOptional.isEmpty()){
-        throw new CheckException("Sprint id doesn't correspond to existing sprint");
-      }
-      Sprint sprint = sprintOptional.get();
-      Map<String, LocalDate> checkSprintDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
-      checkDateService.checkNewSprintDateNotInsideOtherSprints(checkSprintDates.get("previousSprintEnd"), checkSprintDates.get("nextSprintStart"), sprintInfo);
-      sprint.setName(sprintInfo.getSprintName());
-      sprint.setStartDate(startDate);
-      sprint.setEndDate(endDate);
-      sprint.setDescription(sprintInfo.getSprintDescription());
-      sprint.setColour(sprintInfo.getSprintColour());
-      sprintRepository.save(sprint);
-      return new ResponseEntity<>(HttpStatus.OK);
-    } catch (CheckException checkException){
-        logger.warn("/sprintSubmit issue with SprintRequest: {}", checkException.getMessage());
-        return new ResponseEntity<>(checkException.getMessage(), HttpStatus.BAD_REQUEST);
-    } catch (Exception err) {
-        logger.error("POST REQUEST /sprintSubmit {}", err.getMessage());
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    /**
+     * Get a list of all the sprints in a project by the project ID.
+     *
+     * @param projectId - The project that contains the sprints
+     * @return A response entity containing the sprints and the HTTP status
+     */
+    @GetMapping("/getSprintList")
+    public ResponseEntity<Object> getSprintList(@RequestParam(value = "projectId") Long projectId) {
+        List<Sprint> sprintList = sprintRepository.findAllByProjectId(projectId);
+        sprintList.sort(Comparator.comparing(Sprint::getStartDate));
+        return new ResponseEntity<>(sprintList, HttpStatus.OK);
     }
-  }
 
 
-  /**
-   * Mapping for delete request "deleteSprint"
-   *
-   * @param id UUID of sprint to delete
-   * @return Confirmation of delete
-   */
-  @DeleteMapping("deleteSprint")
-  public ResponseEntity<String> deleteSprint(@RequestParam(value = "sprintId") UUID id) {
-    logger.info("DELETE REQUEST /deleteSprint");
-    sprintRepository.deleteById(String.valueOf(id));
-    return new ResponseEntity<>(HttpStatus.ACCEPTED);
-  }
+    /**
+     * Takes the request to update the sprint. Tries to update the sprint then redirects user.
+     *
+     * @param sprintInfo the thymeleaf-created form object
+     * @return redirect to portfolio
+     */
+    @PostMapping("/sprintSubmit")
+    public ResponseEntity<Object> updateSprint(
+            @ModelAttribute(name = "sprintEditForm") SprintRequest sprintInfo) {
+
+        try {
+            logger.info("POST REQUEST /sprintSubmit");
+            // Checks that the sprint request is acceptable
+            projectService.checkSprintRequest(sprintInfo);
+
+            LocalDate startDate = LocalDate.parse(sprintInfo.getSprintStartDate());
+            LocalDate endDate = LocalDate.parse(sprintInfo.getSprintEndDate());
+            Optional<Sprint> sprintOptional = sprintRepository.findById(sprintInfo.getSprintId());
+            if (sprintOptional.isEmpty()) {
+                throw new CheckException("Sprint id doesn't correspond to existing sprint");
+            }
+            Sprint sprint = sprintOptional.get();
+            Map<String, LocalDate> checkSprintDates = projectService.checkNeighbourDatesForSprint(sprint, sprintRepository);
+            dateTimeService.checkNewSprintDateNotInsideOtherSprints(checkSprintDates.get("previousSprintEnd"), checkSprintDates.get("nextSprintStart"), sprintInfo);
+            sprint.setName(sprintInfo.getSprintName());
+            sprint.setStartDate(startDate);
+            sprint.setEndDate(endDate);
+            sprint.setDescription(sprintInfo.getSprintDescription());
+            sprint.setColour(sprintInfo.getSprintColour());
+            sprintRepository.save(sprint);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (CheckException checkException) {
+            logger.warn("/sprintSubmit issue with SprintRequest: {}", checkException.getMessage());
+            return new ResponseEntity<>(checkException.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception err) {
+            logger.error("POST REQUEST /sprintSubmit {}", err.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Mapping for delete request "deleteSprint"
+     *
+     * @param id UUID of sprint to delete
+     * @return Confirmation of delete
+     */
+    @DeleteMapping("deleteSprint")
+    public ResponseEntity<String> deleteSprint(@RequestParam(value = "sprintId") UUID id) {
+        logger.info("DELETE REQUEST /deleteSprint");
+        sprintRepository.deleteById(String.valueOf(id));
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
 }

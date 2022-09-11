@@ -1,13 +1,13 @@
-$(document).ready(() => {
+$(() => {
     //Jquery selectors to remove duplicity
     let shortName = $("#shortName")
     let longName = $("#longName")
     let formControl = $(".form-control");
     formControl.each(countCharacters)
-    formControl.keyup(countCharacters)
+    formControl.on("keyup", countCharacters)
 
     // On create group form submit
-    $("#createGroupForm").submit(function (event) {
+    $("#createGroupForm").on("submit", function (event) {
         event.preventDefault(); // Prevents submit
 
         let groupData = {
@@ -23,7 +23,7 @@ $(document).ready(() => {
                 location.href = "groups" // On success reloads page
             },
             error: function (error) {//Displays error in box on failure
-                createAlert(error.responseText, true)
+                createAlert(error.responseText, "failure")
             }
         })
     })

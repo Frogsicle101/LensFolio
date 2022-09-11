@@ -40,7 +40,6 @@
                         <label class="required form-label" for="firstname">First name</label>
                         <!--/*@thymesVar id="user" type="nz.ac.canterbury.seng302.shared.identityprovider.UserResponse"*/-->
                         <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-
                         <input class="form-control canDisable" disabled id="firstname" maxlength="50"
                                name="firstname" required
                                th:pattern="${generalUnicodeRegex.getPatternString()}"
@@ -193,7 +192,7 @@
     </div>
 </section>
 
-
+<script th:src="@{js/notifications.js}" type="application/javascript"></script>
 <script th:src="@{js/account.js}" type="application/javascript"></script>
 </body>
 </html>

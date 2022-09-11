@@ -3,17 +3,14 @@ let selectedChip;
 /**
  * Runs when the page is loaded. This gets the user being viewed and adds dynamic elements.
  */
-$(document).ready(function () {
+$(() => {
     let urlParams = new URLSearchParams(window.location.search)
     if (urlParams.has("userId")) {
         userBeingViewedId = urlParams.get('userId')
     } else {
-        userBeingViewedId = userIdent
+        userBeingViewedId = userIdent.toString()
     }
 
-    if (userBeingViewedId !== userIdent) {
-        $(".createEvidenceButton").hide();
-    }
     getAndAddEvidencePreviews()
     addCategoriesToSidebar()
     getSkills(addSkillsToSideBar)
@@ -27,17 +24,10 @@ $(document).ready(function () {
 function addSkillsToSideBar() {
     let skillsContainer = $('#skillList')
     skillsContainer.empty()
-    if (! skillsArray.includes("No Skill")) {
-        skillsArray.unshift("No Skill")
-    }
+
+    skillsContainer.append(createSkillChip("No Skill", true))
     for (let skill of skillsArray) {
-        skillsContainer.append(createSkillChip(skill.replaceAll("_", " ")))
-        // skillsContainer.append(`
-        //     <div class="skillListItem evidenceFilter ${skill === selectedChip ? 'selectedSkill' : ''}"
-        //     id="SkillCalled${skill.replaceAll(" ", "_")}"> <!-- This ID has underscores instead of spaces  -->
-        //     <p class="skillName">${skill.replaceAll("_", " ")}</p>
-        //     </div>
-        // `)
+        skillsContainer.append(createSkillChip(skill.replaceAll("_", " "), true))
     }
 }
 
@@ -47,13 +37,8 @@ function addSkillsToSideBar() {
  */
 function addCategoriesToSidebar() {
     let categoriesList = $('#categoryList')
-    for (let category of categoryArray) {
-        categoriesList.append(createCategoryChip(category))
-        // categoriesList.append(`
-        //     <div class="categoryChip ${category === selectedChip ? 'selectedSkill' : ''}">
-        //     <p class="skillName chipText">${category}</p>
-        //     </div>
-        // `)
+    for (let category of categoriesMapping.values()) {
+        categoriesList.append(createCategoryChip(category, true))
     }
 }
 
@@ -71,7 +56,7 @@ function showEvidenceWithSkill() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -90,7 +75,7 @@ function showEvidenceWithCategory() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, true)
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -109,79 +94,35 @@ function updateSelectedEvidence() {
 }
 
 
-
 /* ------------ Event Listeners ----------------- */
 
 
 /**
- * When a skill div in the sidebar is clicked, it becomes selected and is displays all evidence with that skill.
+ * When a chip div is clicked, it selects the skill/category in the sidebar and is displays all
+ * evidence with that skill/category.
  *
  * There are 3 steps to this:
- *    1. remove the selected class from the previously selected div.
+ *    1. remove the selected class from selected divs.
  *    2. Add the selected class to the clicked div, and assign it as selected
  *    3. Populate the display with the selected evidence details.
  */
-$(document).on("click", ".skillListItem" , function () {
-    let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
-    previouslySelectedDiv.removeClass("selectedSkill")
+$(document).on("click", ".chip" , function (event) {
+    $(".selected").removeClass("selected")
 
-    $(this).addClass("selectedSkill")
-    selectedChip = $(this).find('.skillName').text()
+    let clicked = $(this)
+    selectedChip = clicked.find('.chipText').text()
+    let isSkill = clicked.hasClass("skillChip")
+    let chipId = isSkill ? ("#skillCalled" + selectedChip.replaceAll(" ", "_")) : ("#categoryCalled" + selectedChip)
+    $(chipId).addClass("selected")
 
-    let title = $(document).find(".evidenceTitle").first()
+    let title = $(".evidenceTitle").first()
     title.text(selectedChip)
-
-    showEvidenceWithSkill()
-})
-
-
-/**
- * When a category div in the sidebar is clicked, it becomes selected and is displays all evidence with that category.
- *
- * There are 3 steps to this:
- *    1. remove the selected class from the previously selected div.
- *    2. Add the selected class to the clicked div, and assign it as selected
- *    3. Populate the display with the selected evidence details.
- */
-$(document).on("click", ".categoryChip" , function (e) {
-    let previouslySelectedDiv = $(this).parent().find(".selectedSkill").first()
-    previouslySelectedDiv.removeClass("selectedSkill")
-
-    selectedChip = $(this).find('.chipText').text()
-
-    let title = $(document).find(".evidenceTitle").first()
-    title.text(selectedChip)
-
-    showEvidenceWithCategory()
-
-    e.stopPropagation() //prevent evidence below chip from being selected
-})
-
-
-
-/**
- * When a skill div inside a piece of evidence is clicked, it selects the skill in the
- * sidebar and is displays all evidence with that skill.
- *
- * There are 3 steps to this:
- *    1. remove the selected class from the previously selected div.
- *    2. Add the selected class to the clicked div, and assign it as selected
- *    3. Populate the display with the selected evidence details.
- */
-$(document).on("click", ".skillChip" , function (e) {
-    let previouslySelectedDiv = $(document).find(".selectedSkill").first()
-    previouslySelectedDiv.removeClass("selectedSkill")
-
-    selectedChip = $(this).find('.chipText').text()
-    let skillId = "#SkillCalled" + selectedChip.replaceAll(" ", "_") // The ID has underscores instead of spaces
-    $(document).find(skillId).addClass("selectedSkill")
-
-    let title = $(document).find(".evidenceTitle").first()
-    title.text(selectedChip)
-
-    showEvidenceWithSkill()
-
-    e.stopPropagation() //prevent evidence below chip from being selected
+    if (isSkill) {
+        showEvidenceWithSkill()
+    } else {
+        showEvidenceWithCategory()
+    }
+    event.stopPropagation() //prevent evidence below chip from being selected
 })
 
 
@@ -191,37 +132,37 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 /**
  *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling
  */
-$(document).on("click", ".createEvidenceButton" , () => {
-    $(".addEvidenceModal").show()
+$(document).on("click", "#createEvidenceButton" , () => {
+    $("#addEvidenceModal").show()
     $(".modal-content").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 })
 
 
 /**
- *  A Listener for the cancel create evidence button. This calls the function to close the modal
+ *  A listener for the cancel create evidence button. Calls the function to close the modal
  */
-$(document).on("click", "#evidenceCancelButton", function (event) {
+$(document).on("click", "#evidenceCancelButton", function () {
     closeModal()
 })
 
 
 /**
- *  When the mouse is clicked, if the modal is open and the click is outside the modal this will call the function to
- *  close the modal
+ *  When the mouse is clicked, if the modal is open, the click is outside the modal, and the click is not on an alert,
+ *  calls the function to close the modal.
  */
 window.onmousedown = function(event) {
-    let modalDisplay = $(".addEvidenceModal").css("display")
-    if (modalDisplay === "block" && !event.target.closest(".modal-content")) {
+    let modalDisplay = $("#addEvidenceModal").css("display")
+    if (modalDisplay === "block" && !event.target.closest(".modal-content") && !event.target.closest(".alert")) {
         closeModal()
     }
 }
 
 
 /**
- *  A function to close the modal and allow the page below to scroll again
+ *  Closes the modal and allows the page below to scroll again
  */
 function closeModal() {
-    $(".modal-content").hide("drop", {direction: "up"}, 200, () => {$(".addEvidenceModal").hide()})
+    $(".modal-content").hide("drop", {direction: "up"}, 200, () => {$("#addEvidenceModal").hide()})
     $('body,html').css('overflow','auto');
 }

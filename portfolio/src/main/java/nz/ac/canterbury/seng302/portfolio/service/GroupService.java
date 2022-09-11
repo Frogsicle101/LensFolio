@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
+import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -7,6 +8,7 @@ import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -99,5 +101,21 @@ public class GroupService {
                 .setPaginationRequestOptions(options)
                 .build();
         return groupsClientService.getPaginatedGroups(request);
+    }
+
+
+    /**
+     * Creates a list of Group objects from a paginated group response.
+     *
+     * @param paginatedGroupsResponse The paginated group response to create the list from.
+     * @return A list of group objects.
+     */
+    public List<GroupResponseDTO> createGroupListFromResponse(PaginatedGroupsResponse paginatedGroupsResponse){
+        List<GroupResponseDTO> groupDTOS = new ArrayList<>();
+        for(GroupDetailsResponse groupDetailsResponse: paginatedGroupsResponse.getGroupsList()) {
+            GroupResponseDTO groupDTO = new GroupResponseDTO(groupDetailsResponse);
+            groupDTOS.add(groupDTO);
+        }
+        return groupDTOS;
     }
 }

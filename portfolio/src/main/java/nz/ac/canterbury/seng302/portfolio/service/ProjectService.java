@@ -56,17 +56,17 @@ public class ProjectService {
             indexOfPrevSprint = indexOfPrevSprint - 1;
             // Adds an object to the view that limits the calendar to dates past the previous sprints end.
             neighbouringSprintDates.put(
-                    "previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate().plusDays(1));
+                    "previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate());
         } else {
             // Else adds an object to the view that limits the calendar to project start .
-            neighbouringSprintDates.put("previousSprintEnd", project.getStartDate());
+            neighbouringSprintDates.put("previousSprintEnd", project.getStartDate().minusDays(1));
         }
         // Checks if the selected sprint is not the last on the list
         if (indexOfNextSprint < sprintList.size() - 1) {
             indexOfNextSprint = indexOfNextSprint + 1;
             // Adds an object to the view that limits the calendar to dates before the next sprints starts.
             neighbouringSprintDates.put(
-                    "nextSprintStart", sprintList.get(indexOfNextSprint).getStartDate().minusDays(1));
+                    "nextSprintStart", sprintList.get(indexOfNextSprint).getStartDate());
         } else {
             // Else adds an object to the view that limits the calendar to be before the project end.
             neighbouringSprintDates.put("nextSprintStart", project.getEndDate());
@@ -74,6 +74,7 @@ public class ProjectService {
 
         return neighbouringSprintDates;
     }
+
 
     /**
      * Checks the SprintRequest DTO is all good and correct
@@ -93,10 +94,11 @@ public class ProjectService {
             if (sprintEndDate.isBefore(sprintStartDate)) {
                 throw new CheckException("Sprint end date is before sprint start date");
             }
-        }catch (DateTimeParseException err) {
+        } catch (DateTimeParseException err) {
             throw new CheckException("Date(s) is in incorrect format");
         }
     }
+
 
     /**
      * Gets the minimum start date for a project.
@@ -111,6 +113,7 @@ public class ProjectService {
             return LocalDate.now().minusYears(1);
         }
     }
+
 
     /**
      * Gets the max start date for a project. This will be the start date of the first sprint, or LocalDate.MAX if the
@@ -144,6 +147,4 @@ public class ProjectService {
             return project.getStartDate();
         }
     }
-
-
 }

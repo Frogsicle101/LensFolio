@@ -66,7 +66,7 @@ class CategoryControllerTest {
         Category category = Category.SERVICE;
         String expectedContent = "[]";
 
-        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(new ArrayList<>());
+        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(existingUserId,category)).thenReturn(new ArrayList<>());
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
                         .param("userId", String.valueOf(existingUserId))
@@ -90,8 +90,7 @@ class CategoryControllerTest {
         evidences.add(evidence1);
         String expectedContent = "["+evidence1.toJsonString()+"]";
 
-
-        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(evidences);
+        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(existingUserId,category)).thenReturn(evidences);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
                         .param("userId", String.valueOf(existingUserId))
@@ -117,7 +116,7 @@ class CategoryControllerTest {
         evidences.add(evidence2);
         String expectedContent = "["+evidence1.toJsonString()+"," + evidence1.toJsonString() +"]";
 
-        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(evidences);
+        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(existingUserId,category)).thenReturn(evidences);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
                         .param("userId", String.valueOf(existingUserId))
