@@ -631,7 +631,55 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
-        appendTo: "#addEvidenceModal"
+        appendTo: ".modal-content"
+    })
+    .data('ui-autocomplete')._renderItem = function (ul, item) {
+    //This handles the display of the drop-down menu.
+    return $("<li></li>")
+        .data("ui-autocomplete-item", item)
+        .append('<a>' + item.label + '</a>')
+        .appendTo(ul);
+};
+
+
+/**
+ * Autocomplete widget provided by jQueryUi
+ * https://jqueryui.com/autocomplete/
+ */
+$("#linkUsersInput")
+    .autocomplete({
+        autoFocus: true, // This default selects the top result
+        minLength: 1,
+        delay: 700,
+        appendTo: ".modal-content",
+        source: function (request, response) {
+            $.ajax({
+                url: 'filteredUsers?name=' + request.term.toString(), type: "GET", contentType: "application/json", success: function (res) {
+                    let users = [];
+                    $.each(res, function (i) {
+                        let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i] }
+                        users.push(user)
+                    })
+                    response(users)
+                }, error: function (error) {
+                    createAlert(error.responseText, "failure", ".modal-body")
+                }
+            })
+        },
+        focus: function () {
+            // prevent value inserted on focus
+            return false;
+        },
+        select: function (event, ui) {
+            let terms = split(this.value);
+            // remove the current input
+            terms.pop();
+            // add the selected item
+            let user = ui.item.value
+            addLinkedUser(user);
+            $(this).val('')
+            return false;
+        }
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -1020,6 +1068,23 @@ function webLinkButtonToggle() {
 
 
 /**
+ * Toggles the add Linked Users button and slide-toggles the form
+ */
+$(document).on('click', '#linkUsersToEvidenceButton', function () {
+    let linkedUsersForm = $("#linkUsersForm")
+    let linkButton = $("#linkUsersToEvidenceButton");
+    if (linkButton.hasClass("toggled")) {
+        linkButton.text("Link Users")
+        linkButton.removeClass("toggled")
+    } else {
+        linkButton.text("Cancel")
+        linkButton.addClass("toggled")
+    }
+    linkedUsersForm.slideToggle();
+})
+
+
+/**
  * Appends a new link to the list of added links in the Add Evidence form.
  */
 function submitWebLink() {
@@ -1044,6 +1109,26 @@ function submitWebLink() {
 
 
 /**
+ * Adds the user to be linked to the create evidence modal
+ */
+function addLinkedUser(user) {
+    let linkedUsersDiv = $("#linkedUsers")
+    $("#linkedUsersTitle").show()
+    if ($('#linkedUserId' + user.id).length === 0) {
+        linkedUsersDiv.append(linkedUserElement(user))
+    }
+}
+
+
+/**
+ * Creates the element for displaying the linked user
+ */
+function linkedUserElement(user) {
+    return `<div id=linkedUserId${user.id}>${user.firstName} ${user.lastName} (${user.username})</div>`
+}
+
+
+/**
  * Clears all fields (except the date field) in the "Add Evidence" form.
  */
 function clearAddEvidenceModalValues() {
@@ -1053,8 +1138,10 @@ function clearAddEvidenceModalValues() {
     $("#webLinkName").val("")
     $("#evidenceDate").val(todaysDate)
     $("#addedWebLinks").empty()
-    $("#webLinkTitle").empty()
+    $("#linkedUsers").empty()
+    $("#webLinkTitle").hide()
     $("#skillsInput").val("")
+    $("#linkedUsersTitle").hide()
     $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
     $(".evidenceCategoryTickIcon").hide();
     $(".countCharName").html("50 characters remaining")

@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepoRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepository;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,7 +53,6 @@ public class GitRepoController {
      */
     @PostMapping("/editGitRepo")
     public ResponseEntity<Object> addGitRepo(
-            @AuthenticationPrincipal Authentication principal,
             @RequestParam Integer groupId,
             @RequestParam Integer projectId,
             @RequestParam String alias,

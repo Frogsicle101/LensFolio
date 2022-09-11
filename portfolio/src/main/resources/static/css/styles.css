@@ -19,7 +19,6 @@ section {
     margin-left: auto;
 }
 
-
 .center {
     display: flex;
     flex-direction: column;
@@ -272,7 +271,7 @@ section {
 .eventContainer {
     display: flex;
     flex-direction: column;
-    min-width: 30rem;
+    min-width: 38rem;
     border-right: solid 1px var(--main-border-colour);
     padding-left: 1rem;
     padding-top: 1rem;
@@ -690,6 +689,33 @@ section {
 
 }
 
+.groupAmountOptions{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.groupAmountSelectorDiv{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+    width: 40rem;
+    padding: 1rem;
+}
+
+.labelForGroupDisplayAmount{
+    padding-right: 1rem;
+}
+
+#groupDisplayAmountSelection{
+    width: 10rem;
+}
+
+
 .scrollableGroupDetails {
     position: absolute;
     width: 49%;
@@ -702,7 +728,6 @@ section {
     margin-right: 1rem;
     box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
 }
-
 
 .group {
     position: relative;
@@ -725,7 +750,6 @@ section {
 #groupTableBody .ui-selected {
     background-color: var(--main-border-colour)
 }
-
 
 .colourForDrag {
     background-color: var(--main-border-colour);
@@ -851,6 +875,11 @@ section {
 
 #groupSettingsPageRepoName {
     flex-grow: 1;
+}
+
+.groupRepoInfo {
+    overflow-wrap: anywhere;
+    padding-left: 0.5rem;
 }
 
 .editRepo:hover {
@@ -1062,17 +1091,17 @@ section {
 }
 
 #addEvidenceModal {
-  display: none;
-  position: fixed;
-  z-index: 5;
-  padding-top: 100px;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.4);
+    display: none;
+    position: fixed;
+    z-index: 5;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {
@@ -1134,6 +1163,16 @@ section {
     width: fit-content;
 }
 
+#linkUsers {
+    padding-left: 1.5rem;
+    padding-top: 1rem;
+    word-break: break-word;
+}
+
+#linkedUsers {
+    padding-left: 0.5rem;
+}
+
 .webLinkTooltip.tooltip-arrow {
     padding-left: 2rem;
 }
@@ -1153,12 +1192,11 @@ section {
 
 /* Chips */
 
-.evidencePreviewTags, #evidenceDetailsSkills{
+.evidencePreviewTags, #evidenceDetailsSkills {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 }
-
 
 .chip {
     padding: 0.2rem 1rem 0.2rem;
@@ -1167,7 +1205,6 @@ section {
     border-radius: var(--border-radius);
     display: flex;
     flex-direction: row;
-    max-width: fit-content;
     box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
 }
 
@@ -1187,6 +1224,11 @@ section {
 .skillChipInvalid {
     background-color: #ee3636;
 }
+
+#skillChipDisplay {
+    justify-content: left;
+}
+
 
 .chipText {
     margin: auto;
@@ -1211,6 +1253,7 @@ section {
 
 
 /* skills page */
+
 .flexContainer {
     display: flex;
     flex-direction: row;
@@ -1280,4 +1323,8 @@ section {
     padding-bottom: 0.5rem;
     padding-top: 0.5rem;
     margin-bottom: 0;
+}
+
+#linkUsersForm {
+    padding-top: 1rem;
 }

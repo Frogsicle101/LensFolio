@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.preferences.UserPrefRepository;
+import nz.ac.canterbury.seng302.portfolio.service.PaginationService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
@@ -10,8 +11,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.ui.Model;
 
 import java.util.*;
@@ -23,13 +26,20 @@ class UserListControllerTest {
 
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
 
-    @InjectMocks
-    private static final UserListController userListController = spy(UserListController.class);
+
+    private static final PaginationService paginationService = spy(PaginationService.class);
+
+
+    private static final UserPrefRepository userPrefRepository = mock(UserPrefRepository.class);
+
+
+    private static final UserListController userListController = new UserListController(mockClientService, userPrefRepository, paginationService);
     private final ArrayList<UserResponse> expectedUsersList = new ArrayList<>();
     private final Authentication principal = new Authentication(AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build());
 
-    @Autowired
-    private UserPrefRepository userPrefRepository;
+
+
+
 
     /** used to set the values for the tests, this number should be the same as the value in the UserListController **/
     private Integer usersPerPage = 10;

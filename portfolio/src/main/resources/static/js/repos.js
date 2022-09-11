@@ -19,6 +19,7 @@ $(document).on("click", ".editRepo", () => {
     editButton.tooltip("hide");
     const parent = $("#repoSettingsContainer");
 
+    const maxProjectIdNumber = 2147483647 // Max java integer
     parent.html(
         `<form id="editRepoForm" class="marginSides1">
             <div class="mb-1">
@@ -27,11 +28,11 @@ $(document).on("click", ".editRepo", () => {
             </div>
             <div class="mb-1">
                 <label class="form-label">Project ID (must be a number):</label>
-                <input type="number" id="projectId" class="form-control" required value="${sanitise($(".groupSettingsPageProjectId").text())}">
+                <input type="number" id="projectId" class="form-control" required max=${maxProjectIdNumber} value="${sanitise($(".groupSettingsPageProjectId").text())}">
             </div>
             <div class="mb-1">
                 <label class="form-label">Access Token (minimum 20 characters):</label>
-                <input type="text" id="accessToken" class="form-control" required minlength=20 value="${sanitise($(".groupSettingsPageAccessToken").text())}">
+                <input type="text" id="accessToken" class="form-control" required minlength=20 value="${sanitise($("#groupSettingsPageAccessToken").text())}">
             </div>
             <div class="mb-3 mt-3">
                 <button type="submit" class="btn btn-primary">Save</button>
@@ -56,9 +57,9 @@ $(document).on("submit", "#editRepoForm", function (event) {
     event.preventDefault();
 
     const repoData = {
-        "groupId" : selectedGroupId,
-        "projectId" : $("#projectId").val(),
-        "alias" : $("#repoName").val(),
+        "groupId": selectedGroupId,
+        "projectId": $("#projectId").val(),
+        "alias": $("#repoName").val(),
         "accessToken": $("#accessToken").val()
     }
 

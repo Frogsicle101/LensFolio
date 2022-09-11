@@ -1,7 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
@@ -27,10 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 public class PortfolioController {
@@ -51,7 +47,6 @@ public class PortfolioController {
 
     private final DateTimeService dateTimeService;
 
-    RegexPatterns regexPatterns = new RegexPatterns();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -80,56 +75,55 @@ public class PortfolioController {
     }
 
 
-    /**
-     * Get mapping for /Portfolio
-     *
-     * @param principal - The Authentication of the user making the request, for authentication
-     * @param projectId the ID of the project to display
-     * @return returns the portfolio view, or error-page
-     */
-    @GetMapping("/portfolio")
-    public ModelAndView getPortfolio(
-            @AuthenticationPrincipal Authentication principal,
-            @RequestParam(value = "projectId") long projectId) {
-        try {
-            logger.info("GET REQUEST /portfolio: Getting page");
-            UserResponse user =
-                    PrincipalAttributes.getUserFromPrincipal(
-                            principal.getAuthState(), userAccountsClientService);
-            Optional<Project> projectOptional = projectRepository.findById(projectId);
-            if (projectOptional.isEmpty()) {
-                throw new EntityNotFoundException("Project not found");
-            }
-            Project project = projectOptional.get();
-            ModelAndView modelAndView = new ModelAndView("portfolio");
-            // Checks what role the user has. Adds boolean object to the view so that displays can be
-            // changed on the frontend.
-            List<UserRole> roles = user.getRolesList();
-            modelAndView.addObject(
-                    "userCanEdit",
-                    (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)));
-            LocalDate defaultOccasionDate =
-                    project.getStartDate(); // Today is in a sprint, the start of the project otherwise
-            if (dateTimeService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
-                defaultOccasionDate = LocalDate.now();
-            }
-            modelAndView.addObject("project", project);
-            modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
-            modelAndView.addObject("eventNameLengthRestriction", Milestone.getNameLengthRestriction());
-            modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
-            modelAndView.addObject("user", user);
-            modelAndView.addObject("projectId", projectId);
-            modelAndView.addObject("titleRegex", regexPatterns.getTitleRegex().toString());
-            modelAndView.addObject("descriptionRegex", regexPatterns.getDescriptionRegex().toString());
-            return modelAndView;
-        } catch (EntityNotFoundException err) {
-            logger.error("GET REQUEST /portfolio", err);
-            return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err.getMessage());
-        } catch (Exception err) {
-            logger.error("GET REQUEST /portfolio", err);
-            return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err);
-        }
+  /**
+   * Get mapping for /Portfolio
+   *
+   * @param principal - The Authentication of the user making the request, for authentication
+   * @param projectId the ID of the project to display
+   * @return returns the portfolio view, or error-page
+   */
+  @GetMapping("/portfolio")
+  public ModelAndView getPortfolio(
+      @AuthenticationPrincipal Authentication principal,
+      @RequestParam(value = "projectId") long projectId) {
+    try {
+      logger.info("GET REQUEST /portfolio: Getting page");
+      UserResponse user =
+          PrincipalAttributes.getUserFromPrincipal(
+              principal.getAuthState(), userAccountsClientService);
+      Optional<Project> projectOptional = projectRepository.findById(projectId);
+      if (projectOptional.isEmpty()) {
+        throw new EntityNotFoundException("Project not found");
+      }
+      Project project = projectOptional.get();
+      ModelAndView modelAndView = new ModelAndView("portfolio");
+      // Checks what role the user has. Adds boolean object to the view so that displays can be
+      // changed on the frontend.
+      List<UserRole> roles = user.getRolesList();
+      modelAndView.addObject(
+          "userCanEdit",
+          (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)));
+      LocalDate defaultOccasionDate =
+          project.getStartDate(); // Today is in a sprint, the start of the project otherwise
+      if (dateTimeService.dateIsInSprint(LocalDate.now(), project, sprintRepository)) {
+        defaultOccasionDate = LocalDate.now();
+      }
+      modelAndView.addObject("project", project);
+      modelAndView.addObject("sprints", sprintRepository.findAllByProjectId(project.getId()));
+      modelAndView.addObject("eventNameLengthRestriction", Milestone.getNameLengthRestriction());
+      modelAndView.addObject("defaultOccasionDate", defaultOccasionDate);
+      modelAndView.addObject("user", user);
+      modelAndView.addObject("projectId", projectId);
+      modelAndView.addObject("titleRegex", RegexPattern.OCCASION_TITLE);
+      return modelAndView;
+    } catch (EntityNotFoundException err) {
+      logger.error("GET REQUEST /portfolio", err);
+      return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err.getMessage());
+    } catch (Exception err) {
+      logger.error("GET REQUEST /portfolio", err);
+      return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err);
     }
+  }
 
 
     /**
@@ -144,9 +138,9 @@ public class PortfolioController {
             @AuthenticationPrincipal Authentication principal,
             @RequestParam(value = "projectId") Long projectId
     ) {
-        final String logMessage = "GET REQUEST /editProject";
+        String methodLoggingTemplate = "GET REQUEST /editProject {}";
+        logger.info(methodLoggingTemplate, "Called");
         try {
-            logger.info(logMessage);
 
             // Get user from server
             UserResponse user =
@@ -177,17 +171,17 @@ public class PortfolioController {
             return modelAndView;
 
         } catch (EntityNotFoundException err) {
-            logger.error(logMessage, err);
+            logger.error(methodLoggingTemplate, "Error - " + err.getMessage());
             return new ModelAndView(ERROR_PAGE_LOCATION).addObject(ERROR_MESSAGE, err);
         } catch (Exception err) {
-            logger.error(logMessage, err);
+            logger.error(methodLoggingTemplate, "Error - " + err.getMessage());
             return new ModelAndView(ERROR_PAGE_LOCATION);
         }
     }
 
 
     /**
-     * Postmapping for /projectEdit, this is called when user submits there project changes.
+     * Post mapping for /projectEdit, this is called when user submits there project changes.
      *
      * @param editInfo A DTO of project from the inputs on the edit page.
      * @return Returns to the portfolio page.
@@ -199,7 +193,6 @@ public class PortfolioController {
         try {
             logger.info("POST REQUEST /projectEdit: user is editing project - {}", editInfo.getProjectId());
 
-
             LocalDate projectStart = LocalDate.parse(editInfo.getProjectStartDate());
             LocalDate projectEnd = LocalDate.parse(editInfo.getProjectEndDate());
 
@@ -210,14 +203,10 @@ public class PortfolioController {
                                     "Project with id " + editInfo.getProjectId() + "was not found"
                             )
                     );
-
-
             String projectName = editInfo.getProjectName();
             String projectDescription = editInfo.getProjectDescription();
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectName, 1, 50, "Project name");
-            regexService.checkInput(
-                    RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description"
-            );
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, projectDescription, 0, 200, "Project description");
             dateTimeService.checkProjectAndItsSprintDates(sprintRepository, project, editInfo);
 
             if (projectStart.isBefore(projectService.getMinProjectStartDate(project))) {
