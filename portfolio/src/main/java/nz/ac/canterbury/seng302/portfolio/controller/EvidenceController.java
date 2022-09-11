@@ -222,8 +222,7 @@ public class EvidenceController {
             @RequestBody EvidenceDTO evidenceDTO
     ) {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
-        logger.info(evidenceDTO.getTitle());
-        logger.info(evidenceDTO.getProjectId().toString());
+
         try {
             Evidence evidence = evidenceService.addEvidence(principal, evidenceDTO);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
