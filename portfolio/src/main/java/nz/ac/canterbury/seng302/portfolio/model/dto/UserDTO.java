@@ -28,6 +28,26 @@ public class UserDTO {
         this.imagePath = userResponse.getProfileImagePath();
     }
 
+    /**
+     * This method is used to help with testing. It returns the expected JSON string created for this object.
+     *
+     * @return the Json string the represents this piece of evidence.
+     */
+    public String toJsonString() {
+        return "{" +
+                "\"id\":" + id +
+                "," + "\"username\":\"" + username + "\"" +
+                "," + "\"firstName\":\"" + firstName + "\"" +
+                "," + "\"middleName\":\"" + middleName + "\"" +
+                "," + "\"lastName\":\"" + lastName + "\"" +
+                "," + "\"nickname\":\"" + nickname + "\"" +
+                "," + "\"bio\":\"" + bio + "\"" +
+                "," + "\"pronouns\":\"" + pronouns + "\"" +
+                "," + "\"email\":\"" + email + "\"" +
+                "," + "\"imagePath\":\"" + imagePath + "\"" +
+                "}";
+    }
+
     public int getId() {
         return id;
     }
