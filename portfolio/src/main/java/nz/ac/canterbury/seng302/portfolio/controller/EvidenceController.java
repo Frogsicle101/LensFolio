@@ -204,7 +204,6 @@ public class EvidenceController {
      *
      * @param principal   The authentication principal for the logged-in user
      * @param evidenceDTO The EvidenceDTO object containing the required data for the evidence instance being created.
-
      * @return returns a ResponseEntity. This entity includes the new piece of evidence if successful.
      */
     @PostMapping(value = "/evidence")
