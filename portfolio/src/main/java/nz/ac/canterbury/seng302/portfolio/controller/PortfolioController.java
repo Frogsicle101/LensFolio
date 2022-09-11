@@ -27,7 +27,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 public class PortfolioController {
@@ -320,10 +323,10 @@ public class PortfolioController {
             LocalDate previousSprintEnd = sprintValidator.getMinSprintStartDate();
             LocalDate nextSprintStart = sprintValidator.getMaxSprintEndDate();
 
-            modelAndView.addObject("previousSprintEnd", previousSprintEnd.plusDays(1));
+            modelAndView.addObject("previousSprintEnd", previousSprintEnd);
             modelAndView.addObject("nextSprintStart", nextSprintStart.minusDays(1));
 
-            String formattedPreviousDate = previousSprintEnd.format(DateTimeService.dayMonthYear());
+            String formattedPreviousDate = previousSprintEnd.minusDays(1).format(DateTimeService.dayMonthYear());
             String textForPreviousSprint;
             if (previousSprintEnd.equals(project.getStartDate())) {
                 textForPreviousSprint =

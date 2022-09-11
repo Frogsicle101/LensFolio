@@ -41,10 +41,10 @@ public class SprintValidationService {
         // Checks if the selected sprint is not the first on the list
         if (sprintIndex > 0) {
             // Limit the calendar to dates past the previous sprints end.
-            return sprintList.get(sprintIndex - 1).getEndDate();
+            return sprintList.get(sprintIndex - 1).getEndDate().plusDays(1);
         } else {
             // Else limit the calendar to be before the project start.
-            return project.getStartDate().minusDays(1);
+            return project.getStartDate();
         }
     }
 
@@ -55,10 +55,10 @@ public class SprintValidationService {
      * @return A LocalDate representing the maximum allowed end date for a sprint
      */
     public LocalDate getMaxSprintEndDate() {
-        // Checks if the selected sprint is not the first on the list
+        // Checks if the selected sprint is not the last on the list
         if (sprintIndex < sprintList.size() - 1) {
             // Limit the calendar to dates before the next sprints starts.
-            return sprintList.get(sprintIndex - 1).getEndDate();
+            return sprintList.get(sprintIndex + 1).getStartDate();
         } else {
             // Else limit the calendar to be before the project end.
             return project.getEndDate();
