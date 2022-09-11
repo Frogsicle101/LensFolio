@@ -516,6 +516,7 @@ class EvidenceServiceTest {
         Mockito.verify(evidenceRepository, times(associates.size() * 2)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
+        Assertions.assertEquals(4, evidence.getAssociateIds().size());
         Assertions.assertEquals(associates, evidence.getAssociateIds());
         Assertions.assertTrue(associates.contains(evidence.getUserId()));
     }
@@ -536,9 +537,31 @@ class EvidenceServiceTest {
         Mockito.verify(evidenceRepository, times(associates.size() * 2)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
-        Assertions.assertEquals(1, associates.size()); // The creator is considered an associate, so expected size is 1
+        Assertions.assertEquals(1, evidence.getAssociateIds().size()); // The creator is considered an associate, so expected size is 1
         Assertions.assertEquals(associates, evidence.getAssociateIds());
         Assertions.assertTrue(associates.contains(evidence.getUserId()));
+    }
+
+    @Test
+    void addEvidenceWithDuplicateAssociatedUsers() throws MalformedURLException {
+        setUserToStudent();
+
+        Project project = new Project("Testing");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        String title = "title";
+        List<Integer> associates = new ArrayList<>(List.of(1, 12, 13, 14, 12));
+        List<Integer> expectedAssociates = new ArrayList<>(List.of(12, 13, 14, 1));
+        EvidenceDTO evidenceDTO = new EvidenceDTO(title, LocalDate.now().toString(), "Description", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 1L, associates);
+        evidenceService.addEvidence(principal, evidenceDTO);
+        ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
+        // Verify that it saved more than usual - currently evidenceRepository.save is called three times per user id
+        Mockito.verify(evidenceRepository, times((associates.size() - 1) * 2)).save(captor.capture());
+
+        Evidence evidence = captor.getValue();
+        Assertions.assertEquals(4, evidence.getAssociateIds().size()); // The creator is considered an associate, so expected size is 1
+        Assertions.assertEquals(expectedAssociates, evidence.getAssociateIds());
+        Assertions.assertTrue(expectedAssociates.contains(evidence.getUserId()));
     }
 
     @Test
