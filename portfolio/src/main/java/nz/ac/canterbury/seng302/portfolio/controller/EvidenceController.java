@@ -11,7 +11,9 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
@@ -213,7 +215,6 @@ public class EvidenceController {
      *
      * @param principal   The authentication principal for the logged-in user
      * @param evidenceDTO The EvidenceDTO object containing the required data for the evidence instance being created.
-
      * @return returns a ResponseEntity. This entity includes the new piece of evidence if successful.
      */
     @PostMapping(value = "/evidence")
@@ -304,7 +305,11 @@ public class EvidenceController {
                     .setFilteringOptions(filter)
                     .build();
             PaginatedUsersResponse response = userAccountsClientService.getPaginatedUsersFilteredByName(request);
-            return new ResponseEntity<>(response.getUsersList(), HttpStatus.OK);
+            ArrayList<UserDTO> users = new ArrayList<>();
+            for (UserResponse user : response.getUsersList()){
+                users.add(new UserDTO(user));
+            }
+            return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e){
             logger.warn(e.getClass().getName());
             logger.warn(e.getMessage());

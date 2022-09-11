@@ -1163,6 +1163,16 @@ section {
     width: fit-content;
 }
 
+#linkUsers {
+    padding-left: 1.5rem;
+    padding-top: 1rem;
+    word-break: break-word;
+}
+
+#linkedUsers {
+    padding-left: 0.5rem;
+}
+
 .webLinkTooltip.tooltip-arrow {
     padding-left: 2rem;
 }
@@ -1315,3 +1325,6 @@ section {
     margin-bottom: 0;
 }
 
+#linkUsersForm {
+    padding-top: 1rem;
+}

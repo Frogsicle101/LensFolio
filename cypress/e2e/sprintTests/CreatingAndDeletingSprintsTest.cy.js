@@ -1,5 +1,6 @@
 describe('Test Adding and Deleting Sprints', () => {
     beforeEach(() => {
+        cy.visit('/anything')
         cy.adminLogin()
         cy.visit('/portfolio?projectId=1')
     })
@@ -10,7 +11,7 @@ describe('Test Adding and Deleting Sprints', () => {
     })
 
     it('Events are auto added when new sprint is created', () => {
-        cy.get(".sprintsContainer").find(".deleteSprint").last().click({force: true})
+        cy.get(".sprintsContainer").find(".deleteSprint").last().click({force: true}).wait(1000)
         cy.get(".addSprint").click({force: true}).wait(1000)
         cy.get(".sprintsContainer").find(".sprint").last().find(".eventInSprint").should('be.visible')
     })
