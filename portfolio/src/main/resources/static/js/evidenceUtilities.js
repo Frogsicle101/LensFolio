@@ -655,7 +655,7 @@ $("#linkUsersInput")
         source: function (request, response) {
             $.ajax({
                 url: 'filteredUsers?name=' + request.term.toString(), type: "GET", contentType: "application/json", success: function (res) {
-                    var users = [];
+                    let users = [];
                     $.each(res, function (i) {
                         let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i] }
                         users.push(user)

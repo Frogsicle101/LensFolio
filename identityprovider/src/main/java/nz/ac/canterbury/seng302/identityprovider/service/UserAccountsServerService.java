@@ -296,7 +296,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * The gRPC implementation of bidirectional streaming used to receive uploaded user profile images.
-     * <br>
+     * 
      * The server creates a stream observer and defines its actions when the client calls the OnNext, onError and
      * onComplete methods.
      *
@@ -304,7 +304,6 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      *                           client side actions to be called from the server side. E.g., if bytes have been
      *                           received from the client successfully, the server will call
      *                           responseObserver.onNext(FileUploadStatusResponse) to inform the client to send more.
-     *
      * @return requestObserver - Contains an observer defined by the server, so that the client can call server side
      *                           actions. Therefore, this method defines the servers actions when the client calls them.
      */
