@@ -85,6 +85,11 @@ function setHighlightedEvidenceWebLinks(response) {
         let webLink = response[index]
         webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
     }
+    if (webLinksDiv.children().length < 1) {
+        $("#evidenceWebLinksBreakLine").hide()
+    } else {
+        $("#evidenceWebLinksBreakLine").show()
+    }
     initialiseTooltips()
 }
 
