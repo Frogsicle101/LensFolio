@@ -5,11 +5,7 @@ const MWAG_GROUP_ID = 2
 let groupPage
 
 $(function () {
-    if (!checkPrivilege()) {
-        return
-    }
     getGroups()
-
 })
 
 //----------------------- jQuery UI User Selection -------------------------
@@ -113,6 +109,9 @@ function showDraggableIcons() {
  * Implemented using JQuery UI droppable https://api.jqueryui.com/droppable/
  */
 function manageGroupTableInteraction() {
+    if (! checkPrivilege()) {
+        return
+    }
     manageTableSelection()
 
     let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
