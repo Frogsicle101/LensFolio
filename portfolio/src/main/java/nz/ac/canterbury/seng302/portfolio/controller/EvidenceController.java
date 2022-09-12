@@ -270,6 +270,9 @@ public class EvidenceController {
             if (address.length() > WebLink.maxURLLength) {
                 throw new CheckException("URL address is longer than the maximum of " + WebLink.maxURLLength);
             }
+            if (request.getName().length() < 1) {
+                throw new CheckException("Link name should be at least 1 character");
+            }
             new URL(address).toURI(); //The constructor does all the validation for us
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);

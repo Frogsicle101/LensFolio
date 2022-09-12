@@ -974,7 +974,7 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
  */
 function validateWebLink(form, alias, address) {
     if (address.search("://") === -1) {
-        $("#weblinkAddressAlert").alert('close') //Close any previous alerts
+        removeWebLinkAlerts()
         form.append(`
                     <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
                       That address is missing a protocol (the part that comes before "://") - did you make a typo?
@@ -988,15 +988,23 @@ function validateWebLink(form, alias, address) {
 
 
 /**
+ * Remove any open alerts for weblinks
+ */
+function removeWebLinkAlerts() {
+    $(".weblinkAlert").remove()
+}
+
+
+/**
  * Handles the error messages for an invalid web link.
  */
 function handleInvalidWebLink(form, error) {
-    $("#weblinkAddressAlert").alert('close') //Close any previous alerts
+    removeWebLinkAlerts()
     switch (error.status) {
         case 400:
             // The URL is invalid
             form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
                       ${error.responseText}
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
@@ -1005,7 +1013,7 @@ function handleInvalidWebLink(form, error) {
         default:
             // A regular error
             form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
                       Something went wrong. Try again later.
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
@@ -1127,8 +1135,6 @@ function submitWebLink() {
         webLinksCount += 1
         checkWeblinkCount()
         $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
-    } else {
-        createAlert("Weblink name needs to be 1 char", "failure");
     }
 }
 
