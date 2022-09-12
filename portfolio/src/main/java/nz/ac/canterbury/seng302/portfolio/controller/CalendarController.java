@@ -241,9 +241,9 @@ public class CalendarController {
 
             for (Event event : allEvents) {
                 List<LocalDate> dates = new ArrayList<>();
-                LocalDateTime current = event.getStartDate();
-                while (current.isBefore(LocalDateTime.of(event.getEndDate(), event.getEndTime()))) {
-                    dates.add(current.toLocalDate());
+                LocalDate current = event.getStartDate().toLocalDate();
+                while (event.getEndDate().isAfter(current.minusDays(1))) {
+                    dates.add(current);
                     current = current.plusDays(1);
                 }
 
