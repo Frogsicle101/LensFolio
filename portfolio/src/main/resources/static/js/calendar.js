@@ -171,6 +171,7 @@ $(function () {
         initialView: 'dayGridMonth',
         eventDurationEditable: false,
         eventResizableFromStart: true,
+        nextDayThreshold: '00:00:00',
         validRange: {
             start: $('#projectStartUnformatted').text(),
             end: endDate
@@ -212,6 +213,9 @@ $(function () {
                 extraParams: {
                     projectId: projectId.toString()
                 },
+                success: (response) => {
+                    console.log(response)
+                },
                 failure: function (err) {
                     console.log(err.responseText)
                 }
@@ -231,6 +235,9 @@ $(function () {
                 method: "get",
                 extraParams: {
                     projectId: projectId.toString()
+                },
+                success: (response) => {
+                    console.log(response)
                 },
                 failure: function (err) {
                     console.log(err.responseText)

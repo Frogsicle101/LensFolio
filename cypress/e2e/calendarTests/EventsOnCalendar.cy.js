@@ -32,7 +32,9 @@ describe('Displaying Events on the Calendar', () => {
                 cy.get('.fc-prev-button').click({force: true}).wait(100) //clicking too quickly prevents button update
             }
 
+            cy.get("[data-date='2022-02-24']").should("not.exist")
             cy.get("[data-date='2022-02-25']").find(".eventCalendar").should("exist")
+            cy.get("[data-date='2022-02-26']").find(".eventCalendar").should("not.exist")
         })
     })
 
@@ -53,10 +55,11 @@ describe('Displaying Events on the Calendar', () => {
                 cy.get('.fc-prev-button').click({force: true}).wait(100) //clicking too quickly prevents button update
             }
 
+            cy.get("[data-date='2022-02-24']").should("not.exist")
             cy.get("[data-date='2022-02-25']").find(".eventCalendar").should("exist")
             cy.get("[data-date='2022-02-26']").find(".eventCalendar").should("exist")
-            // midnight on the ending date is considered to be the very end of the previous day, so 27th should not exist
-            cy.get("[data-date='2022-02-27']").find(".eventCalendar").should("not.exist")
+            cy.get("[data-date='2022-02-27']").find(".eventCalendar").should("exist")
+            cy.get("[data-date='2022-02-28']").find(".eventCalendar").should("not.exist")
         })
     })
 
