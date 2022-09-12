@@ -124,4 +124,34 @@ class SkillsTest {
         Assertions.assertEquals(skill1.getName(), skillsForUser1.get(0).getName());
         Assertions.assertEquals(skill2.getName(), skillsForUser2.get(0).getName());
     }
+
+
+    @Test
+    void testDeletingEvidenceRemovesNoLongerValidSkills() {
+        int userId = 1;
+        Evidence evidence1 = new Evidence(userId, "Has one Skill", LocalDate.now(), "test");
+        Evidence evidence2 = new Evidence(userId, "Has two skills", LocalDate.now(), "another test");
+        Skill skill1 = new Skill("TESTING 1");
+        Skill skill2 = new Skill("TESTING 2");
+        evidence1.addSkill(skill1);
+        evidence2.addSkill(skill1);
+        evidence2.addSkill(skill2);
+        skillRepository.save(skill1);
+        skillRepository.save(skill2);
+        evidenceRepository.save(evidence1);
+        evidenceRepository.save(evidence2);
+
+        List<Skill> skillsForUser = skillRepository.findDistinctByEvidenceUserId(userId);
+
+        Assertions.assertEquals(2, skillsForUser.size());
+        Assertions.assertEquals(skill1.getName(), skillsForUser.get(0).getName());
+        Assertions.assertEquals(skill2.getName(), skillsForUser.get(1).getName());
+
+        evidenceRepository.delete(evidence2);
+
+        skillsForUser = skillRepository.findDistinctByEvidenceUserId(userId);
+
+        Assertions.assertEquals(1, skillsForUser.size());
+        Assertions.assertEquals(skill1.getName(), skillsForUser.get(0).getName());
+    }
 }

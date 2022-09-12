@@ -999,7 +999,15 @@ section {
 }
 
 .evidenceDetailsHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1rem;
+}
+
+.deleteEvidenceSvg:hover {
+    fill:red;
 }
 
 .evidenceListContainer {
@@ -1327,4 +1335,8 @@ section {
 
 #linkUsersForm {
     padding-top: 1rem;
+}
+
+.infoMessage{
+    overflow-wrap: anywhere;
 }

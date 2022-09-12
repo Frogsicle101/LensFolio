@@ -26,7 +26,7 @@ public enum RegexPattern {
     HEX_COLOUR(Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"), " must be a valid hex colour."),
 
     /** Regex to check the titles of occasions, this should be checked. */
-    OCCASION_TITLE(Pattern.compile("([a-zA-Z0-9_]+\\s?)+"), " can only contain letters, numbers and spaces");
+    OCCASION_TITLE(Pattern.compile("(\\w+\\s?)+"), " can only contain letters, numbers and spaces and must not start with whitespace");
 
 
     // Enum attribute declaration
