@@ -460,6 +460,10 @@ function populateGroupMembers() {
         memberPages.push(members.slice(i, i + perPage))
     }
 
+    if (groupMembersPage === -1) {
+        groupMembersPage = memberPages.length - 1
+    }
+
     $.each(memberPages[groupMembersPage], function (i, member) {
         appendMemberToGroup(member)
     })
