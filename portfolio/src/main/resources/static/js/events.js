@@ -817,7 +817,7 @@ function appendDeadlineForm(element) {
     $(element).append(`
                 <form class="existingDeadlineForm" id="editDeadlineForm" style="display: none">
                         <div class="mb-1">
-                        <label for="deadlineName" class="form-label">Event name</label>
+                        <label for="deadlineName" class="form-label">Deadline name</label>
                         <input type="text" class="form-control form-control-sm deadlineName" pattern="${titleRegex}" title="${'Deadline title ' + titleRegexMessage}" value="${sanitise(deadlineName)}" maxlength="${eventNameLengthRestriction}" name="deadlineName" required>
                         <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                     </div>
