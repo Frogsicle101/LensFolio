@@ -39,17 +39,6 @@ describe('Link users to evidence', () => {
         cy.get("#evidenceDetailsLinkedUsersTitle").should("be.visible")
         cy.get("#evidenceDetailsLinkedUsers").contains("John Fletcher")
         cy.get("#evidenceDetailsLinkedUsers").contains("Joseph Haywood")
-    })
-
-    it("can't see owner as a linked users", () => {
-        cy.get("#linkUsersToEvidenceButton").click()
-        cy.get("#linkUsersInput").type("Joh").wait(2000).type('{enter}')
-        cy.get("#linkUsersInput").type("Jos").wait(2000).type('{enter}')
-        cy.get("#evidenceName").type("test")
-        cy.get("#evidenceDescription").type("test")
-        cy.get("#evidenceSaveButton").click().wait(2000)
-        cy.get(".evidenceListItem").last().click()
-        cy.get("#evidenceDetailsLinkedUsersTitle").should("be.visible")
-        cy.get("#evidenceDetailsLinkedUsers").should('not.contain', 'John Wayne')
+        cy.get("#evidenceDetailsLinkedUsers").contains("John Wayne")
     })
 })

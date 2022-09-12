@@ -6,7 +6,10 @@ import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Represents an Evidence entity
@@ -52,7 +55,7 @@ public class Evidence {
      * The owner is considered an associate.
      */
     @ElementCollection(fetch = FetchType.EAGER)
-    private final List<Integer> associateIds = new ArrayList<>();
+    private final Set<Integer> associateIds = new HashSet<>();
 
 
     /**
@@ -176,7 +179,7 @@ public class Evidence {
     }
 
     public List<Integer> getAssociateIds() {
-        return associateIds;
+        return new ArrayList<>(associateIds);
     }
 
     public void addAssociateId(Integer associateId) { associateIds.add(associateId); }

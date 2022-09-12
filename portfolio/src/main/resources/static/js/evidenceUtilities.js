@@ -284,7 +284,7 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
-    addLinkedUsersToEvidence(evidenceDetails)
+    addLinkedUsersToEvidence(evidenceDetails.associates)
     addSkillsToEvidence(evidenceDetails.skills)
 
     highlightedEvidenceTitle.show()
@@ -307,26 +307,16 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
  * @param evidenceDetails The title, date, and description, skills, categories and associates for a piece of evidence.
  */
 
-function addLinkedUsersToEvidence(evidenceDetails) {
-    let users = evidenceDetails.associates
-    let ownersId = evidenceDetails.userId
-    let linkedUsersTitle = $("#evidenceDetailsLinkedUsersTitle")
+function addLinkedUsersToEvidence(users) {
     let linkedUsersDiv = $("#evidenceDetailsLinkedUsers")
     linkedUsersDiv.empty()
-    if (users.length > 1){
-        linkedUsersTitle.show()
-        $.each(users, function (i) {
-            if (users[i].id != ownersId) { // prevents adding the owners id to the linked users
-                linkedUsersDiv.append(`
-                    <div id=linkedAssociateId${users[i].id}>
-                        ${users[i].firstName} ${users[i].lastName} (${users[i].username})
-                    </div>`
-                )
-            }
-        })
-    } else {
-        linkedUsersTitle.hide()
-    }
+    $.each(users, function (i) {
+        linkedUsersDiv.append(`
+            <div id=linkedAssociateId${users[i].id}>
+                ${users[i].firstName} ${users[i].lastName} (${users[i].username})
+            </div>`
+        )
+    })
 }
 
 
