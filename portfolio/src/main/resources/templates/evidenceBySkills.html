@@ -170,15 +170,15 @@
                                                id="webLinkUrl"
                                                placeholder="https://www.example.com"
                                                type="url"
-                                               th:maxlength="${webLinkMaxLength}" required>
+                                               th:maxlength="${webLinkMaxUrlLength}" required>
                                     </div>
                                     <div class="form-group ">
                                         <input class="form-control"
                                                id="webLinkName"
                                                placeholder="Link Name"
                                                type="text"
-                                               minlength="1" 
-                                               maxLength="20" required>
+                                               minlength="1"
+                                               th:maxlength="${webLinkMaxNameLength}" required>
                                     </div>
                                 </div>
                                 <button class="btn btn-secondary evidenceFormButton"

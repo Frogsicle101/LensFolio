@@ -96,7 +96,8 @@ public class EvidenceController {
         LocalDate evidenceMaxDate = LocalDate.now();
         modelAndView.addObject("currentDate", currentDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
-        modelAndView.addObject("webLinkMaxLength", WebLink.maxURLLength);
+        modelAndView.addObject("webLinkMaxUrlLength", WebLink.MAXURLLENGTH);
+        modelAndView.addObject("webLinkMaxNameLength", WebLink.MAXNAMELENGTH);
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;
@@ -267,11 +268,14 @@ public class EvidenceController {
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }
-            if (address.length() > WebLink.maxURLLength) {
-                throw new CheckException("URL address is longer than the maximum of " + WebLink.maxURLLength);
+            if (address.length() > WebLink.MAXURLLENGTH) {
+                throw new CheckException("URL address is longer than the maximum of " + WebLink.MAXURLLENGTH);
             }
             if (request.getName().length() < 1) {
                 throw new CheckException("Link name should be at least 1 character");
+            }
+            if (request.getName().length() > WebLink.MAXNAMELENGTH) {
+                throw new CheckException("Link name should be no more than " + WebLink.MAXNAMELENGTH + " characters in length");
             }
             new URL(address).toURI(); //The constructor does all the validation for us
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.

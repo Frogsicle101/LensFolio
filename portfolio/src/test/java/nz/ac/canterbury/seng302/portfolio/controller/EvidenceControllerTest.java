@@ -745,6 +745,45 @@ class EvidenceControllerTest {
     }
 
     @Test
+    void TestValidateWebLinkNameTooLong() throws Exception {
+        String name = "t".repeat(WebLink.MAXNAMELENGTH + 1);
+        mockMvc.perform(post("/validateWebLink")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"name\": \"" + name + "\", \"url\": \"https://www.canterbury.ac.nz/\"}")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void TestValidateWebLinkURLTooLong() throws Exception {
+        String name = "c".repeat(WebLink.MAXURLLENGTH + 1);
+        mockMvc.perform(post("/validateWebLink")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"name\": \"A Test Weblink\", \"url\": \"https://www."+ name + ".ac.nz/\"}")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void TestValidateWebLinkURLIsEmpty() throws Exception {
+        mockMvc.perform(post("/validateWebLink")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"name\": \"A Test Weblink\", \"url\": \"\"}")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void TestValidateWebLinkURLIsOnlyProtocol() throws Exception {
+        mockMvc.perform(post("/validateWebLink")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"name\": \"A Test Weblink\", \"url\": \"https://\"}")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void TestValidateWebLinkInvalidURLNoProtocol() throws Exception {
         mockMvc.perform(post("/validateWebLink")
                         .contentType(MediaType.APPLICATION_JSON)

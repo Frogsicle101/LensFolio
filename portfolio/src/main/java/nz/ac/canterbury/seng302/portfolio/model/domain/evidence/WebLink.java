@@ -14,14 +14,15 @@ import java.util.Objects;
 @Entity
 public class WebLink {
 
-    public static final int maxURLLength = 2000;
+    public static final int MAXURLLENGTH = 2000;
+    public static final int MAXNAMELENGTH = 50;
 
     @Id
     @GeneratedValue
     private int id;
 
     private String alias;
-    @Column(length = maxURLLength)
+    @Column(length = MAXURLLENGTH)
     private URL url;
     private Boolean isSecured;
 
@@ -40,11 +41,11 @@ public class WebLink {
      * @throws MalformedURLException when the url string is not valid. This Weblink is not allowed to be created.
      */
     public WebLink(Evidence evidence, String alias, URL url) throws MalformedURLException {
-        if (alias.length() > 20) {
-            throw new CheckException("Name should be 20 characters or less");
+        if (alias.length() > MAXNAMELENGTH) {
+            throw new CheckException("WebLink name should be " + MAXNAMELENGTH + " characters or less");
         }
         if (alias.length() < 1) {
-            throw new CheckException("Name should be at least 1 character in length");
+            throw new CheckException("WebLink name should be at least 1 character in length");
         }
         this.alias = alias;
         this.evidence = evidence;
@@ -96,7 +97,7 @@ public class WebLink {
     }
 
     public int getMaxURLLength() {
-        return maxURLLength;
+        return MAXURLLENGTH;
     }
 
     /**
