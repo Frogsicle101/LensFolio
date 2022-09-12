@@ -314,3 +314,11 @@ function countCharacters() {
  * Regex that is all unicode letters, decimal numbers and punctuation
  */
 let regex = new RegExp("[\\p{L}\\p{Nd}\\p{P}]+", 'u')
+
+
+/**
+ * Redirects to user's home page. This is currently the user's evidence page.
+ */
+function redirectToUsersHomePage(userId) {
+    window.location.href = "evidence?userId=" + userId //redirect to the user's evidence page
+}

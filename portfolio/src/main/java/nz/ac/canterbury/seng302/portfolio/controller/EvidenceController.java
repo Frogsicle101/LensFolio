@@ -11,9 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
-import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
@@ -224,6 +222,7 @@ public class EvidenceController {
             @RequestBody EvidenceDTO evidenceDTO
     ) {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
+
         try {
             Evidence evidence = evidenceService.addEvidence(principal, evidenceDTO);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
@@ -319,7 +318,8 @@ public class EvidenceController {
 
 
     /**
-     * Helper method that returns a list of all users in a given list
+     * Helper method that returns a list of all users in a given list.
+     *
      * @param userIds The ids of the users
      * @return A list of Users, populated with their details.
      * If any users in userIds list do not exist, they will not be added.

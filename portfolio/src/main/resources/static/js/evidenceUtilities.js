@@ -183,7 +183,7 @@ function displayNameOrButton(response) {
         let usersName = response.getResponseHeader("Users-Name");
         nameHolder.html("Viewing evidence for " + usersName)
         nameHolder.show()
-    } else{
+    } else {
         nameHolder.hide()
         $("#createEvidenceButton").show();
     }
@@ -675,14 +675,18 @@ $("#linkUsersInput")
         appendTo: ".modal-content",
         source: function (request, response) {
             $.ajax({
-                url: 'filteredUsers?name=' + request.term.toString(), type: "GET", contentType: "application/json", success: function (res) {
+                url: 'filteredUsers?name=' + request.term.toString(),
+                type: "GET",
+                contentType: "application/json",
+                success: function (res) {
                     let users = [];
                     $.each(res, function (i) {
-                        let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i] }
+                        let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i]}
                         users.push(user)
                     })
                     response(users)
-                }, error: function (error) {
+                },
+                error: function (error) {
                     createAlert(error.responseText, "failure", ".modal-body")
                 }
             })
@@ -851,12 +855,11 @@ function getLinkedUsers() {
     let userIds = [];
     $.each(linkedUsers, function (i) {
         try {
-            var userId = parseInt(linkedUsers[i].id.replace("linkedUserId",""));
-        }
-        catch(error) {
+            let userId = parseInt(linkedUsers[i].id.replace("linkedUserId", ""));
+            userIds.push(userId)
+        } catch (error) {
             createAlert("Oops! there was an error with one or more of the linked users", "failure")
         }
-        userIds.push(userId)
     })
     return userIds;
 }
@@ -900,7 +903,7 @@ $(document).on("click", ".chipDelete", function (event) {
  * alert was open in a modal, this was added to stop the form from submitting which
  * seemed to be the cause of the issue.
  */
-$(document).on("submit", "#evidenceCreationForm", function(e) {
+$(document).on("submit", "#evidenceCreationForm", function (e) {
     e.preventDefault()
 })
 
@@ -941,7 +944,11 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "associateIds": linkedUsers
         })
         $.ajax({
-            url: 'evidence', type: "POST", contentType: "application/json", data, success: function (response) {
+            url: 'evidence',
+            type: "POST",
+            contentType: "application/json",
+            data,
+            success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
                 addSkillResponseToArray(response)
@@ -992,7 +999,7 @@ $(document).on('click', '#cancelWeblinkButton', () => {
  */
 $('#addEvidenceModal').on('hide.bs.modal', function (e) {
     let alert = $("#alertPopUp")
-    if (alert.is(":visible") && alert.hasClass("backgroundRed") ){
+    if (alert.is(":visible") && alert.hasClass("backgroundRed")) {
         alert.effect("shake")
         e.preventDefault();
         e.stopPropagation();
@@ -1168,8 +1175,18 @@ function addLinkedUser(user) {
  * Creates the element for displaying the linked user
  */
 function linkedUserElement(user) {
-    return `<div class="linkedUser" id=linkedUserId${user.id}>${user.firstName} ${user.lastName} (${user.username})</div>`
+    return `<div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">${user.firstName} ${user.lastName} (${user.username})</div>`
 }
+
+
+/**
+ * Redirects to a user's evidence page when their name is clicked on a piece of evidence.
+ */
+$(document).on("click", ".linkedUser", function () {
+    let userId = this.getAttribute("data-id")
+    console.log(userId)
+    redirectToUsersHomePage(userId) //redirect to the user's evidence page
+})
 
 
 /**
@@ -1275,7 +1292,6 @@ function createSkillChip(skillName, isMenuItem) {
             </div>`
     }
 }
-
 
 
 /**
