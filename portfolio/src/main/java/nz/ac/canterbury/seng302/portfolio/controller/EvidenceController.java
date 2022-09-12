@@ -61,6 +61,7 @@ public class EvidenceController {
     /** The repository containing the projects. */
     private final ProjectRepository projectRepository;
 
+    /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
 
@@ -239,6 +240,47 @@ public class EvidenceController {
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
             return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Deletes a piece of evidence owned by the user making the request.
+     *
+     * If the evidence is not owned by the user making the request, then the response is a 401,
+     * If the evidence doesn't exist, then the response is a 404,
+     * Any other issues return a 500 error,
+     * Otherwise the response is OK,
+     *
+     * @param principal The user who made the request.
+     * @param evidenceId The Id of the piece of evidence to be deleted.
+     * @return ResponseEntity containing the HTTP status and a response message.
+     */
+    @DeleteMapping("/evidence")
+    public ResponseEntity<Object> deleteEvidence(@AuthenticationPrincipal Authentication principal,
+                                                 @RequestParam Integer evidenceId) {
+        String methodLoggingTemplate = "DELETE /evidence: {}";
+        logger.info(methodLoggingTemplate, "Called");
+        try {
+            Optional<Evidence> optionalEvidence = evidenceRepository.findById(evidenceId);
+            if (optionalEvidence.isEmpty()) {
+                String message = "No evidence found with id " + evidenceId;
+                logger.info(methodLoggingTemplate, message);
+                return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+            }
+            Evidence evidence = optionalEvidence.get();
+            int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
+            if (evidence.getUserId() != userId) {
+                logger.warn(methodLoggingTemplate, "User attempted to delete evidence they don't own.");
+                return new ResponseEntity<>("You can only delete evidence that you own.", HttpStatus.UNAUTHORIZED);
+            }
+            evidenceRepository.delete(evidence);
+            String message = "Successfully deleted evidence " + evidenceId;
+            logger.info(methodLoggingTemplate, message);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.error(methodLoggingTemplate, exception.getMessage());
+            return new ResponseEntity<>("An unexpected error has occurred", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

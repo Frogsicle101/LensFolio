@@ -68,11 +68,14 @@ $(document).on("click", ".editSprint", function () {
  */
 $(document).on("click", ".deleteSprint", function () {
     let sprintId = $(this).closest(".sprint").find(".sprintId").text();
+
     $.ajax({
         url: "deleteSprint",
         type: "DELETE",
         data: {"sprintId": sprintId},
         success: function () {
+            $(".editSprint").tooltip('hide')
+            $(".deleteSprint").tooltip('hide')
             createAlert("Sprint deleted!", "success")
             sendNotification("sprint", sprintId, "delete")
         },
