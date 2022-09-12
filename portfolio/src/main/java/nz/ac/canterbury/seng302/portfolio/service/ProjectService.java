@@ -1,9 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
-import com.google.type.DateTime;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
@@ -12,9 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Service that helps with validation on the project and project edit page
@@ -22,57 +18,14 @@ import java.util.Map;
 @Service
 public class ProjectService {
 
-    private final ProjectRepository projectRepository;
 
     private final SprintRepository sprintRepository;
 
     RegexService regexService = new RegexService();
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, SprintRepository sprintRepository) {
-        this.projectRepository = projectRepository;
+    public ProjectService(SprintRepository sprintRepository) {
         this.sprintRepository = sprintRepository;
-    }
-
-    public void updateTimeDeactivated(Long id, DateTime timeDeactivated) {
-        projectRepository.deactivateProject(id, timeDeactivated);
-    }
-
-    /**
-     * Helper function that gets the sprint dates that neighbour the sprint that it is given
-     *
-     * @param sprint the sprint
-     * @return a Map that contains keys "previousSprintEnd" and "nextSprintStart"
-     */
-    public Map<String, LocalDate> checkNeighbourDatesForSprint(Sprint sprint, SprintRepository sprintRepository) {
-        // Gets a list of all sprints that belong to the project and orders them by start date: earliest to latest
-        Project project = sprint.getProject();
-        List<Sprint> sprintList = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
-        HashMap<String, LocalDate> neighbouringSprintDates = new HashMap<>();
-        int indexOfPrevSprint = sprintList.indexOf(sprint);
-        int indexOfNextSprint = sprintList.indexOf(sprint);
-        // Checks if the selected sprint is not the first on the list
-        if (indexOfPrevSprint > 0) {
-            indexOfPrevSprint = indexOfPrevSprint - 1;
-            // Adds an object to the view that limits the calendar to dates past the previous sprints end.
-            neighbouringSprintDates.put(
-                    "previousSprintEnd", sprintList.get(indexOfPrevSprint).getEndDate());
-        } else {
-            // Else adds an object to the view that limits the calendar to project start .
-            neighbouringSprintDates.put("previousSprintEnd", project.getStartDate().minusDays(1));
-        }
-        // Checks if the selected sprint is not the last on the list
-        if (indexOfNextSprint < sprintList.size() - 1) {
-            indexOfNextSprint = indexOfNextSprint + 1;
-            // Adds an object to the view that limits the calendar to dates before the next sprints starts.
-            neighbouringSprintDates.put(
-                    "nextSprintStart", sprintList.get(indexOfNextSprint).getStartDate());
-        } else {
-            // Else adds an object to the view that limits the calendar to be before the project end.
-            neighbouringSprintDates.put("nextSprintStart", project.getEndDate());
-        }
-
-        return neighbouringSprintDates;
     }
 
 
@@ -106,7 +59,7 @@ public class ProjectService {
      *
      * @return LocalDate set a year in the past.
      */
-    public LocalDate getMinStartDate(Project project) {
+    public LocalDate getMinProjectStartDate(Project project) {
         if (project.getStartDate().isBefore(LocalDate.now().minusYears(1))) {
             return project.getStartDate();
         } else {
@@ -121,7 +74,7 @@ public class ProjectService {
      *
      * @return A LocalDate to be compared against
      */
-    public LocalDate getMaxStartDate(Project project) {
+    public LocalDate getMaxProjectStartDate(Project project) {
         List<Sprint> sprintListStartDates = sprintRepository.getAllByProjectOrderByStartDateAsc(project);
         if (!sprintListStartDates.isEmpty()) {
             Sprint sprint = sprintListStartDates.get(0);
@@ -138,7 +91,7 @@ public class ProjectService {
      *
      * @return A LocalDate to be compared against
      */
-    public LocalDate getMinEndDate(Project project) {
+    public LocalDate getMinProjectEndDate(Project project) {
         List<Sprint> sprintListEndDates = sprintRepository.getAllByProjectOrderByEndDateDesc(project);
         if (!sprintListEndDates.isEmpty()) {
             Sprint sprint = sprintListEndDates.get(0);
