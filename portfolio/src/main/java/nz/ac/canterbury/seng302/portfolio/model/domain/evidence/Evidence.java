@@ -47,6 +47,10 @@ public class Evidence {
     @ElementCollection(fetch = FetchType.EAGER)
     private final Set<Category> categories = new HashSet<>();
 
+    /** A list of associates; people who also worked on this evidence.
+     * Takes the form of their user IDs.
+     * The owner is considered an associate.
+     */
     @ElementCollection(fetch = FetchType.EAGER)
     private final List<Integer> associateIds = new ArrayList<>();
 
