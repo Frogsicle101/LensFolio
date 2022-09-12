@@ -775,7 +775,7 @@ class EvidenceControllerTest {
     void TestValidateWebLinkInvalidName() throws Exception {
         mockMvc.perform(post("/validateWebLink")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"\", \"url\": \"https://www.<script>Something naughty!</script>place.com\"}")
+                        .content("{ \"name\": \"\", \"url\": \"https://www.place.com\"}")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
