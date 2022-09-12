@@ -1,8 +1,8 @@
 describe('Test Editing Project', () => {
     beforeEach(() => {
         cy.adminLogin()
-        cy.visit('/portfolio?projectId=1')
-        cy.get("#editProject").click();
+        cy.visit('/portfolio?projectId=1').wait(500)
+        cy.get("#editProject").click({force: true});
     })
 
     it('Colours valid elements green', () => {
