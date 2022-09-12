@@ -1328,3 +1328,7 @@ section {
 #linkUsersForm {
     padding-top: 1rem;
 }
+
+.infoMessage{
+    overflow-wrap: anywhere;
+}
