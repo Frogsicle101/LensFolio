@@ -83,7 +83,7 @@ class MilestoneControllerTest {
         Milestone milestone = new Milestone(project, "@", LocalDate.now(), 1);
         ResponseEntity<Object> response = milestoneController.addMilestone(milestone.getProject().getId(), milestone.getName(), milestone.getEndDate().toString(), milestone.getType());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Milestone title can only contain letters, numbers and spaces", response.getBody());
+        Assertions.assertEquals("Milestone title can only contain letters, numbers and spaces and must not start with whitespace", response.getBody());
     }
 
     @Test
