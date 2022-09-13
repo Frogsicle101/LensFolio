@@ -129,21 +129,22 @@
                                            required
                                            th:max="${project.getEndDateAsLocalDateTime()}"
                                            th:min="${project.getStartDateAsLocalDateTime()}"
-                                           th:value="${project.getStartDateAsLocalDateTime()}"
+                                           th:value="${defaultOccasionStart}"
                                            type="datetime-local">
                                 </div>
                                 <div class="col">
                                     <label class="form-label" for="eventEnd">End</label>
-                                    <input class="form-control form-control-sm eventInputEndDate eventDateInput" id="eventEnd"
+                                    <input class="form-control form-control-sm eventInputEndDate eventDateInput"
+                                           id="eventEnd"
                                            name="eventEnd"
                                            required
                                            th:max="${project.getEndDateAsLocalDateTime()}"
                                            th:min="${project.getStartDateAsLocalDateTime()}"
-                                           th:value="${project.getStartDateAsLocalDateTime()}"
+                                           th:value="${defaultOccasionEnd}"
                                            type="datetime-local">
                                 </div>
                             </div>
-                            <div class="invalid-feedback">Start date must be before end date</div>
+                            <div class="invalid-feedback">The event start must be before the event end</div>
                             <div class="mb-1">
                                 <button class="btn btn-primary" id="eventSubmit" type="submit">Submit</button>
                                 <button type="button" class="btn btn-secondary addEventButton" >Cancel</button>
@@ -195,7 +196,7 @@
                                            required
                                            th:max="${project.getEndDateAsLocalDateTime()}"
                                            th:min="${project.getStartDateAsLocalDateTime()}"
-                                           th:value="${project.getStartDateAsLocalDateTime()}"
+                                           th:value="${defaultOccasionStart}"
                                            type="datetime-local">
                                 </div>
                             </div>
@@ -254,7 +255,7 @@
                                            required
                                            th:max="${project.getEndDateAsLocalDateTime().toLocalDate()}"
                                            th:min="${project.getStartDateAsLocalDateTime().toLocalDate()}"
-                                           th:value="${defaultOccasionDate}"
+                                           th:value="${defaultMilestoneStart}"
                                            type="date">
                                 </div>
                             </div>
