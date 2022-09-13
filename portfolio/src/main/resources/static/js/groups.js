@@ -535,9 +535,6 @@ $(document).on("click", ".groupMembersAmountOptions", () => {
 /**
  * Populates the group members page selector.
  * Appends the number elements after the "previous" selector
- *
- * @param data The numbers.
- * @param currentPage The current page that is being displayed
  */
 function populateGroupMembersPageSelector() {
     let pageSelectors = $(".groupMembersAmountOptions")
