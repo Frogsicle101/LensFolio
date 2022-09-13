@@ -10,7 +10,7 @@ context("Test group pagination", () => {
         cy.get('#membersPerPageSelect').should("be.visible")
     })
 
-    it('Check top buttons disable themselves', () => {
+    it('Check buttons disable themselves', () => {
         cy.get("#groupMembersAmountOptionsTop").contains('[class="page-link"]', "1").click()
         cy.get("#groupMembersAmountOptionsTop").find(".groupFooterFirst").should("have.class", "disabled")
         cy.get("#groupMembersAmountOptionsTop").find(".groupFooterPrevious").should("have.class", "disabled")
@@ -21,10 +21,6 @@ context("Test group pagination", () => {
         cy.get("#groupMembersAmountOptionsTop").find(".groupFooterPrevious").should("not.have.class", "disabled")
         cy.get("#groupMembersAmountOptionsTop").find(".groupFooterNext").should("have.class", "disabled")
         cy.get("#groupMembersAmountOptionsTop").find(".groupFooterLast").should("have.class", "disabled")
-
-    })
-
-    it('Check bottom buttons disable themselves', () => {
         cy.get("#groupMembersAmountOptionsBottom").contains('[class="page-link"]', "1").click()
         cy.get("#groupMembersAmountOptionsBottom").find(".groupFooterFirst").should("have.class", "disabled")
         cy.get("#groupMembersAmountOptionsBottom").find(".groupFooterPrevious").should("have.class", "disabled")
