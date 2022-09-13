@@ -420,6 +420,8 @@ function checkEditRights(group) {
  * Loops through the groups members and adds them to the table.
  */
 function displayGroupUsersList() {
+    groupMembersPage = 1
+
     $.ajax({
         url: `group?groupId=${selectedGroupId}`,
         type: "GET",
@@ -518,6 +520,7 @@ function displayGroupMembers() {
  * Calls the method to redisplay the selected group's members when the number displayed per page is changed.
  */
 $(document).on("click", "#membersPerPageSelect", () => {
+    groupMembersPage = 1
     displayGroupMembers()
 })
 
@@ -546,7 +549,6 @@ function populateGroupMembersPageSelector() {
         }
     })
 
-
     createFooterNumberSequence()
 
     let groupMembersPageSelector = pageSelectors.find(".groupPageSelector")
@@ -573,6 +575,9 @@ function createFooterNumberSequence() {
     })
 
     let totalPages = Math.ceil(group.userList.length / $("#membersPerPageSelect").val())
+    if (totalPages === 0) {
+        totalPages = 1
+    }
     let minNumber = 1;
     let maxNumber = 11;
     if (totalPages < 11) {
@@ -823,6 +828,11 @@ function updateGroupName(shortname, longname) {
  */
 $(document).on("click", ".groupPageLink", function (event) {
     event.preventDefault()
+
+    if($(this).hasClass("disabled")) {
+        return
+    }
+
     let parentDiv = $(this).closest(".groupAmountOptions")
     let isGroupMembers = parentDiv.hasClass("groupMembersAmountOptions")
     let currentPage
@@ -847,15 +857,10 @@ $(document).on("click", ".groupPageLink", function (event) {
             newPage = -1
             break
         default:
-            newPage = $(this).text()
+            newPage = parseInt($(this).text(), 10)
     }
 
     if (isGroupMembers) {
-        if (newPage === 0) {
-            newPage = 1
-        } else if (newPage === 4 || newPage === "31") {
-            newPage = 3
-        }
         groupMembersPage = newPage
         displayGroupMembers()
     } else {
