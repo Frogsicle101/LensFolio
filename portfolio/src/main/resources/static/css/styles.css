@@ -1321,6 +1321,7 @@ section {
 #nameHolder {
     position: relative;
     left: 1rem;
+    width: 50%;
 }
 
 .marginTop {

@@ -11,7 +11,7 @@ import "./evidenceTests/LinkedUsersTest.cy"
 import "./evidenceTests/WebLinkTest.cy"
 
 import "./groupsTests/GroupMemberSelectionTest.cy"
-import "./groupsTests/GroupsPaginationTest.cy"
+import "./groupsTests/GroupsPaginationTesting.cy"
 
 import "./portfolioTest/EditingProjectTest.cy"
 import "./portfolioTest/EditingSprintTest.cy"

@@ -49,7 +49,7 @@
 
                     <hr style="margin-top: 1rem">
                     <div id="evidenceWebLinks"></div>
-                    <hr>
+                    <hr id="evidenceWebLinksBreakLine">
                     <div id="evidenceDetailsDescription" class="evidenceDetails"></div>
                     <div id="evidenceDetailsSkills" class="evidencePreviewTags"></div>
                 </div>
@@ -177,13 +177,15 @@
                                         <input class="form-control"
                                                id="webLinkUrl"
                                                placeholder="https://www.example.com"
-                                               type="text">
+                                               type="text"
+                                               th:maxlength="${webLinkMaxUrlLength}" required>
                                     </div>
                                     <div class="form-group ">
                                         <input class="form-control"
                                                id="webLinkName"
                                                placeholder="Link Name"
-                                               type="text">
+                                               type="text"
+                                               minlength="1" required>
                                     </div>
                                 </div>
                                 <button class="btn btn-secondary evidenceFormButton"
