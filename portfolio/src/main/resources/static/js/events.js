@@ -322,30 +322,28 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
 
 /**
  * Listens for when add event button is clicked.
- * Rotates the button and shows the event form via a slide-down transition
+ * Shows the event form via a slide-down transition
  */
 $(document).on('click', '.addEventButton', function () {
-    $(".addEventSvg").toggleClass('rotated');
     $(".eventForm").slideToggle();
 })
 
 
 /**
  * Listens for when add milestone button is clicked.
- * Rotates the button and shows the milestone form via a slide-down transition
+ * Shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addMilestoneButton', function () {
-    $(".addMilestoneSvg").toggleClass('rotated');
     $(".milestoneForm").slideToggle();
 })
 
 
 /**
  * Listens for when add milestone button is clicked.
- * Rotates the button and shows the milestone form via a slide-down transition
+ * Shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addDeadlineButton', function () {
-    $(".addDeadlineSvg").toggleClass('rotated');
+
     $(".deadlineForm").slideToggle();
 })
 
@@ -455,7 +453,6 @@ $(document).on("click", ".cancelEdit", function () {
     form.slideUp(400, function () {
         form.remove();
     })
-
 
     if (parent.hasClass("event")) {
         sendNotification("event", id, "stop");

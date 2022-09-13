@@ -334,7 +334,7 @@ class EvidenceServiceTest {
         String description = "Description";
 
         List<WebLinkDTO> webLinks = new ArrayList<>();
-        webLinks.add(new WebLinkDTO("a".repeat(30), "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
+        webLinks.add(new WebLinkDTO("a".repeat(WebLink.MAXNAMELENGTH + 1), "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
 
         List<String> skills = new ArrayList<>();
 
@@ -349,7 +349,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be 20 characters or less"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be 50 characters or less"));
     }
 
     @Test
