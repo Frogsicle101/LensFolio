@@ -85,12 +85,6 @@ function handleNotification(notification) {
                 case 'add role':
                     handleRoleChangeEvent(message, "add");
                     break;
-                case 'updateGroup':
-                    updateGroup(message, action);
-                    break;
-                case 'deleteGroup':
-                    removeGroup(message, action);
-                    break;
                 default :
                     // Do nothing, unknown message format
                     break;
