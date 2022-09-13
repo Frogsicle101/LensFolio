@@ -701,13 +701,13 @@ $("#linkUsersInput")
 
 
 /**
- * Listens out for a keyup event on the skills input.
+ * Listens out for a keydown event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
  * If it is a space, tab or enter then it checks for duplicates
  */
-$(document).on("keyup", "#skillsInput", function (event) {
+$(document).on("keydown", "#skillsInput", function (event) {
     let skillsInput = $("#skillsInput")
-    if (event.key === "Backspace") {
+    if (event.key === "Delete") {
         event.preventDefault();
         let inputArray = skillsInput.val().trim().split(/\s+/)
         inputArray.pop()
@@ -716,6 +716,15 @@ $(document).on("keyup", "#skillsInput", function (event) {
     if (event.key === " " || event.key === "Tab" || event.key === "Enter") {
         removeDuplicatesFromInput(skillsInput)
     }
+    displayInputSkillChips()
+})
+
+
+/**
+ * Listens out for a keyup event on the skills input.
+ * Renders the skill chips when it detects a keyup event.
+ */
+$(document).on("keyup", "#skillsInput", function (event) {
     displayInputSkillChips()
 })
 
