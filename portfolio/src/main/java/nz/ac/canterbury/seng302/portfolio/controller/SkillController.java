@@ -30,16 +30,30 @@ public class SkillController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** Holds persisted information about skills */
-    @Autowired
-    private SkillRepository skillRepository;
+    private final SkillRepository skillRepository;
 
     /** Holds persisted information about evidence */
-    @Autowired
-    private EvidenceRepository evidenceRepository;
+    private final EvidenceRepository evidenceRepository;
 
     /** For checking is a user exists and getting their details. */
+    private final UserAccountsClientService userAccountsClientService;
+
+
+    /**
+     * Autowired constructor for injecting the required beans.
+     *
+     * @param skillRepository Holds persisted information about skills
+     * @param evidenceRepository Holds persisted information about evidence
+     * @param userAccountsClientService For checking is a user exists and getting their details.
+     */
     @Autowired
-    private UserAccountsClientService userAccountsClientService;
+    public SkillController(SkillRepository skillRepository,
+                           EvidenceRepository evidenceRepository,
+                           UserAccountsClientService userAccountsClientService) {
+        this.skillRepository = skillRepository;
+        this.evidenceRepository = evidenceRepository;
+        this.userAccountsClientService = userAccountsClientService;
+    }
 
 
     /**
@@ -93,11 +107,9 @@ public class SkillController {
                 logger.info("GET REQUEST /evidenceLinkedToSkill - skill {} does not exist", skillName);
                 return new ResponseEntity<>("Skill does not exist", HttpStatus.NOT_FOUND);
             }
-
-            List<Evidence> evidence = skill.get().getEvidence();
+            List<Evidence> evidence = evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(userId, skill.get());
             logger.info("GET REQUEST /evidenceLinkedToSkill - found and returned {} evidences for skill: {}", evidence.size() ,skillName);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
-
         } catch (Exception exception) {
             logger.error("GET REQUEST /evidenceLinkedToSkill - Internal Server Error attempt skill: {}", skillName);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

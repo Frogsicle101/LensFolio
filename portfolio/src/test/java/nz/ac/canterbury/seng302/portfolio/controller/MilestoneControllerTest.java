@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import javax.naming.InvalidNameException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
