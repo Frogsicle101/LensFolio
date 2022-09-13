@@ -15,7 +15,7 @@ $(() => {
 
         if (projectStart.val() < projectStart[0].min) {
             const minDateFormatted = new Date(projectStart[0].min).toLocaleDateString();
-            projectStart[0].setCustomValidity("Date must be less than a year ago. Please select a date earlier than " + minDateFormatted);
+            projectStart[0].setCustomValidity("Date must be less than a year ago. Please select a date later than " + minDateFormatted);
         }
     })
 
@@ -23,7 +23,7 @@ $(() => {
         checkDateOrder(projectStart.val(), projectEnd.val())
         if (projectEnd.val() < projectEnd[0].min) {
             const minDateFormatted = new Date(projectEnd[0].min).toLocaleDateString();
-            projectEnd[0].setCustomValidity("There are sprints that end before that date. Please select a date after " + minDateFormatted);
+            projectEnd[0].setCustomValidity("There are sprints that end after that date. Please select a date after " + minDateFormatted);
         }
     })
 

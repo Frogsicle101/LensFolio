@@ -7,10 +7,13 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,24 +30,147 @@ import java.util.List;
 @Service
 public class DateTimeService {
 
+    SprintRepository sprintRepository;
+
+
+    @Autowired
+    public DateTimeService(SprintRepository sprintRepository) {
+        this.sprintRepository = sprintRepository;
+    }
+
+
+    /**
+     * Checks that the end date occurs between the project's start and end dates.
+     *
+     * @param project The project defining the earliest and latest dates the end date can be.
+     * @param date    The end date being validated.
+     * @throws DateTimeException If the end date is before the project start or after the project end.
+     */
+    public static void checkDateInProject(Project project, LocalDate date) throws DateTimeException {
+        if (date.isAfter(project.getEndDate()) || date.isBefore(project.getStartDate())) {
+            throw new DateTimeException("Date(s) must occur during the project");
+        }
+    }
+
+
+    /**
+     * Gets a readable form of a date from a protobuf timestamp, in the form "dd MMM yyyy".
+     *
+     * @param timestamp The Timestamp object to be formatted as a human-readable time.
+     * @return The timestamp, formatted in "dd MMM yyyy" form.
+     */
+    public static String getReadableDate(Timestamp timestamp) {
+        Date date = new Date(timestamp.getSeconds() * 1000); // Date needs milliseconds
+        DateFormat df = new SimpleDateFormat("dd MMM yyyy");
+        return df.format(date);
+    }
+
+
+    /**
+     * Gets a readable form of a date from a protobuf timestamp, in months and years.
+     *
+     * @param timestamp The Timestamp object to be formatted as a human-readable time.
+     * @return The timestamp, formatted in months and years form.
+     */
+    public static String getReadableTimeSince(Timestamp timestamp) {
+        LocalDateTime dateTime = LocalDateTime.ofEpochSecond(timestamp.getSeconds(), 0, ZoneOffset.UTC);
+        LocalDateTime now = LocalDateTime.now();
+
+        long years = ChronoUnit.YEARS.between(dateTime, now);
+        long months = ChronoUnit.MONTHS.between(dateTime, now) % 12;
+        if (years > 0) {
+            return years + " years, " + months + " months";
+        } else {
+            return months + " months";
+        }
+    }
+
+
+    /**
+     * Formats a date into E d MMMM y format.
+     *
+     * @return the formatted date.
+     */
+    public static DateTimeFormatter dayDateMonthYear() {
+        return DateTimeFormatter.ofPattern("E d MMMM y");
+    }
+
+
+    /**
+     * Formats a date into hh:mma E d MMMM y format.
+     *
+     * @return the formatted date.
+     */
+    public static DateTimeFormatter timeDateMonthYear() {
+        return DateTimeFormatter.ofPattern("hh:mma E d MMMM y");
+    }
+
+
+    /**
+     * Formats a date into yyyy-MM-dd format.
+     *
+     * @return the formatted date.
+     */
+    public static DateTimeFormatter yearMonthDay() {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    }
+
+
+    /**
+     * Formats a date into dd/MM/yyyy format.
+     *
+     * @return the formatted date.
+     */
+    public static DateTimeFormatter dayMonthYear() {
+        return DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    }
+
+
+    /**
+     * Gets default occasion dates as LocalDateTime objects, based on the current date and the given project's dates.
+     * <p>
+     * The default start date is either today, if we are in a project, or the start of the project.
+     * The default end date is either the day after the start date, or the end of the project if there is less than 1
+     * day remaining in the project.
+     *
+     * @param project The project the occasions must occur within.
+     * @return An object containing the start and end dates at indices 0 and 1, respectively.
+     */
+    public Pair<LocalDateTime, LocalDateTime> retrieveDefaultOccasionDates(Project project) {
+        LocalDate projectEndDate = project.getEndDate();
+        LocalDate projectStartDate = project.getStartDate();
+        LocalDateTime defaultOccasionStart = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        LocalDateTime defaultOccasionEnd;
+
+        if (LocalDate.now().isBefore(projectStartDate) || LocalDate.now().isAfter(projectEndDate)) {
+            defaultOccasionStart = project.getStartDate().atStartOfDay();
+        }
+        if (defaultOccasionStart.isBefore(projectEndDate.atStartOfDay().minusDays(1))) {
+            defaultOccasionEnd = defaultOccasionStart.plusDays(1);
+        } else {
+            defaultOccasionEnd = projectEndDate.atStartOfDay();
+        }
+
+        return Pair.of(defaultOccasionStart, defaultOccasionEnd);
+    }
+
+
     /**
      * Checks if the given date occurs during a sprint in the given project.
      *
-     * @param dateToCheck      The date to be checked.
-     * @param project          The project containing the sprints being used as date ranges.
-     * @param sprintRepository The repository containing sprints which the date is checked against.
+     * @param dateToCheck The date to be checked.
+     * @param project     The project containing the sprints being used as date ranges.
      * @return Whether the date is contained in any of the sprints for the given project.
      */
-    public boolean dateIsInSprint(LocalDate dateToCheck, Project project, SprintRepository sprintRepository) {
-        boolean isInSprint = false;
+    public boolean dateIsInSprint(LocalDate dateToCheck, Project project) {
         for (Sprint sprint : sprintRepository.getAllByProjectOrderByStartDateAsc(project)) {
             if ((sprint.getStartDate().minusDays(1L).isBefore(dateToCheck)) && sprint.getEndDate().plusDays(1L).isAfter(dateToCheck)) {
-                isInSprint = true;
-                return isInSprint;
+                return true;
             }
         }
-        return isInSprint;
+        return false;
     }
+
 
     /**
      * Checks that the proposed new dates for the project don't fall inside existing sprints dates.
@@ -99,6 +225,7 @@ public class DateTimeService {
     }
 
 
+
     /**
      * Ensures the given sprint date is outside all other sprint dates.
      *
@@ -115,88 +242,5 @@ public class DateTimeService {
         if (endDate.isAfter(nextDateLimit)) {
             throw new CheckException("End date is after next sprints start date / project end date");
         }
-    }
-
-
-    /**
-     * Checks that the end date occurs between the project's start and end dates.
-     *
-     * @param project The project defining the earliest and latest dates the end date can be.
-     * @param date The end date being validated.
-     * @throws DateTimeException If the end date is before the project start or after the project end.
-     */
-    public static void checkDateInProject(Project project, LocalDate date) throws DateTimeException {
-
-        if (date.isAfter(project.getEndDate()) || date.isBefore(project.getStartDate())) {
-            throw new DateTimeException("Date(s) must occur during the project");
-        }
-    }
-
-
-    /**
-     * Gets a readable form of a date from a protobuf timestamp
-     */
-    public static String getReadableDate(Timestamp timestamp) {
-        Date date = new Date(timestamp.getSeconds() * 1000); // Date needs milliseconds
-        DateFormat df = new SimpleDateFormat("dd MMM yyyy");
-        return df.format(date);
-    }
-
-
-    /**
-     * Gets the time since a timestamp in months and years
-     */
-    public static String getReadableTimeSince(Timestamp timestamp) {
-        LocalDateTime dateTime = LocalDateTime.ofEpochSecond(timestamp.getSeconds(), 0, ZoneOffset.UTC);
-        LocalDateTime now = LocalDateTime.now();
-
-
-        long years = ChronoUnit.YEARS.between(dateTime, now);
-        long months = ChronoUnit.MONTHS.between(dateTime, now) % 12;
-        if (years > 0) {
-            return years + " years, " + months + " months";
-        } else {
-            return months + " months";
-        }
-    }
-
-
-    /**
-     * Formats a date into E d MMMM y format.
-     *
-     * @return the formatted date.
-     */
-    public static DateTimeFormatter dayDateMonthYear() {
-        return DateTimeFormatter.ofPattern("E d MMMM y");
-    }
-
-
-    /**
-     * Formats a date into hh:mma E d MMMM y format.
-     *
-     * @return the formatted date.
-     */
-    public static DateTimeFormatter timeDateMonthYear() {
-        return DateTimeFormatter.ofPattern("hh:mma E d MMMM y");
-    }
-
-
-    /**
-     * Formats a date into yyyy-MM-dd format.
-     *
-     * @return the formatted date.
-     */
-    public static DateTimeFormatter yearMonthDay() {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    }
-
-
-    /**
-     * Formats a date into dd/MM/yyyy format.
-     *
-     * @return the formatted date.
-     */
-    public static DateTimeFormatter dayMonthYear() {
-        return DateTimeFormatter.ofPattern("dd/MM/yyyy");
     }
 }

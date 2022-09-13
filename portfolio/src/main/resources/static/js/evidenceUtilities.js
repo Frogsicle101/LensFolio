@@ -84,6 +84,12 @@ function setHighlightedEvidenceWebLinks(response) {
     for (let index in response) {
         let webLink = response[index]
         webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
+
+    }
+    if (webLinksDiv.children().length < 1) {
+        $("#evidenceWebLinksBreakLine").hide()
+    } else {
+        $("#evidenceWebLinksBreakLine").show()
     }
     initialiseTooltips()
 }
@@ -129,11 +135,10 @@ function webLinkElement(url, alias) {
     }
 
     return (`
-        <div class="webLinkElement ${security}" data-value="${sanitise(url)}" >
+        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
             ${icon}
-            <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${sanitise(alias)}</div>
-            <div class="addedWebLinkUrl" style="display: none">${sanitise(url)}</div>
+            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top" 
+            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
         </div>
     `)
 }
@@ -165,8 +170,8 @@ function getAndAddEvidencePreviews() {
             addEvidencePreviews(response)
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
-        }, error: function (error) {
-            createAlert(error.responseText, "failure")
+        }, error: function () {
+            createAlert("Could not retrieve evidence data", "failure")
         }
     })
 }
@@ -178,7 +183,7 @@ function getAndAddEvidencePreviews() {
  */
 function displayNameOrButton(response) {
     let nameHolder = $("#nameHolder")
-    if (userBeingViewedId !== userIdent.toString()) {
+    if (userBeingViewedId !== userIdent) {
         $("#createEvidenceButton").remove();
         let usersName = response.getResponseHeader("Users-Name");
         nameHolder.html("Viewing evidence for " + usersName)
@@ -209,7 +214,7 @@ function getHighlightedEvidenceDetails() {
             }
         })
     } else {
-        $("#evidenceDetailsTitle").text("No Evidence Found")
+        setDetailsToNoEvidenceExists()
     }
 }
 
@@ -242,12 +247,13 @@ function getSkills(callback = () => {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId, type: "GET",
         success: function (response) {
+            skillsArray = []
             $.each(response, function (i) {
                 if (!skillsArray.includes(response[i].name)) {
                     skillsArray.push(response[i].name)
                 }
-                callback()
             })
+            callback()
         },
         error: function (response) {
             console.log(response)
@@ -277,10 +283,12 @@ function addSkillResponseToArray(response) {
  * @param evidenceDetails The title, date, and description, skills, categories and associates for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
+    let highlightedEvidenceId = $("#evidenceDetailsId")
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
     let highlightedEvidenceDate = $("#evidenceDetailsDate")
     let highlightedEvidenceDescription = $("#evidenceDetailsDescription")
 
+    highlightedEvidenceId.text(evidenceDetails.id)
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
@@ -293,9 +301,9 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     addCategoriesToEvidence(evidenceDetails.categories)
 
     if (userBeingViewedId === userIdent) {
-        $(".evidenceDeleteButton").show()
+        $("#deleteEvidenceButton").show()
     } else {
-        $(".evidenceDeleteButton").hide()
+        $("#deleteEvidenceButton").hide()
     }
 }
 
@@ -413,14 +421,16 @@ function getCategoryTags(categories) {
  */
 function setDetailsToNoEvidenceExists() {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
-    let highlightedEvidenceDate = $("#evidenceDetailsDate")
-    let highlightedEvidenceDescription = $("#evidenceDetailsDescription")
 
     highlightedEvidenceTitle.text("No Evidence")
-    $(".evidenceDeleteButton").hide()
     highlightedEvidenceTitle.show()
-    highlightedEvidenceDate.hide()
-    highlightedEvidenceDescription.hide()
+    $("#evidenceDetailsDate").hide()
+    $("#evidenceDetailsDescription").hide()
+    $("#deleteEvidenceButton").hide()
+    $("#evidenceDetailsCategories").empty()
+    $("#evidenceWebLinks").empty()
+    $("#evidenceDetailsSkills").empty()
+
 }
 
 
@@ -475,8 +485,8 @@ function getWeblinksList() {
 
     $.each(weblinks, function () {
         let weblinkDTO = {
-            "url": this.querySelector(".addedWebLinkUrl").innerHTML,
-            "name": this.querySelector(".addedWebLinkName").innerHTML
+            "url": this.querySelector(".addedWebLink").href,
+            "name": this.querySelector(".addedWebLink").innerText
         }
         weblinksList.push(weblinkDTO)
     })
@@ -553,15 +563,6 @@ $(document).on("click", ".evidenceListItem", function () {
     let newSelectedDiv = $(this).addClass("selectedEvidence")
     selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
     showHighlightedEvidenceDetails()
-})
-
-
-/**
- * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
- */
-$(document).on('click', '.addedWebLinkName', function () {
-    let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
-    window.open(destination, '_blank').focus();
 })
 
 
@@ -912,7 +913,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
     let skillsInput = $("#skillsInput")
     removeDuplicatesFromInput(skillsInput)
     let evidenceCreationForm = $("#evidenceCreationForm")[0]
-
+    toggleRequiredIfCheckURLInputsAreEmpty()
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
     } else {
@@ -968,14 +969,20 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '#addWeblinkButton', function () {
+$(document).on('click', '#addWeblinkButton', function (e) {
     let button = $("#addWeblinkButton");
     if (button.hasClass("toggled")) {
+        e.preventDefault()
+        let webLinkUrl = $("#webLinkUrl");
+        let webLinkName = $("#webLinkName");
+        if (!webLinkUrl[0].checkValidity() || !webLinkName[0].checkValidity()) {
+            webLinkUrl[0].reportValidity()
+            webLinkName[0].reportValidity()
+            return false
+        }
         //validate the link
-        let address = $("#webLinkUrl").val()
-        let alias = $("#webLinkName").val()
         let form = $("#weblinkForm")
-        validateWebLink(form, alias, address)
+        validateWebLink(form, webLinkName.val(), webLinkUrl.val())
     } else {
         webLinkButtonToggle()
     }
@@ -1009,16 +1016,8 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
  Validates the alias and then displays an error message or saves the web link and toggles the web link form.
  */
 function validateWebLink(form, alias, address) {
-    if (alias.length === 0) {
-        $("#weblinkNameAlert").alert('close') //Close any previous alerts
-        form.append(`
-                    <div id="weblinkNameAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
-                      Please include a name for your web link
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-    } else if (address.search("://") === -1) {
-        $("#weblinkAddressAlert").alert('close') //Close any previous alerts
+    if (address.search("://") === -1) {
+        removeWebLinkAlerts()
         form.append(`
                     <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
                       That address is missing a protocol (the part that comes before "://") - did you make a typo?
@@ -1032,16 +1031,24 @@ function validateWebLink(form, alias, address) {
 
 
 /**
+ * Remove any open alerts for weblinks
+ */
+function removeWebLinkAlerts() {
+    $(".weblinkAlert").remove()
+}
+
+
+/**
  * Handles the error messages for an invalid web link.
  */
 function handleInvalidWebLink(form, error) {
-    $("#weblinkAddressAlert").alert('close') //Close any previous alerts
+    removeWebLinkAlerts()
     switch (error.status) {
         case 400:
             // The URL is invalid
             form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
-                      Please enter a valid address, like https://www.w3.org/WWW/
+                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
+                      ${error.responseText}
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
@@ -1049,12 +1056,34 @@ function handleInvalidWebLink(form, error) {
         default:
             // A regular error
             form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
                       Something went wrong. Try again later.
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
             break
+    }
+}
+
+
+/**
+ * This disabled the requirement for the web link forms to be filled out if they are empty.
+ * This was because the overall "Add Evidence" form does a validation of all its fields when something changes.
+ * Because these fields are required to both be filled then they don't allow that check to pass if they are empty.
+ * This now disables those requirements if nothing is in them so that a form can be submitted if they are both empty.
+ * It re-enables them if a user starts to type in them.
+ */
+function toggleRequiredIfCheckURLInputsAreEmpty() {
+    let webLinkUrl = $("#webLinkUrl")
+    let webLinkName = $("#webLinkName")
+    if (webLinkUrl.val() < 1 && webLinkName.val() < 1) {
+        webLinkUrl.removeAttr("required")
+        webLinkName.removeAttr("required")
+        webLinkName.removeAttr("minlength")
+    } else {
+        webLinkUrl.attr("required", "required")
+        webLinkName.attr("required", "required")
+        webLinkName.attr("minlength", "1")
     }
 }
 
@@ -1149,8 +1178,6 @@ function submitWebLink() {
         webLinksCount += 1
         checkWeblinkCount()
         $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
-    } else {
-        createAlert("Weblink name needs to be 1 char", "failure");
     }
 }
 
@@ -1213,6 +1240,7 @@ function clearAddEvidenceModalValues() {
  * Checks the form is valid, enables or disables the save button depending on validity.
  */
 function disableEnableSaveButtonOnValidity() {
+    toggleRequiredIfCheckURLInputsAreEmpty()
     if ($("#evidenceCreationForm")[0].checkValidity()) {
         $("#evidenceSaveButton").prop("disabled", false)
     } else {
@@ -1265,6 +1293,30 @@ $(document).on("keyup", ".text-input", function () {
 $(document).on("change", ".form-control", function () {
     disableEnableSaveButtonOnValidity()
     checkTextInputRegex()
+})
+
+
+/**
+ * Pops up a confirmation message on the click of evidence deletion. If the confirmation is accepted,
+ * then the delete request is sent. On a successful request the page is reloaded and an alert is made.
+ */
+$(document).on("click", "#deleteEvidenceButton", function () {
+    const evidenceId = $("#evidenceDetailsId").text()
+    const evidenceName = $("#evidenceDetailsTitle").text()
+    if (window.confirm(`Are you sure you want to delete the evidence \n${evidenceName}`)) {
+        $.ajax({
+            url: `evidence?evidenceId=${evidenceId}`,
+            type: "DELETE",
+            success: () => {
+                selectedEvidenceId = null
+                getAndAddEvidencePreviews()
+                getSkills(addSkillsToSideBar)
+                createAlert("Successfully deleted evidence: " + sanitise(evidenceName), "success")
+            }, error: (response) => {
+                createAlert(response.responseText, "failure")
+            }
+        })
+    }
 })
 
 

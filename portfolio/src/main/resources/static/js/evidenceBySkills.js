@@ -6,9 +6,9 @@ let selectedChip;
 $(() => {
     let urlParams = new URLSearchParams(window.location.search)
     if (urlParams.has("userId")) {
-        userBeingViewedId = urlParams.get('userId')
+        userBeingViewedId = parseInt(urlParams.get('userId'))
     } else {
-        userBeingViewedId = userIdent.toString()
+        userBeingViewedId = userIdent
     }
 
     getAndAddEvidencePreviews()

@@ -59,6 +59,7 @@ public class EvidenceController {
     /** The repository containing the projects. */
     private final ProjectRepository projectRepository;
 
+    /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
 
@@ -96,6 +97,8 @@ public class EvidenceController {
         LocalDate evidenceMaxDate = LocalDate.now();
         modelAndView.addObject("currentDate", currentDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
+        modelAndView.addObject("webLinkMaxUrlLength", WebLink.MAXURLLENGTH);
+        modelAndView.addObject("webLinkMaxNameLength", WebLink.MAXNAMELENGTH);
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;
@@ -243,6 +246,47 @@ public class EvidenceController {
 
 
     /**
+     * Deletes a piece of evidence owned by the user making the request.
+     *
+     * If the evidence is not owned by the user making the request, then the response is a 401,
+     * If the evidence doesn't exist, then the response is a 404,
+     * Any other issues return a 500 error,
+     * Otherwise the response is OK,
+     *
+     * @param principal The user who made the request.
+     * @param evidenceId The Id of the piece of evidence to be deleted.
+     * @return ResponseEntity containing the HTTP status and a response message.
+     */
+    @DeleteMapping("/evidence")
+    public ResponseEntity<Object> deleteEvidence(@AuthenticationPrincipal Authentication principal,
+                                                 @RequestParam Integer evidenceId) {
+        String methodLoggingTemplate = "DELETE /evidence: {}";
+        logger.info(methodLoggingTemplate, "Called");
+        try {
+            Optional<Evidence> optionalEvidence = evidenceRepository.findById(evidenceId);
+            if (optionalEvidence.isEmpty()) {
+                String message = "No evidence found with id " + evidenceId;
+                logger.info(methodLoggingTemplate, message);
+                return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+            }
+            Evidence evidence = optionalEvidence.get();
+            int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
+            if (evidence.getUserId() != userId) {
+                logger.warn(methodLoggingTemplate, "User attempted to delete evidence they don't own.");
+                return new ResponseEntity<>("You can only delete evidence that you own.", HttpStatus.UNAUTHORIZED);
+            }
+            evidenceRepository.delete(evidence);
+            String message = "Successfully deleted evidence " + evidenceId;
+            logger.info(methodLoggingTemplate, message);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.error(methodLoggingTemplate, exception.getMessage());
+            return new ResponseEntity<>("An unexpected error has occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
      * Checks if the provided web address is valid, i.e. could lead to a website.
      * The criteria are specified by java.net.URL, and is protocol dependent.
      * This doesn't guarantee that the website actually exists; just that it could.
@@ -266,12 +310,26 @@ public class EvidenceController {
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }
+            if (address.length() > WebLink.MAXURLLENGTH) {
+                throw new CheckException("URL address is longer than the maximum of " + WebLink.MAXURLLENGTH);
+            }
+            if (request.getName().length() < 1) {
+                throw new CheckException("Link name should be at least 1 character");
+            }
+            if (request.getName().length() > WebLink.MAXNAMELENGTH) {
+                throw new CheckException("Link name should be no more than " + WebLink.MAXNAMELENGTH + " characters in length");
+            }
             new URL(address).toURI(); //The constructor does all the validation for us
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);
+        } catch (CheckException exception) {
+            logger.warn("/validateWebLink - Invalid address: {}", address);
+            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(),HttpStatus.BAD_REQUEST);
         } catch (MalformedURLException | URISyntaxException exception) {
-            logger.warn("/validateWebLink - invalid address {}", address);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.warn("/validateWebLink - Invalid address: {}", address);
+            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
+            return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/",HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
