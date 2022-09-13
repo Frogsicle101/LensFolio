@@ -85,6 +85,14 @@ function manageTableSelection() {
 
 
 /**
+ * Displays the grip element on each jQuery UI selected row.
+ */
+function showDraggableIcons() {
+    $(".ui-selected").find(".dragGrip").show()
+}
+
+
+/**
  * Implements the jQuery UI draggable widget to enable the dragging of group members between groups.
  * Reference: https://api.jqueryui.com/draggable/
  */
@@ -99,13 +107,6 @@ function addDraggable() {
     })
 }
 
-
-/**
- * Displays the grip element on each jQuery UI selected row.
- */
-function showDraggableIcons() {
-    $(".ui-selected").find(".dragGrip").show()
-}
 
 /**
  * Handles the selecting, dragging, and dropping of group members.
@@ -856,33 +857,6 @@ $(document).on("click", "#cancelRemoval", function () {
  */
 $(document).on("click", "#pillsSettingsTab", function () {
     retrieveGroupRepoInformation()
-})
-
-
-/**selectedGroupId
- * a listener for when the move users button is pushed, calls a function to move the currently selected users to the
- * selected group
- */
-$(document).on("click", "#moveUsersButton", function () {
-    addUsers($("#newGroupSelector").val())
-})
-
-
-/**
- * selects every single user in the group when the button is clicked.
- */
-$(document).on("click", "#selectAllCheckboxGroups", function () {
-    let isChecked = $("#selectAllCheckboxGroups").prop("checked")
-    $(".selectUserCheckboxGroups").prop("checked", isChecked)
-    if (isChecked) {
-        $(".userRow").addClass("selected")
-        showDraggableIcons()
-    } else {
-        let userRow = $(".userRow")
-        userRow.removeClass("selected")
-        userRow.find(".dragGrip").hide()
-    }
-    checkToSeeIfHideOrShowOptions()
 })
 
 
