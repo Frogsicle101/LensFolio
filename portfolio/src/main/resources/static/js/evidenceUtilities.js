@@ -757,6 +757,8 @@ function removeDuplicatesFromInput(input) {
             if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
                 newArray.push(element)
             }
+        } else if (element.length > 0) {
+        createAlert("Skill name malformed, deleted ", "failure")
         }
     })
 
@@ -811,6 +813,7 @@ function displayInputSkillChips() {
         }
         if ($(this).text().length > 30) {
             $(this).parent(".skillChip").addClass("skillChipInvalid")
+            createAlert("Length of skill name should less than 30", "failure")
         }
     })
 }
