@@ -126,6 +126,7 @@ function webLinkElement(url, alias) {
         urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
     } else {
         urlSlashed = url // The url does not have a protocol attached to it
+        url = "http://" + url
     }
 
     return (`
@@ -964,7 +965,7 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
 
 /**
  * Handles a web link validated by the back end.
- Validates the alias and then displays an error message or saves the web link and toggles the web link form.
+ * Validates the alias and then displays an error message or saves the web link and toggles the web link form.
  */
 function validateWebLink(form, alias, address) {
     if (alias.length === 0) {
@@ -972,14 +973,6 @@ function validateWebLink(form, alias, address) {
         form.append(`
                     <div id="weblinkNameAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
                       Please include a name for your web link
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-    } else if (address.search("://") === -1) {
-        $("#weblinkAddressAlert").alert('close') //Close any previous alerts
-        form.append(`
-                    <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
-                      That address is missing a protocol (the part that comes before "://") - did you make a typo?
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
@@ -999,7 +992,7 @@ function handleInvalidWebLink(form, error) {
             // The URL is invalid
             form.append(`
                     <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
-                      Please enter a valid address, like https://www.w3.org/WWW/
+                      Please enter a valid address, like https://www.w3.org/WWW/ or www.w3.org/WWW/
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     `)
@@ -1026,6 +1019,10 @@ function handleInvalidWebLink(form, error) {
  */
 function validateWebLinkAtBackend() {
     let address = $("#webLinkUrl").val()
+    let hasProtocol = address.search("//") != -1
+    if (!hasProtocol) {
+        address = "http://" + address
+    }
     let form = $("#weblinkForm")
     let data = JSON.stringify({
         "url": address,
