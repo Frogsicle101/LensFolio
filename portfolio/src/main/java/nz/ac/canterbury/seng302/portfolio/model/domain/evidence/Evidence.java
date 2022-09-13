@@ -30,7 +30,7 @@ public class Evidence {
     private String description;
 
     /** A list of the web links associated with a piece of Evidence */
-    @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER, orphanRemoval = true)
     private final Set<WebLink> webLinks = new HashSet<>() {
     };
 
@@ -47,6 +47,10 @@ public class Evidence {
     @ElementCollection(fetch = FetchType.EAGER)
     private final Set<Category> categories = new HashSet<>();
 
+    /** A list of associates; people who also worked on this evidence.
+     * Takes the form of their user IDs.
+     * The owner is considered an associate.
+     */
     @ElementCollection(fetch = FetchType.EAGER)
     private final List<Integer> associateIds = new ArrayList<>();
 

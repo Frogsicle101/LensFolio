@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -224,6 +225,7 @@ public class DateTimeService {
     }
 
 
+
     /**
      * Ensures the given sprint date is outside all other sprint dates.
      *
@@ -241,4 +243,3 @@ public class DateTimeService {
             throw new CheckException("End date is after next sprints start date / project end date");
         }
     }
-}

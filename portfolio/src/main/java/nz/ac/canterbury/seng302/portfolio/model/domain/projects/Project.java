@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.projects;
 
-import com.google.type.DateTime;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 
 import javax.persistence.Entity;
@@ -21,7 +20,6 @@ public class Project {
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
-    private DateTime timeDeactivated;
 
     protected Project() {
     }
@@ -40,7 +38,6 @@ public class Project {
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = description;
-        this.timeDeactivated = null;
     }
 
     /**
@@ -54,7 +51,6 @@ public class Project {
         this.startDate = localDate;
         this.endDate = localDate.plusMonths(8);
         this.description = "No description";
-        this.timeDeactivated = null;
     }
 
     /**
@@ -174,26 +170,6 @@ public class Project {
     public void setDescription(String description) {
         this.description = description;
     }
-
-    /**
-     * Getter for time deactivated.
-     *
-     * @return DateTime planner deactivation date and time.
-     */
-    public DateTime getTimeDeactivated() {
-        return timeDeactivated;
-    }
-
-    /**
-     * Setter for time deactivated.
-     *
-     * @param timeDeactivated the time of project deactivation.
-     */
-    public void setTimeDeactivated(DateTime timeDeactivated) {
-        this.timeDeactivated = timeDeactivated;
-    }
-
-
 }
 
 

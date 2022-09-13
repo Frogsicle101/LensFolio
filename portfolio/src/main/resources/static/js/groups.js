@@ -5,11 +5,7 @@ const MWAG_GROUP_ID = 2
 let groupPage
 
 $(function () {
-    if (!checkPrivilege()) {
-        return
-    }
     getGroups()
-
 })
 
 //----------------------- jQuery UI User Selection -------------------------
@@ -21,7 +17,7 @@ $(function () {
 function manageTableSelection() {
     let anchorRow
 
-    $( "#groupTableBody" ).selectable({
+    $("#groupTableBody").selectable({
         filter: ":not(td)",
 
         /**
@@ -53,7 +49,7 @@ function manageTableSelection() {
                     currentRow.prevUntil(anchorRow).each((i, row) => {  //for every row between the current and last selected rows
                         $(row).addClass("ui-selected")
                     })
-                } else if (currentId < lastId)  {  // latest selected row is above the previous selected row
+                } else if (currentId < lastId) {  // latest selected row is above the previous selected row
                     currentRow.nextUntil(anchorRow).each((i, row) => {
                         $(row).addClass("ui-selected")
                     })
@@ -75,7 +71,7 @@ function manageTableSelection() {
          * @param e An event (unused)
          * @param ui The unselected rows
          */
-        unselected: function(e, ui) {
+        unselected: function (e, ui) {
             let unselected = $(ui.unselected)
             $(unselected).each(function () {
                 $(this).find(".dragGrip").hide()
@@ -113,6 +109,9 @@ function showDraggableIcons() {
  * Implemented using JQuery UI droppable https://api.jqueryui.com/droppable/
  */
 function manageGroupTableInteraction() {
+    if (!checkPrivilege()) {
+        return
+    }
     manageTableSelection()
 
     let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
@@ -209,7 +208,6 @@ function populateGroupPageSelector(data, currentPage) {
         //Goes through the page selectors and adds a class of active if it's the current page we are on
         if (Number($(element).text()) === currentPage) {
             $(element).addClass("active")
-            return false
         }
     })
     toggleGroupNavigationButtons()
@@ -308,9 +306,9 @@ function addUsers(groupId) {
                 createAlert("User(s) moved", "success")
             }
         }, error: function (error) {
-            if (error.status == 401){
+            if (error.status == 401) {
                 createAlert("You don't have permission to move users. This could be because " +
-                                  "your roles have been updated. Try refreshing the page", "failure")
+                    "your roles have been updated. Try refreshing the page", "failure")
             } else {
                 createAlert(error.responseText, "failure")
             }
@@ -493,7 +491,7 @@ function retrieveGroupRepoInformation() {
             getRepoCommits();
         },
         error: function (error) {
-            if (error.status == 401){
+            if (error.status == 401) {
                 let repoInformationContainer = $("#gitRepo")
                 repoInformationContainer.empty();
                 displayUnauthorisedRepo(repoInformationContainer)
@@ -571,11 +569,11 @@ function populateGroupRepoInformation(container, repo) {
             <div id="repoInfo" class="row marginSides1">
                 <div class="inlineText col">
                     <p>Project Id:&nbsp;</p>
-                    <p class="groupSettingsPageProjectId greyText">${sanitise(repo.projectId)}</p>
+                    <p id="groupSettingsPageProjectId" class="groupRepoInfo greyText">${sanitise(repo.projectId)}</p>
                 </div>
                 <div class="inlineText col">
                     <p>Access Token:&nbsp;</p>
-                    <p class="groupSettingsPageAccessToken greyText">${sanitise(repo.accessToken)}</p>
+                    <p id="groupSettingsPageAccessToken" class="groupRepoInfo greyText">${sanitise(repo.accessToken)}</p>
                 </div>
             </div>
             <div id="repoSettingsContainer"></div>
@@ -591,8 +589,8 @@ function populateGroupRepoInformation(container, repo) {
  */
 function getRepoCommits() {
     const commitContainer = $("#groupSettingsCommitSection");
-    const repoID = $(".groupSettingsPageProjectId").text()
-    const accessToken = $(".groupSettingsPageAccessToken").text();
+    const repoID = $("#groupSettingsPageProjectId").text()
+    const accessToken = $("#groupSettingsPageAccessToken").text();
 
     commitContainer.empty();
 
@@ -657,8 +655,8 @@ function populateCommitContainer(commitContainer, data) {
  */
 function handleGitRepoError() {
     let repoInformationContainer = $("#gitRepo");
-    let repoProjectId = $(".groupSettingsPageProjectId");
-    let repoAccessToken = $(".groupSettingsPageAccessToken");
+    let repoProjectId = $("#groupSettingsPageProjectId");
+    let repoAccessToken = $("#groupSettingsPageAccessToken");
 
     repoProjectId.removeClass('greyText')
     repoProjectId.addClass("redText")
@@ -746,9 +744,9 @@ $(document).on("click", ".deleteButton", function () {
             success: function () {
                 window.location.reload()
             }, error: function (error) {
-                if (error.status == 401){
+                if (error.status == 401) {
                     createAlert("You don't have permission to delete groups. This could be because " +
-                                            "your roles have been updated. Try refreshing the page", "failure")
+                        "your roles have been updated. Try refreshing the page", "failure")
                 } else {
                     createAlert(error.responseText, "failure")
                 }
@@ -814,9 +812,9 @@ $(document).on("submit", "#editGroupForm", function (event) {
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
         }, error: function (error) {
-            if (error.status == 401){
+            if (error.status == 401) {
                 createAlert("You don't have permission to edit group details. This could be because " +
-                                    "your roles have been updated. Try refreshing the page", "failure")
+                    "your roles have been updated. Try refreshing the page", "failure")
             } else {
                 createAlert(error.responseText, "failure")
             }
@@ -846,9 +844,9 @@ $(document).on("click", "#confirmRemoval", function () {
             displayGroupUsersList()
             createAlert("User removed", false)
         }, error: function (error) {
-            if (error.status == 401){
+            if (error.status == 401) {
                 createAlert("You don't have permission to remove users. This could be because " +
-                                    "your roles have been updated. Try refreshing the page", "failure")
+                    "your roles have been updated. Try refreshing the page", "failure")
             } else {
                 createAlert(error.responseText, "failure")
             }
