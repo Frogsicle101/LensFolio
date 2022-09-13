@@ -375,7 +375,6 @@ function changeToUsersTab() {
  */
 function checkToSeeIfHideOrShowOptions() {
     let amountSelected = $(document).find(".ui-selected").length
-    console.log(amountSelected > 0 ? "show" : "hide")
     if (amountSelected > 0) {
         showOptions()
     } else {
@@ -690,6 +689,18 @@ function updateGroupName(shortname, longname) {
 }
 
 
+/**
+ * Performs all the actions required to close the group details edit form
+ */
+function cancelGroupEdit() {
+    const parent = $("#groupEditInfo");
+    parent.slideUp(() => {
+        const editButton = $(".editButton");
+        editButton.show();
+    });
+}
+
+
 // ******************************* Click listeners *******************************
 
 
@@ -827,6 +838,7 @@ $(document).on("submit", "#editGroupForm", function (event) {
         data: groupData,
         success: function () {
             createAlert("Changes submitted", "success");
+            cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
         }, error: function (error) {
@@ -842,11 +854,9 @@ $(document).on("submit", "#editGroupForm", function (event) {
 
 
 /**
- * When removal is cancelled, the confirmation popup form is hidden.
+ * Event listener for the cancel button on the git repo edit form.
  */
-$(document).on("click", "#cancelRemoval", function () {
-    $("#confirmationForm").slideUp();
-})
+$(document).on("click", ".cancelGroupEdit", cancelGroupEdit);
 
 
 /**

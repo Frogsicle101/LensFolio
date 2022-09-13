@@ -791,14 +791,6 @@ section {
     border-radius: 100%;
 }
 
-#confirmationForm {
-    padding: 1rem;
-    margin-top: 1rem;
-    margin-left: auto;
-    margin-right: auto;
-    align-content: center;
-}
-
 .moveToDiv {
     display: flex;
     flex-direction: row;
