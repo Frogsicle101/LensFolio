@@ -991,7 +991,7 @@ function handleInvalidWebLink(form, error) {
         case 400:
             // The URL is invalid
             form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
+                    <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show address-alert" role="alert">
                       Please enter a valid address, like https://www.w3.org/WWW/ or www.w3.org/WWW/
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
