@@ -711,7 +711,7 @@ $(document).on("keydown", "#skillsInput", function (event) {
         event.preventDefault();
         let inputArray = skillsInput.val().trim().split(/\s+/)
         inputArray.pop()
-        skillsInput.val(inputArray.join(" "))
+        skillsInput.val(inputArray.join(" ") + " ")
     }
     if (event.key === " " || event.key === "Tab" || event.key === "Enter") {
         removeDuplicatesFromInput(skillsInput)
@@ -777,7 +777,7 @@ function removeDuplicatesFromInput(input) {
         })
     })
 
-    input.val(newArray.join(" ") + " ")
+    input.val(newArray.join(" "))
 }
 
 
