@@ -170,8 +170,8 @@ function getAndAddEvidencePreviews() {
             addEvidencePreviews(response)
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
-        }, error: function (error) {
-            createAlert(error.responseText, "failure")
+        }, error: function () {
+            createAlert("Could not retrieve evidence data", "failure")
         }
     })
 }
@@ -183,7 +183,7 @@ function getAndAddEvidencePreviews() {
  */
 function displayNameOrButton(response) {
     let nameHolder = $("#nameHolder")
-    if (userBeingViewedId !== userIdent.toString()) {
+    if (userBeingViewedId !== userIdent) {
         $("#createEvidenceButton").remove();
         let usersName = response.getResponseHeader("Users-Name");
         nameHolder.html("Viewing evidence for " + usersName)
@@ -214,7 +214,7 @@ function getHighlightedEvidenceDetails() {
             }
         })
     } else {
-        $("#evidenceDetailsTitle").text("No Evidence Found")
+        setDetailsToNoEvidenceExists()
     }
 }
 
@@ -247,12 +247,13 @@ function getSkills(callback = () => {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId, type: "GET",
         success: function (response) {
+            skillsArray = []
             $.each(response, function (i) {
                 if (!skillsArray.includes(response[i].name)) {
                     skillsArray.push(response[i].name)
                 }
-                callback()
             })
+            callback()
         },
         error: function (response) {
             console.log(response)
@@ -282,10 +283,12 @@ function addSkillResponseToArray(response) {
  * @param evidenceDetails The title, date, and description, skills, and categories for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
+    let highlightedEvidenceId = $("#evidenceDetailsId")
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
     let highlightedEvidenceDate = $("#evidenceDetailsDate")
     let highlightedEvidenceDescription = $("#evidenceDetailsDescription")
 
+    highlightedEvidenceId.text(evidenceDetails.id)
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
@@ -297,9 +300,9 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     addCategoriesToEvidence(evidenceDetails.categories)
 
     if (userBeingViewedId === userIdent) {
-        $(".evidenceDeleteButton").show()
+        $("#deleteEvidenceButton").show()
     } else {
-        $(".evidenceDeleteButton").hide()
+        $("#deleteEvidenceButton").hide()
     }
 }
 
@@ -401,14 +404,16 @@ function getCategoryTags(categories) {
  */
 function setDetailsToNoEvidenceExists() {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
-    let highlightedEvidenceDate = $("#evidenceDetailsDate")
-    let highlightedEvidenceDescription = $("#evidenceDetailsDescription")
 
     highlightedEvidenceTitle.text("No Evidence")
-    $(".evidenceDeleteButton").hide()
     highlightedEvidenceTitle.show()
-    highlightedEvidenceDate.hide()
-    highlightedEvidenceDescription.hide()
+    $("#evidenceDetailsDate").hide()
+    $("#evidenceDetailsDescription").hide()
+    $("#deleteEvidenceButton").hide()
+    $("#evidenceDetailsCategories").empty()
+    $("#evidenceWebLinks").empty()
+    $("#evidenceDetailsSkills").empty()
+
 }
 
 
@@ -1240,6 +1245,30 @@ $(document).on("keyup", ".text-input", function () {
 $(document).on("change", ".form-control", function () {
     disableEnableSaveButtonOnValidity()
     checkTextInputRegex()
+})
+
+
+/**
+ * Pops up a confirmation message on the click of evidence deletion. If the confirmation is accepted,
+ * then the delete request is sent. On a successful request the page is reloaded and an alert is made.
+ */
+$(document).on("click", "#deleteEvidenceButton", function () {
+    const evidenceId = $("#evidenceDetailsId").text()
+    const evidenceName = $("#evidenceDetailsTitle").text()
+    if (window.confirm(`Are you sure you want to delete the evidence \n${evidenceName}`)) {
+        $.ajax({
+            url: `evidence?evidenceId=${evidenceId}`,
+            type: "DELETE",
+            success: () => {
+                selectedEvidenceId = null
+                getAndAddEvidencePreviews()
+                getSkills(addSkillsToSideBar)
+                createAlert("Successfully deleted evidence: " + sanitise(evidenceName), "success")
+            }, error: (response) => {
+                createAlert(response.responseText, "failure")
+            }
+        })
+    }
 })
 
 

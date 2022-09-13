@@ -54,7 +54,7 @@ class PortfolioControllerTest {
     private final RegexService regexService = spy(RegexService.class);
     private final Sprint mockSprint = mock(Sprint.class);
     private final DateTimeService dateTimeService = spy(DateTimeService.class);
-    private final ProjectService projectService = new ProjectService(projectRepository, sprintRepository);
+    private final ProjectService projectService = new ProjectService(sprintRepository);
     @MockBean
     private SkillRepository skillRepository;
 

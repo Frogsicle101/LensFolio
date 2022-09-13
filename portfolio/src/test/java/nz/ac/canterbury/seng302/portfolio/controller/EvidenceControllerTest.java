@@ -45,8 +45,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -817,6 +816,70 @@ class EvidenceControllerTest {
                         .content("{ \"name\": \"\", \"url\": \"https://www.place.com\"}")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testDeleteEvidenceValidEvidenceId() throws Exception {
+        setUserToStudent();
+        setUpContext();
+
+        Integer evidenceId = 1;
+        Evidence existingEvidence =  new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
+        Mockito.when(evidenceRepository.findById(evidenceId)).thenReturn(Optional.of(existingEvidence));
+
+        mockMvc.perform(delete("/evidence")
+                        .param("evidenceId", String.valueOf(evidenceId)))
+                .andExpect(status().isOk());
+
+        Mockito.verify(evidenceRepository, Mockito.times(1)).delete(existingEvidence);
+    }
+
+
+    @Test
+    void testDeleteEvidenceInvalidEvidenceIdForm() throws Exception {
+        setUserToStudent();
+        setUpContext();
+
+        mockMvc.perform(delete("/evidence")
+                        .param("evidenceId", "banana"))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verify(evidenceRepository, Mockito.never()).delete(Mockito.any());
+    }
+
+
+    @Test
+    void testDeleteEvidenceInvalidEvidenceIdNoSuchEvidence() throws Exception {
+        setUserToStudent();
+        setUpContext();
+
+        Integer evidenceId = 1;
+        Mockito.when(evidenceRepository.findById(evidenceId)).thenReturn(Optional.empty());
+
+        mockMvc.perform(delete("/evidence")
+                        .param("evidenceId", String.valueOf(evidenceId)))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(evidenceRepository, Mockito.never()).delete(Mockito.any());
+    }
+
+
+    @Test
+    void testDeleteEvidenceUnauthorisedIfUserDoesntOwnEvidence() throws Exception {
+        setUserToStudent();
+        setUpContext();
+
+        int notCurrentUserId = 2;
+        Integer evidenceId = 1;
+        Evidence existingEvidence =  new Evidence(evidenceId, notCurrentUserId, "Title", LocalDate.now(), "description");
+        Mockito.when(evidenceRepository.findById(evidenceId)).thenReturn(Optional.of(existingEvidence));
+
+        mockMvc.perform(delete("/evidence")
+                        .param("evidenceId", String.valueOf(evidenceId)))
+                .andExpect(status().isUnauthorized());
+
+        Mockito.verify(evidenceRepository, Mockito.never()).delete(Mockito.any());
     }
 
 

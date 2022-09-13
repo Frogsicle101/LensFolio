@@ -1,6 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -8,7 +11,6 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
@@ -59,6 +61,7 @@ public class EvidenceController {
     /** The repository containing the projects. */
     private final ProjectRepository projectRepository;
 
+    /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
 
@@ -244,6 +247,47 @@ public class EvidenceController {
 
 
     /**
+     * Deletes a piece of evidence owned by the user making the request.
+     *
+     * If the evidence is not owned by the user making the request, then the response is a 401,
+     * If the evidence doesn't exist, then the response is a 404,
+     * Any other issues return a 500 error,
+     * Otherwise the response is OK,
+     *
+     * @param principal The user who made the request.
+     * @param evidenceId The Id of the piece of evidence to be deleted.
+     * @return ResponseEntity containing the HTTP status and a response message.
+     */
+    @DeleteMapping("/evidence")
+    public ResponseEntity<Object> deleteEvidence(@AuthenticationPrincipal Authentication principal,
+                                                 @RequestParam Integer evidenceId) {
+        String methodLoggingTemplate = "DELETE /evidence: {}";
+        logger.info(methodLoggingTemplate, "Called");
+        try {
+            Optional<Evidence> optionalEvidence = evidenceRepository.findById(evidenceId);
+            if (optionalEvidence.isEmpty()) {
+                String message = "No evidence found with id " + evidenceId;
+                logger.info(methodLoggingTemplate, message);
+                return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+            }
+            Evidence evidence = optionalEvidence.get();
+            int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
+            if (evidence.getUserId() != userId) {
+                logger.warn(methodLoggingTemplate, "User attempted to delete evidence they don't own.");
+                return new ResponseEntity<>("You can only delete evidence that you own.", HttpStatus.UNAUTHORIZED);
+            }
+            evidenceRepository.delete(evidence);
+            String message = "Successfully deleted evidence " + evidenceId;
+            logger.info(methodLoggingTemplate, message);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.error(methodLoggingTemplate, exception.getMessage());
+            return new ResponseEntity<>("An unexpected error has occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
      * Checks if the provided web address is valid, i.e. could lead to a website.
      * The criteria are specified by java.net.URL, and is protocol dependent.
      * This doesn't guarantee that the website actually exists; just that it could.
@@ -264,7 +308,6 @@ public class EvidenceController {
         String address = request.getUrl();
         logger.info("GET REQUEST /validateWebLink - validating address {}", address);
         try {
-
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }

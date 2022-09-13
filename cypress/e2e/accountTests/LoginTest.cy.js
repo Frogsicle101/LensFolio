@@ -5,7 +5,7 @@ describe('Login page', () => {
 
    it('fail login to admin account invalid password', () => {
      cy.get('#username')
-         .invoke('val','admin')
+         .type('admin')
      cy.get('#password')
          .type(`invalidate password {enter}`)
      cy.get(".errorMessage").should('have.text', 'Log in attempt failed: username or password incorrect')
@@ -13,7 +13,7 @@ describe('Login page', () => {
 
    it('successful log in to admin account', () => {
      cy.get('#username')
-         .invoke('val',"admin")
+         .type("admin")
      cy.get('#password')
          .type(`password{enter}`) //add password and submit form
      cy.url().should('include', 'account')

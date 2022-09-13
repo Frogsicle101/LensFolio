@@ -30,9 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -192,8 +190,11 @@ class SkillsControllerTest {
         Skill testSkill = new Skill(1, "writing_tests");
         Evidence evidence1 = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         testSkill.getEvidence().add(evidence1);
+        List<Evidence> evidenceList = new ArrayList<>();
+        evidenceList.add(evidence1);
 
         Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq(testSkill.getName()))).thenReturn(Optional.of(testSkill));
+        Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(anyInt(), Mockito.any())).thenReturn(evidenceList);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
                         .param("skillName", "writing_tests")
@@ -216,8 +217,14 @@ class SkillsControllerTest {
         testSkill.getEvidence().add(evidence1);
         testSkill.getEvidence().add(evidence2);
         testSkill.getEvidence().add(evidence3);
+        List<Evidence> evidenceList = new ArrayList<>();
+        evidenceList.add(evidence1);
+        evidenceList.add(evidence2);
+        evidenceList.add(evidence3);
+
 
         Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(1, testSkill.getName())).thenReturn(Optional.of(testSkill));
+        Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(anyInt(), any())).thenReturn(evidenceList);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
                         .param("skillName", "writing_tests")
