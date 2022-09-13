@@ -936,7 +936,7 @@ $(document).on('click', '#addWeblinkButton', function (e) {
         }
         //validate the link
         let form = $("#weblinkForm")
-        validateWebLink(form, webLinkName.val(), webLinkUrl.val())
+        validateWebLinkAtBackend()
     } else {
         webLinkButtonToggle()
     }
@@ -966,33 +966,6 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
 
 
 /**
- * Handles a web link validated by the back end.
- * Validates the alias and then displays an error message or saves the web link and toggles the web link form.
- */
-function validateWebLink(form, alias, address) {
-    if (address.search("://") === -1) {
-        removeWebLinkAlerts()
-        form.append(`
-                    <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
-                      That address is missing a protocol (the part that comes before "://") - did you make a typo?
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-    if (alias.length === 0) {
-        $("#weblinkNameAlert").alert('close') //Close any previous alerts
-        form.append(`
-                    <div id="weblinkNameAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
-                      Please include a name for your web link
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-    } else {
-        validateWebLinkAtBackend()
-    }
-}
-
-
-/**
  * Remove any open alerts for weblinks
  */
 function removeWebLinkAlerts() {
@@ -1009,7 +982,7 @@ function handleInvalidWebLink(form, error) {
         case 400:
             // The URL is invalid
             form.append(`
-                    <div  id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
+                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
                       ${error.responseText}
                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>

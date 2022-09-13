@@ -55,17 +55,6 @@ describe("Adding Weblinks to Evidence", () => {
         cy.get("#addedWebLinks").should("contain.text", "name")
     })
 
-    it("Warning displayed on invalid address", () => {
-        cy.get("#addWeblinkButton").click();
-        cy.get("#webLinkUrl").invoke('removeAttr', 'type')
-        cy.get("#webLinkUrl").wait(500)
-            .type("name")
-        cy.get("#webLinkName").wait(500)
-            .type("name")
-        cy.get("#addWeblinkButton").click()
-        cy.get("#weblinkNameAlert").should("not.exist")
-        cy.get("#weblinkAddressAlert").should("be.visible")
-    })
 
     it("Warning displayed on invalid address that is too long", () => {
         cy.get("#addWeblinkButton").click();
