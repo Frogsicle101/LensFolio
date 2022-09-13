@@ -762,8 +762,9 @@ section {
 #groupDisplayOptions {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: flex-start;
     align-items: center;
+    height: 3rem;
 }
 
 #groupInformationLongName {
@@ -795,6 +796,11 @@ section {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+#UsersPerPageForm {
+    margin-right: 2rem;
+    margin-left: 2rem;
 }
 
 #newGroupSelector {
