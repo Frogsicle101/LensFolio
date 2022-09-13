@@ -109,7 +109,7 @@ function showDraggableIcons() {
  * Implemented using JQuery UI droppable https://api.jqueryui.com/droppable/
  */
 function manageGroupTableInteraction() {
-    if (! checkPrivilege()) {
+    if (!checkPrivilege()) {
         return
     }
     manageTableSelection()
