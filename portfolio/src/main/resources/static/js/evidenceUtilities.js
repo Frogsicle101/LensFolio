@@ -304,18 +304,14 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
  * Takes all the linked users associated with a piece of evidence and displays them on the evidence page, apart from the
  * owner as this is rather obvious
  *
- * @param evidenceDetails The title, date, and description, skills, categories and associates for a piece of evidence.
+ * @param users The associates for a piece of evidence.
  */
 
 function addLinkedUsersToEvidence(users) {
     let linkedUsersDiv = $("#evidenceDetailsLinkedUsers")
     linkedUsersDiv.empty()
-    $.each(users, function (i) {
-        linkedUsersDiv.append(`
-            <div id=linkedAssociateId${users[i].id}>
-                ${users[i].firstName} ${users[i].lastName} (${users[i].username})
-            </div>`
-        )
+    $.each(users, function (i, user) {
+        linkedUsersDiv.append(linkedUserElement(user));
     })
 }
 

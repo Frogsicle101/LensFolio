@@ -1180,10 +1180,10 @@ section {
     padding-left: 2rem;
 }
 
-.addedWebLinkName:hover {
+.addedWebLinkName:hover, .linkedUser:hover {
     text-decoration-line: underline;
     color: blue;
-    cursor: grab;
+    cursor: pointer;
 }
 
 .ui-autocomplete {
