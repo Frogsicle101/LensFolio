@@ -750,7 +750,7 @@ function removeDuplicatesFromInput(input) {
                 newArray.push(element)
             }
         } else if (element.length > 0) {
-        createAlert("Skill name malformed, deleted ", "failure")
+        createAlert("Skill names containing only special symbols are not allowed.", "failure", ".modal-body")
         }
     })
 
@@ -805,7 +805,7 @@ function displayInputSkillChips() {
         }
         if ($(this).text().length > 30) {
             $(this).parent(".skillChip").addClass("skillChipInvalid")
-            createAlert("Length of skill name should less than 30", "failure")
+            createAlert("Length of skill name should less than 30.", "failure", ".modal-body")
         }
     })
 }
