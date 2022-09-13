@@ -31,6 +31,7 @@
     <div th:insert="fragments/general.html :: errorBox"></div>
     <div th:insert="fragments/general.html :: successBox"></div>
     <div th:insert="fragments/general.html :: infoBox"></div>
+    <!--/*@thymesVar id="project" type="nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project"*/-->
     <div class="projectDetails">
         <div id="project-details">
             <h1 id="projectId" style="display: none" th:text="${project.getId()}"></h1>
@@ -151,6 +152,7 @@
                             <div class="invalid-feedback">Start date must be before end date</div>
                             <div class="mb-1">
                                 <button class="btn btn-primary" id="eventSubmit" type="submit">Submit</button>
+                                <button type="button" class="btn btn-secondary addEventButton" >Cancel</button>
                             </div>
                         </form>
                     </div>
@@ -211,6 +213,8 @@
                             </div>
                             <div class="mb-1">
                                 <button class="btn btn-primary" id="deadlineSubmit" type="submit">Submit</button>
+                                <button type="button" class="btn btn-secondary addDeadlineButton" >Cancel</button>
+
                             </div>
                         </form>
                     </div>
@@ -274,6 +278,7 @@
                             </div>
                             <div class="mb-1">
                                 <button class="btn btn-primary" id="milestoneSubmit" type="submit">Submit</button>
+                                <button type="button" class="btn btn-secondary addMilestoneButton" >Cancel</button>
                             </div>
                         </form>
                     </div>
