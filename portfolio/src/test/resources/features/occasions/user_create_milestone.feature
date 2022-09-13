@@ -12,4 +12,3 @@ Feature: Milestone is only created if it falls within project dates, has no null
       | "2022-01-01" | "2022-12-31" | "2022-05-01"  | "valid milestone" | 2    | "true"             |
       | "2022-01-01" | "2022-12-31" | "2023-05-01"  | "invalid date"    | 2    | "false"            |
       | "2022-01-01" | "2022-12-31" | "left blank"  | "invalid date"    | 3    | "false"            |
-      | "2022-01-01" | "2022-12-31" | "2022-05-01"  | "left blank"      | 4    | "false"            |

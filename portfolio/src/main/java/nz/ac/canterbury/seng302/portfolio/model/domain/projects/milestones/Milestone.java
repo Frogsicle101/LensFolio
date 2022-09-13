@@ -1,9 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones;
 
+import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 
-import javax.naming.InvalidNameException;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -26,7 +26,6 @@ public class Milestone {
     private String name;
     @Column(nullable = false)
     private LocalDate endDate;
-    private String endDateColour;
     private int type;
     private static final int NAME_LENGTH_RESTRICTION = 50;
 
@@ -37,42 +36,25 @@ public class Milestone {
     protected Milestone() {
     }
 
+
     /**
-     * Constructs an instance of the milestone object.s
+     * Constructs an instance of the milestone object.
      *
      * @param project The project in which the milestone occurs.
      * @param name    The name of the milestone.
      * @param endDate The end date of the milestone.
      * @param type    The type of the milestone.
-     * @throws InvalidNameException If the milestone name is null or has length greater than fifty characters.
      */
-    public Milestone(Project project, String name, LocalDate endDate, int type) throws InvalidNameException {
-
-
-        if (name == null || name.length() > 50) { //useful for creating default milestones, but project.js includes validations for frontend milestone editing
-            throw new InvalidNameException();
-        }
-        validateDate(project, endDate);
+    public Milestone(Project project, String name, LocalDate endDate, int type) throws CheckException, DateTimeException {
+        DateTimeService.checkDateInProject(project, endDate);
         this.id = UUID.randomUUID().toString();
         this.project = project;
         this.name = name;
         this.endDate = endDate;
-        this.type = type;
-    }
-
-
-    /**
-     * Checks that the end date occurs between the project's start and end dates.
-     *
-     * @param project The project defining the earliest and latest dates the end date can be.
-     * @param endDate The end date being validated.
-     * @throws DateTimeException If the end date is before the project start or after the project end.
-     */
-    public void validateDate(Project project, LocalDate endDate) throws DateTimeException {
-
-        if (endDate.isAfter(project.getEndDate()) || endDate.isBefore(project.getStartDate())) {
-            throw new DateTimeException("End date must occur during project");
+        if (type < 1) {
+            throw new CheckException("Invalid occasion type");
         }
+        this.type = type;
     }
 
     public static int getNameLengthRestriction() {
@@ -81,7 +63,7 @@ public class Milestone {
 
     /**
      * This sets the ID
-     * <p>
+     *
      * SHOULD ONLY BE USED FOR TESTING PURPOSES
      *
      * @param id the UUID to be set
@@ -103,22 +85,15 @@ public class Milestone {
     }
 
     public void setEndDate(LocalDate endDate) {
-        this.validateDate(this.getProject(), endDate);
+        DateTimeService.checkDateInProject(this.getProject(), endDate);
         this.endDate = endDate;
-    }
-
-    public void setEndDateColour(String colour) {
-        this.endDateColour = colour;
-    }
-
-    public String getEndDateColour() {
-        return endDateColour;
     }
 
     public LocalDate getEndDate() {
         return this.endDate;
     }
 
+    /* Ignore the unused method warning, this method is used by the frontend to format the dates */
     public String getEndDateFormatted() {
         return getEndDate().format(DateTimeService.dayDateMonthYear());
     }

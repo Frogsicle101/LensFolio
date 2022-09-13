@@ -6,11 +6,12 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.ProjectRequest;
-import nz.ac.canterbury.seng302.portfolio.model.dto.SprintRequest;
 import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -97,25 +98,19 @@ public class DateTimeService {
         return startDate;
     }
 
-
     /**
-     * Ensures the given sprint date is outside all other sprint dates.
+     * Checks that the end date occurs between the project's start and end dates.
      *
-     * @param previousDateLimit The end date of the previous sprint.
-     * @param nextDateLimit     The start date of the next sprint.
-     * @param sprintRequest     The sprint request containing the proposed sprint start and end dates.
+     * @param project The project defining the earliest and latest dates the end date can be.
+     * @param date The end date being validated.
+     * @throws DateTimeException If the end date is before the project start or after the project end.
      */
-    public void checkNewSprintDateNotInsideOtherSprints(LocalDate previousDateLimit, LocalDate nextDateLimit, SprintRequest sprintRequest) {
-        LocalDate startDate = LocalDate.parse(sprintRequest.getSprintStartDate());
-        LocalDate endDate = LocalDate.parse(sprintRequest.getSprintEndDate());
-        if (startDate.isBefore(previousDateLimit)) {
-            throw new CheckException("Start date is before previous sprints end date / project start date");
-        }
-        if (endDate.isAfter(nextDateLimit)) {
-            throw new CheckException("End date is after next sprints start date / project end date");
+    public static void checkDateInProject(Project project, LocalDate date) throws DateTimeException {
+
+        if (date.isAfter(project.getEndDate()) || date.isBefore(project.getStartDate())) {
+            throw new DateTimeException("Date(s) must occur during the project");
         }
     }
-
 
     /**
      * Gets a readable form of a date from a protobuf timestamp

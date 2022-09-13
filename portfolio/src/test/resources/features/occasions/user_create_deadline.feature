@@ -10,8 +10,5 @@ Feature: Deadline is only created if it falls within project dates, has no null 
     Examples:
       | BoolIsAuthenticatedUser | StartDate    | EndDate      | DeadlineDateTime      | Name                                                  | BoolDeadlineExists |
       | "true"                  | "2022-01-01" | "2022-12-31" | "2022-05-01T08:00:00" | "valid deadline"                                      | "true"             |
-      | "true"                  | "2022-01-01" | "2022-12-31" | "left blank"          | "empty date"                                          | "true"             |
-      | "true"                  | "2022-01-01" | "2022-12-31" | "2022-05-01T08:00:00" | "left blank"                                          | "true"             |
       | "true"                  | "2022-01-01" | "2022-12-31" | "2023-05-01T08:00:00" | "invalid date"                                        | "false"            |
       | "true"                  | "2022-01-01" | "2022-12-31" | "2022-05-01T08:00:00" | "this is fifty-one characters, which is more than 50" | "false"            |
-      | "false"                 | "2022-01-01" | "2022-12-31" | "2022-05-01T08:00:00" | "not authenticated"                                   | "false"            |

@@ -15,12 +15,35 @@
     <div class="row">
         <div class="col groupsContainer">
             <div class="scrollableGroupOverview">
-                <div class="box group" th:each="group : ${groups}" th:id="${group.groupId}">
-                    <div class="mb3">
-                        <p class="groupId" style="display: none" th:text="${group.groupId}"></p>
-                        <h2 class="groupShortName showExtraWhitespace" th:text="${group.shortName}"></h2>
-                        <h3 class="groupLongName showExtraWhitespace" th:text="${group.longName}"></h3>
+                <div id="groupAmountOptionsTop" class="groupAmountOptions">
+                    <div id="groupAmountSelectorDivTop" class="groupAmountSelectorDiv">
+                        <label for="groupDisplayAmountSelection" class="form-label labelForGroupDisplayAmount">Number of groups to display</label>
+                        <select class="form-select" id="groupDisplayAmountSelection" aria-label="Select the amount of groups to display">
+                            <option class="optionForAmountOfGroups">10</option>
+                            <option class="optionForAmountOfGroups">20</option>
+                            <option class="optionForAmountOfGroups">40</option>
+                            <option class="optionForAmountOfGroups">60</option>
+                            <option class="optionForAmountOfGroups">All</option>
+                        </select>
                     </div>
+                    <nav aria-label="Group pagination selector">
+                        <ul class="pagination groupPaginationSelector">
+                            <li class="page-item groupFooterFirst groupPageLink specialFooterButton"><a class="page-link">First</a></li>
+                            <li class="page-item groupFooterPrevious groupPageLink specialFooterButton"><a class="page-link ">Previous</a></li>
+                            <li class="page-item groupFooterNext groupPageLink specialFooterButton"><a class="page-link">Next</a></li>
+                            <li class="page-item groupFooterLast groupPageLink specialFooterButton"><a class="page-link">Last</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div id="groupAmountOptionsBottom" class="groupAmountOptions">
+                    <nav aria-label="Group pagination selector">
+                        <ul class="pagination groupPaginationSelector">
+                            <li class="page-item groupFooterFirst groupPageLink specialFooterButton"><a class="page-link">First</a></li>
+                            <li class="page-item groupFooterPrevious groupPageLink specialFooterButton"><a class="page-link ">Previous</a></li>
+                            <li class="page-item groupFooterNext groupPageLink specialFooterButton"><a class="page-link">Next</a></li>
+                            <li class="page-item groupFooterLast groupPageLink specialFooterButton"><a class="page-link">Last</a></li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>

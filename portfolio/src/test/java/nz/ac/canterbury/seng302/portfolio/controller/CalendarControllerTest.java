@@ -250,22 +250,14 @@ class CalendarControllerTest {
             Assertions.fail("One of the events has an incorrect name!");
             //If this happens, our event has an incorrectly formatted name! This shouldn't occur in these tests
         }
-        try {
-            Deadline deadline1 = new Deadline(project, "Deadline1", endDate1.toLocalDate(), endDate1.toLocalTime(), 1);
-            Deadline deadline2 = new Deadline(project, "Deadline2", endDate2.toLocalDate(), endDate2.toLocalTime(), 1);
-            when(deadlineRepository.findAllByProjectIdOrderByEndDate(project.getId())).thenReturn(List.of(deadline1, deadline2));
-        } catch (InvalidNameException e) {
-            Assertions.fail("One of the Deadlines has an incorrect name!");
-            //If this happens, our deadline has an incorrectly formatted name! This shouldn't occur in these tests
-        }
-        try {
-            Milestone milestone1 = new Milestone(project, "Milestone1", endDate1.toLocalDate(), 1);
-            Milestone milestone2 = new Milestone(project, "Milestone2", endDate2.toLocalDate(), 1);
-            when(milestoneRepository.findAllByProjectIdOrderByEndDate(project.getId())).thenReturn(List.of(milestone1, milestone2));
-        } catch (InvalidNameException e) {
-            Assertions.fail("One of the Milestones has an incorrect name!");
-            //If this happens, our milestone has an incorrectly formatted name! This shouldn't occur in these tests
-        }
+
+        Deadline deadline1 = new Deadline(project, "Deadline1", endDate1.toLocalDate(), endDate1.toLocalTime(), 1);
+        Deadline deadline2 = new Deadline(project, "Deadline2", endDate2.toLocalDate(), endDate2.toLocalTime(), 1);
+        when(deadlineRepository.findAllByProjectIdOrderByEndDate(project.getId())).thenReturn(List.of(deadline1, deadline2));
+
+        Milestone milestone1 = new Milestone(project, "Milestone1", endDate1.toLocalDate(), 1);
+        Milestone milestone2 = new Milestone(project, "Milestone2", endDate2.toLocalDate(), 1);
+        when(milestoneRepository.findAllByProjectIdOrderByEndDate(project.getId())).thenReturn(List.of(milestone1, milestone2));
     }
 
     @Test

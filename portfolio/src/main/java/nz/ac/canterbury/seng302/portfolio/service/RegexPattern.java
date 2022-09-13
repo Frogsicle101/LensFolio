@@ -23,7 +23,10 @@ public enum RegexPattern {
             " must be of a valid email format e.g., example@email.com"),
 
     /** Regex that is a valid hex colour code **/
-    HEX_COLOUR(Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"), " must be a valid hex colour.");
+    HEX_COLOUR(Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"), " must be a valid hex colour."),
+
+    /** Regex to check the titles of occasions, this should be checked. */
+    OCCASION_TITLE(Pattern.compile("(\\w+\\s?)+"), " can only contain letters, numbers and spaces and must not start with whitespace");
 
 
     // Enum attribute declaration

@@ -54,10 +54,10 @@ describe("Closing evidence creation form without save", () => {
         cy.get("#evidenceName").type("test")
         cy.get("#evidenceDescription").type("desc")
         cy.get("#skillsInput").type("skill")
-        cy.get("#addWebLinkButton").click()
+        cy.get("#addWeblinkButton").click()
         cy.get("#webLinkUrl").type("http://www.a.ac.nz")
         cy.get("#webLinkName").type("name")
-        cy.get("#addWebLinkButton").click()
+        cy.get("#addWeblinkButton").click()
         cy.get("#evidenceCancelButton").click().wait(500)
 
         cy.get("#createEvidenceButton").click({force: true}).wait(500)
