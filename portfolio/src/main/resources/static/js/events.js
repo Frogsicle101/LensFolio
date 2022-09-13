@@ -334,7 +334,6 @@ $(document).on('click', '.addEventButton', function () {
  * Rotates the button and shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addMilestoneButton', function () {
-    $(".addMilestoneSvg").toggleClass('rotated');
     $(".milestoneForm").slideToggle();
 })
 
@@ -344,7 +343,6 @@ $(document).on('click', '.addMilestoneButton', function () {
  * Rotates the button and shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addDeadlineButton', function () {
-    $(".addDeadlineSvg").toggleClass('rotated');
     $(".deadlineForm").slideToggle();
 })
 
