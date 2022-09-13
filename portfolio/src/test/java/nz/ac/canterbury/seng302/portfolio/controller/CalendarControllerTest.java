@@ -59,7 +59,7 @@ class CalendarControllerTest {
 
     private final MilestoneRepository milestoneRepository = mock(MilestoneRepository.class);
 
-    private final CalendarService calendarService = new CalendarService(deadlineRepository, milestoneRepository, eventRepository);
+    private final CalendarService calendarService = new CalendarService(deadlineRepository, milestoneRepository);
 
 
     private final CalendarController calendarController = new CalendarController(projectRepository, sprintRepository, eventRepository, deadlineRepository, milestoneRepository, calendarService);
