@@ -203,8 +203,8 @@ function populateGroupPageSelector(data, currentPage) {
         }
     })
 
-    for (const index in data) {
-        groupPaginationButtons.find(".groupFooterNext").before(createFooterNumberSelector(data[index]))
+    for (const number of data) {
+        groupPaginationButtons.find(".groupFooterNext").before(createFooterNumberSelector(number))
     }
 
     let groupPageSelector = groupPaginationButtons.find(".groupPageSelector")
