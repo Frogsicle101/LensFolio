@@ -556,7 +556,6 @@ function populateGroupMembersPageSelector() {
             $(element).addClass("active")
         }
     })
-
     toggleGroupNavigationButtons(pageSelectors)
 }
 
@@ -852,6 +851,11 @@ $(document).on("click", ".groupPageLink", function (event) {
     }
 
     if (isGroupMembers) {
+        if (newPage === 0) {
+            newPage = 1
+        } else if (newPage === 4 || newPage === "31") {
+            newPage = 3
+        }
         groupMembersPage = newPage
         displayGroupMembers()
     } else {

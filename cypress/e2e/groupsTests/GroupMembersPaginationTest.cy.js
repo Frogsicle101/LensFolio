@@ -22,8 +22,8 @@ context("Test group pagination", () => {
         cy.get("#groupMembersAmountOptionsTop").contains('[class="page-link"]', "Last").click()
         cy.get("#groupMembersAmountOptionsTop").get(".groupFooterNext").should("have.class", "disabled")
         cy.get("#groupMembersAmountOptionsTop").get(".groupFooterLast").should("have.class", "disabled")
-        //cy.get("#groupMembersAmountOptionsTop").get(".groupFooterFirst").should("not.have.class", "disabled")
-        //cy.get("#groupMembersAmountOptionsTop").get(".groupFooterPrevious").should("not.have.class", "disabled")
+        cy.get("#groupMembersAmountOptionsTop").get(".groupFooterFirst").should("not.have.class", "disabled")
+        cy.get("#groupMembersAmountOptionsTop").get(".groupFooterPrevious").should("not.have.class", "disabled")
     })
 
     it('Check bottom buttons disable themselves', () => {
@@ -35,8 +35,8 @@ context("Test group pagination", () => {
         cy.get("#groupMembersAmountOptionsBottom").contains('[class="page-link"]', "Last").click()
         cy.get("#groupMembersAmountOptionsBottom").get(".groupFooterNext").should("have.class", "disabled")
         cy.get("#groupMembersAmountOptionsBottom").get(".groupFooterLast").should("have.class", "disabled")
-        //cy.get("#groupMembersAmountOptionsBottom").get(".groupFooterFirst").should("not.have.class", "disabled")
-        //cy.get("#groupMembersAmountOptionsBottom").get(".groupFooterPrevious").should("not.have.class", "disabled")
+        cy.get("#groupMembersAmountOptionsBottom").get(".groupFooterFirst").should("not.have.class", "disabled")
+        cy.get("#groupMembersAmountOptionsBottom").get(".groupFooterPrevious").should("not.have.class", "disabled")
     })
 
     it('Check amount of group members to display changes', () => {
