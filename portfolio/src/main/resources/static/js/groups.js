@@ -506,7 +506,7 @@ function appendMemberToGroup(member) {
 
 
 /**
- * Removed existing displayed members from the group members container, and then repopulates it.
+ * Removes existing displayed members from the group members container, and then repopulates it.
  */
 function displayGroupMembers() {
     let membersContainer = $("#groupTableBody")
