@@ -444,8 +444,6 @@ function displayGroupUsersList() {
 
 /**
  * Takes the details of a group and appends each user in the group to the group details user list div.
- *
- * @param group The group's details to be managed.
  */
 function populateGroupMembers() {
     let members = group.userList
