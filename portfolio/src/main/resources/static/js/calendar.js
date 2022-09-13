@@ -130,9 +130,9 @@ function createElementFromHTML(htmlString) {
  * end date
  */
 function addDay(date) {
-  var result = new Date(date);
-  result.setDate(result.getDate() + 1);
-  return result;
+    let result = new Date(date);
+    result.setDate(result.getDate() + 1);
+    return result;
 }
 
 
@@ -171,6 +171,7 @@ $(function () {
         initialView: 'dayGridMonth',
         eventDurationEditable: false,
         eventResizableFromStart: true,
+        nextDayThreshold: '00:00:00',
         validRange: {
             start: $('#projectStartUnformatted').text(),
             end: endDate
@@ -212,6 +213,9 @@ $(function () {
                 extraParams: {
                     projectId: projectId.toString()
                 },
+                success: (response) => {
+                    console.log(response)
+                },
                 failure: function (err) {
                     console.log(err.responseText)
                 }
@@ -231,6 +235,9 @@ $(function () {
                 method: "get",
                 extraParams: {
                     projectId: projectId.toString()
+                },
+                success: (response) => {
+                    console.log(response)
                 },
                 failure: function (err) {
                     console.log(err.responseText)
@@ -287,7 +294,7 @@ $(function () {
 /**
  * Implements the handleCreateEvent function defined in notifications.js.
  *
- * In this case the handling of create events refetchs the calendar events.
+ * In this case the handling of create events fetches the calendar events.
  *
  * @param message - unused but required to match function definition.
  */
@@ -299,7 +306,7 @@ function handleCreateEvent (message) {
 /**
  * Implements the handleUpdateEvent function defined in notifications.js.
  *
- * In this case the handling of update events refetchs the calendar events.
+ * In this case the handling of update events fetches the calendar events.
  *
  * @param message - unused but required to match function definition.
  */
@@ -311,7 +318,7 @@ function handleUpdateEvent (message) {
 /**
  * Implements the handleDeleteEvent function defined in notifications.js.
  *
- * In this case the handling of delete events refetchs the calendar events.
+ * In this case the handling of delete events fetches the calendar events.
  *
  * @param message - unused but required to match function definition.
  */

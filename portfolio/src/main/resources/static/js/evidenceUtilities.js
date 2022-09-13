@@ -84,6 +84,7 @@ function setHighlightedEvidenceWebLinks(response) {
     for (let index in response) {
         let webLink = response[index]
         webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
+
     }
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
@@ -131,14 +132,14 @@ function webLinkElement(url, alias) {
         urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
     } else {
         urlSlashed = url // The url does not have a protocol attached to it
+        url = "http://" + url
     }
 
     return (`
-        <div class="webLinkElement ${security}" data-value="${sanitise(url)}" >
+        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
             ${icon}
-            <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${sanitise(alias)}</div>
-            <div class="addedWebLinkUrl" style="display: none">${sanitise(url)}</div>
+            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
         </div>
     `)
 }
@@ -468,8 +469,8 @@ function getWeblinksList() {
 
     $.each(weblinks, function () {
         let weblinkDTO = {
-            "url": this.querySelector(".addedWebLinkUrl").innerHTML,
-            "name": this.querySelector(".addedWebLinkName").innerHTML
+            "url": this.querySelector(".addedWebLink").href,
+            "name": this.querySelector(".addedWebLink").innerText
         }
         weblinksList.push(weblinkDTO)
     })
@@ -546,15 +547,6 @@ $(document).on("click", ".evidenceListItem", function () {
     let newSelectedDiv = $(this).addClass("selectedEvidence")
     selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
     showHighlightedEvidenceDetails()
-})
-
-
-/**
- * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
- */
-$(document).on('click', '.addedWebLinkName', function () {
-    let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
-    window.open(destination, '_blank').focus();
 })
 
 
@@ -947,7 +939,7 @@ $(document).on('click', '#addWeblinkButton', function (e) {
         }
         //validate the link
         let form = $("#weblinkForm")
-        validateWebLink(form, webLinkName.val(), webLinkUrl.val())
+        validateWebLinkAtBackend()
     } else {
         webLinkButtonToggle()
     }
@@ -974,25 +966,6 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
         return false;
     }
 });
-
-
-/**
- * Handles a web link validated by the back end.
- Validates the alias and then displays an error message or saves the web link and toggles the web link form.
- */
-function validateWebLink(form, alias, address) {
-    if (address.search("://") === -1) {
-        removeWebLinkAlerts()
-        form.append(`
-                    <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
-                      That address is missing a protocol (the part that comes before "://") - did you make a typo?
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-    } else {
-        validateWebLinkAtBackend()
-    }
-}
 
 
 /**
@@ -1062,6 +1035,10 @@ function toggleRequiredIfCheckURLInputsAreEmpty() {
  */
 function validateWebLinkAtBackend() {
     let address = $("#webLinkUrl").val()
+    let hasProtocol = address.search("//") != -1
+    if (!hasProtocol) {
+        address = "http://" + address
+    }
     let form = $("#weblinkForm")
     let data = JSON.stringify({
         "url": address,

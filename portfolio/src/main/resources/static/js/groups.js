@@ -5,11 +5,7 @@ const MWAG_GROUP_ID = 2
 let groupPage
 
 $(function () {
-    if (!checkPrivilege()) {
-        return
-    }
     getGroups()
-
 })
 
 //----------------------- jQuery UI User Selection -------------------------
@@ -95,7 +91,7 @@ function addDraggable() {
             let helper = $("<table class='table colourForDrag'/>")
             return helper.append($(".ui-selected").clone())
         },
-        revert: true,
+        revert: "invalid",
         appendTo: "body"
     })
 }
@@ -113,6 +109,9 @@ function showDraggableIcons() {
  * Implemented using JQuery UI droppable https://api.jqueryui.com/droppable/
  */
 function manageGroupTableInteraction() {
+    if (!checkPrivilege()) {
+        return
+    }
     manageTableSelection()
 
     let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
@@ -127,8 +126,11 @@ function manageGroupTableInteraction() {
              * https://api.jqueryui.com/droppable/#event-over
              */
             over: function () {
-                $(this).effect("shake")
-                //https://api.jqueryui.com/category/effects/
+                $(this).animate({left: '+=30px'}, 35);
+                $(this).animate({left: '-=60px'}, 70);
+                $(this).animate({left: '+=60px'}, 70);
+                $(this).animate({left: '-=60px'}, 70);
+                $(this).animate({left: '+=30px'}, 35);
             },
 
             /**
