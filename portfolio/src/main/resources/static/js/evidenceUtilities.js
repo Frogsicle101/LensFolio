@@ -132,12 +132,13 @@ function webLinkElement(url, alias) {
         urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
     } else {
         urlSlashed = url // The url does not have a protocol attached to it
+        url = "http://" + url
     }
 
     return (`
         <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
             ${icon}
-            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top" 
+            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
             data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
         </div>
     `)
@@ -935,7 +936,7 @@ $(document).on('click', '#addWeblinkButton', function (e) {
         }
         //validate the link
         let form = $("#weblinkForm")
-        validateWebLink(form, webLinkName.val(), webLinkUrl.val())
+        validateWebLinkAtBackend()
     } else {
         webLinkButtonToggle()
     }
@@ -962,25 +963,6 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
         return false;
     }
 });
-
-
-/**
- * Handles a web link validated by the back end.
- Validates the alias and then displays an error message or saves the web link and toggles the web link form.
- */
-function validateWebLink(form, alias, address) {
-    if (address.search("://") === -1) {
-        removeWebLinkAlerts()
-        form.append(`
-                    <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
-                      That address is missing a protocol (the part that comes before "://") - did you make a typo?
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-    } else {
-        validateWebLinkAtBackend()
-    }
-}
 
 
 /**
@@ -1050,6 +1032,10 @@ function toggleRequiredIfCheckURLInputsAreEmpty() {
  */
 function validateWebLinkAtBackend() {
     let address = $("#webLinkUrl").val()
+    let hasProtocol = address.search("//") != -1
+    if (!hasProtocol) {
+        address = "http://" + address
+    }
     let form = $("#weblinkForm")
     let data = JSON.stringify({
         "url": address,
