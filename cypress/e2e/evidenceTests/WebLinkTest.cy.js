@@ -67,6 +67,17 @@ describe("Adding Weblinks to Evidence", () => {
         cy.get(".weblinkAlert").should("be.visible")
     })
 
+    it("Warning displayed on address in form [something]:/[something]", () => {
+        cy.get("#addWeblinkButton").click();
+        cy.get("#webLinkUrl").should("have.attr", "maxlength")
+        cy.get("#webLinkUrl").invoke('removeAttr', 'maxlength')
+        cy.get("#webLinkUrl").wait(500).invoke('val', "http:/www.google.com")
+        cy.get("#webLinkName").wait(500)
+            .type("Test")
+        cy.get("#addWeblinkButton").click()
+        cy.get(".weblinkAlert").should("be.visible")
+    })
+
     it("Warning displayed on invalid name", () => {
         cy.get("#addWeblinkButton").click();
         cy.get("#webLinkUrl").wait(500)
