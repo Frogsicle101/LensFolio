@@ -11,6 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Miles
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.service.CalendarService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
@@ -58,8 +59,10 @@ class CalendarControllerTest {
 
     private final MilestoneRepository milestoneRepository = mock(MilestoneRepository.class);
 
+    private final CalendarService calendarService = new CalendarService(deadlineRepository, milestoneRepository);
 
-    private final CalendarController calendarController = new CalendarController(projectRepository, sprintRepository, eventRepository, deadlineRepository, milestoneRepository);
+
+    private final CalendarController calendarController = new CalendarController(projectRepository, sprintRepository, eventRepository, deadlineRepository, milestoneRepository, calendarService);
     private static final UserAccountsClientService mockClientService = mock(UserAccountsClientService.class);
     private final AuthState principal = AuthState.newBuilder().addClaims(ClaimDTO.newBuilder().setType("nameid").setValue("1").build()).build();
 
@@ -301,6 +304,8 @@ class CalendarControllerTest {
 
         String expectedDeadline1End = "start=2022-03-24, classNames=deadlineCalendar, end=2022-03-24";
         String expectedDeadline2End = "start=2022-05-24, classNames=deadlineCalendar, end=2022-05-24";
+        System.out.println(expectedDeadline1End);
+        System.out.println(expectedDeadline2End);
         Assertions.assertTrue(content.contains(expectedDeadline2End));
         Assertions.assertTrue(content.contains(expectedDeadline1End));
     }
@@ -331,6 +336,7 @@ class CalendarControllerTest {
 
         String expectedMilestone1End = "start=2022-03-24, classNames=milestoneCalendar, end=2022-03-24";
         String expectedMilestone2End = "start=2022-05-24, classNames=milestoneCalendar, end=2022-05-24";
+        System.out.println(content);
         Assertions.assertTrue(content.contains(expectedMilestone1End));
         Assertions.assertTrue(content.contains(expectedMilestone2End));
     }

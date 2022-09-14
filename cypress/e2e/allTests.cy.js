@@ -9,9 +9,10 @@ import "./evidenceTests/EvidenceFormTest.cy"
 import "./evidenceTests/FilteringEvidenceTest.cy"
 import "./evidenceTests/LinkedUsersTest.cy"
 import "./evidenceTests/WebLinkTest.cy"
+import "./evidenceTests/SkillTests.cy"
 
 import "./groupsTests/GroupMemberSelectionTest.cy"
-import "./groupsTests/GroupsPaginationTest.cy"
+import "./groupsTests/GroupsPaginationTesting.cy"
 
 import "./portfolioTest/EditingProjectTest.cy"
 import "./portfolioTest/EditingSprintTest.cy"

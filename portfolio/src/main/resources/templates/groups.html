@@ -104,23 +104,32 @@
                     <div id="pillsUsers" aria-labelledby="pillsUsersTab" class="tab-pane fade show active"
                          role="tabpanel">
                         <div id="groupDisplayOptions">
-                            <form action="#" id="UsersPerPageForm">
-                                <label for="UsersPerPage">Members per page</label>
-                                <select name="UsersPerPage" id="UsersPerPage">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="40">40</option>
-                                    <option value="60">60</option>
-                                    <option value="all">All</option>
-                                </select>
-                            </form>
+                            <label for="membersPerPageSelect">Members per page</label>
+                            <select id="membersPerPageSelect" name="membersPerPage">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="40">40</option>
+                                <option value="60" >60</option>
+                                <option value="999999999999">All</option>
+                            </select>
                             <button id="groupRemoveUser" class="btn btn-danger hasTeacherOrAbove" style="display: none">Remove User</button>
                             <hr>
                         </div>
                         <div class="membersContainer"></div>
+                        <div id="groupMembersAmountOptionsTop" class="groupAmountOptions groupMembersAmountOptions">
+                            <nav aria-label="Group Members pagination selector">
+                                <ul class="pagination groupMembersPaginationSelector">
+                                    <li class="page-item groupFooterFirst groupPageLink specialFooterButton"><a class="page-link">First</a></li>
+                                    <li class="page-item groupFooterPrevious groupPageLink specialFooterButton"><a class="page-link ">Previous</a></li>
+                                    <li class="page-item groupFooterNext groupPageLink specialFooterButton"><a class="page-link">Next</a></li>
+                                    <li class="page-item groupFooterLast groupPageLink specialFooterButton"><a class="page-link">Last</a></li>
+                                </ul>
+                            </nav>
+                        </div>
                         <table id="groupTable" class="table">
                             <thead>
                             <tr class="tableHeader">
+
                                 <th scope="col">Id</th>
                                 <th scope="col">Image</th>
                                 <th scope="col">First</th>
@@ -130,6 +139,16 @@
                             </thead>
                             <tbody id="groupTableBody"></tbody>
                         </table>
+                        <div id="groupMembersAmountOptionsBottom" class="groupAmountOptions groupMembersAmountOptions">
+                            <nav aria-label="Group Members pagination selector">
+                                <ul class="pagination groupMembersPaginationSelector">
+                                    <li class="page-item groupFooterFirst groupPageLink specialFooterButton"><a class="page-link">First</a></li>
+                                    <li class="page-item groupFooterPrevious groupPageLink specialFooterButton"><a class="page-link ">Previous</a></li>
+                                    <li class="page-item groupFooterNext groupPageLink specialFooterButton"><a class="page-link">Next</a></li>
+                                    <li class="page-item groupFooterLast groupPageLink specialFooterButton"><a class="page-link">Last</a></li>
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
                     <div id="pillsSettings" aria-labelledby="pillsSettingsTab" class="tab-pane fade" role="tabpanel">
                         <div id="groupSettingsPage">

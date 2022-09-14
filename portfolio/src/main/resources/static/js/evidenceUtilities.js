@@ -3,6 +3,9 @@
  * that can be used across multiple pages.
  */
 
+
+const RESERVED_SKILL_TAGS = ["no skill"];
+
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
@@ -84,6 +87,7 @@ function setHighlightedEvidenceWebLinks(response) {
     for (let index in response) {
         let webLink = response[index]
         webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
+
     }
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
@@ -131,14 +135,14 @@ function webLinkElement(url, alias) {
         urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
     } else {
         urlSlashed = url // The url does not have a protocol attached to it
+        url = "http://" + url
     }
 
     return (`
-        <div class="webLinkElement ${security}" data-value="${sanitise(url)}" >
+        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
             ${icon}
-            <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${sanitise(alias)}</div>
-            <div class="addedWebLinkUrl" style="display: none">${sanitise(url)}</div>
+            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
         </div>
     `)
 }
@@ -468,8 +472,8 @@ function getWeblinksList() {
 
     $.each(weblinks, function () {
         let weblinkDTO = {
-            "url": this.querySelector(".addedWebLinkUrl").innerHTML,
-            "name": this.querySelector(".addedWebLinkName").innerHTML
+            "url": this.querySelector(".addedWebLink").href,
+            "name": this.querySelector(".addedWebLink").innerText
         }
         weblinksList.push(weblinkDTO)
     })
@@ -546,15 +550,6 @@ $(document).on("click", ".evidenceListItem", function () {
     let newSelectedDiv = $(this).addClass("selectedEvidence")
     selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
     showHighlightedEvidenceDetails()
-})
-
-
-/**
- * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
- */
-$(document).on('click', '.addedWebLinkName', function () {
-    let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
-    window.open(destination, '_blank').focus();
 })
 
 
@@ -701,21 +696,30 @@ $("#linkUsersInput")
 
 
 /**
- * Listens out for a keyup event on the skills input.
+ * Listens out for a keydown event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
  * If it is a space, tab or enter then it checks for duplicates
  */
-$(document).on("keyup", "#skillsInput", function (event) {
+$(document).on("keydown", "#skillsInput", function (event) {
     let skillsInput = $("#skillsInput")
-    if (event.key === "Backspace") {
+    if (event.key === "Delete") {
         event.preventDefault();
         let inputArray = skillsInput.val().trim().split(/\s+/)
         inputArray.pop()
-        skillsInput.val(inputArray.join(" "))
+        skillsInput.val(inputArray.join(" ") + " ")
     }
     if (event.key === " " || event.key === "Tab" || event.key === "Enter") {
         removeDuplicatesFromInput(skillsInput)
     }
+    displayInputSkillChips()
+})
+
+
+/**
+ * Listens out for a keyup event on the skills input.
+ * Renders the skill chips when it detects a keyup event.
+ */
+$(document).on("keyup", "#skillsInput", function (event) {
     displayInputSkillChips()
 })
 
@@ -768,7 +772,7 @@ function removeDuplicatesFromInput(input) {
         })
     })
 
-    input.val(newArray.join(" ") + " ")
+    input.val(newArray.join(" "))
 }
 
 
@@ -800,17 +804,26 @@ function displayInputSkillChips() {
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/)
     let chipDisplay = $("#skillChipDisplay")
+
+    $('[data-toggle="tooltip"]').tooltip("hide")
+
     chipDisplay.empty()
     inputArray.forEach(function (element) {
-        element = element.split("_").join(" ")
+        element = element.replaceAll("_", " ");
         chipDisplay.append(createDeletableSkillChip(sanitise(element)))
     })
     chipDisplay.find(".chipText").each(function () {
+        const parent = $(this).parent(".skillChip")
         if ($(this).text().length < 1) {
-            $(this).parent(".skillChip").remove()
+            parent.remove()
         }
         if ($(this).text().length > 30) {
-            $(this).parent(".skillChip").addClass("skillChipInvalid")
+            parent.addClass("skillChipInvalid")
+        }
+        if (RESERVED_SKILL_TAGS.includes($(this).text().toLowerCase())) {
+            const parent = $(this).parent(".skillChip")
+            parent.addClass("skillChipInvalid")
+            addTooltip(parent, "This is a reserved tag and cannot be manually created")
         }
     })
 }
@@ -944,7 +957,7 @@ $(document).on('click', '#addWeblinkButton', function (e) {
         }
         //validate the link
         let form = $("#weblinkForm")
-        validateWebLink(form, webLinkName.val(), webLinkUrl.val())
+        validateWebLinkAtBackend()
     } else {
         webLinkButtonToggle()
     }
@@ -974,25 +987,6 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
 
 
 /**
- * Handles a web link validated by the back end.
- Validates the alias and then displays an error message or saves the web link and toggles the web link form.
- */
-function validateWebLink(form, alias, address) {
-    if (address.search("://") === -1) {
-        removeWebLinkAlerts()
-        form.append(`
-                    <div id="weblinkAddressAlert" class="alert alert-danger alert-dismissible show weblinkAlert" role="alert">
-                      That address is missing a protocol (the part that comes before "://") - did you make a typo?
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-    } else {
-        validateWebLinkAtBackend()
-    }
-}
-
-
-/**
  * Remove any open alerts for weblinks
  */
 function removeWebLinkAlerts() {
@@ -1003,28 +997,14 @@ function removeWebLinkAlerts() {
 /**
  * Handles the error messages for an invalid web link.
  */
-function handleInvalidWebLink(form, error) {
+function handleInvalidWebLink(form, message) {
     removeWebLinkAlerts()
-    switch (error.status) {
-        case 400:
-            // The URL is invalid
-            form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
-                      ${error.responseText}
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-            break
-        default:
-            // A regular error
-            form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
-                      Something went wrong. Try again later.
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-            break
-    }
+    form.append(`
+        <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
+          ${sanitise(message)}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `);
 }
 
 
@@ -1058,8 +1038,20 @@ function toggleRequiredIfCheckURLInputsAreEmpty() {
  * If there's an issue, or it's not valid, calls a function to display an alert
  */
 function validateWebLinkAtBackend() {
-    let address = $("#webLinkUrl").val()
     let form = $("#weblinkForm")
+    let address = $("#webLinkUrl").val()
+    let hasDoubleSlash = address.search("//") !== -1
+    if (!hasDoubleSlash) {
+
+        if (address.search(":/") !== -1) {
+            handleInvalidWebLink(form, "Addresses in the format [protocol]:/[something else] are not valid " +
+                "(two slashes required)");
+            return;
+        }
+
+        // Address does not have protocol, so assume http
+        address = "http://" + address
+    }
     let data = JSON.stringify({
         "url": address,
         "name": $("#webLinkName").val()
@@ -1074,7 +1066,11 @@ function validateWebLinkAtBackend() {
             webLinkButtonToggle()
         },
         error: (error) => {
-            handleInvalidWebLink(form, error)
+            if (error.status === 400) {
+                handleInvalidWebLink(form, error.responseText)
+            } else {
+                handleInvalidWebLink(form, "Something went wrong. Try again later.");
+            }
         }
     })
 }
