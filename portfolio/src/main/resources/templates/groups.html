@@ -104,36 +104,19 @@
                 <div class="tab-content" id="pillsTabContent">
                     <div id="pillsUsers" aria-labelledby="pillsUsersTab" class="tab-pane fade show active"
                          role="tabpanel">
-                        <div id="groupDisplayOptions" class="hasTeacherOrAbove" style="display: none">
-                            <input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label>
-                            <button class="btn btn-danger" id="groupRemoveUser">Remove User</button>
-                            <div class="moveToDiv">
-                                <label for="newGroupSelector">Copy to..</label>
-                                <select id="newGroupSelector" class="form-select moveToSelect">
-                                    <option th:each="group : ${groups}" th:text="${group.shortName}" th:value="${group.getGroupId()}"></option>
-                                </select>
-                                <button class="btn btn-primary moveToButton" id="moveUsersButton" >Move</button>
-                            </div>
+                        <div id="groupDisplayOptions">
+                            <label for="membersPerPageSelect">Members per page</label>
+                            <select id="membersPerPageSelect" class="form-select formSelectShort" name="membersPerPage">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="40">40</option>
+                                <option value="60" >60</option>
+                                <option value="999999999999">All</option>
+                            </select>
+                            <button id="groupRemoveUser" class="btn btn-danger hasTeacherOrAbove" style="display: none">Remove User</button>
                             <hr>
                         </div>
-                        <div class="form-popup border rounded w-25" id="confirmationForm" style="display: none">
-                            <h6>Confirm removal of selected users from this group?</h6>
-                            <table>
-                                <tr class="buttonsRow">
-                                    <button type="button" class="btn btn-success" id="confirmRemoval">Yes</button>
-                                    <button type="button" class="btn btn-secondary" id="cancelRemoval">No</button>
-                                </tr>
-                            </table>
-                        </div>
                         <div class="membersContainer"></div>
-                        <label for="membersPerPageSelect">Members per page</label>
-                        <select id="membersPerPageSelect" name="membersPerPage">
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="40">40</option>
-                            <option value="60" >60</option>
-                            <option value="999999999999">All</option>
-                        </select>
                         <div id="groupMembersAmountOptionsTop" class="groupAmountOptions groupMembersAmountOptions">
                             <nav aria-label="Group Members pagination selector">
                                 <ul class="pagination groupMembersPaginationSelector">

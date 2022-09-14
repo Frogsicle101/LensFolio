@@ -50,7 +50,11 @@ function addCategoriesToSidebar() {
 function showEvidenceWithSkill() {
     // Get all the pieces of evidence related to that skill
     $.ajax({
-        url: "evidenceLinkedToSkill?skillName=" + selectedChip + "&userId=" + userBeingViewedId,
+        url: "evidenceLinkedToSkill?userId=" + userBeingViewedId,
+        type: "GET",
+        data: {
+            "skillName": selectedChip
+        },
         success: function (response) {
             addEvidencePreviews(response)
             updateSelectedEvidence()
@@ -113,7 +117,7 @@ $(document).on("click", ".chip" , function (event) {
     selectedChip = clicked.find('.chipText').text()
     let isSkill = clicked.hasClass("skillChip")
     let chipId = isSkill ? ("#skillCalled" + selectedChip.replaceAll(" ", "_")) : ("#categoryCalled" + selectedChip)
-    $(chipId).addClass("selected")
+    $("[data-id='" + chipId + "'").addClass("selected")
 
     let title = $(".evidenceTitle").first()
     title.text(selectedChip)
