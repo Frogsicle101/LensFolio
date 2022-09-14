@@ -297,6 +297,7 @@ function createGroupPreviewDiv(group) {
  * It checks to see if the current group being displayed on the page is the one that has been updated.
  * If it is then it updates the groups information including fetching the users again.
  * If it isn't then it updates the elements on the left with the new names.
+ *
  * @param notification The notification from the server.
  */
 function updateGroup(notification){
@@ -1058,7 +1059,8 @@ $(document).on("click", "#confirmRemoval", function () {
         type: "DELETE",
         success: () => {
             displayGroupUsersList()
-            createAlert("User removed", false)
+            sendNotification("group", selectedGroupId, "updateGroup");
+            createAlert("User removed", "success")
         }, error: function (error) {
             if (error.status == 401) {
                 createAlert("You don't have permission to remove users. This could be because " +
