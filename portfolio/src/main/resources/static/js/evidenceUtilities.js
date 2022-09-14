@@ -3,6 +3,9 @@
  * that can be used across multiple pages.
  */
 
+
+const RESERVED_SKILL_TAGS = ["no skill"];
+
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
@@ -792,17 +795,26 @@ function displayInputSkillChips() {
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/)
     let chipDisplay = $("#skillChipDisplay")
+
+    $('[data-toggle="tooltip"]').tooltip("hide")
+
     chipDisplay.empty()
     inputArray.forEach(function (element) {
-        element = element.split("_").join(" ")
+        element = element.replaceAll("_", " ");
         chipDisplay.append(createDeletableSkillChip(sanitise(element)))
     })
     chipDisplay.find(".chipText").each(function () {
+        const parent = $(this).parent(".skillChip")
         if ($(this).text().length < 1) {
-            $(this).parent(".skillChip").remove()
+            parent.remove()
         }
         if ($(this).text().length > 30) {
-            $(this).parent(".skillChip").addClass("skillChipInvalid")
+            parent.addClass("skillChipInvalid")
+        }
+        if (RESERVED_SKILL_TAGS.includes($(this).text().toLowerCase())) {
+            const parent = $(this).parent(".skillChip")
+            parent.addClass("skillChipInvalid")
+            addTooltip(parent, "This is a reserved tag and cannot be manually created")
         }
     })
 }
