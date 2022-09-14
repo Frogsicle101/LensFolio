@@ -199,6 +199,7 @@ function getGroups(page = groupPage) {
  */
 function populateGroupPageSelector(data, currentPage) {
     let groupPaginationButtons = $(".groupPaginationSelector")
+    // ".groupPageLink" in both ".groupPaginationSelector" and ".groupMembersAmountOptions", here only need the ".groupPaginationSelector" one
     groupPaginationButtons.find(".groupPageLink").each((index, element) => {
         if (!$(element).hasClass("specialFooterButton")) {
             $(element).remove()
@@ -540,6 +541,7 @@ $(document).on("click", ".groupMembersAmountOptions", () => {
  */
 function populateGroupMembersPageSelector() {
     let pageSelectors = $(".groupMembersAmountOptions")
+    // ".groupPageLink" in both ".groupPaginationSelector" and ".groupMembersAmountOptions", here only need the ".groupMembersAmountOptions" one
     pageSelectors.find(".groupPageLink").each((index, element) => {
         if (!$(element).hasClass("specialFooterButton")) {
             $(element).remove()
