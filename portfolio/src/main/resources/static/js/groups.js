@@ -425,6 +425,7 @@ function displayGroupUsersList() {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
+            updateGroupName(response.shortName, response.longName)
             group = response;
             appendMembersToGroup(response)
             $("#groupInformationContainer").slideDown()
