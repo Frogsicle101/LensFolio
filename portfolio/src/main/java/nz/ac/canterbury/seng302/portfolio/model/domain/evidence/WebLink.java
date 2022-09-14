@@ -22,7 +22,7 @@ public class WebLink {
     private int id;
 
     private String alias;
-    @Column(length = MAXURLLENGTH)
+    @Column(length = MAXURLLENGTH + 1)
     private URL url;
     private Boolean isSecured;
 
