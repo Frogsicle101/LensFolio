@@ -1,6 +1,5 @@
 describe('Test Adding and Deleting Sprints', () => {
     beforeEach(() => {
-        cy.visit('/anything')
         cy.adminLogin()
         cy.visit('/portfolio?projectId=1')
     })

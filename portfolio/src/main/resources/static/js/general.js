@@ -77,7 +77,7 @@ function removeAlert() {
  * Displays a dismissible alert down the bottom right of the screen.
  *
  * @param alertMessage
- * @param type the type of alert. Accepts "success", "fail", and "roleChange".
+ * @param type the type of alert. Accepts "success", "fail", and "info".
  * @param window - the location to show the error
  */
 function createAlert(alertMessage, type, window = "body") {
@@ -138,7 +138,7 @@ function createLiveAlert(alertMessage, alertId, window = "body") {
  * Creates an alert message, and appends it to the window.
  *
  * The type of the alert determines the colour of the alert.
- * "success" = green, "failure" = red, and "roleChange" = yellow.
+ * "success" = green, "failure" = red, and "info" = yellow.
  *
  * @param alertMessage The message to be displayed in the alert box.
  * @param type The type of the message to be displayed. Determines the alert background colour.
@@ -169,7 +169,7 @@ function alert(alertMessage, type, window = "body") {
             alert.removeClass("backgroundYellow")
             alert.addClass("backgroundGreen")
             break;
-        case "roleChange":
+        case "info":
             alert.removeClass("backgroundRed")
             alert.removeClass("backgroundGreen")
             alert.addClass("backgroundYellow")
@@ -266,7 +266,7 @@ function handleRoleChangeEvent(notification, action) {
         } else {
             message = `${editorName} removed from you the role: ${roleChanged}`
         }
-        createAlert(message, "roleChange")
+        createAlert(message, "info")
     }
 }
 
