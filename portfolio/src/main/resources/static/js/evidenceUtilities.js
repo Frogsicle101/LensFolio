@@ -9,6 +9,9 @@ const RESERVED_SKILL_TAGS = ["no skill"];
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
+/** A regex contain emoji */
+const emojiRegx = new RegExp("/(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]/g");
+
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
 
@@ -746,8 +749,12 @@ function removeDuplicatesFromInput(input) {
                 .replace(/\s+/g, ' ')
                 .trim()
                 .replaceAll(" ", "_")
+            if (element.match(emojiRegx)) {
+                createAlert("Emojis not allowed in Skill name", "failure")
+            }
             if (element.length > 30) { //Shortens down the elements to 30 characters
                 element = element.split("").splice(0, 30).join("")
+                createAlert("Length of skill name should be less than 30", "failure")
             }
             if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
                 newArray.push(element)
