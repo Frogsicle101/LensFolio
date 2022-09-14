@@ -313,6 +313,9 @@ function updateGroup(notification){
             createLiveAlert("This group has been updated by " + notification.editorName, notificationGroupId)
             $(".scrollableGroupDetails").effect("highlight", 500)
         }
+    } else if (parseInt(currentDisplayGroup, 10) === MWAG_GROUP_ID) {
+        updateGroupDetails(MWAG_GROUP_ID)
+        displayGroupUsersList()
     }
     updateGroupDetails(notificationGroupId)
 }
@@ -964,6 +967,7 @@ $(document).on("click", "#groupRemoveUser", function () {
             success: () => {
                 displayGroupUsersList()
                 createAlert("User removed", "success")
+                sendNotification("group", selectedGroupId, "updateGroup");
                 checkToSeeIfHideOrShowOptions()
             }, error: function (error) {
                 if (error.status == 401) {
