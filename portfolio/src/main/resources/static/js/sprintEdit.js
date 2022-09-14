@@ -13,7 +13,7 @@ $(() => {
 
     sprintEndDate.on("change", () => checkDateOrder(sprintStartDate.val(), sprintEndDate.val()))
 
-    sprintDescription.on("change", () => {
+    sprintDescription.on("input", () => {
         let descText = sprintDescription.val().toString()
         if (GENERAL_UNICODE_REGEX.test(descText)) {
             sprintDescription[0].setCustomValidity("");

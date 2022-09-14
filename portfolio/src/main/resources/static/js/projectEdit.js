@@ -27,7 +27,7 @@ $(() => {
         }
     })
 
-    projectDescription.on("change", () => {
+    projectDescription.on("input", () => {
         let descText = projectDescription.val().toString()
         if (GENERAL_UNICODE_REGEX.test(descText)) {
             projectDescription[0].setCustomValidity("");
