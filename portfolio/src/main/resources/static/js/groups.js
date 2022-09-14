@@ -293,6 +293,71 @@ function createGroupPreviewDiv(group) {
 
 
 /**
+ * Using the notification system, this is called when a group has been updated.
+ * It checks to see if the current group being displayed on the page is the one that has been updated.
+ * If it is then it updates the groups information including fetching the users again.
+ * If it isn't then it updates the elements on the left with the new names.
+ * @param notification The notification from the server.
+ */
+function updateGroup(notification){
+    let notificationGroupId = notification.occasionId
+    let currentDisplayGroup = $("#groupBeingDisplayId").text()
+    if (currentDisplayGroup === notificationGroupId) {
+        displayGroupUsersList()
+        if (notification.editorId !== String(userIdent)) {
+            createLiveAlert("This group has been updated by " + notification.editorName, notificationGroupId)
+            $(".scrollableGroupDetails").effect("highlight", 500)
+        }
+    }
+    updateGroupDetails(notificationGroupId)
+}
+
+
+/**
+ * Using the notification system, this is called when a group has been deleted.
+ * It checks to see if the current group being displayed is the one that has been deleted.
+ * If it is then it slides up the group information display and alerts the user that the group has been deleted and by who.
+ * If it isn't then it just slides up the element on the left hand side.
+ * @param notification
+ */
+function removeGroup(notification) {
+    console.log(notification)
+    let notificationGroupId = notification.occasionId
+    let currentDisplayGroup = $("#groupBeingDisplayId").text()
+    if (currentDisplayGroup === notificationGroupId) {
+        $("#groupInformationContainer").slideUp()
+        createLiveAlert("This group has been deleted by " + notification.editorName, notificationGroupId)
+    }
+    let group = $("#" + notificationGroupId)
+    if (group.length > 0) {
+        group.slideUp("500", () => {group.remove()})
+    }
+}
+
+
+/**
+ * Grabs the latest details of a group and updates the page to reflect them.
+ * @param groupId The group's details to grab.
+ */
+function updateGroupDetails(groupId) {
+    $.ajax({
+        url: `group?groupId=${groupId}`,
+        type: "GET",
+        success: (response) => {
+            let group = $("#" + response.id)
+            if (group.length > 0) {
+                group.find(".groupShortName").text(response.shortName)
+                group.find(".groupLongName").text(response.longName)
+            }
+        },
+        error: function (error) {
+            console.log(error)
+        }
+    })
+}
+
+
+/**
  * Ajax post request to the server for moving users from one group to another.
  */
 function addUsers(groupId) {
@@ -308,6 +373,7 @@ function addUsers(groupId) {
         type: "post",
         success: function () {
             displayGroupUsersList()
+            sendNotification("group", groupId, "updateGroup");
             if (parseInt(groupId) === MWAG_GROUP_ID) {
                 createAlert("User(s) moved, and teachers role remains", "success")
             } else {
@@ -433,6 +499,7 @@ function displayGroupUsersList() {
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
             updateGroupName(response.shortName, response.longName)
+            $("#groupBeingDisplayId").text(response.id);
             group = response;
             displayGroupMembers()
             $("#groupInformationContainer").slideDown()
@@ -889,6 +956,7 @@ $(document).on("click", ".deleteButton", function () {
             url: `groups/edit?groupId=${group.id}`,
             type: "delete",
             success: function () {
+                sendNotification("group", group.id, "deleteGroup");
                 window.location.reload()
             }, error: function (error) {
                 if (error.status == 401) {
@@ -958,6 +1026,7 @@ $(document).on("submit", "#editGroupForm", function (event) {
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
+            sendNotification("group", selectedGroupId, "updateGroup");
         }, error: function (error) {
             if (error.status == 401) {
                 createAlert("You don't have permission to edit group details. This could be because " +
