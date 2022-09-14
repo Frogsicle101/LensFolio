@@ -3,6 +3,9 @@
  * that can be used across multiple pages.
  */
 
+
+const RESERVED_SKILL_TAGS = ["no skill"];
+
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
@@ -794,18 +797,26 @@ function displayInputSkillChips() {
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/)
     let chipDisplay = $("#skillChipDisplay")
+
+    $('[data-toggle="tooltip"]').tooltip("hide")
+
     chipDisplay.empty()
     inputArray.forEach(function (element) {
-        element = element.split("_").join(" ")
+        element = element.replaceAll("_", " ");
         chipDisplay.append(createDeletableSkillChip(sanitise(element)))
     })
     chipDisplay.find(".chipText").each(function () {
+        const parent = $(this).parent(".skillChip")
         if ($(this).text().length < 1) {
-            $(this).parent(".skillChip").remove()
+            parent.remove()
         }
         if ($(this).text().length > 30) {
-            $(this).parent(".skillChip").addClass("skillChipInvalid")
-            createAlert("Length of skill name should be less than 30.", "failure")
+            parent.addClass("skillChipInvalid")
+        }
+        if (RESERVED_SKILL_TAGS.includes($(this).text().toLowerCase())) {
+            const parent = $(this).parent(".skillChip")
+            parent.addClass("skillChipInvalid")
+            addTooltip(parent, "This is a reserved tag and cannot be manually created")
         }
     })
 }
@@ -981,28 +992,14 @@ function removeWebLinkAlerts() {
 /**
  * Handles the error messages for an invalid web link.
  */
-function handleInvalidWebLink(form, error) {
+function handleInvalidWebLink(form, message) {
     removeWebLinkAlerts()
-    switch (error.status) {
-        case 400:
-            // The URL is invalid
-            form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
-                      ${error.responseText}
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-            break
-        default:
-            // A regular error
-            form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
-                      Something went wrong. Try again later.
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-            break
-    }
+    form.append(`
+        <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
+          ${sanitise(message)}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `);
 }
 
 
@@ -1036,12 +1033,20 @@ function toggleRequiredIfCheckURLInputsAreEmpty() {
  * If there's an issue, or it's not valid, calls a function to display an alert
  */
 function validateWebLinkAtBackend() {
+    let form = $("#weblinkForm")
     let address = $("#webLinkUrl").val()
-    let hasProtocol = address.search("//") != -1
-    if (!hasProtocol) {
+    let hasDoubleSlash = address.search("//") !== -1
+    if (!hasDoubleSlash) {
+
+        if (address.search(":/") !== -1) {
+            handleInvalidWebLink(form, "Addresses in the format [protocol]:/[something else] are not valid " +
+                "(two slashes required)");
+            return;
+        }
+
+        // Address does not have protocol, so assume http
         address = "http://" + address
     }
-    let form = $("#weblinkForm")
     let data = JSON.stringify({
         "url": address,
         "name": $("#webLinkName").val()
@@ -1056,7 +1061,11 @@ function validateWebLinkAtBackend() {
             webLinkButtonToggle()
         },
         error: (error) => {
-            handleInvalidWebLink(form, error)
+            if (error.status === 400) {
+                handleInvalidWebLink(form, error.responseText)
+            } else {
+                handleInvalidWebLink(form, "Something went wrong. Try again later.");
+            }
         }
     })
 }
