@@ -21,9 +21,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 
 /**
@@ -126,6 +126,8 @@ public class EvidenceService {
         However, because the owner's ID is added last, the last iteration
         will be the evidence that belongs to the owner, which is what we return
          */
+        associates = new ArrayList<>(new LinkedHashSet<>(associates));
+        associates.remove((Object) user.getId());
         associates.add(user.getId());
         Evidence ownerEvidence = null;
         for (Integer associateID : associates) {

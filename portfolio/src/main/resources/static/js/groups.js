@@ -77,8 +77,19 @@ function manageTableSelection() {
             $(unselected).each(function () {
                 $(this).find(".dragGrip").hide()
             })
+            if (e.metaKey || e.ctrlKey) {
+                checkToSeeIfHideOrShowOptions()
+            }
         }
     })
+}
+
+
+/**
+ * Displays the grip element on each jQuery UI selected row.
+ */
+function showDraggableIcons() {
+    $(".ui-selected").find(".dragGrip").show()
 }
 
 
@@ -97,13 +108,6 @@ function addDraggable() {
     })
 }
 
-
-/**
- * Displays the grip element on each jQuery UI selected row.
- */
-function showDraggableIcons() {
-    $(".ui-selected").find(".dragGrip").show()
-}
 
 /**
  * Handles the selecting, dragging, and dropping of group members.
@@ -183,8 +187,8 @@ function getGroups(page = groupPage) {
             populateGroupPageSelector(data.footerNumberSequence, data.page)
             createListOfGroups(data.groups)
         },
-        error: function (error) {
-            createAlert(error.responseText, true)
+        error: function(error) {
+            createAlert(error.responseText, "failure")
         }
     }).then(manageGroupTableInteraction)
 }
@@ -309,6 +313,9 @@ function updateGroup(notification){
             createLiveAlert("This group has been updated by " + notification.editorName, notificationGroupId)
             $(".scrollableGroupDetails").effect("highlight", 500)
         }
+    } else if (parseInt(currentDisplayGroup, 10) === MWAG_GROUP_ID) {
+        updateGroupDetails(MWAG_GROUP_ID)
+        displayGroupUsersList()
     }
     updateGroupDetails(notificationGroupId)
 }
@@ -394,19 +401,23 @@ function addUsers(groupId) {
 
 /**
  * Displays the options for what to do with selected users.
- *
- * @param show a boolean of if to show or hide
  */
-function showOptions(show) {
-    let groupsDisplayOptions = $("#groupDisplayOptions")
-    if (groupsDisplayOptions.is(':hidden')) {
-        if (show && (selectedGroupId !== TEACHER_GROUP_ID || isAdmin())) {
-            groupsDisplayOptions.slideDown()
-        } else {
-            groupsDisplayOptions.slideUp()
-        }
-
+function showOptions() {
+    let groupsDisplayOptions = $("#groupRemoveUser")
+    if ((parseInt(selectedGroupId, 10) !== TEACHER_GROUP_ID || isAdmin()) && (parseInt(selectedGroupId, 10) !== MWAG_GROUP_ID)) {
+        groupsDisplayOptions.slideDown()
+    } else {
+        groupsDisplayOptions.slideUp()
     }
+}
+
+
+/**
+ * Hides the options for what to do with selected users.
+ */
+function hideOptions() {
+    let groupsDisplayOptions = $("#groupRemoveUser")
+    groupsDisplayOptions.slideUp()
 }
 
 
@@ -442,8 +453,12 @@ function changeToUsersTab() {
  * Helper function that uses the amount of selected users to determine if to call the showOptions function
  */
 function checkToSeeIfHideOrShowOptions() {
-    let amountSelected = $(".ui-selected").length
-    showOptions(amountSelected > 0)
+    let amountSelected = $(document).find(".ui-selected").length
+    if (amountSelected > 0) {
+        showOptions()
+    } else {
+        hideOptions()
+    }
 }
 
 
@@ -461,13 +476,10 @@ function checkEditRights(group) {
     groupEditButton.hide()
 
     if (groupId === TEACHER_GROUP_ID) {
-        $("#groupRemoveUser").show();
         $(".controlButtons").hide();
     } else if (groupId === MWAG_GROUP_ID) {
-        $("#groupRemoveUser").hide();
         $(".controlButtons").hide();
     } else {
-        $("#groupRemoveUser").show();
         $(".controlButtons").show();
     }
 
@@ -866,6 +878,16 @@ function handleGitRepoError() {
 
 
 /**
+ * When a group name is changed, this updates its new names to prevent the need to refresh the page
+ */
+function updateGroupName(shortname, longname) {
+    const selectedGroup = $(".focusOnGroup");
+    selectedGroup.find(".groupShortName").text(shortname);
+    selectedGroup.find(".groupLongName").text(longname);
+}
+
+
+/**
  * Performs all the actions required to close the group details edit form
  */
 function cancelGroupEdit() {
@@ -874,16 +896,6 @@ function cancelGroupEdit() {
         const editButton = $(".editButton");
         editButton.show();
     });
-}
-
-
-/**
- * When a group name is changed, this updates its new names to prevent the need to refresh the page
- */
-function updateGroupName(shortname, longname) {
-    const selectedGroup = $(".focusOnGroup");
-    selectedGroup.find(".groupShortName").text(shortname);
-    selectedGroup.find(".groupLongName").text(longname);
 }
 
 
@@ -940,10 +952,33 @@ $(document).on("click", ".groupPageLink", function (event) {
 
 /**
  * When the remove button is clicked, a popup prompts confirmation of the action.
+ *
+ * On confirm, the request is sent
  */
 $(document).on("click", "#groupRemoveUser", function () {
-    document.getElementById("confirmationForm").style.visibility = "visible"
-    $("#confirmationForm").slideDown();
+    let arrayOfIds = [];
+    $(".ui-selected").each(function () {
+        arrayOfIds.push($(this).attr("userId"))
+    })
+    if (window.confirm(`Confirm removal of ${arrayOfIds.length} user${arrayOfIds.length > 1 ? "s" : ""} from this group?`)) {
+        $.ajax({
+            url: `groups/removeUsers?groupId=${selectedGroupId}&userIds=${arrayOfIds}`,
+            type: "DELETE",
+            success: () => {
+                displayGroupUsersList()
+                createAlert("User removed", "success")
+                sendNotification("group", selectedGroupId, "updateGroup");
+                checkToSeeIfHideOrShowOptions()
+            }, error: function (error) {
+                if (error.status == 401) {
+                    createAlert("You don't have permission to remove users. This could be because " +
+                        "your roles have been updated. Try refreshing the page", "failure")
+                } else {
+                    createAlert(error.responseText, "failure")
+                }
+            }
+        })
+    }
 })
 
 
@@ -1047,42 +1082,6 @@ $(document).on("click", ".cancelGroupEdit", cancelGroupEdit);
 
 
 /**
- * When member removal is confirmed, a request is made to remove the selected users from the group.
- */
-$(document).on("click", "#confirmRemoval", function () {
-    let arrayOfIds = [];
-    $(".ui-selected").each(function () {
-        arrayOfIds.push($(this).attr("userId"))
-    })
-    $.ajax({
-        url: `groups/removeUsers?groupId=${selectedGroupId}&userIds=${arrayOfIds}`,
-        type: "DELETE",
-        success: () => {
-            displayGroupUsersList()
-            sendNotification("group", selectedGroupId, "updateGroup");
-            createAlert("User removed", "success")
-        }, error: function (error) {
-            if (error.status == 401) {
-                createAlert("You don't have permission to remove users. This could be because " +
-                    "your roles have been updated. Try refreshing the page", "failure")
-            } else {
-                createAlert(error.responseText, "failure")
-            }
-        }
-    })
-    $("#confirmationForm").slideUp();
-})
-
-
-/**
- * When removal is cancelled, the confirmation popup form is hidden.
- */
-$(document).on("click", "#cancelRemoval", function () {
-    $("#confirmationForm").slideUp();
-})
-
-
-/**
  * Makes an ajax get call to the server and gets all the information for a particular group.
  * Loops through the groups members and adds them to the table.
  * @param groupId the id of the group to fetch
@@ -1093,53 +1092,21 @@ $(document).on("click", "#pillsSettingsTab", function () {
 
 
 /**
- * a listener for when the move users button is pushed, calls a function to move the currently selected users to the
- * selected group
- */
-$(document).on("click", "#moveUsersButton", function () {
-    addUsers($("#newGroupSelector").val())
-})
-
-
-/**
- * selects every single user in the group when the button is clicked.
- */
-$(document).on("click", "#selectAllCheckboxGroups", function () {
-    let isChecked = $("#selectAllCheckboxGroups").prop("checked")
-    $(".selectUserCheckboxGroups").prop("checked", isChecked)
-    if (isChecked) {
-        $(".userRow").addClass("selected")
-        showDraggableIcons()
-    } else {
-        let userRow = $(".userRow")
-        userRow.removeClass("selected")
-        userRow.find(".dragGrip").hide()
-    }
-    checkToSeeIfHideOrShowOptions()
-
-})
-
-
-/**
  * When group div is clicked, the members for that group are retrieved.
  */
 $(document).on("click", ".group", function () {
     $(".scrollableGroupOverview").css("width", "50%");
     $(".group").removeClass("focusOnGroup")
-    selectedGroupId = $(this).closest(".group").find(".groupId").text();
+    selectedGroupId = $(this).closest(".group").find(".groupId").text()
     let groupShortname = $(this).closest(".group").find(".groupShortName").text();
-    $("#selectAllCheckboxGroups").prop("checked", false);
     displayGroupUsersList();
     retrieveGroupRepoInformation()
 
     if (groupShortname === "Teachers") { // teacher group
-        $("#groupRemoveUser").show();
         $(".controlButtons").hide();
     } else if (groupShortname === "Non-Group") { // non-group group
-        $("#groupRemoveUser").hide();
         $(".controlButtons").hide();
     } else {
-        $("#groupRemoveUser").show();
         $(".controlButtons").show();
     }
     $("#confirmationForm").slideUp();

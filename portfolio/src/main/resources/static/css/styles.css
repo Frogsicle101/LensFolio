@@ -762,8 +762,9 @@ section {
 #groupDisplayOptions {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: flex-start;
     align-items: center;
+    height: 3rem;
 }
 
 #groupInformationLongName {
@@ -791,18 +792,14 @@ section {
     border-radius: 100%;
 }
 
-#confirmationForm {
-    padding: 1rem;
-    margin-top: 1rem;
-    margin-left: auto;
-    margin-right: auto;
-    align-content: center;
-}
-
 .moveToDiv {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+#UsersPerPageForm {
+
 }
 
 #newGroupSelector {
@@ -888,6 +885,16 @@ section {
 
 #repoSettingsContainer {
     display: none;
+}
+
+#groupRemoveUser {
+    margin-left: 3rem;
+    margin-right: 1rem;
+}
+
+.formSelectShort {
+    max-width: 10rem;
+    margin-left: 0.5rem;
 }
 
 /* Alerts */
@@ -996,6 +1003,11 @@ section {
 #evidenceDetailsSkills {
     bottom: 4rem;
     position: absolute;
+}
+
+#evidenceDetailsLinkedUsers {
+    word-break: break-word;
+    padding-left: 0.5rem;
 }
 
 .evidenceDetailsHeader {
@@ -1207,10 +1219,10 @@ section {
     padding-left: 2rem;
 }
 
-.addedWebLinkName:hover {
+.addedWebLinkName:hover, .linkedUser:hover {
     text-decoration-line: underline;
     color: blue;
-    cursor: grab;
+    cursor: pointer;
 }
 
 .ui-autocomplete {

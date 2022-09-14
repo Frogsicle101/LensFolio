@@ -92,6 +92,11 @@ public class EvidenceData {
             evidence3.addCategory(Category.QUALITATIVE);
             evidence4.addCategory(Category.QUANTITATIVE);
 
+            evidence.addAssociateId(adminId);
+            evidence1.addAssociateId(adminId);
+            evidence2.addAssociateId(adminId);
+            evidence3.addAssociateId(adminId);
+            evidence4.addAssociateId(adminId);
 
             evidenceRepository.save(evidence);
             evidenceRepository.save(evidence1);
