@@ -18,12 +18,16 @@
              style="display: none">
             <p class="errorMessage"></p>
         </div>
-        <input id="sprintId" name="sprintId" style="display: none" th:value="${sprint.getId()}" type="text">
+        <input id="sprintId" name="sprintId" style="display: none" th:value="${sprint.getId()}"
+               type="text">
         <div class="row">
             <div class="col">
                 <label class="form-label" for="sprintName">Name</label>
                 <input class="form-control canDisable" id="sprintName" maxlength="50" name="sprintName" required
-                       th:value="${sprint.getName()}" type="text">
+                       th:value="${sprint.getName()}"
+                       th:pattern="${generalUnicodeRegex.getPatternString()}"
+                       th:title="${'Sprint name' + generalUnicodeRegex.getRequirements()}"
+                       type="text">
             </div>
             <div class="col">
                 <label class="form-label" for="sprintColour">Colour picker</label>
@@ -83,9 +87,10 @@
         <div class="mb-3">
             <label class="form-label" for="sprintDescription">Description</label>
             <textarea class="form-control canDisable" id="sprintDescription" maxlength="200" name="sprintDescription"
-                      th:text="${sprint.getDescription()}"></textarea>
+                      th:text="${sprint.getDescription()}"
+                      th:title="${'Sprint description' + generalUnicodeRegex.getRequirements()}"></textarea>
         </div>
-        <button class="btn btn-primary submitButton canDisable" type="submit">Submit</button>
+        <button class="btn btn-primary submitButton canDisable" id="editSprintSubmitButton" type="submit">Submit</button>
         <button class="btn btn-danger" onclick="history.back()" type="button">Cancel</button>
 
     </form>
