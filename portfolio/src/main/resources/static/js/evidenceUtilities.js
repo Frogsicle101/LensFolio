@@ -18,6 +18,9 @@ let webLinksCount = 0;
 /** The existing skills of the user, updated as the user's evidence is retrieved */
 let skillsArray = []
 
+/** The array of user ids who are linked to a piece of evidence */
+let linkedUserIdsArray = []
+
 /** Provides the options of categories and maps them to user-friendly strings */
 let categoriesMapping = new Map([
     ["QUALITATIVE", "Qualitative"],
@@ -678,8 +681,11 @@ $("#linkUsersInput")
                 success: function (res) {
                     let users = [];
                     $.each(res, function (i) {
-                        let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i]}
-                        users.push(user)
+                        linkedUserIdsArray.push(userIdent)
+                        if (!linkedUserIdsArray.includes(res[i].id)){
+                            let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i]}
+                            users.push(user)
+                        }
                     })
                     response(users)
                 },
@@ -1187,8 +1193,9 @@ function submitWebLink() {
  */
 function addLinkedUser(user) {
     let linkedUsersDiv = $("#linkedUsers")
-    $("#linkedUsersTitle").show()
-    if ($('#linkedUserId' + user.id).length === 0) {
+    if (!linkedUserIdsArray.includes(user.id)) {
+        $("#linkedUsersTitle").show()
+        linkedUserIdsArray.push(user.id)
         linkedUsersDiv.append(linkedUserElement(user))
     }
 }
@@ -1230,6 +1237,7 @@ function clearAddEvidenceModalValues() {
     $(".evidenceCategoryTickIcon").hide();
     $(".countCharName").html("50 characters remaining")
     $(".countCharDescription").html("500 characters remaining")
+    linkedUserIdsArray = []
 }
 
 
