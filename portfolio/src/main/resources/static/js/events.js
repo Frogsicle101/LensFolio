@@ -324,6 +324,8 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
  * Shows the event form via a slide-down transition
  */
 $(document).on('click', '.addEventButton', function () {
+    $("#eventStart").val(defaultOccasionStart)
+    $("#eventEnd").val(defaultOccasionEnd)
     $(".eventForm").slideToggle();
 })
 
@@ -333,6 +335,7 @@ $(document).on('click', '.addEventButton', function () {
  * Shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addMilestoneButton', function () {
+    $("#milestoneEnd").val(defaultMilestoneStart)
     $(".milestoneForm").slideToggle();
 })
 
@@ -342,7 +345,7 @@ $(document).on('click', '.addMilestoneButton', function () {
  * Shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addDeadlineButton', function () {
-
+    $("#deadlineEnd").val(defaultOccasionEnd)
     $(".deadlineForm").slideToggle();
 })
 
