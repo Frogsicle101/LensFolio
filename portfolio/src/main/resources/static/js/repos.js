@@ -69,6 +69,7 @@ $(document).on("submit", "#editRepoForm", function (event) {
         data: repoData,
         success: function () {
             createAlert("Changes submitted", "success");
+            sendNotification("group", selectedGroupId, "updateGroup");
             cancelRepoEdit();
             retrieveGroupRepoInformation()
         },
