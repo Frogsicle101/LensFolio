@@ -976,28 +976,14 @@ function removeWebLinkAlerts() {
 /**
  * Handles the error messages for an invalid web link.
  */
-function handleInvalidWebLink(form, error) {
+function handleInvalidWebLink(form, message) {
     removeWebLinkAlerts()
-    switch (error.status) {
-        case 400:
-            // The URL is invalid
-            form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
-                      ${error.responseText}
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-            break
-        default:
-            // A regular error
-            form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
-                      Something went wrong. Try again later.
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-            break
-    }
+    form.append(`
+        <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
+          ${sanitise(message)}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `);
 }
 
 
@@ -1031,12 +1017,20 @@ function toggleRequiredIfCheckURLInputsAreEmpty() {
  * If there's an issue, or it's not valid, calls a function to display an alert
  */
 function validateWebLinkAtBackend() {
+    let form = $("#weblinkForm")
     let address = $("#webLinkUrl").val()
-    let hasProtocol = address.search("//") != -1
-    if (!hasProtocol) {
+    let hasDoubleSlash = address.search("//") !== -1
+    if (!hasDoubleSlash) {
+
+        if (address.search(":/") !== -1) {
+            handleInvalidWebLink(form, "Addresses in the format [protocol]:/[something else] are not valid " +
+                "(two slashes required)");
+            return;
+        }
+
+        // Address does not have protocol, so assume http
         address = "http://" + address
     }
-    let form = $("#weblinkForm")
     let data = JSON.stringify({
         "url": address,
         "name": $("#webLinkName").val()
@@ -1051,7 +1045,11 @@ function validateWebLinkAtBackend() {
             webLinkButtonToggle()
         },
         error: (error) => {
-            handleInvalidWebLink(form, error)
+            if (error.status === 400) {
+                handleInvalidWebLink(form, error.responseText)
+            } else {
+                handleInvalidWebLink(form, "Something went wrong. Try again later.");
+            }
         }
     })
 }
