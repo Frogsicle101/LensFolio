@@ -633,7 +633,7 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
-        appendTo: ".modal-content"
+        appendTo: ".modalContent"
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -653,7 +653,7 @@ $("#linkUsersInput")
         autoFocus: true, // This default selects the top result
         minLength: 1,
         delay: 700,
-        appendTo: ".modal-content",
+        appendTo: ".modalContent",
         source: function (request, response) {
             $.ajax({
                 url: 'filteredUsers?name=' + request.term.toString(), type: "GET", contentType: "application/json", success: function (res) {
@@ -664,7 +664,7 @@ $("#linkUsersInput")
                     })
                     response(users)
                 }, error: function (error) {
-                    createAlert(error.responseText, "failure", ".modal-body")
+                    createAlert(error.responseText, "failure", ".modalBody")
                 }
             })
         },
@@ -918,7 +918,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, "failure", ".modal-body")
+                createAlert(error.responseText, "failure", ".modalBody")
             }
         })
     }
