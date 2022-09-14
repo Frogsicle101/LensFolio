@@ -134,7 +134,7 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
  */
 $(document).on("click", "#createEvidenceButton" , () => {
     $("#addEvidenceModal").show()
-    $(".modal-content").show("drop", {direction: "up"}, 200)
+    $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 })
 
@@ -153,7 +153,7 @@ $(document).on("click", "#evidenceCancelButton", function () {
  */
 window.onmousedown = function(event) {
     let modalDisplay = $("#addEvidenceModal").css("display")
-    if (modalDisplay === "block" && !event.target.closest(".modal-content") && !event.target.closest(".alert")) {
+    if (modalDisplay === "block" && !event.target.closest(".modalContent") && !event.target.closest(".alert")) {
         closeModal()
     }
 }
@@ -163,6 +163,6 @@ window.onmousedown = function(event) {
  *  Closes the modal and allows the page below to scroll again
  */
 function closeModal() {
-    $(".modal-content").hide("drop", {direction: "up"}, 200, () => {$("#addEvidenceModal").hide()})
+    $(".modalContent").hide("drop", {direction: "up"}, 200, () => {$("#addEvidenceModal").hide()})
     $('body,html').css('overflow','auto');
 }

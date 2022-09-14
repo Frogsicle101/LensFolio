@@ -3,6 +3,7 @@ let group
 const TEACHER_GROUP_ID = 1
 const MWAG_GROUP_ID = 2
 let groupPage
+let groupMembersPage = 1
 
 $(function () {
     getGroups()
@@ -91,7 +92,7 @@ function addDraggable() {
             let helper = $("<table class='table colourForDrag'/>")
             return helper.append($(".ui-selected").clone())
         },
-        revert: true,
+        revert: "invalid",
         appendTo: "body"
     })
 }
@@ -126,8 +127,11 @@ function manageGroupTableInteraction() {
              * https://api.jqueryui.com/droppable/#event-over
              */
             over: function () {
-                $(this).effect("shake")
-                //https://api.jqueryui.com/category/effects/
+                $(this).animate({left: '+=30px'}, 35);
+                $(this).animate({left: '-=60px'}, 70);
+                $(this).animate({left: '+=60px'}, 70);
+                $(this).animate({left: '-=60px'}, 70);
+                $(this).animate({left: '+=30px'}, 35);
             },
 
             /**
@@ -151,7 +155,7 @@ function manageGroupTableInteraction() {
  * Listens for a change on the group amount display selector (the dropdown)
  * Calls getGroups.
  */
-$(document).on("change", "#groupDisplayAmountSelection", function(event) {
+$(document).on("change", "#groupDisplayAmountSelection", function (event) {
     event.preventDefault()
     getGroups(groupPage)
 })
@@ -160,7 +164,7 @@ $(document).on("change", "#groupDisplayAmountSelection", function(event) {
 /**
  * Gets the group data from the server for displaying the preview list of groups.
  */
-function getGroups(page = groupPage){
+function getGroups(page = groupPage) {
     let groupsPerPage = $("#groupDisplayAmountSelection").find("option:selected").text()
     groupsPerPage = groupsPerPage.toLowerCase()
     $.ajax({
@@ -170,7 +174,7 @@ function getGroups(page = groupPage){
             "page": page,
             "groupsPerPage": groupsPerPage
         },
-        success: function(data){
+        success: function (data) {
             groupPage = data.page
             $(".optionForAmountOfGroups").each((index, element) => {
                 // Iterates over the dropdown menu for the group selector and sets the attribute to selected based on the data from the server.
@@ -179,7 +183,7 @@ function getGroups(page = groupPage){
             populateGroupPageSelector(data.footerNumberSequence, data.page)
             createListOfGroups(data.groups)
         },
-        error: function(error) {
+        error: function (error) {
             createAlert(error.responseText, true)
         }
     }).then(manageGroupTableInteraction)
@@ -194,15 +198,19 @@ function getGroups(page = groupPage){
  * @param currentPage The current page that is being displayed
  */
 function populateGroupPageSelector(data, currentPage) {
-    $(".groupPageLink").each((index, element) => {
+    let groupPaginationButtons = $(".groupPaginationSelector")
+    // ".groupPageLink" in both ".groupPaginationSelector" and ".groupMembersAmountOptions", here only need the ".groupPaginationSelector" one
+    groupPaginationButtons.find(".groupPageLink").each((index, element) => {
         if (!$(element).hasClass("specialFooterButton")) {
             $(element).remove()
         }
     })
-    for (const index in data) {
-        $(".groupFooterNext").before(createFooterNumberSelector(data[index]))
+
+    for (const number of data) {
+        groupPaginationButtons.find(".groupFooterNext").before(createFooterNumberSelector(number))
     }
-    let groupPageSelector = $(".groupPageSelector")
+
+    let groupPageSelector = groupPaginationButtons.find(".groupPageSelector")
     groupPageSelector.removeClass("active")
     groupPageSelector.each((index, element) => {
         //Goes through the page selectors and adds a class of active if it's the current page we are on
@@ -210,7 +218,7 @@ function populateGroupPageSelector(data, currentPage) {
             $(element).addClass("active")
         }
     })
-    toggleGroupNavigationButtons()
+    toggleGroupNavigationButtons(groupPaginationButtons)
 }
 
 
@@ -218,19 +226,19 @@ function populateGroupPageSelector(data, currentPage) {
  * Checks if each special button on the footer navigator should be disabled or not.
  * For example: If we are on page 1, "first" and "previous" should be disabled.
  */
-function toggleGroupNavigationButtons(){
-    let footerPrevious = $(".groupFooterPrevious")
-    let footerFirst = $(".groupFooterFirst")
-    if (footerPrevious.next().hasClass("active")){
+function toggleGroupNavigationButtons(parentDiv) {
+    let footerPrevious = parentDiv.find(".groupFooterPrevious")
+    let footerFirst = parentDiv.find(".groupFooterFirst")
+    if (footerPrevious.next().hasClass("active")) {
         footerPrevious.addClass("disabled")
         footerFirst.addClass("disabled")
     } else {
         footerPrevious.removeClass("disabled")
         footerFirst.removeClass("disabled")
     }
-    let footerNext = $(".groupFooterNext")
-    let footerLast = $(".groupFooterLast")
-    if (footerNext.prev().hasClass("active")){
+    let footerNext = parentDiv.find(".groupFooterNext")
+    let footerLast = parentDiv.find(".groupFooterLast")
+    if (footerNext.prev().hasClass("active")) {
         footerNext.addClass("disabled")
         footerLast.addClass("disabled")
     } else {
@@ -246,7 +254,7 @@ function toggleGroupNavigationButtons(){
  * @param number The number to go into the selection
  * @returns {string} A list element
  */
-function createFooterNumberSelector(number){
+function createFooterNumberSelector(number) {
     return `<li class="page-item groupPageSelector groupPageLink"><a class="page-link" href="#">${number}</a></li>`
 }
 
@@ -256,7 +264,7 @@ function createFooterNumberSelector(number){
  *
  * @param groups The list of groups.
  */
-function createListOfGroups(groups){
+function createListOfGroups(groups) {
     let groupOverviewContainer = $("#groupAmountOptionsTop")
     $(".group").each((index, element) => {
         $(element).remove()
@@ -273,7 +281,7 @@ function createListOfGroups(groups){
  * @param group The group to get the data from
  * @returns {string} A string that is a div
  */
-function createGroupPreviewDiv(group){
+function createGroupPreviewDiv(group) {
     return `<div class="box group" id="${group.id}">
                     <div class="mb3">
                         <p class="groupId" style="display: none">${group.id}</p>
@@ -281,6 +289,72 @@ function createGroupPreviewDiv(group){
                         <h3 class="groupLongName showExtraWhitespace">${group.longName}</h3>
                     </div>
                 </div>`
+}
+
+
+/**
+ * Using the notification system, this is called when a group has been updated.
+ * It checks to see if the current group being displayed on the page is the one that has been updated.
+ * If it is then it updates the groups information including fetching the users again.
+ * If it isn't then it updates the elements on the left with the new names.
+ *
+ * @param notification The notification from the server.
+ */
+function updateGroup(notification){
+    let notificationGroupId = notification.occasionId
+    let currentDisplayGroup = $("#groupBeingDisplayId").text()
+    if (currentDisplayGroup === notificationGroupId) {
+        displayGroupUsersList()
+        if (notification.editorId !== String(userIdent)) {
+            createLiveAlert("This group has been updated by " + notification.editorName, notificationGroupId)
+            $(".scrollableGroupDetails").effect("highlight", 500)
+        }
+    }
+    updateGroupDetails(notificationGroupId)
+}
+
+
+/**
+ * Using the notification system, this is called when a group has been deleted.
+ * It checks to see if the current group being displayed is the one that has been deleted.
+ * If it is then it slides up the group information display and alerts the user that the group has been deleted and by who.
+ * If it isn't then it just slides up the element on the left hand side.
+ * @param notification
+ */
+function removeGroup(notification) {
+    console.log(notification)
+    let notificationGroupId = notification.occasionId
+    let currentDisplayGroup = $("#groupBeingDisplayId").text()
+    if (currentDisplayGroup === notificationGroupId) {
+        $("#groupInformationContainer").slideUp()
+        createLiveAlert("This group has been deleted by " + notification.editorName, notificationGroupId)
+    }
+    let group = $("#" + notificationGroupId)
+    if (group.length > 0) {
+        group.slideUp("500", () => {group.remove()})
+    }
+}
+
+
+/**
+ * Grabs the latest details of a group and updates the page to reflect them.
+ * @param groupId The group's details to grab.
+ */
+function updateGroupDetails(groupId) {
+    $.ajax({
+        url: `group?groupId=${groupId}`,
+        type: "GET",
+        success: (response) => {
+            let group = $("#" + response.id)
+            if (group.length > 0) {
+                group.find(".groupShortName").text(response.shortName)
+                group.find(".groupLongName").text(response.longName)
+            }
+        },
+        error: function (error) {
+            console.log(error)
+        }
+    })
 }
 
 
@@ -300,6 +374,7 @@ function addUsers(groupId) {
         type: "post",
         success: function () {
             displayGroupUsersList()
+            sendNotification("group", groupId, "updateGroup");
             if (parseInt(groupId) === MWAG_GROUP_ID) {
                 createAlert("User(s) moved, and teachers role remains", "success")
             } else {
@@ -415,6 +490,8 @@ function checkEditRights(group) {
  * Loops through the groups members and adds them to the table.
  */
 function displayGroupUsersList() {
+    groupMembersPage = 1
+
     $.ajax({
         url: `group?groupId=${selectedGroupId}`,
         type: "GET",
@@ -422,8 +499,10 @@ function displayGroupUsersList() {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
+            updateGroupName(response.shortName, response.longName)
+            $("#groupBeingDisplayId").text(response.id);
             group = response;
-            appendMembersToGroup(response)
+            displayGroupMembers()
             $("#groupInformationContainer").slideDown()
             checkToSeeIfHideOrShowOptions()
             checkEditRights(response)
@@ -437,37 +516,152 @@ function displayGroupUsersList() {
 
 /**
  * Takes the details of a group and appends each user in the group to the group details user list div.
- *
- * @param group The group's details to be managed.
  */
-function appendMembersToGroup(group) {
+function populateGroupMembers() {
+    let members = group.userList
+
+    // cut the userList by number of members per page
+    let perPage = $("#membersPerPageSelect").val();
+
+    perPage = parseInt(perPage)
+
+    let memberPages = [[]];
+    let numMembers = members.length
+
+    for (let i = 0; i < numMembers; i += perPage) {
+        memberPages.push(members.slice(i, i + perPage))
+    }
+
+    if (groupMembersPage === -1) {
+        groupMembersPage = memberPages.length - 1
+    }
+
+    $.each(memberPages[groupMembersPage], function (i, member) {
+        appendMemberToGroup(member)
+    })
+}
+
+
+/**
+ * Takes a given member and appends their information to the currently selected group's members table.
+ * The row includes the user's Id, image, first and last names, and username.
+ *
+ * @param member The group member to be displayed.
+ */
+function appendMemberToGroup(member) {
     let membersContainer = $("#groupTableBody")
     let imageSource;
+    if (member.imagePath.length === 0) {
+        imageSource = "defaultProfile.png"
+    } else {
+        imageSource = member.imagePath
+    }
 
-    $.each(group.userList, function (member) {
-        let user = group.userList[member]
-        if (user.imagePath.length === 0) {
-            imageSource = "defaultProfile.png"
-        } else {
-            imageSource = user.imagePath
-        }
-
-        membersContainer.append(`
-                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${sanitise(user.id)}>
+    membersContainer.append(`
+                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${sanitise(member.id)}>
                         <td class="userRowId">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-grip-vertical dragGrip" style="display: none" viewBox="0 0 16 16">
                                     <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
                             </svg>
-                            ${sanitise(user.id)}</td>
+                            ${sanitise(member.id)}</td>
                         <td>
                             <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
                         </td>
-                        <td>${sanitise(user.firstName)}</td>
-                        <td>${sanitise(user.lastName)}</td>
-                        <td>${sanitise(user.username)}</td>
+                        <td>${sanitise(member.firstName)}</td>
+                        <td>${sanitise(member.lastName)}</td>
+                        <td>${sanitise(member.username)}</td>
                     </tr>`
-        )
+    )
+}
+
+
+/**
+ * Removes existing displayed members from the group members container, and then repopulates it.
+ */
+function displayGroupMembers() {
+    let membersContainer = $("#groupTableBody")
+    membersContainer.empty()
+    populateGroupMembers()
+    populateGroupMembersPageSelector()
+}
+
+
+/**
+ * Calls the method to redisplay the selected group's members when the number displayed per page is changed.
+ */
+$(document).on("click", "#membersPerPageSelect", () => {
+    groupMembersPage = 1
+    displayGroupMembers()
+})
+
+
+/**
+ * Calls the method to redisplay the selected group's members when the selected group members page selectors div is
+ * clicked.
+ */
+$(document).on("click", ".groupMembersAmountOptions", () => {
+    displayGroupMembers()
+})
+
+
+/**
+ * Populates the group members page selector.
+ * Appends the number elements after the "previous" selector
+ */
+function populateGroupMembersPageSelector() {
+    let pageSelectors = $(".groupMembersAmountOptions")
+    // ".groupPageLink" in both ".groupPaginationSelector" and ".groupMembersAmountOptions", here only need the ".groupMembersAmountOptions" one
+    pageSelectors.find(".groupPageLink").each((index, element) => {
+        if (!$(element).hasClass("specialFooterButton")) {
+            $(element).remove()
+        }
     })
+
+    createFooterNumberSequence()
+
+    let groupMembersPageSelector = pageSelectors.find(".groupPageSelector")
+    groupMembersPageSelector.removeClass("active")
+    groupMembersPageSelector.each((index, element) => { // adds the active class to the currently selected group members page number
+        if ($(element).text() === groupMembersPage.toString()) {
+            $(element).addClass("active")
+        }
+    })
+    toggleGroupNavigationButtons(pageSelectors)
+}
+
+
+/**
+ * Calculates the numbers for the group members page selector. Calls a function to add each number to the page
+ * selector.
+ */
+function createFooterNumberSequence() {
+    let pageSelectors = $(".groupMembersAmountOptions")
+
+    let pageSelectorNumbers = pageSelectors.find(".groupPageSelector")
+    $.each(pageSelectorNumbers, (i, el) => {
+        el.remove()
+    })
+
+    let totalPages = Math.ceil(group.userList.length / $("#membersPerPageSelect").val())
+    if (totalPages === 0) {
+        totalPages = 1
+    }
+    let minNumber = 1;
+    let maxNumber = 11;
+    if (totalPages < 11) {
+        maxNumber = totalPages;
+    } else if (groupMembersPage > 6) {
+        if (groupMembersPage + 5 < totalPages) {
+            minNumber = groupMembersPage - 5;
+            maxNumber = groupMembersPage + 5;
+        } else {
+            maxNumber = totalPages;
+            minNumber = totalPages - 10;
+        }
+    }
+    for (let i = minNumber; i <= maxNumber; i++) {
+        pageSelectors.find(".groupFooterNext").before(createFooterNumberSelector(i))
+    }
 }
 
 
@@ -700,26 +894,47 @@ function updateGroupName(shortname, longname) {
  * Listens for a click on a group page navigation link (one of the page numbers etc)
  * Uses a switch statement to determine what "group page number" to send to the server.
  */
-$(document).on("click", ".groupPageLink", function(event) {
+$(document).on("click", ".groupPageLink", function (event) {
     event.preventDefault()
+
+    if($(this).hasClass("disabled")) {
+        return
+    }
+
+    let parentDiv = $(this).closest(".groupAmountOptions")
+    let isGroupMembers = parentDiv.hasClass("groupMembersAmountOptions")
+    let currentPage
+    if (isGroupMembers) {
+        currentPage = groupMembersPage
+    } else {
+        currentPage = groupPage
+    }
+
     let newPage
     switch ($(this).text()) {
         case "First":
             newPage = 1
             break
         case "Previous":
-            newPage = groupPage - 1
+            newPage = currentPage - 1
             break
         case "Next":
-            newPage = groupPage + 1
+            newPage = currentPage + 1
             break
         case "Last":
             newPage = -1
             break
         default:
-            newPage = $(this).text()
+            newPage = parseInt($(this).text(), 10)
     }
-    getGroups(newPage)
+
+    if (isGroupMembers) {
+        groupMembersPage = newPage
+        displayGroupMembers()
+    } else {
+        groupPage = newPage
+        getGroups()
+    }
 })
 
 
@@ -742,6 +957,7 @@ $(document).on("click", ".deleteButton", function () {
             url: `groups/edit?groupId=${group.id}`,
             type: "delete",
             success: function () {
+                sendNotification("group", group.id, "deleteGroup");
                 window.location.reload()
             }, error: function (error) {
                 if (error.status == 401) {
@@ -811,6 +1027,7 @@ $(document).on("submit", "#editGroupForm", function (event) {
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
+            sendNotification("group", selectedGroupId, "updateGroup");
         }, error: function (error) {
             if (error.status == 401) {
                 createAlert("You don't have permission to edit group details. This could be because " +
@@ -842,7 +1059,8 @@ $(document).on("click", "#confirmRemoval", function () {
         type: "DELETE",
         success: () => {
             displayGroupUsersList()
-            createAlert("User removed", false)
+            sendNotification("group", selectedGroupId, "updateGroup");
+            createAlert("User removed", "success")
         }, error: function (error) {
             if (error.status == 401) {
                 createAlert("You don't have permission to remove users. This could be because " +

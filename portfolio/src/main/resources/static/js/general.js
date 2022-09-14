@@ -77,11 +77,11 @@ function removeAlert() {
  * Displays a dismissible alert down the bottom right of the screen.
  *
  * @param alertMessage
- * @param type the type of alert. Accepts "success", "fail", and "roleChange".
+ * @param type the type of alert. Accepts "success", "fail", and "info".
  * @param window - the location to show the error
  */
 function createAlert(alertMessage, type, window = "body") {
-    let CheckAlert = $("#alertPopUp")
+    let CheckAlert = $(".checkAlert")
     if (CheckAlert.is(":visible")) {
         CheckAlert.hide("slide", 100, function () {
             CheckAlert.remove();
@@ -138,14 +138,14 @@ function createLiveAlert(alertMessage, alertId, window = "body") {
  * Creates an alert message, and appends it to the window.
  *
  * The type of the alert determines the colour of the alert.
- * "success" = green, "failure" = red, and "roleChange" = yellow.
+ * "success" = green, "failure" = red, and "info" = yellow.
  *
  * @param alertMessage The message to be displayed in the alert box.
  * @param type The type of the message to be displayed. Determines the alert background colour.
  * @param window The location to which the alert will be appended.
  */
 function alert(alertMessage, type, window = "body") {
-    let alertDiv = `<div id="alertPopUp" class="alert" style="display: none">
+    let alertDiv = `<div id="alertPopUp" class="alert checkAlert" style="display: none">
                      <p id="alertPopUpMessage">${sanitise(alertMessage)}</p>
                      <button id="alertPopUpCloseButton" onclick="removeAlert()" class="noStyleButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x-circle" viewBox="0 0 16 16">
                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -169,7 +169,7 @@ function alert(alertMessage, type, window = "body") {
             alert.removeClass("backgroundYellow")
             alert.addClass("backgroundGreen")
             break;
-        case "roleChange":
+        case "info":
             alert.removeClass("backgroundRed")
             alert.removeClass("backgroundGreen")
             alert.addClass("backgroundYellow")
@@ -266,7 +266,7 @@ function handleRoleChangeEvent(notification, action) {
         } else {
             message = `${editorName} removed from you the role: ${roleChanged}`
         }
-        createAlert(message, "roleChange")
+        createAlert(message, "info")
     }
 }
 
@@ -309,6 +309,15 @@ function countCharacters() {
     }
 }
 
+function addTooltip(element, text) {
+    element.attr('data-toggle', 'tooltip');
+    element.attr('title', text);
+    element.tooltip({trigger: "hover"});
+}
+
+function removeTooltip(element) {
+    element.tooltip("hide");
+}
 
 /**
  * Regex that is all unicode letters, decimal numbers and punctuation

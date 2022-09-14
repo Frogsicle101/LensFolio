@@ -689,7 +689,7 @@ section {
 
 }
 
-.groupAmountOptions{
+.groupAmountOptions {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -698,7 +698,7 @@ section {
     margin-right: auto;
 }
 
-.groupAmountSelectorDiv{
+.groupAmountSelectorDiv {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -707,11 +707,11 @@ section {
     padding: 1rem;
 }
 
-.labelForGroupDisplayAmount{
+.labelForGroupDisplayAmount {
     padding-right: 1rem;
 }
 
-#groupDisplayAmountSelection{
+#groupDisplayAmountSelection {
     width: 10rem;
 }
 
@@ -985,7 +985,7 @@ section {
     padding: 1rem 2rem 2rem;
     margin-right: 2rem;
     width: auto;
-    height: 100%;
+    height: calc(100vh - 12rem);
 }
 
 .evidenceDetailsDate {
@@ -1040,7 +1040,7 @@ section {
 
 #evidenceList {
     overflow: auto;
-    height: 50rem;
+    height: calc(100vh - 10rem);
 }
 
 .evidenceListItem {
@@ -1113,11 +1113,10 @@ section {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0, 0, 0);
     background-color: rgba(0, 0, 0, 0.4);
 }
 
-.modal-content {
+.modalContent {
     position: relative;
     background-color: #fefefe;
     margin: auto;
@@ -1125,11 +1124,34 @@ section {
     border: 1px solid #888;
     width: 60vw;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    overflow: hidden;
 }
 
-.modal-body {
+.modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    padding: 1rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    border-top-left-radius: calc(0.3rem - 1px);
+    border-top-right-radius: calc(0.3rem - 1px);
+}
+
+.modalBody {
     display: flex;
     flex-direction: column;
+}
+
+.modalFooter {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+    border-bottom-right-radius: calc(0.3rem - 1px);
+    border-bottom-left-radius: calc(0.3rem - 1px);
 }
 
 .evidenceFormButton {
