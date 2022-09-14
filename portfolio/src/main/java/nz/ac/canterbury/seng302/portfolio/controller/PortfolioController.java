@@ -166,6 +166,9 @@ public class PortfolioController {
             // Adds the username and profile photo to the view for use.
             modelAndView.addObject("user", user);
 
+            //Validation/regex
+            modelAndView.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
+
             return modelAndView;
 
         } catch (EntityNotFoundException err) {
@@ -312,6 +315,8 @@ public class PortfolioController {
 
             modelAndView.addObject("minDate", minDate);
             modelAndView.addObject("maxDate", maxDate);
+            //Validation/regex
+            modelAndView.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
 
             String textForPreviousSprint;
             if (minDate.equals(project.getStartDate())) {

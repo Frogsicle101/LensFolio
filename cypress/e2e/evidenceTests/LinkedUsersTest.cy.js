@@ -18,16 +18,6 @@ describe('Link users to evidence', () => {
         cy.get("#linkedUserId131").should("exist")
     })
 
-    it("can't link same user twice", () => {
-        cy.get("#linkUsersToEvidenceButton").click()
-        cy.get("#linkUsersInput").type("Joh").wait(2000).type('{enter}')
-        cy.get("#linkedUsersTitle").should("be.visible")
-        cy.get("#linkedUserId131").should("exist")
-        cy.get("#linkUsersInput").type("Joh").wait(2000).type('{enter}')
-        cy.get("#linkedUsersTitle").should("be.visible")
-        cy.get("#linkedUserId131").should('have.length', 1)
-    })
-
     it("can see linked users", () => {
         cy.get("#linkUsersToEvidenceButton").click()
         cy.get("#linkUsersInput").type("Joh").wait(2000).type('{enter}')

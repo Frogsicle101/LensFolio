@@ -21,7 +21,10 @@
         <div class="mb-3">
             <label class="form-label" for="projectName">Name</label>
             <input class="form-control canDisable" id="projectName" maxlength="50" name="projectName" required
-                   th:value="${project.getName()}" type="text">
+                   th:value="${project.getName()}"
+                   th:pattern="${generalUnicodeRegex.getPatternString()}"
+                   th:title="${'Project name' + generalUnicodeRegex.getRequirements()}"
+                   type="text">
         </div>
         <div class="row">
             <div class="col">
@@ -65,9 +68,11 @@
         <div class="mb-3">
             <label class="form-label" for="projectDescription">Description</label>
             <textarea class="form-control canDisable" id="projectDescription" maxlength="200" name="projectDescription"
-                      th:text="${project.getDescription()}"></textarea>
+                      th:text="${project.getDescription()}"
+                      th:pattern="${generalUnicodeRegex.getPatternString()}"
+                      th:title="${'Project description' + generalUnicodeRegex.getRequirements()}"></textarea>
         </div>
-        <button class="btn btn-primary canDisable submitButton" type="submit">Submit</button>
+        <button class="btn btn-primary canDisable submitButton" id="editProjectSubmitButton" type="submit">Submit</button>
         <button class="btn btn-danger" onclick="history.back()" type="button">Cancel</button>
 
     </form>
