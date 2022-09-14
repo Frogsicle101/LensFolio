@@ -152,8 +152,7 @@ public class DeadlineController {
             regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Deadline title");
 
             deadline.setName(name);
-            deadline.setEndTime(LocalTime.parse(timeEnd));
-            deadline.setEndDate(LocalDate.parse(dateEnd));
+            deadline.setDateTime(LocalDateTime.of(LocalDate.parse(dateEnd), LocalTime.parse(timeEnd)));
             deadline.setType(typeOfOccasion);
 
             deadlineRepository.save(deadline);

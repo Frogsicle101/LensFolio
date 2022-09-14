@@ -185,7 +185,6 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
             createAlert("Deadline created!", "success")
             $(".deadlineForm").slideUp();
             $(".addDeadlineSvg").toggleClass('rotated');
-
             sendNotification("deadline", response.id, "create");
         },
         error: function (error) {
@@ -263,8 +262,8 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         data: milestoneData,
         success: function () {
             createAlert("Milestone edited successfully!", "success")
-            sendNotification("milestone", milestoneId, "stop") // Let the server know the milestone is no longer being edited
-            sendNotification("milestone", milestoneId, "update") //Let the server know that other clients should update the element
+            sendNotification("milestone", milestoneId, "stop")
+            sendNotification("milestone", milestoneId, "update")
         },
         error: function (error) {
             createAlert(error.responseText, "failure")
