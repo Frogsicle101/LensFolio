@@ -998,6 +998,11 @@ section {
     position: absolute;
 }
 
+#evidenceDetailsLinkedUsers {
+    word-break: break-word;
+    padding-left: 0.5rem;
+}
+
 .evidenceDetailsHeader {
     display: flex;
     flex-direction: row;
@@ -1207,10 +1212,10 @@ section {
     padding-left: 2rem;
 }
 
-.addedWebLinkName:hover {
+.addedWebLinkName:hover, .linkedUser:hover {
     text-decoration-line: underline;
     color: blue;
-    cursor: grab;
+    cursor: pointer;
 }
 
 .ui-autocomplete {

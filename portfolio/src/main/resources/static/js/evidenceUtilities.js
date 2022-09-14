@@ -195,7 +195,7 @@ function displayNameOrButton(response) {
         let usersName = response.getResponseHeader("Users-Name");
         nameHolder.html("Viewing evidence for " + usersName)
         nameHolder.show()
-    } else{
+    } else {
         nameHolder.hide()
         $("#createEvidenceButton").show();
     }
@@ -287,7 +287,7 @@ function addSkillResponseToArray(response) {
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
- * @param evidenceDetails The title, date, and description, skills, and categories for a piece of evidence.
+ * @param evidenceDetails The title, date, and description, skills, categories and associates for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
     let highlightedEvidenceId = $("#evidenceDetailsId")
@@ -299,6 +299,7 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
+    addLinkedUsersToEvidence(evidenceDetails.associates)
     addSkillsToEvidence(evidenceDetails.skills)
 
     highlightedEvidenceTitle.show()
@@ -311,6 +312,22 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     } else {
         $("#deleteEvidenceButton").hide()
     }
+}
+
+
+/**
+ * Takes all the linked users associated with a piece of evidence and displays them on the evidence page, apart from the
+ * owner as this is rather obvious
+ *
+ * @param users The associates for a piece of evidence.
+ */
+
+function addLinkedUsersToEvidence(users) {
+    let linkedUsersDiv = $("#evidenceDetailsLinkedUsers")
+    linkedUsersDiv.empty()
+    $.each(users, function (i, user) {
+        linkedUsersDiv.append(linkedUserElement(user));
+    })
 }
 
 
@@ -662,10 +679,13 @@ $("#linkUsersInput")
         appendTo: ".modalContent",
         source: function (request, response) {
             $.ajax({
-                url: 'filteredUsers?name=' + request.term.toString(), type: "GET", contentType: "application/json", success: function (res) {
+                url: 'filteredUsers?name=' + request.term.toString(),
+                type: "GET",
+                contentType: "application/json",
+                success: function (res) {
                     let users = [];
                     $.each(res, function (i) {
-                        let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i] }
+                        let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i]}
                         users.push(user)
                     })
                     response(users)
@@ -854,6 +874,26 @@ function checkToShowSkillChips() {
 
 
 /**
+ * Returns all the linked users id's from the evidence creation form
+ *
+ * @returns [integer] the list of user id's to be attached
+ */
+function getLinkedUsers() {
+    let linkedUsers = $("#linkedUsers").children()
+    let userIds = [];
+    $.each(linkedUsers, function (i) {
+        try {
+            let userId = parseInt(linkedUsers[i].id.replace("linkedUserId", ""));
+            userIds.push(userId)
+        } catch (error) {
+            createAlert("Oops! there was an error with one or more of the linked users", "failure")
+        }
+    })
+    return userIds;
+}
+
+
+/**
  * This function returns the html for the chips
  *
  * @param element the name of the skill
@@ -891,7 +931,7 @@ $(document).on("click", ".chipDelete", function (event) {
  * alert was open in a modal, this was added to stop the form from submitting which
  * seemed to be the cause of the issue.
  */
-$(document).on("submit", "#evidenceCreationForm", function(e) {
+$(document).on("submit", "#evidenceCreationForm", function (e) {
     e.preventDefault()
 })
 
@@ -913,6 +953,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const description = $("#evidenceDescription").val()
         const projectId = 1
         let webLinks = getWeblinksList();
+        const linkedUsers = getLinkedUsers();
         const categories = getCategories();
 
         const skills = skillsInput.val().split(" ").filter(skill => skill.trim() !== "")
@@ -927,7 +968,8 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "projectId": projectId,
             "webLinks": webLinks,
             "skills": skills,
-            "categories": categories
+            "categories": categories,
+            "associateIds": linkedUsers
         })
         $.ajax({
             url: 'evidence',
@@ -989,7 +1031,7 @@ $(document).on('click', '#cancelWeblinkButton', () => {
  */
 $('#addEvidenceModal').on('hide.bs.modal', function (e) {
     let alert = $("#alertPopUp")
-    if (alert.is(":visible") && alert.hasClass("backgroundRed") ){
+    if (alert.is(":visible") && alert.hasClass("backgroundRed")) {
         alert.effect("shake")
         e.preventDefault();
         e.stopPropagation();
@@ -1168,8 +1210,18 @@ function addLinkedUser(user) {
  * Creates the element for displaying the linked user
  */
 function linkedUserElement(user) {
-    return `<div id=linkedUserId${user.id}>${user.firstName} ${user.lastName} (${user.username})</div>`
+    return `<div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">${user.firstName} ${user.lastName} (${user.username})</div>`
 }
+
+
+/**
+ * Redirects to a user's evidence page when their name is clicked on a piece of evidence.
+ */
+$(document).on("click", ".linkedUser", function () {
+    let userId = this.getAttribute("data-id")
+    console.log(userId)
+    redirectToUsersHomePage(userId) //redirect to the user's evidence page
+})
 
 
 /**
@@ -1300,7 +1352,6 @@ function createSkillChip(skillName, isMenuItem) {
             </div>`
     }
 }
-
 
 
 /**
