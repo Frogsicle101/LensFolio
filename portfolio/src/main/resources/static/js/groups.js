@@ -334,7 +334,7 @@ function addUsers(groupId) {
  */
 function showOptions() {
     let groupsDisplayOptions = $("#groupRemoveUser")
-    if ((selectedGroupId !== TEACHER_GROUP_ID || isAdmin()) && (selectedGroupId !== MWAG_GROUP_ID)) {
+    if ((parseInt(selectedGroupId, 10) !== TEACHER_GROUP_ID || isAdmin()) && (parseInt(selectedGroupId, 10) !== MWAG_GROUP_ID)) {
         groupsDisplayOptions.slideDown()
     } else {
         groupsDisplayOptions.slideUp()
