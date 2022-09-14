@@ -77,7 +77,11 @@ public class NotificationController {
             notificationService.storeOutgoingNotification(notification);
         } else if (Objects.equals(message.getAction(), "roleChange")) {
             notificationService.storeOutgoingNotification(notification);
-        } else if (Objects.equals(message.getAction(), "stop")) {
+        } else if (Objects.equals(message.getAction(), "updateGroup")) {
+            notificationService.storeOutgoingNotification(notification);
+        } else if (Objects.equals(message.getAction(), "deleteGroup")) {
+            notificationService.storeOutgoingNotification(notification);
+        }  else if (Objects.equals(message.getAction(), "stop")) {
             notificationService.removeOutgoingNotification(notification);
         }
         return List.of(notification);

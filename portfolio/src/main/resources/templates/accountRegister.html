@@ -48,28 +48,28 @@
     <div class="row mb-3">
         <div class="col">
             <label class="required form-label" for="firstname">First name(s)</label>
-            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-            <input class="form-control canDisable" id="firstname" maxlength="50" name="firstname"
+            <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+            <input class="form-control canDisable" id="firstname" maxlength="100" name="firstname"
                    required
-                   th:pattern="${generalUnicodeRegex.getPatternString()}"
-                   th:title="${'First name' + generalUnicodeRegex.getRequirements()}"
+                   th:pattern="${nameRegex.getPatternString()}"
+                   th:title="${'First name' + nameRegex.getRequirements()}"
                    type="text">
         </div>
         <div class="col">
             <label class="form-label" for="middlename">Middle name(s)</label>
-            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-            <input class="form-control canDisable" id="middlename" maxlength="50" name="middlename"
-                   th:pattern="${generalUnicodeRegex.getPatternString()}"
-                   th:title="${'Middle name' + generalUnicodeRegex.getRequirements()}"
+            <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+            <input class="form-control canDisable" id="middlename" maxlength="100" name="middlename"
+                   th:pattern="${nameRegex.getPatternString()}"
+                   th:title="${'Middle name' + nameRegex.getRequirements()}"
                    type="text">
         </div>
         <div class="col">
             <label class="required form-label" for="lastname">Last name(s)</label>
-            <!--/*@thymesVar id="generalUnicodeRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-            <input class="form-control canDisable" id="lastname" maxlength="50" name="lastname"
+            <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+            <input class="form-control canDisable" id="lastname" maxlength="100" name="lastname"
                    required
-                   th:pattern="${generalUnicodeRegex.getPatternString()}"
-                   th:title="${'Last name' + generalUnicodeRegex.getRequirements()}"
+                   th:pattern="${nameRegex.getPatternString()}"
+                   th:title="${'Last name' + nameRegex.getRequirements()}"
                    type="text">
         </div>
     </div>
