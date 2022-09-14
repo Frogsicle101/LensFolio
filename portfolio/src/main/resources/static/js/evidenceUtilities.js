@@ -722,7 +722,7 @@ $(document).on("keydown", "#skillsInput", function (event) {
  * Listens out for a keyup event on the skills input.
  * Renders the skill chips when it detects a keyup event.
  */
-$(document).on("keyup", "#skillsInput", function (event) {
+$(document).on("keyup", "#skillsInput", function () {
     displayInputSkillChips()
 })
 
@@ -1290,7 +1290,7 @@ $(document).on("click", "#deleteEvidenceButton", function () {
 function createSkillChip(skillName, isMenuItem) {
     if (isMenuItem) {
         return `
-            <div id=${sanitise("skillCalled" + skillName.replaceAll(" ", "_"))} class="chip skillChip">
+            <div data-id=${sanitise("skillCalled" + skillName.replaceAll(" ", "_"))} class="chip skillChip">
                 <p class="chipText">${sanitise(skillName)}</p>
             </div>`
     } else {
