@@ -315,6 +315,10 @@ function addTooltip(element, text) {
     element.tooltip({trigger: "hover"});
 }
 
+function removeTooltip(element) {
+    element.tooltip("hide");
+}
+
 /**
  * Regex that is all unicode letters, decimal numbers and punctuation
  */
