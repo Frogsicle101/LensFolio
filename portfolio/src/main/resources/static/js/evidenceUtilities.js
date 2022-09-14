@@ -9,6 +9,9 @@ const RESERVED_SKILL_TAGS = ["no skill"];
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
 
+/** A regex contain emoji */
+const emojiRegx = new RegExp("/(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]/g");
+
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
 
@@ -636,7 +639,7 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
-        appendTo: ".modal-content"
+        appendTo: ".modalContent"
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -656,7 +659,7 @@ $("#linkUsersInput")
         autoFocus: true, // This default selects the top result
         minLength: 1,
         delay: 700,
-        appendTo: ".modal-content",
+        appendTo: ".modalContent",
         source: function (request, response) {
             $.ajax({
                 url: 'filteredUsers?name=' + request.term.toString(), type: "GET", contentType: "application/json", success: function (res) {
@@ -667,7 +670,7 @@ $("#linkUsersInput")
                     })
                     response(users)
                 }, error: function (error) {
-                    createAlert(error.responseText, "failure", ".modal-body")
+                    createAlert(error.responseText, "failure", ".modalBody")
                 }
             })
         },
@@ -755,12 +758,18 @@ function removeDuplicatesFromInput(input) {
                 .replace(/\s+/g, ' ')
                 .trim()
                 .replaceAll(" ", "_")
+            if (element.match(emojiRegx)) {
+                createAlert("Emojis not allowed in Skill name", "failure")
+            }
             if (element.length > 30) { //Shortens down the elements to 30 characters
                 element = element.split("").splice(0, 30).join("")
+                createAlert("Length of skill name should be less than 30", "failure")
             }
             if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
                 newArray.push(element)
             }
+        } else if (element.length > 0) {
+        createAlert("Skill names containing only special symbols are not allowed.", "failure")
         }
     })
 
@@ -819,6 +828,7 @@ function displayInputSkillChips() {
         }
         if ($(this).text().length > 30) {
             parent.addClass("skillChipInvalid")
+            createAlert("Length of skill name should be less than 30", "failure")
         }
         if (RESERVED_SKILL_TAGS.includes($(this).text().toLowerCase())) {
             const parent = $(this).parent(".skillChip")
@@ -856,7 +866,7 @@ function createDeletableSkillChip(element) {
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                 </svg>
-                </div>`
+            </div>`
 }
 
 
@@ -920,20 +930,23 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "categories": categories
         })
         $.ajax({
-            url: 'evidence', type: "POST", contentType: "application/json", data, success: function (response) {
+            url: 'evidence',
+            type: "POST",
+            contentType: "application/json",
+            data,
+            success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
                 addSkillResponseToArray(response)
                 addSkillsToSideBar();
-                createAlert("Created evidence", "success")
                 closeModal()
                 clearAddEvidenceModalValues()
+                $(".alert").remove()
+                createAlert("Created evidence", "success")
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                $("#weblinkAddressAlert").alert('close') // Close any web link alerts
-                $("#weblinkNameAlert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, "failure", ".modal-body")
+                createAlert(error.responseText, "failure", ".modalBody")
             }
         })
     }
@@ -956,7 +969,6 @@ $(document).on('click', '#addWeblinkButton', function (e) {
             return false
         }
         //validate the link
-        let form = $("#weblinkForm")
         validateWebLinkAtBackend()
     } else {
         webLinkButtonToggle()
