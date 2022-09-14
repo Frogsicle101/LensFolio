@@ -11,6 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Miles
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.MilestoneRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.Sprint;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints.SprintRepository;
+import nz.ac.canterbury.seng302.portfolio.service.CalendarService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
@@ -43,18 +44,21 @@ public class CalendarController {
     private final EventRepository eventRepository;
     private final DeadlineRepository deadlineRepository;
     private final MilestoneRepository milestoneRepository;
+    private final CalendarService calendarService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final int TOOLTIP_LENGTH = 20;
+
 
     @Autowired
     private UserAccountsClientService userAccountsClientService;
 
-    public CalendarController(ProjectRepository projectRepository, SprintRepository sprintRepository, EventRepository eventRepository, DeadlineRepository deadlineRepository, MilestoneRepository milestoneRepository) {
+    public CalendarController(ProjectRepository projectRepository, SprintRepository sprintRepository, EventRepository eventRepository, DeadlineRepository deadlineRepository, MilestoneRepository milestoneRepository, CalendarService calendarService) {
         this.projectRepository = projectRepository;
         this.sprintRepository = sprintRepository;
         this.eventRepository = eventRepository;
         this.deadlineRepository = deadlineRepository;
         this.milestoneRepository = milestoneRepository;
+        this.calendarService = calendarService;
     }
 
 
@@ -80,11 +84,8 @@ public class CalendarController {
             model.addObject("project", project);
             UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
             List<UserRole> roles = user.getRolesList();
-            if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
-                model.addObject("userCanEdit", true);
-            } else {
-                model.addObject("userCanEdit", false);
-            }
+
+            model.addObject(roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR));
             model.addObject("user", user);
             return model;
 
@@ -153,7 +154,6 @@ public class CalendarController {
             logger.error("GET REQUEST /getProjectSprintsWithDatesAsFeed", err);
             return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
 
@@ -221,7 +221,13 @@ public class CalendarController {
 
 
     /**
-     * Returns the events as in a json format, only finds the events by date
+     * Retrieves all events in the given project as a JSON feed. The feed contains the events' titles, start
+     * dates, end dates, the calendar date on which they are being displayed, and the className eventsCalendar.
+     *
+     * The time 00:00 is considered the start of the new day, in alignment with the most common interpretation.
+     *
+     * @param projectId The project to which the events belong
+     * @return The JSON feed for events in the given project
      */
     @GetMapping("getEventsAsFeed")
     public ResponseEntity<Object> getEventsAsFeed(
@@ -235,9 +241,9 @@ public class CalendarController {
 
             for (Event event : allEvents) {
                 List<LocalDate> dates = new ArrayList<>();
-                LocalDateTime current = event.getStartDate();
-                while (current.isBefore(LocalDateTime.of(event.getEndDate(), event.getEndTime()))) {
-                    dates.add(current.toLocalDate());
+                LocalDate current = event.getStartDate().toLocalDate();
+                while (event.getEndDate().isAfter(current.minusDays(1))) {
+                    dates.add(current);
                     current = current.plusDays(1);
                 }
 
@@ -283,7 +289,13 @@ public class CalendarController {
 
 
     /**
-     * Returns the deadlines in a json format, with the date of the deadline mapped to the number of deadline occurring on that date.
+     * Retrieves all deadlines in the given project as a JSON feed. The feed contains the deadlines' titles, start
+     * dates, end dates, the calendar date on which they are being displayed, and the className deadlinesCalendar.
+     *
+     * The time 00:00 is considered the start of the new day, in alignment with the most common interpretation.
+     *
+     * @param projectId The project to which the deadlines belong
+     * @return The JSON feed for deadlines in the given project
      */
     @GetMapping("getDeadlinesAsFeed")
     public ResponseEntity<Object> getDeadlinesAsFeed(
@@ -291,40 +303,7 @@ public class CalendarController {
         try {
             logger.info("GET REQUEST /getDeadlinesAsFeed");
 
-            List<HashMap<String, String>> deadlinesList = new ArrayList<>();
-            HashMap<LocalDate, Integer> deadlinesCount = new HashMap<>();
-            HashMap<LocalDate, String> deadlinesNames = new HashMap<>();
-            List<Deadline> allDeadlines = deadlineRepository.findAllByProjectIdOrderByEndDate(projectId);
-
-            for (Deadline deadline : allDeadlines) { //iterates over all milestones in repo, and counts the
-                Integer countByDate = deadlinesCount.get(deadline.getEndDate());
-                String namesByDate = deadlinesNames.get(deadline.getEndDate());
-                String lineEnd = "\r";
-                if (deadline.getName().length() > TOOLTIP_LENGTH) {
-                    lineEnd = "...\r";
-                }
-                if (countByDate == null) {
-                    deadlinesCount.put(deadline.getEndDate(), 1); //add date to map as key
-                    deadlinesNames.put(deadline.getEndDate(), deadline.getName().substring(0, Math.min(deadline.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
-                } else {
-
-                    countByDate++;
-                    deadlinesCount.replace(deadline.getEndDate(), countByDate);
-                    namesByDate += (deadline.getName().substring(0, Math.min(deadline.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
-                    deadlinesNames.replace(deadline.getEndDate(), namesByDate);
-                }
-            }
-
-            for (Map.Entry<LocalDate, Integer> entry : deadlinesCount.entrySet()) {
-                HashMap<String, String> jsonedDeadline = new HashMap<>();
-                jsonedDeadline.put("title", String.valueOf(entry.getValue()));
-                jsonedDeadline.put("occasionTitles", deadlinesNames.get(entry.getKey()));
-                jsonedDeadline.put("classNames", "deadlineCalendar");
-                jsonedDeadline.put("content", "");
-                jsonedDeadline.put("start", entry.getKey().toString());
-                jsonedDeadline.put("end", entry.getKey().toString());
-                deadlinesList.add(jsonedDeadline);
-            }
+            List<HashMap<String, String>> deadlinesList = calendarService.getOccasionsAsFeed(projectId, "deadline");
 
             return new ResponseEntity<>(deadlinesList, HttpStatus.OK);
         } catch (DateTimeParseException err) {
@@ -338,7 +317,11 @@ public class CalendarController {
 
 
     /**
-     * Returns the milestones in a json format, with the date of the milestone mapped to the number of milestones occurring on that date.
+     * Retrieves all milestones in the given project as a JSON feed. The feed contains the milestones' titles, start
+     * dates, end dates, the calendar date on which they are being displayed, and the className milestoneCalendar.
+     *
+     * @param projectId The project to which the milestones belong
+     * @return The JSON feed for milestones in the given project
      */
     @GetMapping("getMilestonesAsFeed")
     public ResponseEntity<Object> getMilestonesAsFeed(
@@ -346,40 +329,7 @@ public class CalendarController {
         try {
             logger.info("GET REQUEST /getMilestonesAsFeed");
 
-            List<HashMap<String, String>> milestonesList = new ArrayList<>();
-            HashMap<LocalDate, Integer> milestonesCount = new HashMap<>();
-            HashMap<LocalDate, String> milestonesNames = new HashMap<>();
-            List<Milestone> allMilestones = milestoneRepository.findAllByProjectIdOrderByEndDate(projectId);
-
-            for (Milestone milestone : allMilestones) { //iterates over all milestones in repo, and counts the
-                Integer countByDate = milestonesCount.get(milestone.getEndDate());
-                String namesByDate = milestonesNames.get(milestone.getEndDate());
-                String lineEnd = "\r";
-                if (milestone.getName().length() > TOOLTIP_LENGTH) {
-                    lineEnd = "...\r";
-                }
-                if (countByDate == null) {
-                    milestonesCount.put(milestone.getEndDate(), 1); //add date to map as key
-                    milestonesNames.put(milestone.getEndDate(), milestone.getName().substring(0, Math.min(milestone.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
-                } else {
-                    countByDate++;
-                    milestonesCount.replace(milestone.getEndDate(), countByDate);
-                    namesByDate += (milestone.getName().substring(0, Math.min(milestone.getName().length(), TOOLTIP_LENGTH)) + lineEnd);
-                    milestonesNames.replace(milestone.getEndDate(), namesByDate);
-                }
-            }
-
-
-            for (Map.Entry<LocalDate, Integer> entry : milestonesCount.entrySet()) {
-                HashMap<String, String> jsonedMilestone = new HashMap<>();
-                jsonedMilestone.put("title", String.valueOf(entry.getValue()));
-                jsonedMilestone.put("occasionTitles", milestonesNames.get(entry.getKey()));
-                jsonedMilestone.put("classNames", "milestoneCalendar");
-                jsonedMilestone.put("content", "");
-                jsonedMilestone.put("start", entry.getKey().toString());
-                jsonedMilestone.put("end", entry.getKey().toString());
-                milestonesList.add(jsonedMilestone);
-            }
+            List<HashMap<String, String>> milestonesList = calendarService.getOccasionsAsFeed(projectId, "milestone");
 
             return new ResponseEntity<>(milestonesList, HttpStatus.OK);
         } catch (DateTimeParseException err) {

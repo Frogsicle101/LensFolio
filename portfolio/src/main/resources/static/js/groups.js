@@ -91,7 +91,7 @@ function addDraggable() {
             let helper = $("<table class='table colourForDrag'/>")
             return helper.append($(".ui-selected").clone())
         },
-        revert: true,
+        revert: "invalid",
         appendTo: "body"
     })
 }
@@ -126,8 +126,11 @@ function manageGroupTableInteraction() {
              * https://api.jqueryui.com/droppable/#event-over
              */
             over: function () {
-                $(this).effect("shake")
-                //https://api.jqueryui.com/category/effects/
+                $(this).animate({left: '+=30px'}, 35);
+                $(this).animate({left: '-=60px'}, 70);
+                $(this).animate({left: '+=60px'}, 70);
+                $(this).animate({left: '-=60px'}, 70);
+                $(this).animate({left: '+=30px'}, 35);
             },
 
             /**

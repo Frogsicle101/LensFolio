@@ -57,7 +57,7 @@ function sortElementsByDate(div, childrenElement, dateElement) {
  * Displays the alert for when dates are the wrong way around (end before start)
  */
 function triggerEventAlertForDate() {
-    createAlert("Your event end date shouldn't be before your event start date!", "failure")
+    createAlert("Your event end date must be after your event start date!", "failure")
 }
 
 
@@ -70,14 +70,14 @@ function triggerEventAlertForDate() {
  * If it is then it disables the event submit button, adds an invalid class to the event date pickers and shows the
  * feedback.
  */
-$(document).on("change", ".eventDateInput", function() {
+$(document).on("change", ".eventDateInput", function () {
     let eventForm = $(this).parents("form")
-    let eventStart =  eventForm.find(".eventInputStartDate").val()
+    let eventStart = eventForm.find(".eventInputStartDate").val()
     let eventEnd = eventForm.find(".eventInputEndDate").val()
     let eventSubmitButton = eventForm.find("button[type=submit]")
     let eventDateInput = eventForm.find(".eventDateInput")
     let eventInvalidFeedback = eventForm.find(".invalid-feedback")
-    if (eventEnd < eventStart) {
+    if (eventEnd <= eventStart) {
         eventDateInput.addClass("invalid")
         eventInvalidFeedback.show()
         eventSubmitButton.attr("disabled", "disabled")
@@ -105,7 +105,7 @@ $(document).on('submit', "#addEventForm", function (event) {
         "typeOfEvent": $(".typeOfEvent").val()
     }
 
-    if (eventData.eventEnd < eventData.eventStart) {
+    if (eventData.eventEnd <= eventData.eventStart) {
         triggerEventAlertForDate()
     } else {
         $.ajax({
@@ -221,7 +221,7 @@ $(document).on("submit", "#editEventForm", function (event) {
                                 <strong>Oh no!</strong> You probably should enter an event name!
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>`)
-    } else if (eventData.eventEnd < eventData.eventStart) {
+    } else if (eventData.eventEnd <= eventData.eventStart) {
         triggerEventAlertForDate()
     } else {
         $.ajax({
@@ -322,30 +322,28 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
 
 /**
  * Listens for when add event button is clicked.
- * Rotates the button and shows the event form via a slide-down transition
+ * Shows the event form via a slide-down transition
  */
 $(document).on('click', '.addEventButton', function () {
-    $(".addEventSvg").toggleClass('rotated');
     $(".eventForm").slideToggle();
 })
 
 
 /**
  * Listens for when add milestone button is clicked.
- * Rotates the button and shows the milestone form via a slide-down transition
+ * Shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addMilestoneButton', function () {
-    $(".addMilestoneSvg").toggleClass('rotated');
     $(".milestoneForm").slideToggle();
 })
 
 
 /**
  * Listens for when add milestone button is clicked.
- * Rotates the button and shows the milestone form via a slide-down transition
+ * Shows the milestone form via a slide-down transition
  */
 $(document).on('click', '.addDeadlineButton', function () {
-    $(".addDeadlineSvg").toggleClass('rotated');
+
     $(".deadlineForm").slideToggle();
 })
 
@@ -414,7 +412,6 @@ $(document).on("click", ".deleteButton", function () {
  */
 $(document).on("click", ".editButton", function () {
     thisUserIsEditing = true;
-    let addOccasionButton = $(".addOccasionButton")
     let editOccasionButton = $(".editButton")
     let deleteOccasionButton = $(".deleteButton")
     editOccasionButton.hide()
@@ -455,7 +452,6 @@ $(document).on("click", ".cancelEdit", function () {
     form.slideUp(400, function () {
         form.remove();
     })
-
 
     if (parent.hasClass("event")) {
         sendNotification("event", id, "stop");
