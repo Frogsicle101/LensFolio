@@ -65,11 +65,11 @@ $(function () {
 
 
 /**
- * When a user is clicked, a call is made to retrieve the user's evidence page.
+ * When a user is clicked, a call is made to retrieve the user's home page.
  */
 $(document).on("click", ".userRoleRow", function() {
     let userId = $(this).find(".userId").text()
-    window.location.href = "evidence?userId=" + userId //redirect to the user's evidence page
+    redirectToUsersHomePage(userId) //redirect to the user's evidence page
 })
 
 

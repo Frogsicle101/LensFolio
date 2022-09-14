@@ -324,7 +324,7 @@ public class PortfolioController {
                 textForPreviousSprint =
                         "No previous sprints, Project starts on " + formattedPreviousDate;
             } else {
-                String formattedPreviousDate = minDate.format(DateTimeService.dayMonthYear());
+                String formattedPreviousDate = minDate.minusDays(1).format(DateTimeService.dayMonthYear());
                 textForPreviousSprint =
                         "Previous sprint ends on " + formattedPreviousDate;
             }

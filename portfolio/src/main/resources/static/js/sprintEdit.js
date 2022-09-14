@@ -51,3 +51,39 @@ $(() => {
         })
     })
 })
+
+
+/**
+ * Creates a message telling to user to refresh the page to see changes made by another user, if the sprint viewed is
+ * the same object that was edited.
+ */
+function handleUpdateEvent(message) {
+    const editorName = message.editorName;
+    const editorId = message.editorId;
+
+    if (parseInt(editorId) !== parseInt(userIdent)) {
+        if (message.occasionId === $(document).find("#sprintId").val())  {
+            createAlert(editorName + " updated this sprint. \nPlease refresh the page to view their changes. \n" +
+                "Note this will undo your changes","info")
+        } else if (message.occasionType === "sprint") {
+            createAlert(editorName + " updated another sprint. \nPlease refresh the page to update available dates for this sprint. \n" +
+                "Note this will undo your changes","info")
+        }
+    }
+}
+
+
+/**
+ * Creates a message telling to user that the sprint they're editing was deleted.
+ */
+function handleDeleteEvent(message) {
+    const editorName = message.editorName;
+    const editorId = message.editorId;
+
+    if (parseInt(editorId) !== parseInt(userIdent)) {
+        if (message.occasionId === $(document).find("#sprintId").val()) {
+            createAlert(editorName + " deleted this sprint. \nThis sprint can no longer be edited.\n" +
+                "Please cancel.", "info")
+        }
+    }
+}

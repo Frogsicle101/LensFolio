@@ -51,18 +51,23 @@
                     <div id="evidenceWebLinks"></div>
                     <hr id="evidenceWebLinksBreakLine">
                     <div id="evidenceDetailsDescription" class="evidenceDetails"></div>
+                    <hr>
+                    <div id="evidenceDetailsLinkedUsersDiv">
+                        <div id="evidenceDetailsLinkedUsersTitle">Associated Users:</div>
+                        <div id="evidenceDetailsLinkedUsers"></div>
+                    </div>
                     <div id="evidenceDetailsSkills" class="evidencePreviewTags"></div>
                 </div>
             </div>
         </div>
     </div>
     <div id="addEvidenceModal">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modalContent">
+            <div class="modalHeader">
                 <h5 class="modal-title" id="addEvidenceTitle">Add Evidence</h5>
             </div>
             <form id="evidenceCreationForm">
-                <div class="modal-body">
+                <div class="modalBody">
                     <div class="form-group evidenceFormName">
                         <label for="evidenceName" class="col-form-label required">Name:</label>
                         <small class="form-text text-muted">Name must include letters. </small>
@@ -231,7 +236,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modalFooter">
                     <button class="btn btn-secondary" data-bs-dismiss="modal" id="evidenceCancelButton" type="button">
                         Cancel
                     </button>
