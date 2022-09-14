@@ -1,12 +1,11 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import io.cucumber.java.bs.A;
-import nz.ac.canterbury.seng302.portfolio.model.dto.PasswordRequest;
-import nz.ac.canterbury.seng302.portfolio.model.dto.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.authentication.AuthenticationException;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.PasswordRequest;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.service.LoginService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -14,7 +13,6 @@ import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +26,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 @SpringBootTest
@@ -85,6 +84,7 @@ class AccountControllerTest {
 
         Assertions.assertTrue(model.hasView());
         Assertions.assertTrue(model.getModel().containsKey("generalUnicodeRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("nameRegex"));
         Assertions.assertTrue(model.getModel().containsKey("generalUnicodeNoSpacesRegex"));
         Assertions.assertTrue(model.getModel().containsKey("emailRegex"));
     }
@@ -706,6 +706,7 @@ class AccountControllerTest {
         Assertions.assertTrue(modelAndView.hasView());
         Assertions.assertTrue(modelAndView.getModel().containsKey("generalUnicodeNoSpacesRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("generalUnicodeRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("nameRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("emailRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("user"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("membersince"));

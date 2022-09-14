@@ -1,9 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.dto.PasswordRequest;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserRequest;
-import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.LoginService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
@@ -92,6 +92,7 @@ public class AccountController {
 
             ModelAndView model = new ModelAndView("account");
             model.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
+            model.addObject("nameRegex", RegexPattern.NAME);
             model.addObject("generalUnicodeNoSpacesRegex", RegexPattern.GENERAL_UNICODE_NO_SPACES);
             model.addObject("emailRegex", RegexPattern.EMAIL);
             model.addObject("user", user);
@@ -117,6 +118,7 @@ public class AccountController {
         logger.info("GET REQUEST /register - get register page");
         ModelAndView model = new ModelAndView("accountRegister");
         model.addObject("generalUnicodeNoSpacesRegex", RegexPattern.GENERAL_UNICODE_NO_SPACES);
+        model.addObject("nameRegex", RegexPattern.NAME);
         model.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
         model.addObject("emailRegex", RegexPattern.EMAIL);
 
@@ -201,9 +203,9 @@ public class AccountController {
      */
     private ResponseEntity<Object> checkUserRequestNoPasswordOrUser(UserRequest userRequest) {
         try {
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getFirstname(), 1, 50, "First name");
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getMiddlename(), 0, 50, "Middle name");
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getLastname(), 1, 50, "Last name");
+            regexService.checkInput(RegexPattern.NAME, userRequest.getFirstname(), 2, 100, "First name");
+            regexService.checkInput(RegexPattern.NAME, userRequest.getMiddlename(), 0, 100, "Middle name");
+            regexService.checkInput(RegexPattern.NAME, userRequest.getLastname(), 2, 100, "Last name");
             regexService.checkInput(RegexPattern.EMAIL, userRequest.getEmail(), 1, 100, "Email");
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getNickname(), 0, 50, "Nick name");
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getPersonalPronouns(), 0, 50, "Pronouns");
