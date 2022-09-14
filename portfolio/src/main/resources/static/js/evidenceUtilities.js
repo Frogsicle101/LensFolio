@@ -812,6 +812,7 @@ function displayInputSkillChips() {
         }
         if ($(this).text().length > 30) {
             parent.addClass("skillChipInvalid")
+            createAlert("Length of skill name should be less than 30", "failure")
         }
         if (RESERVED_SKILL_TAGS.includes($(this).text().toLowerCase())) {
             const parent = $(this).parent(".skillChip")
