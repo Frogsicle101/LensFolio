@@ -309,6 +309,15 @@ function countCharacters() {
     }
 }
 
+function addTooltip(element, text) {
+    element.attr('data-toggle', 'tooltip');
+    element.attr('title', text);
+    element.tooltip({trigger: "hover"});
+}
+
+function removeTooltip(element) {
+    element.tooltip("hide");
+}
 
 /**
  * Regex that is all unicode letters, decimal numbers and punctuation
