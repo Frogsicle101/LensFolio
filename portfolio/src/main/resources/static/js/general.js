@@ -323,3 +323,7 @@ function removeTooltip(element) {
  * Regex that is all unicode letters, decimal numbers and punctuation
  */
 let regex = new RegExp("[\\p{L}\\p{Nd}\\p{P}]+", 'u')
+/**
+ * Regex that is all unicode letters, numbers, punctuation, modifier/currency/math symbols and whitespace
+ */
+let GENERAL_UNICODE_REGEX = new RegExp("\^[\\p{L}\\p{Nd}\\p{P}\\p{Sc}\\p{Sk}\\p{Sm}\\s]+\$", 'gu')

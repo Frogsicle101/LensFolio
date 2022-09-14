@@ -13,6 +13,16 @@ $(() => {
 
     sprintEndDate.on("change", () => checkDateOrder(sprintStartDate.val(), sprintEndDate.val()))
 
+    sprintDescription.on("change", () => {
+        let descText = sprintDescription.val().toString()
+        if (GENERAL_UNICODE_REGEX.test(descText)) {
+            sprintDescription[0].setCustomValidity("");
+        } else {
+            sprintDescription[0].setCustomValidity("Sprint description can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace");
+
+        }
+    })
+
 
     // When submit button is clicked on sprint edit form
     $(".editForm").on("submit", function (event) {

@@ -27,6 +27,15 @@ $(() => {
         }
     })
 
+    projectDescription.on("change", () => {
+        let descText = projectDescription.val().toString()
+        if (GENERAL_UNICODE_REGEX.test(descText)) {
+            projectDescription[0].setCustomValidity("");
+        } else {
+            projectDescription[0].setCustomValidity("Project description can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace");
+        }
+    })
+
     //When the submit button is clicked on the form.
     $(".editForm").on("submit", function (event) {
         event.preventDefault()
