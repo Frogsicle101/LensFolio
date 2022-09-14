@@ -1,11 +1,12 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.RegexPatterns;
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.MilestoneRepository;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.MilestoneRepository;
+import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
+import nz.ac.canterbury.seng302.portfolio.service.RegexService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +27,34 @@ import java.util.NoSuchElementException;
  */
 @RestController
 public class MilestoneController {
-    /**
-     * For logging the requests related to milestones.
-     */
+
+    /** For checking the inputs against the regex */
+    private final RegexService regexService;
+
+    /** For logging the requests related to milestones. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /** To retrieve and edit information about projects */
     private final ProjectRepository projectRepository;
+
+    /** To retrieve and edit information about milestones */
     private final MilestoneRepository milestoneRepository;
 
-    private final RegexPatterns regexPatterns = new RegexPatterns();
 
+    /**
+     * Autowired constructor to inject the required dependencies into the controller.
+     *
+     * @param projectRepository - To retrieve and edit information about projects
+     * @param milestoneRepository - To retrieve and edit information about milestones
+     * @param regexService - For checking the inputs against the regex
+     */
     @Autowired
-    private UserAccountsClientService userAccountsClientService;
-
-    public MilestoneController(ProjectRepository projectRepository, MilestoneRepository milestoneRepository) {
+    public MilestoneController(ProjectRepository projectRepository,
+                               MilestoneRepository milestoneRepository,
+                               RegexService regexService) {
         this.projectRepository = projectRepository;
         this.milestoneRepository = milestoneRepository;
+        this.regexService = regexService;
     }
 
 
@@ -49,10 +62,10 @@ public class MilestoneController {
      * Mapping for a put request to add a milestone.
      * The method first parses a date string that is passed as a request parameter.
      * The parser converts it to the standard LocalDate format.
-     * <p>
+     *
      * The project is then grabbed from the repository by its ID.
      * If the project can't be found, it throws an EntityNotFoundException
-     * <p>
+     *
      * The Milestone is then created with the parameters passed, and saved to the milestone repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -68,34 +81,34 @@ public class MilestoneController {
             @RequestParam(value = "milestoneEnd") String end,
             @RequestParam(defaultValue = "1", value = "typeOfOccasion") int typeOfOccasion
     ) {
+        String methodLoggingTemplate = "PUT /addMilestone: {}";
+        logger.info(methodLoggingTemplate, "Called");
         try {
-            logger.info("PUT /addMilestone");
             LocalDate milestoneEnd = LocalDate.parse(end);
             Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(
-                    "Project with id " + projectId + " was not found"
+                    "Could not find Project with id " + projectId
             ));
 
-            if (!regexPatterns.getTitleRegex().matcher(name).matches()) {
-                String returnMessage = "Name does not match required pattern";
-                logger.warn("PUT /addMilestone: {}", returnMessage);
-                return new ResponseEntity<>(returnMessage, HttpStatus.BAD_REQUEST);
-            }
+            regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Milestone title");
 
             Milestone milestone = new Milestone(project, name, milestoneEnd, typeOfOccasion);
             milestoneRepository.save(milestone);
-            logger.info("PUT /addMilestone: Success");
+            logger.info(methodLoggingTemplate, "Success");
             return new ResponseEntity<>(milestone, HttpStatus.OK);
+        } catch (CheckException exception) {
+            logger.warn(methodLoggingTemplate, exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (EntityNotFoundException err) {
-            logger.warn("PUT /addMilestone: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (DateTimeParseException err) {
-            logger.warn("PUT /addMilestone: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
         } catch (DateTimeException err) {
-            logger.warn("PUT /addMilestone: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>("End date must occur during project", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
-            logger.error("PUT /addMilestone: {}", err.getMessage());
+            logger.error(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -104,10 +117,10 @@ public class MilestoneController {
     /**
      * Mapping for a post request to edit a milestone.
      * The method first gets the milestone from the repository. If the milestone cannot be retrieved, it throws an EntityNotFound exception.
-     * <p>
+     *
      * The method then parses a date string that is passed as a request parameter.
      * The parser converts it to the standard LocalDateTime format.
-     * <p>
+     *
      * The Milestone is then edited with the parameters passed, and saved to the milestone repository.
      * If all went successful, it returns OK, otherwise one of the errors is returned.
      *
@@ -124,35 +137,37 @@ public class MilestoneController {
             @RequestParam(value = "milestoneDate") String date,
             @RequestParam(defaultValue = "1", value = "typeOfMilestone") int typeOfOccasion
     ) {
+        String methodLoggingTemplate = "PUT /editMilestone: {}";
+        logger.info(methodLoggingTemplate, "Called");
         try {
-            logger.info("PUT /editMilestone");
             Milestone milestone = milestoneRepository.findById(milestoneId).orElseThrow(() -> new EntityNotFoundException(
                     "Milestone with id " + milestoneId + " was not found"
             ));
 
-            LocalDate milestoneDate = LocalDate.parse(date);
+            regexService.checkInput(RegexPattern.OCCASION_TITLE, name, 1, 50, "Milestone title");
 
             milestone.setName(name);
-            milestone.setEndDate(milestoneDate);
+            milestone.setEndDate(LocalDate.parse(date));
             milestone.setType(typeOfOccasion);
 
             milestoneRepository.save(milestone);
-
-            logger.info("PUT /editMilestone: Success");
+            logger.info(methodLoggingTemplate, "Success");
             return new ResponseEntity<>(milestone.getId(), HttpStatus.OK);
+        } catch (CheckException exception) {
+            logger.warn(methodLoggingTemplate, exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (EntityNotFoundException err) {
-            logger.warn("PUT /editMilestone: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (DateTimeParseException err) {
-            logger.warn("PUT /editMilestone: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>("Could not parse date(s)", HttpStatus.BAD_REQUEST);
         } catch (DateTimeException err) {
-            logger.warn("PUT /editMilestone: {}", err.getMessage());
+            logger.warn(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>("End date must occur during project", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
-            logger.error("PUT /editMilestone: {}", err.getMessage());
+            logger.error(methodLoggingTemplate, err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-
         }
     }
 

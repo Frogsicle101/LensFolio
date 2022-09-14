@@ -1,106 +1,119 @@
-let controlDown = false;
-let shiftDown = false;
-let selectedGroupId;
-let lastSelectedRow;
-let group;
-let notCtrlClick = true;
+let selectedGroupId
+let group
 const TEACHER_GROUP_ID = 1
 const MWAG_GROUP_ID = 2
+let groupPage
+let groupMembersPage = 1
+
+$(function () {
+    getGroups()
+})
+
+//----------------------- jQuery UI User Selection -------------------------
 
 
-$(document).ready(function () {
-    let arrayOfSelected = []
-    if (!checkPrivilege()) {
-        return
-    }
+/**
+ * Implements the selectable widget from jQuery UI to enable the selection of users in the group members list.
+ */
+function manageTableSelection() {
+    let anchorRow
 
-    /**
-     * JQuery UI Selectable interaction
-     * https://api.jqueryui.com/selectable/
-     */
-    $("table > tbody").selectable({ //
-
-        // Don't allow individual table cell selection.
+    $("#groupTableBody").selectable({
         filter: ":not(td)",
 
         /**
-         * Runs a function over every selected element
-         * @param e event
-         * @param ui the selectable item that has been selected
+         * Overrides the selected method for the jQuery UI selectable widget, to enable shift clicking.
+         *
+         * A non-shift select sets an "anchor" row. Shift clicking on either side of the anchor row selects rows between the
+         * anchor row and the selected row (inclusive).
+         * Ctrl clicks allow non-adjacent rows to be selected and deselected.
+         * Ctrl clicks followed by a shift click will deselect all but the latest ctrl click.
+         *
+         * @param e An event (e.g. a key press)
+         * @param ui The latest selected row
          */
-        selected: function (e, ui) {
-            let currentlySelected = $(ui.selected)
+        selected: function (e, ui) {  // overrides library function to enable shift clicking
+            let currentRow = $(ui.selected)
 
-            notCtrlClick = !e.ctrlKey
-            if (shiftDown) { // Checks if the shift key is currently pressed
-                notCtrlClick = false
-                if (parseInt(currentlySelected.attr("userId")) > parseInt(lastSelectedRow.attr("userId"))) {
-                    currentlySelected.prevUntil(lastSelectedRow).each(function () {
-                        $(this).addClass("selected")
-                        arrayOfSelected.push($(this))
-                    })
+            if (e.shiftKey) {
+                let currentId = parseInt(currentRow.attr("userId"))
+                let lastId
 
-                } else if (currentlySelected.attr("userId") < parseInt(lastSelectedRow.attr("userId"))) {
-                    currentlySelected.nextUntil(lastSelectedRow).each(function () {
-                        $(this).addClass("selected")
-                        arrayOfSelected.push($(this))
-                    })
-
-                }
-                lastSelectedRow.addClass("selected")
-                currentlySelected.addClass("selected");
-                arrayOfSelected.push(lastSelectedRow)
-                arrayOfSelected.push(currentlySelected)
-            } else {
-                arrayOfSelected.push(ui)
-            }
-            lastSelectedRow = currentlySelected // Sets the last selected row to the currently selected one.
-        },
-
-        /**
-         * Triggered at the end of the select operation.
-         */
-        stop: function () {
-            if (arrayOfSelected.length === 1) {
-                if ($(arrayOfSelected[0].selected).hasClass("selected")) {
-                    $(arrayOfSelected[0].selected).removeClass("selected")
+                if (typeof anchorRow == "undefined") {  // if first selection on table, set anchor to this row
+                    anchorRow = $(ui.selected)
+                    lastId = currentId
                 } else {
-                    $(arrayOfSelected[0].selected).addClass("selected")
+                    lastId = parseInt(anchorRow.attr("userId"))
                 }
-            }
-            if (notCtrlClick) {
-                $(".selected").removeClass("selected")
-                lastSelectedRow.addClass("selected")
-            }
-            $(".userRow").each(function () {
-                if (!$(this).hasClass("selected") && $(this).find(".dragGrip").hasClass("ui-draggable")) {
-                    $(this).find(".dragGrip").hide()
-                    try {
-                        $(this).draggable("destroy")
-                    } catch (err) {
-                    }
+
+                if (currentId > lastId) {  // latest selected row is below the previous selected row
+                    currentRow.prevUntil(anchorRow).each((i, row) => {  //for every row between the current and last selected rows
+                        $(row).addClass("ui-selected")
+                    })
+                } else if (currentId < lastId) {  // latest selected row is above the previous selected row
+                    currentRow.nextUntil(anchorRow).each((i, row) => {
+                        $(row).addClass("ui-selected")
+                    })
                 }
-            })
-            arrayOfSelected = []
+
+                currentRow.addClass("ui-selected")
+                anchorRow.addClass("ui-selected")
+            }
             checkToSeeIfHideOrShowOptions()
             addDraggable()
-
-            showDraggableIcon()
+            showDraggableIcons()
+            anchorRow = currentRow
         },
 
         /**
-         * Triggered at the end of the select operation, on each element removed from the selection.
-         * @param e event
-         * @param ui The selectable item that has been unselected.
+         * Overrides the unselected method for the jQuery UI selectable widget.
+         * Hides the drag grip on each row that has been unselected.
+         *
+         * @param e An event (unused)
+         * @param ui The unselected rows
          */
         unselected: function (e, ui) {
-            if (notCtrlClick) {
-                $(ui.unselected).removeClass("selected");
-            }
-            checkToSeeIfHideOrShowOptions()
+            let unselected = $(ui.unselected)
+            $(unselected).each(function () {
+                $(this).find(".dragGrip").hide()
+            })
         }
-    });
+    })
+}
 
+
+/**
+ * Implements the jQuery UI draggable widget to enable the dragging of group members between groups.
+ * Reference: https://api.jqueryui.com/draggable/
+ */
+function addDraggable() {
+    $(".dragGrip").draggable({
+        helper: function () {
+            let helper = $("<table class='table colourForDrag'/>")
+            return helper.append($(".ui-selected").clone())
+        },
+        revert: "invalid",
+        appendTo: "body"
+    })
+}
+
+
+/**
+ * Displays the grip element on each jQuery UI selected row.
+ */
+function showDraggableIcons() {
+    $(".ui-selected").find(".dragGrip").show()
+}
+
+/**
+ * Handles the selecting, dragging, and dropping of group members.
+ * Implemented using JQuery UI droppable https://api.jqueryui.com/droppable/
+ */
+function manageGroupTableInteraction() {
+    if (!checkPrivilege()) {
+        return
+    }
+    manageTableSelection()
 
     let listOfGroupDivs = $(".group") // gets a list of divs that have the class group
     for (let i = 0; i < listOfGroupDivs.length; i++) { // Loops over each div
@@ -114,8 +127,11 @@ $(document).ready(function () {
              * https://api.jqueryui.com/droppable/#event-over
              */
             over: function () {
-                $(this).effect("shake")
-                //https://api.jqueryui.com/category/effects/
+                $(this).animate({left: '+=30px'}, 35);
+                $(this).animate({left: '-=60px'}, 70);
+                $(this).animate({left: '+=60px'}, 70);
+                $(this).animate({left: '-=60px'}, 70);
+                $(this).animate({left: '+=30px'}, 35);
             },
 
             /**
@@ -124,43 +140,230 @@ $(document).ready(function () {
              */
             drop: function () {
                 addUsers($(this).attr("id"))
-                showDraggableIcon()
+                showDraggableIcons()
             },
             tolerance: "pointer"
         })
     }
-})
-
-// ******************************* Functions *******************************
-
-/**
- * Displays the grip element that each table row has
- */
-function showDraggableIcon() {
-    $(".selected").find(".dragGrip").show()
 }
 
+
+//------------------------ Other Functions ------------------------------
+
+
 /**
- * Makes the selected elements able to  be draggable with the mouse
- * https://api.jqueryui.com/draggable/
+ * Listens for a change on the group amount display selector (the dropdown)
+ * Calls getGroups.
  */
-function addDraggable() {
-    $(".dragGrip").draggable({
-        helper: function () {
-            let helper = $("<table class='table colourForDrag'/>")
-            return helper.append($(".selected").clone())
+$(document).on("change", "#groupDisplayAmountSelection", function (event) {
+    event.preventDefault()
+    getGroups(groupPage)
+})
+
+
+/**
+ * Gets the group data from the server for displaying the preview list of groups.
+ */
+function getGroups(page = groupPage) {
+    let groupsPerPage = $("#groupDisplayAmountSelection").find("option:selected").text()
+    groupsPerPage = groupsPerPage.toLowerCase()
+    $.ajax({
+        url: "getGroups",
+        type: "GET",
+        data: {
+            "page": page,
+            "groupsPerPage": groupsPerPage
         },
-        revert: true,
-        appendTo: "body"
+        success: function (data) {
+            groupPage = data.page
+            $(".optionForAmountOfGroups").each((index, element) => {
+                // Iterates over the dropdown menu for the group selector and sets the attribute to selected based on the data from the server.
+                $(element).attr("selected", Number($(element).val()) === data.groupsPerPage)
+            })
+            populateGroupPageSelector(data.footerNumberSequence, data.page)
+            createListOfGroups(data.groups)
+        },
+        error: function (error) {
+            createAlert(error.responseText, true)
+        }
+    }).then(manageGroupTableInteraction)
+}
+
+
+/**
+ * Populates the group page selector.
+ * Appends the number elements after the "previous" selector
+ *
+ * @param data The numbers.
+ * @param currentPage The current page that is being displayed
+ */
+function populateGroupPageSelector(data, currentPage) {
+    let groupPaginationButtons = $(".groupPaginationSelector")
+    // ".groupPageLink" in both ".groupPaginationSelector" and ".groupMembersAmountOptions", here only need the ".groupPaginationSelector" one
+    groupPaginationButtons.find(".groupPageLink").each((index, element) => {
+        if (!$(element).hasClass("specialFooterButton")) {
+            $(element).remove()
+        }
+    })
+
+    for (const number of data) {
+        groupPaginationButtons.find(".groupFooterNext").before(createFooterNumberSelector(number))
+    }
+
+    let groupPageSelector = groupPaginationButtons.find(".groupPageSelector")
+    groupPageSelector.removeClass("active")
+    groupPageSelector.each((index, element) => {
+        //Goes through the page selectors and adds a class of active if it's the current page we are on
+        if (Number($(element).text()) === currentPage) {
+            $(element).addClass("active")
+        }
+    })
+    toggleGroupNavigationButtons(groupPaginationButtons)
+}
+
+
+/**
+ * Checks if each special button on the footer navigator should be disabled or not.
+ * For example: If we are on page 1, "first" and "previous" should be disabled.
+ */
+function toggleGroupNavigationButtons(parentDiv) {
+    let footerPrevious = parentDiv.find(".groupFooterPrevious")
+    let footerFirst = parentDiv.find(".groupFooterFirst")
+    if (footerPrevious.next().hasClass("active")) {
+        footerPrevious.addClass("disabled")
+        footerFirst.addClass("disabled")
+    } else {
+        footerPrevious.removeClass("disabled")
+        footerFirst.removeClass("disabled")
+    }
+    let footerNext = parentDiv.find(".groupFooterNext")
+    let footerLast = parentDiv.find(".groupFooterLast")
+    if (footerNext.prev().hasClass("active")) {
+        footerNext.addClass("disabled")
+        footerLast.addClass("disabled")
+    } else {
+        footerNext.removeClass("disabled")
+        footerLast.removeClass("disabled")
+    }
+}
+
+
+/**
+ * Creates the elements that go into the group page selector
+ *
+ * @param number The number to go into the selection
+ * @returns {string} A list element
+ */
+function createFooterNumberSelector(number) {
+    return `<li class="page-item groupPageSelector groupPageLink"><a class="page-link" href="#">${number}</a></li>`
+}
+
+
+/**
+ * Creates the group elements by iterating over a list of groups.
+ *
+ * @param groups The list of groups.
+ */
+function createListOfGroups(groups) {
+    let groupOverviewContainer = $("#groupAmountOptionsTop")
+    $(".group").each((index, element) => {
+        $(element).remove()
+    })
+    for (const groupsKey in groups) {
+        groupOverviewContainer.after(createGroupPreviewDiv(groups[groupsKey]))
+    }
+}
+
+
+/**
+ * Creates the div that holds the group preview.
+ *
+ * @param group The group to get the data from
+ * @returns {string} A string that is a div
+ */
+function createGroupPreviewDiv(group) {
+    return `<div class="box group" id="${group.id}">
+                    <div class="mb3">
+                        <p class="groupId" style="display: none">${group.id}</p>
+                        <h2 class="groupShortName showExtraWhitespace">${group.shortName}</h2>
+                        <h3 class="groupLongName showExtraWhitespace">${group.longName}</h3>
+                    </div>
+                </div>`
+}
+
+
+/**
+ * Using the notification system, this is called when a group has been updated.
+ * It checks to see if the current group being displayed on the page is the one that has been updated.
+ * If it is then it updates the groups information including fetching the users again.
+ * If it isn't then it updates the elements on the left with the new names.
+ *
+ * @param notification The notification from the server.
+ */
+function updateGroup(notification){
+    let notificationGroupId = notification.occasionId
+    let currentDisplayGroup = $("#groupBeingDisplayId").text()
+    if (currentDisplayGroup === notificationGroupId) {
+        displayGroupUsersList()
+        if (notification.editorId !== String(userIdent)) {
+            createLiveAlert("This group has been updated by " + notification.editorName, notificationGroupId)
+            $(".scrollableGroupDetails").effect("highlight", 500)
+        }
+    }
+    updateGroupDetails(notificationGroupId)
+}
+
+
+/**
+ * Using the notification system, this is called when a group has been deleted.
+ * It checks to see if the current group being displayed is the one that has been deleted.
+ * If it is then it slides up the group information display and alerts the user that the group has been deleted and by who.
+ * If it isn't then it just slides up the element on the left hand side.
+ * @param notification
+ */
+function removeGroup(notification) {
+    console.log(notification)
+    let notificationGroupId = notification.occasionId
+    let currentDisplayGroup = $("#groupBeingDisplayId").text()
+    if (currentDisplayGroup === notificationGroupId) {
+        $("#groupInformationContainer").slideUp()
+        createLiveAlert("This group has been deleted by " + notification.editorName, notificationGroupId)
+    }
+    let group = $("#" + notificationGroupId)
+    if (group.length > 0) {
+        group.slideUp("500", () => {group.remove()})
+    }
+}
+
+
+/**
+ * Grabs the latest details of a group and updates the page to reflect them.
+ * @param groupId The group's details to grab.
+ */
+function updateGroupDetails(groupId) {
+    $.ajax({
+        url: `group?groupId=${groupId}`,
+        type: "GET",
+        success: (response) => {
+            let group = $("#" + response.id)
+            if (group.length > 0) {
+                group.find(".groupShortName").text(response.shortName)
+                group.find(".groupLongName").text(response.longName)
+            }
+        },
+        error: function (error) {
+            console.log(error)
+        }
     })
 }
 
+
 /**
- * Ajax post request to the server for moving users from one group to another
+ * Ajax post request to the server for moving users from one group to another.
  */
 function addUsers(groupId) {
     let arrayOfIds = [];
-    let selected = $(".selected")
+    let selected = $(".ui-selected")
     selected.each(function () {
         arrayOfIds.push($(this).attr("userId"))
     })
@@ -171,14 +374,19 @@ function addUsers(groupId) {
         type: "post",
         success: function () {
             displayGroupUsersList()
+            sendNotification("group", groupId, "updateGroup");
             if (parseInt(groupId) === MWAG_GROUP_ID) {
-                createAlert("User(s) moved, and teachers role remains", false)
+                createAlert("User(s) moved, and teachers role remains", "success")
             } else {
-                createAlert("User(s) moved", false)
+                createAlert("User(s) moved", "success")
             }
-        },
-        error: function () {
-            createAlert("Couldn't move users", true)
+        }, error: function (error) {
+            if (error.status == 401) {
+                createAlert("You don't have permission to move users. This could be because " +
+                    "your roles have been updated. Try refreshing the page", "failure")
+            } else {
+                createAlert(error.responseText, "failure")
+            }
         }
     })
 }
@@ -186,6 +394,7 @@ function addUsers(groupId) {
 
 /**
  * Displays the options for what to do with selected users.
+ *
  * @param show a boolean of if to show or hide
  */
 function showOptions(show) {
@@ -198,7 +407,6 @@ function showOptions(show) {
         }
 
     }
-    $(".numSelected").text($(".selected").length + " Selected")
 }
 
 
@@ -213,12 +421,12 @@ function changeToUsersTab() {
     let groupUsersPage = $("#pillsUsers")
     let GroupSettingsPage = $("#pillsSettings")
 
-    groupUsersTab.attr("aria-selected", true)
-    groupSettingsTab.attr("aria-selected", false)
+    groupUsersTab.prop("aria-selected", true)
+    groupSettingsTab.prop("aria-selected", false)
 
-    groupUsersButton.attr("aria-selected", true)
+    groupUsersButton.prop("aria-selected", true)
     groupUsersButton.addClass("active")
-    groupSettingsButton.attr("aria-selected", false)
+    groupSettingsButton.prop("aria-selected", false)
     groupSettingsButton.removeClass("active")
 
     groupUsersTab.addClass('active')
@@ -234,12 +442,8 @@ function changeToUsersTab() {
  * Helper function that uses the amount of selected users to determine if to call the showOptions function
  */
 function checkToSeeIfHideOrShowOptions() {
-    let amountSelected = $(".selected").length
-    if (amountSelected > 0) {
-        showOptions(true)
-    } else {
-        showOptions(false)
-    }
+    let amountSelected = $(".ui-selected").length
+    showOptions(amountSelected > 0)
 }
 
 
@@ -286,6 +490,8 @@ function checkEditRights(group) {
  * Loops through the groups members and adds them to the table.
  */
 function displayGroupUsersList() {
+    groupMembersPage = 1
+
     $.ajax({
         url: `group?groupId=${selectedGroupId}`,
         type: "GET",
@@ -293,14 +499,16 @@ function displayGroupUsersList() {
             $("#groupTableBody").empty();
             $("#groupInformationShortName").text(response.shortName);
             $("#groupInformationLongName").text(response.longName);
+            updateGroupName(response.shortName, response.longName)
+            $("#groupBeingDisplayId").text(response.id);
             group = response;
-            appendMembersToGroup(response)
+            displayGroupMembers()
             $("#groupInformationContainer").slideDown()
             checkToSeeIfHideOrShowOptions()
             checkEditRights(response)
         },
-        error: () => {
-            createAlert("Couldn't retrieve users", true)
+        error: function (error) {
+            createAlert(error.responseText, "failure")
         }
     })
 }
@@ -308,37 +516,152 @@ function displayGroupUsersList() {
 
 /**
  * Takes the details of a group and appends each user in the group to the group details user list div.
- *
- * @param group The group's details to be managed.
  */
-function appendMembersToGroup(group) {
+function populateGroupMembers() {
+    let members = group.userList
+
+    // cut the userList by number of members per page
+    let perPage = $("#membersPerPageSelect").val();
+
+    perPage = parseInt(perPage)
+
+    let memberPages = [[]];
+    let numMembers = members.length
+
+    for (let i = 0; i < numMembers; i += perPage) {
+        memberPages.push(members.slice(i, i + perPage))
+    }
+
+    if (groupMembersPage === -1) {
+        groupMembersPage = memberPages.length - 1
+    }
+
+    $.each(memberPages[groupMembersPage], function (i, member) {
+        appendMemberToGroup(member)
+    })
+}
+
+
+/**
+ * Takes a given member and appends their information to the currently selected group's members table.
+ * The row includes the user's Id, image, first and last names, and username.
+ *
+ * @param member The group member to be displayed.
+ */
+function appendMemberToGroup(member) {
     let membersContainer = $("#groupTableBody")
     let imageSource;
+    if (member.imagePath.length === 0) {
+        imageSource = "defaultProfile.png"
+    } else {
+        imageSource = member.imagePath
+    }
 
-    $.each(group.userList, function (member) {
-        let user = group.userList[member]
-        if (user.imagePath.length === 0) {
-            imageSource = "defaultProfile.png"
-        } else {
-            imageSource = user.imagePath
-        }
-
-        membersContainer.append(`
-                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${user.id}>
+    membersContainer.append(`
+                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${sanitise(member.id)}>
                         <td class="userRowId">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-grip-vertical dragGrip" style="display: none" viewBox="0 0 16 16">
                                     <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
                             </svg>
-                            ${user.id}</td>
+                            ${sanitise(member.id)}</td>
                         <td>
                             <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
                         </td>
-                        <td>${user.firstName}</td>
-                        <td>${user.lastName}</td>
-                        <td>${user.username}</td>
+                        <td>${sanitise(member.firstName)}</td>
+                        <td>${sanitise(member.lastName)}</td>
+                        <td>${sanitise(member.username)}</td>
                     </tr>`
-        )
+    )
+}
+
+
+/**
+ * Removes existing displayed members from the group members container, and then repopulates it.
+ */
+function displayGroupMembers() {
+    let membersContainer = $("#groupTableBody")
+    membersContainer.empty()
+    populateGroupMembers()
+    populateGroupMembersPageSelector()
+}
+
+
+/**
+ * Calls the method to redisplay the selected group's members when the number displayed per page is changed.
+ */
+$(document).on("click", "#membersPerPageSelect", () => {
+    groupMembersPage = 1
+    displayGroupMembers()
+})
+
+
+/**
+ * Calls the method to redisplay the selected group's members when the selected group members page selectors div is
+ * clicked.
+ */
+$(document).on("click", ".groupMembersAmountOptions", () => {
+    displayGroupMembers()
+})
+
+
+/**
+ * Populates the group members page selector.
+ * Appends the number elements after the "previous" selector
+ */
+function populateGroupMembersPageSelector() {
+    let pageSelectors = $(".groupMembersAmountOptions")
+    // ".groupPageLink" in both ".groupPaginationSelector" and ".groupMembersAmountOptions", here only need the ".groupMembersAmountOptions" one
+    pageSelectors.find(".groupPageLink").each((index, element) => {
+        if (!$(element).hasClass("specialFooterButton")) {
+            $(element).remove()
+        }
     })
+
+    createFooterNumberSequence()
+
+    let groupMembersPageSelector = pageSelectors.find(".groupPageSelector")
+    groupMembersPageSelector.removeClass("active")
+    groupMembersPageSelector.each((index, element) => { // adds the active class to the currently selected group members page number
+        if ($(element).text() === groupMembersPage.toString()) {
+            $(element).addClass("active")
+        }
+    })
+    toggleGroupNavigationButtons(pageSelectors)
+}
+
+
+/**
+ * Calculates the numbers for the group members page selector. Calls a function to add each number to the page
+ * selector.
+ */
+function createFooterNumberSequence() {
+    let pageSelectors = $(".groupMembersAmountOptions")
+
+    let pageSelectorNumbers = pageSelectors.find(".groupPageSelector")
+    $.each(pageSelectorNumbers, (i, el) => {
+        el.remove()
+    })
+
+    let totalPages = Math.ceil(group.userList.length / $("#membersPerPageSelect").val())
+    if (totalPages === 0) {
+        totalPages = 1
+    }
+    let minNumber = 1;
+    let maxNumber = 11;
+    if (totalPages < 11) {
+        maxNumber = totalPages;
+    } else if (groupMembersPage > 6) {
+        if (groupMembersPage + 5 < totalPages) {
+            minNumber = groupMembersPage - 5;
+            maxNumber = groupMembersPage + 5;
+        } else {
+            maxNumber = totalPages;
+            minNumber = totalPages - 10;
+        }
+    }
+    for (let i = minNumber; i <= maxNumber; i++) {
+        pageSelectors.find(".groupFooterNext").before(createFooterNumberSelector(i))
+    }
 }
 
 
@@ -360,8 +683,33 @@ function retrieveGroupRepoInformation() {
                 populateGroupRepoInformation(repoInformationContainer, group)
             }
             getRepoCommits();
+        },
+        error: function (error) {
+            if (error.status == 401) {
+                let repoInformationContainer = $("#gitRepo")
+                repoInformationContainer.empty();
+                displayUnauthorisedRepo(repoInformationContainer)
+                getRepoCommits();
+            }
         }
     })
+}
+
+
+/**
+ *  A function to display tell the user that they are unauthorised to view the repository. This should only occur if a
+ *  user had and then lost edit privileges
+ */
+function displayUnauthorisedRepo(container) {
+    container.append(`
+            <div id="groupSettingsRepoInformationSection">
+                <div id="groupSettingsRepoHeader">
+                    <h3 id="groupSettingsPageRepoName" style="color: red">
+                        Sorry! You don't have permission to see this section. Please refresh the page</h3>
+                </div>
+                <div id="repoSettingsContainer"></div>
+            </div>`
+    )
 }
 
 
@@ -401,7 +749,7 @@ function populateGroupRepoInformation(container, repo) {
     container.append(`
         <div id="groupSettingsRepoInformationSection">
             <div id="groupSettingsRepoHeader">
-                <h3 id="groupSettingsPageRepoName">${repo.alias}</h3>
+                <h3 id="groupSettingsPageRepoName">${sanitise(repo.alias)}</h3>
                 <button type="button" class="editRepo noStyleButton marginSides1" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Edit Repository Settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
@@ -415,11 +763,11 @@ function populateGroupRepoInformation(container, repo) {
             <div id="repoInfo" class="row marginSides1">
                 <div class="inlineText col">
                     <p>Project Id:&nbsp;</p>
-                    <p class="groupSettingsPageProjectId greyText">${repo.projectId}</p>
+                    <p id="groupSettingsPageProjectId" class="groupRepoInfo greyText">${sanitise(repo.projectId)}</p>
                 </div>
                 <div class="inlineText col">
                     <p>Access Token:&nbsp;</p>
-                    <p class="groupSettingsPageAccessToken greyText">${repo.accessToken}</p>
+                    <p id="groupSettingsPageAccessToken" class="groupRepoInfo greyText">${sanitise(repo.accessToken)}</p>
                 </div>
             </div>
             <div id="repoSettingsContainer"></div>
@@ -435,8 +783,8 @@ function populateGroupRepoInformation(container, repo) {
  */
 function getRepoCommits() {
     const commitContainer = $("#groupSettingsCommitSection");
-    const repoID = $(".groupSettingsPageProjectId").text()
-    const accessToken = $(".groupSettingsPageAccessToken").text();
+    const repoID = $("#groupSettingsPageProjectId").text()
+    const accessToken = $("#groupSettingsPageAccessToken").text();
 
     commitContainer.empty();
 
@@ -475,7 +823,7 @@ function populateCommitContainer(commitContainer, data) {
                     <div class="row">
                         <div class="inlineText">
                             <p>Commit:&nbsp;</p>
-                            <a class="greyText" href="${commit.web_url}">${commit.short_id}</a>
+                            <a class="greyText" href="${commit.web_url}">${sanitise(commit.short_id)}</a>
                         </div>
                     </div>
                     <div class="row">
@@ -486,7 +834,7 @@ function populateCommitContainer(commitContainer, data) {
                             <p class="greyText">${sanitise(commit.author_name)}</p>
                         </div>
                         <div class="col commitDate">
-                            <p class="greyText">${commit.committed_date.split("T")[0]}</p>
+                            <p class="greyText">${sanitise(commit.committed_date).split("T")[0]}</p>
                         </div>
                     </div>
                 </div>
@@ -501,8 +849,8 @@ function populateCommitContainer(commitContainer, data) {
  */
 function handleGitRepoError() {
     let repoInformationContainer = $("#gitRepo");
-    let repoProjectId = $(".groupSettingsPageProjectId");
-    let repoAccessToken = $(".groupSettingsPageAccessToken");
+    let repoProjectId = $("#groupSettingsPageProjectId");
+    let repoAccessToken = $("#groupSettingsPageAccessToken");
 
     repoProjectId.removeClass('greyText')
     repoProjectId.addClass("redText")
@@ -543,6 +891,54 @@ function updateGroupName(shortname, longname) {
 
 
 /**
+ * Listens for a click on a group page navigation link (one of the page numbers etc)
+ * Uses a switch statement to determine what "group page number" to send to the server.
+ */
+$(document).on("click", ".groupPageLink", function (event) {
+    event.preventDefault()
+
+    if($(this).hasClass("disabled")) {
+        return
+    }
+
+    let parentDiv = $(this).closest(".groupAmountOptions")
+    let isGroupMembers = parentDiv.hasClass("groupMembersAmountOptions")
+    let currentPage
+    if (isGroupMembers) {
+        currentPage = groupMembersPage
+    } else {
+        currentPage = groupPage
+    }
+
+    let newPage
+    switch ($(this).text()) {
+        case "First":
+            newPage = 1
+            break
+        case "Previous":
+            newPage = currentPage - 1
+            break
+        case "Next":
+            newPage = currentPage + 1
+            break
+        case "Last":
+            newPage = -1
+            break
+        default:
+            newPage = parseInt($(this).text(), 10)
+    }
+
+    if (isGroupMembers) {
+        groupMembersPage = newPage
+        displayGroupMembers()
+    } else {
+        groupPage = newPage
+        getGroups()
+    }
+})
+
+
+/**
  * When the remove button is clicked, a popup prompts confirmation of the action.
  */
 $(document).on("click", "#groupRemoveUser", function () {
@@ -556,14 +952,20 @@ $(document).on("click", "#groupRemoveUser", function () {
  * currently selected group.
  */
 $(document).on("click", ".deleteButton", function () {
-    if (window.confirm(`Are you sure you want to delete this group? ${group.userList.length} members will be removed. This action cannot be undone.`)) {
+    if (window.confirm(`Are you sure you want to delete this group? ${sanitise(group.userList.length)} members will be removed. This action cannot be undone.`)) {
         $.ajax({
             url: `groups/edit?groupId=${group.id}`,
             type: "delete",
             success: function () {
+                sendNotification("group", group.id, "deleteGroup");
                 window.location.reload()
-            }, error: function () {
-                createAlert("Couldn't delete the group", true)
+            }, error: function (error) {
+                if (error.status == 401) {
+                    createAlert("You don't have permission to delete groups. This could be because " +
+                        "your roles have been updated. Try refreshing the page", "failure")
+                } else {
+                    createAlert(error.responseText, "failure")
+                }
             }
         })
     }
@@ -621,13 +1023,18 @@ $(document).on("submit", "#editGroupForm", function (event) {
         type: type,
         data: groupData,
         success: function () {
-            createAlert("Changes submitted");
+            createAlert("Changes submitted", "success");
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
-        },
-        error: () => {
-            createAlert("Couldn't edit the group details", true)
+            sendNotification("group", selectedGroupId, "updateGroup");
+        }, error: function (error) {
+            if (error.status == 401) {
+                createAlert("You don't have permission to edit group details. This could be because " +
+                    "your roles have been updated. Try refreshing the page", "failure")
+            } else {
+                createAlert(error.responseText, "failure")
+            }
         }
     })
 })
@@ -644,7 +1051,7 @@ $(document).on("click", ".cancelGroupEdit", cancelGroupEdit);
  */
 $(document).on("click", "#confirmRemoval", function () {
     let arrayOfIds = [];
-    $(".selected").each(function () {
+    $(".ui-selected").each(function () {
         arrayOfIds.push($(this).attr("userId"))
     })
     $.ajax({
@@ -652,10 +1059,15 @@ $(document).on("click", "#confirmRemoval", function () {
         type: "DELETE",
         success: () => {
             displayGroupUsersList()
-            createAlert("User removed", false)
-        },
-        error: () => {
-            createAlert("Couldn't remove users from group", true)
+            sendNotification("group", selectedGroupId, "updateGroup");
+            createAlert("User removed", "success")
+        }, error: function (error) {
+            if (error.status == 401) {
+                createAlert("You don't have permission to remove users. This could be because " +
+                    "your roles have been updated. Try refreshing the page", "failure")
+            } else {
+                createAlert(error.responseText, "failure")
+            }
         }
     })
     $("#confirmationForm").slideUp();
@@ -697,7 +1109,7 @@ $(document).on("click", "#selectAllCheckboxGroups", function () {
     $(".selectUserCheckboxGroups").prop("checked", isChecked)
     if (isChecked) {
         $(".userRow").addClass("selected")
-        showDraggableIcon()
+        showDraggableIcons()
     } else {
         let userRow = $(".userRow")
         userRow.removeClass("selected")
@@ -733,35 +1145,4 @@ $(document).on("click", ".group", function () {
     $("#confirmationForm").slideUp();
     $("#groupEditInfo").slideUp();
     $(this).closest(".group").addClass("focusOnGroup");
-})
-
-
-// ******************************* Keydown listeners *******************************
-
-
-$(document).keydown(function (event) {
-    if (event.key === "Control") {
-        controlDown = true;
-    }
-})
-
-
-$(document).keyup(function (event) {
-    if (event.key === "Control") {
-        controlDown = false;
-    }
-})
-
-
-$(document).keydown(function (event) {
-    if (event.key === "Shift") {
-        shiftDown = true;
-    }
-})
-
-
-$(document).keyup(function (event) {
-    if (event.key === "Shift") {
-        shiftDown = false;
-    }
 })

@@ -3,11 +3,14 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserAccountServiceGrpc.UserAccountServiceImplBase;
+import nz.ac.canterbury.seng302.shared.util.BasicStringFilteringOptions;
 import nz.ac.canterbury.seng302.shared.util.FileUploadStatusResponse;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
+import nz.ac.canterbury.seng302.shared.util.PaginationResponseOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * The UserAccountsServerService implements the server side functionality of the defined by the
@@ -24,20 +28,17 @@ import java.util.*;
 @GrpcService
 public class UserAccountsServerService extends UserAccountServiceImplBase {
 
-    /** The repository where Users details are stored */
-    @Autowired
-    private UserRepository repository;
-
-    @Autowired
-    private UrlService urlService;
-
-    @Autowired
-    private Environment env;
-
-    @Autowired
-    private GroupService groupService;
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    /** The repository where Users details are stored. */
+    private final UserRepository userRepository;
+
+    /** Provides access to environment variables. */
+    private final Environment env;
+
+    /** To edit group details related to users roles. */
+    private final GroupService groupService;
+
 
     // Repeat messages
     private static final String UNEXPECTED_ERROR_MESSAGE = "An Unexpected error occurred";
@@ -87,8 +88,23 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         userOneRoles.sort(Collections.reverseOrder());
         userTwoRoles.sort(Collections.reverseOrder());
 
-        return userOnePrecedence.compareTo(userTwoPrecedence);
+        return userTwoPrecedence.compareTo(userOnePrecedence);
     };
+
+
+    /**
+     * Autowired constructor to inject the required beans.
+     *
+     * @param userRepository - The repo that stores the users
+     * @param env  - Gives access to the environment variables
+     * @param groupService - For CRUD actions to do with groups.
+     */
+    @Autowired
+    public UserAccountsServerService(UserRepository userRepository, Environment env, GroupService groupService) {
+       this.userRepository = userRepository;
+       this.env = env;
+       this.groupService = groupService;
+    }
 
 
     /**
@@ -101,7 +117,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
     @Override
     public void getUserAccountById(GetUserByIdRequest request, StreamObserver<UserResponse> responseObserver) {
         logger.info("SERVICE - Getting user details by Id: {}", request.getId());
-        User user = repository.findById(request.getId());
+        User user = userRepository.findById(request.getId());
         UserResponse reply;
         if (user == null) {
             logger.warn("Could not find user with id {}, -1 responded", request.getId());
@@ -139,9 +155,9 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     request.getEmail(),
                     TimeService.getTimeStamp());
 
-            if (repository.findByUsername(user.getUsername()) == null) {
+            if (userRepository.findByUsername(user.getUsername()) == null) {
                 logger.info("Registration Success - for new user {}", request.getUsername());
-                repository.save(user);
+                userRepository.save(user);
                 groupService.addGroupMemberByGroupShortName("Non-Group",user.getId());
                 reply.setIsSuccess(true)
                         .setNewUserId(user.getId())
@@ -184,7 +200,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         logger.info("SERVICE - Editing details for user with id {}", request.getUserId());
         EditUserResponse.Builder response = EditUserResponse.newBuilder();
         // Try to find user by ID
-        User userToEdit = repository.findById(request.getUserId());
+        User userToEdit = userRepository.findById(request.getUserId());
 
         if (userToEdit != null) {
             try {
@@ -196,7 +212,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 userToEdit.setBio(request.getBio());
                 userToEdit.setPronouns(request.getPersonalPronouns());
                 userToEdit.setEmail(request.getEmail());
-                repository.save(userToEdit);
+                userRepository.save(userToEdit);
                 response.setIsSuccess(true)
                         .setMessage("Successfully updated details for " + userToEdit.getUsername());
             } catch (StatusRuntimeException e) {
@@ -235,7 +251,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         logger.info("SERVICE - Changing password for user with id {}", request.getUserId());
         ChangePasswordResponse.Builder response = ChangePasswordResponse.newBuilder();
 
-        User userToUpdate = repository.findById(request.getUserId());
+        User userToUpdate = userRepository.findById(request.getUserId());
         if (userToUpdate != null) {
             // User is found, check correct current password provided
             try {
@@ -247,7 +263,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     // If password hash matches, update
                     logger.info("Password Change Success - password updated for user {}", request.getUserId());
                     userToUpdate.setPwhash(request.getNewPassword());
-                    repository.save(userToUpdate);
+                    userRepository.save(userToUpdate);
                     response.setIsSuccess(true)
                             .setMessage("Successfully updated details for " + userToUpdate.getUsername());
                 } else {
@@ -261,6 +277,11 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 logger.error(e.getMessage());
                 response.setIsSuccess(false)
                         .setMessage("An error has occurred while connecting to the database");
+            } catch (PasswordEncryptionException e) {
+                logger.error("An error occurred encrypting the new password");
+                logger.error(e.getMessage());
+                response.setIsSuccess(false)
+                        .setMessage("An error has occurred while encrypting the new password");
             }
         } else {
             logger.info("Password Change Failure - could not find user with id {}", request.getUserId());
@@ -275,7 +296,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
     /**
      * The gRPC implementation of bidirectional streaming used to receive uploaded user profile images.
-     * <br>
+     * 
      * The server creates a stream observer and defines its actions when the client calls the OnNext, onError and
      * onComplete methods.
      *
@@ -283,22 +304,27 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      *                           client side actions to be called from the server side. E.g., if bytes have been
      *                           received from the client successfully, the server will call
      *                           responseObserver.onNext(FileUploadStatusResponse) to inform the client to send more.
-     *
      * @return requestObserver - Contains an observer defined by the server, so that the client can call server side
      *                           actions. Therefore, this method defines the servers actions when the client calls them.
      */
     @Override
     public StreamObserver<UploadUserProfilePhotoRequest> uploadUserProfilePhoto(StreamObserver<FileUploadStatusResponse> responseObserver) {
-        return new ImageRequestStreamObserver(responseObserver, repository, env);
+        return new ImageRequestStreamObserver(responseObserver, userRepository, env);
     }
 
 
+    /**
+     * Follows the gRPC contract for deleting a users profile photo.
+     *
+     * @param request The request with the users id to delete the profile photo from
+     * @param responseObserver Used to return the response to the client side.
+     */
     @Override
     public void deleteUserProfilePhoto(DeleteUserProfilePhotoRequest request, StreamObserver<DeleteUserProfilePhotoResponse> responseObserver) {
         DeleteUserProfilePhotoResponse.Builder response = DeleteUserProfilePhotoResponse.newBuilder();
         try {
             int id = request.getUserId();
-            User user = repository.findById(id);
+            User user = userRepository.findById(id);
             boolean deleteSuccess = user.deleteProfileImage(env);
             response.setIsSuccess(deleteSuccess);
         } catch (Exception exception) {
@@ -325,12 +351,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         logger.info("Service - Adding role {} to user {}", request.getRole(), request.getUserId() );
         UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
 
-        User userToUpdate = repository.findById(request.getUserId());
+        User userToUpdate = userRepository.findById(request.getUserId());
         if (userToUpdate != null) {
             try {
                 if (!userToUpdate.getRoles().contains(request.getRole())) {
                     userToUpdate.addRole(request.getRole());
-                    repository.save(userToUpdate);
+                    userRepository.save(userToUpdate);
                     if (request.getRole() == UserRole.TEACHER) {
                         groupService.addGroupMemberByGroupShortName("Teachers", userToUpdate.getId());
                     }
@@ -376,12 +402,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         logger.info("Service - Removing role {} from user {}", request.getRole(), request.getUserId());
         UserRoleChangeResponse.Builder response = UserRoleChangeResponse.newBuilder();
 
-        User userToUpdate = repository.findById(request.getUserId());
+        User userToUpdate = userRepository.findById(request.getUserId());
         if (userToUpdate != null) {
             //We've found the user!
             try {
                 userToUpdate.deleteRole(request.getRole());
-                repository.save(userToUpdate);
+                userRepository.save(userToUpdate);
                 logger.info("Role Removal Success - removed {} from user {}", request.getRole(), request.getUserId());
                 if (request.getRole().equals(UserRole.TEACHER)){
                     groupService.removeGroupMembersByGroupShortName("Teachers", userToUpdate.getId());
@@ -389,6 +415,7 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                 response.setIsSuccess(true)
                         .setMessage(MessageFormat.format("Successfully removed role {0} from user {1}",
                                 request.getRole(), userToUpdate.getId()));
+
             } catch (IllegalStateException e) {
                 //The user has only one role - we can't delete it!
                 logger.info("Role Removal Failure - user {} has 1 role. Users cannot have 0 roles", request.getUserId());
@@ -414,13 +441,60 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
      * Follows the gRPC contract for retrieving the paginated users. Does this by sorting a list of all the users based
      * on what was requested and then looping through to add the specific page of users to the response
      *
-     * @param request the GetPaginatedUsersRequest passed through from the client service
+     * @param usersRequest the GetPaginatedUsersRequest passed through from the client service
      * @param responseObserver Used to return the response to the client side.
      */
     @Override
-    public void getPaginatedUsers(GetPaginatedUsersRequest request, StreamObserver<PaginatedUsersResponse> responseObserver) {
-        PaginatedUsersResponse.Builder reply = PaginatedUsersResponse.newBuilder();
-        List<User> allUsers = (List<User>) repository.findAll();
+    public void getPaginatedUsers(GetPaginatedUsersRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver) {
+        PaginatedUsersResponse.Builder response = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
+
+
+    /**
+     * Follows the gRPC contract for retrieving the paginated users and filtering them. Does this by calling a helper
+     * function that gets the paginated users and then filters them by their last and first name
+     *
+     * @param usersRequest the GetPaginatedUsersFilteredRequest passed through from the client service
+     * @param responseObserver Used to return the response to the client side.
+     */
+    @Override
+    public void getPaginatedUsersFilteredByName(GetPaginatedUsersFilteredRequest usersRequest, StreamObserver<PaginatedUsersResponse> responseObserver){
+        PaginatedUsersResponse.Builder response = getPaginatedUsersHelper(usersRequest.getPaginationRequestOptions());
+
+        BasicStringFilteringOptions filteringOptions = usersRequest.getFilteringOptions();
+        // Filtered by first, last and then full name so that the order for the auto-complete is more natural
+        Predicate<UserResponse> firstName = user -> (user.getFirstName().toLowerCase(Locale.ROOT))
+                .contains(filteringOptions.getFilterText().toLowerCase(Locale.ROOT));
+        Predicate<UserResponse> lastName = user -> (user.getLastName().toLowerCase(Locale.ROOT))
+                .contains(filteringOptions.getFilterText().toLowerCase(Locale.ROOT));
+        Predicate<UserResponse> fullName = user -> (user.getFirstName().toLowerCase(Locale.ROOT) + " " +
+                user.getLastName().toLowerCase(Locale.ROOT))
+                .contains((filteringOptions.getFilterText().toLowerCase(Locale.ROOT)));
+
+        ArrayList<UserResponse> filteredUsers = new ArrayList<>();
+        filteredUsers.addAll(response.getUsersList().stream().filter(firstName).toList());
+        filteredUsers.addAll(response.getUsersList().stream().filter(lastName).toList());
+        filteredUsers.addAll(response.getUsersList().stream().filter(fullName).toList());
+
+        response.clearUsers();
+        response.addAllUsers(new ArrayList<>(new LinkedHashSet<>(filteredUsers))); // to remove duplicates
+
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
+
+
+    /**
+     * A helper function to get all the users, sort them, and select the ones needed for the requested page
+     *
+     * @param request the PaginationRequestOptions passed through from the client service
+     * @return a builder for the PaginatedUsersResponse populated with the paginated users
+     */
+    private PaginatedUsersResponse.Builder getPaginatedUsersHelper(PaginationRequestOptions request){
+        PaginatedUsersResponse.Builder response = PaginatedUsersResponse.newBuilder();
+        List<User> allUsers = (List<User>) userRepository.findAll();
         String sortMethod = request.getOrderBy();
 
         switch (sortMethod) {
@@ -438,10 +512,12 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
 
         //for each user up to the limit or until all the users have been looped through, add to the response
         for (int i = request.getOffset(); ((i - request.getOffset()) < request.getLimit()) && (i < allUsers.size()); i++) {
-            reply.addUsers(allUsers.get(i).userResponse());
+            response.addUsers(allUsers.get(i).userResponse());
         }
-        reply.setResultSetSize(allUsers.size());
-        responseObserver.onNext(reply.build());
-        responseObserver.onCompleted();
+        PaginationResponseOptions options = PaginationResponseOptions.newBuilder()
+                .setResultSetSize(allUsers.size())
+                .build();
+        response.setPaginationResponseOptions(options);
+        return response;
     }
 }

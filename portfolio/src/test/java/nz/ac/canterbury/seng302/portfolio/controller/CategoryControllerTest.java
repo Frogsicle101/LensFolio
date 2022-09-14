@@ -2,12 +2,13 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.Category;
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
-import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = CategoryController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class CategoryControllerTest {
+class CategoryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -53,6 +54,8 @@ public class CategoryControllerTest {
     @MockBean
     private GroupsClientService groupsClientService;
 
+    @MockBean
+    private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
 
     @Test
     void testGetEvidenceByCategoryWhenNoEvidence() throws Exception {
@@ -63,7 +66,7 @@ public class CategoryControllerTest {
         Category category = Category.SERVICE;
         String expectedContent = "[]";
 
-        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(new ArrayList<>());
+        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(existingUserId,category)).thenReturn(new ArrayList<>());
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
                         .param("userId", String.valueOf(existingUserId))
@@ -87,8 +90,7 @@ public class CategoryControllerTest {
         evidences.add(evidence1);
         String expectedContent = "["+evidence1.toJsonString()+"]";
 
-
-        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(evidences);
+        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(existingUserId,category)).thenReturn(evidences);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
                         .param("userId", String.valueOf(existingUserId))
@@ -114,7 +116,7 @@ public class CategoryControllerTest {
         evidences.add(evidence2);
         String expectedContent = "["+evidence1.toJsonString()+"," + evidence1.toJsonString() +"]";
 
-        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContaining(existingUserId,category)).thenReturn(evidences);
+        Mockito.when(evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(existingUserId,category)).thenReturn(evidences);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToCategory")
                         .param("userId", String.valueOf(existingUserId))

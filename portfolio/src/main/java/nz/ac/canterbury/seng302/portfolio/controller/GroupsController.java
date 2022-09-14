@@ -1,11 +1,13 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.DTO.GroupDTO;
-import nz.ac.canterbury.seng302.portfolio.DTO.GroupRequest;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
+import nz.ac.canterbury.seng302.portfolio.model.dto.GroupCreationDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
-import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.PaginationService;
+import nz.ac.canterbury.seng302.portfolio.service.UserService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,75 +30,129 @@ import java.util.Objects;
 @Controller
 public class GroupsController {
 
-    /**
-     * For logging the requests related to groups
-     */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final GroupsClientService groupsClientService;
+    private final GroupService groupService;
+    private final UserService userService;
+    private final UserAccountsClientService userAccountsClientService;
+    private final PaginationService paginationService;
 
-    /**
-     * For making gRpc requests to the IdP.
-     */
-    @Autowired
-    private GroupsClientService groupsClientService;
-
-    /** For performing more complicated operations on groups */
-    @Autowired
-    private GroupService groupService;
-
+    private int pageNum = 1;
+    private int totalPages = 1;
+    private int totalNumGroups = 0;
+    private int groupsPerPageLimit = 10;
+    private int offset = 0;
     private static final Integer TEACHER_GROUP_ID = 1;
-
-    /**
-     * For requesting user information form the IdP.
-     */
-    @Autowired
-    private UserAccountsClientService userAccountsClientService;
-
-    private static final int OFFSET = 0;
     private static final String ORDER_BY = "shortName";
     private static final Boolean IS_ASCENDING = true;
-    private static final int LIMIT = 20;
+    private ArrayList<Integer> footerNumberSequence = new ArrayList<>();
+
+
+    /**
+     * Autowired constructor
+     * 
+     * @param groupsClientService The service class for GRPC stuff for Groups.
+     * @param groupService The service class for related methods for Groups.
+     * @param userService The service class for related methods for Users.
+     * @param userAccountsClientService The user account service.
+     * @param paginationService The pagination service class.
+     */
+    @Autowired
+    GroupsController(GroupsClientService groupsClientService,
+                     GroupService groupService,
+                     UserService userService,
+                     UserAccountsClientService userAccountsClientService,
+                     PaginationService paginationService){
+        this.groupsClientService = groupsClientService;
+        this.groupService = groupService;
+        this.userService = userService;
+        this.userAccountsClientService = userAccountsClientService;
+        this.paginationService = paginationService;
+    }
 
 
     /**
      * This endpoint retrieves all groups as a paginated list.
      *
-     * @return a response entity containing the list of GroupDetailsResponse object, and a response status.
+     * @param principal The authentication principal.
+     * @return The ModalAndView that contains the groups.
      */
     @GetMapping("/groups")
-    public ModelAndView groups(@AuthenticationPrincipal Authentication principal) {
-        logger.info("GET REQUEST /groups - attempt to get all groups");
-
+    public ModelAndView groups(
+            @AuthenticationPrincipal Authentication principal)
+    {
+        logger.info("GET REQUEST /groups - attempt to get all groups and return modelAndView");
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         ModelAndView modelAndView = new ModelAndView("groups");
-
-        // Checks what role the user has. Adds boolean object to the view so that displays can be changed on the frontend.
-        List<UserRole> roles = user.getRolesList();
-        if (roles.contains(UserRole.TEACHER) || roles.contains(UserRole.COURSE_ADMINISTRATOR)) {
-            modelAndView.addObject("userCanEdit", true);
-        } else {
-            modelAndView.addObject("userCanEdit", false);
-        }
-
-        //to populate groups page with groups
+        userService.checkAndAddUserRole(user, modelAndView);
         try {
-            GetPaginatedGroupsRequest request = GetPaginatedGroupsRequest.newBuilder()
-                    .setOffset(OFFSET)
-                    .setOrderBy(ORDER_BY)
-                    .setLimit(LIMIT)
-                    .setIsAscendingOrder(IS_ASCENDING)
-                    .build();
-            PaginatedGroupsResponse response = groupsClientService.getPaginatedGroups(request);
-
-            modelAndView.addObject("groups", response.getGroupsList());
+            footerNumberSequence = paginationService.createFooterNumberSequence(footerNumberSequence, totalPages, pageNum);
             modelAndView.addObject("user", user);
+            modelAndView.addObject("footerNumberSequence", footerNumberSequence);
+            modelAndView.addObject("selectedGroupsPerPage", this.groupsPerPageLimit);
 
         } catch (Exception e) {
-            logger.error("ERROR /groups - an error occurred while retrieving groups");
+            logger.error("ERROR /groups - an error occurred while retrieving groups and modelAndView");
             logger.error(e.getMessage());
             return new ModelAndView("errorPage").addObject(e.getMessage(), e);
         }
 
         return modelAndView;
+    }
+
+    @GetMapping("/getGroups")
+    public ResponseEntity<Object> getGroups(
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "groupsPerPage", required = false) String groupsPerPage)
+     {
+         logger.info("GET REQUEST /getGroups - attempt to get all groups");
+         try {
+
+             if (page != null) {
+                 pageNum = page;
+             }
+             boolean goToLastPage = (pageNum == -1); // If page is a -1 then the user wants to go to the last page
+             if (pageNum <= 1) { //to ensure no negative page numbers
+                 pageNum = 1;
+             }
+
+             // check for new values
+             if (groupsPerPage != null){
+                 switch(groupsPerPage){
+                     case "20" -> this.groupsPerPageLimit = 20;
+                     case "40" -> this.groupsPerPageLimit = 40;
+                     case "60" -> this.groupsPerPageLimit = 60;
+                     case "all" -> this.groupsPerPageLimit = 999999999;
+                     default -> this.groupsPerPageLimit = 10;
+                 }
+             }
+             offset = (pageNum - 1) * groupsPerPageLimit; // The number to start retrieving groups from
+             PaginatedGroupsResponse response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
+             totalNumGroups = response.getPaginationResponseOptions().getResultSetSize();
+             totalPages = totalNumGroups / groupsPerPageLimit;
+             if ((totalNumGroups % groupsPerPageLimit) != 0) {
+                 totalPages++; // Checks if there are leftover groups to display
+             }
+             if (pageNum > totalPages || goToLastPage) { //to ensure that the last page will be shown if the page number is too large
+                 pageNum = totalPages;
+                 offset = (pageNum - 1) * groupsPerPageLimit;
+                 response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
+             }
+             footerNumberSequence = paginationService.createFooterNumberSequence(footerNumberSequence, totalPages, pageNum);
+
+             HashMap<String, Object> returnMap = new HashMap<>();
+             returnMap.put("groups", groupService.createGroupListFromResponse(response));
+             returnMap.put("footerNumberSequence", footerNumberSequence);
+             returnMap.put("groupsPerPage", this.groupsPerPageLimit);
+             returnMap.put("page", pageNum);
+
+             return new ResponseEntity<>(returnMap, HttpStatus.OK);
+         } catch (Exception e) {
+             logger.error("ERROR /getGroups - an error occurred while retrieving groups");
+             logger.error(e.getMessage());
+             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+         }
+
     }
 
 
@@ -112,17 +170,18 @@ public class GroupsController {
                     .setGroupId(groupId)
                     .build();
             GroupDetailsResponse response = groupsClientService.getGroupDetails(request);
-            return new ResponseEntity<>(new GroupDTO(response), HttpStatus.OK);
+            return new ResponseEntity<>(new GroupResponseDTO(response), HttpStatus.OK);
         } catch (Exception exception) {
             logger.error("ERROR /group - an error occurred while retrieving group {}", groupId);
             logger.error(exception.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("An error occurred while retrieving the group", HttpStatus.BAD_REQUEST);
         }
     }
 
 
     /**
      * The get request to get the create group html
+     *
      * @param principal - The user who made the request
      * @return ModelAndView - the model and view of the group creation page
      */
@@ -166,7 +225,7 @@ public class GroupsController {
         } catch (Exception e) {
             logger.error("ERROR /groups/edit - an error occurred while deleting a group");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An error occurred while deleting the group", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -180,7 +239,7 @@ public class GroupsController {
      */
     @PostMapping("/groups/edit")
     public ResponseEntity<String> createGroup(@AuthenticationPrincipal Authentication principal,
-                                              @ModelAttribute(name="editDetailsForm") GroupRequest createInfo) {
+                                              @ModelAttribute(name="editDetailsForm") GroupCreationDTO createInfo) {
         int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
         logger.info("POST REQUEST /groups/edit - attempt to create group {} by user: {}", createInfo.getShortName(), userId);
         try {
@@ -202,7 +261,7 @@ public class GroupsController {
 
 
     /**
-     * Restricted to teachers and course administrators, This endpoint modify a group details.
+     * Restricted to teachers and course administrators, this endpoint modifies a group details.
      *
      * @param principal The user who made the request.
      * @param groupId The id of the group to be modified.
@@ -275,7 +334,7 @@ public class GroupsController {
         } catch (Exception e) {
             logger.error("ERROR /groups/edit/ - an error occurred while modifying a group's details");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An error occurred when editing the group", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -303,7 +362,7 @@ public class GroupsController {
         } catch (Exception e) {
             logger.error("ERROR /groups/addUsers - an error occurred while adding a user to a group");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An error occurred while adding a user to the group", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -340,7 +399,7 @@ public class GroupsController {
         } catch (Exception e) {
             logger.error("ERROR /groups/removeUsers - an error occurred while removing a user from a group");
             logger.error(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An error occurred while removing a user from the group", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

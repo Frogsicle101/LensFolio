@@ -1,13 +1,14 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.evidence.Skill;
-import nz.ac.canterbury.seng302.portfolio.evidence.SkillRepository;
-import nz.ac.canterbury.seng302.portfolio.service.AuthenticateClientService;
-import nz.ac.canterbury.seng302.portfolio.service.GroupsClientService;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -29,11 +30,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,6 +62,9 @@ class SkillsControllerTest {
 
     @MockBean
     private EvidenceRepository evidenceRepository;
+
+    @MockBean
+    private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
 
     private final Integer validUserId = 1;
     private final Integer nonExistentUserId = 2;
@@ -174,7 +176,7 @@ class SkillsControllerTest {
     void testGetEvidenceForSkillWhenSkillHasNoEvidence() throws Exception {
         Skill testSkill = new Skill(1, "writing_tests");
 
-        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(1, testSkill.getName())).thenReturn(Optional.of(testSkill));
 
         mockMvc.perform(get("/evidenceLinkedToSkill")
                 .param("skillName", "writing_tests")
@@ -188,8 +190,11 @@ class SkillsControllerTest {
         Skill testSkill = new Skill(1, "writing_tests");
         Evidence evidence1 = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         testSkill.getEvidence().add(evidence1);
+        List<Evidence> evidenceList = new ArrayList<>();
+        evidenceList.add(evidence1);
 
-        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq(testSkill.getName()))).thenReturn(Optional.of(testSkill));
+        Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(anyInt(), Mockito.any())).thenReturn(evidenceList);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
                         .param("skillName", "writing_tests")
@@ -212,8 +217,14 @@ class SkillsControllerTest {
         testSkill.getEvidence().add(evidence1);
         testSkill.getEvidence().add(evidence2);
         testSkill.getEvidence().add(evidence3);
+        List<Evidence> evidenceList = new ArrayList<>();
+        evidenceList.add(evidence1);
+        evidenceList.add(evidence2);
+        evidenceList.add(evidence3);
 
-        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenReturn(Optional.of(testSkill));
+
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(1, testSkill.getName())).thenReturn(Optional.of(testSkill));
+        Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(anyInt(), any())).thenReturn(evidenceList);
 
         MvcResult result = mockMvc.perform(get("/evidenceLinkedToSkill")
                         .param("skillName", "writing_tests")
@@ -242,7 +253,7 @@ class SkillsControllerTest {
     void testGetEvidenceForSkillWhenInternalErrorOccurs() throws Exception {
         Skill testSkill = new Skill(1, "writing_tests");
         RuntimeException e = new RuntimeException();
-        Mockito.when(skillRepository.findByNameIgnoreCase(testSkill.getName())).thenThrow(e);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(1, testSkill.getName())).thenThrow(e);
 
         mockMvc.perform(get("/evidenceLinkedToSkill")
                         .param("skillName", "writing_tests")

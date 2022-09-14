@@ -1,10 +1,10 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.evidence.Skill;
-import nz.ac.canterbury.seng302.portfolio.evidence.SkillRepository;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import org.slf4j.Logger;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Controller for all the Skill based end points
@@ -31,16 +30,30 @@ public class SkillController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** Holds persisted information about skills */
-    @Autowired
-    private SkillRepository skillRepository;
+    private final SkillRepository skillRepository;
 
     /** Holds persisted information about evidence */
-    @Autowired
-    private EvidenceRepository evidenceRepository;
+    private final EvidenceRepository evidenceRepository;
 
     /** For checking is a user exists and getting their details. */
+    private final UserAccountsClientService userAccountsClientService;
+
+
+    /**
+     * Autowired constructor for injecting the required beans.
+     *
+     * @param skillRepository Holds persisted information about skills
+     * @param evidenceRepository Holds persisted information about evidence
+     * @param userAccountsClientService For checking is a user exists and getting their details.
+     */
     @Autowired
-    private UserAccountsClientService userAccountsClientService;
+    public SkillController(SkillRepository skillRepository,
+                           EvidenceRepository evidenceRepository,
+                           UserAccountsClientService userAccountsClientService) {
+        this.skillRepository = skillRepository;
+        this.evidenceRepository = evidenceRepository;
+        this.userAccountsClientService = userAccountsClientService;
+    }
 
 
     /**
@@ -85,20 +98,18 @@ public class SkillController {
         logger.info("GET REQUEST /evidenceLinkedToSkill - attempt to get all evidence for skill: {}", skillName);
         try {
             if (Objects.equals(skillName, "No Skill")) {
-                List<Evidence> evidence = evidenceRepository.findAllByUserIdAndSkillsIsEmptyOrderByDateDesc(userId);
+                List<Evidence> evidence = evidenceRepository.findAllByUserIdAndSkillsIsEmptyOrderByOccurrenceDateDesc(userId);
                 logger.info("GET REQUEST /evidenceLinkedToSkill - No skill evidence retrieved");
                 return new ResponseEntity<>(evidence, HttpStatus.OK);
             }
-            Optional<Skill> skill = skillRepository.findByNameIgnoreCase(skillName);
+            Optional<Skill> skill = skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(userId, skillName);
             if (skill.isEmpty()) {
                 logger.info("GET REQUEST /evidenceLinkedToSkill - skill {} does not exist", skillName);
                 return new ResponseEntity<>("Skill does not exist", HttpStatus.NOT_FOUND);
             }
-
-            Set<Evidence> evidence = skill.get().getEvidence();
+            List<Evidence> evidence = evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(userId, skill.get());
             logger.info("GET REQUEST /evidenceLinkedToSkill - found and returned {} evidences for skill: {}", evidence.size() ,skillName);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
-
         } catch (Exception exception) {
             logger.error("GET REQUEST /evidenceLinkedToSkill - Internal Server Error attempt skill: {}", skillName);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

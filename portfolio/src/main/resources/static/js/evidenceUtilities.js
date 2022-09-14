@@ -3,11 +3,14 @@
  * that can be used across multiple pages.
  */
 
-/** A regex only allowing modern English letters */
-const regExp = new RegExp('[A-Za-z]');
+
+const RESERVED_SKILL_TAGS = ["no skill"];
 
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
+
+/** A regex contain emoji */
+const emojiRegx = new RegExp("/(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]/g");
 
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
@@ -15,22 +18,24 @@ let userBeingViewedId;
 /** The id of the piece of evidence being displayed. */
 let selectedEvidenceId;
 
+/** WebLinksCount is used to restrict the amount of weblinks on a piece of evidence*/
+let webLinksCount = 0;
+
+/** The existing skills of the user, updated as the user's evidence is retrieved */
 let skillsArray = []
 
-let categoryArray = ["Qualitative", "Quantitative", "Service"]
-
+/** Provides the options of categories and maps them to user-friendly strings */
 let categoriesMapping = new Map([
-    ["SERVICE", "Service"],
     ["QUALITATIVE", "Qualitative"],
-    ["QUANTITATIVE", "Quantitative"]
+    ["QUANTITATIVE", "Quantitative"],
+    ["SERVICE", "Service"]
 ])
 
-$(document).ready(() => {
-
-    // Counting characters
-    let textInput = $(".text-input");
-    textInput.each(countCharacters)
-    textInput.keyup(countCharacters)
+$(() => {
+        // Counting characters
+        let textInput = $(".text-input");
+        textInput.each(countCharacters)
+        textInput.on("keyup", countCharacters)
     }
 )
 
@@ -85,10 +90,15 @@ function setHighlightedEvidenceWebLinks(response) {
     for (let index in response) {
         let webLink = response[index]
         webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
+
+    }
+    if (webLinksDiv.children().length < 1) {
+        $("#evidenceWebLinksBreakLine").hide()
+    } else {
+        $("#evidenceWebLinksBreakLine").show()
     }
     initialiseTooltips()
 }
-
 
 
 /**
@@ -123,47 +133,74 @@ function webLinkElement(url, alias) {
     }
 
     let slashIndex = url.search("//") + 2
-    if (slashIndex > 1) urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    let urlSlashed
+    if (slashIndex > 1) {
+        urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    } else {
+        urlSlashed = url // The url does not have a protocol attached to it
+        url = "http://" + url
+    }
 
     return (`
-        <div class="webLinkElement ${security}" data-value="${url}" >
+        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
             ${icon}
-            <div class="addedWebLinkName" data-bs-toggle="tooltip" data-bs-placement="top" 
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip">${alias}</div>
-            <div class="addedWebLinkUrl" style="display: none">${url}</div>
+            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
         </div>
     `)
 }
 
 
-
 // --------------------------- Server Queries ------------------------------------
+
+
 /**
-* Gets the evidence data for the chosen user and adds it to the page.
-*
-* On successful retrieval, this adds the elements and calls the functions to populate the page.
-* To see these functions:
-    *     - addEvidencePreviews(response): Populates the left side evidence menus
-*     - showHighlightedEvidenceDetails(): Populates the right side, the details of the highlighted evidence.
-*
-* Note: by default the first element is the highlighted element.
-*/
+ * Gets the evidence data for the chosen user and adds it to the page.
+ *
+ * On successful retrieval, this adds the elements and calls the functions to populate the page.
+ * To see these functions:
+ *     - addEvidencePreviews(response): Populates the left side evidence menus
+ *     - showHighlightedEvidenceDetails(): Populates the right side, the details of the highlighted evidence.
+ *
+ * Note: by default the first element is the highlighted element.
+ */
 function getAndAddEvidencePreviews() {
 
     let title = $(document).find(".evidenceTitle").first()
     title.text("Evidence");
-
+    $(".selected").removeClass("selected")
 
     $.ajax({
-        url: "evidenceData?userId=" + userBeingViewedId, success: function (response) {
+        url: "evidenceData?userId=" + userBeingViewedId,
+        success: function (response, status, xhr) {
+            displayNameOrButton(xhr)
             addEvidencePreviews(response)
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
-        }, error: function (error) {
-            createAlert(error.responseText, true)
+        }, error: function () {
+            createAlert("Could not retrieve evidence data", "failure")
         }
     })
 }
+
+
+/**
+ *  Displays the create evidence button if the evidence being viewed is the logged-in user otherwise it displays the
+ *  name of the user
+ */
+function displayNameOrButton(response) {
+    let nameHolder = $("#nameHolder")
+    if (userBeingViewedId !== userIdent) {
+        $("#createEvidenceButton").remove();
+        let usersName = response.getResponseHeader("Users-Name");
+        nameHolder.html("Viewing evidence for " + usersName)
+        nameHolder.show()
+    } else{
+        nameHolder.hide()
+        $("#createEvidenceButton").show();
+    }
+}
+
 
 /**
  * This is called to show the evidence details for the selected piece of evidence.
@@ -173,7 +210,6 @@ function getAndAddEvidencePreviews() {
  * message is displayed.
  */
 function getHighlightedEvidenceDetails() {
-
     if (selectedEvidenceId !== "") {
         $.ajax({
             url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
@@ -181,13 +217,12 @@ function getHighlightedEvidenceDetails() {
                 getHighlightedEvidenceWeblinks()
             }, error: function (error) {
                 console.log(error)
-                createAlert("Failed to receive active evidence", true)
+                createAlert("Failed to receive active evidence", "failure")
             }
         })
     } else {
-        $("#evidenceDetailsTitle").text("No Evidence Found")
+        setDetailsToNoEvidenceExists()
     }
-
 }
 
 
@@ -201,7 +236,7 @@ function getHighlightedEvidenceWeblinks() {
             setHighlightedEvidenceWebLinks(response)
         }, error: function (response) {
             if (response.status !== 404) {
-                createAlert("Failed to receive evidence links", true)
+                createAlert("Failed to receive evidence links", "failure")
             }
         }
     })
@@ -214,16 +249,18 @@ function getHighlightedEvidenceWeblinks() {
  *
  * @param callback An optional callback function to be called upon successfully retrieving the skills
  */
-function getSkills(callback = () => {}) {
+function getSkills(callback = () => {
+}) {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId, type: "GET",
         success: function (response) {
+            skillsArray = []
             $.each(response, function (i) {
                 if (!skillsArray.includes(response[i].name)) {
                     skillsArray.push(response[i].name)
                 }
-                callback()
             })
+            callback()
         },
         error: function (response) {
             console.log(response)
@@ -236,15 +273,29 @@ function getSkills(callback = () => {}) {
 
 
 /**
+ *  A helper function to take a response from an ajax call and add it to the array of skills
+ */
+function addSkillResponseToArray(response) {
+    let skills = []
+    for (let i in response.skills) {
+        skills.push(response.skills[i].name)
+    }
+    skillsArray = [...new Set(skillsArray.concat(skills))];
+}
+
+
+/**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
- * @param evidenceDetails The title, date, and description for a piece of evidence.
+ * @param evidenceDetails The title, date, and description, skills, and categories for a piece of evidence.
  */
 function setHighlightEvidenceAttributes(evidenceDetails) {
+    let highlightedEvidenceId = $("#evidenceDetailsId")
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
     let highlightedEvidenceDate = $("#evidenceDetailsDate")
     let highlightedEvidenceDescription = $("#evidenceDetailsDescription")
 
+    highlightedEvidenceId.text(evidenceDetails.id)
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
@@ -256,9 +307,9 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     addCategoriesToEvidence(evidenceDetails.categories)
 
     if (userBeingViewedId === userIdent) {
-        $(".evidenceDeleteButton").show()
+        $("#deleteEvidenceButton").show()
     } else {
-        $(".evidenceDeleteButton").hide()
+        $("#deleteEvidenceButton").hide()
     }
 }
 
@@ -275,19 +326,14 @@ function addSkillsToEvidence(skills) {
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     if (skills.length < 1) {
-        highlightedEvidenceSkills.append(`
-                <div class="skillChip">
-                    <p class="skillChipText">No Skill</p>
-                </div>`)
+        highlightedEvidenceSkills.append(createSkillChip("No Skill", false))
     } else {
         $.each(skills, function (i) {
-            highlightedEvidenceSkills.append(`
-                <div class="skillChip">
-                    <p class="skillChipText">${skills[i].name}</p>
-                </div>`)
+            highlightedEvidenceSkills.append(createSkillChip(skills[i].name, false))
         })
     }
 }
+
 
 /**
  * A function to display all the categories for a piece of evidence
@@ -296,18 +342,11 @@ function addSkillsToEvidence(skills) {
  */
 function addCategoriesToEvidence(categories) {
     let highlightedEvidenceCategories = $("#evidenceDetailsCategories")
-
     highlightedEvidenceCategories.empty();
-
-    $.each(categories, function(category) {
+    $.each(categories, function (category) {
         let categoryText = categoriesMapping.get(categories[category]);
-
-        highlightedEvidenceCategories.append(`
-            <div class="categoryChip">
-                <p class="skillChipText">${categoryText}</p>
-            </div>`)
+        highlightedEvidenceCategories.append(createCategoryChip(categoryText, false))
     })
-
 }
 
 
@@ -318,46 +357,50 @@ function addCategoriesToEvidence(categories) {
  * @return the HTML component for previewing evidence of class evidenceListItem
  */
 function createEvidencePreview(evidence) {
-    let skills = getEvidenceTags(evidence.skills)
+    let skills = getSkillTags(evidence.skills)
     let categories = getCategoryTags(evidence.categories)
     return `
         <div class="box evidenceListItem ${evidence.id === selectedEvidenceId ? 'selectedEvidence' : ''}">
             <div class="row evidenceListItemHeader">
-                <p class="evidenceId" style="display: none">${evidence.id}</p>
-                <p class="col evidenceListItemTitle">${evidence.title}</p>
-                <p class="col evidenceListItemDate">${evidence.date}</p>
+                <p class="evidenceId" style="display: none">${sanitise(evidence.id)}</p>
+                <p class="col evidenceListItemTitle">${sanitise(evidence.title)}</p>
+                <p class="col evidenceListItemDate">${sanitise(evidence.date)}</p>
             </div>
-            <div class="evidencePreviewTags skillChipDisplay">${categories}</div>
+            <div class="evidencePreviewTags categoryChipDisplay">${categories}</div>
             <div class="evidencePreviewTags skillChipDisplay">${skills}</div>
         </div>`
-
 }
 
 
-function getEvidenceTags(skills) {
+/**
+ * Produces the HTML for the skill chip for each skill in the provided skills list.
+ *
+ * @param skills The skills to be added to the result.
+ * @returns {string} HTMl to render the given skill names as skill chips.
+ */
+function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
-
     let skillsHTML = ``
     $.each(skills, function (i) {
-        skillsHTML += `<div class="skillChip">
-                <p class="skillChipText">${skills[i].name}</p>
-            </div>`
+        skillsHTML += createSkillChip(skills[i].name, false)
     })
-
     return skillsHTML
 }
 
+
+/**
+ * Produces the HTML for the skill chip for each category in the categories.
+ *
+ * @param categories The categories to be added to the result.
+ * @returns {string} HTMl to render the given category names as skill chips.
+ */
 function getCategoryTags(categories) {
     categories.sort((a, b) => a.toLowerCase() > b.toLowerCase() ? 1 : -1)
-
-    let skillsHTML = ``
+    let categoriesHTML = ``
     $.each(categories, function (i) {
-        skillsHTML += `<div class="categoryChip">
-                <p class="skillChipText">${categoriesMapping.get(categories[i])}</p>
-            </div>`
+        categoriesHTML += createCategoryChip(categoriesMapping.get(categories[i]), false)
     })
-
-    return skillsHTML
+    return categoriesHTML
 }
 
 
@@ -368,46 +411,18 @@ function getCategoryTags(categories) {
  */
 function setDetailsToNoEvidenceExists() {
     let highlightedEvidenceTitle = $("#evidenceDetailsTitle")
-    let highlightedEvidenceDate = $("#evidenceDetailsDate")
-    let highlightedEvidenceDescription = $("#evidenceDetailsDescription")
 
     highlightedEvidenceTitle.text("No Evidence")
-    $(".evidenceDeleteButton").hide()
     highlightedEvidenceTitle.show()
-    highlightedEvidenceDate.hide()
-    highlightedEvidenceDescription.hide()
+    $("#evidenceDetailsDate").hide()
+    $("#evidenceDetailsDescription").hide()
+    $("#deleteEvidenceButton").hide()
+    $("#evidenceDetailsCategories").empty()
+    $("#evidenceWebLinks").empty()
+    $("#evidenceDetailsSkills").empty()
+
 }
 
-
-//---- Click Listeners ----
-
-
-/**
- * When an evidence div is clicked, it becomes selected and is displayed on the main display.
- *
- * There are 3 steps to this:
- *    1. remove the selected class from the previously selected div.
- *    2. Add the selected class to the clicked div, and assign it as selected
- *    3. Populate the display with the selected evidence details.
- */
-$(document).on("click", ".evidenceListItem", function () {
-    let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
-    previouslySelectedDiv.removeClass("selectedEvidence")
-
-    let newSelectedDiv = $(this).addClass("selectedEvidence")
-    selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
-
-    showHighlightedEvidenceDetails()
-})
-
-
-/**
- * On the click of a web link name, a new tab is opened. The tab goes to the link associated with the web link.
- */
-$(document).on('click', '.addedWebLinkName', function () {
-    let destination = $(this).parent().find(".addedWebLinkUrl")[0].innerHTML
-    window.open(destination, '_blank').focus();
-})
 
 //---- Tooltip Refresher----
 
@@ -419,14 +434,12 @@ function initialiseTooltips() {
     $('[data-bs-toggle="tooltip"]').tooltip();
 }
 
+
 /**
-
-
- /**
  * Check the number of Weblink, if it is more than 9, then the Add Web Link button not show
  */
 function checkWeblinkCount() {
-    let addWeblinkButton = $("#addWebLinkButton")
+    let addWeblinkButton = $("#addWeblinkButton")
     let weblinkFullTab = $("#webLinkFull")
     if (webLinksCount > 9) {
         addWeblinkButton.hide()
@@ -439,12 +452,11 @@ function checkWeblinkCount() {
 
 
 /**
- * reset the weblinks count
+ * Resets the weblink count
  */
 function resetWeblink() {
-    let addWeblinkButton = $("#addWebLinkButton")
+    let addWeblinkButton = $("#addWeblinkButton")
     let weblinkFullTab = $("#webLinkFull")
-
     addWeblinkButton.show()
     weblinkFullTab.hide()
     webLinksCount = 0
@@ -454,7 +466,7 @@ function resetWeblink() {
 /**
  * Retrieves the added web links and creates a list of them in DTO form.
  *
- * @returns {string} A list of web links matching the web link DTO format.
+ * @returns {*[]} A list of web links matching the web link DTO format.
  */
 function getWeblinksList() {
     let evidenceCreationForm = $("#evidenceCreationForm")
@@ -463,13 +475,11 @@ function getWeblinksList() {
 
     $.each(weblinks, function () {
         let weblinkDTO = {
-            "url": this.querySelector(".addedWebLinkUrl").innerHTML,
-            "name": this.querySelector(".addedWebLinkName").innerHTML
+            "url": this.querySelector(".addedWebLink").href,
+            "name": this.querySelector(".addedWebLink").innerText
         }
-
         weblinksList.push(weblinkDTO)
     })
-
     return weblinksList
 }
 
@@ -487,7 +497,6 @@ function getCategories() {
     $.each(selectedButtons, function (button) {
         categories.push($(selectedButtons[button]).val())
     })
-
     return categories
 }
 
@@ -495,14 +504,63 @@ function getCategories() {
 // --------------------------------- Click listeners -----------------------------------------
 
 
+/**
+ * Toggles category button appearance on the evidence creation form.
+ */
+$(".evidenceFormCategoryButton").on("click", function () {
+    let button = $(this)
+    if (button.hasClass("btn-secondary")) {
+        button.removeClass("btn-secondary")
+        button.addClass("btn-success")
+        button.find(".evidenceCategoryTickIcon").show("slide", 200)
+    } else {
+        button.removeClass("btn-success")
+        button.addClass("btn-secondary")
+        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
+    }
+})
 
+
+/**
+ * The below listener trigger the rendering of the skill chips
+ */
+$(document).on("click", ".ui-autocomplete", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
+    displayInputSkillChips()
+})
+
+
+/**
+ * Cleans up the duplicates in the input when the user clicks away from the input.
+ */
+$(document).on("click", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
+    displayInputSkillChips()
+})
+
+
+/**
+ * When an evidence div is clicked, it becomes selected and is displayed on the main display.
+ *
+ * There are 3 steps to this:
+ *    1. remove the selected class from the previously selected div.
+ *    2. Add the selected class to the clicked div, and assign it as selected
+ *    3. Populate the display with the selected evidence details.
+ */
+$(document).on("click", ".evidenceListItem", function () {
+    let previouslySelectedDiv = $(this).parent().find(".selectedEvidence").first()
+    previouslySelectedDiv.removeClass("selectedEvidence")
+    let newSelectedDiv = $(this).addClass("selectedEvidence")
+    selectedEvidenceId = newSelectedDiv.find(".evidenceId").text()
+    showHighlightedEvidenceDetails()
+})
 
 
 /**
  * Listen for a keypress in the weblink address field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkUrl', function () {
-    $(".address-alert").alert('close')
+    $("#weblinkAddressAlert").alert('close')
 })
 
 
@@ -510,8 +568,24 @@ $(document).on('keypress', '#webLinkUrl', function () {
  * Listen for a keypress in the weblink name field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkName', function () {
-    $(".weblink-name-alert").alert('close')
+    $("#weblinkNameAlert").alert('close')
 })
+
+
+/**
+ * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
+ * skill we are deleting.
+ */
+$(document).on("click", ".chipDelete", function () {
+    let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
+    let skillsInput = $("#skillsInput")
+    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
+        return value.toLowerCase() !== skillText.toLowerCase()
+    })
+    skillsInput.val(inputArray.join(" "))
+    displayInputSkillChips()
+})
+
 
 // --------------------------------- Autocomplete -----------------------------------------
 
@@ -535,7 +609,7 @@ function extractLast(term) {
 $("#skillsInput")
     // don't navigate away from the field on tab when selecting an item
     .on("keydown", function (event) {
-        if (event.keyCode === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
+        if (event.key === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
             event.preventDefault();
         }
     })
@@ -565,6 +639,7 @@ $("#skillsInput")
             this.value = terms.join(" ");
             return false;
         },
+        appendTo: ".modalContent"
     })
     .data('ui-autocomplete')._renderItem = function (ul, item) {
     //This handles the display of the drop-down menu.
@@ -576,22 +651,79 @@ $("#skillsInput")
 
 
 /**
- * Listens out for a keyup event on the skills input.
+ * Autocomplete widget provided by jQueryUi
+ * https://jqueryui.com/autocomplete/
+ */
+$("#linkUsersInput")
+    .autocomplete({
+        autoFocus: true, // This default selects the top result
+        minLength: 1,
+        delay: 700,
+        appendTo: ".modalContent",
+        source: function (request, response) {
+            $.ajax({
+                url: 'filteredUsers?name=' + request.term.toString(), type: "GET", contentType: "application/json", success: function (res) {
+                    let users = [];
+                    $.each(res, function (i) {
+                        let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i] }
+                        users.push(user)
+                    })
+                    response(users)
+                }, error: function (error) {
+                    createAlert(error.responseText, "failure", ".modalBody")
+                }
+            })
+        },
+        focus: function () {
+            // prevent value inserted on focus
+            return false;
+        },
+        select: function (event, ui) {
+            let terms = split(this.value);
+            // remove the current input
+            terms.pop();
+            // add the selected item
+            let user = ui.item.value
+            addLinkedUser(user);
+            $(this).val('')
+            return false;
+        }
+    })
+    .data('ui-autocomplete')._renderItem = function (ul, item) {
+    //This handles the display of the drop-down menu.
+    return $("<li></li>")
+        .data("ui-autocomplete-item", item)
+        .append('<a>' + item.label + '</a>')
+        .appendTo(ul);
+};
+
+
+/**
+ * Listens out for a keydown event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
  * If it is a space, tab or enter then it checks for duplicates
  */
-$(document).on("keyup", "#skillsInput", function (event) {
+$(document).on("keydown", "#skillsInput", function (event) {
     let skillsInput = $("#skillsInput")
-    if (event.keyCode === $.ui.keyCode.DELETE) {
+    if (event.key === "Delete") {
         event.preventDefault();
         let inputArray = skillsInput.val().trim().split(/\s+/)
         inputArray.pop()
-        skillsInput.val(inputArray.join(" "))
+        skillsInput.val(inputArray.join(" ") + " ")
     }
-    if (event.keyCode === $.ui.keyCode.SPACE || event.keyCode === $.ui.keyCode.TAB || event.keyCode === $.ui.keyCode.ENTER) {
+    if (event.key === " " || event.key === "Tab" || event.key === "Enter") {
         removeDuplicatesFromInput(skillsInput)
     }
-    displaySkillChips()
+    displayInputSkillChips()
+})
+
+
+/**
+ * Listens out for a keyup event on the skills input.
+ * Renders the skill chips when it detects a keyup event.
+ */
+$(document).on("keyup", "#skillsInput", function (event) {
+    displayInputSkillChips()
 })
 
 
@@ -615,7 +747,7 @@ function removeDuplicatesFromInput(input) {
     let newArray = []
 
     inputArray.forEach(function (element) {
-        if (regexSkills.test(element)){
+        if (regexSkills.test(element)) {
             while (element.slice(-1) === "_") {
                 element = element.slice(0, -1)
             }
@@ -626,12 +758,18 @@ function removeDuplicatesFromInput(input) {
                 .replace(/\s+/g, ' ')
                 .trim()
                 .replaceAll(" ", "_")
+            if (element.match(emojiRegx)) {
+                createAlert("Emojis not allowed in Skill name", "failure")
+            }
             if (element.length > 30) { //Shortens down the elements to 30 characters
                 element = element.split("").splice(0, 30).join("")
+                createAlert("Length of skill name should be less than 30", "failure")
             }
             if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
                 newArray.push(element)
             }
+        } else if (element.length > 0) {
+        createAlert("Skill names containing only special symbols are not allowed.", "failure")
         }
     })
 
@@ -643,17 +781,17 @@ function removeDuplicatesFromInput(input) {
         })
     })
 
-    input.val(newArray.join(" ") + " ")
+    input.val(newArray.join(" "))
 }
 
 
 /**
- * The below listeners trigger the rendering of the skill chips
+ * Triggers the rendering of the skill chips
  */
-$(document).on("change", "#skillsInput", () => displaySkillChips())
+$(document).on("change", "#skillsInput", () => displayInputSkillChips())
 $(document).on("click", ".ui-autocomplete", () => {
     removeDuplicatesFromInput($("#skillsInput"))
-    displaySkillChips()
+    displayInputSkillChips()
 })
 
 
@@ -662,7 +800,7 @@ $(document).on("click", ".ui-autocomplete", () => {
  */
 $(document).on("click", () => {
     removeDuplicatesFromInput($("#skillsInput"))
-    displaySkillChips()
+    displayInputSkillChips()
 })
 
 
@@ -670,22 +808,32 @@ $(document).on("click", () => {
  * This function gets the input string from the skills input and trims off the extra whitespace
  * then it separates each word into an array and creates chips for them.
  */
-function displaySkillChips() {
+function displayInputSkillChips() {
     checkToShowSkillChips()
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/)
     let chipDisplay = $("#skillChipDisplay")
+
+    $('[data-toggle="tooltip"]').tooltip("hide")
+
     chipDisplay.empty()
     inputArray.forEach(function (element) {
-        element = element.split("_").join(" ")
-        chipDisplay.append(createChip(sanitise(element)))
+        element = element.replaceAll("_", " ");
+        chipDisplay.append(createDeletableSkillChip(sanitise(element)))
     })
-    chipDisplay.find(".skillChipText").each(function () {
+    chipDisplay.find(".chipText").each(function () {
+        const parent = $(this).parent(".skillChip")
         if ($(this).text().length < 1) {
-            $(this).parent(".skillChip").remove()
+            parent.remove()
         }
         if ($(this).text().length > 30) {
-            $(this).parent(".skillChip").addClass("skillChipInvalid")
+            parent.addClass("skillChipInvalid")
+            createAlert("Length of skill name should be less than 30", "failure")
+        }
+        if (RESERVED_SKILL_TAGS.includes($(this).text().toLowerCase())) {
+            const parent = $(this).parent(".skillChip")
+            parent.addClass("skillChipInvalid")
+            addTooltip(parent, "This is a reserved tag and cannot be manually created")
         }
     })
 }
@@ -707,17 +855,18 @@ function checkToShowSkillChips() {
 
 /**
  * This function returns the html for the chips
+ *
  * @param element the name of the skill
  * @returns {string} the html for the chip
  */
-function createChip(element) {
-    return `<div class="skillChip">
-                <p class="skillChipText">${element}</p>  
+function createDeletableSkillChip(element) {
+    return `<div class="chip skillChip">
+                <p class="chipText">${sanitise(element)}</p>  
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                 </svg>
-                </div>`
+            </div>`
 }
 
 
@@ -725,14 +874,25 @@ function createChip(element) {
  * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
  * skill we are deleting.
  */
-$(document).on("click", ".chipDelete", function () {
-    let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
+$(document).on("click", ".chipDelete", function (event) {
+    event.stopPropagation()
+    let skillText = $(this).parent().find(".chipText").text().trim().split(" ").join("_")
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
         return value.toLowerCase() !== skillText.toLowerCase()
     })
     skillsInput.val(inputArray.join(" "))
-    displaySkillChips()
+    displayInputSkillChips()
+})
+
+
+/**
+ * Due to a weird bug where the page would reload if you closed an alert if the
+ * alert was open in a modal, this was added to stop the form from submitting which
+ * seemed to be the cause of the issue.
+ */
+$(document).on("submit", "#evidenceCreationForm", function(e) {
+    e.preventDefault()
 })
 
 
@@ -741,8 +901,10 @@ $(document).on("click", ".chipDelete", function () {
  */
 $(document).on("click", "#evidenceSaveButton", function (event) {
     event.preventDefault()
-    removeDuplicatesFromInput($("#skillsInput"))
+    let skillsInput = $("#skillsInput")
+    removeDuplicatesFromInput(skillsInput)
     let evidenceCreationForm = $("#evidenceCreationForm")[0]
+    toggleRequiredIfCheckURLInputsAreEmpty()
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
     } else {
@@ -753,13 +915,10 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         let webLinks = getWeblinksList();
         const categories = getCategories();
 
-        const skills = $("#skillsInput").val().split(" ").filter(skill => skill.trim() !== "")
-        skillsArray = [...new Set(skillsArray.concat(skills))];
+        const skills = skillsInput.val().split(" ").filter(skill => skill.trim() !== "")
         $.each(skills, function (i) {
             skills[i] = skills[i].replaceAll("_", " ")
         })
-        addSkillsToSideBar();
-
 
         let data = JSON.stringify({
             "title": title,
@@ -771,93 +930,114 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "categories": categories
         })
         $.ajax({
-            url: `evidence`, type: "POST", contentType: "application/json", data, success: function (response) {
+            url: 'evidence',
+            type: "POST",
+            contentType: "application/json",
+            data,
+            success: function (response) {
                 selectedEvidenceId = response.id
                 getAndAddEvidencePreviews()
-                createAlert("Created evidence")
-                $("#addEvidenceModal").modal('hide')
+                addSkillResponseToArray(response)
+                addSkillsToSideBar();
+                closeModal()
                 clearAddEvidenceModalValues()
+                $(".alert").remove()
+                createAlert("Created evidence", "success")
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                $(".address-alert").alert('close') // Close any web link alerts
-                $(".weblink-name-alert").alert('close')
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, true, ".modal-body")
+                createAlert(error.responseText, "failure", ".modalBody")
             }
         })
     }
 })
 
+
 /**
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
-$(document).on('click', '.addWebLinkButton', function () {
-    let button = $(".addWebLinkButton");
+$(document).on('click', '#addWeblinkButton', function (e) {
+    let button = $("#addWeblinkButton");
     if (button.hasClass("toggled")) {
+        e.preventDefault()
+        let webLinkUrl = $("#webLinkUrl");
+        let webLinkName = $("#webLinkName");
+        if (!webLinkUrl[0].checkValidity() || !webLinkName[0].checkValidity()) {
+            webLinkUrl[0].reportValidity()
+            webLinkName[0].reportValidity()
+            return false
+        }
         //validate the link
-        let address = $("#webLinkUrl").val()
-        let alias = $("#webLinkName").val()
-        let form = $(".webLinkForm")
-        validateWebLink(form, alias, address)
+        validateWebLinkAtBackend()
     } else {
         webLinkButtonToggle()
     }
 })
 
+
 /**
- * Handles a web link validated by the back end.
- Validates the alias and then displays an error message or saves the web link and toggles the web link form.
+ * Closes the add weblink form and resets weblink form buttons when the weblink add is cancelled.
  */
-function validateWebLink(form, alias, address) {
-    //Do some title validation
-    if (alias.length === 0) {
-        $(".weblink-name-alert").alert('close') //Close any previous alerts
-        form.append(`
-                    <div class="alert alert-danger alert-dismissible show weblink-name-alert" role="alert">
-                      Please include a name for your web link
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-    } else if (address.search("://") === -1) {
-        $(".address-alert").alert('close') //Close any previous alerts
-        form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
-                      That address is missing a "://" - did you make a typo?
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
+$(document).on('click', '#cancelWeblinkButton', () => {
+    webLinkButtonToggle()
+})
+
+
+/**
+ * Prevents the add evidence modal from being closed if an alert is present.
+ */
+$('#addEvidenceModal').on('hide.bs.modal', function (e) {
+    let alert = $("#alertPopUp")
+    if (alert.is(":visible") && alert.hasClass("backgroundRed") ){
+        alert.effect("shake")
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
     }
-    else {
-        validateWebLinkAtBackend()
-    }
+});
+
+
+/**
+ * Remove any open alerts for weblinks
+ */
+function removeWebLinkAlerts() {
+    $(".weblinkAlert").remove()
 }
 
 
 /**
  * Handles the error messages for an invalid web link.
  */
-function handleInvalidWebLink(form, error) {
-    $(".address-alert").alert('close') //Close any previous alerts
-    switch (error.status) {
-        case 400:
-            // The URL is invalid
-            form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
-                      Please enter a valid address, like https://www.w3.org/WWW/
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-            break
-        default:
-            // A regular error
-            form.append(`
-                    <div class="alert alert-danger alert-dismissible show address-alert" role="alert">
-                      Something went wrong. Try again later.
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `)
-            break
+function handleInvalidWebLink(form, message) {
+    removeWebLinkAlerts()
+    form.append(`
+        <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
+          ${sanitise(message)}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `);
+}
+
+
+/**
+ * This disabled the requirement for the web link forms to be filled out if they are empty.
+ * This was because the overall "Add Evidence" form does a validation of all its fields when something changes.
+ * Because these fields are required to both be filled then they don't allow that check to pass if they are empty.
+ * This now disables those requirements if nothing is in them so that a form can be submitted if they are both empty.
+ * It re-enables them if a user starts to type in them.
+ */
+function toggleRequiredIfCheckURLInputsAreEmpty() {
+    let webLinkUrl = $("#webLinkUrl")
+    let webLinkName = $("#webLinkName")
+    if (webLinkUrl.val() < 1 && webLinkName.val() < 1) {
+        webLinkUrl.removeAttr("required")
+        webLinkName.removeAttr("required")
+        webLinkName.removeAttr("minlength")
+    } else {
+        webLinkUrl.attr("required", "required")
+        webLinkName.attr("required", "required")
+        webLinkName.attr("minlength", "1")
     }
 }
 
@@ -870,8 +1050,20 @@ function handleInvalidWebLink(form, error) {
  * If there's an issue, or it's not valid, calls a function to display an alert
  */
 function validateWebLinkAtBackend() {
+    let form = $("#weblinkForm")
     let address = $("#webLinkUrl").val()
-    let form = $(".webLinkForm")
+    let hasDoubleSlash = address.search("//") !== -1
+    if (!hasDoubleSlash) {
+
+        if (address.search(":/") !== -1) {
+            handleInvalidWebLink(form, "Addresses in the format [protocol]:/[something else] are not valid " +
+                "(two slashes required)");
+            return;
+        }
+
+        // Address does not have protocol, so assume http
+        address = "http://" + address
+    }
     let data = JSON.stringify({
         "url": address,
         "name": $("#webLinkName").val()
@@ -886,30 +1078,56 @@ function validateWebLinkAtBackend() {
             webLinkButtonToggle()
         },
         error: (error) => {
-            handleInvalidWebLink(form, error)
+            if (error.status === 400) {
+                handleInvalidWebLink(form, error.responseText)
+            } else {
+                handleInvalidWebLink(form, "Something went wrong. Try again later.");
+            }
         }
     })
 }
+
 
 /**
  * Toggles the add weblink button,
  * and slide-toggles the form
  */
 function webLinkButtonToggle() {
-    let button = $(".addWebLinkButton");
-    $(".webLinkForm").slideToggle();
-    if (button.hasClass("toggled")) {
-        button.text("Add Web Link")
-        button.removeClass("toggled")
-        button.removeClass("btn-primary")
-        button.addClass("btn-secondary")
+    let saveButton = $("#addWeblinkButton");
+    let cancelButton = $("#cancelWeblinkButton")
+    $("#weblinkForm").slideToggle();
+    if (saveButton.hasClass("toggled")) {
+        saveButton.text("Add Web Link")
+        saveButton.removeClass("toggled")
+        saveButton.removeClass("btn-primary")
+        saveButton.addClass("btn-secondary")
+        $(".weblinkAlert").alert('close')
+        cancelButton.hide()
     } else {
-        button.text("Save Web Link")
-        button.addClass("toggled")
-        button.removeClass("btn-secondary")
-        button.addClass("btn-primary")
+        saveButton.text("Save Web Link")
+        saveButton.addClass("toggled")
+        saveButton.removeClass("btn-secondary")
+        saveButton.addClass("btn-primary")
+        cancelButton.show()
     }
 }
+
+
+/**
+ * Toggles the add Linked Users button and slide-toggles the form
+ */
+$(document).on('click', '#linkUsersToEvidenceButton', function () {
+    let linkedUsersForm = $("#linkUsersForm")
+    let linkButton = $("#linkUsersToEvidenceButton");
+    if (linkButton.hasClass("toggled")) {
+        linkButton.text("Link Users")
+        linkButton.removeClass("toggled")
+    } else {
+        linkButton.text("Cancel")
+        linkButton.addClass("toggled")
+    }
+    linkedUsersForm.slideToggle();
+})
 
 
 /**
@@ -920,19 +1138,37 @@ function submitWebLink() {
     let url = $("#webLinkUrl")
     let addedWebLinks = $("#addedWebLinks")
     let webLinkTitle = $("#webLinkTitle")
+
     if (alias.val().length > 0) {
         webLinkTitle.show()
         addedWebLinks.append(webLinkElement(url.val(), alias.val()))
-
         initialiseTooltips()
         url.val("")
         alias.val("")
         webLinksCount += 1
         checkWeblinkCount()
         $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
-    } else {
-        createAlert("Weblink name needs to be 1 char", true);
     }
+}
+
+
+/**
+ * Adds the user to be linked to the create evidence modal
+ */
+function addLinkedUser(user) {
+    let linkedUsersDiv = $("#linkedUsers")
+    $("#linkedUsersTitle").show()
+    if ($('#linkedUserId' + user.id).length === 0) {
+        linkedUsersDiv.append(linkedUserElement(user))
+    }
+}
+
+
+/**
+ * Creates the element for displaying the linked user
+ */
+function linkedUserElement(user) {
+    return `<div id=linkedUserId${user.id}>${user.firstName} ${user.lastName} (${user.username})</div>`
 }
 
 
@@ -944,11 +1180,16 @@ function clearAddEvidenceModalValues() {
     $("#evidenceDescription").val("")
     $("#webLinkUrl").val("")
     $("#webLinkName").val("")
+    $("#evidenceDate").val(todaysDate)
     $("#addedWebLinks").empty()
-    $("#webLinkTitle").empty()
+    $("#linkedUsers").empty()
+    $("#webLinkTitle").hide()
     $("#skillsInput").val("")
+    $("#linkedUsersTitle").hide()
     $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
     $(".evidenceCategoryTickIcon").hide();
+    $(".countCharName").html("50 characters remaining")
+    $(".countCharDescription").html("500 characters remaining")
 }
 
 
@@ -959,10 +1200,11 @@ function clearAddEvidenceModalValues() {
  * Checks the form is valid, enables or disables the save button depending on validity.
  */
 function disableEnableSaveButtonOnValidity() {
+    toggleRequiredIfCheckURLInputsAreEmpty()
     if ($("#evidenceCreationForm")[0].checkValidity()) {
-        $("#evidenceSaveButton").attr("disabled", false)
+        $("#evidenceSaveButton").prop("disabled", false)
     } else {
-        $("#evidenceSaveButton").attr("disabled", true)
+        $("#evidenceSaveButton").prop("disabled", true)
     }
 }
 
@@ -977,7 +1219,7 @@ function checkTextInputRegex() {
     let descriptionVal = description.val()
 
     if (!regex.test(nameVal) || !regex.test(descriptionVal)) {
-        $("#evidenceSaveButton").attr("disabled", true)
+        $("#evidenceSaveButton").prop("disabled", true)
     }
 
     if (!regex.test(nameVal) && nameVal.length > 0) {
@@ -1015,17 +1257,69 @@ $(document).on("change", ".form-control", function () {
 
 
 /**
- * Toggles category button appearance on the evidence creation form.
+ * Pops up a confirmation message on the click of evidence deletion. If the confirmation is accepted,
+ * then the delete request is sent. On a successful request the page is reloaded and an alert is made.
  */
-$(".evidenceFormCategoryButton").on("click", function () {
-    let button = $(this)
-    if (button.hasClass("btn-secondary")) {
-        button.removeClass("btn-secondary")
-        button.addClass("btn-success")
-        button.find(".evidenceCategoryTickIcon").show("slide", 200)
-    } else {
-        button.removeClass("btn-success")
-        button.addClass("btn-secondary")
-        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
+$(document).on("click", "#deleteEvidenceButton", function () {
+    const evidenceId = $("#evidenceDetailsId").text()
+    const evidenceName = $("#evidenceDetailsTitle").text()
+    if (window.confirm(`Are you sure you want to delete the evidence \n${evidenceName}`)) {
+        $.ajax({
+            url: `evidence?evidenceId=${evidenceId}`,
+            type: "DELETE",
+            success: () => {
+                selectedEvidenceId = null
+                getAndAddEvidencePreviews()
+                getSkills(addSkillsToSideBar)
+                createAlert("Successfully deleted evidence: " + sanitise(evidenceName), "success")
+            }, error: (response) => {
+                createAlert(response.responseText, "failure")
+            }
+        })
     }
 })
+
+
+/**
+ * Creates HTMl for a skill chip with the given skill name.
+ *
+ * @param skillName The name to be displayed in the skill chip.
+ * @param isMenuItem Boolean value reflecting whether the chip will be displayed in the menu bar.
+ * @returns {string} The string of HTMl representing the skill chip.
+ */
+function createSkillChip(skillName, isMenuItem) {
+    if (isMenuItem) {
+        return `
+            <div id=${sanitise("skillCalled" + skillName.replaceAll(" ", "_"))} class="chip skillChip">
+                <p class="chipText">${sanitise(skillName)}</p>
+            </div>`
+    } else {
+        return `
+            <div class="chip skillChip">
+                <p class="chipText">${sanitise(skillName)}</p>
+            </div>`
+    }
+}
+
+
+
+/**
+ * Creates HTMl for a category chip with the given category name.
+ *
+ * @param categoryName The name to be displayed in the category chip.
+ * @param isMenuItem Boolean value reflecting whether the chip will be displayed in the menu bar.
+ * @returns {string} The string of HTMl representing the category chip.
+ */
+function createCategoryChip(categoryName, isMenuItem) {
+    if (isMenuItem) {
+        return `
+            <div id=${sanitise("categoryCalled" + categoryName.replaceAll(" ", "_"))} class="chip categoryChip">
+                <p class="chipText">${sanitise(categoryName)}</p>
+            </div>`
+    } else {
+        return `
+            <div class="chip categoryChip">
+                <p class="chipText">${sanitise(categoryName)}</p>
+            </div>`
+    }
+}

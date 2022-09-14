@@ -1,6 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.evidence.*;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +48,7 @@ public class CategoryController {
                 return new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
             }
 
-            ArrayList <Evidence> evidence = evidenceRepository.findAllByUserIdAndCategoriesContaining(userId, optionalCategory.get());
+            ArrayList <Evidence> evidence = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(userId, optionalCategory.get());
             logger.info("GET REQUEST /evidenceLinkedToCategory - found and returned {} evidences for category: {}", evidence.size() ,category);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
 

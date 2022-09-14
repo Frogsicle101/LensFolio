@@ -15,12 +15,35 @@
     <div class="row">
         <div class="col groupsContainer">
             <div class="scrollableGroupOverview">
-                <div class="box group" th:each="group : ${groups}" th:id="${group.groupId}">
-                    <div class="mb3">
-                        <p class="groupId" style="display: none" th:text="${group.groupId}"></p>
-                        <h2 class="groupShortName showExtraWhitespace" th:text="${group.shortName}"></h2>
-                        <h3 class="groupLongName showExtraWhitespace" th:text="${group.longName}"></h3>
+                <div id="groupAmountOptionsTop" class="groupAmountOptions">
+                    <div id="groupAmountSelectorDivTop" class="groupAmountSelectorDiv">
+                        <label for="groupDisplayAmountSelection" class="form-label labelForGroupDisplayAmount">Number of groups to display</label>
+                        <select class="form-select" id="groupDisplayAmountSelection" aria-label="Select the amount of groups to display">
+                            <option class="optionForAmountOfGroups">10</option>
+                            <option class="optionForAmountOfGroups">20</option>
+                            <option class="optionForAmountOfGroups">40</option>
+                            <option class="optionForAmountOfGroups">60</option>
+                            <option class="optionForAmountOfGroups">All</option>
+                        </select>
                     </div>
+                    <nav aria-label="Group pagination selector">
+                        <ul class="pagination groupPaginationSelector">
+                            <li class="page-item groupFooterFirst groupPageLink specialFooterButton"><a class="page-link">First</a></li>
+                            <li class="page-item groupFooterPrevious groupPageLink specialFooterButton"><a class="page-link ">Previous</a></li>
+                            <li class="page-item groupFooterNext groupPageLink specialFooterButton"><a class="page-link">Next</a></li>
+                            <li class="page-item groupFooterLast groupPageLink specialFooterButton"><a class="page-link">Last</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div id="groupAmountOptionsBottom" class="groupAmountOptions">
+                    <nav aria-label="Group pagination selector">
+                        <ul class="pagination groupPaginationSelector">
+                            <li class="page-item groupFooterFirst groupPageLink specialFooterButton"><a class="page-link">First</a></li>
+                            <li class="page-item groupFooterPrevious groupPageLink specialFooterButton"><a class="page-link ">Previous</a></li>
+                            <li class="page-item groupFooterNext groupPageLink specialFooterButton"><a class="page-link">Next</a></li>
+                            <li class="page-item groupFooterLast groupPageLink specialFooterButton"><a class="page-link">Last</a></li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -42,6 +65,7 @@
                         </svg>
                     </button>
                 </div>
+                <p id="groupBeingDisplayId" style="display: none"></p>
                 <h2 id="groupInformationShortName" class="showExtraWhitespace"></h2>
                 <h3 id="groupInformationLongName" class="showExtraWhitespace"></h3>
                 <div id="groupEditInfo">
@@ -49,12 +73,12 @@
                         <div class="mb-1" id="editShortNameInput">
                             <label class="form-label">Short Name:</label>
                             <input type="text" id="groupShortName" class="form-control canDisable" maxlength=50 required>
-                            <small class="form-text text-muted countChar">0 characters remaining</small>
+                            <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                         </div>
                         <div class="mb-1">
                             <label class="form-label">Long Name:</label>
                             <input type="text" id="groupLongName" class="form-control canDisable" maxlength=100 required>
-                            <small class="form-text text-muted countChar">0 characters remaining</small>
+                            <small class="form-text-counted text-muted countChar">0 characters remaining</small>
                         </div>
                         <div class="mb-3 mt-3">
                             <button type="submit" class="btn btn-primary">Save</button>
@@ -82,7 +106,6 @@
                          role="tabpanel">
                         <div id="groupDisplayOptions" class="hasTeacherOrAbove" style="display: none">
                             <input id="selectAllCheckboxGroups" type="checkbox"><label for="selectAllCheckboxGroups"> Select All </label>
-                            <p class="numSelected">0 Selected</p>
                             <button class="btn btn-danger" id="groupRemoveUser">Remove User</button>
                             <div class="moveToDiv">
                                 <label for="newGroupSelector">Copy to..</label>
@@ -103,9 +126,28 @@
                             </table>
                         </div>
                         <div class="membersContainer"></div>
+                        <label for="membersPerPageSelect">Members per page</label>
+                        <select id="membersPerPageSelect" name="membersPerPage">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="40">40</option>
+                            <option value="60" >60</option>
+                            <option value="999999999999">All</option>
+                        </select>
+                        <div id="groupMembersAmountOptionsTop" class="groupAmountOptions groupMembersAmountOptions">
+                            <nav aria-label="Group Members pagination selector">
+                                <ul class="pagination groupMembersPaginationSelector">
+                                    <li class="page-item groupFooterFirst groupPageLink specialFooterButton"><a class="page-link">First</a></li>
+                                    <li class="page-item groupFooterPrevious groupPageLink specialFooterButton"><a class="page-link ">Previous</a></li>
+                                    <li class="page-item groupFooterNext groupPageLink specialFooterButton"><a class="page-link">Next</a></li>
+                                    <li class="page-item groupFooterLast groupPageLink specialFooterButton"><a class="page-link">Last</a></li>
+                                </ul>
+                            </nav>
+                        </div>
                         <table id="groupTable" class="table">
                             <thead>
                             <tr class="tableHeader">
+
                                 <th scope="col">Id</th>
                                 <th scope="col">Image</th>
                                 <th scope="col">First</th>
@@ -115,6 +157,16 @@
                             </thead>
                             <tbody id="groupTableBody"></tbody>
                         </table>
+                        <div id="groupMembersAmountOptionsBottom" class="groupAmountOptions groupMembersAmountOptions">
+                            <nav aria-label="Group Members pagination selector">
+                                <ul class="pagination groupMembersPaginationSelector">
+                                    <li class="page-item groupFooterFirst groupPageLink specialFooterButton"><a class="page-link">First</a></li>
+                                    <li class="page-item groupFooterPrevious groupPageLink specialFooterButton"><a class="page-link ">Previous</a></li>
+                                    <li class="page-item groupFooterNext groupPageLink specialFooterButton"><a class="page-link">Next</a></li>
+                                    <li class="page-item groupFooterLast groupPageLink specialFooterButton"><a class="page-link">Last</a></li>
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
                     <div id="pillsSettings" aria-labelledby="pillsSettingsTab" class="tab-pane fade" role="tabpanel">
                         <div id="groupSettingsPage">
@@ -174,4 +226,6 @@
 <script th:src="@{js/groups.js}" type="application/javascript"></script>
 <script th:src="@{js/repos.js}" type="application/javascript"></script>
 <script th:src="@{js/gitlabAPI.js}" type="application/javascript"></script>
+<script th:src="@{js/notifications.js}" type="application/javascript"></script>
+
 </html>

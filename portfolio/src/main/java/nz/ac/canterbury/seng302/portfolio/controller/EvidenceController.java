@@ -1,23 +1,31 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.DTO.EvidenceDTO;
-import nz.ac.canterbury.seng302.portfolio.DTO.ValidateWeblinkDTO;
-import nz.ac.canterbury.seng302.portfolio.DateTimeFormat;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLink;
-import nz.ac.canterbury.seng302.portfolio.evidence.WebLinkRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
+import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
+import nz.ac.canterbury.seng302.shared.identityprovider.PaginatedUsersResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.util.BasicStringFilteringOptions;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,10 +33,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.net.*;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -48,12 +58,10 @@ public class EvidenceController {
     /** The repository containing users pieces of evidence. */
     private final EvidenceRepository evidenceRepository;
 
-    /** The repository containing web links. */
-    private final WebLinkRepository webLinkRepository;
-
     /** The repository containing the projects. */
     private final ProjectRepository projectRepository;
 
+    /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
 
@@ -61,12 +69,10 @@ public class EvidenceController {
     public EvidenceController(UserAccountsClientService userAccountsClientService,
                            ProjectRepository projectRepository,
                            EvidenceRepository evidenceRepository,
-                           WebLinkRepository webLinkRepository,
                            EvidenceService evidenceService) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
-        this.webLinkRepository = webLinkRepository;
         this.evidenceService = evidenceService;
     }
 
@@ -91,13 +97,15 @@ public class EvidenceController {
         LocalDate projectStartDate = project.getStartDate();
         LocalDate currentDate = LocalDate.now();
         LocalDate evidenceMaxDate = LocalDate.now();
-        modelAndView.addObject("currentDate", currentDate.format(DateTimeFormat.yearMonthDay()));
-        modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeFormat.yearMonthDay()));
+        modelAndView.addObject("currentDate", currentDate.format(DateTimeService.yearMonthDay()));
+        modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
+        modelAndView.addObject("webLinkMaxUrlLength", WebLink.MAXURLLENGTH);
+        modelAndView.addObject("webLinkMaxNameLength", WebLink.MAXNAMELENGTH);
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;
         }
-        modelAndView.addObject("evidenceMaxDate", evidenceMaxDate.format(DateTimeFormat.yearMonthDay()));
+        modelAndView.addObject("evidenceMaxDate", evidenceMaxDate.format(DateTimeService.yearMonthDay()));
 
         return modelAndView;
     }
@@ -124,7 +132,8 @@ public class EvidenceController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-            return new ResponseEntity<>(evidence.get(), HttpStatus.OK);
+            EvidenceResponseDTO response = new EvidenceResponseDTO(evidence.get(), getUsers(evidence.get().getAssociateIds()));
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
@@ -176,16 +185,26 @@ public class EvidenceController {
     public ResponseEntity<Object> getAllEvidence(@RequestParam("userId") Integer userId) {
         logger.info("GET REQUEST /evidence - attempt to get evidence for user {}", userId);
         try {
-            List<Evidence> evidence = evidenceRepository.findAllByUserIdOrderByDateDesc(userId);
-            if (evidence.isEmpty()) {
-                GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
-                UserResponse userExistsResponse = userAccountsClientService.getUserAccountById(request);
-                if (userExistsResponse.getId() == -1) {
-                    logger.info("GET REQUEST /evidence - user {} does not exist", userId);
-                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                }
+
+            GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(userId).build();
+            UserResponse userResponse = userAccountsClientService.getUserAccountById(request);
+            if (userResponse.getId() == -1) {
+                logger.info("GET REQUEST /evidence - user {} does not exist", userId);
+                return new ResponseEntity<>("Error: User not found", HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(evidence, HttpStatus.OK);
+            List<Evidence> evidences = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(userId);
+            List<EvidenceResponseDTO> response = new ArrayList<>();
+            for (Evidence evidence : evidences) {
+                EvidenceResponseDTO dto = new EvidenceResponseDTO(evidence, getUsers(evidence.getAssociateIds()));
+                response.add(dto);
+            }
+
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set("Users-Name", userResponse.getFirstName() + ' ' + userResponse.getLastName());
+
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .body(response);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
@@ -199,7 +218,6 @@ public class EvidenceController {
      *
      * @param principal   The authentication principal for the logged-in user
      * @param evidenceDTO The EvidenceDTO object containing the required data for the evidence instance being created.
-
      * @return returns a ResponseEntity. This entity includes the new piece of evidence if successful.
      */
     @PostMapping(value = "/evidence")
@@ -223,7 +241,48 @@ public class EvidenceController {
             return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Deletes a piece of evidence owned by the user making the request.
+     *
+     * If the evidence is not owned by the user making the request, then the response is a 401,
+     * If the evidence doesn't exist, then the response is a 404,
+     * Any other issues return a 500 error,
+     * Otherwise the response is OK,
+     *
+     * @param principal The user who made the request.
+     * @param evidenceId The Id of the piece of evidence to be deleted.
+     * @return ResponseEntity containing the HTTP status and a response message.
+     */
+    @DeleteMapping("/evidence")
+    public ResponseEntity<Object> deleteEvidence(@AuthenticationPrincipal Authentication principal,
+                                                 @RequestParam Integer evidenceId) {
+        String methodLoggingTemplate = "DELETE /evidence: {}";
+        logger.info(methodLoggingTemplate, "Called");
+        try {
+            Optional<Evidence> optionalEvidence = evidenceRepository.findById(evidenceId);
+            if (optionalEvidence.isEmpty()) {
+                String message = "No evidence found with id " + evidenceId;
+                logger.info(methodLoggingTemplate, message);
+                return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+            }
+            Evidence evidence = optionalEvidence.get();
+            int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
+            if (evidence.getUserId() != userId) {
+                logger.warn(methodLoggingTemplate, "User attempted to delete evidence they don't own.");
+                return new ResponseEntity<>("You can only delete evidence that you own.", HttpStatus.UNAUTHORIZED);
+            }
+            evidenceRepository.delete(evidence);
+            String message = "Successfully deleted evidence " + evidenceId;
+            logger.info(methodLoggingTemplate, message);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (Exception exception) {
+            logger.error(methodLoggingTemplate, exception.getMessage());
+            return new ResponseEntity<>("An unexpected error has occurred", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -245,26 +304,94 @@ public class EvidenceController {
      */
     @PostMapping("/validateWebLink")
     @ResponseBody
-    public ResponseEntity<Object> validateWebLink(@RequestBody ValidateWeblinkDTO request) {
+    public ResponseEntity<Object> validateWebLink(@RequestBody WebLinkDTO request) {
         String address = request.getUrl();
         logger.info("GET REQUEST /validateWebLink - validating address {}", address);
         try {
-            if (!address.contains("://")) {
-                throw new MalformedURLException("There is no ://");
-            }
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
+            }
+            if (address.length() > WebLink.MAXURLLENGTH) {
+                throw new CheckException("URL address is longer than the maximum of " + WebLink.MAXURLLENGTH);
+            }
+            if (request.getName().length() < 1) {
+                throw new CheckException("Link name should be at least 1 character");
+            }
+            if (request.getName().length() > WebLink.MAXNAMELENGTH) {
+                throw new CheckException("Link name should be no more than " + WebLink.MAXNAMELENGTH + " characters in length");
             }
             new URL(address).toURI(); //The constructor does all the validation for us
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);
+        } catch (CheckException exception) {
+            logger.warn("/validateWebLink - Invalid address: {}", address);
+            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
+            return new ResponseEntity<>(exception.getMessage(),HttpStatus.BAD_REQUEST);
         } catch (MalformedURLException | URISyntaxException exception) {
-            logger.info("/validateWebLink - invalid address {}", address);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.warn("/validateWebLink - Invalid address: {}", address);
+            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
+            return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/",HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    /**
+     * A get request for retrieving the users that match the string being typed
+     *
+     * @param name The name that is being typed by the user
+     * @return A ResponseEntity. This entity includes the filtered users if successful, otherwise an error message
+     */
+    @GetMapping("/filteredUsers")
+    public ResponseEntity<Object> getFilteredUsers(@RequestParam("name") String name){
+        try {
+            logger.info("GET REQUEST /filteredUsers - retrieving filtered users with string {}", name);
+            PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                    .setOffset(0)
+                    .setLimit(999999999) // we want to retrieve all users
+                    .setOrderBy("name")
+                    .setIsAscendingOrder(true)
+                    .build();
+            BasicStringFilteringOptions filter = BasicStringFilteringOptions.newBuilder()
+                    .setFilterText(name)
+                    .build();
+            GetPaginatedUsersFilteredRequest request = GetPaginatedUsersFilteredRequest.newBuilder()
+                    .setPaginationRequestOptions(options)
+                    .setFilteringOptions(filter)
+                    .build();
+            PaginatedUsersResponse response = userAccountsClientService.getPaginatedUsersFilteredByName(request);
+            ArrayList<UserDTO> users = new ArrayList<>();
+            for (UserResponse user : response.getUsersList()){
+                users.add(new UserDTO(user));
+            }
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        } catch (Exception e){
+            logger.warn(e.getClass().getName());
+            logger.warn(e.getMessage());
+            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Helper method that returns a list of all users in a given list
+     * @param userIds The ids of the users
+     * @return A list of Users, populated with their details.
+     * If any users in userIds list do not exist, they will not be added.
+     */
+    private List<UserDTO> getUsers(List<Integer> userIds) {
+        List<UserDTO> associates = new ArrayList<>();
+        for (Integer associate : userIds) {
+            GetUserByIdRequest request = GetUserByIdRequest.newBuilder().setId(associate).build();
+            UserResponse user = userAccountsClientService.getUserAccountById(request);
+            if (user.getId() < 0) continue; // If their id is negative the user doesn't exist
+
+            UserDTO userDTO = new UserDTO(user);
+            associates.add(userDTO);
+        }
+        return associates;
     }
 }

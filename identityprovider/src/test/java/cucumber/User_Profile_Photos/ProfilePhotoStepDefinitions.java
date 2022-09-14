@@ -6,9 +6,10 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.grpc.stub.StreamObserver;
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.service.ImageRequestStreamObserver;
+import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptionException;
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.identityprovider.service.UrlService;
 import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetadata;
@@ -53,9 +54,7 @@ public class ProfilePhotoStepDefinitions {
 
     @Before
     public void setup() {
-        urlService = new UrlService();
 
-        ReflectionTestUtils.setField(urlService, "env", mockEnv);
 
         mockEnv = mock(Environment.class);
         when(mockEnv.getProperty("photoLocation", "src/main/resources/profile-photos/"))
@@ -66,11 +65,11 @@ public class ProfilePhotoStepDefinitions {
         when(mockEnv.getProperty("port", "9001")).thenReturn("9001");
         when(mockEnv.getProperty("rootPath", "")).thenReturn("");
 
-        ReflectionTestUtils.setField(urlService, "env", mockEnv);
+        urlService = new UrlService(mockEnv);
     }
 
     @Given("I am logged in as user id {int}")
-    public void i_am_logged_in_as_user_id(int userId) {
+    public void i_am_logged_in_as_user_id(int userId) throws PasswordEncryptionException {
         user = new User(
                 "test",
                 "password",

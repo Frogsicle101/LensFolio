@@ -1,54 +1,34 @@
-$(document).ready(() => {
+$(() => {
 
     let projectName = $("#projectName")
     let projectStart = $("#projectStartDate")
     let projectEnd = $("#projectEndDate")
     let projectId = $("#projectId")
     let projectDescription = $("#projectDescription")
-    let dateAlert = $(".dateAlert")
 
+    projectStart.on("change", () => {
+        checkDateOrder(projectStart.val(), projectEnd.val())
+        if (projectStart.val() > projectStart[0].max) {
+            const maxDateFormatted = new Date(projectStart[0].max).toLocaleDateString();
+            projectStart[0].setCustomValidity("There are sprints that start before that date. Please select a date earlier than " + maxDateFormatted);
+        }
 
-    // The following two chunks of code are related to the date inputs
-    // They check that the projectStart or projectEnd are not the wrong way (start after end etc)
-    projectStart.on("change", function () {
-        let projectStart = $(this).val()
-        let projectEnd = $("#projectEndDate").val()
-        if (projectStart >= projectEnd) {
-            dateAlert.slideUp()
-            dateAlert.slideDown()
-            $(".canDisable").attr("disabled", true)
-            $(this).attr("disabled", false)
-            $(this).addClass("is-invalid")
-        } else {
-            $(".canDisable").attr("disabled", false)
-            $(this).removeClass("is-invalid")
-            $(".dateAlert").slideUp()
-
+        if (projectStart.val() < projectStart[0].min) {
+            const minDateFormatted = new Date(projectStart[0].min).toLocaleDateString();
+            projectStart[0].setCustomValidity("Date must be less than a year ago. Please select a date later than " + minDateFormatted);
         }
     })
 
-
-    projectEnd.on("change", function () {
-        let projectStart = $("#projectStartDate").val()
-        let projectEnd = $(this).val()
-        if (projectStart >= projectEnd) {
-            dateAlert.slideUp()
-            dateAlert.slideDown()
-            $(".canDisable").attr("disabled", true)
-            $(this).attr("disabled", false)
-            $(this).addClass("is-invalid")
-        } else {
-            $(".canDisable").attr("disabled", false)
-            $(".startDateAlert").slideUp()
-            $(this).removeClass("is-invalid")
-            $(".dateAlert").slideUp()
-
+    projectEnd.on("change", () => {
+        checkDateOrder(projectStart.val(), projectEnd.val())
+        if (projectEnd.val() < projectEnd[0].min) {
+            const minDateFormatted = new Date(projectEnd[0].min).toLocaleDateString();
+            projectEnd[0].setCustomValidity("There are sprints that end after that date. Please select a date after " + minDateFormatted);
         }
     })
-
 
     //When the submit button is clicked on the form.
-    $(".projectEditForm").submit(function (event) {
+    $(".editForm").on("submit", function (event) {
         event.preventDefault()
 
         let dataToSend = {
@@ -66,7 +46,7 @@ $(document).ready(() => {
                 location.href = "portfolio?projectId=" + projectId.val()
             },
             error: function (error) {
-                createAlert(error.responseText, true)
+                createAlert(error.responseText, "failure")
             }
         })
     })

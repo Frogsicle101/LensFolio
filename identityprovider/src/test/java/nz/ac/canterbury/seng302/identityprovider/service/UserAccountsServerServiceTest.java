@@ -1,20 +1,22 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
+import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
-import net.devh.boot.grpc.client.inject.GrpcClient;
-import nz.ac.canterbury.seng302.identityprovider.User;
-import nz.ac.canterbury.seng302.identityprovider.UserRepository;
-import nz.ac.canterbury.seng302.identityprovider.groups.Group;
-import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.Group;
+import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
+import nz.ac.canterbury.seng302.shared.util.BasicStringFilteringOptions;
+import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -23,33 +25,29 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@SuppressWarnings("unchecked") // Suppresses intelliJ's warning for testing with mock StreamObservers
+@RunWith(MockitoJUnitRunner.class)
 class UserAccountsServerServiceTest {
 
-    @Autowired
-    UserRepository repository;
+    private final UserRepository userRepository = Mockito.mock(UserRepository.class);
 
-    @Autowired
-    GroupRepository groupRepository;
+    private final Environment env = Mockito.mock(Environment.class);
 
-    @Autowired
+    private final GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+
     private UrlService urlService;
 
-    @Autowired
-    UserAccountsServerService service;
+    private UserAccountsServerService userAccountsServerService;
 
-    User user;
+    private User initialUser;
 
-    List<Group> defaultGroups = new ArrayList<>();
+    private UserResponse initialUserResponse;
 
-    @GrpcClient(value = "identity-provider-grpc-server")
-    private UserAccountServiceGrpc.UserAccountServiceBlockingStub userAccountStub;
-
+    private User postOperationUser;
 
     @BeforeEach
-    void setUp() {
-        user = new User(
+    void setUp() throws PasswordEncryptionException {
+        initialUser = new User(
                 "MySuperCoolUsername",
                 "password",
                 "test",
@@ -60,53 +58,81 @@ class UserAccountsServerServiceTest {
                 "test/test",
                 "test@example.com",
                 TimeService.getTimeStamp());
+        initialUser = Mockito.spy(initialUser);
 
         Group teacherGroup = new Group(1, "Teachers", "Teaching staff group");
-        Group MwagGroup = new Group(2, "Non-Group", "Members Without A Group");
+        Group mwagGroup = new Group(2, "Non-Group", "Members Without A Group");
 
-        defaultGroups.add(teacherGroup);
-        defaultGroups.add(MwagGroup);
+        initialiseMocks();
+        urlService = new UrlService(env);
+        GroupService groupService = new GroupService(groupRepository, userRepository);
+        userAccountsServerService = new UserAccountsServerService(userRepository, env, groupService);
+
+        Mockito.when(groupRepository.findByShortName(mwagGroup.getShortName())).thenReturn(Optional.of(mwagGroup));
+        Mockito.when(groupRepository.findByShortName(teacherGroup.getShortName())).thenReturn(Optional.of(teacherGroup));
+        Mockito.when(groupRepository.findById(mwagGroup.getId())).thenReturn(Optional.of(mwagGroup));
+        Mockito.when(groupRepository.findById(teacherGroup.getId())).thenReturn(Optional.of(teacherGroup));
+
+        mockUserResponses(List.of(initialUser));
+    }
+
+
+    private void initialiseMocks() {
+        String defaultPhotoLocation = "src/main/resources/profile-photos/";
+        Mockito.when(env.getProperty("photoLocation", defaultPhotoLocation)).thenReturn(defaultPhotoLocation);
+
+        Mockito.when(env.getProperty("protocol", "http")).thenReturn("http");
+        Mockito.when(env.getProperty("hostName", "localhost")).thenReturn("localhost");
+        Mockito.when(env.getProperty("port", "9001")).thenReturn("9001");
+        Mockito.when(env.getProperty("rootPath", "")).thenReturn("");
+
+
+        Mockito.when(userRepository.findById(initialUser.getId())).thenReturn(initialUser);
+        Mockito.when(userRepository.findByUsername(initialUser.getUsername())).thenReturn(initialUser);
+        Mockito.when(userRepository.findById(-1)).thenReturn(null);
+        Mockito.when(userRepository.findAllById(List.of(initialUser.getId()))).thenReturn(List.of(initialUser));
     }
 
 
     @Test
     void removeExistingRoleFromUser() {
         //Add some roles to the user
-        user.addRole(UserRole.STUDENT);
-        user.addRole(UserRole.TEACHER);
-
-        repository.save(user);
+        initialUser.addRole(UserRole.STUDENT);
+        initialUser.addRole(UserRole.TEACHER);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(user.getId())
+                .setUserId(initialUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.removeRoleFromUser(request, responseObserver);
+        userAccountsServerService.removeRoleFromUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
-        User updatedUser = repository.findById(user.getId());
+        Mockito.verify(userRepository).save(userCaptor.capture());
+        postOperationUser = userCaptor.getValue();
 
         Assertions.assertTrue(response.getIsSuccess());
-        assertFalse(updatedUser.getRoles().contains(UserRole.TEACHER));
+        assertFalse(postOperationUser.getRoles().contains(UserRole.TEACHER));
+        assertTrue(postOperationUser.getRoles().contains(UserRole.STUDENT));
     }
 
 
     @Test
     void removeExistingRoleFromUserNoUserOfThatId() {
         //Add some roles to the user
-        user.addRole(UserRole.STUDENT);
-        user.addRole(UserRole.TEACHER);
+        initialUser.addRole(UserRole.STUDENT);
+        initialUser.addRole(UserRole.TEACHER);
 
-        repository.save(user);
+        Mockito.when(userRepository.findById(initialUser.getId())).thenReturn(initialUser);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
@@ -119,14 +145,14 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.removeRoleFromUser(request, responseObserver);
+        userAccountsServerService.removeRoleFromUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
         assertEquals("Could not find user", response.getMessage());
-        User updatedUser = repository.findById(user.getId());
+        User updatedUser = userRepository.findById(initialUser.getId());
         assertTrue(updatedUser.getRoles().contains(UserRole.TEACHER));
     }
 
@@ -134,13 +160,11 @@ class UserAccountsServerServiceTest {
     @Test
     void removeExistingRoleFromUserOnlyHasOneRole() {
         //Add some roles to the user
-        user.addRole(UserRole.STUDENT);
-
-        repository.save(user);
+        initialUser.addRole(UserRole.STUDENT);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.STUDENT)
-                .setUserId(user.getId())
+                .setUserId(initialUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -149,64 +173,65 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.removeRoleFromUser(request, responseObserver);
+        userAccountsServerService.removeRoleFromUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
+        Mockito.verify(userRepository, Mockito.never()).save(Mockito.any());
+
         assertFalse(response.getIsSuccess());
         assertEquals("The user can't have zero roles", response.getMessage());
-        User updatedUser = repository.findById(user.getId());
-        assertTrue(updatedUser.getRoles().contains(UserRole.STUDENT));
     }
 
 
     @Test
     void registerNewUser() {
-        groupRepository.deleteAll();
-        groupRepository.saveAll(defaultGroups);
-        repository.deleteAll();
         UserRegisterRequest.Builder request = UserRegisterRequest.newBuilder();
-        request.setUsername(user.getUsername())
-                .setPassword(user.getPwhash())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setEmail(user.getEmail())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setNickname(user.getNickname());
+        request.setUsername(initialUser.getUsername())
+                .setPassword(initialUser.getPwhash())
+                .setFirstName(initialUser.getFirstName())
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setEmail(initialUser.getEmail())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setNickname(initialUser.getNickname());
+
+        Mockito.when(userRepository.findByUsername(initialUser.getUsername())).thenReturn(null);
 
         StreamObserver<UserRegisterResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRegisterResponse> responseCaptor = ArgumentCaptor.forClass(UserRegisterResponse.class);
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.register(request.build(), responseObserver);
+        userAccountsServerService.register(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRegisterResponse response = responseCaptor.getValue();
 
+        Mockito.verify(userRepository).save(userCaptor.capture());
+        postOperationUser = userCaptor.getValue();
+
         assertTrue(response.getIsSuccess());
-        assertTrue(repository.existsById(response.getNewUserId()));
+        assertEquals(request.getUsername(), postOperationUser.getUsername());
     }
 
 
     @Test
     void registerNewUserUsernameInUse() {
-        repository.save(user);
-
         UserRegisterRequest.Builder request = UserRegisterRequest.newBuilder();
-        request.setUsername(user.getUsername())
-                .setPassword(user.getPwhash())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setEmail(user.getEmail())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setNickname(user.getNickname());
+        request.setUsername(initialUser.getUsername())
+                .setPassword(initialUser.getPwhash())
+                .setFirstName(initialUser.getFirstName())
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setEmail(initialUser.getEmail())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setNickname(initialUser.getNickname());
 
         StreamObserver<UserRegisterResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRegisterResponse> responseCaptor = ArgumentCaptor.forClass(UserRegisterResponse.class);
@@ -214,37 +239,34 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.register(request.build(), responseObserver);
+        userAccountsServerService.register(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRegisterResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
-        assertFalse(repository.existsById(response.getNewUserId()));
         assertEquals("Username already in use", response.getMessage());
     }
 
 
     @Test
     void getUserAccountById() {
-        repository.save(user);
-
         GetUserByIdRequest.Builder request = GetUserByIdRequest.newBuilder();
-        request.setId(user.getId());
+        request.setId(initialUser.getId());
 
         UserResponse.Builder expectedObject = UserResponse.newBuilder();
 
-        expectedObject.setUsername(user.getUsername())
-                .setId(user.getId())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setNickname(user.getNickname())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail())
-                .setCreated(user.getAccountCreatedTime())
-                .setProfileImagePath(urlService.getProfileURL(user).toString()
+        expectedObject.setUsername(initialUser.getUsername())
+                .setId(initialUser.getId())
+                .setFirstName(initialUser.getFirstName())
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setNickname(initialUser.getNickname())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setEmail(initialUser.getEmail())
+                .setCreated(initialUser.getAccountCreatedTime())
+                .setProfileImagePath(urlService.getProfileURL(initialUser).toString()
                 );
         expectedObject.addRoles(UserRole.STUDENT);
 
@@ -254,7 +276,7 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.getUserAccountById(request.build(), responseObserver);
+        userAccountsServerService.getUserAccountById(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserResponse response = responseCaptor.getValue();
@@ -266,18 +288,18 @@ class UserAccountsServerServiceTest {
     @Test
     void editUser() {
         groupRepository.deleteAll();
-        repository.deleteAll();
-        repository.save(user);
+        userRepository.deleteAll();
+        userRepository.save(initialUser);
 
         EditUserRequest.Builder request = EditUserRequest.newBuilder();
-        request.setUserId(user.getId())
+        request.setUserId(initialUser.getId())
                 .setFirstName("Johnny")
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setNickname(user.getNickname())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail());
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setNickname(initialUser.getNickname())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setEmail(initialUser.getEmail());
 
         StreamObserver<EditUserResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<EditUserResponse> responseCaptor = ArgumentCaptor.forClass(EditUserResponse.class);
@@ -285,29 +307,29 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.editUser(request.build(), responseObserver);
+        userAccountsServerService.editUser(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         EditUserResponse response = responseCaptor.getValue();
 
         assertTrue(response.getIsSuccess());
-        assertEquals("Johnny", repository.findById(user.getId()).getFirstName());
+        assertEquals("Johnny", userRepository.findById(initialUser.getId()).getFirstName());
     }
 
 
     @Test
     void editUserNoUserOfThatId() {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         EditUserRequest.Builder request = EditUserRequest.newBuilder();
         request.setUserId(-1)
                 .setFirstName("Johnny")
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setNickname(user.getNickname())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setEmail(user.getEmail());
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setNickname(initialUser.getNickname())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setEmail(initialUser.getEmail());
 
         StreamObserver<EditUserResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<EditUserResponse> responseCaptor = ArgumentCaptor.forClass(EditUserResponse.class);
@@ -315,27 +337,27 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.editUser(request.build(), responseObserver);
+        userAccountsServerService.editUser(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         EditUserResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
         assertEquals("Could not find user to edit", response.getMessage());
-        assertEquals(user.getFirstName(), repository.findById(user.getId()).getFirstName());
+        assertEquals(initialUser.getFirstName(), userRepository.findById(initialUser.getId()).getFirstName());
     }
 
 
     @Test
-    void changeUserPassword() {
-        repository.save(user);
+    void changeUserPassword() throws PasswordEncryptionException {
+        userRepository.save(initialUser);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
-        request.setUserId(user.getId())
+        request.setUserId(initialUser.getId())
                 .setCurrentPassword("password")
                 .setNewPassword("SuperSecurePassword");
 
-        String salt = user.getSalt();
+        String salt = initialUser.getSalt();
         LoginService encryptor = new LoginService();
         String expectedPassword = encryptor.getHash(request.getNewPassword(), salt);
 
@@ -345,26 +367,26 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.changeUserPassword(request.build(), responseObserver);
+        userAccountsServerService.changeUserPassword(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         ChangePasswordResponse response = responseCaptor.getValue();
 
         assertTrue(response.getIsSuccess());
-        assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
+        assertEquals(expectedPassword, userRepository.findById(initialUser.getId()).getPwhash());
     }
 
 
     @Test
     void changeUserPasswordIncorrectCurrentPassword() {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
-        request.setUserId(user.getId())
+        request.setUserId(initialUser.getId())
                 .setCurrentPassword("is this my password?")
                 .setNewPassword("SuperSecurePassword");
 
-        String expectedPassword = user.getPwhash();
+        String expectedPassword = initialUser.getPwhash();
 
         StreamObserver<ChangePasswordResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<ChangePasswordResponse> responseCaptor = ArgumentCaptor.forClass(ChangePasswordResponse.class);
@@ -372,27 +394,27 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.changeUserPassword(request.build(), responseObserver);
+        userAccountsServerService.changeUserPassword(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         ChangePasswordResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
         assertEquals("Incorrect current password provided" , response.getMessage());
-        assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
+        assertEquals(expectedPassword, userRepository.findById(initialUser.getId()).getPwhash());
     }
 
 
     @Test
     void changeUserPasswordNoUserOfThatId() {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         ChangePasswordRequest.Builder request = ChangePasswordRequest.newBuilder();
         request.setUserId(-1)
                 .setCurrentPassword("password")
                 .setNewPassword("SuperSecurePassword");
 
-        String expectedPassword = user.getPwhash();
+        String expectedPassword = initialUser.getPwhash();
 
         StreamObserver<ChangePasswordResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<ChangePasswordResponse> responseCaptor = ArgumentCaptor.forClass(ChangePasswordResponse.class);
@@ -400,24 +422,24 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.changeUserPassword(request.build(), responseObserver);
+        userAccountsServerService.changeUserPassword(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         ChangePasswordResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
         assertEquals("Could not find user" , response.getMessage());
-        assertEquals(expectedPassword, repository.findById(user.getId()).getPwhash());
+        assertEquals(expectedPassword, userRepository.findById(initialUser.getId()).getPwhash());
     }
 
 
     @Test
     void addRoleToUser() {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(user.getId())
+                .setUserId(initialUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -426,20 +448,20 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.addRoleToUser(request, responseObserver);
+        userAccountsServerService.addRoleToUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
         assertTrue(response.getIsSuccess());
-        User updatedUser = repository.findById(user.getId());
+        User updatedUser = userRepository.findById(initialUser.getId());
         assertTrue(updatedUser.getRoles().contains(UserRole.TEACHER));
     }
 
 
     @Test
     void addRoleToUserNoUserOfThatId() {
-        repository.save(user);
+        userRepository.save(initialUser);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
@@ -452,13 +474,13 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.addRoleToUser(request, responseObserver);
+        userAccountsServerService.addRoleToUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
         assertFalse(response.getIsSuccess());
-        User updatedUser = repository.findById(user.getId());
+        User updatedUser = userRepository.findById(initialUser.getId());
         assertFalse(updatedUser.getRoles().contains(UserRole.TEACHER));
         assertEquals("Could not find user", response.getMessage());
     }
@@ -466,12 +488,12 @@ class UserAccountsServerServiceTest {
 
     @Test
     void addRoleToUserAlreadyHasThatRole() {
-        user.addRole(UserRole.TEACHER);
-        repository.save(user);
+        initialUser.addRole(UserRole.TEACHER);
+        userRepository.save(initialUser);
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(user.getId())
+                .setUserId(initialUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
@@ -480,7 +502,7 @@ class UserAccountsServerServiceTest {
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.addRoleToUser(request, responseObserver);
+        userAccountsServerService.addRoleToUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
@@ -491,61 +513,38 @@ class UserAccountsServerServiceTest {
 
 
     @Test
-    @Transactional
     void addTeacherRoleIsAddedToTeacherGroup() {
-        User newUser = new User(
-                "testuser",
-                "password",
-                "steve",
-                "steve",
-                "steve",
-                "steve",
-                "steve",
-                "steve/steve",
-                "steve@example.com",
-                TimeService.getTimeStamp());
-        //clear and repopulate repositories
-        groupRepository.deleteAll();
-        repository.deleteAll();
-        User newSavedUser = repository.save(newUser);
-
-        Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
-        groupRepository.save(teachingGroup);
-        Group MwagGroup = new Group(2, "Non-Group", "Members without a group");
-        groupRepository.save(MwagGroup);
-
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(newSavedUser.getId())
+                .setUserId(initialUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
+        ArgumentCaptor<Group> groupArgumentCaptor = ArgumentCaptor.forClass(Group.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.addRoleToUser(request, responseObserver);
+        userAccountsServerService.addRoleToUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
+        Mockito.verify(groupRepository).save(groupArgumentCaptor.capture());
+        Group group = groupArgumentCaptor.getValue();
+
+        List<User> usersInTeachersGroup = group.getUserList();
+
         assertTrue(response.getIsSuccess());
-        Optional<Group> group = groupRepository.findByShortName("Teachers");
-        List<User> usersInTeachersGroup = null;
-        if (group.isPresent()) {
-            usersInTeachersGroup = group.get().getUserList();
-        } else {
-            fail("Teachers group not found");
-        }
-        assertTrue(usersInTeachersGroup.contains(newSavedUser));
+        assertEquals(1, usersInTeachersGroup.size());
+        assertTrue(usersInTeachersGroup.contains(initialUser));
     }
 
 
     @Test
     @Transactional
-    void removeTeacherRoleIsRemovedFromTeacherGroup() {
-
+    void removeTeacherRoleIsRemovedFromTeacherGroup() throws PasswordEncryptionException {
         User newUser = new User(
                 "testuser",
                 "password",
@@ -557,82 +556,582 @@ class UserAccountsServerServiceTest {
                 "steve/steve",
                 "steve@example.com",
                 TimeService.getTimeStamp());
+
         //clear and repopulate repositories
-        groupRepository.deleteAll();
-        repository.deleteAll();
         newUser.addRole(UserRole.TEACHER);
-        User newSavedUser = repository.save(newUser);
-
-        Group teachingGroup = new Group( 1,"Teachers", "Teaching Staff");
-        teachingGroup.addGroupMember(newSavedUser);
-        groupRepository.save(teachingGroup);
-
-        Group MwagGroup = new Group(2, "Non-Group", "Members without a group");
-        groupRepository.save(MwagGroup);
+        Mockito.when(userRepository.findAllById(List.of(newUser.getId()))).thenReturn(List.of(newUser));
+        Mockito.when(userRepository.findById(newUser.getId())).thenReturn(newUser);
+        // Since we want to add the teacher role without actually adding it, we'll mock the group repo
+        Group teacherGroup = new Group(1, "Teachers", "Teaching staff group");
+        teacherGroup.addGroupMember(newUser);
+        Mockito.when(groupRepository.findByShortName(teacherGroup.getShortName())).thenReturn(Optional.of(teacherGroup));
+        Mockito.when(groupRepository.findById(teacherGroup.getId())).thenReturn(Optional.of(teacherGroup));
 
         ModifyRoleOfUserRequest request = ModifyRoleOfUserRequest.newBuilder()
                 .setRole(UserRole.TEACHER)
-                .setUserId(newSavedUser.getId())
+                .setUserId(newUser.getId())
                 .build();
 
         StreamObserver<UserRoleChangeResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRoleChangeResponse> responseCaptor = ArgumentCaptor.forClass(UserRoleChangeResponse.class);
+        ArgumentCaptor<Group> groupArgumentCaptor = ArgumentCaptor.forClass(Group.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.removeRoleFromUser(request, responseObserver);
+        userAccountsServerService.removeRoleFromUser(request, responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRoleChangeResponse response = responseCaptor.getValue();
 
+        Mockito.verify(groupRepository).save(groupArgumentCaptor.capture());
+        Group group = groupArgumentCaptor.getValue();
+        List<User> usersInTeachersGroup = group.getUserList();
+
         assertTrue(response.getIsSuccess());
-        Optional<Group> group = groupRepository.findByShortName("Teachers");
-        List<User> usersInTeachersGroup = null;
-        if (group.isPresent()) {
-            usersInTeachersGroup = group.get().getUserList();
-        } else {
-            fail("Teachers group not found");
-        }
-        assertFalse(usersInTeachersGroup.contains(newSavedUser));
+        assertFalse(usersInTeachersGroup.contains(newUser));
     }
+
 
     @Test
     @Transactional
     void registerNewUserAddedToMwag() {
-        groupRepository.deleteAll();
-        groupRepository.saveAll(defaultGroups);
-        repository.deleteAll();
         UserRegisterRequest.Builder request = UserRegisterRequest.newBuilder();
-        request.setUsername(user.getUsername())
-                .setPassword(user.getPwhash())
-                .setFirstName(user.getFirstName())
-                .setMiddleName(user.getMiddleName())
-                .setLastName(user.getLastName())
-                .setEmail(user.getEmail())
-                .setBio(user.getBio())
-                .setPersonalPronouns(user.getPronouns())
-                .setNickname(user.getNickname());
+        request.setUsername(initialUser.getUsername())
+                .setPassword(initialUser.getPwhash())
+                .setFirstName(initialUser.getFirstName())
+                .setMiddleName(initialUser.getMiddleName())
+                .setLastName(initialUser.getLastName())
+                .setEmail(initialUser.getEmail())
+                .setBio(initialUser.getBio())
+                .setPersonalPronouns(initialUser.getPronouns())
+                .setNickname(initialUser.getNickname());
+
+        Mockito.when(userRepository.findByUsername(initialUser.getUsername())).thenReturn(null);
 
         StreamObserver<UserRegisterResponse> responseObserver = Mockito.mock(StreamObserver.class);
         ArgumentCaptor<UserRegisterResponse> responseCaptor = ArgumentCaptor.forClass(UserRegisterResponse.class);
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        ArgumentCaptor<Group> groupCaptor = ArgumentCaptor.forClass(Group.class);
 
         Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
         Mockito.doNothing().when(responseObserver).onCompleted();
 
-        service.register(request.build(), responseObserver);
+        userAccountsServerService.register(request.build(), responseObserver);
 
         Mockito.verify(responseObserver).onNext(responseCaptor.capture());
         UserRegisterResponse response = responseCaptor.getValue();
 
+        Mockito.verify(userRepository).save(userCaptor.capture());
+        postOperationUser = userCaptor.getValue();
+
+        Mockito.verify(groupRepository).save(groupCaptor.capture());
+        Group group = groupCaptor.getValue();
+
+        List<User> usersInMwag = group.getUserList();
+
         assertTrue(response.getIsSuccess());
-        Optional<Group> group = groupRepository.findByShortName("Non-Group");
-        List<User> usersInMwagGroup = null;
-        if (group.isPresent()) {
-            usersInMwagGroup = group.get().getUserList();
-        } else {
-            fail("Members Without A Group not found");
-        }
-        assertTrue(usersInMwagGroup.contains(user));
+        assertEquals(1, usersInMwag.size());
+        assertTrue(usersInMwag.contains(initialUser));
     }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersFirstNameIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersFirstNameDecreasing() throws PasswordEncryptionException{
+        String orderBy = "firstname";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveF", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersMiddleNameIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "middlename";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveB", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersMiddleNameDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "middlename";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveE", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersLastNameIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "lastname";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveF", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersLastNameDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "lastname";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersUserNameIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "username";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersUserNameDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "username";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveF", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersNicknameIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "aliases";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveD", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersNicknameDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "aliases";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveC", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersRolesIncreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "roles";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveD", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveA", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersRolesDecreasing() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "roles";
+        Integer offset = 0;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersOffsetThree() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 3;
+        Integer limit = 6;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(3, response.getUsersList().size());
+        Assertions.assertEquals("SteveD", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(2).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersOffsetMoreThanAmountUsers() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 7;
+        Integer limit = 6;
+        Boolean isAscending = false;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(0, response.getUsersList().size());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersLimitThree() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 0;
+        Integer limit = 3;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(3, response.getUsersList().size());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersLimitHigherThanAmountUsers() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 0;
+        Integer limit = 7;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(6, response.getUsersList().size());
+        Assertions.assertEquals("SteveA", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveB", response.getUsers(1).getUsername());
+        Assertions.assertEquals("SteveC", response.getUsers(2).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(3).getUsername());
+        Assertions.assertEquals("SteveE", response.getUsers(4).getUsername());
+        Assertions.assertEquals("SteveF", response.getUsers(5).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    void getPaginatedUsersOffsetTwoLimitTwo() throws PasswordEncryptionException{
+        groupRepository.deleteAll();
+        userRepository.deleteAll();
+        String orderBy = "firstname";
+        Integer offset = 2;
+        Integer limit = 2;
+        Boolean isAscending = true;
+
+        PaginatedUsersResponse response = runGetPaginatedUsersTest(orderBy, offset, limit, isAscending);
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(2, response.getUsersList().size());
+        Assertions.assertEquals("SteveC", response.getUsers(0).getUsername());
+        Assertions.assertEquals("SteveD", response.getUsers(1).getUsername());
+    }
+
+
+    @Test
+    void getPaginatedFilteredUsers() throws PasswordEncryptionException {
+        User user1 = new User("John", "password", "John", "", "Wayne", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user2 = new User("Johnny", "password", "John", "", "Smith", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user3 = new User("Amy", "password", "Amy", "", "Johnson", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user4 = new User("Steve", "password", "Steve", "", "Stevenson", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user5 = new User("Tom", "password", "Tom", "", "Biggs", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user6 = new User("Connor", "password", "Connor", "", "Donaldson", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        List<User> userList = new ArrayList<>();
+        userList.add(user1);
+        userList.add(user2);
+        userList.add(user3);
+        userList.add(user4);
+        userList.add(user5);
+        userList.add(user6);
+        List<User> listOfUsers = userToSpy(userList);
+        Mockito.when(userRepository.findAll()).thenReturn(listOfUsers);
+        mockUserResponses(listOfUsers);
+
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                .setOffset(0)
+                .setLimit(999999)
+                .setOrderBy("name")
+                .setIsAscendingOrder(true)
+                .build();
+        BasicStringFilteringOptions filter = BasicStringFilteringOptions.newBuilder()
+                .setFilterText("John")
+                .build();
+        GetPaginatedUsersFilteredRequest request = GetPaginatedUsersFilteredRequest.newBuilder()
+                .setPaginationRequestOptions(options)
+                .setFilteringOptions(filter)
+                .build();
+
+        StreamObserver<PaginatedUsersResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<PaginatedUsersResponse> responseCaptor = ArgumentCaptor.forClass(PaginatedUsersResponse.class);
+
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+
+        userAccountsServerService.getPaginatedUsersFilteredByName(request, responseObserver);
+
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+
+        PaginatedUsersResponse response = responseCaptor.getValue();
+        Assertions.assertEquals(6, response.getPaginationResponseOptions().getResultSetSize());
+        Assertions.assertEquals(3, response.getUsersList().size());
+        Assertions.assertEquals("Johnny", response.getUsers(0).getUsername());
+        Assertions.assertEquals("John", response.getUsers(1).getUsername());
+        Assertions.assertEquals("Amy", response.getUsers(2).getUsername());
+    }
+
+    // ----------------------------------------- Test runner helpers -------------------------------------------------
+
+
+    /**
+     * A helper function for running tests for getting paginated users
+     *
+     * @param orderBy The string of what parameter to order by
+     * @param offset The amount of users to offset the start of the list by
+     * @param limit The maximum amount of users to get for the page
+     * @param isAscending Whether the list should be in ascending or descending order
+     * @return The response received from the tested UserAccountsServerService.getPaginatedUsers method
+     */
+    private PaginatedUsersResponse runGetPaginatedUsersTest(String orderBy, Integer offset, Integer limit, Boolean isAscending) throws PasswordEncryptionException{
+        PaginationRequestOptions options = PaginationRequestOptions.newBuilder()
+                .setOffset(offset)
+                .setLimit(limit)
+                .setOrderBy(orderBy)
+                .setIsAscendingOrder(isAscending)
+                .build();
+        GetPaginatedUsersRequest request = GetPaginatedUsersRequest.newBuilder()
+                .setPaginationRequestOptions(options)
+                .build();
+        createUsers();
+
+        StreamObserver<PaginatedUsersResponse> responseObserver = Mockito.mock(StreamObserver.class);
+        ArgumentCaptor<PaginatedUsersResponse> responseCaptor = ArgumentCaptor.forClass(PaginatedUsersResponse.class);
+
+        Mockito.doNothing().when(responseObserver).onNext(Mockito.any());
+        Mockito.doNothing().when(responseObserver).onCompleted();
+
+        userAccountsServerService.getPaginatedUsers(request, responseObserver);
+
+        Mockito.verify(responseObserver).onNext(responseCaptor.capture());
+        return responseCaptor.getValue();
+    }
+
+
+    /**
+     * A helper function to create the users used for testing. The fields are a mix of upper and lower case letters and
+     * are in different orders to ensure that the sorting is working as expected
+     */
+    private void createUsers() throws PasswordEncryptionException {
+        List<User> userList = new ArrayList<>();
+        User user1 = new User("SteveA", "password", "Stevea", "Stevensonb", "McSteveF", "KingSteved", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user2 = new User("SteveB", "password", "SteveB", "StevensonA", "McSteveE", "KingStevee", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user3 = new User("SteveC", "password", "Stevec", "Stevensond", "McSteveD", "KingStevef", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user4 = new User("SteveD", "password", "SteveD", "StevensonC", "McStevec", "KingSteveA", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user5 = new User("SteveE", "password", "Stevee", "Stevensonf", "McSteveb", "KingSteveB", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user6 = new User("SteveF", "password", "SteveF", "StevensonE", "McStevea", "KingSteveC", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        user1.addRole(UserRole.STUDENT);
+        user2.addRole(UserRole.TEACHER);
+        user3.addRole(UserRole.COURSE_ADMINISTRATOR);
+        user4.addRole(UserRole.TEACHER);
+        user4.addRole(UserRole.COURSE_ADMINISTRATOR);
+        user5.addRole(UserRole.TEACHER);
+        user5.addRole(UserRole.STUDENT);
+        user6.addRole(UserRole.COURSE_ADMINISTRATOR);
+        user6.addRole(UserRole.STUDENT);
+        user2.deleteRole(UserRole.STUDENT);
+        user3.deleteRole(UserRole.STUDENT);
+        user4.deleteRole(UserRole.STUDENT);
+        userList.add(user1);
+        userList.add(user2);
+        userList.add(user3);
+        userList.add(user4);
+        userList.add(user5);
+        userList.add(user6);
+        List<User> listOfUsers = userToSpy(userList);
+        Mockito.when(userRepository.findAll()).thenReturn(listOfUsers);
+        mockUserResponses(listOfUsers);
+    }
+
+
+    private List<User> userToSpy(List<User> users) {
+        List<User> spies = new ArrayList<>();
+        for (User user : users) {
+            User spyOfUser = Mockito.spy(user);
+            spies.add(spyOfUser);
+        }
+        return spies;
+    }
+
+    private void mockUserResponses(List<User> users) {
+        for (User user : users) {
+            UserResponse userResponse = UserResponse.newBuilder()
+                    .setUsername(user.getUsername())
+                    .setFirstName(user.getFirstName())
+                    .setMiddleName(user.getMiddleName())
+                    .setLastName(user.getLastName())
+                    .setNickname(user.getNickname())
+                    .setBio(user.getBio())
+                    .setPersonalPronouns(user.getPronouns())
+                    .setEmail(user.getEmail())
+                    .setCreated(user.getAccountCreatedTime())
+                    .setId(user.getId())
+                    .setProfileImagePath(urlService.getProfileURL(user).toString())
+                    .addAllRoles(user.getRoles())
+                    .build();
+
+            Mockito.doReturn(userResponse).when(user).userResponse();
+        }
+    }
+
 }

@@ -10,51 +10,71 @@
 <!--The below section <header> pulls the fragment from fragments/general-->
 <header th:insert="fragments/general.html :: header"></header>
 <section class="editProjectContainer">
-    <form class="projectEditForm" method="post">
-        <h1>Project</h1>
+    <!-- The was-validated class allows us to use bootstrap validation   -->
+    <form class="editForm was-validated" method="post">
+        <h1>Edit Project</h1>
         <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert"
              style="display: none">
             <p class="errorMessage"></p>
         </div>
         <input id="projectId" name="projectId" style="display: none" th:value="${project.getId()}" type="text">
         <div class="mb-3">
-            <label class="form-label" for="projectName">Project Name</label>
+            <label class="form-label" for="projectName">Name</label>
             <input class="form-control canDisable" id="projectName" maxlength="50" name="projectName" required
                    th:value="${project.getName()}" type="text">
         </div>
         <div class="row">
             <div class="col">
-                <label class="form-label" for="projectStartDate">Project Start</label>
-                <input class="form-control canDisable" id="projectStartDate" name="projectStartDate"
-                       required th:min="${project.getMinStartDateAsLocalDateTime()}" th:value="${project.getStartDate()}" type="date">
+                <label class="form-label" for="projectStartDate">Start Date</label>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="16"
+                     height="16"
+                     fill="currentColor"
+                     class="bi bi-question-circle"
+                     viewBox="0 0 16 16"
+                     data-bs-toggle="tooltip" data-bs-placement="top"
+                     data-bs-custom-class="custom-tooltip"
+                     data-bs-title="Must not be more than a year earlier than present, or later than the start of any sprint">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                </svg>
+                <input class="form-control date" id="projectStartDate" name="projectStartDate"
+                       required th:min="${minStartDate}" th:max="${maxStartDate}" th:value="${project.getStartDate()}"
+                       type="date">
             </div>
 
             <div class="col">
-                <label class="form-label" for="projectEndDate">Project End</label>
-                <input class="form-control canDisable" id="projectEndDate" name="projectEndDate"
-                       required th:min="${project.getStartDate()}" th:value="${project.getEndDate()}"
+                <label class="form-label" for="projectEndDate">End Date</label>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="16"
+                     height="16"
+                     fill="currentColor"
+                     class="bi bi-question-circle"
+                     viewBox="0 0 16 16"
+                     data-bs-toggle="tooltip" data-bs-placement="top"
+                     data-bs-custom-class="custom-tooltip"
+                     data-bs-title="Must be after start date and all sprints">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                </svg>
+                <input class="form-control date" id="projectEndDate" name="projectEndDate"
+                       required th:min="${minEndDate}" th:value="${project.getEndDate()}"
                        type="date">
             </div>
         </div>
-        <div class="row">
-            <div class="col">
-                <div class="dateAlert alert alert-danger alert-dismissible fade show" role="alert"
-                     style="display: none">
-                    <strong>Oh no!</strong> You should probably make the start date be before the end date
-                </div>
-            </div>
-        </div>
         <div class="mb-3">
-            <label class="form-label" for="projectDescription">Project Description</label>
+            <label class="form-label" for="projectDescription">Description</label>
             <textarea class="form-control canDisable" id="projectDescription" maxlength="200" name="projectDescription"
                       th:text="${project.getDescription()}"></textarea>
         </div>
-        <button class="btn btn-primary canDisable" type="submit">Submit</button>
+        <button class="btn btn-primary canDisable submitButton" type="submit">Submit</button>
         <button class="btn btn-danger" onclick="history.back()" type="button">Cancel</button>
 
     </form>
 </section>
 </body>
 
+<script th:src="@{js/dateValidator.js}" type="application/javascript"></script>
 <script th:src="@{js/projectEdit.js}" type="application/javascript"></script>
+<script th:src="@{js/notifications.js}" type="application/javascript"></script>
 </html>

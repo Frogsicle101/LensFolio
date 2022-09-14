@@ -6,12 +6,13 @@ import io.cucumber.java.en.When;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.controller.DeadlineController;
 import nz.ac.canterbury.seng302.portfolio.controller.PrincipalAttributes;
-import nz.ac.canterbury.seng302.portfolio.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.projects.ProjectRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.deadlines.Deadline;
-import nz.ac.canterbury.seng302.portfolio.projects.deadlines.DeadlineRepository;
-import nz.ac.canterbury.seng302.portfolio.projects.milestones.Milestone;
-import nz.ac.canterbury.seng302.portfolio.service.UserAccountsClientService;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.DeadlineRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
+import nz.ac.canterbury.seng302.portfolio.service.RegexService;
+import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.AuthState;
 import nz.ac.canterbury.seng302.shared.identityprovider.ClaimDTO;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -125,12 +126,11 @@ public class OccasionFeature {
 
     private final ArrayList<Deadline> deadlines = new ArrayList<>();
     private Project project;
-    private final DeadlineController deadlineController = new DeadlineController(mockProjectRepository, deadlineRepository);
+    private final DeadlineController deadlineController = new DeadlineController(mockProjectRepository, deadlineRepository, new RegexService());
     private Milestone milestone;
 
     @Given("the user is authenticated: {string}")
     public void the_user_is_authenticated(String isAuthenticatedString) {
-        deadlineController.setUserAccountsClientService(clientService);
         boolean isAuthenticated = Boolean.parseBoolean(isAuthenticatedString);
         UserResponse.Builder user = UserResponse.newBuilder();
         user.setUsername("steve")
@@ -166,7 +166,7 @@ public class OccasionFeature {
         if (deadlineName.equals("left blank")) {
             deadlineName = null;
         }
-        ResponseEntity<Object> stat = deadlineController.addDeadline(new Authentication(principal), project.getId(), deadlineName, dateTime, 1);
+        ResponseEntity<Object> stat = deadlineController.addDeadline(project.getId(), deadlineName, dateTime, 1);
     }
 
     @When("a user creates a milestone for {string} with name {string} and type {int}")
@@ -179,7 +179,7 @@ public class OccasionFeature {
         try {
             LocalDate parsedDate = LocalDate.parse(milestoneDate);
             milestone = new Milestone(project, milestoneName, parsedDate, type);
-        } catch (DateTimeException | NullPointerException | InvalidNameException e) {
+        } catch (DateTimeException | NullPointerException e) {
             milestone = null;
         }
     }
@@ -195,5 +195,4 @@ public class OccasionFeature {
         boolean deadlineExists = Boolean.parseBoolean(milestoneExistsString);
         assertEquals(deadlineExists, milestone != null);
     }
-
 }

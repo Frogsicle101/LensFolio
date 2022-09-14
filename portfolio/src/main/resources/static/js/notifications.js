@@ -5,7 +5,7 @@ let stompClient = null
 /**
  * Creates a websocket connection anytime the document is ready.
  */
-$(document).ready(() => {
+$(() => {
     connect(); // Start the websocket connection
 })
 
@@ -39,7 +39,7 @@ function connect() {
         }
     });
 
-    stompClient.onConnect = (frame) => {
+    stompClient.onConnect = () => {
         stompClient.subscribe('notifications/sending/occasions', handleNotification);
     }
 
@@ -64,30 +64,42 @@ function handleNotification(notification) {
         const action = message.action;
         try {
             switch (action) {
-                case 'create' :
+                case 'create':
                     handleCreateEvent(message);
                     break;
-                case 'update' :
+                case 'update':
                     handleUpdateEvent(message);
                     break;
-                case 'delete' :
+                case 'delete':
                     handleDeleteEvent(message);
                     break;
-                case 'edit' :
+                case 'edit':
                     handleNotifyEvent(message);
                     break;
-                case 'stop' :
+                case 'stop':
                     handleStopEvent(message);
+                    break;
+                case 'delete role':
+                    handleRoleChangeEvent(message, "delete");
+                    break;
+                case 'add role':
+                    handleRoleChangeEvent(message, "add");
+                    break;
+                case 'updateGroup':
+                    updateGroup(message, action);
+                    break;
+                case 'deleteGroup':
+                    removeGroup(message, action);
                     break;
                 default :
                     // Do nothing, unknown message format
                     break;
             }
         } catch (error) {
+            console.log(error)
             // Silence Reference errors when functions aren't defined
             // console log this error when debugging
         }
-
     }
 }
 

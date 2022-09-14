@@ -1,8 +1,11 @@
 package nz.ac.canterbury.seng302.identityprovider;
 
-import nz.ac.canterbury.seng302.identityprovider.TestData.TestGroupData;
-import nz.ac.canterbury.seng302.identityprovider.groups.Group;
-import nz.ac.canterbury.seng302.identityprovider.groups.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.demodata.TestGroupData;
+import nz.ac.canterbury.seng302.identityprovider.model.Group;
+import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
+import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptionException;
 import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +32,7 @@ class GroupTest {
 
 
     @BeforeEach
-    public void setup() {
+    void setup() throws PasswordEncryptionException {
         MockitoAnnotations.openMocks(this);
 
         User test1 = new User(

@@ -9,7 +9,7 @@
 <!--The below section <header> pulls the fragment from fragments/general-->
 <header th:insert="fragments/general.html :: header"></header>
 <section class="editSprintContainer">
-    <form class="sprintEditForm" method="post" th:action="@{sprintSubmit}">
+    <form class="editForm was-validated" method="post" th:action="@{sprintSubmit}">
         <!--Below are the divs that handle error messages
             If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
             they will be displayed below-->
@@ -21,7 +21,7 @@
         <input id="sprintId" name="sprintId" style="display: none" th:value="${sprint.getId()}" type="text">
         <div class="row">
             <div class="col">
-                <label class="form-label" for="sprintName">Sprint Name</label>
+                <label class="form-label" for="sprintName">Name</label>
                 <input class="form-control canDisable" id="sprintName" maxlength="50" name="sprintName" required
                        th:value="${sprint.getName()}" type="text">
             </div>
@@ -34,15 +34,40 @@
 
         <div class="row">
             <div class="col">
-                <label class="form-label" for="sprintStartDate">Sprint Start</label>
-                <input class="form-control canDisable" id="sprintStartDate" name="sprintStartDate" required
-                       th:max="${nextSprintStart}" th:min="${previousSprintEnd}" th:value="${sprint.getStartDate()}" type="date">
+                <label class="form-label" for="sprintStartDate">Start Date</label>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="16"
+                     height="16"
+                     fill="currentColor"
+                     class="bi bi-question-circle"
+                     viewBox="0 0 16 16"
+                     data-bs-toggle="tooltip" data-bs-placement="top"
+                     data-bs-custom-class="custom-tooltip"
+                     data-bs-title="Must be before end date, within project, and not overlap other sprints">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                </svg>
+                <input class="form-control date" id="sprintStartDate" name="sprintStartDate" required
+                       th:max="${maxDate}" th:min="${minDate}" th:value="${sprint.getStartDate()}"
+                       type="date">
                 <small class="form-text text-muted" th:text="${textForPrevSprint}"></small>
             </div>
             <div class="col">
-                <label class="form-label" for="sprintEndDate">Sprint End</label>
-                <input class="form-control canDisable" id="sprintEndDate" name="sprintEndDate" required
-                       th:max="${nextSprintStart}" th:min="${previousSprintEnd}" th:value="${sprint.getEndDate()}"
+                <label class="form-label" for="sprintEndDate">End Date</label>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="16"
+                     height="16"
+                     fill="currentColor"
+                     class="bi bi-question-circle"
+                     viewBox="0 0 16 16"
+                     data-bs-toggle="tooltip" data-bs-placement="top"
+                     data-bs-custom-class="custom-tooltip"
+                     data-bs-title="Must be after start date, within project, and not overlap other sprints">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                </svg>
+                <input class="form-control date" id="sprintEndDate" name="sprintEndDate" required
+                       th:max="${maxDate}" th:min="${minDate}" th:value="${sprint.getEndDate()}"
                        type="date">
                 <small class="form-text text-muted" th:text="${textForNextSprint}"></small>
             </div>
@@ -56,7 +81,7 @@
             </div>
         </div>
         <div class="mb-3">
-            <label class="form-label" for="sprintDescription">Sprint Description</label>
+            <label class="form-label" for="sprintDescription">Description</label>
             <textarea class="form-control canDisable" id="sprintDescription" maxlength="200" name="sprintDescription"
                       th:text="${sprint.getDescription()}"></textarea>
         </div>
@@ -66,6 +91,7 @@
     </form>
 </section>
 </body>
+<script th:src="@{js/dateValidator.js}" type="application/javascript"></script>
 <script th:src="@{js/notifications.js}" type="application/javascript"></script>
 <script th:src="@{js/sprintEdit.js}" type="application/javascript"></script>
 </html>

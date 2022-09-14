@@ -15,6 +15,7 @@ sonarqube-report:
     - ./gradlew sonarqube
   only:
     - master
+    - dev
 
 tag-checker:
   stage: tagChecking
@@ -28,9 +29,10 @@ junit-portfolio:
   script:
     - cd portfolio
     - ./gradlew test
+  artifacts:
+    paths:
+      - portfolio/build/jacoco/test-report.xml
   except:
-    - dev
-    - master
     - tags
 
 junit-identityprovider:
@@ -38,9 +40,10 @@ junit-identityprovider:
   script:
     - cd identityprovider
     - ./gradlew test
+  artifacts:
+    paths:
+      - identityprovider/build/jacoco/test-report.xml
   except:
-    - dev
-    - master
     - tags
 
 

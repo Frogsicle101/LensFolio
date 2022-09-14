@@ -34,12 +34,14 @@
                     <h6 id="projectEndDate" th:text="${project.getEndDateFormatted()}"></h6>
                 </div>
             </div>
+            <div id="projectStartUnformatted" style="display: none" th:text="${project.getStartDate()}"></div>
+            <div id="projectEndUnformatted" style="display: none" th:text="${project.getEndDate()}"></div>
         </div>
     </div>
     <div class="calendar" id='calendar'>
     </div>
 </section>
 </body>
-<script th:src="@{js/notifications.js}" type="application/javascript"></script>
 <script th:src="@{js/calendar.js}" type="application/javascript"></script>
+<script th:src="@{js/notifications.js}" type="application/javascript"></script>
 </html>

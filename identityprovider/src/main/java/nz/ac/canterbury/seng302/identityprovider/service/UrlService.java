@@ -1,6 +1,6 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
-import nz.ac.canterbury.seng302.identityprovider.User;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -17,9 +17,20 @@ import java.net.URL;
 @Service
 public class UrlService {
 
-    /** Retrieves the environment variables which contain image path components */
+    /** The environment variables which contain image path components */
+    private final Environment env;
+
+
+    /**
+     * Autowired constructor to inject the required environment variables
+     *
+     * @param env - an interface to retrieve the environment variables
+     */
     @Autowired
-    private Environment env;
+    public UrlService(Environment env) {
+        this.env = env;
+    }
+
 
     /**
      * Gets the absolute image path based off the users image name and the environment variables

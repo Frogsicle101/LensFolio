@@ -1,8 +1,8 @@
 package nz.ac.canterbury.seng302.portfolio;
 
-import nz.ac.canterbury.seng302.portfolio.evidence.Category;
-import nz.ac.canterbury.seng302.portfolio.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.evidence.EvidenceRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Category;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ class CategoriesTest {
         evidence.addCategory(Category.QUANTITATIVE);
         evidenceRepository.save(evidence);
 
-        Evidence evidenceOptional = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
+        Evidence evidenceOptional = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1).get(0);
 
         Assertions.assertEquals(1, evidenceOptional.getCategories().size());
         Assertions.assertTrue(evidenceOptional.getCategories().contains(Category.QUANTITATIVE));
@@ -39,7 +39,7 @@ class CategoriesTest {
         evidence.addCategory(Category.SERVICE);
         evidenceRepository.save(evidence);
 
-        Evidence evidenceOptional = evidenceRepository.findAllByUserIdOrderByDateDesc(1).get(0);
+        Evidence evidenceOptional = evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1).get(0);
 
         Assertions.assertEquals(2, evidenceOptional.getCategories().size());
         Assertions.assertTrue(evidenceOptional.getCategories().contains(Category.QUANTITATIVE));
@@ -53,10 +53,10 @@ class CategoriesTest {
         evidence.addCategory(Category.QUANTITATIVE);
         evidenceRepository.save(evidence);
 
-        ArrayList<Evidence> evidenceExists = evidenceRepository.findAllByUserIdAndCategoriesContaining(1, Category.QUANTITATIVE);
-        ArrayList<Evidence> evidenceDoesntExist1 = evidenceRepository.findAllByUserIdAndCategoriesContaining(1, Category.SERVICE);
-        ArrayList<Evidence> evidenceDoesntExist2 = evidenceRepository.findAllByUserIdAndCategoriesContaining(2, Category.QUANTITATIVE);
-        ArrayList<Evidence> evidenceDoesntExist3 = evidenceRepository.findAllByUserIdAndCategoriesContaining(2, Category.SERVICE);
+        ArrayList<Evidence> evidenceExists = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(1, Category.QUANTITATIVE);
+        ArrayList<Evidence> evidenceDoesntExist1 = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(1, Category.SERVICE);
+        ArrayList<Evidence> evidenceDoesntExist2 = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(2, Category.QUANTITATIVE);
+        ArrayList<Evidence> evidenceDoesntExist3 = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(2, Category.SERVICE);
 
         Assertions.assertEquals(1, evidenceExists.size());
         Assertions.assertTrue(evidenceExists.get(0).getCategories().contains(Category.QUANTITATIVE));
