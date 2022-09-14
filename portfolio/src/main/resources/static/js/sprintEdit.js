@@ -47,7 +47,7 @@ $(() => {
  * Creates a message telling to user to refresh the page to see changes made by another user, if the sprint viewed is
  * the same object that was edited.
  */
-function handleUpdateEvent (message) {
+function handleUpdateEvent(message) {
     const editorName = message.editorName;
 
     if (message.occasionId === $(document).find("#sprintId").val())  {
@@ -62,7 +62,7 @@ function handleUpdateEvent (message) {
 /**
  * Creates a message telling to user that the sprint they're editing was deleted.
  */
-function handleDeleteEvent (message) {
+function handleDeleteEvent(message) {
     const editorName = message.editorName;
 
     if (message.occasionId === $(document).find("#sprintId").val())  {
