@@ -7,6 +7,7 @@
 html, body {
     margin: 0;
     padding: 0;
+    z-index: 0;
     font-family: 'Roboto', sans-serif;
     background-color: #f6f6f6;
 }
@@ -78,7 +79,7 @@ section {
     --alert-yellow: rgba(255, 255, 159, 0.95);
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
-    --background-colour-white: #ffffff;
+    --background-colour-white: #ffefde;
     --skill-chip-colour: #add8e6;
     --category-chip-colour: lightcyan;
 }
@@ -154,17 +155,6 @@ section {
     background-color: #626262;
 }
 
-.loginWave{
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100vw;
-    height:auto;
-}
-
-.darkBackground{
-    background-color: #001220;
-}
 /*Account*/
 .accountBody {
     width: 100%;
@@ -221,22 +211,44 @@ section {
 }
 
 /*Login*/
+
+.darkBackground{
+    background-color: #001220;
+}
+
+.loginWave{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 1;
+    height:auto;
+}
+
+
 .loginSection {
     display: flex;
-    z-index: 2;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
+    height: 100vh;
+    width: 100vw;
 }
 
 .loginBox {
+    position: fixed;
     align-items: center;
     width: 50rem;
+    z-index: 2;
     padding: 2rem;
+    background-color: #FFEFDEFF;
+    border-radius: var(--border-radius);
 }
 
 .logo {
     font-family: 'Lobster Two', cursive;
     font-weight: bold;
+    z-index: 2;
 }
 
 .logoBox {
