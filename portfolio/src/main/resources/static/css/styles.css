@@ -130,6 +130,7 @@ section{
     -webkit-text-fill-color: transparent;
 }
 
+
 .fullHeight{
     height: 100%;
     overflow: hidden;
@@ -177,6 +178,10 @@ section{
     height:auto;
 }
 
+.appIcon{
+    width: 45px;
+    height: 45px;
+}
 
 
 /*Portfolio Project*/
