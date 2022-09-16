@@ -885,7 +885,7 @@ function createEventDiv(eventObject) {
     }
 
     return `
-            <div class="occasion event" id="${sanitise(eventObject.id)}">
+            <div class="occasion event " id="${sanitise(eventObject.id)}">
                 <p class="eventId" style="display: none">${sanitise(eventObject.id)}</p>
                 <p class="eventStartDateNilFormat" style="display: none">${sanitise(eventObject.start)}</p>
                 <p class="eventEndDateNilFormat" style="display: none">${sanitise(eventObject.end)}</p>

@@ -24,23 +24,44 @@ section{
     padding-left: 1rem;
 }
 
+#addEventForm, #addDeadlineForm, .milestoneForm{
+    background-color: var(--background-colour-offblue);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.nav-link{
+    color: var(--background-colour-offblue);
+}
+
 /*Portfolio*/
 .projectDetails {
     color: var(--background-colour-offblue);
-    padding: 2rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
 }
 
 .projectDetails h1 {
     font-weight: bold;
 }
 
-
-.projectContainer {
+.projectRow{
     display: flex;
     flex-direction: row;
-    width: 100%;
-    height: 75vh;
+    justify-content: space-around;
+}
 
+.projectColLeft, .projectColRight{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.projectColRight{
+    padding-top: 2rem;
+    height: 800px;
+    overflow-y: scroll;
 }
 
 #sprintColour {
@@ -57,9 +78,7 @@ section{
     flex-direction: column;
     height: 100%;
     min-width: 38rem;
-    padding-left: 1rem;
     padding-top: 1rem;
-    padding-right: 1rem;
     transition: all 1s ease-out;
     overflow-y: scroll;
 }
@@ -155,4 +174,61 @@ section{
     padding: 0.1rem;
     opacity: 70%;
     margin: 0 0 0 0;
+}
+
+.sprintsContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-right: 2rem;
+    align-items: center;
+    height: 100%;
+
+}
+
+.sprint {
+    position: relative;
+    width: 45rem;
+    padding: 2rem;
+    border: solid 1px var(--main-border-colour);
+    background-color: var(--background-colour-offblue);
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+    transition: all 0.3s ease-out;
+    will-change: transform;
+}
+
+.sprint h6 {
+    color: var(--secondary-text-colour-darker);
+}
+
+.sprintLabel {
+    align-self: flex-start;
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    color: var(--secondary-text-colour);
+
+}
+
+.deleteSprint {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+.deleteSprint:hover {
+    color: #ff5959;
+
+}
+
+.editSprint {
+    position: absolute;
+    top: 0.5rem;
+    right: 2rem;
+}
+
+.editSprint:hover {
+    color: var(--select-green);
 }

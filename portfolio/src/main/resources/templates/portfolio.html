@@ -6,7 +6,7 @@
             </th:block> /*/-->
     <link rel="stylesheet" th:href="@{css/projectPage.css}">
 </head>
-<body class="fullHeight">
+<body >
 <!--The below section <header> pulls the fragment from fragments/general-->
 <header th:insert="fragments/general.html :: header"></header>
 
@@ -35,243 +35,246 @@
     <div th:insert="fragments/general.html :: infoBox"></div>
     <!--/*@thymesVar id="project" type="nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project"*/-->
     <div class="projectPage">
-        <div class="projectDetails">
-            <div id="project-details">
-                <h1 id="projectId" style="display: none" th:text="${project.getId()}"></h1>
-                <div class="mb3">
-                    <h1 id="projectName" th:text="${project.getName()}"></h1>
-                </div>
-                <div class="dateParentDiv">
-                    <div class="dateDiv">
-                        <p id="project-start-date" th:text="${project.getStartDateFormatted()}"></p>
-                        <p class="dateDivider">-</p>
-                        <p id="project-end-date" th:text="${project.getEndDateFormatted()}"></p>
+        <div class="projectRow">
+            <div class="projectColLeft">
+                <div class="projectDetails">
+                    <div id="project-details">
+                        <h1 id="projectId" style="display: none" th:text="${project.getId()}"></h1>
+                        <div class="mb3">
+                            <h1 id="projectName" th:text="${project.getName()}"></h1>
+                        </div>
+                        <div class="dateParentDiv">
+                            <div class="dateDiv">
+                                <p id="project-start-date" th:text="${project.getStartDateFormatted()}"></p>
+                                <p class="dateDivider">-</p>
+                                <p id="project-end-date" th:text="${project.getEndDateFormatted()}"></p>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <p id="projectDescription" th:text="${project.getDescription()}"></p>
+                        </div>
+                    </div>
+                    <div th:if="${userCanEdit == true}">
+                        <button class="btn btn-outline-success project-add-sprint-button authenticated-user" id="editProject">
+                            Edit Project
+                        </button>
+                        <button class="btn btn-outline-success project-add-sprint-button authenticated-user addSprint"
+                                id="projectAddSprint">
+                            Add Sprint
+                        </button>
+                        <div id="sprintAddInformationBar">
+                        </div>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <p id="projectDescription" th:text="${project.getDescription()}"></p>
+                <div class="eventContainer">
+                    <div class="infoMessageParent alert alert-primary alert-dismissible fade show" id="informationBar"
+                         role="alert" style="display: none">
+                    </div>
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-target="#events" data-bs-toggle="tab" id="eventsTab"
+                                    role="tab">Events
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-target="#deadlines" data-bs-toggle="tab" id="deadlinesTab"
+                                    role="tab">Deadlines
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-target="#milestones" data-bs-toggle="tab" id="milestonesTab"
+                                    role="tab">Milestones
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="tabContent">
+                        <!---------------------------------------- Events tab  ------------------------------------------>
+                        <div class="tab-pane fade show active" id="events" role="tabpanel">
+                            <div class="mb-2 occasionAddButton">
+                                <button class="btn btn-outline-primary addOccasionButton addEventButton"
+                                        th:if="${userCanEdit == true}" type="button">
+                                    Create Event
+                                </button>
+                            </div>
+                            <div class="eventForm" style="display: none" th:if="${userCanEdit == true}">
+                                <form id="addEventForm">
+                                    <div class="mb-1">
+                                        <label class="form-label" for="eventName">Event name</label>
+                                        <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                                        <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
+                                        <input class="form-control form-control-sm" id="eventName"
+                                               name="eventName" required
+                                               th:maxlength="${eventNameLengthRestriction}"
+                                               th:pattern="${titleRegex.getPatternString()}"
+                                               th:title="${'Event title' + titleRegex.getRequirements()}"
+                                               type="text">
+                                        <small class="form-text-counted text-muted countChar">0 characters remaining</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput1">Type of event</label>
+                                        <select class="form-select typeOfEvent" id="exampleFormControlInput1">
+                                            <option selected value="1">Event</option>
+                                            <option value="2">Test</option>
+                                            <option value="3">Meeting</option>
+                                            <option value="4">Workshop</option>
+                                            <option value="5">Special Event</option>
+                                            <option value="6">Attention Required</option>
+                                        </select>
+                                    </div>
+                                    <div class="row mb-1">
+                                        <div class="col">
+                                            <label class="form-label" for="eventStart">Start</label>
+                                            <input class="form-control form-control-sm eventInputStartDate eventDateInput"
+                                                   id="eventStart"
+                                                   name="eventStart"
+                                                   required
+                                                   th:max="${project.getEndDateAsLocalDateTime()}"
+                                                   th:min="${project.getStartDateAsLocalDateTime()}"
+                                                   th:value="${defaultOccasionStart}"
+                                                   type="datetime-local">
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label" for="eventEnd">End</label>
+                                            <input class="form-control form-control-sm eventInputEndDate eventDateInput"
+                                                   id="eventEnd"
+                                                   name="eventEnd"
+                                                   required
+                                                   th:max="${project.getEndDateAsLocalDateTime()}"
+                                                   th:min="${project.getStartDateAsLocalDateTime()}"
+                                                   th:value="${defaultOccasionEnd}"
+                                                   type="datetime-local">
+                                        </div>
+                                    </div>
+                                    <div class="invalid-feedback">The event start must be before the event end</div>
+                                    <div class="mb-1">
+                                        <button class="btn btn-primary" id="eventSubmit" type="submit">Submit</button>
+                                        <button type="button" class="btn btn-secondary addEventButton" >Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="eventContainer" class="occasionContainer">
+                            </div>
+                        </div>
+                        <!--------------------------------------- Deadlines tab  ---------------------------------------->
+                        <div class="tab-pane fade show" id="deadlines" role="tabpanel">
+                            <div class="mb-2 occasionAddButton">
+                                <button class="btn btn-outline-primary addDeadlineButton addEventButton"
+                                        th:if="${userCanEdit == true}" type="button">
+                                    Create Deadline
+                                </button>
+                            </div>
+                            <div class="deadlineForm" style="display: none" th:if="${userCanEdit == true}">
+                                <form id="addDeadlineForm">
+                                    <div class="mb-1">
+                                        <label class="form-label" for="deadlineName">Deadline name</label>
+                                        <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                                        <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
+                                        <input class="form-control form-control-sm" id="deadlineName"
+                                               name="occasionName" required
+                                               th:maxlength="${eventNameLengthRestriction}"
+                                               th:pattern="${titleRegex.getPatternString()}"
+                                               th:title="${'Deadline title' + titleRegex.getRequirements()}"
+                                               type="text">
+                                        <small class="form-text-counted text-muted countChar">0 characters remaining</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput3">Type of deadline</label>
+                                        <select class="form-select typeOfDeadline" id="exampleFormControlInput3">
+                                            <option selected value="1">Event</option>
+                                            <option value="2">Test</option>
+                                            <option value="3">Meeting</option>
+                                            <option value="4">Workshop</option>
+                                            <option value="5">Special Event</option>
+                                            <option value="6">Attention Required</option>
+                                        </select>
+                                    </div>
+                                    <div class="row mb-1">
+                                        <div class="col">
+                                            <label class="form-label" for="deadlineEnd">End</label>
+                                            <input class="form-control form-control-sm deadlineInputEndDate"
+                                                   id="deadlineEnd"
+                                                   name="deadlineEnd"
+                                                   required
+                                                   th:max="${project.getEndDateAsLocalDateTime()}"
+                                                   th:min="${project.getStartDateAsLocalDateTime()}"
+                                                   th:value="${defaultOccasionStart}"
+                                                   type="datetime-local">
+                                        </div>
+                                    </div>
+                                    <div class="mb-1">
+                                        <button class="btn btn-primary" id="deadlineSubmit" type="submit">Submit</button>
+                                        <button type="button" class="btn btn-secondary addDeadlineButton" >Cancel</button>
+
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="deadlineContainer" class="occasionContainer">
+
+                            </div>
+                        </div>
+                        <!--------------------------------------- Milestones tab  --------------------------------------->
+                        <div class="tab-pane fade show" id="milestones" role="tabpanel">
+                            <div class="mb-2 occasionAddButton">
+                                <button class="btn btn-outline-primary addMilestoneButton addOccasionButton"
+                                        th:if="${userCanEdit == true}" type="button">
+                                    Create Milestone
+                                </button>
+                            </div>
+
+                            <div class="milestoneForm" style="display: none" th:if="${userCanEdit == true}">
+                                <form>
+                                    <div class="mb-1">
+                                        <label class="form-label" for="milestoneName">Milestone name</label>
+                                        <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                                        <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
+                                        <input class="form-control form-control-sm" data-nextNumber="${nextMilestoneNumber}"
+                                               id="milestoneName"
+                                               name="milestoneName" required
+                                               th:maxlength="${eventNameLengthRestriction}"
+                                               th:pattern="${titleRegex.getPatternString()}"
+                                               th:title="${'Milestone title' + titleRegex.getRequirements()}"
+                                               type="text">
+                                        <small class="form-text-counted text-muted countChar">0 characters remaining</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput2">Type of milestone</label>
+                                        <select class="form-select typeOfMilestone" id="exampleFormControlInput2">
+                                            <option selected value="1">Event</option>
+                                            <option value="2">Test</option>
+                                            <option value="3">Meeting</option>
+                                            <option value="4">Workshop</option>
+                                            <option value="5">Special Event</option>
+                                            <option value="6">Attention Required</option>
+                                        </select>
+                                    </div>
+                                    <div class="row mb-1">
+                                        <div class="col">
+                                            <label class="form-label" for="milestoneEnd">End</label>
+                                            <input class="form-control form-control-sm milestoneInputEndDate"
+                                                   id="milestoneEnd"
+                                                   name="milestoneEnd"
+                                                   required
+                                                   th:max="${project.getEndDateAsLocalDateTime().toLocalDate()}"
+                                                   th:min="${project.getStartDateAsLocalDateTime().toLocalDate()}"
+                                                   th:value="${defaultMilestoneStart}"
+                                                   type="date">
+                                        </div>
+                                    </div>
+                                    <div class="mb-1">
+                                        <button class="btn btn-primary" id="milestoneSubmit" type="submit">Submit</button>
+                                        <button type="button" class="btn btn-secondary addMilestoneButton" >Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="milestoneContainer" class="occasionContainer">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div th:if="${userCanEdit == true}">
-                <button class="btn btn-outline-success project-add-sprint-button authenticated-user" id="editProject">
-                    Edit Project
-                </button>
-                <button class="btn btn-outline-success project-add-sprint-button authenticated-user addSprint"
-                        id="projectAddSprint">
-                    Add Sprint
-                </button>
-                <div id="sprintAddInformationBar">
+            <div class="projectColRight">
+                <div class="sprintsContainer" style="display: none">
                 </div>
-            </div>
-        </div>
-        <div class="projectContainer">
-            <div class="eventContainer">
-                <div class="infoMessageParent alert alert-primary alert-dismissible fade show" id="informationBar"
-                     role="alert" style="display: none">
-                </div>
-                <ul class="nav nav-tabs">
-                    <li class="nav-item">
-                        <button class="nav-link active" data-bs-target="#events" data-bs-toggle="tab" id="eventsTab"
-                                role="tab">Events
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-bs-target="#deadlines" data-bs-toggle="tab" id="deadlinesTab"
-                                role="tab">Deadlines
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-bs-target="#milestones" data-bs-toggle="tab" id="milestonesTab"
-                                role="tab">Milestones
-                        </button>
-                    </li>
-                </ul>
-                <div class="tab-content" id="tabContent">
-                    <!---------------------------------------- Events tab  ------------------------------------------>
-                    <div class="tab-pane fade show active" id="events" role="tabpanel">
-                        <div class="mb-2 occasionAddButton">
-                            <button class="btn btn-outline-primary addOccasionButton addEventButton"
-                                    th:if="${userCanEdit == true}" type="button">
-                                Create Event
-                            </button>
-                        </div>
-                        <div class="eventForm" style="display: none" th:if="${userCanEdit == true}">
-                            <form id="addEventForm">
-                                <div class="mb-1">
-                                    <label class="form-label" for="eventName">Event name</label>
-                                    <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-                                    <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
-                                    <input class="form-control form-control-sm" id="eventName"
-                                           name="eventName" required
-                                           th:maxlength="${eventNameLengthRestriction}"
-                                           th:pattern="${titleRegex.getPatternString()}"
-                                           th:title="${'Event title' + titleRegex.getRequirements()}"
-                                           type="text">
-                                    <small class="form-text-counted text-muted countChar">0 characters remaining</small>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="exampleFormControlInput1">Type of event</label>
-                                    <select class="form-select typeOfEvent" id="exampleFormControlInput1">
-                                        <option selected value="1">Event</option>
-                                        <option value="2">Test</option>
-                                        <option value="3">Meeting</option>
-                                        <option value="4">Workshop</option>
-                                        <option value="5">Special Event</option>
-                                        <option value="6">Attention Required</option>
-                                    </select>
-                                </div>
-                                <div class="row mb-1">
-                                    <div class="col">
-                                        <label class="form-label" for="eventStart">Start</label>
-                                        <input class="form-control form-control-sm eventInputStartDate eventDateInput"
-                                               id="eventStart"
-                                               name="eventStart"
-                                               required
-                                               th:max="${project.getEndDateAsLocalDateTime()}"
-                                               th:min="${project.getStartDateAsLocalDateTime()}"
-                                               th:value="${defaultOccasionStart}"
-                                               type="datetime-local">
-                                    </div>
-                                    <div class="col">
-                                        <label class="form-label" for="eventEnd">End</label>
-                                        <input class="form-control form-control-sm eventInputEndDate eventDateInput"
-                                               id="eventEnd"
-                                               name="eventEnd"
-                                               required
-                                               th:max="${project.getEndDateAsLocalDateTime()}"
-                                               th:min="${project.getStartDateAsLocalDateTime()}"
-                                               th:value="${defaultOccasionEnd}"
-                                               type="datetime-local">
-                                    </div>
-                                </div>
-                                <div class="invalid-feedback">The event start must be before the event end</div>
-                                <div class="mb-1">
-                                    <button class="btn btn-primary" id="eventSubmit" type="submit">Submit</button>
-                                    <button type="button" class="btn btn-secondary addEventButton" >Cancel</button>
-                                </div>
-                            </form>
-                        </div>
-                        <div id="eventContainer" class="occasionContainer">
-                        </div>
-                    </div>
-                    <!--------------------------------------- Deadlines tab  ---------------------------------------->
-                    <div class="tab-pane fade show" id="deadlines" role="tabpanel">
-                        <div class="mb-2 occasionAddButton">
-                            <button class="btn btn-outline-primary addDeadlineButton addEventButton"
-                                    th:if="${userCanEdit == true}" type="button">
-                                Create Deadline
-                            </button>
-                        </div>
-                        <div class="deadlineForm" style="display: none" th:if="${userCanEdit == true}">
-                            <form id="addDeadlineForm">
-                                <div class="mb-1">
-                                    <label class="form-label" for="deadlineName">Deadline name</label>
-                                    <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-                                    <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
-                                    <input class="form-control form-control-sm" id="deadlineName"
-                                           name="occasionName" required
-                                           th:maxlength="${eventNameLengthRestriction}"
-                                           th:pattern="${titleRegex.getPatternString()}"
-                                           th:title="${'Deadline title' + titleRegex.getRequirements()}"
-                                           type="text">
-                                    <small class="form-text-counted text-muted countChar">0 characters remaining</small>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="exampleFormControlInput3">Type of deadline</label>
-                                    <select class="form-select typeOfDeadline" id="exampleFormControlInput3">
-                                        <option selected value="1">Event</option>
-                                        <option value="2">Test</option>
-                                        <option value="3">Meeting</option>
-                                        <option value="4">Workshop</option>
-                                        <option value="5">Special Event</option>
-                                        <option value="6">Attention Required</option>
-                                    </select>
-                                </div>
-                                <div class="row mb-1">
-                                    <div class="col">
-                                        <label class="form-label" for="deadlineEnd">End</label>
-                                        <input class="form-control form-control-sm deadlineInputEndDate"
-                                               id="deadlineEnd"
-                                               name="deadlineEnd"
-                                               required
-                                               th:max="${project.getEndDateAsLocalDateTime()}"
-                                               th:min="${project.getStartDateAsLocalDateTime()}"
-                                               th:value="${defaultOccasionStart}"
-                                               type="datetime-local">
-                                    </div>
-                                </div>
-                                <div class="mb-1">
-                                    <button class="btn btn-primary" id="deadlineSubmit" type="submit">Submit</button>
-                                    <button type="button" class="btn btn-secondary addDeadlineButton" >Cancel</button>
-
-                                </div>
-                            </form>
-                        </div>
-                        <div id="deadlineContainer" class="occasionContainer">
-
-                        </div>
-                    </div>
-                    <!--------------------------------------- Milestones tab  --------------------------------------->
-                    <div class="tab-pane fade show" id="milestones" role="tabpanel">
-                        <div class="mb-2 occasionAddButton">
-                            <button class="btn btn-outline-primary addMilestoneButton addOccasionButton"
-                                    th:if="${userCanEdit == true}" type="button">
-                                Create Milestone
-                            </button>
-                        </div>
-
-                        <div class="milestoneForm" style="display: none" th:if="${userCanEdit == true}">
-                            <form>
-                                <div class="mb-1">
-                                    <label class="form-label" for="milestoneName">Milestone name</label>
-                                    <!--/*@thymesVar id="titleRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-                                    <!--/*@thymesVar id="eventNameLengthRestriction" type="java.lang.Integer"*/-->
-                                    <input class="form-control form-control-sm" data-nextNumber="${nextMilestoneNumber}"
-                                           id="milestoneName"
-                                           name="milestoneName" required
-                                           th:maxlength="${eventNameLengthRestriction}"
-                                           th:pattern="${titleRegex.getPatternString()}"
-                                           th:title="${'Milestone title' + titleRegex.getRequirements()}"
-                                           type="text">
-                                    <small class="form-text-counted text-muted countChar">0 characters remaining</small>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="exampleFormControlInput2">Type of milestone</label>
-                                    <select class="form-select typeOfMilestone" id="exampleFormControlInput2">
-                                        <option selected value="1">Event</option>
-                                        <option value="2">Test</option>
-                                        <option value="3">Meeting</option>
-                                        <option value="4">Workshop</option>
-                                        <option value="5">Special Event</option>
-                                        <option value="6">Attention Required</option>
-                                    </select>
-                                </div>
-                                <div class="row mb-1">
-                                    <div class="col">
-                                        <label class="form-label" for="milestoneEnd">End</label>
-                                        <input class="form-control form-control-sm milestoneInputEndDate"
-                                               id="milestoneEnd"
-                                               name="milestoneEnd"
-                                               required
-                                               th:max="${project.getEndDateAsLocalDateTime().toLocalDate()}"
-                                               th:min="${project.getStartDateAsLocalDateTime().toLocalDate()}"
-                                               th:value="${defaultMilestoneStart}"
-                                               type="date">
-                                    </div>
-                                </div>
-                                <div class="mb-1">
-                                    <button class="btn btn-primary" id="milestoneSubmit" type="submit">Submit</button>
-                                    <button type="button" class="btn btn-secondary addMilestoneButton" >Cancel</button>
-                                </div>
-                            </form>
-                        </div>
-                        <div id="milestoneContainer" class="occasionContainer">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sprintsContainer" style="display: none">
             </div>
         </div>
     </div>

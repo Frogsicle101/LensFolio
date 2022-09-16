@@ -24,6 +24,7 @@ $(function () {
 });
 
 
+
 /**
  * When a user clicks on a nav item it finds the a link inside it and goes to that address
  */
