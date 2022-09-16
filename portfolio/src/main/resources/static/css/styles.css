@@ -241,7 +241,7 @@ section {
     width: 50rem;
     z-index: 2;
     padding: 2rem;
-    background-color: #FFEFDEFF;
+    background-color: rgba(209, 250, 253, 0.8);
     border-radius: var(--border-radius);
 }
 
