@@ -25,15 +25,10 @@
             <div class="mb-3">
                 <h1 id="projectName" th:text="${project.getName()}"></h1>
             </div>
-            <div class="row">
-                <div class="col">
-                    <h6>Start</h6>
-                    <h6 id="projectStartDate" th:text="${project.getStartDateFormatted()}"></h6>
-                </div>
-                <div class="col">
-                    <h6>End</h6>
-                    <h6 id="projectEndDate" th:text="${project.getEndDateFormatted()}"></h6>
-                </div>
+            <div class="dateDiv">
+                <h6 id="projectStartDate" th:text="${project.getStartDateFormatted()}"></h6>
+                <p class="dateDivider">-</p>
+                <h6 id="projectEndDate" th:text="${project.getEndDateFormatted()}"></h6>
             </div>
             <div id="projectStartUnformatted" style="display: none" th:text="${project.getStartDate()}"></div>
             <div id="projectEndUnformatted" style="display: none" th:text="${project.getEndDate()}"></div>

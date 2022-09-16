@@ -12,6 +12,9 @@ html, body {
 
 }
 
+.profilePic {
+    border-radius: 100%;
+}
 
 body{
     background-color: var(--background-colour-darkBlue);
@@ -37,7 +40,6 @@ body{
     background: rgb(249, 248, 113);
 }
 
-
 section{
     margin-top: 4rem;
     z-index: 3;
@@ -62,8 +64,7 @@ section{
 .box {
     position: relative;
     padding: 2rem;
-    border: solid 1px var(--main-border-colour);
-    background-color: var(--background-colour-white);
+    background-color: var(--background-colour-offblue);
     border-radius: var(--border-radius);
     box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
     margin: 1rem;
@@ -73,6 +74,22 @@ section{
 .showExtraWhitespace {
     white-space: pre-wrap;
 }
+
+.dateDiv{
+    display: flex;
+    flex-direction: row;
+}
+
+.dateParentDiv{
+    display: flex;
+    flex-direction: row;
+}
+
+.dateDivider{
+    padding-right: 1rem;
+    padding-left: 1rem;
+}
+
 
 
 /*Colours*/
@@ -91,7 +108,7 @@ section{
     --border-radius: 0.4rem;
     --navbar-colour: #2a2a2a;
     --background-colour-white: #ffefde;
-    --background-colour-offblue: rgba(209, 250, 253, 0.8);
+    --background-colour-offblue: rgba(223, 251, 255, 0.95);
     --background-colour-darkBlue: #001220;
     --skill-chip-colour: #add8e6;
     --category-chip-colour: lightcyan;
@@ -101,6 +118,10 @@ section{
     font-family: 'Lobster Two', cursive;
     font-weight: bold;
 
+}
+
+.lightText{
+    color: var(--background-colour-offblue);
 }
 
 .gradient{
@@ -119,6 +140,28 @@ section{
     flex-direction: row;
     align-items: center;
     justify-content: center;
+}
+
+.projectRow{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+.projectColLeft{
+    width: 700px;
+    height: 90vh;
+    overflow-y: scroll;
+}
+.projectColLeft, .projectColRight{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.projectColRight{
+    padding-top: 2rem;
+    height: 90vh;
+    overflow-y: scroll;
 }
 
 .darkBackground{
@@ -180,7 +223,7 @@ section{
 }
 
 .beingEdited {
-    border: solid 1px blue;
+    border: solid 1px #e9c46a;
 }
 
 /*Portfolio - Sprints*/
@@ -193,14 +236,9 @@ section{
 }
 
 .sprintButton {
-    color: var(--secondary-text-colour-darker);
-    transition: transform 200ms;
+    color: var(--background-colour-darkBlue);
 }
 
-.sprintButton:hover {
-    transform: scale(1.2);
-
-}
 
 /*edit roles page*/
 .tagDiv {
@@ -233,82 +271,6 @@ section{
     flex-direction: column;
     align-items: center;
 
-}
-
-.editForm {
-    margin-top: 5rem;
-    width: 50rem;
-}
-
-/*User-list*/
-
-.listTableDiv {
-    display: flex;
-    width: 100%;
-    flex-direction: column;
-    padding: 1rem;
-    word-break: break-word;
-}
-
-.title {
-    align-self: center;
-}
-
-.listTableFooter {
-    align-self: center;
-}
-
-.listTable a {
-    text-decoration: none;
-    color: var(--main-text-color);
-}
-
-.roleButtonsContainer {
-    display: flex;
-    flex-direction: row;
-    min-width: 25rem;
-}
-
-.tableStyled {
-    border-collapse: collapse;
-    font-size: 1rem;
-    min-width: 60rem;
-    table-layout: fixed;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-}
-
-.tableHead {
-    width: 15%;
-}
-
-.tableStyled th, .tableStyled td {
-    padding: 1rem
-}
-
-.tableStyled thead tr {
-    border-radius: var(--border-radius);
-    background-color: var(--navbar-colour);
-    text-align: left;
-}
-
-.tableStyled thead tr a {
-    color: #f9f9f9;
-}
-
-.tableStyled tbody tr {
-    border-bottom: 1px solid #dddddd;
-}
-
-.tableStyled tbody tr:nth-of-type(even) {
-    background-color: #f3f3f3;
-}
-
-.tableStyled tbody tr:last-of-type {
-    border-bottom: 2px solid #000000;
-}
-
-.userRoleRow:hover :not(.roleButtonsContainer) {
-    cursor: pointer;
 }
 
 
@@ -350,120 +312,6 @@ section{
     opacity: .8
 }
 
-/*Groups*/
-
-.createGroupButtonDiv {
-    padding-top: 0.5rem;
-    padding-left: 0.5rem;
-}
-
-.groupsContainer .evidenceContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: auto;
-}
-
-.scrollableGroupOverview {
-    position: absolute;
-    width: 100%;
-    height: calc(100vh - 110px);
-    overflow-y: scroll;
-
-}
-
-.groupAmountOptions {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 40rem;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.groupAmountSelectorDiv {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: baseline;
-    width: 40rem;
-    padding: 1rem;
-}
-
-.labelForGroupDisplayAmount {
-    padding-right: 1rem;
-}
-
-#groupDisplayAmountSelection {
-    width: 10rem;
-}
-
-
-.scrollableGroupDetails {
-    position: absolute;
-    width: 49%;
-    height: calc(100vh - 130px);
-    overflow-y: scroll;
-    padding: 2rem;
-    border: solid 1px var(--main-border-colour);
-    border-radius: var(--border-radius);
-    margin-top: 1rem;
-    margin-right: 1rem;
-    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
-}
-
-.group {
-    position: relative;
-    width: 40rem;
-    padding: 2rem;
-    border: solid 1px var(--main-border-colour);
-    background-color: var(--background-colour-white);
-    border-radius: var(--border-radius);
-    margin-top: 1rem;
-    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
-    margin-left: auto;
-    margin-right: auto;
-    word-break: break-all;
-}
-
-.group:hover {
-    cursor: pointer;
-}
-
-#groupTableBody .ui-selected {
-    background-color: var(--main-border-colour)
-}
-
-.colourForDrag {
-    background-color: var(--main-border-colour);
-}
-
-.focusOnGroup {
-    background-color: var(--main-border-colour);
-}
-
-#groupDisplayOptions {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    height: 3rem;
-}
-
-#groupInformationLongName {
-    margin-left: auto;
-}
-
-.groupLongName, #groupInformationLongName {
-    color: var(--secondary-text-colour-darker);
-    font-weight: lighter;
-}
-
-.groupShortName, #groupInformationShortName {
-    color: var(--main-text-color);
-    margin-top: 0.3rem;
-    word-break: break-all;
-}
 
 .membersContainerTitle {
     text-align: center;
@@ -654,157 +502,16 @@ section{
     text-align: right;
 }
 
-.dragGrip {
-    position: absolute;
-    left: 0.3rem;
-    margin-top: 0.9rem;
-}
 
 /* Evidence Page */
 
-.evidencePage {
-    display: flex;
-    flex-direction: row
-}
 
-.evidenceListContainer, .evidenceDetailsContainer {
-    border: solid var(--main-border-colour) 1px;
-}
-
-.evidenceDetailsContainer {
-    padding: 1rem 2rem 2rem;
-    margin-right: 2rem;
-    width: auto;
-    height: calc(100vh - 12rem);
-}
-
-.evidenceDetailsDate {
-    color: var(--secondary-text-colour-darker);
-    font-weight: lighter;
-}
-
-#evidenceDetailsSkills {
-    bottom: 4rem;
-    position: absolute;
-}
-
-#evidenceDetailsLinkedUsers {
-    word-break: break-word;
-    padding-left: 0.5rem;
-}
-
-.evidenceDetailsHeader {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.deleteEvidenceSvg:hover {
-    fill:red;
-}
-
-.evidenceListContainer {
-    display: flex;
-    width: 100%;
-    flex-direction: column;
-    max-width: 30%;
-    padding-right: 0;
-    padding-left: 0;
-}
-
-.evidenceListMenu, .evidenceList {
-    align-self: center;
-}
-
-#createEvidenceButton {
-    margin-top: 1rem;
-}
-
-.evidenceListTitle {
-    text-align: center;
-    padding: inherit;
-    margin-bottom: 0;
-}
-
-#evidenceList {
-    overflow: auto;
-    height: calc(100vh - 10rem);
-}
-
-.evidenceListItem {
-    margin: 1rem;
-    padding: 1rem;
-    border: solid 1px var(--secondary-text-colour);
-    border-radius: var(--border-radius);
-    max-width: 95%;
-}
-
-.evidenceListItemTitle {
-    font-weight: bold;
-}
-
-.evidenceListItemDate {
-    color: var(--secondary-text-colour-darker);
-    font-weight: lighter;
-    text-align: end;
-}
-
-.evidenceDeleteButton {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.evidenceFormName, .evidenceFormDate, .evidenceFormDescription {
-    padding-bottom: 1.5rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-}
-
-#evidenceFormCategories {
-    padding: 1.5rem;
-}
-
-.evidenceFormCategoryButton {
-    height: 3rem;
-    align-items: center;
-    min-width: 10rem;
-    padding-left: 1.2rem;
-    transition: 0.5s ease-in-out;
-}
-
-.evidenceCategoryTickIcon {
-    margin-left: 1rem;
-    font-size: 1.2rem;
-    display: none
-}
-
-.evidenceFormSkills {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-}
 
 .invalid {
     border-color: red;
 }
 
-.selectedEvidence {
-    background-color: #eaeaea;
-}
 
-#addEvidenceModal {
-    display: none;
-    position: fixed;
-    z-index: 5;
-    padding-top: 100px;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-}
 
 .modalContent {
     position: relative;
@@ -844,12 +551,7 @@ section{
     border-bottom-left-radius: calc(0.3rem - 1px);
 }
 
-.evidenceFormButton {
-    margin-top: 0.5rem;
-    margin-right: 1.5rem;
-    max-width: fit-content;
-    align-self: self-end;
-}
+
 
 #weblinkForm {
     padding-right: 1.5rem;
@@ -961,6 +663,8 @@ section{
     word-break: break-word;
 }
 
+
+
 .chipDelete {
     position: absolute;
     top: -0.2rem;
@@ -989,13 +693,7 @@ section{
     justify-content: center;
 }
 
-.skillSideBar {
-    width: 15%;
-    height: calc(100vh - 4rem);
-    overflow: auto;
-    border: solid var(--main-border-colour) 1px;
-    background: white;
-}
+
 
 .categoriesHeader {
     margin-top: 2rem;
@@ -1005,10 +703,6 @@ section{
     margin-top: 2rem;
 }
 
-.evidenceTitle {
-    text-align: center;
-    padding-top: 2rem;
-}
 
 .contentContainer {
     display: flex;
@@ -1017,12 +711,7 @@ section{
     width: 100%;
 }
 
-.evidenceContainer {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    padding-top: 1rem;
-}
+
 
 .skillSideBar h3 {
     text-align: center;

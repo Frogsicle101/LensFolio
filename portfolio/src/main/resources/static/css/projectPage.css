@@ -9,26 +9,13 @@ section{
     justify-content: center;
     width: 90%;
 }
-.dateDiv{
-    display: flex;
-    flex-direction: row;
-}
-
-.dateParentDiv{
-    display: flex;
-    flex-direction: row;
-}
-
-.dateDivider{
-    padding-right: 1rem;
-    padding-left: 1rem;
-}
 
 #addEventForm, #addDeadlineForm, .milestoneForm{
     background-color: var(--background-colour-offblue);
     border-radius: var(--border-radius);
-    padding: 1rem;
+    padding: 2rem;
     margin-bottom: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
 }
 
 .nav-link{
@@ -47,25 +34,7 @@ section{
     font-weight: bold;
 }
 
-.projectRow{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-}
-.projectColLeft{
-    width: 800px;
-}
-.projectColLeft, .projectColRight{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
 
-.projectColRight{
-    padding-top: 2rem;
-    height: 800px;
-    overflow-y: scroll;
-}
 
 #sprintColour {
     border-color: #ced4da;
@@ -95,6 +64,9 @@ section{
 .eventName, .milestoneName, .deadlineName {
     padding-left: 0.5rem;
     font-weight: bolder;
+    width: 80%;
+    word-wrap: anywhere;
+
 }
 
 .occasionTitleDiv {
@@ -118,8 +90,8 @@ section{
     position: relative;
     background-color: var(--background-colour-offblue);
     margin-bottom: 1rem;
-    border: solid 1px var(--secondary-text-colour);
     border-radius: var(--border-radius);
+    box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
     display: flex;
     flex-direction: column;
     padding: 1rem;
@@ -149,6 +121,10 @@ section{
 .eventInSprint {
     display: flex;
     flex-direction: row;
+}
+
+.name{
+
 }
 
 .eventInSprint p {
@@ -193,7 +169,6 @@ section{
     position: relative;
     width: 45rem;
     padding: 2rem;
-    border: solid 1px var(--main-border-colour);
     background-color: var(--background-colour-offblue);
     border-radius: var(--border-radius);
     margin-top: 1rem;
@@ -211,7 +186,7 @@ section{
     position: absolute;
     top: 0.5rem;
     left: 0.5rem;
-    color: var(--secondary-text-colour);
+    color: var(--background-colour-darkBlue);
 
 }
 

@@ -1095,7 +1095,6 @@ $(document).on("click", "#pillsSettingsTab", function () {
  * When group div is clicked, the members for that group are retrieved.
  */
 $(document).on("click", ".group", function () {
-    $(".scrollableGroupOverview").css("width", "50%");
     $(".group").removeClass("focusOnGroup")
     selectedGroupId = $(this).closest(".group").find(".groupId").text()
     let groupShortname = $(this).closest(".group").find(".groupShortName").text();

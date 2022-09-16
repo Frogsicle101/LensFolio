@@ -1,0 +1,166 @@
+.evidenceTitle {
+    text-align: center;
+    padding-top: 2rem;
+}
+
+.evidenceContainer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding-top: 1rem;
+}
+
+.evidencePage {
+    display: flex;
+    flex-direction: row
+}
+
+.evidenceListContainer, .evidenceDetailsContainer {
+    border: solid var(--main-border-colour) 1px;
+}
+
+.evidenceDetailsContainer {
+    padding: 1rem 2rem 2rem;
+    margin-right: 2rem;
+    width: auto;
+    height: calc(100vh - 12rem);
+}
+
+.evidenceDetailsDate {
+    color: var(--secondary-text-colour-darker);
+    font-weight: lighter;
+}
+
+#evidenceDetailsSkills {
+    bottom: 4rem;
+    position: absolute;
+}
+
+#evidenceDetailsLinkedUsers {
+    word-break: break-word;
+    padding-left: 0.5rem;
+}
+
+.evidenceDetailsHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.deleteEvidenceSvg:hover {
+    fill:red;
+}
+
+.evidenceListContainer {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    max-width: 30%;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.evidenceListMenu, .evidenceList {
+    align-self: center;
+}
+
+#createEvidenceButton {
+    margin-top: 1rem;
+}
+
+.evidenceListTitle {
+    text-align: center;
+    padding: inherit;
+    margin-bottom: 0;
+}
+
+#evidenceList {
+    overflow: auto;
+    height: calc(100vh - 10rem);
+}
+
+.evidenceListItem {
+    margin: 1rem;
+    padding: 1rem;
+    border: solid 1px var(--secondary-text-colour);
+    border-radius: var(--border-radius);
+    max-width: 95%;
+}
+
+.evidenceListItemTitle {
+    font-weight: bold;
+}
+
+.evidenceListItemDate {
+    color: var(--secondary-text-colour-darker);
+    font-weight: lighter;
+    text-align: end;
+}
+
+.evidenceDeleteButton {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.evidenceFormName, .evidenceFormDate, .evidenceFormDescription {
+    padding-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+#evidenceFormCategories {
+    padding: 1.5rem;
+}
+
+.evidenceFormCategoryButton {
+    height: 3rem;
+    align-items: center;
+    min-width: 10rem;
+    padding-left: 1.2rem;
+    transition: 0.5s ease-in-out;
+}
+
+.evidenceCategoryTickIcon {
+    margin-left: 1rem;
+    font-size: 1.2rem;
+    display: none
+}
+
+.evidenceFormSkills {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.selectedEvidence {
+    background-color: #eaeaea;
+}
+
+#addEvidenceModal {
+    display: none;
+    position: fixed;
+    z-index: 5;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.evidenceFormButton {
+    margin-top: 0.5rem;
+    margin-right: 1.5rem;
+    max-width: fit-content;
+    align-self: self-end;
+}
+
+.skillSideBar {
+    width: 15%;
+    height: calc(100vh - 4rem);
+    overflow: auto;
+    border: solid var(--main-border-colour) 1px;
+    background-color: var(--background-colour-offblue);
+}
