@@ -40,6 +40,7 @@ section{
     color: var(--background-colour-offblue);
     padding-top: 2rem;
     padding-bottom: 2rem;
+    width: 100%;
 }
 
 .projectDetails h1 {
@@ -51,7 +52,9 @@ section{
     flex-direction: row;
     justify-content: space-around;
 }
-
+.projectColLeft{
+    width: 800px;
+}
 .projectColLeft, .projectColRight{
     display: flex;
     flex-direction: column;
