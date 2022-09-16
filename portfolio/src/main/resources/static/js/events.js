@@ -911,9 +911,10 @@ function createEventDiv(eventObject) {
                     </button>
                 </div>
                 
-                <div class="eventDateDiv">
-                    <p class="eventStart">Start Date: ${sanitise(eventObject.startFormatted)}</p>
-                    <p class="eventEnd">End Date: ${sanitise(eventObject.endFormatted)}</p>
+                <div class="eventDateDiv occasionDates">
+                    <p class="eventStart">${sanitise(eventObject.startFormatted)}</p>
+                    <p class="dateDivider">-</p>
+                    <p class="eventEnd">${sanitise(eventObject.endFormatted)}</p>
                 </div>
             </div>`;
 }
@@ -978,7 +979,7 @@ function createMilestoneDiv(milestoneObject) {
                         </button>
                 </div>
                 
-                <div class="milestoneDateDiv">
+                <div class="milestoneDateDiv occasionDates">
                     <p class="milestoneEnd">${sanitise(milestoneObject.endDateFormatted)}</p>
                 </div>
             </div>
@@ -1043,7 +1044,7 @@ function createDeadlineDiv(deadlineObject) {
                             </svg>
                         </button>
                 </div>
-                        <div class="deadlineDateDiv">
+                        <div class="deadlineDateDiv occasionDates">
                             <p class="deadlineEnd">${sanitise(deadlineObject.endDateFormatted)}</p>
                         </div>
             </div>`;
