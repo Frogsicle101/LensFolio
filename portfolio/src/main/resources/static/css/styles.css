@@ -150,18 +150,12 @@ section{
 }
 .projectColLeft{
     width: 700px;
-    height: 90vh;
-    overflow-y: scroll;
 }
 .projectColLeft, .projectColRight{
+    height: 90vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
-}
-
-.projectColRight{
-    padding-top: 2rem;
-    height: 90vh;
     overflow-y: scroll;
 }
 
