@@ -15,15 +15,13 @@
     flex-direction: row
 }
 
-.evidenceListContainer, .evidenceDetailsContainer {
-    border: solid var(--main-border-colour) 1px;
-}
 
 .evidenceDetailsContainer {
     padding: 1rem 2rem 2rem;
     margin-right: 2rem;
     width: auto;
-    height: calc(100vh - 12rem);
+    height: 700px;
+    overflow-y: scroll;
 }
 
 .evidenceDetailsDate {
@@ -60,14 +58,11 @@
     max-width: 30%;
     padding-right: 0;
     padding-left: 0;
+
 }
 
 .evidenceListMenu, .evidenceList {
     align-self: center;
-}
-
-#createEvidenceButton {
-    margin-top: 1rem;
 }
 
 .evidenceListTitle {
@@ -77,16 +72,17 @@
 }
 
 #evidenceList {
-    overflow: auto;
-    height: calc(100vh - 10rem);
+    height: 700px;
+    overflow-y: scroll;
+    margin-right: 2rem;
+    border-radius: var(--border-radius);
 }
 
 .evidenceListItem {
-    margin: 1rem;
+    margin-bottom: 1rem;
+    margin-right: 1rem;
     padding: 1rem;
-    border: solid 1px var(--secondary-text-colour);
     border-radius: var(--border-radius);
-    max-width: 95%;
 }
 
 .evidenceListItemTitle {
@@ -159,8 +155,84 @@
 
 .skillSideBar {
     width: 15%;
-    height: calc(100vh - 4rem);
-    overflow: auto;
-    border: solid var(--main-border-colour) 1px;
-    background-color: var(--background-colour-offblue);
+    height: 100%;
+    overflow-y: scroll;
+    margin-left: 2rem;
+}
+
+.categoriesHeader, .skillsHeader {
+    margin-top: 2rem;
+    color: var(--background-colour-offblue);
+}
+
+.evidencePreviewTags, #evidenceDetailsSkills {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.chip {
+    padding: 0.2rem 1rem 0.2rem;
+    position: relative;
+    margin: 0.2rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: row;
+    box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
+}
+
+.skillChip {
+    background-color: var(--skill-chip-colour);
+}
+
+.categoryChip {
+    background-color: var(--category-chip-colour);
+}
+
+.chip:hover {
+    cursor: pointer;
+    filter: contrast(80%);
+}
+
+.skillChipInvalid {
+    background-color: #ee3636;
+}
+
+#skillChipDisplay {
+    justify-content: left;
+}
+
+
+.chipText {
+    margin: auto;
+    text-align: center;
+    word-break: break-word;
+}
+
+
+
+.chipDelete {
+    position: absolute;
+    top: -0.2rem;
+    right: -0.2rem;
+}
+
+.chip.selected {
+    filter: contrast(70%);
+}
+
+.chipDelete:hover {
+    cursor: pointer;
+    color: red;
+}
+
+.skillSideBar h3 {
+    text-align: center;
+}
+
+.evidenceContainerButtons{
+    position: absolute;
+    left: 1rem;
+    top: 2rem;
+    margin-top: 0;
 }

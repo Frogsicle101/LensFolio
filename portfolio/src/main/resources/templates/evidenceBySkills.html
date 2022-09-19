@@ -10,9 +10,7 @@
 <header th:insert="fragments/general.html :: header"></header>
 <section class="flexContainer">
     <div class="skillSideBar">
-        <div class="marginTop center">
-            <button id="showAllEvidence" class="btn btn-primary">Show All Evidence</button>
-        </div>
+
         <div class="categoryContainer">
             <h3 class="categoriesHeader">Categories</h3>
             <div id="categoryList" class="flexContainer flexWrap"></div>
@@ -25,7 +23,10 @@
     </div>
     <div class="contentContainer">
         <h2 class="evidenceTitle lightText">Evidence</h2>
-        <button class="btn btn-primary" id="createEvidenceButton" type="button" style="display: none">Create Evidence</button>
+        <div class="evidenceContainerButtons">
+            <button id="showAllEvidence" class="btn btn-outline-primary">Show All Evidence</button>
+            <button class="btn btn-outline-primary" id="createEvidenceButton" type="button" style="display: none">Create Evidence</button>
+        </div>
         <h5 id="nameHolder" class="lightText" style="display: none"></h5>
         <div class="evidenceContainer">
             <div class="col">
