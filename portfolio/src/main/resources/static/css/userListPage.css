@@ -85,3 +85,16 @@ section{
 .userRoleRow:hover :not(.roleButtonsContainer) {
     cursor: pointer;
 }
+
+.groupAmountSelectorDivUserList {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 20rem;
+    padding: 1rem;
+}
+
+.userListAmount{
+    width: 10rem;
+}

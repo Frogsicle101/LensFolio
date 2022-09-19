@@ -16,9 +16,9 @@
     <section>
         <div class="listTableDiv">
             <h1 class="title">Users</h1>
-            <form action="">
-                <label for="usersPerPageSelect">Users per page</label>
-                <select id="usersPerPageSelect" name="usersPerPage">
+            <form action="" class="groupAmountSelectorDivUserList">
+                <label for="usersPerPageSelect" class="form-label">Users per page</label>
+                <select id="usersPerPageSelect" name="usersPerPage" class="form-select userListAmount">
                     <option value="10" th:selected="${'10'== selectedUsersPerPage}">10</option>
                     <option value="20" th:selected="${'20'== selectedUsersPerPage}">20</option>
                     <option value="40" th:selected="${'40'== selectedUsersPerPage}">40</option>
