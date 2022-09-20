@@ -592,21 +592,6 @@ $(document).on('keypress', '#webLinkName', function () {
 })
 
 
-/**
- * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
- * skill we are deleting.
- */
-$(document).on("click", ".chipDelete", function () {
-    let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
-    let skillsInput = $("#skillsInput")
-    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
-        return value.toLowerCase() !== skillText.toLowerCase()
-    })
-    skillsInput.val(inputArray.join(" "))
-    displayInputSkillChips()
-})
-
-
 // --------------------------------- Autocomplete -----------------------------------------
 
 
@@ -838,7 +823,7 @@ function displayInputSkillChips() {
     checkToShowSkillChips()
     let skillsInput = $("#skillsInput")
     let inputArray = skillsInput.val().trim().split(/\s+/)
-    let chipDisplay = $("#skillChipDisplay")
+    let chipDisplay = $("#tagInputChips")
 
     $('[data-toggle="tooltip"]').tooltip("hide")
 
