@@ -24,6 +24,16 @@ $(function () {
 });
 
 
+
+/**
+ * When a user clicks on a nav item it finds the a link inside it and goes to that address
+ */
+$(document).on("click", ".navItem", function() {
+    let link = $(this).children("a").attr("href")
+    location.replace(link)
+})
+
+
 /**
  * Checks if a user has a role above student.
  *
