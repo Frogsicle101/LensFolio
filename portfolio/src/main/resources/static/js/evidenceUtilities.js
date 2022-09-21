@@ -4,7 +4,7 @@
  */
 
 
-const RESERVED_SKILL_TAGS = ["no skill"];
+const RESERVED_SKILL_TAGS = ["no_skill"];
 
 /** A regex only allowing English characters, numbers, hyphens and underscores */
 const regexSkills = new RegExp("[A-Za-z0-9_-]+");
