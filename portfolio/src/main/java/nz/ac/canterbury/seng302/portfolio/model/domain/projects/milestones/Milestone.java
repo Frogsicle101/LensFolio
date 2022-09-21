@@ -4,10 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -16,6 +13,7 @@ import java.util.UUID;
  * Represents a Milestone entity.
  */
 @Entity
+@Table(name = "occasions")
 public class Milestone {
     @Id
     private String id;
