@@ -183,7 +183,7 @@
                            name="new password"
                            required
                            th:pattern="${generalUnicodeNoSpacesRegex.getPatternString()}"
-                           th:title="${'Password' + generalUnicodeNoSpacesRegexpasswordForm.getRequirements()}"
+                           th:title="${'Password' + generalUnicodeNoSpacesRegex.getRequirements()}"
                            type="password">
                     <div class="invalid-feedback" th:text="${'Password' + generalUnicodeNoSpacesRegex.getRequirements()}"></div>
                 </div>

@@ -68,7 +68,7 @@ $(() => {
             const errorElements = accountForm.find(".form-control:invalid")
             $('html, body').animate({
                 scrollTop: $(errorElements[0]).offset().top - 100
-            }, 50);
+            }, 50); // Scrolls to the first invalid field of the form
         }
     })
 
@@ -103,7 +103,7 @@ $(() => {
             const errorElements = passwordForm.find(".form-control:invalid")
             $('html, body').animate({
                 scrollTop: $(errorElements[0]).offset().top - 100
-            }, 50);
+            }, 50); // Scrolls to the first invalid field of the form
         }
     })
 })
