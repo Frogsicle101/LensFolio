@@ -1,7 +1,15 @@
 
 /** For adding the skills to as the chips are added. */
 let skillsToCreate = []
+const skillsInput = $("#skillsInput")
 
+
+/**
+ * Adds a string to the skillsToCreate list if it is not present.
+ *
+ * @param skillName Name of skill to be added
+ * @returns {boolean} True if the skill was added, false otherwise
+ */
 function addUniqueSkill(skillName) {
     if (! skillsToCreate.includes(skillName)) {
         skillsToCreate.push(skillName.replaceAll("_", " "))
@@ -11,8 +19,15 @@ function addUniqueSkill(skillName) {
 }
 
 
+/**
+ * Checks that a skill name is between 1 and 30 characters (inclusive), and is not a reserved skill.
+ * Creates error messages and adds error classes as required.
+ *
+ * @param inputValue The skill name ot be checked
+ * @param showAlert Boolean value representing whether an alert will be shown on fail
+ * @returns {boolean} True if the skill is valid, false otherwise
+ */
 function validateSkillInput(inputValue, showAlert) {
-    const skillsInput = $("#skillsInput")
     if (inputValue.length > 30) {
         if (showAlert) {
             skillsInput.addClass("skillChipInvalid")
@@ -31,10 +46,15 @@ function validateSkillInput(inputValue, showAlert) {
         return false
     }
     skillsInput.removeClass("skillChipInvalid")
+    removeAlert()
     return true
 }
 
 
+/**
+ * Adds skill chips to the skill input.
+ * Underscores are replaced with spaces.
+ */
 function updateSkillsInput() {
     let chipDisplay = $("#tagInputChips")
     $('[data-toggle="tooltip"]').tooltip("hide")
@@ -47,8 +67,15 @@ function updateSkillsInput() {
 }
 
 
+/**
+ * Takes an event, containing a keypress, and either adds the last skill as a tag, removes the skill from the input, or
+ * does nothing.
+ * Deletes if backspace is pressed.
+ * Adds as a tag if space bar, enter, or tab is pressed.
+ *
+ * @param event The event containing the key press value
+ */
 function handleSkillInputKeypress(event) {
-    const skillsInput = $("#skillsInput")
     const inputValue = skillsInput.val().trim()
     const isValidSkillName = validateSkillInput(inputValue, true)
     let needsUpdate = false
@@ -72,12 +99,16 @@ function handleSkillInputKeypress(event) {
 }
 
 
+/**
+ * Makes a tag/deletes the input for each input in the skill input.
+ * Inputs are split by whitespace characters, and verified as valid skills.
+ * If any skills are invalid, an error message displays. If there are 4 or less invalid skills, the skill names (trimmed
+ * to 30 chars) are displayed. Otherwise, a message telling the user the number of removed inputs is displayed.
+ */
 function handleSkillInputPaste() {
-    const skillsInput = $("#skillsInput")
     const inputValues = skillsInput.val().trim().split(/\s+/)
     const invalidSkillNames = new Set()
 
-    console.log(inputValues)
     inputValues.forEach(skillName => {
         if (validateSkillInput(skillName, false)) {
             addUniqueSkill(skillName)
@@ -99,6 +130,11 @@ function handleSkillInputPaste() {
 }
 
 
+/**
+ * Removes the selected skill from the skills input and from the list of skills to be saved.
+ *
+ * @param event The click event on the skill delete button.
+ */
 function handleChipDelete(event) {
     event.stopPropagation()
     const skillName = $(this).siblings(".chipText").text()
@@ -164,7 +200,7 @@ function removeDuplicatesFromInput(input) {
  * Autocomplete widget provided by jQueryUi
  * https://jqueryui.com/autocomplete/
  */
-$("#skillsInput")
+skillsInput
     // don't navigate away from the field on tab when selecting an item
     .on("keydown", function (event) {
         if (event.key === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
