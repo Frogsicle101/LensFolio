@@ -10,6 +10,26 @@ $(() => {
     let personalPronouns = $("#personalPronouns")
     let email = $("#email")
 
+
+    function populateAccountInfo() {
+        $.ajax({
+            url: "getUser",
+            success: function (response) {
+                firstname.val(response.firstName)
+                middlename.val(response.middleName)
+                lastname.val(response.lastName)
+                nickname.val(response.nickname)
+                bio.val(response.bio)
+                personalPronouns.val(response.pronouns)
+                email.val(response.email)
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
+            }
+        })
+    }
+
+
     function toggleEditForm() {
         let canDisable = $(".canDisable")
         canDisable.prop("disabled", !canDisable.prop("disabled"));
@@ -20,6 +40,7 @@ $(() => {
         if (editUserButton.text() === "Edit Account") { //Toggle text change
             editUserButton.text("Cancel")
         } else {
+            populateAccountInfo()
             editUserButton.text("Edit Account")
         }
     }
