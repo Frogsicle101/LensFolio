@@ -39,24 +39,33 @@ $(() => {
     //When the submit button is clicked on the form.
     $(".editForm").on("submit", function (event) {
         event.preventDefault()
+        let form = $("#editForm")
 
-        let dataToSend = {
-            "projectId": projectId.val(),
-            "projectName": projectName.val(),
-            "projectStartDate": projectStart.val(),
-            "projectEndDate": projectEnd.val(),
-            "projectDescription": projectDescription.val()
-        }
-        $.ajax({
-            url: "projectEdit",
-            data: dataToSend,
-            type: "post",
-            success: function () {
-                location.href = "portfolio?projectId=" + projectId.val()
-            },
-            error: function (error) {
-                createAlert(error.responseText, "failure")
+        if (form[0].checkValidity()) {
+            let dataToSend = {
+                "projectId": projectId.val(),
+                "projectName": projectName.val(),
+                "projectStartDate": projectStart.val(),
+                "projectEndDate": projectEnd.val(),
+                "projectDescription": projectDescription.val()
             }
-        })
+            $.ajax({
+                url: "projectEdit",
+                data: dataToSend,
+                type: "post",
+                success: function () {
+                    location.href = "portfolio?projectId=" + projectId.val()
+                },
+                error: function (error) {
+                    createAlert(error.responseText, "failure")
+                }
+            })
+        } else {
+            event.stopPropagation();
+            const errorElements = form.find(".form-control:invalid")
+            $('html, body').animate({
+                scrollTop: $(errorElements[0]).offset().top - 100
+            }, 50); //Scrolls to the first invalid field of the form
+        }
     })
 })
