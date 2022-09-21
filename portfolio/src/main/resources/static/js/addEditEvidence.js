@@ -2,6 +2,7 @@
 /** For adding the skills to as the chips are added. */
 let skillsToCreate = []
 const skillsInput = $("#skillsInput")
+let oldInput = ""
 
 
 /**
@@ -54,8 +55,10 @@ function validateSkillInput(inputValue, showAlert) {
 /**
  * Adds skill chips to the skill input.
  * Underscores are replaced with spaces.
+ * Clears existing input.
  */
 function updateSkillsInput() {
+    skillsInput.val("")
     let chipDisplay = $("#tagInputChips")
     $('[data-toggle="tooltip"]').tooltip("hide")
 
@@ -80,7 +83,7 @@ function handleSkillInputKeypress(event) {
     const isValidSkillName = validateSkillInput(inputValue, true)
     let needsUpdate = false
 
-    if (event.key === "Backspace" && inputValue.length === 0 && skillsToCreate.length > 0) {
+    if (event.key === "Backspace" && oldInput.length === 0 && skillsToCreate.length > 0) {
         skillsToCreate.pop()
         needsUpdate = true
     }
@@ -96,6 +99,7 @@ function handleSkillInputKeypress(event) {
     if (needsUpdate) {
        updateSkillsInput()
     }
+    oldInput = inputValue
 }
 
 
@@ -143,6 +147,7 @@ function handleChipDelete(event) {
     event.stopPropagation()
     const skillName = $(this).siblings(".chipText").text()
     skillsToCreate = skillsToCreate.filter(addedSkill => addedSkill !== skillName)
+
     updateSkillsInput()
 }
 
@@ -215,12 +220,13 @@ skillsInput
         autoFocus: true, // This default selects the top result
         minLength: 1,
         source: function (request, response) {
-            // delegate back to autocomplete, but extract the last term
-            let responseList = $.ui.autocomplete.filter(skillsArray, extractLast(request.term))
-            response(responseList.sort((element1, element2) => {
-                // This sorts the response list (the drop-down list) so that it shows the shortest match first
-                return element1.length - element2.length
-            }));
+            let filteredSkills = $.ui.autocomplete.filter(skillsArray, extractLast(request.term))
+            let existingSkills = [];
+            $.each(skillsToCreate , function (i, element) {
+                existingSkills.push(element.toLowerCase())
+            })
+            filteredSkills = filteredSkills.filter(element => !existingSkills.includes(element.toLowerCase()))
+            response(filteredSkills.sort());
         },
         focus: function () {
             // prevent value inserted on focus
@@ -326,9 +332,8 @@ $(".evidenceFormCategoryButton").on("click", function () {
  * If it is a delete button keydown then it removes the last word from the input box.
  * If it is a space, tab or enter then it checks for duplicates
  */
-$(document).on("keydown", "#skillsInput", function (event) {
+$(document).on("keydown", "#skillsInput", (event) => {
     setTimeout(() => handleSkillInputKeypress(event), 0)
-
 })
 
 

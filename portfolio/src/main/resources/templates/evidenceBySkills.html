@@ -134,7 +134,7 @@
 
                         <div class="tagInputContainer">
                             <div id="tagInputChips"></div>
-                            <input id="skillsInput" class="noDisplayInput" type="text"/>
+                            <input id="skillsInput" class="noDisplayInput" type="text" onfocus="this.oldvalue = this.value;" onchange="this.oldvalue = this.value;"/>
                         </div>
                         <small class="form-text text-muted">Type in your skills and separate them with a space. If they are multiple words, separate them with an underscore eg: Intra-team_Communication</small>
                     </div>

@@ -915,8 +915,8 @@ function clearAddEvidenceModalValues() {
     $("#addedWebLinks").empty()
     $("#linkedUsers").empty()
     $("#webLinkTitle").hide()
-    $("#skillsInput").val("")
-    $("#tagInputChips").empty()
+    skillsToCreate = []
+    updateSkillsInput()
     $("#linkedUsersTitle").hide()
     $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
     $(".evidenceCategoryTickIcon").hide();
