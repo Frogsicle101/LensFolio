@@ -63,8 +63,9 @@ $(document).on("click", ".editSprint", function () {
 
 /**
  * When sprint delete button is clicked.
- * Sends ajax delete request.
- * Then reloads page.
+ * Asks for confirmation,
+ * if yes: sends ajax delete request then reloads page.
+ * if no: does nothing.
  */
 $(document).on("click", ".deleteSprint", function () {
     let sprintId = $(this).closest(".sprint").find(".sprintId").text();
