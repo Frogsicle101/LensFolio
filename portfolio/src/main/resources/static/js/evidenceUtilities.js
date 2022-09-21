@@ -904,7 +904,7 @@ $(document).on("click", ".linkedUser", function () {
 
 
 /**
- * Clears all fields (except the date field) in the "Add Evidence" form.
+ * Clears all fields (except the date field, which is reset to today) in the "Add Evidence" form.
  */
 function clearAddEvidenceModalValues() {
     $("#evidenceName").val("")
@@ -916,6 +916,7 @@ function clearAddEvidenceModalValues() {
     $("#linkedUsers").empty()
     $("#webLinkTitle").hide()
     $("#skillsInput").val("")
+    $("#tagInputChips").empty()
     $("#linkedUsersTitle").hide()
     $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
     $(".evidenceCategoryTickIcon").hide();
