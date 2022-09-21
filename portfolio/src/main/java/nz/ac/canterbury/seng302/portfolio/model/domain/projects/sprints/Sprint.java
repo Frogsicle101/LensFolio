@@ -2,16 +2,11 @@ package nz.ac.canterbury.seng302.portfolio.model.domain.projects.sprints;
 
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.deadlines.Deadline;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.events.Event;
-import nz.ac.canterbury.seng302.portfolio.model.domain.projects.milestones.Milestone;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -28,12 +23,6 @@ public class Sprint {
     private LocalDate endDate;
     private String description;
     private String colour;
-    @OneToMany
-    private List<Event> eventList;
-    @OneToMany
-    private List<Deadline> deadlineList;
-    @OneToMany
-    private List<Milestone> milestoneList;
 
     protected Sprint() {
     }
@@ -91,43 +80,6 @@ public class Sprint {
         int nextInt = random.nextInt(0xffffff + 1);
         this.colour = String.format("#%06x", nextInt);
     }
-
-    public void addEvent(Event event) {
-        eventList.add(event);
-    }
-
-    public void addDeadline(Deadline deadline) {
-        deadlineList.add(deadline);
-    }
-
-    public void addMilestone(Milestone milestone) {
-        milestoneList.add(milestone);
-    }
-
-    public List<Event> getEventList() {
-        return eventList;
-    }
-
-    public void setEventList(List<Event> eventList) {
-        this.eventList = eventList;
-    }
-
-    public List<Deadline> getDeadlineList() {
-        return deadlineList;
-    }
-
-    public void setDeadlineList(List<Deadline> deadlineList) {
-        this.deadlineList = deadlineList;
-    }
-
-    public List<Milestone> getMilestoneList() {
-        return milestoneList;
-    }
-
-    public void setMilestoneList(List<Milestone> milestoneList) {
-        this.milestoneList = milestoneList;
-    }
-
 
     public LocalDate getStartDate() {
         return startDate;
