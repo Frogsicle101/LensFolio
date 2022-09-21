@@ -4,6 +4,7 @@
     <title>Lensfolio | Portfolio</title>
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
             </th:block> /*/-->
+    <div th:insert="fragments/general.html :: unicode"></div>
 
 </head>
 <body>
@@ -69,7 +70,6 @@
             <label class="form-label" for="projectDescription">Description</label>
             <textarea class="form-control canDisable" id="projectDescription" maxlength="200" name="projectDescription"
                       th:text="${project.getDescription()}"
-                      th:pattern="${generalUnicodeRegex.getPatternString()}"
                       th:title="${'Project description' + generalUnicodeRegex.getRequirements()}"></textarea>
         </div>
         <button class="btn btn-primary canDisable submitButton" id="editProjectSubmitButton" type="submit">Submit</button>

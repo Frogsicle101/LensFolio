@@ -48,6 +48,13 @@
 
 </head>
 
+<div th:fragment="unicode">
+    <script th:inline="javascript">
+        const regexString = [[${generalUnicodeRegex.getPatternString()}]]
+        const GENERAL_UNICODE_REGEX = new RegExp(`\^${regexString}\$`, "gu");
+    </script>
+</div>
+
 
 <body>
 
