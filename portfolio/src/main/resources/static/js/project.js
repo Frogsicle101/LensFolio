@@ -68,30 +68,34 @@ $(document).on("click", ".editSprint", function () {
  */
 $(document).on("click", ".deleteSprint", function () {
     let sprintId = $(this).closest(".sprint").find(".sprintId").text();
+    let sprintName = $(this).closest(".sprint").find(".name").text();
+    console.log(sprintName)
 
-    $.ajax({
-        url: "deleteSprint",
-        type: "DELETE",
-        data: {"sprintId": sprintId},
-        success: function () {
-            $(".editSprint").tooltip('hide')
-            $(".deleteSprint").tooltip('hide')
-            createAlert("Sprint deleted!", "success")
-            sendNotification("sprint", sprintId, "delete")
-        },
-        error: function (error) {
-            createAlert(error.responseText, "failure")
-        }
-    }).done(function () {
-        $(".sprintsContainer").slideUp(400, function () {
-            $(".sprintsContainer").empty()
-            getSprints(() => {
-                refreshDeadlines(projectId);
-                refreshMilestones(projectId);
-                refreshEvents(projectId);
+    if (window.confirm(`Are you sure you want to delete:\n ${sprintName}`)) {
+        $.ajax({
+            url: "deleteSprint",
+            type: "DELETE",
+            data: {"sprintId": sprintId},
+            success: function () {
+                $(".editSprint").tooltip('hide')
+                $(".deleteSprint").tooltip('hide')
+                createAlert("Sprint deleted!", "success")
+                sendNotification("sprint", sprintId, "delete")
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
+            }
+        }).done(function () {
+            $(".sprintsContainer").slideUp(400, function () {
+                $(".sprintsContainer").empty()
+                getSprints(() => {
+                    refreshDeadlines(projectId);
+                    refreshMilestones(projectId);
+                    refreshEvents(projectId);
+                })
             })
         })
-    })
+    }
 })
 
 /**
