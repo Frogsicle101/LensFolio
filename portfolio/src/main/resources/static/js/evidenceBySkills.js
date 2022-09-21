@@ -60,7 +60,7 @@ function showEvidenceWithSkill() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 }
@@ -79,7 +79,7 @@ function showEvidenceWithCategory() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 }

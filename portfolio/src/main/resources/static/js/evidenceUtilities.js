@@ -181,7 +181,7 @@ function getAndAddEvidencePreviews() {
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
         }, error: function () {
-            createAlert("Could not retrieve evidence data", "failure")
+            createAlert("Could not retrieve evidence data", AlertTypes.Failure)
         }
     })
 }
@@ -220,7 +220,7 @@ function getHighlightedEvidenceDetails() {
                 getHighlightedEvidenceWeblinks()
             }, error: function (error) {
                 console.log(error)
-                createAlert("Failed to receive active evidence", "failure")
+                createAlert("Failed to receive active evidence", AlertTypes.Failure)
             }
         })
     } else {
@@ -239,7 +239,7 @@ function getHighlightedEvidenceWeblinks() {
             setHighlightedEvidenceWebLinks(response)
         }, error: function (response) {
             if (response.status !== 404) {
-                createAlert("Failed to receive evidence links", "failure")
+                createAlert("Failed to receive evidence links", AlertTypes.Failure)
             }
         }
     })
@@ -585,7 +585,7 @@ function getLinkedUsers() {
             let userId = parseInt(linkedUsers[i].id.replace("linkedUserId", ""));
             userIds.push(userId)
         } catch (error) {
-            createAlert("Oops! there was an error with one or more of the linked users", "failure")
+            createAlert("Oops! there was an error with one or more of the linked users", AlertTypes.Failure)
         }
     })
     return userIds;
@@ -662,11 +662,11 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
                 closeModal()
                 clearAddEvidenceModalValues()
                 $(".alert").remove()
-                createAlert("Created evidence", "success")
+                createAlert("Created evidence", AlertTypes.Success)
                 disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
                 resetWeblink()
             }, error: function (error) {
-                createAlert(error.responseText, "failure", ".modalBody")
+                createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
             }
         })
     }
@@ -1003,9 +1003,9 @@ $(document).on("click", "#deleteEvidenceButton", function () {
                 selectedEvidenceId = null
                 getAndAddEvidencePreviews()
                 getSkills(addSkillsToSideBar)
-                createAlert("Successfully deleted evidence: " + sanitise(evidenceName), "success")
+                createAlert("Successfully deleted evidence: " + sanitise(evidenceName), AlertTypes.Success)
             }, error: (response) => {
-                createAlert(response.responseText, "failure")
+                createAlert(response.responseText, AlertTypes.Failure)
             }
         })
     }

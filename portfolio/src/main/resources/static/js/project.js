@@ -32,11 +32,11 @@ $(() => {
                         refreshEvents(projectId);
                     })
                 })
-                createAlert("Sprint created!", "success")
+                createAlert("Sprint created!", AlertTypes.Success)
                 sendNotification("sprint", response.id, "create")
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     })
@@ -76,11 +76,11 @@ $(document).on("click", ".deleteSprint", function () {
         success: function () {
             $(".editSprint").tooltip('hide')
             $(".deleteSprint").tooltip('hide')
-            createAlert("Sprint deleted!", "success")
+            createAlert("Sprint deleted!", AlertTypes.Success)
             sendNotification("sprint", sprintId, "delete")
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     }).done(function () {
         $(".sprintsContainer").slideUp(400, function () {

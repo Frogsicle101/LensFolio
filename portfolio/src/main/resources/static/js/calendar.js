@@ -31,7 +31,7 @@ function eventResize(info) {
         type: "post",
         data: dataToSend,
         success: function () {
-            createAlert("Sprint dates updated successfully", "success")
+            createAlert("Sprint dates updated successfully", AlertTypes.Success)
             fcEvent.css("border-right", "solid 0px #13CEE2");
             fcEvent.css("border-left", "solid 0px #13CEE2");
             info.event.setProp("borderColor", '#c2080b');
@@ -39,7 +39,7 @@ function eventResize(info) {
             $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
             fcEvent.css("border-right", "solid 0px #13CEE2");
             fcEvent.css("border-left", "solid 0px #13CEE2");
             info.revert()

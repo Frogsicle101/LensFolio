@@ -46,7 +46,7 @@ $(() => {
                 window.history.back();
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     })
@@ -64,10 +64,10 @@ function handleUpdateEvent(message) {
     if (parseInt(editorId) !== parseInt(userIdent)) {
         if (message.occasionId === $(document).find("#sprintId").val())  {
             createAlert(editorName + " updated this sprint. \nPlease refresh the page to view their changes. \n" +
-                "Note this will undo your changes","info")
+                "Note this will undo your changes",AlertTypes.Info)
         } else if (message.occasionType === "sprint") {
             createAlert(editorName + " updated another sprint. \nPlease refresh the page to update available dates for this sprint. \n" +
-                "Note this will undo your changes","info")
+                "Note this will undo your changes",AlertTypes.Info)
         }
     }
 }
@@ -83,7 +83,7 @@ function handleDeleteEvent(message) {
     if (parseInt(editorId) !== parseInt(userIdent)) {
         if (message.occasionId === $(document).find("#sprintId").val()) {
             createAlert(editorName + " deleted this sprint. \nThis sprint can no longer be edited.\n" +
-                "Please cancel.", "info")
+                "Please cancel.", AlertTypes.Info)
         }
     }
 }

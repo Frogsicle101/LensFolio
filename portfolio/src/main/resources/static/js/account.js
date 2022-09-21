@@ -53,11 +53,11 @@ $(() => {
             type: "post",
             data: accountData,
             success:  () => {
-                createAlert("Updated details successfully!", "success")
+                createAlert("Updated details successfully!", AlertTypes.Success)
                 toggleEditForm()
             },
             error: function (error) {//Displays error in box on failure
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     })
@@ -77,14 +77,14 @@ $(() => {
             data: data,
             url: "edit/password",
             success: function () {
-                createAlert("Password Changed Successfully!", "success")
+                createAlert("Password Changed Successfully!", AlertTypes.Success)
                 toggleEditForm()
                 $("#OldPassword").val('')
                 $("#NewPassword").val('')
                 $("#ConfirmPassword").val('')
             },
             error: function (error) { // Display errors in box on failure
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     })

@@ -23,7 +23,7 @@ $(() => {
                 location.href = "groups" // On success reloads page
             },
             error: function (error) {//Displays error in box on failure
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     })

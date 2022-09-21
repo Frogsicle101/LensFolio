@@ -31,7 +31,7 @@ function validateSkillInput(inputValue, showAlert) {
     if (inputValue.length > 30) {
         if (showAlert) {
             skillsInput.addClass("skillChipInvalid")
-            createAlert("Length of skill name should be less than 30", "failure")
+            createAlert("Maximum skill length is 30 characters", AlertTypes.Failure)
         }
         return false
     }
@@ -41,12 +41,11 @@ function validateSkillInput(inputValue, showAlert) {
     if (RESERVED_SKILL_TAGS.includes(inputValue.toLowerCase())) {
         if (showAlert) {
             skillsInput.addClass("skillChipInvalid")
-            createAlert("This is a reserved tag and cannot be manually created", "failure")
+            createAlert("This is a reserved tag and cannot be manually created", AlertTypes.Failure)
         }
         return false
     }
     skillsInput.removeClass("skillChipInvalid")
-    removeAlert()
     return true
 }
 
@@ -119,12 +118,16 @@ function handleSkillInputPaste() {
 
     updateSkillsInput()
     skillsInput.val("")
-
-    if (invalidSkillNames.length > 0) {
-        if (invalidSkillNames.length < 5) {
-            createAlert("Invalid skills not added: " + invalidSkillNames.join(", "), "failure")
+    console.log(invalidSkillNames.size)
+    if (invalidSkillNames.size > 0) {
+        if (invalidSkillNames.size < 5) {
+            let skillNamesString = []
+            invalidSkillNames.forEach( (el) => {
+                skillNamesString.push("\n" + el)
+            })
+            createAlert("Invalid skill(s) not added: " + skillNamesString, AlertTypes.Failure)
         } else {
-            createAlert("Discarded " + invalidSkillNames.length + " invalid skills", "failure")
+            createAlert("Discarded " + invalidSkillNames.size + " invalid skills", AlertTypes.Failure)
         }
     }
 }
@@ -167,17 +170,17 @@ function removeDuplicatesFromInput(input) {
                 .trim()
                 .replaceAll(" ", "_")
             if (element.match(emojiRegx)) {
-                createAlert("Emojis not allowed in Skill name", "failure")
+                createAlert("Emojis not allowed in Skill name", AlertTypes.Failure)
             }
             if (element.length > 30) { //Shortens down the elements to 30 characters
                 element = element.split("").splice(0, 30).join("")
-                createAlert("Length of skill name should be less than 30", "failure")
+                createAlert("Length of skill name should be less than 30", AlertTypes.Failure)
             }
             if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
                 newArray.push(element)
             }
         } else if (element.length > 0) {
-            createAlert("Skill names containing only special symbols are not allowed.", "failure")
+            createAlert("Skill names containing only special symbols are not allowed.", AlertTypes.Failure)
         }
     })
 
@@ -270,7 +273,7 @@ $("#linkUsersInput")
                     })
                     response(users)
                 }, error: function (error) {
-                    createAlert(error.responseText, "failure", ".modalBody")
+                    createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
                 }
             })
         },

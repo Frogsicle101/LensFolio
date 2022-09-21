@@ -188,7 +188,7 @@ function getGroups(page = groupPage) {
             createListOfGroups(data.groups)
         },
         error: function(error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     }).then(manageGroupTableInteraction)
 }
@@ -383,16 +383,16 @@ function addUsers(groupId) {
             displayGroupUsersList()
             sendNotification("group", groupId, "updateGroup");
             if (parseInt(groupId) === MWAG_GROUP_ID) {
-                createAlert("User(s) moved, and teachers role remains", "success")
+                createAlert("User(s) moved, and teachers role remains", AlertTypes.Success)
             } else {
-                createAlert("User(s) moved", "success")
+                createAlert("User(s) moved", AlertTypes.Success)
             }
         }, error: function (error) {
             if (error.status == 401) {
                 createAlert("You don't have permission to move users. This could be because " +
-                    "your roles have been updated. Try refreshing the page", "failure")
+                    "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
             } else {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         }
     })
@@ -520,7 +520,7 @@ function displayGroupUsersList() {
             checkEditRights(response)
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 }
@@ -966,15 +966,15 @@ $(document).on("click", "#groupRemoveUser", function () {
             type: "DELETE",
             success: () => {
                 displayGroupUsersList()
-                createAlert("User removed", "success")
+                createAlert("User removed", AlertTypes.Success)
                 sendNotification("group", selectedGroupId, "updateGroup");
                 checkToSeeIfHideOrShowOptions()
             }, error: function (error) {
                 if (error.status == 401) {
                     createAlert("You don't have permission to remove users. This could be because " +
-                        "your roles have been updated. Try refreshing the page", "failure")
+                        "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
                 } else {
-                    createAlert(error.responseText, "failure")
+                    createAlert(error.responseText, AlertTypes.Failure)
                 }
             }
         })
@@ -997,9 +997,9 @@ $(document).on("click", ".deleteButton", function () {
             }, error: function (error) {
                 if (error.status == 401) {
                     createAlert("You don't have permission to delete groups. This could be because " +
-                        "your roles have been updated. Try refreshing the page", "failure")
+                        "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
                 } else {
-                    createAlert(error.responseText, "failure")
+                    createAlert(error.responseText, AlertTypes.Failure)
                 }
             }
         })
@@ -1058,7 +1058,7 @@ $(document).on("submit", "#editGroupForm", function (event) {
         type: type,
         data: groupData,
         success: function () {
-            createAlert("Changes submitted", "success");
+            createAlert("Changes submitted", AlertTypes.Success);
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
@@ -1066,9 +1066,9 @@ $(document).on("submit", "#editGroupForm", function (event) {
         }, error: function (error) {
             if (error.status == 401) {
                 createAlert("You don't have permission to edit group details. This could be because " +
-                    "your roles have been updated. Try refreshing the page", "failure")
+                    "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
             } else {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         }
     })
