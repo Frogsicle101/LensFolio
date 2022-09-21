@@ -28,27 +28,38 @@ $(() => {
     $(".editForm").on("submit", function (event) {
         event.preventDefault()
 
-        let dataToSend = {
-            "sprintId": sprintId.val(),
-            "sprintName": sprintName.val(),
-            "sprintStartDate": sprintStartDate.val(),
-            "sprintEndDate": sprintEndDate.val(),
-            "sprintDescription": sprintDescription.val(),
-            "sprintColour": sprintColour.val()
+        let form = $("#accountForm")
+        if (form[0].checkValidity()) {
+            let dataToSend = {
+                "sprintId": sprintId.val(),
+                "sprintName": sprintName.val(),
+                "sprintStartDate": sprintStartDate.val(),
+                "sprintEndDate": sprintEndDate.val(),
+                "sprintDescription": sprintDescription.val(),
+                "sprintColour": sprintColour.val()
+            }
+
+            $.ajax({
+                url: "sprintSubmit",
+                type: "post",
+                data: dataToSend,
+                success: function () {
+                    sendNotification("sprint", sprintId.val(), "update")
+                    window.history.back();
+                },
+                error: function (error) {
+                    createAlert(error.responseText, "failure")
+                }
+            })
+        } else {
+            event.stopPropagation();
+            const errorElements = form.find(".form-control:invalid")
+            $('html, body').animate({
+                scrollTop: $(errorElements[0]).offset().top - 100
+            }, 50); //Scrolls to the first invalid field of the form
         }
 
-        $.ajax({
-            url: "sprintSubmit",
-            type: "post",
-            data: dataToSend,
-            success: function () {
-                sendNotification("sprint", sprintId.val(), "update")
-                window.history.back();
-            },
-            error: function (error) {
-                createAlert(error.responseText, "failure")
-            }
-        })
+
     })
 })
 
