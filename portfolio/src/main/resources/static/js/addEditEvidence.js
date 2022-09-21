@@ -46,6 +46,7 @@ function validateSkillInput(inputValue, showAlert) {
         return false
     }
     skillsInput.removeClass("skillChipInvalid")
+    removeAlert()
     return true
 }
 
