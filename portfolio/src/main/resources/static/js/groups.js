@@ -156,10 +156,10 @@ function manageGroupTableInteraction() {
 
 
 /**
- * Listens for a change on the group amount display selector (the dropdown)
+ * Listens for a change on one of the group display selectors
  * Calls getGroups.
  */
-$(document).on("change", "#groupDisplayAmountSelection", function (event) {
+$(document).on("change", ".small-options", function (event) {
     event.preventDefault()
     getGroups(groupPage)
 })
@@ -177,12 +177,14 @@ function liveUpdateGroupList() {
 function getGroups(page = groupPage) {
     let groupsPerPage = $("#groupDisplayAmountSelection").find("option:selected").text()
     groupsPerPage = groupsPerPage.toLowerCase()
+    let sortBy = $("#groupSortBySelector").find("option:selected").text()
     $.ajax({
         url: "getGroups",
         type: "GET",
         data: {
             "page": page,
-            "groupsPerPage": groupsPerPage
+            "groupsPerPage": groupsPerPage,
+            "sortBy": sortBy
         },
         success: function (data) {
             groupPage = data.page
@@ -275,12 +277,12 @@ function createFooterNumberSelector(number) {
  * @param groups The list of groups.
  */
 function createListOfGroups(groups) {
-    let groupOverviewContainer = $("#groupAmountOptionsTop")
+    let groupOverviewContainer = $("#groupListDiv")
     $(".group").each((index, element) => {
         $(element).remove()
     })
     for (const groupsKey in groups) {
-        groupOverviewContainer.after(createGroupPreviewDiv(groups[groupsKey]))
+        groupOverviewContainer.append(createGroupPreviewDiv(groups[groupsKey]))
     }
 }
 
