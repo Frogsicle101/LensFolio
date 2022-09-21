@@ -91,6 +91,8 @@ deploy-staging-identityprovider:
       - identityprovider/build/libs
   only:
     - dev
+    - s7_UU2_changeOccasionDbName
+
 
 deploy-staging-portfolio:
   stage: deploy
@@ -110,6 +112,7 @@ deploy-staging-portfolio:
       - portfolio/build/libs
   only:
     - dev
+    - s7_UU2_changeOccasionDbName
 
 deploy-production-identityprovider:
   stage: deploy
