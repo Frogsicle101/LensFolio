@@ -35,7 +35,6 @@ describe('Skill creation', () => {
         cy.get("#skillsInput").type("T")
         cy.get(".ui-menu-item-wrapper").should("contain.text", "Test1")
     })
-
 })
 
 
