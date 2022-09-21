@@ -165,6 +165,12 @@ $(document).on("change", "#groupDisplayAmountSelection", function (event) {
 })
 
 
+function liveUpdateGroupList() {
+    getGroups()
+    createAlert("New group has been created", "info")
+}
+
+
 /**
  * Gets the group data from the server for displaying the preview list of groups.
  */
@@ -321,6 +327,10 @@ function updateGroup(notification){
 }
 
 
+
+
+
+
 /**
  * Using the notification system, this is called when a group has been deleted.
  * It checks to see if the current group being displayed is the one that has been deleted.
@@ -388,7 +398,7 @@ function addUsers(groupId) {
                 createAlert("User(s) moved", "success")
             }
         }, error: function (error) {
-            if (error.status == 401) {
+            if (error.status === 401) {
                 createAlert("You don't have permission to move users. This could be because " +
                     "your roles have been updated. Try refreshing the page", "failure")
             } else {
@@ -697,7 +707,7 @@ function retrieveGroupRepoInformation() {
             getRepoCommits();
         },
         error: function (error) {
-            if (error.status == 401) {
+            if (error.status === 401) {
                 let repoInformationContainer = $("#gitRepo")
                 repoInformationContainer.empty();
                 displayUnauthorisedRepo(repoInformationContainer)
@@ -970,7 +980,7 @@ $(document).on("click", "#groupRemoveUser", function () {
                 sendNotification("group", selectedGroupId, "updateGroup");
                 checkToSeeIfHideOrShowOptions()
             }, error: function (error) {
-                if (error.status == 401) {
+                if (error.status === 401) {
                     createAlert("You don't have permission to remove users. This could be because " +
                         "your roles have been updated. Try refreshing the page", "failure")
                 } else {
@@ -995,7 +1005,7 @@ $(document).on("click", ".deleteButton", function () {
                 sendNotification("group", group.id, "deleteGroup");
                 window.location.reload()
             }, error: function (error) {
-                if (error.status == 401) {
+                if (error.status === 401) {
                     createAlert("You don't have permission to delete groups. This could be because " +
                         "your roles have been updated. Try refreshing the page", "failure")
                 } else {
@@ -1064,7 +1074,7 @@ $(document).on("submit", "#editGroupForm", function (event) {
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
             sendNotification("group", selectedGroupId, "updateGroup");
         }, error: function (error) {
-            if (error.status == 401) {
+            if (error.status === 401) {
                 createAlert("You don't have permission to edit group details. This could be because " +
                     "your roles have been updated. Try refreshing the page", "failure")
             } else {
