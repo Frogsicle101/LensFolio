@@ -2,49 +2,108 @@
 /** For adding the skills to as the chips are added. */
 let skillsToCreate = []
 
-function validateSkillInput() {
+function addUniqueSkill(skillName) {
+    if (! skillsToCreate.includes(skillName)) {
+        skillsToCreate.push(skillName.replaceAll("_", " "))
+        return true
+    }
+    return false
+}
+
+
+function validateSkillInput(inputValue, showAlert) {
     const skillsInput = $("#skillsInput")
-    const inputValue = skillsInput.val()
-    if (inputValue > 30) {
-        skillsInput.addClass("skillChipInvalid")
-        createAlert("Length of skill name should be less than 30", "failure")
+    if (inputValue.length > 30) {
+        if (showAlert) {
+            skillsInput.addClass("skillChipInvalid")
+            createAlert("Length of skill name should be less than 30", "failure")
+        }
+        return false
+    }
+    if (inputValue.trim().length === 0) {
         return false
     }
     if (RESERVED_SKILL_TAGS.includes(inputValue.toLowerCase())) {
-        skillsInput.addClass("skillChipInvalid")
-        addTooltip(parent, "This is a reserved tag and cannot be manually created")
+        if (showAlert) {
+            skillsInput.addClass("skillChipInvalid")
+            createAlert("This is a reserved tag and cannot be manually created", "failure")
+        }
         return false
     }
+    skillsInput.removeClass("skillChipInvalid")
     return true
 }
 
-function handleSkillInputChange(event) {
+
+function updateSkillsInput() {
+    let chipDisplay = $("#tagInputChips")
+    $('[data-toggle="tooltip"]').tooltip("hide")
+
+    chipDisplay.empty()
+    skillsToCreate.forEach(function (element) {
+        element = element.replaceAll("_", " ");
+        chipDisplay.append(createDeletableSkillChip(element))
+    })
+}
+
+
+function handleSkillInputKeypress(event) {
     const skillsInput = $("#skillsInput")
     const inputValue = skillsInput.val().trim()
-    const isValidSkillName = validateSkillInput()
+    const isValidSkillName = validateSkillInput(inputValue, true)
     let needsUpdate = false
-    console.log("Skills input value: " + skillsInput.val())
+
     if (event.key === "Backspace" && inputValue.length === 0 && skillsToCreate.length > 0) {
         skillsToCreate.pop()
         needsUpdate = true
     }
-    if ((event.keyCode === 32 || event.keyCode === 13) && isValidSkillName) { // Spacebar or Enter
-        if (! skillsToCreate.includes(inputValue)) {
-            skillsToCreate.push(inputValue)
-            needsUpdate = true
+
+    if (event.key === " " || event.key === "Enter" || event.key === "Tab" ) {
+        if (isValidSkillName) {
+            needsUpdate = addUniqueSkill(inputValue)
         }
+        skillsInput.removeClass("skillChipInvalid")
         skillsInput.val("")
     }
-    if (needsUpdate) {
-        let chipDisplay = $("#tagInputChips")
-        $('[data-toggle="tooltip"]').tooltip("hide")
 
-        chipDisplay.empty()
-        skillsToCreate.forEach(function (element) {
-            element = element.replaceAll("_", " ");
-            chipDisplay.append(createDeletableSkillChip(element))
-        })
+    if (needsUpdate) {
+       updateSkillsInput()
     }
+}
+
+
+function handleSkillInputPaste() {
+    const skillsInput = $("#skillsInput")
+    const inputValues = skillsInput.val().trim().split(/\s+/)
+    const invalidSkillNames = new Set()
+
+    console.log(inputValues)
+    inputValues.forEach(skillName => {
+        if (validateSkillInput(skillName, false)) {
+            addUniqueSkill(skillName)
+        } else {
+            invalidSkillNames.add(skillName.length > 30 ? skillName.substring(0, 27) + "..." : skillName)
+        }
+    })
+
+    updateSkillsInput()
+    skillsInput.val("")
+
+    if (invalidSkillNames.length > 0) {
+        if (invalidSkillNames.length < 5) {
+            createAlert("Invalid skills not added: " + invalidSkillNames.join(", "), "failure")
+        } else {
+            createAlert("Discarded " + invalidSkillNames.length + " invalid skills", "failure")
+        }
+    }
+}
+
+
+function handleChipDelete(event) {
+    event.stopPropagation()
+    const skillName = $(this).siblings(".chipText").text()
+    skillsToCreate = skillsToCreate.filter(addedSkill => addedSkill !== skillName)
+    updateSkillsInput()
 }
 
 
@@ -97,40 +156,6 @@ function removeDuplicatesFromInput(input) {
     input.val(newArray.join(" "))
 }
 
-
-/**
- * This function gets the input string from the skills input and trims off the extra whitespace
- * then it separates each word into an array and creates chips for them.
- */
-function displayInputSkillChips() {
-    checkToShowSkillChips()
-    let skillsInput = $("#skillsInput")
-    let inputArray = skillsInput.val().trim().split(/\s+/)
-    let chipDisplay = $("#tagInputChips")
-
-    $('[data-toggle="tooltip"]').tooltip("hide")
-
-    chipDisplay.empty()
-    inputArray.forEach(function (element) {
-        element = element.replaceAll("_", " ");
-        chipDisplay.append(createDeletableSkillChip(element))
-    })
-    chipDisplay.find(".chipText").each(function () {
-        const parent = $(this).parent(".skillChip")
-        if ($(this).text().length < 1) {
-            parent.remove()
-        }
-        if ($(this).text().length > 30) {
-            parent.addClass("skillChipInvalid")
-            createAlert("Length of skill name should be less than 30", "failure")
-        }
-        if (RESERVED_SKILL_TAGS.includes($(this).text().toLowerCase())) {
-            const parent = $(this).parent(".skillChip")
-            parent.addClass("skillChipInvalid")
-            addTooltip(parent, "This is a reserved tag and cannot be manually created")
-        }
-    })
-}
 
 // --------------------------------------------------- Autocomplete ----------------------------------------------------
 
@@ -256,70 +281,31 @@ $(".evidenceFormCategoryButton").on("click", function () {
 })
 
 
-// /**
-//  * Listens out for a keyup event on the skills input.
-//  * Renders the skill chips when it detects a keyup event.
-//  */
-// $(document).on("keyup", "#skillsInput", function () {
-//     displayInputSkillChips()
-// })
-
-
-/**
- * Cleans up the duplicates in the input when the user clicks away from the input.
- */
-$(document).on("click", () => {
-    removeDuplicatesFromInput($("#skillsInput"))
-    displayInputSkillChips()
-})
-
-
-// /**
-//  * Triggers the rendering of the skill chips
-//  */
-// $(document).on("click", ".ui-autocomplete", () => {
-//     removeDuplicatesFromInput($("#skillsInput"))
-//     displayInputSkillChips()
-// })
-
-
-// $(document).on("change", "#skillsInput", (event) => {
-//     console.log("Change event")
-//     console.log(event.key === "Backspace" || event.key === "Delete")
-//     displayInputSkillChips()
-// })
-
-
 /**
  * Listens out for a keydown event on the skills input.
  * If it is a delete button keydown then it removes the last word from the input box.
  * If it is a space, tab or enter then it checks for duplicates
  */
 $(document).on("keydown", "#skillsInput", function (event) {
-    handleSkillInputChange(event)
-    let skillsInput = $("#skillsInput")
-    if (event.key === "Delete") {
-        event.preventDefault();
-        let inputArray = skillsInput.val().trim().split(/\s+/)
-        inputArray.pop()
-        skillsInput.val(inputArray.join(" ") + " ")
-    }
-    if (event.key === " " || event.key === "Tab" || event.key === "Enter") {
-        removeDuplicatesFromInput(skillsInput)
-    }
-    displayInputSkillChips()
+    setTimeout(() => handleSkillInputKeypress(event), 0)
+
 })
 
 
 /**
  * Runs the remove duplicates function after a paste event has occurred on the skills input
  */
-$(document).on("paste", "#skillsInput", (event) => {
-    handleSkillInputChange(event)
-    console.log("Paste event")
-    console.log(event.key === "Backspace" || event.key === "Delete")
-    setTimeout(() => removeDuplicatesFromInput($("#skillsInput")), 0)
+$(document).on("paste", "#skillsInput", () => {
+    setTimeout(() => handleSkillInputPaste(), 0)
     // Above is in a timeout so that it runs after the paste event has happened
+})
+
+
+/**
+ * The below listener trigger the rendering of the skill chips
+ */
+$(document).on("click", ".ui-autocomplete", () => {
+    removeDuplicatesFromInput($("#skillsInput"))
 })
 
 
@@ -327,13 +313,4 @@ $(document).on("paste", "#skillsInput", (event) => {
  * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
  * skill we are deleting.
  */
-$(document).on("click", ".chipDelete", function (event) {
-    event.stopPropagation()
-    let skillText = $(this).parent().find(".chipText").text().trim().split(" ").join("_")
-    let skillsInput = $("#skillsInput")
-    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
-        return value.toLowerCase() !== skillText.toLowerCase()
-    })
-    skillsInput.val(inputArray.join(" "))
-    displayInputSkillChips()
-})
+$(document).on("click", ".chipDelete", handleChipDelete)

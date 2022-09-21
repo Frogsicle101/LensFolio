@@ -523,14 +523,6 @@ function getCategories() {
 
 // --------------------------------- Click listeners -----------------------------------------
 
-/**
- * The below listener trigger the rendering of the skill chips
- */
-$(document).on("click", ".ui-autocomplete", () => {
-    removeDuplicatesFromInput($("#skillsInput"))
-    displayInputSkillChips()
-})
-
 
 /**
  * When an evidence div is clicked, it becomes selected and is displayed on the main display.
@@ -647,18 +639,13 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
         const linkedUsers = getLinkedUsers();
         const categories = getCategories();
 
-        const skills = skillsInput.val().split(" ").filter(skill => skill.trim() !== "")
-        $.each(skills, function (i) {
-            skills[i] = skills[i].replaceAll("_", " ")
-        })
-
         let data = JSON.stringify({
             "title": title,
             "date": date,
             "description": description,
             "projectId": projectId,
             "webLinks": webLinks,
-            "skills": skills,
+            "skills": skillsToCreate,
             "categories": categories,
             "associateIds": linkedUsers
         })
