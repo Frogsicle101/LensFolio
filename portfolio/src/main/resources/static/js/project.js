@@ -137,15 +137,10 @@ function appendSprint(sprintObject, index) {
                 <div class="mb3">
                     <h2 class="name">${sanitise(sprintObject.name)}</h2>
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <h6>Start</h6>
-                        <h6>${sanitise(sprintObject.startDateFormatted)}</h6>
-                    </div>
-                    <div class="col">
-                        <h6>End</h6>
-                        <h6>${sanitise(sprintObject.endDateFormatted)}</h6>
-                    </div>
+                <div class="dateParentDiv">
+                    <h6>${sanitise(sprintObject.startDateFormatted)}</h6>
+                    <p class="dateDivider">-</p>
+                    <h6>${sanitise(sprintObject.endDateFormatted)}</h6>
                 </div>
                 <div class="mb-3">
                     <p>${sanitise(sprintObject.description)}</p>
