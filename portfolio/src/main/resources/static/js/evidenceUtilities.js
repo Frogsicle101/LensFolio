@@ -346,10 +346,10 @@ function addSkillsToEvidence(skills) {
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     if (skills.length < 1) {
-        highlightedEvidenceSkills.append(createSkillChip("No Skill", false))
+        highlightedEvidenceSkills.append(createSkillChip("No Skill"))
     } else {
         $.each(skills, function (i) {
-            highlightedEvidenceSkills.append(createSkillChip(skills[i].name, false))
+            highlightedEvidenceSkills.append(createSkillChip(skills[i].name))
         })
     }
 }
@@ -402,7 +402,7 @@ function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     let skillsHTML = ``
     $.each(skills, function (i) {
-        skillsHTML += createSkillChip(skills[i].name, false)
+        skillsHTML += createSkillChip(skills[i].name)
     })
     return skillsHTML
 }
@@ -845,7 +845,7 @@ function displayInputSkillChips() {
     chipDisplay.empty()
     inputArray.forEach(function (element) {
         element = element.replaceAll("_", " ");
-        chipDisplay.append(createDeletableSkillChip(sanitise(element)))
+        chipDisplay.append(createDeletableSkillChip(element))
     })
     chipDisplay.find(".chipText").each(function () {
         const parent = $(this).parent(".skillChip")
@@ -1344,21 +1344,13 @@ $(document).on("click", "#deleteEvidenceButton", function () {
  * Creates HTMl for a skill chip with the given skill name.
  *
  * @param skillName The name to be displayed in the skill chip.
- * @param isMenuItem Boolean value reflecting whether the chip will be displayed in the menu bar.
  * @returns {string} The string of HTMl representing the skill chip.
  */
-function createSkillChip(skillName, isMenuItem) {
-    if (isMenuItem) {
-        return `
-            <div data-id=${sanitise("skillCalled" + skillName.replaceAll(" ", "_"))} class="chip skillChip">
-                <p class="chipText">${sanitise(skillName)}</p>
-            </div>`
-    } else {
-        return `
-            <div class="chip skillChip">
-                <p class="chipText">${sanitise(skillName)}</p>
-            </div>`
-    }
+function createSkillChip(skillName) {
+    return `
+        <div class="chip skillChip">
+            <p class="chipText">${sanitise(skillName)}</p>
+        </div>`
 }
 
 

@@ -18,5 +18,12 @@ describe('Test Editing Project', () => {
         cy.get("#projectEndDate").type("1999-12-01").trigger("change")
         cy.focused().should('have.id', 'projectEndDate')
     })
+
+    it('Allows you to leave the description blank', () => {
+        cy.get("#projectDescription").clear();
+        cy.get("#projectDescription").should("have.css", "border-color", 'rgb(25, 135, 84)');
+        cy.get("#editProjectSubmitButton").click();
+        cy.url().should('include', 'portfolio')
+    })
 })
 

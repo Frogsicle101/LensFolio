@@ -25,9 +25,9 @@ function addSkillsToSideBar() {
     let skillsContainer = $('#skillList')
     skillsContainer.empty()
 
-    skillsContainer.append(createSkillChip("No Skill", true))
+    skillsContainer.append(createSkillChip("No Skill"))
     for (let skill of skillsArray) {
-        skillsContainer.append(createSkillChip(skill.replaceAll("_", " "), true))
+        skillsContainer.append(createSkillChip(skill.replaceAll("_", " ")))
     }
 }
 
@@ -116,9 +116,6 @@ $(document).on("click", ".chip" , function (event) {
     let clicked = $(this)
     selectedChip = clicked.find('.chipText').text()
     let isSkill = clicked.hasClass("skillChip")
-    let chipId = isSkill ? ("#skillCalled" + selectedChip.replaceAll(" ", "_")) : ("#categoryCalled" + selectedChip)
-    $("[data-id='" + chipId + "'").addClass("selected")
-
     let title = $(".evidenceTitle").first()
     title.text(selectedChip)
     if (isSkill) {

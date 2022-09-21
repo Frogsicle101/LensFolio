@@ -18,5 +18,12 @@ describe('Test Editing Sprint', () => {
         cy.get("#sprintEndDate").type("1999-12-01").trigger("change")
         cy.focused().should('have.id', 'sprintEndDate')
     })
+
+    it('Allows you to leave the description blank', () => {
+        cy.get("#sprintDescription").clear();
+        cy.get("#sprintDescription").should("have.css", "border-color", 'rgb(25, 135, 84)');
+        cy.get("#editSprintSubmitButton").click();
+        cy.url().should('include', 'portfolio')
+    })
 })
 
