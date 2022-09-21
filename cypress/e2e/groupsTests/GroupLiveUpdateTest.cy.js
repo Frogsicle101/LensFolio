@@ -8,6 +8,7 @@ context("Group creation live update notification", () => {
 
     it('Create group and send notification, group should exist on page', () => {
         let randomName = "aaa" + Math.floor(Math.random() * 100)
+        cy.get(".alert").should("not.exist");
         cy.get(".groupShortName").invoke("text").should("not.contain", randomName)
         cy.request({
             method: "POST",
@@ -20,6 +21,7 @@ context("Group creation live update notification", () => {
         }).wait(1000)
         cy.window().then(win => win.sendNotification("group", 0, "newGroup"))
         cy.get(".groupShortName").should("contain", randomName)
+        cy.get(".alert").should("be.visible");
 
 
 
