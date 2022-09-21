@@ -70,7 +70,6 @@ $(document).on("click", ".editSprint", function () {
 $(document).on("click", ".deleteSprint", function () {
     let sprintId = $(this).closest(".sprint").find(".sprintId").text();
     let sprintName = $(this).closest(".sprint").find(".name").text();
-    console.log(sprintName)
 
     if (window.confirm(`Are you sure you want to delete:\n ${sprintName}`)) {
         $.ajax({
