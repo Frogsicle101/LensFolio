@@ -340,10 +340,6 @@ function removeTooltip(element) {
  */
 let regex = new RegExp("[\\p{L}\\p{Nd}\\p{P}]+", 'u')
 
-/**
- * Regex that is all unicode letters, numbers, punctuation, modifier/currency/math symbols and whitespace
- */
-let GENERAL_UNICODE_REGEX = new RegExp("\^[\\p{L}\\p{Nd}\\p{P}\\p{Sc}\\p{Sk}\\p{Sm}\\s]+\$", 'gu')
 
 /**
  * Redirects to user's home page. This is currently the user's evidence page.

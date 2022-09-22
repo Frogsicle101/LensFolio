@@ -5,6 +5,7 @@
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
             </th:block> /*/-->
     <link rel="stylesheet" th:href="@{css/sprintEditPage.css}">
+    <div th:insert="fragments/general.html :: unicode"></div>
 </head>
 <body>
 <!--The below section <header> pulls the fragment from fragments/general-->
@@ -91,7 +92,8 @@
                       th:text="${sprint.getDescription()}"
                       th:title="${'Sprint description' + generalUnicodeRegex.getRequirements()}"></textarea>
         </div>
-        <button class="btn btn-primary submitButton canDisable" id="editSprintSubmitButton" type="submit">Submit</button>
+        <button class="btn btn-primary submitButton canDisable" id="editSprintSubmitButton" type="submit">Submit
+        </button>
         <button class="btn btn-danger" onclick="history.back()" type="button">Cancel</button>
 
     </form>

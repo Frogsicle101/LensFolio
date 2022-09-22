@@ -54,6 +54,14 @@
     <link rel="icon" type="image/x-icon" th:href="@{favicon-16x16.png}">
 </head>
 
+<!--Add this fragment if you want to use the GENERAL_UNICODE_REGEX-->
+<div th:fragment="unicode">
+    <script th:inline="javascript">
+        const regexString = [[${generalUnicodeRegex.getPatternString()}]];
+        const GENERAL_UNICODE_REGEX = new RegExp(`\^${regexString}\$`, "u");
+    </script>
+</div>
+
 
 <body>
 

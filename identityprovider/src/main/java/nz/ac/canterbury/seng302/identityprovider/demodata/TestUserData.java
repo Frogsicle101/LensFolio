@@ -33,7 +33,7 @@ public class TestUserData {
                 "McSteves",
                 "Wayne",
                 "Stev",
-                "kdsflkdjf",
+                "Hello! my name is John and I am your course administrator!",
                 "He/Him",
                 "steve@gmail.com",
                 TimeService.getTimeStamp()
