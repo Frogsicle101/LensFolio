@@ -20,6 +20,7 @@ $(() => {
             type: "post",
             data: groupData,
             success: function () {
+                sendNotification("group", 0, "newGroup");
                 location.href = "groups" // On success reloads page
             },
             error: function (error) {//Displays error in box on failure

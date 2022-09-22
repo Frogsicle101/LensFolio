@@ -13,6 +13,7 @@ import "./evidenceTests/SkillTests.cy"
 
 import "./groupsTests/GroupMemberSelectionTest.cy"
 import "./groupsTests/GroupsPaginationTesting.cy"
+import "./groupsTests/GroupLiveUpdateTest.cy"
 
 import "./portfolioTest/EditingProjectTest.cy"
 import "./portfolioTest/EditingSprintTest.cy"
