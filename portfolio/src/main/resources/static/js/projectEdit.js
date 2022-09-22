@@ -74,7 +74,7 @@ $(() => {
                     location.href = "portfolio?projectId=" + projectId.val()
                 },
                 error: function (error) {
-                    createAlert(error.responseText, "failure")
+                    createAlert(error.responseText, AlertTypes.Failure)
                 }
             })
         } else {

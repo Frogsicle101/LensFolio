@@ -1,0 +1,5 @@
+.editForm{
+    background-color: var(--background-colour-offblue);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+}

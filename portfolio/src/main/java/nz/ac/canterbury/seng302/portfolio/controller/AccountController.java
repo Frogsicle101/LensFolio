@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.dto.PasswordRequest;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.LoginService;
@@ -104,6 +105,27 @@ public class AccountController {
         } catch (Exception err) {
             logger.error("GET /account: {}", err.getMessage());
             return new ModelAndView("error");
+        }
+    }
+
+
+    /**
+     * Gets the user via the principal. This is used to fill in the account page info
+     *
+     * @param principal the principal
+     * @return a response entity with the userDTO
+     */
+    @GetMapping("/getUser")
+    public ResponseEntity<Object> getUser(@AuthenticationPrincipal Authentication principal) {
+        try {
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+            UserDTO userDTO = new UserDTO(user);
+            logger.info("GET REQUEST /account - retrieving account details for user {}", user.getUsername());
+
+            return new ResponseEntity<>(userDTO, HttpStatus.OK);
+        } catch (Exception err) {
+            logger.error("GET /account: {}", err.getMessage());
+            return new ResponseEntity<>("An error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
