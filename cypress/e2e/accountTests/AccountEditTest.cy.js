@@ -3,6 +3,20 @@ describe('Editing user account info', () => {
     beforeEach(() => {
         cy.adminLogin()
         cy.visit("/account")
+        cy.request({
+            method: 'POST',
+            url: 'edit/details',
+            form: true,
+            body: {
+                "firstname": "John",
+                "middlename": "McSteves",
+                "lastname": "Wayne",
+                "nickname": "Stev",
+                "bio": "Hello! my name is John and I am your course administrator!",
+                "personalPronouns": "He/Him",
+                "email": "steve@gmail.com"
+            },
+        })
     })
 
     it("resets account data on cancel edit", () => {
