@@ -67,6 +67,7 @@ function updateSkillsInput() {
         element = element.replaceAll("_", " ");
         chipDisplay.append(createDeletableSkillChip(element))
     })
+    oldInput = ""
 }
 
 
@@ -95,11 +96,10 @@ function handleSkillInputKeypress(event) {
         skillsInput.removeClass("skillChipInvalid")
         skillsInput.val("")
     }
-
+    oldInput = inputValue
     if (needsUpdate) {
        updateSkillsInput()
     }
-    oldInput = inputValue
 }
 
 
