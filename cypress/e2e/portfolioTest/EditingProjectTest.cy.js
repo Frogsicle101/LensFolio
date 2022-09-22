@@ -33,7 +33,7 @@ describe('Test Editing Project', () => {
     it('displays date errors', () => {
         cy.get("#projectStartDate")
             .clear().invoke('val', '2003-04-03'); //Year is early
-        cy.get("#projectEndDate").invoke('removeAttr','type')
+        cy.get("#projectEndDate")
             .clear().invoke('val', '2022-03-03').trigger("change"); //Ends inside of a sprint
 
         cy.get("#projectStartDate").should("have.css", "border-color", 'rgb(220, 53, 69)');

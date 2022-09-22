@@ -31,7 +31,7 @@
                            th:pattern="${generalUnicodeRegex.getPatternString()}"
                            th:title="${'Sprint name' + generalUnicodeRegex.getRequirements()}"
                            type="text">
-                    <div class="invalid-feedback" th:text="${'Sprint name' + generalUnicodeRegex.getRequirements()}"></div>
+                    <div class="invalid-feedback" id="nameError" th:text="${'Sprint name' + generalUnicodeRegex.getRequirements()}"></div>
                 </div>
 
             </div>
@@ -102,7 +102,7 @@
             <textarea class="form-control canDisable" id="sprintDescription" maxlength="200" name="sprintDescription"
                       th:text="${sprint.getDescription()}"
                       th:title="${'Sprint description' + generalUnicodeRegex.getRequirements()}"></textarea>
-            <div class="invalid-feedback" th:text="${'Sprint description' + generalUnicodeRegex.getRequirements()}"></div>
+            <div class="invalid-feedback" id="descriptionError" th:text="${'Sprint description' + generalUnicodeRegex.getRequirements()}"></div>
         </div>
         <button class="btn btn-primary submitButton canDisable" id="editSprintSubmitButton" type="submit">Submit
         </button>
