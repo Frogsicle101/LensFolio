@@ -286,15 +286,16 @@ public class AccountController {
             String lastname = editInfo.getLastname().trim();
             String nickname = editInfo.getNickname().trim();
 
-            editRequest.setUserId(userId)
+            EditUserRequest editUserRequest = editRequest.setUserId(userId)
                     .setFirstName(firstname)
                     .setMiddleName(middlename)
                     .setLastName(lastname)
                     .setNickname(nickname)
                     .setBio(editInfo.getBio())
                     .setPersonalPronouns(editInfo.getPersonalPronouns())
-                    .setEmail(editInfo.getEmail());
-            EditUserResponse reply = userAccountsClientService.editUser(editRequest.build());
+                    .setEmail(editInfo.getEmail())
+                    .build();
+            EditUserResponse reply = userAccountsClientService.editUser(editUserRequest);
             if (reply.getIsSuccess()) {
                 logger.info("Successfully updated details for user {}", userId);
             } else {
@@ -302,7 +303,7 @@ public class AccountController {
                 return new ResponseEntity<>(reply.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            return new ResponseEntity<>(reply.getMessage(), HttpStatus.OK);
+            return new ResponseEntity<>(new UserDTO(editUserRequest), HttpStatus.OK);
         } catch (Exception err) {
             logger.error("/edit/details ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

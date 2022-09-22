@@ -91,6 +91,9 @@ function handleNotification(notification) {
                 case 'deleteGroup':
                     removeGroup(message, action);
                     break;
+                case 'update user details':
+                    updateUserDetails(message);
+                    break;
                 default :
                     // Do nothing, unknown message format
                     break;

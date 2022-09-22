@@ -343,6 +343,17 @@ function removeGroup(notification) {
 }
 
 
+function updateUserDetails(notification){
+    const usersId = notification.id
+    const userRow = $("#userid" + usersId)
+    if (userRow.length) {
+        const userData = JSON.parse(notification.data)
+        userRow.find(".firstName").text(userData.firstName)
+        userRow.find(".lastName").text(userData.lastName)
+    }
+}
+
+
 /**
  * Grabs the latest details of a group and updates the page to reflect them.
  * @param groupId The group's details to grab.
@@ -570,7 +581,7 @@ function appendMemberToGroup(member) {
     }
 
     membersContainer.append(`
-                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${sanitise(member.id)}>
+                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" id=userid${sanitise(member.id)} userId=${sanitise(member.id)}>
                         <td class="userRowId">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-grip-vertical dragGrip" style="display: none" viewBox="0 0 16 16">
                                     <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
@@ -579,8 +590,8 @@ function appendMemberToGroup(member) {
                         <td>
                             <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
                         </td>
-                        <td>${sanitise(member.firstName)}</td>
-                        <td>${sanitise(member.lastName)}</td>
+                        <td class="firstName">${sanitise(member.firstName)}</td>
+                        <td class="lastName">${sanitise(member.lastName)}</td>
                         <td>${sanitise(member.username)}</td>
                     </tr>`
     )

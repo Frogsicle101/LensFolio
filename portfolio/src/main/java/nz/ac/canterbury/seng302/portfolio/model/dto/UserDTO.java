@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.model.dto;
 
+import nz.ac.canterbury.seng302.shared.identityprovider.EditUserRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 
@@ -31,6 +32,20 @@ public class UserDTO {
         this.email = userResponse.getEmail();
         this.imagePath = userResponse.getProfileImagePath();
         this.roles = userResponse.getRolesList().stream().map(UserRole::toString).toList();
+    }
+
+    public UserDTO(EditUserRequest userRequest) {
+        this.id = userRequest.getUserId();
+        this.firstName = userRequest.getFirstName();
+        this.middleName = userRequest.getMiddleName();
+        this.lastName = userRequest.getLastName();
+        this.nickname = userRequest.getNickname();
+        this.bio = userRequest.getBio();
+        this.pronouns = userRequest.getPersonalPronouns();
+        this.email = userRequest.getEmail();
+        this.username = null;
+        this.imagePath = null;
+        this.roles = null;
     }
 
     /**

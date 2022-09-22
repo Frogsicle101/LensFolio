@@ -73,11 +73,10 @@ $(() => {
             url: "edit/details",
             type: "post",
             data: accountData,
-            success:  () => {
+            success:  (response) => {
                 createAlert("Updated details successfully!", "success")
-                sendNotification("userDetailsUpdate", userIdent)
+                sendNotification(JSON.stringify(response), userIdent, "update user details")
                 toggleEditForm()
-
             },
             error: function (error) {//Displays error in box on failure
                 createAlert(error.responseText, "failure")
