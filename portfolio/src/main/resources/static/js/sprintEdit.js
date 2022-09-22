@@ -62,10 +62,10 @@ function handleUpdateEvent(message) {
     const editorId = message.editorId;
 
     if (parseInt(editorId) !== parseInt(userIdent)) {
-        if (message.occasionId === $(document).find("#sprintId").val())  {
+        if (message.id === $(document).find("#sprintId").val())  {
             createAlert(editorName + " updated this sprint. \nPlease refresh the page to view their changes. \n" +
                 "Note this will undo your changes","info")
-        } else if (message.occasionType === "sprint") {
+        } else if (message.data === "sprint") {
             createAlert(editorName + " updated another sprint. \nPlease refresh the page to update available dates for this sprint. \n" +
                 "Note this will undo your changes","info")
         }
@@ -81,7 +81,7 @@ function handleDeleteEvent(message) {
     const editorId = message.editorId;
 
     if (parseInt(editorId) !== parseInt(userIdent)) {
-        if (message.occasionId === $(document).find("#sprintId").val()) {
+        if (message.id === $(document).find("#sprintId").val()) {
             createAlert(editorName + " deleted this sprint. \nThis sprint can no longer be edited.\n" +
                 "Please cancel.", "info")
         }

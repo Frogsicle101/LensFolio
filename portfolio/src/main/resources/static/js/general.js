@@ -255,9 +255,9 @@ function addAlert(alert) {
  * @param action The action representing the addition of removal of a role.
  */
 function displayRoleChangeMessage(notification, action) {
-    if (userIdent === parseInt(notification.occasionId)) {
+    if (userIdent === parseInt(notification.id)) {
         const editorName = notification.editorName;
-        let roleChanged = notification.occasionType;
+        let roleChanged = notification.data;
         roleChanged = roleChanged.replace("_", " ").toLowerCase()
 
         let message

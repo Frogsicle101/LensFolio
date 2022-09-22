@@ -305,7 +305,7 @@ function createGroupPreviewDiv(group) {
  * @param notification The notification from the server.
  */
 function updateGroup(notification){
-    let notificationGroupId = notification.occasionId
+    let notificationGroupId = notification.id
     let currentDisplayGroup = $("#groupBeingDisplayId").text()
     if (currentDisplayGroup === notificationGroupId) {
         displayGroupUsersList()
@@ -330,7 +330,7 @@ function updateGroup(notification){
  */
 function removeGroup(notification) {
     console.log(notification)
-    let notificationGroupId = notification.occasionId
+    let notificationGroupId = notification.id
     let currentDisplayGroup = $("#groupBeingDisplayId").text()
     if (currentDisplayGroup === notificationGroupId) {
         $("#groupInformationContainer").slideUp()

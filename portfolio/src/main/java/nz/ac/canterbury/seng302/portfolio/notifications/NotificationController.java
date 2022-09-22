@@ -71,7 +71,7 @@ public class NotificationController {
         Authentication authentication = (Authentication) auth.getPrincipal();
         AuthState state = authentication.getAuthState();
         String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
-        OutgoingNotification notification = new OutgoingNotification(editorId, state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
+        OutgoingNotification notification = new OutgoingNotification(editorId, state.getName(), message.getData(), message.getId(), message.getAction());
         //If we want to notify other users,
         if (Objects.equals(message.getAction(), "edit")) {
             notificationService.storeOutgoingNotification(notification);

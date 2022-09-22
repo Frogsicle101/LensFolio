@@ -75,6 +75,7 @@ $(() => {
             data: accountData,
             success:  () => {
                 createAlert("Updated details successfully!", "success")
+                sendNotification("userDetailsUpdate", userIdent)
                 toggleEditForm()
 
             },
