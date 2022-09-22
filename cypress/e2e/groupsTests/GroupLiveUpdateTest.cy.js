@@ -22,9 +22,6 @@ context("Group creation live update notification", () => {
         cy.window().then(win => win.sendNotification("group", 0, "newGroup"))
         cy.get(".groupShortName").should("contain", randomName)
         cy.get(".alert").should("be.visible");
-
-
-
     })
 
 })
