@@ -4,13 +4,14 @@
     <title>Lensfolio | Account</title>
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
             </th:block> /*/-->
+    <div th:insert="fragments/general.html :: unicode"></div>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 <header th:insert="fragments/general.html :: header"></header>
 <section class="accountBody">
     <div class="accountInfo">
-        <form id="accountForm" method="post" th:action="@{edit/details}">
+        <form id="accountForm" class="was-validated" novalidate method="post" th:action="@{edit/details}">
 
             <!--Below are the divs that handle error messages
             If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
@@ -40,12 +41,13 @@
                         <label class="required form-label" for="firstname">First name</label>
                         <!--/*@thymesVar id="user" type="nz.ac.canterbury.seng302.shared.identityprovider.UserResponse"*/-->
                         <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-                        <input class="form-control canDisable" disabled id="firstname" maxlength="100"
+                        <input class="form-control canDisable" disabled id="firstname" minlength="2" maxlength="100"
                                name="firstname" required
                                th:pattern="${nameRegex.getPatternString()}"
                                th:title="${'First name' + nameRegex.getRequirements()}"
                                th:value="${user.getFirstName()}"
                                type="text">
+                        <div id="firstNameError" class="invalid-feedback" th:text="${'First name must be 2-100 characters and ' + nameRegex.getRequirements()}"></div>
                     </div>
 
                     <div class="mb-3">
@@ -58,18 +60,20 @@
                                th:title="${'Middle name' + nameRegex.getRequirements()}"
                                th:value="${user.getMiddleName()}"
                                type="text">
+                        <div id="middleNameError" class="invalid-feedback" th:text="${'Middle name' + nameRegex.getRequirements()}"></div>
                     </div>
 
                     <div class="mb-3">
                         <label class="required form-label" for="lastname">Last name</label>
                         <!--/*@thymesVar id="user" type="nz.ac.canterbury.seng302.shared.identityprovider.UserResponse"*/-->
                         <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
-                        <input class="form-control canDisable" disabled id="lastname" maxlength="100"
+                        <input class="form-control canDisable" disabled id="lastname" minlength="2" maxlength="100"
                                name="lastname" required
                                th:pattern="${nameRegex.getPatternString()}"
                                th:title="${'Last name' + nameRegex.getRequirements()}"
                                th:value="${user.getLastName()}"
                                type="text">
+                        <div id="lastNameError" class="invalid-feedback" th:text="${'Last name must be 2-100 characters and ' + nameRegex.getRequirements()}"></div>
                     </div>
 
                 </div>
@@ -84,6 +88,7 @@
                        th:title="${'Nickname' + generalUnicodeRegex.getRequirements()}"
                        th:value="${user.getNickname()}"
                        type="text">
+                <div id="nickNameError" class="invalid-feedback" th:text="${'Nickname' + generalUnicodeRegex.getRequirements()}"></div>
             </div>
             <div class="mb-3">
                 <label class="required form-label" for="username">Username</label>
@@ -95,6 +100,7 @@
                        th:title="${'Username' + generalUnicodeNoSpacesRegex.getRequirements()}"
                        th:value="${user.getUsername()}"
                        type="text">
+                <div id="userNameError" class="invalid-feedback" th:text="${'Username' + generalUnicodeNoSpacesRegex.getRequirements()}"></div>
             </div>
             <div class="mb-3">
                 <label class="required form-label" for="email">Email address</label>
@@ -106,6 +112,7 @@
                        th:title="${'Your email' + emailRegex.getRequirements()}"
                        th:value="${user.getEmail()}"
                        type="email">
+                <div id="emailError" class="invalid-feedback" th:text="${'Your email' + emailRegex.getRequirements()}"></div>
             </div>
             <div class="mb-3">
                 <div class="mb-3">
@@ -118,6 +125,7 @@
                               name="bio" th:text="${user.getBio()}"
                               th:pattern="${generalUnicodeRegex.getPatternString()}"
                               th:title="${'Your bio' + generalUnicodeRegex.getRequirements()}"></textarea>
+                    <div id="bioError" class="invalid-feedback" th:text="${'Bio' + generalUnicodeRegex.getRequirements()}"></div>
                 </div>
 
             </div>
@@ -139,6 +147,7 @@
                            th:title="${'Pronouns' + generalUnicodeRegex.getRequirements()}"
                            th:value="${user.getPersonalPronouns()}"
                            type="text">
+                    <div id="pronounsError" class="invalid-feedback" th:text="${'Pronouns' + generalUnicodeRegex.getRequirements()}"></div>
                 </div>
             </div>
             <div class="mb-3">
@@ -154,7 +163,7 @@
         <div class="passwordChangeDiv" style="display: none">
             <hr class="mt-3 mb-3">
 
-            <form id="passwordChangeForm" method="post">
+            <form id="passwordChangeForm" novalidate class="was-validated" oninput='ConfirmPassword.setCustomValidity(ConfirmPassword.value !== NewPassword.value ? true : "")' method="post">
                 <h1>Change Password</h1>
 
                 <div class="errorMessageParentPassword alert alert-danger alert-dismissible fade show" role="alert"
@@ -177,11 +186,15 @@
                            th:pattern="${generalUnicodeNoSpacesRegex.getPatternString()}"
                            th:title="${'Password' + generalUnicodeNoSpacesRegex.getRequirements()}"
                            type="password">
+                    <div class="invalid-feedback" th:text="${'Password' + generalUnicodeNoSpacesRegex.getRequirements()}"></div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="ConfirmPassword">Confirm password</label>
                     <input class="form-control" id="ConfirmPassword" maxlength="100" minlength="5"
                            name="new password" required type="password">
+                    <div class="invalid-feedback">
+                        Passwords do not match.
+                    </div>
                 </div>
                 <button class="btn btn-primary canDisablePassword editPasswordSubmit" type="submit">Submit</button>
             </form>
