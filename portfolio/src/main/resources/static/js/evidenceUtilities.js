@@ -704,6 +704,15 @@ $(document).on('click', '#addWeblinkButton', function (e) {
     }
 })
 
+/**
+ * Listens for when delete web link button is clicked.
+ * the web link will should be deleted.
+ */
+$(document).on('click', '#deleteWeblink', function (e) {
+    console.log("delete clicked");
+    $(this).parent().remove();
+})
+
 
 /**
  * Closes the add weblink form and resets weblink form buttons when the weblink add is cancelled.
