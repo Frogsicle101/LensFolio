@@ -7,24 +7,41 @@ $(() => {
     let projectDescription = $("#projectDescription")
     let projectForm = $("#projectEditForm")
 
+    const checkDates = () => {
+        let startErrorDiv = $("#projectStartDateFeedback")
+        let endErrorDiv = $("#projectEndDateFeedback")
+        if (checkDateOrder(projectStart.val(), projectEnd.val())) {
+            startErrorDiv.text("Start date must be before end date.")
+            endErrorDiv.text("Start date must be before end date.")
+        } else {
+            startErrorDiv.text(`Please select a date no sooner than ${minStartDate} and no later than ${maxStartDate}`)
+            endErrorDiv.text(`Please select a date no sooner than ${minEndDate}`)
+        }
+    }
+
     projectStart.on("change", () => {
-        checkDateOrder(projectStart.val(), projectEnd.val())
+        checkDates()
+        let startErrorDiv = $("#projectStartDateFeedback")
         if (projectStart.val() > projectStart[0].max) {
             const maxDateFormatted = new Date(projectStart[0].max).toLocaleDateString();
             projectStart[0].setCustomValidity("There are sprints that start before that date. Please select a date earlier than " + maxDateFormatted);
+            startErrorDiv.text("There are sprints that start before that date. Please select a date earlier than " + maxDateFormatted)
         }
 
         if (projectStart.val() < projectStart[0].min) {
             const minDateFormatted = new Date(projectStart[0].min).toLocaleDateString();
             projectStart[0].setCustomValidity("Date must be less than a year ago. Please select a date later than " + minDateFormatted);
+            startErrorDiv.text("Date must be less than a year ago. Please select a date later than " + minDateFormatted)
         }
     })
 
     projectEnd.on("change", () => {
-        checkDateOrder(projectStart.val(), projectEnd.val())
+        checkDates()
+        let endErrorDiv = $("#projectEndDateFeedback")
         if (projectEnd.val() < projectEnd[0].min) {
             const minDateFormatted = new Date(projectEnd[0].min).toLocaleDateString();
             projectEnd[0].setCustomValidity("There are sprints that end after that date. Please select a date after " + minDateFormatted);
+            endErrorDiv.text("There are sprints that end after that date. Please select a date after " + minDateFormatted)
         }
     })
 

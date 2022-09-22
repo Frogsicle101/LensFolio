@@ -47,7 +47,7 @@
                 <input class="form-control date" id="projectStartDate" name="projectStartDate"
                        required th:min="${minStartDate}" th:max="${maxStartDate}" th:value="${project.getStartDate()}"
                        type="date">
-                <div class="invalid-feedback" th:text="'Please select a date no sooner than ' + ${minStartDate} + ' and no later than ' + ${maxStartDate}"></div>
+                <div class="invalid-feedback dateFeedback" id="projectStartDateFeedback" th:text="'Please select a date no sooner than ' + ${minStartDate} + ' and no later than ' + ${maxStartDate}"></div>
                 </div>
             </div>
             <div class="col">
@@ -68,7 +68,7 @@
                 <input class="form-control date" id="projectEndDate" name="projectEndDate"
                        required th:min="${minEndDate}" th:value="${project.getEndDate()}"
                        type="date">
-                <div class="invalid-feedback" th:text="'Please select a date no sooner than ' + ${minEndDate}"></div>
+                <div class="invalid-feedback dateFeedback" id="projectEndDateFeedback" th:text="'Please select a date no sooner than ' + ${minEndDate}"></div>
                 </div>
             </div>
         </div>
@@ -86,7 +86,12 @@
     </form>
 </section>
 </body>
-
+<script>
+    //We're passing these constants to the rest of our scripts
+    const minStartDate = "[[${minStartDate}]]";
+    const maxStartDate = "[[${maxStartDate}]]";
+    const minEndDate = "[[${minEndDate}]]";
+</script>
 <script th:src="@{js/dateValidator.js}" type="application/javascript"></script>
 <script th:src="@{js/projectEdit.js}" type="application/javascript"></script>
 <script th:src="@{js/notifications.js}" type="application/javascript"></script>
