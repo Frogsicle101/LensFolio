@@ -76,6 +76,7 @@ $(() => {
             success:  () => {
                 createAlert("Updated details successfully!", "success")
                 toggleEditForm()
+
             },
             error: function (error) {//Displays error in box on failure
                 createAlert(error.responseText, "failure")
@@ -109,4 +110,18 @@ $(() => {
             }
         })
     })
+
 })
+
+function handleRoleChangeEvent(notification, action) {
+    $.ajax({
+        url: "getUser",
+        success: function (response) {
+            $("#roles").val(response.roles.join(", "))
+        },
+        error: function (error) {
+            createAlert(error.responseText, "failure")
+        }
+    })
+    displayRoleChangeMessage(notification, action)
+}

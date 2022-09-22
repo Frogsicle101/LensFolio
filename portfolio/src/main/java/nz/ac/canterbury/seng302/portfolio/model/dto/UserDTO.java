@@ -1,6 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.model.dto;
 
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
+
+import java.util.List;
 
 public class UserDTO {
 
@@ -14,6 +17,7 @@ public class UserDTO {
     private final String pronouns;
     private final String email;
     private final String imagePath;
+    private final List<String> roles;
 
     public UserDTO(UserResponse userResponse) {
         this.id = userResponse.getId();
@@ -26,6 +30,7 @@ public class UserDTO {
         this.pronouns = userResponse.getPersonalPronouns();
         this.email = userResponse.getEmail();
         this.imagePath = userResponse.getProfileImagePath();
+        this.roles = userResponse.getRolesList().stream().map(UserRole::toString).toList();
     }
 
     /**
@@ -86,5 +91,9 @@ public class UserDTO {
 
     public String getImagePath() {
         return imagePath;
+    }
+
+    public List<String> getRoles() {
+        return roles;
     }
 }
