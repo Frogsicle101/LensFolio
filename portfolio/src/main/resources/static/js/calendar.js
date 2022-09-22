@@ -72,7 +72,7 @@ function eventResizeStop(info) {
  */
 function eventClick(info) {
     let fcEvent = $(".fc-event")
-    let canEdit = $("#canEdit").val() === "true";
+    let canEdit = checkPrivilege()
     if (!canEdit || !info.event.extendedProps.isSprint) {
         return;
     }
@@ -213,8 +213,7 @@ $(function () {
                 extraParams: {
                     projectId: projectId.toString()
                 },
-                success: (response) => {
-                    console.log(response)
+                success: () => {
                 },
                 failure: function (err) {
                     console.log(err.responseText)
@@ -236,8 +235,8 @@ $(function () {
                 extraParams: {
                     projectId: projectId.toString()
                 },
-                success: (response) => {
-                    console.log(response)
+                success: () => {
+
                 },
                 failure: function (err) {
                     console.log(err.responseText)
