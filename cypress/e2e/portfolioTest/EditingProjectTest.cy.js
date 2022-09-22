@@ -31,9 +31,25 @@ describe('Test Editing Project', () => {
     })
 
     it('displays date errors', () => {
-        cy.get("#projectStartDate").invoke('removeAttr','type').clear().invoke('val', '03/04/2003');
-        cy.get("#projectEndDate").invoke('removeAttr','type').clear().invoke('val', '03/03/2022').trigger("change");
+        cy.get("#projectStartDate")
+            .clear().invoke('val', '2003-04-03'); //Year is early
+        cy.get("#projectEndDate").invoke('removeAttr','type')
+            .clear().invoke('val', '2022-03-03').trigger("change"); //Ends inside of a sprint
 
+        cy.get("#projectStartDate").should("have.css", "border-color", 'rgb(220, 53, 69)');
+        cy.get("#projectEndDate").should("have.css", "border-color", 'rgb(220, 53, 69)');
+
+        cy.get("#projectStartDateFeedback").should("be.visible");
+        cy.get("#projectEndDateFeedback").should("be.visible");
+    })
+
+    it('displays date errors when the end date is before the start date', () => {
+        cy.get("#projectStartDate")
+            .clear().invoke('val', '2022-09-03').trigger("change");
+        cy.get("#projectEndDate")
+            .clear().invoke('val', '2022-03-25').trigger("change");
+
+        cy.wait(500);
         cy.get("#projectStartDate").should("have.css", "border-color", 'rgb(220, 53, 69)');
         cy.get("#projectEndDate").should("have.css", "border-color", 'rgb(220, 53, 69)');
 

@@ -22,13 +22,13 @@ $(() => {
     projectStart.on("change", () => {
         checkDates()
         let startErrorDiv = $("#projectStartDateFeedback")
-        if (projectStart.val() > projectStart[0].max) {
+        if (projectStart.val() > maxStartDate) {
             const maxDateFormatted = new Date(projectStart[0].max).toLocaleDateString();
             projectStart[0].setCustomValidity("There are sprints that start before that date. Please select a date earlier than " + maxDateFormatted);
             startErrorDiv.text("There are sprints that start before that date. Please select a date earlier than " + maxDateFormatted)
         }
 
-        if (projectStart.val() < projectStart[0].min) {
+        if (projectStart.val() < minStartDate) {
             const minDateFormatted = new Date(projectStart[0].min).toLocaleDateString();
             projectStart[0].setCustomValidity("Date must be less than a year ago. Please select a date later than " + minDateFormatted);
             startErrorDiv.text("Date must be less than a year ago. Please select a date later than " + minDateFormatted)
@@ -38,7 +38,7 @@ $(() => {
     projectEnd.on("change", () => {
         checkDates()
         let endErrorDiv = $("#projectEndDateFeedback")
-        if (projectEnd.val() < projectEnd[0].min) {
+        if (projectEnd.val() < minEndDate) {
             const minDateFormatted = new Date(projectEnd[0].min).toLocaleDateString();
             projectEnd[0].setCustomValidity("There are sprints that end after that date. Please select a date after " + minDateFormatted);
             endErrorDiv.text("There are sprints that end after that date. Please select a date after " + minDateFormatted)
