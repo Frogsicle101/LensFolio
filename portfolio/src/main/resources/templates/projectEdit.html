@@ -27,7 +27,7 @@
                    th:pattern="${generalUnicodeRegex.getPatternString()}"
                    th:title="${'Project name' + generalUnicodeRegex.getRequirements()}"
                    type="text">
-            <div class="invalid-feedback" th:text="${'Project name' + generalUnicodeRegex.getRequirements()}"></div>
+            <div class="invalid-feedback" id="nameError" th:text="${'Project name' + generalUnicodeRegex.getRequirements()}"></div>
         </div>
         <div class="row">
             <div class="col">
@@ -78,7 +78,7 @@
             <textarea class="form-control canDisable" id="projectDescription" maxlength="200" name="projectDescription"
                       th:text="${project.getDescription()}"
                       th:title="${'Project description' + generalUnicodeRegex.getRequirements()}"></textarea>
-            <div class="invalid-feedback" th:text="${'Project description' + generalUnicodeRegex.getRequirements()}"></div>
+            <div class="invalid-feedback" id="descriptionError" th:text="${'Project description' + generalUnicodeRegex.getRequirements()}"></div>
         </div>
         <button class="btn btn-primary canDisable submitButton" id="editProjectSubmitButton" type="submit">Submit
         </button>
