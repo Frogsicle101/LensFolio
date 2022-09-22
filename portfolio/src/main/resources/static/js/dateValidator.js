@@ -12,4 +12,5 @@ function checkDateOrder(startDate, endDate) {
             picker.setCustomValidity("Start date must be before end date");
         }
     }
+    return startDate >= endDate
 }

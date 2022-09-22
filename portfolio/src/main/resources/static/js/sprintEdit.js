@@ -9,10 +9,24 @@ $(() => {
     let sprintForm = $("#sprintEditForm")
 
     // Checks when the start date changes that its not past the end date.
-    sprintStartDate.on("change", () => checkDateOrder(sprintStartDate.val(), sprintEndDate.val()))
+    sprintStartDate.on("change", () => {
+        let errorDiv = $(".dateFeedback")
+        if (checkDateOrder(sprintStartDate.val(), sprintEndDate.val())) {
+            errorDiv.text("Start date must be before end date.")
+        } else {
+            errorDiv.text(`Please select a date no sooner than ${minDate} and no later than ${maxDate}`)
+        }
+    })
 
 
-    sprintEndDate.on("change", () => checkDateOrder(sprintStartDate.val(), sprintEndDate.val()))
+    sprintEndDate.on("change", () => {
+        let errorDiv = $(".dateFeedback")
+        if (checkDateOrder(sprintStartDate.val(), sprintEndDate.val())) {
+            errorDiv.text("Start date must be before end date.")
+        } else {
+            errorDiv.text(`Please select a date no sooner than ${minDate} and no later than ${maxDate}`)
+        }
+    })
 
     sprintDescription.on("input", () => {
         let descText = sprintDescription.val().toString()

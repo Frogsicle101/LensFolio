@@ -60,7 +60,7 @@
                     <input class="form-control date" id="sprintStartDate" name="sprintStartDate" required
                            th:max="${maxDate}" th:min="${minDate}" th:value="${sprint.getStartDate()}"
                            type="date">
-                    <div class="invalid-feedback" th:text="'Please select a date no sooner than ' + ${minDate} + ' and no later than ' + ${maxDate}"></div>
+                    <div class="invalid-feedback dateFeedback" id="sprintStartDateFeedback" th:text="'Please select a date no sooner than ' + ${minDate} + ' and no later than ' + ${maxDate}"></div>
                 </div>
                 <small class="form-text text-muted" th:text="${textForPrevSprint}"></small>
             </div>
@@ -82,7 +82,7 @@
                     <input class="form-control date" id="sprintEndDate" name="sprintEndDate" required
                            th:max="${maxDate}" th:min="${minDate}" th:value="${sprint.getEndDate()}"
                            type="date">
-                    <div class="invalid-feedback" th:text="'Please select a date no sooner than ' + ${minDate} + ' and no later than ' + ${maxDate}"></div>
+                    <div class="invalid-feedback dateFeedback" id="sprintEndDateFeedback" th:text="'Please select a date no sooner than ' + ${minDate} + ' and no later than ' + ${maxDate}"></div>
                 </div>
 
                 <small class="form-text text-muted" th:text="${textForNextSprint}"></small>
@@ -110,6 +110,11 @@
     </form>
 </section>
 </body>
+<script>
+    //We're passing these constants to the rest of our scripts
+    const minDate = "[[${minDate}]]";
+    const maxDate = "[[${maxDate}]]";
+</script>
 <script th:src="@{js/dateValidator.js}" type="application/javascript"></script>
 <script th:src="@{js/notifications.js}" type="application/javascript"></script>
 <script th:src="@{js/sprintEdit.js}" type="application/javascript"></script>
