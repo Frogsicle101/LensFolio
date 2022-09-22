@@ -11,15 +11,15 @@ public class WeblinkRegex {
 
     private static final String PATH_CHARS = "a-zA-Z0-9[-]\\._~!\\$&'\\(\\)\\*\\+,;=:@" + ESCAPED;
 
-    private static final String SCHEME = "(https?://)?";
+    private static final String PROTOCOL = "(https?://)?";
     private static final String DOMAIN = "([a-zA-Z0-9\\-~_]+(\\.[a-zA-Z0-9\\-~_]+)*)";
-    private static final String PORT = "(:[0-9]{1,5})?";
+    private static final String PORT = "(:[0-9]{0,5})?";
     private static final String PATH = "(/[%s]*)*".formatted(PATH_CHARS);
     private static final String QUERY = "(\\?(([%s]+=[%<s]+)+(&[%<s]+=[%<s]+)*)+)?".formatted(URIC);
     private static final String FRAGMENT = "(#[%s]*)?".formatted(URIC);
 
     private static final Pattern WEBLINK = Pattern.compile(
-            SCHEME +
+            PROTOCOL +
             DOMAIN +
             PORT +
             PATH +

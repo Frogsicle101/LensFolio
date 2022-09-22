@@ -2,7 +2,6 @@ package nz.ac.canterbury.seng302.portfolio;
 
 import nz.ac.canterbury.seng302.portfolio.service.WeblinkRegex;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
@@ -32,27 +31,32 @@ public class RegexTests {
     }
 
     @Test
-    public void regexProtocolPasses() {
-        expectedPasses.add("hello");
-        expectedPasses.add("http://hello");
-        expectedPasses.add("https://hello");
+    public void regexSchemePasses() {
+        expectedPasses.add("example");
+        expectedPasses.add("http://example");
+        expectedPasses.add("http://example.com"); // from RFC documentation
+        expectedPasses.add("http://example.com/"); // from RFC documentation
+        expectedPasses.add("http://example.com:/"); // from RFC documentation
+        expectedPasses.add("http://example.com:80/"); // from RFC documentation
 
         assertPasses();
     }
 
     @Test
     public void regexPortPasses() {
-        expectedPasses.add("http://hello:80");
-        expectedPasses.add("http://hello:80000");
+        expectedPasses.add("http://example:");
+        expectedPasses.add("http://example:80");
+        expectedPasses.add("http://example:80000");
 
         assertPasses();
     }
 
     @Test
     public void regexPathPasses() {
-        expectedPasses.add("https://hello/");
-        expectedPasses.add("http://hello/path");
-        expectedPasses.add("http://hello:80000/path");
+        expectedPasses.add("https://example/");
+        expectedPasses.add("http://example/path");
+        expectedPasses.add("http://example:80000/path");
+        expectedPasses.add("http://www.w3.org/Addressing/"); // from RFC documentation
         expectedPasses.add("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
         expectedPasses.add("http://localhost:9000/portfolio?projectId=1");
         expectedPasses.add("http://hello/path/lots-of_chars_T0~.-()test");
@@ -64,17 +68,18 @@ public class RegexTests {
 
     @Test
     public void regexQueryPasses() {
-        expectedPasses.add("http://hello?a=a");
-        expectedPasses.add("http://hello?sam=nerd");
-        expectedPasses.add("http://hello?sam=nerd&april=100TimesAsSwag&harrison=27");
+        expectedPasses.add("http://example?a=a");
+        expectedPasses.add("http://example?sam=nerd");
+        expectedPasses.add("http://example?sam=nerd&april=100TimesAsSwag&harrison=27");
 
         assertPasses();
     }
 
     @Test
     public void regexFragmentPasses() {
-        expectedPasses.add("https://hello#3456");
-        expectedPasses.add("https://hello#34sdfg-';");
+        expectedPasses.add("https://example#3456");
+        expectedPasses.add("https://example#34sdfg-';");
+        expectedPasses.add("http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING"); // from RFC documentation
 
         assertPasses();
     }
@@ -83,27 +88,26 @@ public class RegexTests {
     public void regexTestsFail() {
         // Protocol
         expectedFails.add(".");
-        expectedFails.add("://hello");
-        expectedFails.add("htt://hello");
-        expectedFails.add("htp://hello");
-        expectedFails.add("http:/hello");
-        expectedFails.add("http:///hello");
-        expectedFails.add("https:///hello");
+        expectedFails.add("://example");
+        expectedFails.add("htt://example");
+        expectedFails.add("htp://example");
+        expectedFails.add("http:/example");
+        expectedFails.add("http:///example");
+        expectedFails.add("https:///example");
 
         // Domain
-        expectedFails.add(".hello");
-        expectedFails.add("http://.hello");
+        expectedFails.add(".example");
+        expectedFails.add("http://.example");
 
         // port number
-        expectedFails.add("hello:800000");
-        expectedFails.add("http://hello:800000");
-        expectedFails.add("http://hello:800000");
+        expectedFails.add("example:800000");
+        expectedFails.add("http://example:800000");
 
         expectedFails.add("https://");
         expectedFails.add("hps://");
-        expectedFails.add("https:/hello");
-        expectedFails.add("https://hello?");
-        expectedFails.add("https://hello:");
+        expectedFails.add("https:/example");
+        expectedFails.add("https://example?");
+        expectedFails.add("https://example:");
 
         assertFails();
     }
@@ -112,7 +116,8 @@ public class RegexTests {
     public void questionablePassCases() {
         List<String> questionablePasses = new ArrayList<>();
 
-        questionablePasses.add("http//hello"); // fails as http is considered part of the domain
+        questionablePasses.add("https//:example");
+        questionablePasses.add("http//example"); // http is considered part of the domain
 
         for (String test : questionablePasses) {
             if (! weblinkPattern.matcher(test).matches()) {
