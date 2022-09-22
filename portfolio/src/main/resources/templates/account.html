@@ -4,6 +4,7 @@
     <title>Lensfolio | Account</title>
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
             </th:block> /*/-->
+    <div th:insert="fragments/general.html :: unicode"></div>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -46,7 +47,7 @@
                                th:title="${'First name' + nameRegex.getRequirements()}"
                                th:value="${user.getFirstName()}"
                                type="text">
-                        <div class="invalid-feedback" th:text="${'First name must be 2-100 characters and ' + nameRegex.getRequirements()}"></div>
+                        <div id="firstNameError" class="invalid-feedback" th:text="${'First name must be 2-100 characters and ' + nameRegex.getRequirements()}"></div>
                     </div>
 
                     <div class="mb-3">
@@ -59,7 +60,7 @@
                                th:title="${'Middle name' + nameRegex.getRequirements()}"
                                th:value="${user.getMiddleName()}"
                                type="text">
-                        <div class="invalid-feedback" th:text="${'Middle name' + nameRegex.getRequirements()}"></div>
+                        <div id="middleNameError" class="invalid-feedback" th:text="${'Middle name' + nameRegex.getRequirements()}"></div>
                     </div>
 
                     <div class="mb-3">
@@ -72,7 +73,7 @@
                                th:title="${'Last name' + nameRegex.getRequirements()}"
                                th:value="${user.getLastName()}"
                                type="text">
-                        <div class="invalid-feedback" th:text="${'Last name must be 2-100 characters and ' + nameRegex.getRequirements()}"></div>
+                        <div id="lastNameError" class="invalid-feedback" th:text="${'Last name must be 2-100 characters and ' + nameRegex.getRequirements()}"></div>
                     </div>
 
                 </div>
@@ -87,7 +88,7 @@
                        th:title="${'Nickname' + generalUnicodeRegex.getRequirements()}"
                        th:value="${user.getNickname()}"
                        type="text">
-                <div class="invalid-feedback" th:text="${'Nickname' + generalUnicodeRegex.getRequirements()}"></div>
+                <div id="nickNameError" class="invalid-feedback" th:text="${'Nickname' + generalUnicodeRegex.getRequirements()}"></div>
             </div>
             <div class="mb-3">
                 <label class="required form-label" for="username">Username</label>
@@ -99,19 +100,19 @@
                        th:title="${'Username' + generalUnicodeNoSpacesRegex.getRequirements()}"
                        th:value="${user.getUsername()}"
                        type="text">
-                <div class="invalid-feedback" th:text="${'Username' + generalUnicodeNoSpacesRegex.getRequirements()}"></div>
+                <div id="userNameError" class="invalid-feedback" th:text="${'Username' + generalUnicodeNoSpacesRegex.getRequirements()}"></div>
             </div>
             <div class="mb-3">
                 <label class="required form-label" for="email">Email address</label>
                 <!--/*@thymesVar id="user" type="nz.ac.canterbury.seng302.shared.identityprovider.UserResponse"*/-->
-                <!--/*@thymesVar id="emailRegex" type=false"nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                <!--/*@thymesVar id="emailRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
                 <input class="form-control canDisable" disabled id="email" maxlength="100"
                        name="email" required
                        th:pattern="${emailRegex.getPatternString()}"
                        th:title="${'Your email' + emailRegex.getRequirements()}"
                        th:value="${user.getEmail()}"
                        type="email">
-                <div class="invalid-feedback" th:text="${'Your email' + emailRegex.getRequirements()}"></div>
+                <div id="emailError" class="invalid-feedback" th:text="${'Your email' + emailRegex.getRequirements()}"></div>
             </div>
             <div class="mb-3">
                 <div class="mb-3">
@@ -124,7 +125,7 @@
                               name="bio" th:text="${user.getBio()}"
                               th:pattern="${generalUnicodeRegex.getPatternString()}"
                               th:title="${'Your bio' + generalUnicodeRegex.getRequirements()}"></textarea>
-                    <div class="invalid-feedback" th:text="${generalUnicodeRegex.getPatternString()}"></div>
+                    <div id="bioError" class="invalid-feedback" th:text="${'Bio' + generalUnicodeRegex.getRequirements()}"></div>
                 </div>
 
             </div>
@@ -146,7 +147,7 @@
                            th:title="${'Pronouns' + generalUnicodeRegex.getRequirements()}"
                            th:value="${user.getPersonalPronouns()}"
                            type="text">
-                    <div class="invalid-feedback" th:text="${'Pronouns' + generalUnicodeRegex.getRequirements()}"></div>
+                    <div id="pronounsError" class="invalid-feedback" th:text="${'Pronouns' + generalUnicodeRegex.getRequirements()}"></div>
                 </div>
             </div>
             <div class="mb-3">

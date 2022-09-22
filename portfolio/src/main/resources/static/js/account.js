@@ -13,6 +13,7 @@ $(() => {
     let passwordForm = $("#passwordChangeForm")
 
 
+    //re-populates the account values with the correct values from the server
     function populateAccountInfo() {
         $.ajax({
             url: "getUser",
@@ -32,6 +33,7 @@ $(() => {
     }
 
 
+    //toggles the edit form
     function toggleEditForm() {
         let canDisable = $(".canDisable")
         canDisable.prop("disabled", !canDisable.prop("disabled"));
@@ -46,6 +48,18 @@ $(() => {
             editUserButton.text("Edit Account")
         }
     }
+
+
+    /**
+     * Performs validation of the bio so that errors are displayed immediately
+     */
+    bio.on("input", () => {
+        if (GENERAL_UNICODE_REGEX.test(bio.val())){
+            bio[0].setCustomValidity("")
+        } else {
+            bio[0].setCustomValidity("invalid")
+        }
+    })
 
 
     //On Edit Account button click
