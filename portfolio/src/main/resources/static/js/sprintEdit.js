@@ -6,6 +6,7 @@ $(() => {
     let sprintEndDate = $("#sprintEndDate")
     let sprintDescription = $("#sprintDescription")
     let sprintColour = $("#sprintColour")
+    let sprintForm = $("#sprintEditForm")
 
     // Checks when the start date changes that its not past the end date.
     sprintStartDate.on("change", () => checkDateOrder(sprintStartDate.val(), sprintEndDate.val()))
@@ -25,11 +26,10 @@ $(() => {
 
 
     // When submit button is clicked on sprint edit form
-    $(".editForm").on("submit", function (event) {
+    sprintForm.on("submit", function (event) {
         event.preventDefault()
 
-        let form = $("#accountForm")
-        if (form[0].checkValidity()) {
+        if (sprintForm[0].checkValidity()) {
             let dataToSend = {
                 "sprintId": sprintId.val(),
                 "sprintName": sprintName.val(),
@@ -53,7 +53,7 @@ $(() => {
             })
         } else {
             event.stopPropagation();
-            const errorElements = form.find(".form-control:invalid")
+            const errorElements = sprintForm.find(".form-control:invalid")
             $('html, body').animate({
                 scrollTop: $(errorElements[0]).offset().top - 100
             }, 50); //Scrolls to the first invalid field of the form

@@ -10,7 +10,7 @@
 <!--The below section <header> pulls the fragment from fragments/general-->
 <header th:insert="fragments/general.html :: header"></header>
 <section class="editSprintContainer">
-    <form class="editForm was-validated" method="post" th:action="@{sprintSubmit}" novalidate>
+    <form class="editForm was-validated" id="sprintEditForm" method="post" th:action="@{sprintSubmit}" novalidate>
         <!--Below are the divs that handle error messages
             If there is an attribute with either "errorMessage", "successMessage", or "infoMessage,
             they will be displayed below-->

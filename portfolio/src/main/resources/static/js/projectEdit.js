@@ -5,6 +5,7 @@ $(() => {
     let projectEnd = $("#projectEndDate")
     let projectId = $("#projectId")
     let projectDescription = $("#projectDescription")
+    let projectForm = $("#projectEditForm")
 
     projectStart.on("change", () => {
         checkDateOrder(projectStart.val(), projectEnd.val())
@@ -37,11 +38,10 @@ $(() => {
     })
 
     //When the submit button is clicked on the form.
-    $(".editForm").on("submit", function (event) {
+    projectForm.on("submit", function (event) {
         event.preventDefault()
-        let form = $("#editForm")
 
-        if (form[0].checkValidity()) {
+        if (projectForm[0].checkValidity()) {
             let dataToSend = {
                 "projectId": projectId.val(),
                 "projectName": projectName.val(),
@@ -62,7 +62,7 @@ $(() => {
             })
         } else {
             event.stopPropagation();
-            const errorElements = form.find(".form-control:invalid")
+            const errorElements = projectForm.find(".form-control:invalid")
             $('html, body').animate({
                 scrollTop: $(errorElements[0]).offset().top - 100
             }, 50); //Scrolls to the first invalid field of the form

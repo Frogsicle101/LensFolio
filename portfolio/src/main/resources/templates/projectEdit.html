@@ -12,7 +12,7 @@
 <header th:insert="fragments/general.html :: header"></header>
 <section class="editProjectContainer">
     <!-- The was-validated class allows us to use bootstrap validation   -->
-    <form class="editForm was-validated" method="post" novalidate>
+    <form class="editForm was-validated" id="projectEditForm" method="post" novalidate>
         <h1>Edit Project</h1>
         <div class="errorMessageParent alert alert-danger alert-dismissible fade show" role="alert"
              style="display: none">
