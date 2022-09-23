@@ -91,6 +91,9 @@ function handleNotification(notification) {
                 case 'deleteGroup':
                     removeGroup(message, action);
                     break;
+                case 'update user details':
+                    updateUserDetails(message);
+                    break;
                 case 'newGroup':
                     liveUpdateGroupList();
                     break;
@@ -111,16 +114,16 @@ function handleNotification(notification) {
  * Sends a message to the server.
  * We don't need to add our ID as the server can get it from the websocket authentication
  *
- * @param occasionType The type of the object being edited (milestone, deadline, event)
- * @param occasionId The ID of the object being edited
+ * @param data The type of the object being edited (milestone, deadline, event)
+ * @param id The ID of the object being edited
  * @param action What action the user has performed to create this message
  */
-function sendNotification(occasionType, occasionId, action) {
+function sendNotification(data, id, action) {
     stompClient.publish({
         destination: "notifications/message",
         body: JSON.stringify({
-            'occasionType': occasionType,
-            'occasionId': occasionId,
+            'data': data,
+            'id': id,
             'action': action
         })
     });

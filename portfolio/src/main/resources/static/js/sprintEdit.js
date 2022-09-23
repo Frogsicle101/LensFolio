@@ -69,7 +69,7 @@ function handleDeleteEvent(message) {
     const editorId = message.editorId;
 
     if (parseInt(editorId) !== parseInt(userIdent)) {
-        if (message.occasionId === $(document).find("#sprintId").val()) {
+        if (message.id === $(document).find("#sprintId").val()) {
             createAlert(editorName + " deleted this sprint. \nThis sprint can no longer be edited.\n" +
                 "Please cancel.", AlertTypes.Info)
         }
