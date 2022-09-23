@@ -21,24 +21,6 @@ describe('Create new piece of evidence', () => {
         cy.get("#evidenceSaveButton").click()
         cy.get("#addEvidenceModal").should("not.be.visible")
     })
-
-    it("Name should no less than 5 characters. ", () => {
-        cy.get('#createEvidenceButton').click()
-        cy.get("#evidenceName").type("aaaa")
-        cy.get("#evidenceDescription").type("description")
-        cy.get("#evidenceSaveButton").should("be.disabled")
-        cy.get("#evidenceName").type("aaaaa")
-        cy.get("#evidenceSaveButton").should("not.be.disabled")
-    })
-
-    it("Description should no less than 5 characters. ", () => {
-        cy.get('#createEvidenceButton').click()
-        cy.get("#evidenceName").type("evidence name")
-        cy.get("#evidenceDescription").type("aaaa")
-        cy.get("#evidenceSaveButton").should("be.disabled")
-        cy.get("#evidenceDescription").type("aaaaa")
-        cy.get("#evidenceSaveButton").should("not.be.disabled")
-    })
 })
 
 
@@ -84,5 +66,4 @@ describe("Closing evidence creation form without save", () => {
         cy.get(".skillChipDisplay").contains("skill")
         cy.get("#addedWebLinks").contains("name")
     })
-
 })
