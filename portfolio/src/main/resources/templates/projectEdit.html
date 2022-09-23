@@ -30,7 +30,7 @@
             <div class="invalid-feedback" id="nameError" th:text="${'Project name' + generalUnicodeRegex.getRequirements()}"></div>
         </div>
         <div class="row">
-            <div class="col">
+            <div class="col dateInputContainer">
                 <label class="form-label" for="projectStartDate">Start Date</label>
                 <svg xmlns="http://www.w3.org/2000/svg"
                      width="16"
@@ -48,10 +48,10 @@
                 <input class="form-control date" id="projectStartDate" name="projectStartDate"
                        required th:min="${minStartDate}" th:max="${maxStartDate}" th:value="${project.getStartDate()}"
                        type="date">
-                <div class="invalid-feedback dateFeedback" id="projectStartDateFeedback" th:text="'Please select a date no sooner than ' + ${minStartDate} + ' and no later than ' + ${maxStartDate}"></div>
+                <div class="invalid-feedback dateFeedback" id="projectStartDateFeedback" ></div>
                 </div>
             </div>
-            <div class="col">
+            <div class="col dateInputContainer">
                 <label class="form-label" for="projectEndDate">End Date</label>
                 <svg xmlns="http://www.w3.org/2000/svg"
                      width="16"
