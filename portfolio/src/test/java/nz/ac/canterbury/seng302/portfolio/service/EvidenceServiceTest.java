@@ -211,7 +211,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("title is shorter than the minimum length of 2 characters"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("title is shorter than the minimum length of 5 characters"));
     }
 
 
@@ -263,7 +263,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("description is shorter than the minimum length of 2 characters"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("description is shorter than the minimum length of 5 characters"));
     }
 
 
