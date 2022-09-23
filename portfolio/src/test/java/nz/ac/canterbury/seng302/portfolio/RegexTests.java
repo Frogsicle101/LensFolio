@@ -31,7 +31,7 @@ public class RegexTests {
     }
 
     @Test
-    public void regexSchemePasses() {
+    public void regexProtocolPasses() {
         expectedPasses.add("example");
         expectedPasses.add("http://example");
         expectedPasses.add("http://example.com"); // from RFC documentation
@@ -39,6 +39,16 @@ public class RegexTests {
         expectedPasses.add("http://example.com:/"); // from RFC documentation
         expectedPasses.add("http://example.com:80/"); // from RFC documentation
         expectedPasses.add("ftp://ftp.is.co.za/rfc/rfc1808.txt");
+
+        assertPasses();
+    }
+
+    @Test
+    public void regexDomainPasses() {
+        expectedPasses.add("xn--j6h.com");
+        expectedPasses.add("i_am_a_website.com");
+        expectedPasses.add("CAPITALLETTERS.com");
+        expectedPasses.add("www.google.com");
 
         assertPasses();
     }
@@ -71,6 +81,7 @@ public class RegexTests {
     public void regexQueryPasses() {
         expectedPasses.add("http://example?a=a");
         expectedPasses.add("http://example?sam=nerd");
+        expectedPasses.add("http://example?llamas=biggerThanFrogs");
         expectedPasses.add("http://example?sam=nerd&april=100TimesAsSwag&harrison=27");
 
         assertPasses();
@@ -86,8 +97,7 @@ public class RegexTests {
     }
 
     @Test
-    public void regexTestsFail() {
-        // Protocol
+    public void regexProtocolFails() {
         expectedFails.add(".");
         expectedFails.add("urn:oasis:names:specification:docbook:dtd:xml:4.1.2");
         expectedFails.add("tel:+1-816-555-1212");
@@ -100,18 +110,39 @@ public class RegexTests {
         expectedFails.add("http:/example");
         expectedFails.add("http:///example");
         expectedFails.add("https:///example");
-
-        // Domain
-        expectedFails.add(".example");
-        expectedFails.add("http://.example");
-
-        // port number
-        expectedFails.add("example:800000");
-        expectedFails.add("http://example:800000");
-
-        expectedFails.add("https://");
         expectedFails.add("hps://");
         expectedFails.add("https:/example");
+
+        assertFails();
+    }
+
+    @Test
+    public void regexDomainFails() {
+        expectedFails.add(".example");
+        expectedFails.add("http://.example");
+        expectedFails.add("♨️.com");
+        expectedFails.add("i am a website.com");
+        expectedFails.add("'quote'.com");
+        expectedFails.add("$$$money$$$.com");
+        expectedFails.add("@.com");
+        expectedFails.add("!.com");
+
+        assertFails();
+    }
+
+    @Test
+    public void regexPortFails() {
+        expectedFails.add("example:800000");
+        expectedFails.add("http://example:800000");
+        expectedFails.add("example.com:port");
+        expectedFails.add("example.com:@#$%^&");
+
+        assertFails();
+    }
+
+    @Test
+    public void regexPathFail() {
+        expectedFails.add("https://");
         expectedFails.add("https://example?");
 
         assertFails();
