@@ -840,7 +840,10 @@ function populateCommitContainer(commitContainer, data) {
 
     const firstThree = data.slice(0, 3);
 
+    console.log(firstThree)
     for (let commit of firstThree) {
+        let commitedDate = sanitise(commit.committed_date).split("T")[0]
+        let commitedTime = sanitise(commit.committed_date).split("T")[1].split(".")[0]
         let commitText =
             `<div id="groupSettingsCommitContainer" class="marginSides1">
                 <div class="gitCommitInfo">
@@ -858,7 +861,7 @@ function populateCommitContainer(commitContainer, data) {
                             <p class="greyText">${sanitise(commit.author_name)}</p>
                         </div>
                         <div class="col commitDate">
-                            <p class="greyText">${sanitise(commit.committed_date).split("T")[0]}</p>
+                            <p class="greyText">${commitedDate} ${commitedTime}</p>
                         </div>
                     </div>
                 </div>
