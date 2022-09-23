@@ -50,7 +50,19 @@ $(() => {
         if (GENERAL_UNICODE_REGEX.test(descText)) {
             projectDescription[0].setCustomValidity("");
         } else {
-            projectDescription[0].setCustomValidity("Project description can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace");
+            projectDescription[0].setCustomValidity("Project description " + GENERAL_UNICODE_REQUIREMENTS);
+        }
+    })
+
+    projectName.on("input", () => {
+        let nameText = projectName.val().toString()
+        let errorDiv = $("#nameError")
+        if (nameText.trim().length === 0) {
+            projectName[0].setCustomValidity("Project name cannot be empty")
+            errorDiv.text("Project name cannot be empty")
+        } else {
+            projectName[0].setCustomValidity("")
+            errorDiv.text("Project name " + GENERAL_UNICODE_REQUIREMENTS)
         }
     })
 

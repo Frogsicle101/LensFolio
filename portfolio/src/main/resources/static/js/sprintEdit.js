@@ -33,8 +33,19 @@ $(() => {
         if (GENERAL_UNICODE_REGEX.test(descText)) {
             sprintDescription[0].setCustomValidity("");
         } else {
-            sprintDescription[0].setCustomValidity("Sprint description can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace");
+            sprintDescription[0].setCustomValidity("Sprint description " + GENERAL_UNICODE_REQUIREMENTS);
+        }
+    })
 
+    sprintName.on("input", () => {
+        let nameText = sprintName.val().toString()
+        let errorDiv = $("#nameError")
+        if (nameText.trim().length === 0) {
+            sprintName[0].setCustomValidity("Sprint name cannot be empty")
+            errorDiv.text("Sprint name cannot be empty")
+        } else {
+            sprintName[0].setCustomValidity("")
+            errorDiv.text("Sprint name " + GENERAL_UNICODE_REQUIREMENTS)
         }
     })
 
