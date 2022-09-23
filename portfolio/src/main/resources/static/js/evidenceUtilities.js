@@ -321,8 +321,10 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
 
     if (userBeingViewedId === userIdent) {
         $("#deleteEvidenceButton").show()
+        $("#editEvidenceButton").show()
     } else {
         $("#deleteEvidenceButton").hide()
+        $("#editEvidenceButton").hide()
     }
 }
 
@@ -446,6 +448,7 @@ function setDetailsToNoEvidenceExists() {
     $("#evidenceDetailsDate").hide()
     $("#evidenceDetailsDescription").hide()
     $("#deleteEvidenceButton").hide()
+    $("#editEvidenceButton").hide()
     $("#evidenceDetailsCategories").empty()
     $("#evidenceWebLinks").empty()
     $("#evidenceDetailsSkills").empty()
