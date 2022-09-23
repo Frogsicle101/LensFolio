@@ -162,9 +162,12 @@ public class PortfolioController {
             modelAndView.addObject("project", project);
 
             // Values to set the max and min of datepicker inputs
-            modelAndView.addObject("minStartDate", projectService.getMinProjectStartDate(project));
-            modelAndView.addObject("maxStartDate", projectService.getMaxProjectStartDate(project));
-            modelAndView.addObject("minEndDate", projectService.getMinProjectEndDate(project));
+            LocalDate minProjectStartDate = projectService.getMinProjectStartDate(project);
+            LocalDate maxProjectStartDate = projectService.getMaxProjectStartDate(project);
+            LocalDate minProjectEndDate = projectService.getMinProjectEndDate(project);
+            modelAndView.addObject("minStartDate", minProjectStartDate);
+            modelAndView.addObject("maxStartDate", maxProjectStartDate);
+            modelAndView.addObject("minEndDate", minProjectEndDate);
 
             // Adds the username and profile photo to the view for use.
             modelAndView.addObject("user", user);
@@ -314,21 +317,17 @@ public class PortfolioController {
             Project project = projectRepository.getProjectById(projectId);
             SprintValidationService sprintValidator = new SprintValidationService(sprintRepository, sprint);
             LocalDate minDate = sprintValidator.getMinSprintStartDate();
-            String minDateString = minDate.format(DateTimeService.dayMonthYear());
             LocalDate maxDate = sprintValidator.getMaxSprintEndDate();
-            String maxDateString = maxDate.format(DateTimeService.dayMonthYear());
 
             modelAndView.addObject("minDate", minDate);
-            modelAndView.addObject("minDateString", minDateString);
             modelAndView.addObject("maxDate", maxDate);
-            modelAndView.addObject("maxDateString", maxDateString);
             //Validation/regex
             modelAndView.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
 
             String textForPreviousSprint;
             if (minDate.equals(project.getStartDate())) {
                 textForPreviousSprint =
-                        "No previous sprints, Project starts on " + minDateString;
+                        "No previous sprints, Project starts on " + minDate.format(DateTimeService.dayMonthYear());
             } else {
                 String formattedPreviousDate = minDate.minusDays(1).format(DateTimeService.dayMonthYear());
                 textForPreviousSprint =
@@ -339,7 +338,7 @@ public class PortfolioController {
             String textForNextSprint;
             if (maxDate.equals(project.getEndDate())) {
                 textForNextSprint =
-                        "No next sprint, project ends on  " + maxDateString;
+                        "No next sprint, project ends on  " + maxDate.format(DateTimeService.dayMonthYear());
             } else {
                 String formattedNextDate = maxDate.plusDays(1).format(DateTimeService.dayMonthYear());
                 textForNextSprint = "Next sprint starts on " + formattedNextDate;
