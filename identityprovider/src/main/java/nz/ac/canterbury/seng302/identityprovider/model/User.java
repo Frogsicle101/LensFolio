@@ -237,7 +237,7 @@ public class User {
 
 
     public String getProfileImagePath() {
-        return imagePath;
+        return "/profile/" + id + ".jpg";
     }
 
 

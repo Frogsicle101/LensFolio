@@ -8,6 +8,7 @@ $(document).ready(() => {
             url: "deleteProfileImg",
             type: "DELETE",
             success: function () {
+                sendNotification("", userIdent, "update user photo")
                 location.reload()
             }
         })
@@ -117,7 +118,11 @@ async function sendImagePostRequest() {
     await fetch("upload", {
         method: "POST",
         body: formData
-    }).then(function () {
+    }).then((response) => response.json())
+        .then((result) => {
+            setTimeout(() => sendNotification(result.imagePath, userIdent, "update user photo"), 1000)
+        })
+        .then(function ( ) {
         $(".successBox").append(`
                             <div class="alert alert-info alert-dismissible fade show" role="alert">
                                  Your profile image is being uploaded, you can click <a href="account">here</a> to go back to account's page.
