@@ -300,7 +300,7 @@ class EvidenceServiceTest {
         Project project = new Project("Testing");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        String title = "Test";
+        String title = "Title";
         String date = LocalDate.now().toString();
         String description = "Description";
 
@@ -329,7 +329,7 @@ class EvidenceServiceTest {
         Project project = new Project("Testing");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        String title = "Test";
+        String title = "Title";
         String date = LocalDate.now().toString();
         String description = "Description";
 
@@ -359,7 +359,7 @@ class EvidenceServiceTest {
         Project project = new Project("Testing");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        String title = "Test";
+        String title = "Title";
         String date = LocalDate.now().toString();
         String description = "Description";
 
