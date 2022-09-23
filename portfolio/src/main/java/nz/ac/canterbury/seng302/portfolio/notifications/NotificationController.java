@@ -81,7 +81,9 @@ public class NotificationController {
             notificationService.storeOutgoingNotification(notification);
         } else if (Objects.equals(message.getAction(), "deleteGroup")) {
             notificationService.storeOutgoingNotification(notification);
-        }  else if (Objects.equals(message.getAction(), "stop")) {
+        } else if (Objects.equals(message.getAction(), "newGroup")) {
+            notificationService.storeOutgoingNotification(notification);
+        } else if (Objects.equals(message.getAction(), "stop")) {
             notificationService.removeOutgoingNotification(notification);
         }
         return List.of(notification);

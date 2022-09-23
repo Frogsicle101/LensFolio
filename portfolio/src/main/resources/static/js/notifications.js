@@ -94,6 +94,9 @@ function handleNotification(notification) {
                 case 'update user details':
                     updateUserDetails(message);
                     break;
+                case 'newGroup':
+                    liveUpdateGroupList();
+                    break;
                 default :
                     // Do nothing, unknown message format
                     break;

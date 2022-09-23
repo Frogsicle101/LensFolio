@@ -37,14 +37,13 @@ public class GroupsController {
     private final UserAccountsClientService userAccountsClientService;
     private final PaginationService paginationService;
 
+    private static final String SHORTNAME = "shortName";
     private int pageNum = 1;
     private int totalPages = 1;
-    private int totalNumGroups = 0;
     private int groupsPerPageLimit = 10;
-    private int offset = 0;
     private static final Integer TEACHER_GROUP_ID = 1;
-    private static final String ORDER_BY = "shortName";
-    private static final Boolean IS_ASCENDING = true;
+    private String orderBy = SHORTNAME;
+    private Boolean isAscending = true;
     private ArrayList<Integer> footerNumberSequence = new ArrayList<>();
 
 
@@ -100,14 +99,22 @@ public class GroupsController {
         return modelAndView;
     }
 
+
+    /**
+     * This endpoint retrieves groups depending on the inputs. It returns them as a responseEntity.
+     * @param page The page number the user is on in the groups list
+     * @param groupsPerPage The number of groups to display per page
+     * @param sortBy Which way to sort the groups by
+     * @return returns a ResponseEntity with the groups contained.
+     */
     @GetMapping("/getGroups")
     public ResponseEntity<Object> getGroups(
             @RequestParam(name = "page", required = false) Integer page,
-            @RequestParam(name = "groupsPerPage", required = false) String groupsPerPage)
+            @RequestParam(name = "groupsPerPage", required = false) String groupsPerPage,
+            @RequestParam(name = "sortBy", required = false) String sortBy)
      {
          logger.info("GET REQUEST /getGroups - attempt to get all groups");
          try {
-
              if (page != null) {
                  pageNum = page;
              }
@@ -126,9 +133,29 @@ public class GroupsController {
                      default -> this.groupsPerPageLimit = 10;
                  }
              }
-             offset = (pageNum - 1) * groupsPerPageLimit; // The number to start retrieving groups from
-             PaginatedGroupsResponse response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
-             totalNumGroups = response.getPaginationResponseOptions().getResultSetSize();
+             if (sortBy != null){
+                 switch (sortBy) {
+                     case "Short Name Desc" -> {
+                         this.orderBy = SHORTNAME;
+                         this.isAscending = false;
+                     }
+                     case "Long Name Asc" -> {
+                         this.orderBy = "longName";
+                         this.isAscending = true;
+                     }
+                     case "Long Name Desc" -> {
+                         this.orderBy = "longName";
+                         this.isAscending = false;
+                     }
+                     default -> {
+                         this.orderBy = SHORTNAME;
+                         this.isAscending = true;
+                     }
+                 }
+             }
+             int offset = (pageNum - 1) * groupsPerPageLimit; // The number to start retrieving groups from
+             PaginatedGroupsResponse response = groupService.getPaginatedGroupsFromServer(offset, orderBy, groupsPerPageLimit, isAscending);
+             int totalNumGroups = response.getPaginationResponseOptions().getResultSetSize();
              totalPages = totalNumGroups / groupsPerPageLimit;
              if ((totalNumGroups % groupsPerPageLimit) != 0) {
                  totalPages++; // Checks if there are leftover groups to display
@@ -136,7 +163,7 @@ public class GroupsController {
              if (pageNum > totalPages || goToLastPage) { //to ensure that the last page will be shown if the page number is too large
                  pageNum = totalPages;
                  offset = (pageNum - 1) * groupsPerPageLimit;
-                 response = groupService.getPaginatedGroupsFromServer(offset, ORDER_BY, groupsPerPageLimit, IS_ASCENDING);
+                 response = groupService.getPaginatedGroupsFromServer(offset, orderBy, groupsPerPageLimit, isAscending);
              }
              footerNumberSequence = paginationService.createFooterNumberSequence(footerNumberSequence, totalPages, pageNum);
 

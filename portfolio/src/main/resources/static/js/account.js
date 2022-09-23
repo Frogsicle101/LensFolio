@@ -9,8 +9,11 @@ $(() => {
     let bio = $("#bio")
     let personalPronouns = $("#personalPronouns")
     let email = $("#email")
+    let accountForm = $("#accountForm")
+    let passwordForm = $("#passwordChangeForm")
 
 
+    //re-populates the account values with the correct values from the server
     function populateAccountInfo() {
         $.ajax({
             url: "getUser",
@@ -30,6 +33,7 @@ $(() => {
     }
 
 
+    //toggles the edit form
     function toggleEditForm() {
         let canDisable = $(".canDisable")
         canDisable.prop("disabled", !canDisable.prop("disabled"));
@@ -46,6 +50,18 @@ $(() => {
     }
 
 
+    /**
+     * Performs validation of the bio so that errors are displayed immediately
+     */
+    bio.on("input", () => {
+        if (GENERAL_UNICODE_REGEX.test(bio.val())){
+            bio[0].setCustomValidity("")
+        } else {
+            bio[0].setCustomValidity("invalid")
+        }
+    })
+
+
     //On Edit Account button click
     $(editUserButton).on("click", toggleEditForm)
 
@@ -57,58 +73,74 @@ $(() => {
 
 
     // On account form submit
-    $("#accountForm").on("submit", (event) => {
+    accountForm.on("submit", (event) => {
         event.preventDefault(); // Prevents submit
-        let accountData = {
-            "firstname": firstname.val(),
-            "middlename": middlename.val(),
-            "lastname": lastname.val(),
-            "nickname": nickname.val(),
-            "bio": bio.val(),
-            "personalPronouns": personalPronouns.val(),
-            "email": email.val()
-        }
-
-        $.ajax({
-            url: "edit/details",
-            type: "post",
-            data: accountData,
-            success:  (response) => {
-                createAlert("Updated details successfully!", "success")
-                sendNotification(JSON.stringify(response), userIdent, "update user details")
-                toggleEditForm()
-            },
-            error: function (error) {//Displays error in box on failure
-                createAlert(error.responseText, "failure")
+        if (accountForm[0].checkValidity()) {
+            let accountData = {
+                "firstname": firstname.val(),
+                "middlename": middlename.val(),
+                "lastname": lastname.val(),
+                "nickname": nickname.val(),
+                "bio": bio.val(),
+                "personalPronouns": personalPronouns.val(),
+                "email": email.val()
             }
-        })
+
+            $.ajax({
+                url: "edit/details",
+                type: "post",
+                data: accountData,
+                success:  () => {
+                    createAlert("Updated details successfully!", "success")
+                    sendNotification(JSON.stringify(response), userIdent, "update user details")
+                    toggleEditForm()
+                },
+                error: function (error) {//Displays error in box on failure
+                    createAlert(error.responseText, "failure")
+                }
+            })
+        } else {
+            event.stopPropagation();
+            const errorElements = accountForm.find(".form-control:invalid")
+            $('html, body').animate({
+                scrollTop: $(errorElements[0]).offset().top - 100
+            }, 50); // Scrolls to the first invalid field of the form
+        }
     })
 
 
     // On password change form submit
-    $("#passwordChangeForm").on( "submit", (event) => {
+    passwordForm.on( "submit", (event) => {
         event.preventDefault()
-        let data = {
-            "oldPassword": $("#OldPassword").val(),
-            "newPassword": $("#NewPassword").val(),
-            "confirmPassword": $("#ConfirmPassword").val()
-        }
-
-        $.ajax({
-            type: "post",
-            data: data,
-            url: "edit/password",
-            success: function () {
-                createAlert("Password Changed Successfully!", "success")
-                toggleEditForm()
-                $("#OldPassword").val('')
-                $("#NewPassword").val('')
-                $("#ConfirmPassword").val('')
-            },
-            error: function (error) { // Display errors in box on failure
-                createAlert(error.responseText, "failure")
+        if (passwordForm[0].checkValidity()) {
+            let data = {
+                "oldPassword": $("#OldPassword").val(),
+                "newPassword": $("#NewPassword").val(),
+                "confirmPassword": $("#ConfirmPassword").val()
             }
-        })
+
+            $.ajax({
+                type: "post",
+                data: data,
+                url: "edit/password",
+                success: function () {
+                    createAlert("Password Changed Successfully!", "success")
+                    toggleEditForm()
+                    $("#OldPassword").val('')
+                    $("#NewPassword").val('')
+                    $("#ConfirmPassword").val('')
+                },
+                error: function (error) { // Display errors in box on failure
+                    createAlert(error.responseText, "failure")
+                }
+            })
+        } else {
+            event.stopPropagation();
+            const errorElements = passwordForm.find(".form-control:invalid")
+            $('html, body').animate({
+                scrollTop: $(errorElements[0]).offset().top - 100
+            }, 50); // Scrolls to the first invalid field of the form
+        }
     })
 
 })
