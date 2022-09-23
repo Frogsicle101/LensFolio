@@ -14,7 +14,7 @@ $(() => {
             startErrorDiv.text("Start date must be before end date.")
             endErrorDiv.text("Start date must be before end date.")
         } else {
-            startErrorDiv.text(`Please select a date no sooner than ${minStartDate} and no later than ${maxStartDate}`)
+            startErrorDiv.text(`Please select a date between ${minStartDate} and ${maxStartDate}`)
             endErrorDiv.text(`Please select a date no sooner than ${minEndDate}`)
         }
     }

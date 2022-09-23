@@ -14,7 +14,7 @@ $(() => {
         if (checkDateOrder(sprintStartDate.val(), sprintEndDate.val())) {
             errorDiv.text("Start date must be before end date.")
         } else {
-            errorDiv.text(`Please select a date no sooner than ${minDate} and no later than ${maxDate}`)
+            errorDiv.text(`Please select a date between ${minDate} and ${maxDate}`)
         }
     })
 
@@ -24,7 +24,7 @@ $(() => {
         if (checkDateOrder(sprintStartDate.val(), sprintEndDate.val())) {
             errorDiv.text("Start date must be before end date.")
         } else {
-            errorDiv.text(`Please select a date no sooner than ${minDate} and no later than ${maxDate}`)
+            errorDiv.text(`Please select a date between ${minDate} and ${maxDate}`)
         }
     })
 

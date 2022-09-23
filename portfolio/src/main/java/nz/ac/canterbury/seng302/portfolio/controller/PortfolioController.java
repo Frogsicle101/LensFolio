@@ -314,18 +314,21 @@ public class PortfolioController {
             Project project = projectRepository.getProjectById(projectId);
             SprintValidationService sprintValidator = new SprintValidationService(sprintRepository, sprint);
             LocalDate minDate = sprintValidator.getMinSprintStartDate();
+            String minDateString = minDate.format(DateTimeService.dayMonthYear());
             LocalDate maxDate = sprintValidator.getMaxSprintEndDate();
+            String maxDateString = maxDate.format(DateTimeService.dayMonthYear());
 
             modelAndView.addObject("minDate", minDate);
+            modelAndView.addObject("minDateString", minDateString);
             modelAndView.addObject("maxDate", maxDate);
+            modelAndView.addObject("maxDateString", maxDateString);
             //Validation/regex
             modelAndView.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
 
             String textForPreviousSprint;
             if (minDate.equals(project.getStartDate())) {
-                String formattedPreviousDate = minDate.format(DateTimeService.dayMonthYear());
                 textForPreviousSprint =
-                        "No previous sprints, Project starts on " + formattedPreviousDate;
+                        "No previous sprints, Project starts on " + minDateString;
             } else {
                 String formattedPreviousDate = minDate.minusDays(1).format(DateTimeService.dayMonthYear());
                 textForPreviousSprint =
@@ -335,9 +338,8 @@ public class PortfolioController {
 
             String textForNextSprint;
             if (maxDate.equals(project.getEndDate())) {
-                String formattedNextDate = maxDate.format(DateTimeService.dayMonthYear());
                 textForNextSprint =
-                        "No next sprint, project ends on  " + formattedNextDate;
+                        "No next sprint, project ends on  " + maxDateString;
             } else {
                 String formattedNextDate = maxDate.plusDays(1).format(DateTimeService.dayMonthYear());
                 textForNextSprint = "Next sprint starts on " + formattedNextDate;
