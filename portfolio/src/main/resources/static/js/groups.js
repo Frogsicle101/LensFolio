@@ -354,7 +354,10 @@ function removeGroup(notification) {
     }
 }
 
-
+/**
+ * Updates the displayed name of the user if the user is in the group currently displayed.
+ * @param notification The STOMPJS message containing the details that need to change
+ */
 function updateUserDetails(notification){
     const usersId = notification.id
     const userRow = $("#userid" + usersId)

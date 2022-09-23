@@ -145,6 +145,12 @@ $(() => {
 
 })
 
+/**
+ * Takes a role change notification and updates the roles box on the page, then passes it off to the generic role
+ * change message function
+ * @param notification The content of the role change notification
+ * @param action The action taken. Unused, but needs to be here to match the signature
+ */
 function handleRoleChangeEvent(notification, action) {
     $.ajax({
         url: "getUser",
