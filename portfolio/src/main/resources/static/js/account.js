@@ -54,7 +54,7 @@ $(() => {
      * Performs validation of the bio so that errors are displayed immediately
      */
     bio.on("input", () => {
-        if (GENERAL_UNICODE_REGEX.test(bio.val())){
+        if (GENERAL_UNICODE_REGEX.test(bio.val())) {
             bio[0].setCustomValidity("")
         } else {
             bio[0].setCustomValidity("invalid")
@@ -110,7 +110,7 @@ $(() => {
 
 
     // On password change form submit
-    passwordForm.on( "submit", (event) => {
+    passwordForm.on("submit", (event) => {
         event.preventDefault()
         if (passwordForm[0].checkValidity()) {
             let data = {

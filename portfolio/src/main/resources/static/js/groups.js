@@ -195,7 +195,7 @@ function getGroups(page = groupPage) {
             populateGroupPageSelector(data.footerNumberSequence, data.page)
             createListOfGroups(data.groups)
         },
-        error: function(error) {
+        error: function (error) {
             createAlert(error.responseText, AlertTypes.Failure)
         }
     }).then(manageGroupTableInteraction)
@@ -312,7 +312,7 @@ function createGroupPreviewDiv(group) {
  *
  * @param notification The notification from the server.
  */
-function updateGroup(notification){
+function updateGroup(notification) {
     let notificationGroupId = notification.id
     let currentDisplayGroup = $("#groupBeingDisplayId").text()
     if (currentDisplayGroup === notificationGroupId) {
@@ -327,10 +327,6 @@ function updateGroup(notification){
     }
     updateGroupDetails(notificationGroupId)
 }
-
-
-
-
 
 
 /**
@@ -350,7 +346,9 @@ function removeGroup(notification) {
     }
     let group = $("#" + notificationGroupId)
     if (group.length > 0) {
-        group.slideUp("500", () => {group.remove()})
+        group.slideUp("500", () => {
+            group.remove()
+        })
     }
 }
 
@@ -358,7 +356,7 @@ function removeGroup(notification) {
  * Updates the displayed name of the user if the user is in the group currently displayed.
  * @param notification The STOMPJS message containing the details that need to change
  */
-function updateUserDetails(notification){
+function updateUserDetails(notification) {
     const usersId = notification.id
     const userRow = $("#userid" + usersId)
     if (userRow.length) {
@@ -935,7 +933,7 @@ function cancelGroupEdit() {
 $(document).on("click", ".groupPageLink", function (event) {
     event.preventDefault()
 
-    if($(this).hasClass("disabled")) {
+    if ($(this).hasClass("disabled")) {
         return
     }
 
