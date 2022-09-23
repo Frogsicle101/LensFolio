@@ -1380,8 +1380,8 @@ function displayLiveUpdateMessage(message, editorId, eventId) {
 function handleCreateEvent(notification) {
     const editorId = notification.editorId;
     const editorName = notification.editorName;
-    const occasionType = notification.occasionType;
-    const occasionId = notification.occasionId;
+    const occasionType = notification.data;
+    const occasionId = notification.id;
 
     switch (occasionType) {
         case 'event':
@@ -1416,8 +1416,8 @@ function handleCreateEvent(notification) {
  * @param notification The update notification, from which we extract the ID (and also the type for logging)
  */
 function handleUpdateEvent(notification) {
-    const occasionType = notification.occasionType;
-    const occasionId = notification.occasionId;
+    const occasionType = notification.data;
+    const occasionId = notification.id;
     const editorId = notification.editorId;
     const editorName = notification.editorName;
     let eventDiv = $("#" + occasionId)
@@ -1455,8 +1455,8 @@ function handleUpdateEvent(notification) {
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
 function handleDeleteEvent(notification) {
-    const occasionType = notification.occasionType;
-    const occasionId = notification.occasionId;
+    const occasionType = notification.data;
+    const occasionId = notification.id;
     const editorId = notification.editorId;
     const editorName = notification.editorName;
     let eventDiv = $("#" + occasionId)
@@ -1499,7 +1499,7 @@ function handleNotifyEvent(notification) {
 
     const editorId = notification.editorId;
     const editorName = notification.editorName;
-    const occasionId = notification.occasionId;
+    const occasionId = notification.id;
 
     if (checkPrivilege()) {
         let infoContainer = $("#informationBar");
@@ -1533,7 +1533,7 @@ function handleNotifyEvent(notification) {
  */
 function handleStopEvent(notification) {
 
-    const occasionId = notification.occasionId;
+    const occasionId = notification.id;
     const editorId = notification.editorId
 
     if (checkPrivilege()) {

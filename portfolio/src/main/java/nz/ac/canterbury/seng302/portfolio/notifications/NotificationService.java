@@ -48,7 +48,7 @@ public class NotificationService {
      * @param notification The notification to be stored. Must have a type and ID.
      */
     public void storeOutgoingNotification(OutgoingNotification notification) {
-        String key = notification.getOccasionType() + ":" + notification.getOccasionId();
+        String key = notification.getData() + ":" + notification.getId();
         logger.info("SERVICE - Storing notification: {}", key);
         activeEditNotifications.put(key, notification);
         //Update our index for editor ids
@@ -65,7 +65,7 @@ public class NotificationService {
      * @param notification The notification to be removed. Must have a type and ID.
      */
     public void removeOutgoingNotification(OutgoingNotification notification) {
-        String key = notification.getOccasionType() + ":" + notification.getOccasionId();
+        String key = notification.getData() + ":" + notification.getId();
         logger.info("SERVICE - Removing notification: {}", key);
         activeEditNotifications.remove(key);
         //Update our index for editor ids

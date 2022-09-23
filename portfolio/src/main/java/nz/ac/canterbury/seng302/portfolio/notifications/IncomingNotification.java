@@ -6,14 +6,14 @@ package nz.ac.canterbury.seng302.portfolio.notifications;
 public class IncomingNotification {
 
     /**
-     * The subtype of occasion or role being changed.
+     * Some additional data sent along with the request. This will either be the subtype of occasion or role being changed.
      */
-    private final String occasionType;
+    private final String data;
 
     /**
      * The ID of the edited occasion or user whose roles have been updated
      */
-    private final String occasionId;
+    private final String id;
 
     /**
      * The action that has been performed. One of create, delete, edit, stop, add role, or delete role.
@@ -24,24 +24,24 @@ public class IncomingNotification {
     /**
      * Constructor for IncomingNotifications
      *
-     * @param occasionType The type of occasion we are editing
-     * @param occasionId   The ID of that occasion
+     * @param data The type of occasion we are editing
+     * @param id   The ID of that occasion
      * @param action       The action that has been performed. One of create, delete, edit, stop, or roleChange.
      */
-    public IncomingNotification(String occasionType, String occasionId, String action) {
-        this.occasionType = occasionType;
-        this.occasionId = occasionId;
+    public IncomingNotification(String data, String id, String action) {
+        this.data = data;
+        this.id = id;
         this.action = action;
     }
 
 
-    public String getOccasionType() {
-        return occasionType;
+    public String getData() {
+        return data;
     }
 
 
-    public String getOccasionId() {
-        return occasionId;
+    public String getId() {
+        return id;
     }
 
 

@@ -195,7 +195,7 @@ function getGroups(page = groupPage) {
             populateGroupPageSelector(data.footerNumberSequence, data.page)
             createListOfGroups(data.groups)
         },
-        error: function(error) {
+        error: function (error) {
             createAlert(error.responseText, AlertTypes.Failure)
         }
     }).then(manageGroupTableInteraction)
@@ -312,8 +312,8 @@ function createGroupPreviewDiv(group) {
  *
  * @param notification The notification from the server.
  */
-function updateGroup(notification){
-    let notificationGroupId = notification.occasionId
+function updateGroup(notification) {
+    let notificationGroupId = notification.id
     let currentDisplayGroup = $("#groupBeingDisplayId").text()
     if (currentDisplayGroup === notificationGroupId) {
         displayGroupUsersList()
@@ -329,10 +329,6 @@ function updateGroup(notification){
 }
 
 
-
-
-
-
 /**
  * Using the notification system, this is called when a group has been deleted.
  * It checks to see if the current group being displayed is the one that has been deleted.
@@ -342,7 +338,7 @@ function updateGroup(notification){
  */
 function removeGroup(notification) {
     console.log(notification)
-    let notificationGroupId = notification.occasionId
+    let notificationGroupId = notification.id
     let currentDisplayGroup = $("#groupBeingDisplayId").text()
     if (currentDisplayGroup === notificationGroupId) {
         $("#groupInformationContainer").slideUp()
@@ -350,7 +346,23 @@ function removeGroup(notification) {
     }
     let group = $("#" + notificationGroupId)
     if (group.length > 0) {
-        group.slideUp("500", () => {group.remove()})
+        group.slideUp("500", () => {
+            group.remove()
+        })
+    }
+}
+
+/**
+ * Updates the displayed name of the user if the user is in the group currently displayed.
+ * @param notification The STOMPJS message containing the details that need to change
+ */
+function updateUserDetails(notification) {
+    const usersId = notification.id
+    const userRow = $("#userid" + usersId)
+    if (userRow.length) {
+        const userData = JSON.parse(notification.data)
+        userRow.find(".firstName").text(userData.firstName)
+        userRow.find(".lastName").text(userData.lastName)
     }
 }
 
@@ -582,7 +594,7 @@ function appendMemberToGroup(member) {
     }
 
     membersContainer.append(`
-                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" userId=${sanitise(member.id)}>
+                    <tr class="userRow ${checkPrivilege() ? "clickableRow" : ""}" id=userid${sanitise(member.id)} userId=${sanitise(member.id)}>
                         <td class="userRowId">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-grip-vertical dragGrip" style="display: none" viewBox="0 0 16 16">
                                     <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
@@ -591,8 +603,8 @@ function appendMemberToGroup(member) {
                         <td>
                             <img src=${imageSource} alt="Profile image" class="profilePicGroupsList" id="userImage"> 
                         </td>
-                        <td>${sanitise(member.firstName)}</td>
-                        <td>${sanitise(member.lastName)}</td>
+                        <td class="firstName">${sanitise(member.firstName)}</td>
+                        <td class="lastName">${sanitise(member.lastName)}</td>
                         <td>${sanitise(member.username)}</td>
                     </tr>`
     )
@@ -921,7 +933,7 @@ function cancelGroupEdit() {
 $(document).on("click", ".groupPageLink", function (event) {
     event.preventDefault()
 
-    if($(this).hasClass("disabled")) {
+    if ($(this).hasClass("disabled")) {
         return
     }
 

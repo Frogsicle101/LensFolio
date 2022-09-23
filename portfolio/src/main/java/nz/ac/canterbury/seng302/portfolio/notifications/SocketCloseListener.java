@@ -74,8 +74,8 @@ public class SocketCloseListener implements ApplicationListener<SessionDisconnec
             stopNotifications.add(new OutgoingNotification(
                     editorId,
                     notification.getEditorName(),
-                    notification.getOccasionType(),
-                    notification.getOccasionId(),
+                    notification.getData(),
+                    notification.getId(),
                     "stop"
             ));
         }

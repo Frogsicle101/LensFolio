@@ -54,7 +54,7 @@ $(() => {
      * Performs validation of the bio so that errors are displayed immediately
      */
     bio.on("input", () => {
-        if (GENERAL_UNICODE_REGEX.test(bio.val())){
+        if (GENERAL_UNICODE_REGEX.test(bio.val())) {
             bio[0].setCustomValidity("")
         } else {
             bio[0].setCustomValidity("invalid")
@@ -90,8 +90,9 @@ $(() => {
                 url: "edit/details",
                 type: "post",
                 data: accountData,
-                success:  () => {
+                success: (response) => {
                     createAlert("Updated details successfully!", "success")
+                    sendNotification(JSON.stringify(response), userIdent, "update user details")
                     toggleEditForm()
                 },
                 error: function (error) {//Displays error in box on failure
@@ -109,7 +110,7 @@ $(() => {
 
 
     // On password change form submit
-    passwordForm.on( "submit", (event) => {
+    passwordForm.on("submit", (event) => {
         event.preventDefault()
         if (passwordForm[0].checkValidity()) {
             let data = {
@@ -141,4 +142,24 @@ $(() => {
             }, 50); // Scrolls to the first invalid field of the form
         }
     })
+
 })
+
+/**
+ * Takes a role change notification and updates the roles box on the page, then passes it off to the generic role
+ * change message function
+ * @param notification The content of the role change notification
+ * @param action The action taken. Unused, but needs to be here to match the signature
+ */
+function handleRoleChangeEvent(notification, action) {
+    $.ajax({
+        url: "getUser",
+        success: function (response) {
+            $("#roles").val(response.roles.join(", "))
+        },
+        error: function (error) {
+            createAlert(error.responseText, "failure")
+        }
+    })
+    displayRoleChangeMessage(notification, action)
+}
