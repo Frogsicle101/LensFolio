@@ -17,14 +17,10 @@ $(() => {
         if (checkDateOrder(projectStart.val(), projectEnd.val())) {
             startErrorDiv.text("Start date must be before end date.")
             endErrorDiv.text("Start date must be before end date.")
-        } else {
-            startErrorDiv.text(`Please select a date between ${minStartDateFormatted} and ${maxStartDateFormatted}`)
-            endErrorDiv.text(`Please select a date between ${minEndDateFormatted} and 31/12/9999`)
         }
     }
 
-    projectStart.on("change", () => {
-        checkDates()
+    const setDateErrorMessages = () => {
         let startErrorDiv = $("#projectStartDateFeedback")
         if (projectStart.val() > maxStartDate) {
 
@@ -38,16 +34,23 @@ $(() => {
             projectStart[0].setCustomValidity("Date must be less than a year ago. Please select a date later than " + minStartDateFormatted);
             startErrorDiv.text("Date must be less than a year ago. Please select a date later than " + minStartDateFormatted)
         }
-    })
 
-    projectEnd.on("change", () => {
-        checkDates()
         let endErrorDiv = $("#projectEndDateFeedback")
         if (projectEnd.val() < projectEnd[0].min) {
             const minDateFormatted = new Date(projectEnd[0].min).toLocaleDateString();
             projectEnd[0].setCustomValidity("There are sprints that end after that date. Please select a date after " + minDateFormatted);
             endErrorDiv.text("There are sprints that end after that date. Please select a date after " + minDateFormatted)
         }
+    }
+
+    projectStart.on("change", () => {
+        checkDates()
+        setDateErrorMessages()
+    })
+
+    projectEnd.on("change", () => {
+        checkDates()
+        setDateErrorMessages()
     })
 
     projectDescription.on("input", () => {
