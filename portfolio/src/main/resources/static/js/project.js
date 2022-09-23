@@ -32,11 +32,11 @@ $(() => {
                         refreshEvents(projectId);
                     })
                 })
-                createAlert("Sprint created!", "success")
+                createAlert("Sprint created!", AlertTypes.Success)
                 sendNotification("sprint", response.id, "create")
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     })
@@ -63,35 +63,39 @@ $(document).on("click", ".editSprint", function () {
 
 /**
  * When sprint delete button is clicked.
- * Sends ajax delete request.
- * Then reloads page.
+ * Asks for confirmation,
+ * if yes: sends ajax delete request then reloads page.
+ * if no: does nothing.
  */
 $(document).on("click", ".deleteSprint", function () {
     let sprintId = $(this).closest(".sprint").find(".sprintId").text();
+    let sprintName = $(this).closest(".sprint").find(".name").text();
 
-    $.ajax({
-        url: "deleteSprint",
-        type: "DELETE",
-        data: {"sprintId": sprintId},
-        success: function () {
-            $(".editSprint").tooltip('hide')
-            $(".deleteSprint").tooltip('hide')
-            createAlert("Sprint deleted!", "success")
-            sendNotification("sprint", sprintId, "delete")
-        },
-        error: function (error) {
-            createAlert(error.responseText, "failure")
-        }
-    }).done(function () {
-        $(".sprintsContainer").slideUp(400, function () {
-            $(".sprintsContainer").empty()
-            getSprints(() => {
-                refreshDeadlines(projectId);
-                refreshMilestones(projectId);
-                refreshEvents(projectId);
+    if (window.confirm(`Are you sure you want to delete ${sprintName}?`)) {
+        $.ajax({
+            url: "deleteSprint",
+            type: "DELETE",
+            data: {"sprintId": sprintId},
+            success: function () {
+                $(".editSprint").tooltip('hide')
+                $(".deleteSprint").tooltip('hide')
+                createAlert("Sprint deleted!", "success")
+                sendNotification("sprint", sprintId, "delete")
+            },
+            error: function (error) {
+                createAlert(error.responseText, "failure")
+            }
+        }).done(function () {
+            $(".sprintsContainer").slideUp(400, function () {
+                $(".sprintsContainer").empty()
+                getSprints(() => {
+                    refreshDeadlines(projectId);
+                    refreshMilestones(projectId);
+                    refreshEvents(projectId);
+                })
             })
         })
-    })
+    }
 })
 
 /**

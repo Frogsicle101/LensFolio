@@ -156,13 +156,19 @@ function manageGroupTableInteraction() {
 
 
 /**
- * Listens for a change on the group amount display selector (the dropdown)
+ * Listens for a change on one of the group display selectors
  * Calls getGroups.
  */
-$(document).on("change", "#groupDisplayAmountSelection", function (event) {
+$(document).on("change", ".small-options", function (event) {
     event.preventDefault()
     getGroups(groupPage)
 })
+
+
+function liveUpdateGroupList() {
+    getGroups()
+    createAlert("New group has been created", "info")
+}
 
 
 /**
@@ -171,12 +177,14 @@ $(document).on("change", "#groupDisplayAmountSelection", function (event) {
 function getGroups(page = groupPage) {
     let groupsPerPage = $("#groupDisplayAmountSelection").find("option:selected").text()
     groupsPerPage = groupsPerPage.toLowerCase()
+    let sortBy = $("#groupSortBySelector").find("option:selected").text()
     $.ajax({
         url: "getGroups",
         type: "GET",
         data: {
             "page": page,
-            "groupsPerPage": groupsPerPage
+            "groupsPerPage": groupsPerPage,
+            "sortBy": sortBy
         },
         success: function (data) {
             groupPage = data.page
@@ -188,7 +196,7 @@ function getGroups(page = groupPage) {
             createListOfGroups(data.groups)
         },
         error: function(error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     }).then(manageGroupTableInteraction)
 }
@@ -269,12 +277,12 @@ function createFooterNumberSelector(number) {
  * @param groups The list of groups.
  */
 function createListOfGroups(groups) {
-    let groupOverviewContainer = $("#groupAmountOptionsTop")
+    let groupOverviewContainer = $("#groupListDiv")
     $(".group").each((index, element) => {
         $(element).remove()
     })
     for (const groupsKey in groups) {
-        groupOverviewContainer.after(createGroupPreviewDiv(groups[groupsKey]))
+        groupOverviewContainer.append(createGroupPreviewDiv(groups[groupsKey]))
     }
 }
 
@@ -319,6 +327,10 @@ function updateGroup(notification){
     }
     updateGroupDetails(notificationGroupId)
 }
+
+
+
+
 
 
 /**
@@ -383,16 +395,16 @@ function addUsers(groupId) {
             displayGroupUsersList()
             sendNotification("group", groupId, "updateGroup");
             if (parseInt(groupId) === MWAG_GROUP_ID) {
-                createAlert("User(s) moved, and teachers role remains", "success")
+                createAlert("User(s) moved, and teachers role remains", AlertTypes.Success)
             } else {
-                createAlert("User(s) moved", "success")
+                createAlert("User(s) moved", AlertTypes.Success)
             }
         }, error: function (error) {
-            if (error.status == 401) {
+            if (error.status === 401) {
                 createAlert("You don't have permission to move users. This could be because " +
-                    "your roles have been updated. Try refreshing the page", "failure")
+                    "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
             } else {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         }
     })
@@ -520,7 +532,7 @@ function displayGroupUsersList() {
             checkEditRights(response)
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 }
@@ -697,7 +709,7 @@ function retrieveGroupRepoInformation() {
             getRepoCommits();
         },
         error: function (error) {
-            if (error.status == 401) {
+            if (error.status === 401) {
                 let repoInformationContainer = $("#gitRepo")
                 repoInformationContainer.empty();
                 displayUnauthorisedRepo(repoInformationContainer)
@@ -966,15 +978,15 @@ $(document).on("click", "#groupRemoveUser", function () {
             type: "DELETE",
             success: () => {
                 displayGroupUsersList()
-                createAlert("User removed", "success")
+                createAlert("User removed", AlertTypes.Success)
                 sendNotification("group", selectedGroupId, "updateGroup");
                 checkToSeeIfHideOrShowOptions()
             }, error: function (error) {
-                if (error.status == 401) {
+                if (error.status === 401) {
                     createAlert("You don't have permission to remove users. This could be because " +
-                        "your roles have been updated. Try refreshing the page", "failure")
+                        "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
                 } else {
-                    createAlert(error.responseText, "failure")
+                    createAlert(error.responseText, AlertTypes.Failure)
                 }
             }
         })
@@ -995,11 +1007,11 @@ $(document).on("click", ".deleteButton", function () {
                 sendNotification("group", group.id, "deleteGroup");
                 window.location.reload()
             }, error: function (error) {
-                if (error.status == 401) {
+                if (error.status === 401) {
                     createAlert("You don't have permission to delete groups. This could be because " +
-                        "your roles have been updated. Try refreshing the page", "failure")
+                        "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
                 } else {
-                    createAlert(error.responseText, "failure")
+                    createAlert(error.responseText, AlertTypes.Failure)
                 }
             }
         })
@@ -1058,17 +1070,17 @@ $(document).on("submit", "#editGroupForm", function (event) {
         type: type,
         data: groupData,
         success: function () {
-            createAlert("Changes submitted", "success");
+            createAlert("Changes submitted", AlertTypes.Success);
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
             sendNotification("group", selectedGroupId, "updateGroup");
         }, error: function (error) {
-            if (error.status == 401) {
+            if (error.status === 401) {
                 createAlert("You don't have permission to edit group details. This could be because " +
-                    "your roles have been updated. Try refreshing the page", "failure")
+                    "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
             } else {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         }
     })

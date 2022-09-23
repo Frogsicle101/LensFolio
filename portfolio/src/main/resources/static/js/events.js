@@ -57,7 +57,7 @@ function sortElementsByDate(div, childrenElement, dateElement) {
  * Displays the alert for when dates are the wrong way around (end before start)
  */
 function triggerEventAlertForDate() {
-    createAlert("Your event end date must be after your event start date!", "failure")
+    createAlert("Your event end date must be after your event start date!", AlertTypes.Failure)
 }
 
 
@@ -124,10 +124,10 @@ $(document).on('submit', "#addEventForm", function (event) {
                 Now you do.
                  */
                 sendNotification("event", response.id, "create");
-                createAlert("Event created!", "success")
+                createAlert("Event created!", AlertTypes.Success)
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     }
@@ -151,13 +151,13 @@ $(document).on("submit", ".milestoneForm", function (event) {
         type: "PUT",
         data: milestoneData,
         success: function (response) {
-            createAlert("Milestone created!", "success")
+            createAlert("Milestone created!", AlertTypes.Success)
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
             sendNotification("milestone", response.id, "create");
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 })
@@ -182,13 +182,13 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
         type: "put",
         data: deadlineData,
         success: function (response) {
-            createAlert("Deadline created!", "success")
+            createAlert("Deadline created!", AlertTypes.Success)
             $(".deadlineForm").slideUp();
             $(".addDeadlineSvg").toggleClass('rotated');
             sendNotification("deadline", response.id, "create");
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 })
@@ -228,12 +228,12 @@ $(document).on("submit", "#editEventForm", function (event) {
             type: "POST",
             data: eventData,
             success: function () {
-                createAlert("Event edited successfully!", "success")
+                createAlert("Event edited successfully!", AlertTypes.Success)
                 sendNotification("event", eventId, "stop") // Let the server know the event is no longer being edited
                 sendNotification("event", eventId, "update") //Let the server know that other clients should update the element
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     }
@@ -261,12 +261,12 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         type: "POST",
         data: milestoneData,
         success: function () {
-            createAlert("Milestone edited successfully!", "success")
+            createAlert("Milestone edited successfully!", AlertTypes.Success)
             sendNotification("milestone", milestoneId, "stop")
             sendNotification("milestone", milestoneId, "update")
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 })
@@ -307,12 +307,12 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
             type: "POST",
             data: deadlineData,
             success: function () {
-                createAlert("Deadline edited successfully!", "success")
+                createAlert("Deadline edited successfully!", AlertTypes.Success)
                 sendNotification("deadline", deadlineId, "stop") // Let the server know the deadline is no longer being edited
                 sendNotification("deadline", deadlineId, "update") //Let the server know that other clients should update the element
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     }
@@ -367,11 +367,11 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: eventData,
             success: function () {
-                createAlert("Event deleted successfully!", "success")
+                createAlert("Event deleted successfully!", AlertTypes.Success)
                 sendNotification("event", eventData.eventId, "delete");
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     } else if (parent.hasClass('milestone')) {
@@ -381,11 +381,11 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: milestoneData,
             success: function () {
-                createAlert("Milestone deleted successfully!", "success")
+                createAlert("Milestone deleted successfully!", AlertTypes.Success)
                 sendNotification("milestone", milestoneData.milestoneId, "delete");
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     } else if (parent.hasClass('deadline')) {
@@ -395,11 +395,11 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: deadlineData,
             success: function () {
-                createAlert("Deadline deleted successfully!", "success")
+                createAlert("Deadline deleted successfully!", AlertTypes.Success)
                 sendNotification("deadline", deadlineData.deadlineId, "delete");
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     }

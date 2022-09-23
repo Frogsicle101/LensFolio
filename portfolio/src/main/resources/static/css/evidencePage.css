@@ -196,13 +196,34 @@
 }
 
 .skillChipInvalid {
-    background-color: #ee3636;
+    color: #ee3636;
 }
 
 #skillChipDisplay {
     justify-content: left;
 }
 
+.tagInputContainer {
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    padding: 0.5rem;
+    flex-wrap: wrap;
+}
+
+#tagInputChips {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.noDisplayInput {
+    flex: 1;
+    padding: 5px;
+    outline: none;
+    border: 0;
+}
 
 .chipText {
     margin: auto;
