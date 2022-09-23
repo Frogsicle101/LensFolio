@@ -117,4 +117,19 @@ describe("Adding Weblinks to Evidence", () => {
         cy.get(".evidenceListItem").last().click()
         cy.get("#evidenceWebLinks").contains("Wl 1")
     })
+
+    it('Can delete weblinks', () => {
+        for (let i = 1; i < 5; i++) {
+            cy.get('#addWeblinkButton').click()
+            cy.get('#webLinkUrl').wait(100)
+                .invoke('val', 'http://www.a' + i.toString() + '.ac.nz')
+            cy.get('#webLinkName').wait(100)
+                .invoke('val', 'Wl ' + i.toString())
+            cy.get('#addWeblinkButton').click()
+        }
+        cy.get('[data-value="http://www.a1.ac.nz"]').find("#deleteWeblink").click()
+        cy.get('[data-value="http://www.a2.ac.nz"]').find("#deleteWeblink").click()
+
+        cy.get('.webLinkElement').should(length,2);
+    })
 })

@@ -709,7 +709,6 @@ $(document).on('click', '#addWeblinkButton', function (e) {
  * the web link will should be deleted.
  */
 $(document).on('click', '#deleteWeblink', function (e) {
-    console.log("delete clicked");
     $(this).parent().remove();
 })
 
