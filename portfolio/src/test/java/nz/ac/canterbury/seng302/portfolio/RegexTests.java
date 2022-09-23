@@ -38,6 +38,7 @@ public class RegexTests {
         expectedPasses.add("http://example.com/"); // from RFC documentation
         expectedPasses.add("http://example.com:/"); // from RFC documentation
         expectedPasses.add("http://example.com:80/"); // from RFC documentation
+        expectedPasses.add("ftp://ftp.is.co.za/rfc/rfc1808.txt");
 
         assertPasses();
     }
@@ -88,7 +89,6 @@ public class RegexTests {
     public void regexTestsFail() {
         // Protocol
         expectedFails.add(".");
-        expectedFails.add("ftp://ftp.is.co.za/rfc/rfc1808.txt");
         expectedFails.add("urn:oasis:names:specification:docbook:dtd:xml:4.1.2");
         expectedFails.add("tel:+1-816-555-1212");
         expectedFails.add("telnet://192.0.2.16:80/");
@@ -113,7 +113,6 @@ public class RegexTests {
         expectedFails.add("hps://");
         expectedFails.add("https:/example");
         expectedFails.add("https://example?");
-        expectedFails.add("https://example:");
 
         assertFails();
     }
@@ -123,7 +122,7 @@ public class RegexTests {
         List<String> questionablePasses = new ArrayList<>();
 
         questionablePasses.add("https//:example");
-        questionablePasses.add("//example.com");
+        questionablePasses.add("e/xample.com");
         questionablePasses.add("http//example"); // http is considered part of the domain
 
         for (String test : questionablePasses) {

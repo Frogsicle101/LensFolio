@@ -1,8 +1,12 @@
 package nz.ac.canterbury.seng302.portfolio.service;
 
+
 import java.util.regex.Pattern;
 
 public class WeblinkRegex {
+
+    private static final String[] ALLOWED_PROTOCOLS = {"http", "https", "ftp"};
+
     //from rfc https://www.ietf.org/rfc/rfc2396.txt
     private static final String ESCAPED = "(%[0-9a-f][0-9a-f])";
     private static final String RESERVED = ";\\/\\?:@&=\\+\\$,";
@@ -11,7 +15,7 @@ public class WeblinkRegex {
 
     private static final String PATH_CHARS = "a-zA-Z0-9[-]\\._~!\\$&'\\(\\)\\*\\+,;=:@" + ESCAPED;
 
-    private static final String PROTOCOL = "(https?://)?";
+    private static final String PROTOCOL = "((%s)://)".formatted(String.join("|", ALLOWED_PROTOCOLS));
     private static final String DOMAIN = "([a-zA-Z0-9\\-~_]+(\\.[a-zA-Z0-9\\-~_]+)*)";
     private static final String PORT = "(:[0-9]{0,5})?";
     private static final String PATH = "(/[%s]*)*".formatted(PATH_CHARS);
@@ -19,12 +23,16 @@ public class WeblinkRegex {
     private static final String FRAGMENT = "(#[%s]*)?".formatted(URIC);
 
     private static final Pattern WEBLINK = Pattern.compile(
-            PROTOCOL +
-            DOMAIN +
-            PORT +
-            PATH +
-            QUERY +
-            FRAGMENT
+                    PROTOCOL +
+                    DOMAIN +
+                    PORT +
+                    PATH +
+                    QUERY +
+                    FRAGMENT +
+                    "|" +
+                    DOMAIN +
+                    PATH
+
     );
 
     private WeblinkRegex() {}
