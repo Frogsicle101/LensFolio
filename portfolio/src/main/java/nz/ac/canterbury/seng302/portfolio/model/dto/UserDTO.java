@@ -5,6 +5,7 @@ import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserDTO {
 
@@ -54,6 +55,7 @@ public class UserDTO {
      * @return the Json string the represents this piece of evidence.
      */
     public String toJsonString() {
+        String formattedRoles = roles.stream().collect(Collectors.joining("','", "\"", "\""));
         return "{" +
                 "\"id\":" + id +
                 "," + "\"username\":\"" + username + "\"" +
@@ -65,6 +67,7 @@ public class UserDTO {
                 "," + "\"pronouns\":\"" + pronouns + "\"" +
                 "," + "\"email\":\"" + email + "\"" +
                 "," + "\"imagePath\":\"" + imagePath + "\"" +
+                "," + "\"roles\":[" + formattedRoles + "]" +
                 "}";
     }
 
