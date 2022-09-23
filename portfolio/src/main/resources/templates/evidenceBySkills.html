@@ -7,6 +7,12 @@
     <link rel="stylesheet" th:href="@{css/evidencePage.css}">
 </head>
 <body>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    let projectStart = /*[[${project.getStartDateFormatted()}]]*/ 'default';
+    let projectEnd = /*[[${project.getEndDateFormatted()}]]*/ 'default';
+    /*]]>*/
+</script>
 <header th:insert="fragments/general.html :: header"></header>
 <section class="flexContainer">
     <div class="skillSideBar">
@@ -104,6 +110,7 @@
                                th:max="${evidenceMaxDate}"
                                required
                                type="date">
+                        <small class="form-text text-muted" id="projectDatesLabel"></small>
                     </div>
                     <div class="form-group evidenceFormDescription">
                         <label for="evidenceDescription" class="col-form-label required">Description:</label>

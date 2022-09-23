@@ -11,6 +11,8 @@ $(() => {
         userBeingViewedId = userIdent
     }
 
+    $("#projectDatesLabel").text(`Project dates: ${projectStart} - ${projectEnd}`)
+
     getAndAddEvidencePreviews()
     addCategoriesToSidebar()
     getSkills(addSkillsToSideBar)
