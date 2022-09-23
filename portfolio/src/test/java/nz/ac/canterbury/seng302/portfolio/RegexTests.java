@@ -88,6 +88,12 @@ public class RegexTests {
     public void regexTestsFail() {
         // Protocol
         expectedFails.add(".");
+        expectedFails.add("ftp://ftp.is.co.za/rfc/rfc1808.txt");
+        expectedFails.add("urn:oasis:names:specification:docbook:dtd:xml:4.1.2");
+        expectedFails.add("tel:+1-816-555-1212");
+        expectedFails.add("telnet://192.0.2.16:80/");
+        expectedFails.add("mailto:John.Doe@example.com");
+        expectedFails.add("news:comp.infosystems.www.servers.unix");
         expectedFails.add("://example");
         expectedFails.add("htt://example");
         expectedFails.add("htp://example");
@@ -117,11 +123,12 @@ public class RegexTests {
         List<String> questionablePasses = new ArrayList<>();
 
         questionablePasses.add("https//:example");
+        questionablePasses.add("//example.com");
         questionablePasses.add("http//example"); // http is considered part of the domain
 
         for (String test : questionablePasses) {
             if (! weblinkPattern.matcher(test).matches()) {
-                Assertions.fail("Expected " + test + " to not match weblink regex, but did");
+                Assertions.fail("Expected " + test + " to match weblink regex, but didn't");
             }
         }
     }
