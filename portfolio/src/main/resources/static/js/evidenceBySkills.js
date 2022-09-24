@@ -142,7 +142,8 @@ $(document).on("click", "#createEvidenceButton" , () => {
     document.getElementById("evidenceDescription").innerHTML = "";
     document.getElementById("evidenceSaveButton").innerHTML = "Create";
     document.getElementById("tagInputChips").innerHTML ="";
-    let categories = document.querySelectorAll(".evidenceFormCategoryButton")
+    document.getElementById("addedWebLinks").innerHTML ="";
+        let categories = document.querySelectorAll(".evidenceFormCategoryButton")
     for (let i = 0; i < categories.length; i++) {
         categories[i].className = "btn inlineText evidenceFormCategoryButton btn-secondary"
         categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
@@ -208,6 +209,7 @@ $(document).on("click", "#editEvidenceButton" , () => {
 
     //pre-filling skills
     let currentSkillsList = evidenceHighlight.querySelectorAll(".skillChip")
+    document.getElementById("tagInputChips").innerHTML = "";
     for (let i = 0; i < currentSkillsList.length; i++) {
         let skillName = currentSkillsList[i].querySelector(".chipText").innerHTML
         let skillChip = `
@@ -231,7 +233,16 @@ $(document).on("click", "#editEvidenceButton" , () => {
     }
 
     //pre-filling webLinks
-    let webLinksList = evidenceHighlight.querySelectorAll(".categoryChip")
+    let webLinksList = evidenceHighlight.querySelectorAll(".webLinkElement")
+    document.getElementById("addedWebLinks").innerHTML = ""
+    for (let i = 0; i < webLinksList.length; i++) {
+        document.getElementById("addedWebLinks").innerHTML += String(webLinksList[i].innerHTML);
+    }
+    let deleteButtons = document.getElementById("addOrEditEvidenceTitle").querySelectorAll('#deleteWeblink')
+    for (let i = 0; i < deleteButtons.length; i++) {
+        deleteButtons[i].style = "display;"
+    }
+
 
 
 
