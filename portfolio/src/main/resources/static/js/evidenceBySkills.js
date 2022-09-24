@@ -226,8 +226,9 @@ $(document).on("click", "#editEvidenceButton" , () => {
 
     //webLinks
     let webLinksList = evidenceHighlight.querySelectorAll(".webLinkElement")
+    document.getElementById("webLinkTitle").style = "display;"
     for (let i = 0; i < webLinksList.length; i++) {
-        document.getElementById("addedWebLinks").innerHTML += String(webLinksList[i].innerHTML);
+        document.getElementById("addedWebLinks").innerHTML += webLinksList[i].outerHTML;
     }
     let deleteButtons = document.getElementById("addOrEditEvidenceTitle").querySelectorAll('#deleteWeblink')
     for (let i = 0; i < deleteButtons.length; i++) {
