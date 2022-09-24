@@ -1,6 +1,11 @@
 package nz.ac.canterbury.seng302.portfolio.model.dto;
 
+import nz.ac.canterbury.seng302.shared.identityprovider.EditUserRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
+import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserDTO {
 
@@ -14,6 +19,7 @@ public class UserDTO {
     private final String pronouns;
     private final String email;
     private final String imagePath;
+    private final List<String> roles;
 
     public UserDTO(UserResponse userResponse) {
         this.id = userResponse.getId();
@@ -26,6 +32,21 @@ public class UserDTO {
         this.pronouns = userResponse.getPersonalPronouns();
         this.email = userResponse.getEmail();
         this.imagePath = userResponse.getProfileImagePath();
+        this.roles = userResponse.getRolesList().stream().map(UserRole::toString).toList();
+    }
+
+    public UserDTO(EditUserRequest userRequest) {
+        this.id = userRequest.getUserId();
+        this.firstName = userRequest.getFirstName();
+        this.middleName = userRequest.getMiddleName();
+        this.lastName = userRequest.getLastName();
+        this.nickname = userRequest.getNickname();
+        this.bio = userRequest.getBio();
+        this.pronouns = userRequest.getPersonalPronouns();
+        this.email = userRequest.getEmail();
+        this.username = null;
+        this.imagePath = null;
+        this.roles = null;
     }
 
     /**
@@ -34,6 +55,7 @@ public class UserDTO {
      * @return the Json string the represents this piece of evidence.
      */
     public String toJsonString() {
+        String formattedRoles = roles.stream().collect(Collectors.joining("','", "\"", "\""));
         return "{" +
                 "\"id\":" + id +
                 "," + "\"username\":\"" + username + "\"" +
@@ -45,6 +67,7 @@ public class UserDTO {
                 "," + "\"pronouns\":\"" + pronouns + "\"" +
                 "," + "\"email\":\"" + email + "\"" +
                 "," + "\"imagePath\":\"" + imagePath + "\"" +
+                "," + "\"roles\":[" + formattedRoles + "]" +
                 "}";
     }
 
@@ -86,5 +109,9 @@ public class UserDTO {
 
     public String getImagePath() {
         return imagePath;
+    }
+
+    public List<String> getRoles() {
+        return roles;
     }
 }

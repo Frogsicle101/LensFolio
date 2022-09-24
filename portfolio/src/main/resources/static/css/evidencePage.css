@@ -266,3 +266,21 @@
 #createEvidenceButton{
     color: #b5d1fb;
 }
+
+.deleteWeblinkButton{
+    height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border: none;
+    color: #175fbd;
+    background: #ffffff;
+}
+
+.deleteWeblinkButton:hover{
+    height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border: none;
+    background: #175fbd;
+    color: #ffffff;
+}
