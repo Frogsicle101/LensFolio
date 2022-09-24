@@ -134,6 +134,14 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
  *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling
  */
 $(document).on("click", "#createEvidenceButton" , () => {
+
+    // todo: here date is not work
+    document.getElementById("addEvidenceTitle").innerHTML="Add Evidence";
+    document.getElementById("evidenceName").innerHTML="";
+    document.getElementById("evidenceDate").innerHTML="";
+    document.getElementById("evidenceDescription").innerHTML="";
+
+
     $("#addEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');

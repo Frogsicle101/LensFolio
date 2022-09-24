@@ -1068,3 +1068,37 @@ function createCategoryChip(categoryName, isMenuItem) {
             </div>`
     }
 }
+
+// -------------------------------------- Evidence Editing -----------------------------------
+/**
+ *  A Listener for the edit evidence button. This displays the modal and prevents the page below from scrolling
+ */
+$(document).on("click", "#editEvidenceButton" , () => {
+
+
+
+    let currentEvidenceId = document.getElementById("evidenceDetailsId").innerHTML
+    let currentEvidenceTitle =  document.getElementById("evidenceDetailsTitle").innerHTML
+    let currentEvidenceDate =  document.getElementById("evidenceDetailsDate").innerHTML
+    let currentEvidenceDescription =  document.getElementById("evidenceDetailsDescription").innerHTML
+    console.log("currentEvidenceId")
+    console.log(currentEvidenceId)
+    console.log("currentEvidenceTitle")
+    console.log(currentEvidenceTitle)
+    console.log("currentEvidenceDate")
+    console.log(currentEvidenceDate)
+    console.log("currentEvidenceDescription")
+    console.log(currentEvidenceDescription)
+
+    document.getElementById("addEvidenceTitle").innerHTML="Edit Evidence";
+    document.getElementById("evidenceName").innerHTML=currentEvidenceTitle;
+    document.getElementById("evidenceDate").innerHTML=currentEvidenceDate;
+    document.getElementById("evidenceDescription").innerHTML=currentEvidenceDescription;
+
+
+    $("#addEvidenceModal").show()
+    $(".modalContent").show("drop", {direction: "up"}, 200)
+    $('body,html').css('overflow','hidden');
+
+
+})
