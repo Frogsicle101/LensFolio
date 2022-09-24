@@ -142,6 +142,11 @@ $(document).on("click", "#createEvidenceButton" , () => {
     document.getElementById("evidenceDescription").innerHTML = "";
     document.getElementById("evidenceSaveButton").innerHTML = "Create";
     document.getElementById("tagInputChips").innerHTML ="";
+    let categories = document.querySelectorAll(".evidenceFormCategoryButton")
+    for (let i = 0; i < categories.length; i++) {
+        categories[i].className = "btn inlineText evidenceFormCategoryButton btn-secondary"
+        categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
+    }
 
     $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
@@ -190,11 +195,19 @@ $(document).on("click", "#editEvidenceButton" , () => {
     // Reset addOrEditEvidenceModal with pre-filling evidence details
     let evidenceHighlight = document.querySelector(".evidenceDetailsContainer")
     let currentEvidenceId = document.getElementById("evidenceDetailsId").innerHTML
+    document.getElementById("addOrEditEvidenceTitle").innerHTML = "Edit Evidence";
+    document.getElementById("evidenceSaveButton").innerHTML = "Save Changes";
+
+    //pre-filling name, date and description
     let currentEvidenceTitle =  document.getElementById("evidenceDetailsTitle").innerHTML
     let currentEvidenceDate =  document.getElementById("evidenceDetailsDate").innerHTML
     let currentEvidenceDescription =  document.getElementById("evidenceDetailsDescription").innerHTML
-    let currentSkillsList = evidenceHighlight.querySelectorAll(".skillChip")
+    document.getElementById("evidenceName").value = currentEvidenceTitle;
+    document.getElementById("evidenceDate").value = currentEvidenceDate;
+    document.getElementById("evidenceDescription").innerHTML = currentEvidenceDescription;
 
+    //pre-filling skills
+    let currentSkillsList = evidenceHighlight.querySelectorAll(".skillChip")
     for (let i = 0; i < currentSkillsList.length; i++) {
         let skillName = currentSkillsList[i].querySelector(".chipText").innerHTML
         let skillChip = `
@@ -208,11 +221,18 @@ $(document).on("click", "#editEvidenceButton" , () => {
         document.getElementById("tagInputChips").innerHTML += skillChip;
     }
 
-    document.getElementById("addOrEditEvidenceTitle").innerHTML = "Edit Evidence";
-    document.getElementById("evidenceName").value = currentEvidenceTitle;
-    document.getElementById("evidenceDate").value = currentEvidenceDate;
-    document.getElementById("evidenceDescription").innerHTML = currentEvidenceDescription;
-    document.getElementById("evidenceSaveButton").innerHTML = "Save Changes";
+    //pre-filling categories
+    let currentCategoriesList = evidenceHighlight.querySelectorAll(".categoryChip")
+    for (let i = 0; i < currentCategoriesList.length; i++) {
+        let categoryName = currentCategoriesList[i].querySelector(".chipText").innerHTML
+        let categoryButton =  document.getElementById("button"+categoryName)
+        categoryButton.className = "btn inlineText evidenceFormCategoryButton btn-success"
+        categoryButton.querySelector(".evidenceCategoryTickIcon").style = "display: inline-block;"
+    }
+
+
+
+
 
 
     $("#addOrEditEvidenceModal").show()
