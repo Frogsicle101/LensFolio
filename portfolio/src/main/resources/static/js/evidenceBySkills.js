@@ -235,7 +235,7 @@ $(document).on("click", "#editEvidenceButton" , () => {
         deleteButtons[i].style = "display;"
     }
 
-    //user link
+    //users linked
     let uselinkedList = document.getElementById("evidenceDetailsLinkedUsers")
     document.getElementById("linkedUsersTitle").style = "display;"
     document.getElementById("linkedUsers").innerHTML = uselinkedList.innerHTML
@@ -262,7 +262,6 @@ function getTodayDate() {
  *  Clean up the evidence adding and editing page.
  */
 function resetAddOrEditEvidencePage() {
-
     document.getElementById("evidenceName").value = "";
     document.getElementById("evidenceDate").value = getTodayDate();
     document.getElementById("evidenceDescription").innerHTML = "";
