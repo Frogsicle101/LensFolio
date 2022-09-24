@@ -136,13 +136,13 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 $(document).on("click", "#createEvidenceButton" , () => {
 
     // todo: here date is not work
-    document.getElementById("addEvidenceTitle").innerHTML="Add Evidence";
-    document.getElementById("evidenceName").innerHTML="";
+    document.getElementById("addOrEditEvidenceTitle").innerHTML="Add Evidence";
+    document.getElementById("evidenceName").value="";
     document.getElementById("evidenceDate").innerHTML="";
     document.getElementById("evidenceDescription").innerHTML="";
 
 
-    $("#addEvidenceModal").show()
+    $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 })
@@ -161,7 +161,7 @@ $(document).on("click", "#evidenceCancelButton", function () {
  *  calls the function to close the modal.
  */
 window.onmousedown = function(event) {
-    let modalDisplay = $("#addEvidenceModal").css("display")
+    let modalDisplay = $("#addOrEditEvidenceModal").css("display")
     if (modalDisplay === "block" && !event.target.closest(".modalContent") && !event.target.closest(".alert")) {
         closeModal()
     }
@@ -172,6 +172,41 @@ window.onmousedown = function(event) {
  *  Closes the modal and allows the page below to scroll again
  */
 function closeModal() {
-    $(".modalContent").hide("drop", {direction: "up"}, 200, () => {$("#addEvidenceModal").hide()})
+    $(".modalContent").hide("drop", {direction: "up"}, 200, () => {$("#addOrEditEvidenceModal").hide()})
     $('body,html').css('overflow','auto');
 }
+
+
+// -------------------------------------- Evidence Editing -----------------------------------
+/**
+ *  A Listener for the edit evidence button. This displays the modal and prevents the page below from scrolling
+ */
+$(document).on("click", "#editEvidenceButton" , () => {
+
+
+
+    let currentEvidenceId = document.getElementById("evidenceDetailsId").innerHTML
+    let currentEvidenceTitle =  document.getElementById("evidenceDetailsTitle").innerHTML
+    let currentEvidenceDate =  document.getElementById("evidenceDetailsDate").innerHTML
+    let currentEvidenceDescription =  document.getElementById("evidenceDetailsDescription").innerHTML
+    console.log("currentEvidenceId")
+    console.log(currentEvidenceId)
+    console.log("currentEvidenceTitle")
+    console.log(currentEvidenceTitle)
+    console.log("currentEvidenceDate")
+    console.log(currentEvidenceDate)
+    console.log("currentEvidenceDescription")
+    console.log(currentEvidenceDescription)
+
+    document.getElementById("addOrEditEvidenceTitle").innerHTML="Edit Evidence";
+    document.getElementById("evidenceName").value=currentEvidenceTitle;
+    document.getElementById("evidenceDate").innerHTML=currentEvidenceDate;
+    document.getElementById("evidenceDescription").innerHTML=currentEvidenceDescription;
+
+
+    $("#addOrEditEvidenceModal").show()
+    $(".modalContent").show("drop", {direction: "up"}, 200)
+    $('body,html').css('overflow','hidden');
+
+
+})
