@@ -59,6 +59,7 @@
     <script th:inline="javascript">
         const regexString = [[${generalUnicodeRegex.getPatternString()}]];
         const GENERAL_UNICODE_REGEX = new RegExp(`\^${regexString}\$`, "u");
+        const GENERAL_UNICODE_REQUIREMENTS = [[${generalUnicodeRegex.getRequirements()}]];
     </script>
 </div>
 
