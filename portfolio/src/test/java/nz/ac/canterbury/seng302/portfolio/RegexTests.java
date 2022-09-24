@@ -38,6 +38,7 @@ public class RegexTests {
         expectedPasses.add("http://example.com/"); // from RFC documentation
         expectedPasses.add("http://example.com:/"); // from RFC documentation
         expectedPasses.add("http://example.com:80/"); // from RFC documentation
+        expectedPasses.add("https://www.google.com");
         expectedPasses.add("ftp://ftp.is.co.za/rfc/rfc1808.txt");
 
         assertPasses();
@@ -45,10 +46,14 @@ public class RegexTests {
 
     @Test
     public void regexDomainPasses() {
-        expectedPasses.add("xn--j6h.com");
         expectedPasses.add("i_am_a_website.com");
         expectedPasses.add("CAPITALLETTERS.com");
         expectedPasses.add("www.google.com");
+        expectedPasses.add("xn--j6h.com"); // Punycode encoded emoji
+        expectedPasses.add("www.canterbury.ac.nz");
+        expectedPasses.add("csse.canterbury.ac.nz");
+        expectedPasses.add("http://132.181.106.9");
+
 
         assertPasses();
     }
