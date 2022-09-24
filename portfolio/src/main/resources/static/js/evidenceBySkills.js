@@ -136,18 +136,9 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 $(document).on("click", "#createEvidenceButton" , () => {
 
     // Reset addOrEditEvidenceModal without pre-filling evidence details
+    resetAddOrEditEvidencePage()
     document.getElementById("addOrEditEvidenceTitle").innerHTML = "Add Evidence";
-    document.getElementById("evidenceName").value = "";
-    document.getElementById("evidenceDate").value = getTodayDate();
-    document.getElementById("evidenceDescription").innerHTML = "";
     document.getElementById("evidenceSaveButton").innerHTML = "Create";
-    document.getElementById("tagInputChips").innerHTML ="";
-    document.getElementById("addedWebLinks").innerHTML ="";
-        let categories = document.querySelectorAll(".evidenceFormCategoryButton")
-    for (let i = 0; i < categories.length; i++) {
-        categories[i].className = "btn inlineText evidenceFormCategoryButton btn-secondary"
-        categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
-    }
 
     $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
@@ -192,14 +183,16 @@ function closeModal() {
  */
 $(document).on("click", "#editEvidenceButton" , () => {
 
+    //clean up the edit evidence page
+    resetAddOrEditEvidencePage()
+    document.getElementById("addOrEditEvidenceTitle").innerHTML = "Edit Evidence";
+    document.getElementById("evidenceSaveButton").innerHTML = "Save Changes";
 
     // Reset addOrEditEvidenceModal with pre-filling evidence details
     let evidenceHighlight = document.querySelector(".evidenceDetailsContainer")
     let currentEvidenceId = document.getElementById("evidenceDetailsId").innerHTML
-    document.getElementById("addOrEditEvidenceTitle").innerHTML = "Edit Evidence";
-    document.getElementById("evidenceSaveButton").innerHTML = "Save Changes";
 
-    //pre-filling name, date and description
+    //name, date, description
     let currentEvidenceTitle =  document.getElementById("evidenceDetailsTitle").innerHTML
     let currentEvidenceDate =  document.getElementById("evidenceDetailsDate").innerHTML
     let currentEvidenceDescription =  document.getElementById("evidenceDetailsDescription").innerHTML
@@ -207,9 +200,8 @@ $(document).on("click", "#editEvidenceButton" , () => {
     document.getElementById("evidenceDate").value = currentEvidenceDate;
     document.getElementById("evidenceDescription").innerHTML = currentEvidenceDescription;
 
-    //pre-filling skills
+    //skills
     let currentSkillsList = evidenceHighlight.querySelectorAll(".skillChip")
-    document.getElementById("tagInputChips").innerHTML = "";
     for (let i = 0; i < currentSkillsList.length; i++) {
         let skillName = currentSkillsList[i].querySelector(".chipText").innerHTML
         let skillChip = `
@@ -223,7 +215,7 @@ $(document).on("click", "#editEvidenceButton" , () => {
         document.getElementById("tagInputChips").innerHTML += skillChip;
     }
 
-    //pre-filling categories
+    //categories
     let currentCategoriesList = evidenceHighlight.querySelectorAll(".categoryChip")
     for (let i = 0; i < currentCategoriesList.length; i++) {
         let categoryName = currentCategoriesList[i].querySelector(".chipText").innerHTML
@@ -232,9 +224,8 @@ $(document).on("click", "#editEvidenceButton" , () => {
         categoryButton.querySelector(".evidenceCategoryTickIcon").style = "display: inline-block;"
     }
 
-    //pre-filling webLinks
+    //webLinks
     let webLinksList = evidenceHighlight.querySelectorAll(".webLinkElement")
-    document.getElementById("addedWebLinks").innerHTML = ""
     for (let i = 0; i < webLinksList.length; i++) {
         document.getElementById("addedWebLinks").innerHTML += String(webLinksList[i].innerHTML);
     }
@@ -242,11 +233,6 @@ $(document).on("click", "#editEvidenceButton" , () => {
     for (let i = 0; i < deleteButtons.length; i++) {
         deleteButtons[i].style = "display;"
     }
-
-
-
-
-
 
 
     $("#addOrEditEvidenceModal").show()
@@ -265,4 +251,22 @@ function getTodayDate() {
     let month = String(today.getMonth() + 1).padStart(2,'0')
     let day = String(today.getDate()).padStart(2, '0')
     return year + '-' + month + '-' +day
+}
+
+
+/**
+ *  Clean up the evidence adding and editing page.
+ */
+function resetAddOrEditEvidencePage() {
+
+    document.getElementById("evidenceName").value = "";
+    document.getElementById("evidenceDate").value = getTodayDate();
+    document.getElementById("evidenceDescription").innerHTML = "";
+    document.getElementById("tagInputChips").innerHTML ="";     // clean up skills
+    document.getElementById("addedWebLinks").innerHTML ="";
+    let categories = document.querySelectorAll(".evidenceFormCategoryButton")
+    for (let i = 0; i < categories.length; i++) {
+        categories[i].className = "btn inlineText evidenceFormCategoryButton btn-secondary"
+        categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
+    }
 }
