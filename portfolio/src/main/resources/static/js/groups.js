@@ -840,12 +840,19 @@ function getRepoCommits() {
 }
 
 
+
 /**
- * Populates the given commit container with the first 3 commits retrieved from the git repository. The data includes the url, short
- * Id, and commit message for each commit.
+ * Populates the given commit container with the first 3 commits retrieved from the git repository.
  *
  * @param commitContainer The container in which commits will be appended.
  * @param data The data retrieved from the repo, which contains the recent commits to be appended to the repo container.
+ * @property committed_date The commit date
+ * @property committed_time The commit time
+ * @property short_id  The commit short_id
+ * @property long_id The commit long_id
+ * @property message The commit message
+ * @property web_url The commit web_url
+ * @property author_name The commit author_name
  */
 function populateCommitContainer(commitContainer, data) {
     commitContainer.append(`<h5>Recent Commits:</h5>`)
@@ -853,7 +860,9 @@ function populateCommitContainer(commitContainer, data) {
     const firstThree = data.slice(0, 3);
 
     for (let commit of firstThree) {
-        let commitText =
+        const committedDate = sanitise(commit.committed_date).split("T")[0]
+        const committedTime = sanitise(commit.committed_date).split("T")[1].split(".")[0]
+        const commitText =
             `<div id="groupSettingsCommitContainer" class="marginSides1">
                 <div class="gitCommitInfo">
                     <div class="row">
@@ -870,7 +879,7 @@ function populateCommitContainer(commitContainer, data) {
                             <p class="greyText">${sanitise(commit.author_name)}</p>
                         </div>
                         <div class="col commitDate">
-                            <p class="greyText">${sanitise(commit.committed_date).split("T")[0]}</p>
+                            <p class="greyText">${committedDate} &nbsp ${committedTime}</p>
                         </div>
                     </div>
                 </div>
