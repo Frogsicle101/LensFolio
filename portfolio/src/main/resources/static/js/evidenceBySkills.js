@@ -230,16 +230,14 @@ $(document).on("click", "#editEvidenceButton" , () => {
     for (let i = 0; i < webLinksList.length; i++) {
         document.getElementById("addedWebLinks").innerHTML += webLinksList[i].outerHTML;
     }
-    let deleteButtons = document.getElementById("addOrEditEvidenceTitle").querySelectorAll('#deleteWeblink')
+    let deleteButtons = document.getElementById("addOrEditEvidenceModal").querySelectorAll(".deleteWeblinkButton")
     for (let i = 0; i < deleteButtons.length; i++) {
         deleteButtons[i].style = "display;"
     }
 
-
     $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
-
 })
 
 
