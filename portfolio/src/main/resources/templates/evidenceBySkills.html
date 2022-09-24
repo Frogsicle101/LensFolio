@@ -5,6 +5,7 @@
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
             </th:block> /*/-->
     <link rel="stylesheet" th:href="@{css/evidencePage.css}">
+
 </head>
 <body>
 <header th:insert="fragments/general.html :: header"></header>
@@ -64,6 +65,7 @@
         </div>
     </div>
     <div id="addEvidenceModal">
+        <div th:insert="fragments/general.html :: unicode"></div>
         <div class="modalContent">
             <div class="modalHeader">
                 <h5 class="modal-title" id="addEvidenceTitle">Add Evidence</h5>
@@ -79,6 +81,7 @@
                                placeholder="Name"
                                required
                                type="text">
+                        <div class="invalid-feedback" id="evidenceNameFeedback"></div>
                         <small class="form-text form-text-counted text-muted countCharName">0 characters
                             remaining</small>
                     </div>
@@ -115,6 +118,7 @@
                                   maxlength="500"
                                   minlength="2"
                                   required></textarea>
+                        <div class="invalid-feedback" id="evidenceDescriptionFeedback"></div>
                         <small class="form-text text-muted form-text-counted countCharDescription">0 characters remaining</small>
                     </div>
                     <div class="form-group evidenceFormSkills ui-widget">
@@ -134,7 +138,7 @@
 
                         <div class="tagInputContainer">
                             <div id="tagInputChips"></div>
-                            <input id="skillsInput" class="noDisplayInput" type="text" onfocus="this.oldvalue = this.value;" onchange="this.oldvalue = this.value;"/>
+                            <input id="skillsInput" class="noDisplayInput" type="text"/>
                         </div>
                         <small class="form-text text-muted">Type in your skills and separate them with a space. If they are multiple words, separate them with an underscore eg: Intra-team_Communication</small>
                     </div>

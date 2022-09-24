@@ -566,6 +566,67 @@ $(document).on('keypress', '#webLinkName', function () {
 })
 
 
+/**
+ * Calls the validity checking function on keyup of form inputs.
+ */
+$(document).on("change keyup", "#evidenceName", function () {
+    disableEnableSaveButtonOnValidity()
+    checkNameValidity()
+})
+
+
+/**
+ * Calls the validity checking function on change of the description.
+ */
+$(document).on("change keyup", "#evidenceDescription", function () {
+    disableEnableSaveButtonOnValidity()
+    checkDescriptionValidity()
+})
+
+
+/**
+ * Calls the validity checking function on change of form inputs.
+ * This is different from keyup as it checks when the date changes.
+ */
+$(document).on("change", ".form-control", function () {
+    disableEnableSaveButtonOnValidity()
+})
+
+
+/**
+ * Pops up a confirmation message on the click of evidence deletion. If the confirmation is accepted,
+ * then the delete request is sent. On a successful request the page is reloaded and an alert is made.
+ */
+$(document).on("click", "#deleteEvidenceButton", function () {
+    const evidenceId = $("#evidenceDetailsId").text()
+    const evidenceName = $("#evidenceDetailsTitle").text()
+    if (window.confirm(`Are you sure you want to delete the evidence \n${evidenceName}`)) {
+        $.ajax({
+            url: `evidence?evidenceId=${evidenceId}`,
+            type: "DELETE",
+            success: () => {
+                handleSuccessfulEvidenceDelete(evidenceName)
+                 }, error: (response) => {
+                createAlert(response.responseText, AlertTypes.Failure)
+            }
+        })
+    }
+})
+
+
+/**
+ * Refreshes the evidence page and creates an alert for successful evidence deletion.
+ *
+ * @param evidenceName The name of the deleted evidence.
+ */
+function handleSuccessfulEvidenceDelete(evidenceName) {
+    selectedEvidenceId = null
+    getAndAddEvidencePreviews()
+    getSkills(addSkillsToSideBar)
+    createAlert("Successfully deleted evidence: " + sanitise(evidenceName), AlertTypes.Success)
+}
+
+
 // --------------------------------- Autocomplete -----------------------------------------
 
 
@@ -664,22 +725,30 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             contentType: "application/json",
             data,
             success: function (response) {
-                selectedEvidenceId = response.id
-                getAndAddEvidencePreviews()
-                addSkillResponseToArray(response)
-                addSkillsToSideBar();
-                closeModal()
-                clearAddEvidenceModalValues()
-                $(".alert").remove()
-                createAlert("Created evidence", AlertTypes.Success)
-                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                resetWeblink()
+                handleSuccessfulEvidenceSave(response)
             }, error: function (error) {
                 createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
             }
         })
     }
 })
+
+
+/**
+ * Refreshes the evidence page and evidence modal, and creates an alert for successful evidence deletion.
+ */
+function handleSuccessfulEvidenceSave(response) {
+    selectedEvidenceId = response.id
+    getAndAddEvidencePreviews()
+    addSkillResponseToArray(response)
+    addSkillsToSideBar();
+    closeModal()
+    clearAddEvidenceModalValues()
+    $(".alert").remove()
+    createAlert("Created evidence", AlertTypes.Success)
+    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+    resetWeblink()
+}
 
 
 /**
@@ -961,74 +1030,57 @@ function disableEnableSaveButtonOnValidity() {
 
 
 /**
- * Checks that the name and description of a piece of evidence match the required regex.
+ * Checks that the name of a piece of evidence match the required regex.
+ * Adds appropriate error messages for invalid inputs - not matching regex or empty fields.
  */
-function checkTextInputRegex() {
-    let name = $("#evidenceName")
-    let description = $("#evidenceDescription")
-    let nameVal = name.val()
-    let descriptionVal = description.val()
+function checkNameValidity() {
+    const name = $("#evidenceName")
+    const nameVal = name.val()
+    const nameError = $("#evidenceNameFeedback")
+    const nameIsValid = regex.test(nameVal)
 
-    if (!regex.test(nameVal) || !regex.test(descriptionVal)) {
-        $("#evidenceSaveButton").prop("disabled", true)
-    }
-
-    if (!regex.test(nameVal) && nameVal.length > 0) {
-        name.addClass("invalid")
-    } else {
+    if (nameIsValid) {
         name.removeClass("invalid")
-    }
-
-    if (!regex.test(descriptionVal) && descriptionVal.length > 0) {
-        description.addClass("invalid")
-
+        nameError.hide()
     } else {
-        description.removeClass("invalid")
+        name.addClass("invalid")
+
+        if (nameVal.trim().length === 0) {
+            nameError.text("Name cannot be empty")
+        } else {
+            nameError.text("Name " + GENERAL_UNICODE_REQUIREMENTS)
+        }
+
+        nameError.show()
     }
 }
 
 
 /**
- * Calls the validity checking function on keyup of form inputs.
+ * Checks that the description of a piece of evidence match the required regex.
+ * Adds appropriate error messages for invalid inputs - not matching regex or empty fields.
  */
-$(document).on("keyup", ".text-input", function () {
-    disableEnableSaveButtonOnValidity()
-    checkTextInputRegex()
-})
+function checkDescriptionValidity() {
+    const description = $("#evidenceDescription")
+    const descriptionVal = description.val()
+    const descriptionError = $("#evidenceDescriptionFeedback")
+    const descriptionIsValid = regex.test(descriptionVal)
 
+    if (descriptionIsValid) {
+        description.removeClass("invalid")
+        descriptionError.hide()
+    } else {
+        description.addClass("invalid")
 
-/**
- * Calls the validity checking function on change of form inputs.
- * This is different from keyup as it checks when the date changes.
- */
-$(document).on("change", ".form-control", function () {
-    disableEnableSaveButtonOnValidity()
-    checkTextInputRegex()
-})
+        if (descriptionVal.trim().length === 0) {
+            descriptionError.text("Description cannot be empty")
+        } else {
+            descriptionError.text("Description " + GENERAL_UNICODE_REQUIREMENTS)
+        }
 
-
-/**
- * Pops up a confirmation message on the click of evidence deletion. If the confirmation is accepted,
- * then the delete request is sent. On a successful request the page is reloaded and an alert is made.
- */
-$(document).on("click", "#deleteEvidenceButton", function () {
-    const evidenceId = $("#evidenceDetailsId").text()
-    const evidenceName = $("#evidenceDetailsTitle").text()
-    if (window.confirm(`Are you sure you want to delete the evidence \n${evidenceName}`)) {
-        $.ajax({
-            url: `evidence?evidenceId=${evidenceId}`,
-            type: "DELETE",
-            success: () => {
-                selectedEvidenceId = null
-                getAndAddEvidencePreviews()
-                getSkills(addSkillsToSideBar)
-                createAlert("Successfully deleted evidence: " + sanitise(evidenceName), AlertTypes.Success)
-            }, error: (response) => {
-                createAlert(response.responseText, AlertTypes.Failure)
-            }
-        })
+        descriptionError.show()
     }
-})
+}
 
 
 /**
