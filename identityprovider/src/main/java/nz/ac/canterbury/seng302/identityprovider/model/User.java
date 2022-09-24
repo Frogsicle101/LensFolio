@@ -104,6 +104,14 @@ public class User {
         return id;
     }
 
+    /**
+     * Sets the users id. Should only be used for testing
+     * @param id The desired id
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
 
     public String getUsername() {
         return username;
@@ -223,6 +231,7 @@ public class User {
 
     /**
      * Deletes the given role from the user
+     *
      * @param role The role you want to delete from the user
      * @throws IllegalStateException If the user has 1 or less roles, we cannot delete their role(s). This is because
      * a user should never have 0 roles - therefore we're in an illegal state.
@@ -280,6 +289,7 @@ public class User {
 
         return response.build();
     }
+
 
     @Override
     public boolean equals(Object o){
