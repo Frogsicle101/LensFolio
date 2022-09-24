@@ -235,6 +235,11 @@ $(document).on("click", "#editEvidenceButton" , () => {
         deleteButtons[i].style = "display;"
     }
 
+    //user link
+    let uselinkedList = document.getElementById("evidenceDetailsLinkedUsers")
+    document.getElementById("linkedUsersTitle").style = "display;"
+    document.getElementById("linkedUsers").innerHTML = uselinkedList.innerHTML
+
     $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
@@ -268,4 +273,5 @@ function resetAddOrEditEvidencePage() {
         categories[i].className = "btn inlineText evidenceFormCategoryButton btn-secondary"
         categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
     }
+    document.getElementById("linkedUsers").innerHTML = "";
 }
