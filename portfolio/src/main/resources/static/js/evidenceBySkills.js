@@ -230,6 +230,9 @@ $(document).on("click", "#editEvidenceButton" , () => {
         categoryButton.querySelector(".evidenceCategoryTickIcon").style = "display: inline-block;"
     }
 
+    //pre-filling webLinks
+    let webLinksList = evidenceHighlight.querySelectorAll(".categoryChip")
+
 
 
 

@@ -93,7 +93,10 @@ function setHighlightedEvidenceWebLinks(response) {
     for (let index in response) {
         let webLink = response[index]
         webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
-        $('#deleteWeblink').hide()
+        let deleteButtons = document.querySelectorAll('#deleteWeblink')
+        for (let i = 0; i < deleteButtons.length; i++) {
+            deleteButtons[i].style = "display: none;"
+        }
     }
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
