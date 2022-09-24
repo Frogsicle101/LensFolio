@@ -259,6 +259,14 @@
     margin-top: 0;
 }
 
+#showAllEvidence{
+    color: #b5d1fb;
+}
+
+#createEvidenceButton{
+    color: #b5d1fb;
+}
+
 .deleteWeblinkButton{
     height: 2rem;
     width: 2rem;
