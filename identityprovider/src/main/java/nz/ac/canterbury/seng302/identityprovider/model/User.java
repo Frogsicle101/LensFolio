@@ -4,13 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.protobuf.Timestamp;
 import nz.ac.canterbury.seng302.identityprovider.service.LoginService;
 import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptionException;
+import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.identityprovider.service.UrlUtil;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.springframework.core.env.Environment;
 
 import javax.persistence.*;
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -49,8 +52,6 @@ public class User {
 
     private final ArrayList<UserRole> roles = new ArrayList<>();
 
-    private String imagePath;
-
     @JsonIgnore
     @ManyToMany(mappedBy = "userList", fetch = FetchType.EAGER)
     private final List<Group> groups = new ArrayList<>();
@@ -64,17 +65,17 @@ public class User {
 
     /**
      * Constructs a new user object. Calculates and stores a hash of the given password with unique salt.
-     * @param username - the username of the user
-     * @param password - the password of the user
-     * @param firstName - the first name of the user
-     * @param lastName - the last name of the user
-     * @param nickname - the nickname of the user
-     * @param bio - the bio of the user
-     * @param pronouns - the users personal pronouns
-     * @param email - the email of the user
-     * @param accountCreatedTime - the time the account was created
+     *
+     * @param username the username of the user
+     * @param password the password of the user
+     * @param firstName the first name of the user
+     * @param lastName the last name of the user
+     * @param nickname the nickname of the user
+     * @param bio the bio of the user
+     * @param pronouns the users personal pronouns
+     * @param email the email of the user
      */
-    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email, Timestamp accountCreatedTime) throws PasswordEncryptionException {
+    public User(String username, String password, String firstName, String middleName, String lastName, String nickname, String bio, String pronouns, String email) throws PasswordEncryptionException {
         this.username = username;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -84,13 +85,12 @@ public class User {
         this.pronouns = pronouns;
         this.email = email;
         this.roles.add(UserRole.STUDENT); //To automatically assign a new user as a student, subject to change
-        this.accountCreatedTime = accountCreatedTime;
+        this.accountCreatedTime = TimeService.getTimeStamp();
 
         LoginService encryptor = new LoginService();
 
         this.salt = encryptor.getNewSalt();
         this.pwhash = encryptor.getHash(password, salt);
-        this.imagePath = "/profile/default.png";
     }
 
 
@@ -106,6 +106,7 @@ public class User {
 
     /**
      * Sets the users id. Should only be used for testing
+     *
      * @param id The desired id
      */
     public void setId(int id) {
@@ -250,18 +251,11 @@ public class User {
     }
 
 
-    public boolean deleteProfileImage(Environment env) {
+    public void deleteProfileImage(Environment env) throws IOException {
         String photoLocation = env.getProperty("photoLocation", "src/main/resources/profile-photos/");
-
-        File image = new File(photoLocation + id + ".jpg");
-        imagePath = "profile/default.png";
-        return image.delete();
+        Files.delete(Path.of(photoLocation + id + ".jpg"));
     }
 
-
-    public void setProfileImagePath(String path) {
-        imagePath = path;
-    }
 
     public List<Group> getGroups() {
         return groups;

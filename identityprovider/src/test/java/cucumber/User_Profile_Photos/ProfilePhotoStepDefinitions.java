@@ -11,7 +11,6 @@ import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.service.ImageRequestStreamObserver;
 import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptionException;
-import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetadata;
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -86,8 +85,7 @@ public class ProfilePhotoStepDefinitions {
                 "Nick",
                 "This is a bio",
                 "He/Him",
-                "test@example.com",
-                TimeService.getTimeStamp()
+                "test@example.com"
         );
         user.setId(userId);
         when(repository.findById(userId)).thenReturn(user);
@@ -96,7 +94,11 @@ public class ProfilePhotoStepDefinitions {
 
     @Given("I have no profile photo")
     public void i_have_no_profile_photo() {
-        user.deleteProfileImage(mockEnv);
+        try {
+            user.deleteProfileImage(mockEnv);
+        } catch (IOException exception) {
+            // The user already does not have a profile photo
+        }
     }
 
 
