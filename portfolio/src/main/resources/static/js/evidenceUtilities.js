@@ -661,26 +661,33 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "categories": categories,
             "associateIds": linkedUsers
         })
-        $.ajax({
-            url: 'evidence',
-            type: "POST",
-            contentType: "application/json",
-            data,
-            success: function (response) {
-                selectedEvidenceId = response.id
-                getAndAddEvidencePreviews()
-                addSkillResponseToArray(response)
-                addSkillsToSideBar();
-                closeModal()
-                clearAddEvidenceModalValues()
-                $(".alert").remove()
-                createAlert("Created evidence", AlertTypes.Success)
-                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                resetWeblink()
-            }, error: function (error) {
-                createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
-            }
-        })
+
+        let buttonName = document.getElementById("evidenceSaveButton").innerHTML
+
+        if (buttonName === "Create") { // create a new evidence
+            $.ajax({
+                url: 'evidence',
+                type: "POST",
+                contentType: "application/json",
+                data,
+                success: function (response) {
+                    selectedEvidenceId = response.id
+                    getAndAddEvidencePreviews()
+                    addSkillResponseToArray(response)
+                    addSkillsToSideBar();
+                    closeModal()
+                    clearAddEvidenceModalValues()
+                    $(".alert").remove()
+                    createAlert("Created evidence", AlertTypes.Success)
+                    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+                    resetWeblink()
+                }, error: function (error) {
+                    createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
+                }
+            })
+        } else { // edit a exist evidence
+            // ToDo: Connect Save Button to Endpoint
+        }
     }
 })
 

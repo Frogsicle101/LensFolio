@@ -135,12 +135,12 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
  */
 $(document).on("click", "#createEvidenceButton" , () => {
 
-    // todo: here date is not work
+    // Reset addOrEditEvidenceModal
     document.getElementById("addOrEditEvidenceTitle").innerHTML="Add Evidence";
     document.getElementById("evidenceName").value="";
-    document.getElementById("evidenceDate").innerHTML="";
+    document.getElementById("evidenceDate").value=getTodayDate();
     document.getElementById("evidenceDescription").innerHTML="";
-
+    document.getElementById("evidenceSaveButton").innerHTML="Create";
 
     $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
@@ -184,29 +184,32 @@ function closeModal() {
 $(document).on("click", "#editEvidenceButton" , () => {
 
 
-
+    // Reset addOrEditEvidenceModal
     let currentEvidenceId = document.getElementById("evidenceDetailsId").innerHTML
     let currentEvidenceTitle =  document.getElementById("evidenceDetailsTitle").innerHTML
     let currentEvidenceDate =  document.getElementById("evidenceDetailsDate").innerHTML
     let currentEvidenceDescription =  document.getElementById("evidenceDetailsDescription").innerHTML
-    console.log("currentEvidenceId")
-    console.log(currentEvidenceId)
-    console.log("currentEvidenceTitle")
-    console.log(currentEvidenceTitle)
-    console.log("currentEvidenceDate")
-    console.log(currentEvidenceDate)
-    console.log("currentEvidenceDescription")
-    console.log(currentEvidenceDescription)
 
     document.getElementById("addOrEditEvidenceTitle").innerHTML="Edit Evidence";
     document.getElementById("evidenceName").value=currentEvidenceTitle;
-    document.getElementById("evidenceDate").innerHTML=currentEvidenceDate;
+    document.getElementById("evidenceDate").value=currentEvidenceDate;
     document.getElementById("evidenceDescription").innerHTML=currentEvidenceDescription;
-
+    document.getElementById("evidenceSaveButton").innerHTML="Save Changes";
 
     $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 
-
 })
+
+
+/**
+ *  Get today date as format of yyyy-mm-dd
+ */
+function getTodayDate() {
+    let today = new Date()
+    let year = today.getFullYear()
+    let month = String(today.getMonth() + 1).padStart(2,'0')
+    let day = String(today.getDate()).padStart(2, '0')
+    return year + '-' + month + '-' +day
+}
