@@ -307,27 +307,24 @@ public class EvidenceController {
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }
-            if (address.length() > WebLink.MAXURLLENGTH) {
-                throw new CheckException("URL address is longer than the maximum of " + WebLink.MAXURLLENGTH);
-            }
             if (request.getName().length() < 1) {
                 throw new CheckException("Link name should be at least 1 character");
             }
             if (request.getName().length() > WebLink.MAXNAMELENGTH) {
                 throw new CheckException("Link name should be no more than " + WebLink.MAXNAMELENGTH + " characters in length");
             }
-
             regexService.checkInput(RegexPattern.WEBLINK, request.getUrl(), 1, 2000, "Weblink");
-            //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
+
             return new ResponseEntity<>(HttpStatus.OK);
+
         } catch (CheckException exception) {
             logger.warn("/validateWebLink - Invalid address: {}", address);
             logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>(exception.getMessage(),HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (MalformedURLException exception) {
             logger.warn("/validateWebLink - Invalid address: {}", address);
             logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/", HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());

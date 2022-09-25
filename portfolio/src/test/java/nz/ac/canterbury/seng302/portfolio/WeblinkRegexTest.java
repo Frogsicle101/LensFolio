@@ -36,6 +36,7 @@ public class WeblinkRegexTest {
     @Test
     public void regexProtocolPasses() {
         expectedPasses.add("example");
+        expectedPasses.add("www.canterbury.ac.nz/");
         expectedPasses.add("http://example");
         expectedPasses.add("http://example.com"); // from RFC documentation
         expectedPasses.add("http://example.com/"); // from RFC documentation
@@ -85,7 +86,7 @@ public class WeblinkRegexTest {
     }
 
     @Test
-    public void regexQueryPasses() { //FIXME fails
+    public void regexQueryPasses() {
         expectedPasses.add("http://example?a=a");
         expectedPasses.add("http://example?sam=nerd");
         expectedPasses.add("http://example?llamas=biggerThanFrogs");
@@ -135,6 +136,7 @@ public class WeblinkRegexTest {
         expectedFails.add("$$$money$$$.com");
         expectedFails.add("@.com");
         expectedFails.add("!.com");
+        expectedFails.add("https://www.<script>Something naughty!</script>place.com");
 
         assertFails();
     }
