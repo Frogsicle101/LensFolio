@@ -37,7 +37,7 @@ describe("Clicking Linked Users", () => {
             cy.contains("cypress test evidence").click()
             cy.contains("Steve Steveson (steve)").click()
             cy.get("#nameHolder").contains("Viewing evidence for Steve Steveson")
-            cy.get("#editEvidenceButton").should("not.be.visible")
+            cy.get("#editEvidenceButton").should("not.exist")
         })
     })
 

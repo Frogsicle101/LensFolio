@@ -323,8 +323,8 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
         $("#deleteEvidenceButton").show()
         $("#editEvidenceButton").show()
     } else {
-        $("#deleteEvidenceButton").hide()
-        $("#editEvidenceButton").hide()
+        $("#deleteEvidenceButton").remove()
+        $("#editEvidenceButton").remove()
     }
 }
 
