@@ -71,7 +71,7 @@ public class NotificationController {
         Authentication authentication = (Authentication) auth.getPrincipal();
         AuthState state = authentication.getAuthState();
         String editorId = String.valueOf(PrincipalAttributes.getIdFromPrincipal(state));
-        OutgoingNotification notification = new OutgoingNotification(editorId, state.getName(), message.getOccasionType(), message.getOccasionId(), message.getAction());
+        OutgoingNotification notification = new OutgoingNotification(editorId, state.getName(), message.getData(), message.getId(), message.getAction());
         //If we want to notify other users,
         if (Objects.equals(message.getAction(), "edit")) {
             notificationService.storeOutgoingNotification(notification);
@@ -81,7 +81,9 @@ public class NotificationController {
             notificationService.storeOutgoingNotification(notification);
         } else if (Objects.equals(message.getAction(), "deleteGroup")) {
             notificationService.storeOutgoingNotification(notification);
-        }  else if (Objects.equals(message.getAction(), "stop")) {
+        } else if (Objects.equals(message.getAction(), "newGroup")) {
+            notificationService.storeOutgoingNotification(notification);
+        } else if (Objects.equals(message.getAction(), "stop")) {
             notificationService.removeOutgoingNotification(notification);
         }
         return List.of(notification);

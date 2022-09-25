@@ -21,7 +21,7 @@ $(function () {
                 location.reload()
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     })
@@ -57,7 +57,7 @@ $(function () {
                 location.reload()
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     });
@@ -82,7 +82,7 @@ $(document).on("change", "#usersPerPageSelect", function() {
             url: "user-list?usersPerPage=" + selected, type: "GET", success: function () {
                 location.reload()
             }, error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
 })

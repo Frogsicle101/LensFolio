@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.dto.PasswordRequest;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.LoginService;
@@ -104,6 +105,27 @@ public class AccountController {
         } catch (Exception err) {
             logger.error("GET /account: {}", err.getMessage());
             return new ModelAndView("error");
+        }
+    }
+
+
+    /**
+     * Gets the user via the principal. This is used to fill in the account page info
+     *
+     * @param principal the principal
+     * @return a response entity with the userDTO
+     */
+    @GetMapping("/getUser")
+    public ResponseEntity<Object> getUser(@AuthenticationPrincipal Authentication principal) {
+        try {
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+            UserDTO userDTO = new UserDTO(user);
+            logger.info("GET REQUEST /account - retrieving account details for user {}", user.getUsername());
+
+            return new ResponseEntity<>(userDTO, HttpStatus.OK);
+        } catch (Exception err) {
+            logger.error("GET /account: {}", err.getMessage());
+            return new ResponseEntity<>("An error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -264,15 +286,16 @@ public class AccountController {
             String lastname = editInfo.getLastname().trim();
             String nickname = editInfo.getNickname().trim();
 
-            editRequest.setUserId(userId)
+            EditUserRequest editUserRequest = editRequest.setUserId(userId)
                     .setFirstName(firstname)
                     .setMiddleName(middlename)
                     .setLastName(lastname)
                     .setNickname(nickname)
                     .setBio(editInfo.getBio())
                     .setPersonalPronouns(editInfo.getPersonalPronouns())
-                    .setEmail(editInfo.getEmail());
-            EditUserResponse reply = userAccountsClientService.editUser(editRequest.build());
+                    .setEmail(editInfo.getEmail())
+                    .build();
+            EditUserResponse reply = userAccountsClientService.editUser(editUserRequest);
             if (reply.getIsSuccess()) {
                 logger.info("Successfully updated details for user {}", userId);
             } else {
@@ -280,7 +303,7 @@ public class AccountController {
                 return new ResponseEntity<>(reply.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            return new ResponseEntity<>(reply.getMessage(), HttpStatus.OK);
+            return new ResponseEntity<>(new UserDTO(editUserRequest), HttpStatus.OK);
         } catch (Exception err) {
             logger.error("/edit/details ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
