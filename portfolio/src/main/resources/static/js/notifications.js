@@ -97,6 +97,9 @@ function handleNotification(notification) {
                 case 'update user photo':
                     updateUserProfilePhoto(message)
                     break;
+                case 'newGroup':
+                    liveUpdateGroupList();
+                    break;
                 default :
                     // Do nothing, unknown message format
                     break;

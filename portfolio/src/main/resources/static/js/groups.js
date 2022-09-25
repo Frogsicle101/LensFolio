@@ -156,13 +156,19 @@ function manageGroupTableInteraction() {
 
 
 /**
- * Listens for a change on the group amount display selector (the dropdown)
+ * Listens for a change on one of the group display selectors
  * Calls getGroups.
  */
-$(document).on("change", "#groupDisplayAmountSelection", function (event) {
+$(document).on("change", ".small-options", function (event) {
     event.preventDefault()
     getGroups(groupPage)
 })
+
+
+function liveUpdateGroupList() {
+    getGroups()
+    createAlert("New group has been created", "info")
+}
 
 
 /**
@@ -171,12 +177,14 @@ $(document).on("change", "#groupDisplayAmountSelection", function (event) {
 function getGroups(page = groupPage) {
     let groupsPerPage = $("#groupDisplayAmountSelection").find("option:selected").text()
     groupsPerPage = groupsPerPage.toLowerCase()
+    let sortBy = $("#groupSortBySelector").find("option:selected").text()
     $.ajax({
         url: "getGroups",
         type: "GET",
         data: {
             "page": page,
-            "groupsPerPage": groupsPerPage
+            "groupsPerPage": groupsPerPage,
+            "sortBy": sortBy
         },
         success: function (data) {
             groupPage = data.page
@@ -187,8 +195,8 @@ function getGroups(page = groupPage) {
             populateGroupPageSelector(data.footerNumberSequence, data.page)
             createListOfGroups(data.groups)
         },
-        error: function(error) {
-            createAlert(error.responseText, "failure")
+        error: function (error) {
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     }).then(manageGroupTableInteraction)
 }
@@ -269,12 +277,12 @@ function createFooterNumberSelector(number) {
  * @param groups The list of groups.
  */
 function createListOfGroups(groups) {
-    let groupOverviewContainer = $("#groupAmountOptionsTop")
+    let groupOverviewContainer = $("#groupListDiv")
     $(".group").each((index, element) => {
         $(element).remove()
     })
     for (const groupsKey in groups) {
-        groupOverviewContainer.after(createGroupPreviewDiv(groups[groupsKey]))
+        groupOverviewContainer.append(createGroupPreviewDiv(groups[groupsKey]))
     }
 }
 
@@ -304,7 +312,7 @@ function createGroupPreviewDiv(group) {
  *
  * @param notification The notification from the server.
  */
-function updateGroup(notification){
+function updateGroup(notification) {
     let notificationGroupId = notification.id
     let currentDisplayGroup = $("#groupBeingDisplayId").text()
     if (currentDisplayGroup === notificationGroupId) {
@@ -339,32 +347,24 @@ function removeGroup(notification) {
     }
     let group = $("#" + notificationGroupId)
     if (group.length > 0) {
-        group.slideUp("500", () => {group.remove()})
+        group.slideUp("500", () => {
+            group.remove()
+        })
     }
 }
 
-
 /**
- * Using the notification system, when a user updates their profile details, it will update it automatically in the
- * group's page without refreshing.
+ * Updates the displayed name of the user if the user is in the group currently displayed.
  *
- * @param notification The notification from the server.
+ * @param notification The STOMPJS message containing the details that need to change
  */
-function updateUserDetails(notification){
+function updateUserDetails(notification) {
     const usersId = notification.id
     const userRow = $("#userid" + usersId)
     if (userRow.length) {
         const userData = JSON.parse(notification.data)
         userRow.find(".firstName").text(userData.firstName)
         userRow.find(".lastName").text(userData.lastName)
-        if (userData.imagePath === null) {
-            imageSource = "defaultProfile.png"
-        } else {
-            imageSource = userData.imagePath
-        }
-        console.log(userRow.find("#userImage"))
-        console.log(userData.imagePath)
-        userRow.find("#userImage").src = imageSource
     }
 }
 
@@ -430,16 +430,16 @@ function addUsers(groupId) {
             displayGroupUsersList()
             sendNotification("group", groupId, "updateGroup");
             if (parseInt(groupId) === MWAG_GROUP_ID) {
-                createAlert("User(s) moved, and teachers role remains", "success")
+                createAlert("User(s) moved, and teachers role remains", AlertTypes.Success)
             } else {
-                createAlert("User(s) moved", "success")
+                createAlert("User(s) moved", AlertTypes.Success)
             }
         }, error: function (error) {
-            if (error.status == 401) {
+            if (error.status === 401) {
                 createAlert("You don't have permission to move users. This could be because " +
-                    "your roles have been updated. Try refreshing the page", "failure")
+                    "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
             } else {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         }
     })
@@ -567,7 +567,7 @@ function displayGroupUsersList() {
             checkEditRights(response)
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 }
@@ -744,7 +744,7 @@ function retrieveGroupRepoInformation() {
             getRepoCommits();
         },
         error: function (error) {
-            if (error.status == 401) {
+            if (error.status === 401) {
                 let repoInformationContainer = $("#gitRepo")
                 repoInformationContainer.empty();
                 displayUnauthorisedRepo(repoInformationContainer)
@@ -864,11 +864,17 @@ function getRepoCommits() {
 
 
 /**
- * Populates the given commit container with the first 3 commits retrieved from the git repository. The data includes the url, short
- * Id, and commit message for each commit.
+ * Populates the given commit container with the first 3 commits retrieved from the git repository.
  *
  * @param commitContainer The container in which commits will be appended.
  * @param data The data retrieved from the repo, which contains the recent commits to be appended to the repo container.
+ * @property committed_date The commit date
+ * @property committed_time The commit time
+ * @property short_id  The commit short_id
+ * @property long_id The commit long_id
+ * @property message The commit message
+ * @property web_url The commit web_url
+ * @property author_name The commit author_name
  */
 function populateCommitContainer(commitContainer, data) {
     commitContainer.append(`<h5>Recent Commits:</h5>`)
@@ -876,7 +882,9 @@ function populateCommitContainer(commitContainer, data) {
     const firstThree = data.slice(0, 3);
 
     for (let commit of firstThree) {
-        let commitText =
+        const committedDate = sanitise(commit.committed_date).split("T")[0]
+        const committedTime = sanitise(commit.committed_date).split("T")[1].split(".")[0]
+        const commitText =
             `<div id="groupSettingsCommitContainer" class="marginSides1">
                 <div class="gitCommitInfo">
                     <div class="row">
@@ -893,7 +901,7 @@ function populateCommitContainer(commitContainer, data) {
                             <p class="greyText">${sanitise(commit.author_name)}</p>
                         </div>
                         <div class="col commitDate">
-                            <p class="greyText">${sanitise(commit.committed_date).split("T")[0]}</p>
+                            <p class="greyText">${committedDate} &nbsp ${committedTime}</p>
                         </div>
                     </div>
                 </div>
@@ -956,7 +964,7 @@ function cancelGroupEdit() {
 $(document).on("click", ".groupPageLink", function (event) {
     event.preventDefault()
 
-    if($(this).hasClass("disabled")) {
+    if ($(this).hasClass("disabled")) {
         return
     }
 
@@ -1013,15 +1021,15 @@ $(document).on("click", "#groupRemoveUser", function () {
             type: "DELETE",
             success: () => {
                 displayGroupUsersList()
-                createAlert("User removed", "success")
+                createAlert("User removed", AlertTypes.Success)
                 sendNotification("group", selectedGroupId, "updateGroup");
                 checkToSeeIfHideOrShowOptions()
             }, error: function (error) {
-                if (error.status == 401) {
+                if (error.status === 401) {
                     createAlert("You don't have permission to remove users. This could be because " +
-                        "your roles have been updated. Try refreshing the page", "failure")
+                        "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
                 } else {
-                    createAlert(error.responseText, "failure")
+                    createAlert(error.responseText, AlertTypes.Failure)
                 }
             }
         })
@@ -1042,11 +1050,11 @@ $(document).on("click", ".deleteButton", function () {
                 sendNotification("group", group.id, "deleteGroup");
                 window.location.reload()
             }, error: function (error) {
-                if (error.status == 401) {
+                if (error.status === 401) {
                     createAlert("You don't have permission to delete groups. This could be because " +
-                        "your roles have been updated. Try refreshing the page", "failure")
+                        "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
                 } else {
-                    createAlert(error.responseText, "failure")
+                    createAlert(error.responseText, AlertTypes.Failure)
                 }
             }
         })
@@ -1105,17 +1113,17 @@ $(document).on("submit", "#editGroupForm", function (event) {
         type: type,
         data: groupData,
         success: function () {
-            createAlert("Changes submitted", "success");
+            createAlert("Changes submitted", AlertTypes.Success);
             cancelGroupEdit();
             displayGroupUsersList();
             updateGroupName($("#groupShortName").val(), $("#groupLongName").val());
             sendNotification("group", selectedGroupId, "updateGroup");
         }, error: function (error) {
-            if (error.status == 401) {
+            if (error.status === 401) {
                 createAlert("You don't have permission to edit group details. This could be because " +
-                    "your roles have been updated. Try refreshing the page", "failure")
+                    "your roles have been updated. Try refreshing the page", AlertTypes.Failure)
             } else {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         }
     })
@@ -1142,7 +1150,6 @@ $(document).on("click", "#pillsSettingsTab", function () {
  * When group div is clicked, the members for that group are retrieved.
  */
 $(document).on("click", ".group", function () {
-    $(".scrollableGroupOverview").css("width", "50%");
     $(".group").removeClass("focusOnGroup")
     selectedGroupId = $(this).closest(".group").find(".groupId").text()
     let groupShortname = $(this).closest(".group").find(".groupShortName").text();

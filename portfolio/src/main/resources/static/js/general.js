@@ -1,6 +1,12 @@
 let liveAlertIsShown;
 let alertIsShown;
 
+const AlertTypes = {
+    Failure: "failure",
+    Success: "success",
+    Info: "info"
+}
+
 $(function () {
     // Checks to see if there is an error message to be displayed
     if (!$(".errorMessage").is(':empty')) {
@@ -22,6 +28,16 @@ $(function () {
     removeElementIfNotAuthorized()
 
 });
+
+
+
+/**
+ * When a user clicks on a nav item it finds the a link inside it and goes to that address
+ */
+$(document).on("click", ".navItem", function() {
+    let link = $(this).children("a").attr("href")
+    location.replace(link)
+})
 
 
 /**
@@ -77,7 +93,7 @@ function removeAlert() {
  * Displays a dismissible alert down the bottom right of the screen.
  *
  * @param alertMessage
- * @param type the type of alert. Accepts "success", "fail", and "info".
+ * @param type the type of alert. Accepts AlertTypes.Success, AlertTypes.Failure, and AlertTypes.Info.
  * @param window - the location to show the error
  */
 function createAlert(alertMessage, type, window = "body") {
@@ -138,7 +154,7 @@ function createLiveAlert(alertMessage, alertId, window = "body") {
  * Creates an alert message, and appends it to the window.
  *
  * The type of the alert determines the colour of the alert.
- * "success" = green, "failure" = red, and "info" = yellow.
+ * AlertTypes.Success = green, AlertTypes.Failure = red, and AlertTypes.Info = yellow.
  *
  * @param alertMessage The message to be displayed in the alert box.
  * @param type The type of the message to be displayed. Determines the alert background colour.
@@ -159,17 +175,17 @@ function alert(alertMessage, type, window = "body") {
     alertIsShown = true;
 
     switch (type) {
-        case "failure":
+        case AlertTypes.Failure:
             alert.removeClass("backgroundGreen")
             alert.removeClass("backgroundYellow")
             alert.addClass("backgroundRed")
             break;
-        case "success":
+        case AlertTypes.Success:
             alert.removeClass("backgroundRed")
             alert.removeClass("backgroundYellow")
             alert.addClass("backgroundGreen")
             break;
-        case "info":
+        case AlertTypes.Info:
             alert.removeClass("backgroundRed")
             alert.removeClass("backgroundGreen")
             alert.addClass("backgroundYellow")
@@ -266,7 +282,7 @@ function displayRoleChangeMessage(notification, action) {
         } else {
             message = `${editorName} removed from you the role: ${roleChanged}`
         }
-        createAlert(message, "info")
+        createAlert(message, AlertTypes.Info)
     }
 }
 
