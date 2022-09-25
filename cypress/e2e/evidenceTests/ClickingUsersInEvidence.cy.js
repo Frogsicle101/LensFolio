@@ -37,6 +37,7 @@ describe("Clicking Linked Users", () => {
             cy.contains("cypress test evidence").click()
             cy.contains("Steve Steveson (steve)").click()
             cy.get("#nameHolder").contains("Viewing evidence for Steve Steveson")
+            cy.get("#editEvidenceButton").should("not.be.visible")
         })
     })
 
@@ -46,6 +47,7 @@ describe("Clicking Linked Users", () => {
             cy.contains("cypress test evidence").click()
             cy.contains("John Wayne (admin)").click()
             cy.get("#createEvidenceButton").should("be.visible");
+            cy.get("#editEvidenceButton").should("be.visible")
         })
     })
 })
