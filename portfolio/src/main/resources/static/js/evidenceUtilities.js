@@ -317,12 +317,15 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.show()
     highlightedEvidenceDate.show()
     highlightedEvidenceDescription.show()
+    $("#evidenceDetailsLinkedUsersDiv").show()
     addCategoriesToEvidence(evidenceDetails.categories)
 
     if (userBeingViewedId === userIdent) {
         $("#deleteEvidenceButton").show()
+        $("#editEvidenceButton").show()
     } else {
-        $("#deleteEvidenceButton").hide()
+        $("#deleteEvidenceButton").remove()
+        $("#editEvidenceButton").remove()
     }
 }
 
@@ -446,10 +449,11 @@ function setDetailsToNoEvidenceExists() {
     $("#evidenceDetailsDate").hide()
     $("#evidenceDetailsDescription").hide()
     $("#deleteEvidenceButton").hide()
+    $("#editEvidenceButton").hide()
     $("#evidenceDetailsCategories").empty()
     $("#evidenceWebLinks").empty()
     $("#evidenceDetailsSkills").empty()
-
+    $("#evidenceDetailsLinkedUsersDiv").hide()
 }
 
 

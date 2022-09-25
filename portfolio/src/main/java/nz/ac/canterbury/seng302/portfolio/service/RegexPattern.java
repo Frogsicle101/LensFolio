@@ -19,7 +19,7 @@ public enum RegexPattern {
             " can only contain letters, numbers, punctuation and symbols (but not emojis)."),
 
     /** Regex that is all unicode letters, punctuation, modifier symbols and whitespace */
-    NAME(Pattern.compile("[\\p{L}\\p{P}\\p{Sm}\\s]*", Pattern.CASE_INSENSITIVE),
+    NAME(Pattern.compile("[\\p{L}\\p{P}\\s]*[\\p{L}]+[\\p{L}\\p{P}\\s]*", Pattern.CASE_INSENSITIVE),
             " can only contain unicode letters, punctuation and whitespace"),
 
     /** Restricts to valid email format, e.g., example@email.com */

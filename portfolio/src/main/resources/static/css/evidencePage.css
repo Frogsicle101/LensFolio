@@ -284,3 +284,15 @@
     background: #175fbd;
     color: #ffffff;
 }
+
+#editEvidenceButton{
+    border: none;
+    background: none;
+    color: black;
+}
+
+#editEvidenceButton:hover{
+    border: none;
+    background: none;
+    color: red;
+}

@@ -211,7 +211,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("title is shorter than the minimum length of 2 characters"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("title is shorter than the minimum length of 5 characters"));
     }
 
 
@@ -263,7 +263,7 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("description is shorter than the minimum length of 2 characters"));
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("description is shorter than the minimum length of 5 characters"));
     }
 
 
@@ -300,7 +300,7 @@ class EvidenceServiceTest {
         Project project = new Project("Testing");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        String title = "Test";
+        String title = "Title";
         String date = LocalDate.now().toString();
         String description = "Description";
 
@@ -329,7 +329,7 @@ class EvidenceServiceTest {
         Project project = new Project("Testing");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        String title = "Test";
+        String title = "Title";
         String date = LocalDate.now().toString();
         String description = "Description";
 
@@ -359,7 +359,7 @@ class EvidenceServiceTest {
         Project project = new Project("Testing");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        String title = "Test";
+        String title = "Title";
         String date = LocalDate.now().toString();
         String description = "Description";
 

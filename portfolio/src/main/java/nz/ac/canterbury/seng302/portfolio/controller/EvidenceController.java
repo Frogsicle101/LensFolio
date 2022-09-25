@@ -101,6 +101,7 @@ public class EvidenceController {
         modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("webLinkMaxUrlLength", WebLink.MAXURLLENGTH);
         modelAndView.addObject("webLinkMaxNameLength", WebLink.MAXNAMELENGTH);
+        modelAndView.addObject(project);
         modelAndView.addObject("webLinkRegex", RegexPattern.WEBLINK);
 
         if (projectEndDate.isBefore(currentDate)) {
