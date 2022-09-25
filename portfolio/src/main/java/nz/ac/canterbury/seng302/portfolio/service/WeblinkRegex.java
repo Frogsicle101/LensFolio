@@ -10,10 +10,10 @@ public class WeblinkRegex {
     //from rfc https://www.ietf.org/rfc/rfc2396.txt
     private static final String ESCAPED = "(%[\\da-f][\\da-f])";
     private static final String RESERVED = ";\\/\\?:@&=\\+\\$,";
-    private static final String UNRESERVED = "\\w\\.!~\\*'\\(\\)-";
-    private static final String URIC = RESERVED + ESCAPED + UNRESERVED;
+    private static final String UNRESERVED = "-\\w\\.!~\\*'\\(\\)";
+    private static final String URIC = "[" + UNRESERVED + RESERVED + "]" + "|" + ESCAPED;
 
-    private static final String PATH_CHARS = "-\\w\\.~!\\$&'\\(\\)\\*\\+,;=:@/" + ESCAPED;
+    private static final String PATH_CHARS = "[-\\w\\.~!\\$&'\\(\\)\\*\\+,;=:@/]" + "|" + ESCAPED;
 
     /**
      * The protocol can be any of the options in the ALLOWED_PROTOCOL array above.
@@ -26,7 +26,7 @@ public class WeblinkRegex {
      * The "." character is only allowed after a non "." character has been used.
      * There must be at least one domain character in the weblink.
      */
-    private static final String DOMAIN = "([\\w~_-]+(\\.[\\w~-]+)*)";
+    private static final String DOMAIN = "(([\\w~_-])+(\\.([\\w~-])+)*)";
 
     /**
      * The port starts with a ":" character.
@@ -34,13 +34,13 @@ public class WeblinkRegex {
      * In theory, the max is 65535, but we have not been that specific.
      * Optional.
      */
-    private static final String PORT = "(:([\\d]{0,5}))?";
+    private static final String PORT = "(:(\\d{0,5}))?";
 
     /**
      * The path starts with a "/", and is followed by any number of PATH_CHARS characters and "/" path delimiters.
      * Optional.
      */
-    private static final String PATH = "(/([%s])*)*".formatted(PATH_CHARS);
+    private static final String PATH = "(/(%s)*)*".formatted(PATH_CHARS);
 
     /**
      * The query starts with a "?". It must be followed by at least one key-value assignment, and optionally more.

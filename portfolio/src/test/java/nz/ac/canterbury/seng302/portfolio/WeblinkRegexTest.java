@@ -42,7 +42,7 @@ public class WeblinkRegexTest {
         expectedPasses.add("http://example.com:/"); // from RFC documentation
         expectedPasses.add("http://example.com:80/"); // from RFC documentation
         expectedPasses.add("https://www.google.com");
-        expectedPasses.add("ftp://ftp.is.co.za/rfc/rfc1808.txt"); // FIXME fails
+        expectedPasses.add("ftp://ftp.is.co.za/rfc/rfc1808.txt");
 
         assertPasses();
     }
@@ -72,14 +72,14 @@ public class WeblinkRegexTest {
     @Test
     public void regexPathPasses() {
         expectedPasses.add("https://example/");
-        expectedPasses.add("http://example/path"); //FIXME fails
-        expectedPasses.add("http://example:80000/path"); //FIXME fails
-        expectedPasses.add("http://www.w3.org/Addressing/"); // from RFC documentation //FIXME fails
-        expectedPasses.add("https://www.youtube.com/watch?v=dQw4w9WgXcQ"); //FIXME fails
-        expectedPasses.add("http://localhost:9000/portfolio?projectId=1"); //FIXME fails
-        expectedPasses.add("http://hello/path/lots-of_chars_T0~.-()test"); //FIXME fails
-        expectedPasses.add("https://learn.canterbury.ac.nz/login/index.php"); //FIXME fails
-        expectedPasses.add("https://stackoverflow.com/questions/13009670/prolog-recursive-list-construction"); //FIXME fails
+        expectedPasses.add("http://example/path");
+        expectedPasses.add("http://example:80000/path");
+        expectedPasses.add("http://www.w3.org/Addressing/"); // from RFC documentation
+        expectedPasses.add("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+        expectedPasses.add("http://localhost:9000/portfolio?projectId=1");
+        expectedPasses.add("http://hello/path/lots-of_chars_T0~.-()test");
+        expectedPasses.add("https://learn.canterbury.ac.nz/login/index.php");
+        expectedPasses.add("https://stackoverflow.com/questions/13009670/prolog-recursive-list-construction");
 
         assertPasses();
     }
@@ -97,7 +97,7 @@ public class WeblinkRegexTest {
     @Test
     public void regexFragmentPasses() {
         expectedPasses.add("https://example#");
-        expectedPasses.add("https://example#letters"); //FIXME fails onwards
+        expectedPasses.add("https://example#letters");
         expectedPasses.add("https://example#numb3ers");
         expectedPasses.add("https://example#34sdfg-';");
         expectedPasses.add("http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING"); // from RFC documentation
