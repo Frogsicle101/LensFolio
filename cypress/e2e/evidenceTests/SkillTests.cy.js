@@ -44,8 +44,8 @@ describe('Skill creation', () => {
     })
 
     it("Should clear skills input after evidence submission", () => {
-        cy.get("#evidenceName").type("Cy")
-        cy.get("#evidenceDescription").type( "De")
+        cy.get("#evidenceName").type("Cypress Testing")
+        cy.get("#evidenceDescription").type( "Description of the test")
         cy.get("#skillsInput").type("test test1 test2 ")
         cy.get("#evidenceSaveButton").click()
         cy.get('#createEvidenceButton').click()
@@ -92,6 +92,11 @@ describe('Skill creation', () => {
             cy.get("#skillsInput").type("evi")
             cy.get(".ui-menu-item-wrapper").should("not.be.visible")
         })
+    })
+
+    it ("Should not allow a skill with all underscores to be made", () => {
+        cy.get("#skillsInput").type("______ Normal_Skill ______ ")
+        cy.get("#tagInputChips").find(".skillChip").should("have.length", 1)
     })
 })
 
