@@ -318,7 +318,6 @@
 }
 
 #linkedUser{
-    width:180px;
-    float:right;
-    test-align:left;
+    float:left;
 }
+

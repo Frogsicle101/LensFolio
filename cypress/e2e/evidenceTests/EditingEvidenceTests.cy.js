@@ -18,4 +18,13 @@ describe('Edit evidence', () => {
         cy.get("#addOrEditEvidenceModal").find(".linkedUser").should('have.length', 1)
         cy.get(".evidenceCategoryTickIcon").should('be.visible')
     })
+
+    it("Web Linke delete button is work well", () => {
+        cy.get("#editEvidenceButton").click()
+        cy.get("#evidenceCancelButton").click()
+        cy.get("#editEvidenceButton").click()
+        cy.get("#addOrEditEvidenceModal").find("#deleteWeblink").click()
+        cy.get("#addOrEditEvidenceModal").find('.linkedUser').should('not.exist');
+
+    })
 })
