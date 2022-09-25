@@ -152,8 +152,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
                     request.getNickname(),
                     request.getBio(),
                     request.getPersonalPronouns(),
-                    request.getEmail(),
-                    TimeService.getTimeStamp());
+                    request.getEmail()
+            );
 
             if (userRepository.findByUsername(user.getUsername()) == null) {
                 logger.info("Registration Success - for new user {}", request.getUsername());
@@ -325,8 +325,8 @@ public class UserAccountsServerService extends UserAccountServiceImplBase {
         try {
             int id = request.getUserId();
             User user = userRepository.findById(id);
-            boolean deleteSuccess = user.deleteProfileImage(env);
-            response.setIsSuccess(deleteSuccess);
+            user.deleteProfileImage(env);
+            response.setIsSuccess(true);
         } catch (Exception exception) {
             response.setIsSuccess(false);
         }

@@ -334,7 +334,8 @@ function updateGroup(notification) {
  * It checks to see if the current group being displayed is the one that has been deleted.
  * If it is then it slides up the group information display and alerts the user that the group has been deleted and by who.
  * If it isn't then it just slides up the element on the left hand side.
- * @param notification
+ *
+ * @param notification The notification from the server.
  */
 function removeGroup(notification) {
     console.log(notification)
@@ -354,6 +355,7 @@ function removeGroup(notification) {
 
 /**
  * Updates the displayed name of the user if the user is in the group currently displayed.
+ *
  * @param notification The STOMPJS message containing the details that need to change
  */
 function updateUserDetails(notification) {
@@ -363,6 +365,27 @@ function updateUserDetails(notification) {
         const userData = JSON.parse(notification.data)
         userRow.find(".firstName").text(userData.firstName)
         userRow.find(".lastName").text(userData.lastName)
+    }
+}
+
+
+/**
+ * Using the notification system, when a user updates their profile details, it will update it automatically in the
+ * group's page without refreshing.
+ *
+ * @param notification The notification from the server.
+ */
+function updateUserProfilePhoto(notification){
+    const usersId = notification.id
+    const userRow = $("#userid" + usersId)
+    let imageSource;
+    if (userRow.length) {
+        let imagePath = userRow.find("#userImage").attr("src")
+        imagePath = imagePath.split("?")[0]
+        imageSource = imagePath + "?" + Date.now()
+        console.log(userRow.find("#userImage"))
+        console.log(imageSource)
+        userRow.find("#userImage").attr("src",imageSource)
     }
 }
 
@@ -836,7 +859,6 @@ function getRepoCommits() {
         )
     }
 }
-
 
 
 /**

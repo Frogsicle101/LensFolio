@@ -3,7 +3,6 @@ package nz.ac.canterbury.seng302.identityprovider.service;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.ProfilePhotoUploadMetadata;
 import nz.ac.canterbury.seng302.shared.identityprovider.UploadUserProfilePhotoRequest;
@@ -40,11 +39,12 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
         this.env = env;
     }
 
+
     /**
      * should be called by the client when they are sending data to the server. The first chunk should be
      * metadata, and every chunk following should be fileContent. On reception calls the responseObservers
      * onNext method to request the next chunk.
-     * <br>
+     *
      * @param request - the UploadUserProfilePhotoRequest chunk being sent to the server
      */
     @Override
@@ -85,7 +85,6 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
                         .setMessage("Received " + fileContent.size() + " bytes of image data")
                         .build()
                 );
-
             }
         }
     }
@@ -108,6 +107,7 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
         logger.error(throwable.getMessage());
     }
 
+
     /**
      * When called the server can save the data received return a SUCCESS FileUploadStatus calling onNext and
      * onComplete to tell the client that the server has saved the image.
@@ -119,10 +119,10 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
         response.setStatus(FileUploadStatus.SUCCESS)
                 .setMessage("COMPLETE: Successfully transferred bytes");
 
-
         responseObserver.onNext(response.build());
         responseObserver.onCompleted();
     }
+
 
     /**
      * Called on a successful image transfer in onComplete method. This method takes the imageContents and saves it to
@@ -134,11 +134,6 @@ public class ImageRequestStreamObserver implements StreamObserver<UploadUserProf
             FileOutputStream out = new FileOutputStream(
                     photoLocation + userId + "." + fileType
             );
-
-            String path = "/profile/" + userId + "." + fileType;
-            User user = userRepository.findById(userId);
-            user.setProfileImagePath(path);
-            userRepository.save(user);
 
             bytes.writeTo(out);
             out.close();

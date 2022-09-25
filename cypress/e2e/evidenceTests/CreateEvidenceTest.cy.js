@@ -66,5 +66,4 @@ describe("Closing evidence creation form without save", () => {
         cy.get(".skillChipDisplay").contains("skill")
         cy.get("#addedWebLinks").contains("name")
     })
-
 })
