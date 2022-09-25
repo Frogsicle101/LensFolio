@@ -20,7 +20,7 @@ public class WeblinkRegex {
     private static final String PORT = "(:\\d{0,5})?";
     private static final String PATH = "(/(%s)*)*".formatted(PATH_CHARS);
     private static final String QUERY = "(\\?(((%s)+=(%<s)+)+(&(%<s)+=(%<s)+)*)+)?".formatted(URIC);
-    private static final String FRAGMENT = "(#(%s)*)?".formatted(URIC);
+    private static final String FRAGMENT = "(#[%s]*)?".formatted(URIC);
 
     private static final Pattern WEBLINK = Pattern.compile(
                     PROTOCOL +
