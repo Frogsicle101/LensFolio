@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class RegexTests {
+public class WeblinkRegexTest {
 
     private final Pattern weblinkPattern = WeblinkRegex.getWeblinkPattern();
 
@@ -42,7 +42,7 @@ public class RegexTests {
         expectedPasses.add("http://example.com:/"); // from RFC documentation
         expectedPasses.add("http://example.com:80/"); // from RFC documentation
         expectedPasses.add("https://www.google.com");
-        expectedPasses.add("ftp://ftp.is.co.za/rfc/rfc1808.txt");
+        expectedPasses.add("ftp://ftp.is.co.za/rfc/rfc1808.txt"); // FIXME fails
 
         assertPasses();
     }
@@ -72,20 +72,20 @@ public class RegexTests {
     @Test
     public void regexPathPasses() {
         expectedPasses.add("https://example/");
-        expectedPasses.add("http://example/path");
-        expectedPasses.add("http://example:80000/path");
-        expectedPasses.add("http://www.w3.org/Addressing/"); // from RFC documentation
-        expectedPasses.add("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-        expectedPasses.add("http://localhost:9000/portfolio?projectId=1");
-        expectedPasses.add("http://hello/path/lots-of_chars_T0~.-()test");
-        expectedPasses.add("https://learn.canterbury.ac.nz/login/index.php");
-        expectedPasses.add("https://stackoverflow.com/questions/13009670/prolog-recursive-list-construction");
+        expectedPasses.add("http://example/path"); //FIXME fails
+        expectedPasses.add("http://example:80000/path"); //FIXME fails
+        expectedPasses.add("http://www.w3.org/Addressing/"); // from RFC documentation //FIXME fails
+        expectedPasses.add("https://www.youtube.com/watch?v=dQw4w9WgXcQ"); //FIXME fails
+        expectedPasses.add("http://localhost:9000/portfolio?projectId=1"); //FIXME fails
+        expectedPasses.add("http://hello/path/lots-of_chars_T0~.-()test"); //FIXME fails
+        expectedPasses.add("https://learn.canterbury.ac.nz/login/index.php"); //FIXME fails
+        expectedPasses.add("https://stackoverflow.com/questions/13009670/prolog-recursive-list-construction"); //FIXME fails
 
         assertPasses();
     }
 
     @Test
-    public void regexQueryPasses() {
+    public void regexQueryPasses() { //FIXME fails
         expectedPasses.add("http://example?a=a");
         expectedPasses.add("http://example?sam=nerd");
         expectedPasses.add("http://example?llamas=biggerThanFrogs");
@@ -96,7 +96,9 @@ public class RegexTests {
 
     @Test
     public void regexFragmentPasses() {
-        expectedPasses.add("https://example#3456");
+        expectedPasses.add("https://example#");
+        expectedPasses.add("https://example#letters"); //FIXME fails onwards
+        expectedPasses.add("https://example#numb3ers");
         expectedPasses.add("https://example#34sdfg-';");
         expectedPasses.add("http://www.ics.uci.edu/pub/ietf/uri/historical.html#WARNING"); // from RFC documentation
 
@@ -109,14 +111,14 @@ public class RegexTests {
         expectedFails.add("urn:oasis:names:specification:docbook:dtd:xml:4.1.2");
         expectedFails.add("tel:+1-816-555-1212");
         expectedFails.add("telnet://192.0.2.16:80/");
-        expectedFails.add("mailto:John.Doe@example.com"); //FIXME  passed
+        expectedFails.add("mailto:John.Doe@example.com");
         expectedFails.add("news:comp.infosystems.www.servers.unix");
         expectedFails.add("://example");
         expectedFails.add("htt://example");
         expectedFails.add("htp://example");
         expectedFails.add("http:/example");
         expectedFails.add("http:///example");
-        expectedFails.add("https:///example"); //FIXME passed
+        expectedFails.add("https:///example");
         expectedFails.add("hps://");
         expectedFails.add("https:/example");
 
@@ -125,22 +127,22 @@ public class RegexTests {
 
     @Test
     public void regexDomainFails() {
-        expectedFails.add(".example"); //FIXME passed
-        expectedFails.add("http://.example"); //FIXME passed
-        expectedFails.add("♨️.com"); //FIXME passed
+        expectedFails.add(".example");
+        expectedFails.add("http://.example");
+        expectedFails.add("♨️.com");
         expectedFails.add("i am a website.com");
-        expectedFails.add("'quote'.com"); //FIXME passed
-        expectedFails.add("$$$money$$$.com"); //FIXME passed
-        expectedFails.add("@.com"); //FIXME passed
-        expectedFails.add("!.com"); //FIXME passed
+        expectedFails.add("'quote'.com");
+        expectedFails.add("$$$money$$$.com");
+        expectedFails.add("@.com");
+        expectedFails.add("!.com");
 
         assertFails();
     }
 
     @Test
     public void regexPortFails() {
-        expectedFails.add("example:800000"); //FIXME passed
-        expectedFails.add("http://example:800000"); //FIXME passed
+        expectedFails.add("example:800000");
+        expectedFails.add("http://example:800000");
         expectedFails.add("example.com:port");
         expectedFails.add("example.com:@#$%^&");
 
@@ -150,7 +152,7 @@ public class RegexTests {
     @Test
     public void regexPathFail() {
         expectedFails.add("https://");
-        expectedFails.add("https://example?"); //FIXME passed
+        expectedFails.add("https://example?");
 
         assertFails();
     }
