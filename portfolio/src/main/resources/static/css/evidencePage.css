@@ -296,3 +296,25 @@
     background: none;
     color: red;
 }
+
+#deleteLinkedUser{
+    height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border: none;
+    color: black;
+    background: #ffffff;
+}
+
+#deleteLinkedUser:hover{
+    height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border: none;
+    background: black;
+    color: #ffffff;
+}
+
+#linkedUser{
+
+}
