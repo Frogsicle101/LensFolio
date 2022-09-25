@@ -193,17 +193,18 @@ $(document).on("click", "#editEvidenceButton" , () => {
     let currentEvidenceId = document.getElementById("evidenceDetailsId").innerHTML
 
     //name, date, description
-    let currentEvidenceTitle =  document.getElementById("evidenceDetailsTitle").innerHTML
+    let currentEvidenceTitle =  reversTranslationHTML(document.getElementById("evidenceDetailsTitle").innerHTML)
     let currentEvidenceDate =  document.getElementById("evidenceDetailsDate").innerHTML
-    let currentEvidenceDescription =  document.getElementById("evidenceDetailsDescription").innerHTML
+    let currentEvidenceDescription =  reversTranslationHTML(document.getElementById("evidenceDetailsDescription").innerHTML)
+
     document.getElementById("evidenceName").value = currentEvidenceTitle;
     document.getElementById("evidenceDate").value = currentEvidenceDate;
-    document.getElementById("evidenceDescription").innerHTML = currentEvidenceDescription;
+    document.getElementById("evidenceDescription").value = currentEvidenceDescription;
 
     //skills
     let currentSkillsList = evidenceHighlight.querySelectorAll(".skillChip")
     for (let i = 0; i < currentSkillsList.length; i++) {
-        let skillName = currentSkillsList[i].querySelector(".chipText").innerHTML
+        let skillName = reversTranslationHTML(currentSkillsList[i].querySelector(".chipText").innerHTML)
         let skillChip = `
                 <div class="chip skillChip">
                     <p class="chipText">${sanitise(skillName)}</p>  
@@ -264,7 +265,7 @@ function getTodayDate() {
 function resetAddOrEditEvidencePage() {
     document.getElementById("evidenceName").value = "";
     document.getElementById("evidenceDate").value = getTodayDate();
-    document.getElementById("evidenceDescription").innerHTML = "";
+    document.getElementById("evidenceDescription").value = "";
     document.getElementById("tagInputChips").innerHTML ="";     // clean up skills
     document.getElementById("addedWebLinks").innerHTML ="";
     let categories = document.querySelectorAll(".evidenceFormCategoryButton")
@@ -273,4 +274,13 @@ function resetAddOrEditEvidencePage() {
         categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
     }
     document.getElementById("linkedUsers").innerHTML = "";
+}
+
+
+/**
+ *  Revers translation string to html.
+ */
+function reversTranslationHTML(strHTML) {
+    let doc = new DOMParser().parseFromString(strHTML, 'text/html')
+    return doc.documentElement.textContent
 }
