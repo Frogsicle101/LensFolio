@@ -79,12 +79,6 @@ class EvidenceControllerTest {
     EvidenceService evidenceService;
 
     @MockBean
-    private GroupsClientService groupsClientService;
-
-    @MockBean
-    private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
-
-    @MockBean
     private RegexService regexService;
 
 
@@ -659,7 +653,7 @@ class EvidenceControllerTest {
     }
 
 
-    // -------------- WebLink Tests ---------------------------------------------------------------
+    // ----------------------------------- WebLink Tests ------------------------------------------
 
 
     @Test
@@ -704,7 +698,7 @@ class EvidenceControllerTest {
         setUserToStudent();
         setUpContext();
 
-        MvcResult result = mockMvc.perform(get("/evidencePieceWebLinks")
+        mockMvc.perform(get("/evidencePieceWebLinks")
                         .queryParam("evidenceId", "1"))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -730,8 +724,6 @@ class EvidenceControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String expectedResult = "[" + testLink1.toJsonString() + "," + testLink2.toJsonString() + ","
-                + testLink3.toJsonString() + "]";
         String responseContent = result.getResponse().getContentAsString();
         Assertions.assertTrue(responseContent.contains(testLink1.toJsonString()));
         Assertions.assertTrue(responseContent.contains(testLink2.toJsonString()));
@@ -787,12 +779,12 @@ class EvidenceControllerTest {
     }
 
     @Test
-    void TestValidateWebLinkInvalidURLNoProtocol() throws Exception {
+    void TestValidateWebLinkValidURLNoProtocol() throws Exception {
         mockMvc.perform(post("/validateWebLink")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{ \"name\": \"A Test Weblink\", \"url\": \"www.canterbury.ac.nz/\"}")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test
