@@ -19,11 +19,11 @@ describe('Edit evidence', () => {
         cy.get(".evidenceCategoryTickIcon").should('be.visible')
     })
 
-    it("Web Linke delete button is work well", () => {
+    it("Web Linke can be deleted", () => {
         cy.get("#editEvidenceButton").click()
         cy.get("#evidenceCancelButton").click()
         cy.get("#editEvidenceButton").click()
-        cy.get("#addOrEditEvidenceModal").find("#deleteWeblink").click()
+        cy.get("#addOrEditEvidenceModal").find("#deleteLinkedUser").click("center")
         cy.get("#addOrEditEvidenceModal").find('.linkedUser').should('not.exist');
 
     })
