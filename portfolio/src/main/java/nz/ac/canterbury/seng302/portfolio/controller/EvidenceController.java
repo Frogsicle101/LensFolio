@@ -31,8 +31,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -61,16 +59,20 @@ public class EvidenceController {
     /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
+    private final RegexService regexService;
+
 
     @Autowired
     public EvidenceController(UserAccountsClientService userAccountsClientService,
                            ProjectRepository projectRepository,
                            EvidenceRepository evidenceRepository,
-                           EvidenceService evidenceService) {
+                           EvidenceService evidenceService,
+                           RegexService regexService) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
         this.evidenceService = evidenceService;
+        this.regexService = regexService;
     }
 
 
@@ -289,18 +291,12 @@ public class EvidenceController {
 
     /**
      * Checks if the provided web address is valid, i.e. could lead to a website.
-     * The criteria are specified by java.net.URL, and is protocol dependent.
-     * This doesn't guarantee that the website actually exists; just that it could.
+     * The criteria are specified in the WeblinkRegex class.
      *
-     * Response codes:
-     * OK means the address is valid
-     * BAD_REQUEST means the URL is invalid
-     * INTERNAL_SERVER_ERROR means some other error occurred while validating the URL
-     *
-     * @param request - the full address to be validated
+     * @param request the full address and name to be validated
      * @return A response entity with the required response code. If it is valid, the status will be OK.
      * No response body will be returned in any instance.
-     * @see java.net.URL
+     * @see WeblinkRegex
      */
     @PostMapping("/validateWebLink")
     @ResponseBody
@@ -320,14 +316,15 @@ public class EvidenceController {
             if (request.getName().length() > WebLink.MAXNAMELENGTH) {
                 throw new CheckException("Link name should be no more than " + WebLink.MAXNAMELENGTH + " characters in length");
             }
-            new URL(address).toURI(); //The constructor does all the validation for us
+
+            regexService.checkInput(RegexPattern.WEBLINK, request.getUrl(), 1, 2000, "Weblink");
             //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (CheckException exception) {
             logger.warn("/validateWebLink - Invalid address: {}", address);
             logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
             return new ResponseEntity<>(exception.getMessage(),HttpStatus.BAD_REQUEST);
-        } catch (MalformedURLException | URISyntaxException exception) {
+        } catch (MalformedURLException exception) {
             logger.warn("/validateWebLink - Invalid address: {}", address);
             logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
             return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/",HttpStatus.BAD_REQUEST);
