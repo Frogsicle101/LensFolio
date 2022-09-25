@@ -3,7 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
-import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
+import nz.ac.canterbury.seng302.portfolio.service.*;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -12,7 +12,6 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
-import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
@@ -95,10 +94,12 @@ public class EvidenceController {
         LocalDate projectStartDate = project.getStartDate();
         LocalDate currentDate = LocalDate.now();
         LocalDate evidenceMaxDate = LocalDate.now();
+
         modelAndView.addObject("currentDate", currentDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("webLinkMaxUrlLength", WebLink.MAXURLLENGTH);
         modelAndView.addObject("webLinkMaxNameLength", WebLink.MAXNAMELENGTH);
+        modelAndView.addObject("webLinkRegex", RegexPattern.WEBLINK);
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;

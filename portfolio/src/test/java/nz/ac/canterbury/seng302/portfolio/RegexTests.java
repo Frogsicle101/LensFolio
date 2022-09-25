@@ -11,8 +11,10 @@ import java.util.regex.Pattern;
 public class RegexTests {
 
     private final Pattern weblinkPattern = WeblinkRegex.getWeblinkPattern();
+
     private final List<String> expectedPasses = new ArrayList<>();
     private final List<String> expectedFails = new ArrayList<>();
+
 
     private void assertPasses() {
         for (String test : expectedPasses) {
@@ -29,6 +31,7 @@ public class RegexTests {
             }
         }
     }
+
 
     @Test
     public void regexProtocolPasses() {
@@ -53,7 +56,6 @@ public class RegexTests {
         expectedPasses.add("www.canterbury.ac.nz");
         expectedPasses.add("csse.canterbury.ac.nz");
         expectedPasses.add("http://132.181.106.9");
-
 
         assertPasses();
     }
@@ -103,18 +105,18 @@ public class RegexTests {
 
     @Test
     public void regexProtocolFails() {
-        expectedFails.add(".");
+        expectedFails.add("."); //passed
         expectedFails.add("urn:oasis:names:specification:docbook:dtd:xml:4.1.2");
         expectedFails.add("tel:+1-816-555-1212");
         expectedFails.add("telnet://192.0.2.16:80/");
-        expectedFails.add("mailto:John.Doe@example.com");
+        expectedFails.add("mailto:John.Doe@example.com"); //FIXME  passed
         expectedFails.add("news:comp.infosystems.www.servers.unix");
         expectedFails.add("://example");
         expectedFails.add("htt://example");
         expectedFails.add("htp://example");
         expectedFails.add("http:/example");
         expectedFails.add("http:///example");
-        expectedFails.add("https:///example");
+        expectedFails.add("https:///example"); //FIXME passed
         expectedFails.add("hps://");
         expectedFails.add("https:/example");
 
@@ -123,22 +125,22 @@ public class RegexTests {
 
     @Test
     public void regexDomainFails() {
-        expectedFails.add(".example");
-        expectedFails.add("http://.example");
-        expectedFails.add("♨️.com");
+        expectedFails.add(".example"); //FIXME passed
+        expectedFails.add("http://.example"); //FIXME passed
+        expectedFails.add("♨️.com"); //FIXME passed
         expectedFails.add("i am a website.com");
-        expectedFails.add("'quote'.com");
-        expectedFails.add("$$$money$$$.com");
-        expectedFails.add("@.com");
-        expectedFails.add("!.com");
+        expectedFails.add("'quote'.com"); //FIXME passed
+        expectedFails.add("$$$money$$$.com"); //FIXME passed
+        expectedFails.add("@.com"); //FIXME passed
+        expectedFails.add("!.com"); //FIXME passed
 
         assertFails();
     }
 
     @Test
     public void regexPortFails() {
-        expectedFails.add("example:800000");
-        expectedFails.add("http://example:800000");
+        expectedFails.add("example:800000"); //FIXME passed
+        expectedFails.add("http://example:800000"); //FIXME passed
         expectedFails.add("example.com:port");
         expectedFails.add("example.com:@#$%^&");
 
@@ -148,7 +150,7 @@ public class RegexTests {
     @Test
     public void regexPathFail() {
         expectedFails.add("https://");
-        expectedFails.add("https://example?");
+        expectedFails.add("https://example?"); //FIXME passed
 
         assertFails();
     }
@@ -157,9 +159,9 @@ public class RegexTests {
     public void questionablePassCases() {
         List<String> questionablePasses = new ArrayList<>();
 
-        questionablePasses.add("https//:example");
+        questionablePasses.add("https//:example"); // does not pass on frontend
         questionablePasses.add("e/xample.com");
-        questionablePasses.add("http//example"); // http is considered part of the domain
+        questionablePasses.add("http//example"); // does not pass on frontend
 
         for (String test : questionablePasses) {
             if (! weblinkPattern.matcher(test).matches()) {
