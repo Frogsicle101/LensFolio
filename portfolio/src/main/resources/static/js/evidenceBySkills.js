@@ -230,15 +230,20 @@ $(document).on("click", "#editEvidenceButton" , () => {
     for (let i = 0; i < webLinksList.length; i++) {
         document.getElementById("addedWebLinks").innerHTML += webLinksList[i].outerHTML;
     }
-    let deleteButtons = document.getElementById("addOrEditEvidenceModal").querySelectorAll(".deleteWeblinkButton")
-    for (let i = 0; i < deleteButtons.length; i++) {
-        deleteButtons[i].style = "display;"
+    let deleteWebLinkButtons = document.getElementById("addOrEditEvidenceModal").querySelectorAll(".deleteWeblinkButton")
+    for (let i = 0; i < deleteWebLinkButtons.length; i++) {
+        deleteWebLinkButtons[i].style = "display;"
     }
 
     //users linked
     let uselinkedList = document.getElementById("evidenceDetailsLinkedUsers")
     document.getElementById("linkedUsersTitle").style = "display;"
+
     document.getElementById("linkedUsers").innerHTML = uselinkedList.innerHTML
+    let deleteUserLinkedButtons = document.getElementById("addOrEditEvidenceModal").querySelectorAll('#deleteLinkedUser')
+    for (let i = 0; i < deleteUserLinkedButtons.length; i++) {
+        deleteUserLinkedButtons[i].style = "display;"
+    }
 
     $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
@@ -272,5 +277,5 @@ function resetAddOrEditEvidencePage() {
         categories[i].className = "btn inlineText evidenceFormCategoryButton btn-secondary"
         categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
     }
-    document.getElementById("linkedUsers").innerHTML = "";
+    document.getElementById("linkedUsers").innerHTML="";
 }

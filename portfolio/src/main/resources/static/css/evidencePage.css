@@ -304,6 +304,7 @@
     border: none;
     color: black;
     background: #ffffff;
+    float:left;
 }
 
 #deleteLinkedUser:hover{
@@ -311,10 +312,13 @@
     width: 2rem;
     text-align: center;
     border: none;
-    background: black;
+    background: #175fbd;
     color: #ffffff;
+    float:left;
 }
 
 #linkedUser{
-
+    width:180px;
+    float:right;
+    test-align:left;
 }
