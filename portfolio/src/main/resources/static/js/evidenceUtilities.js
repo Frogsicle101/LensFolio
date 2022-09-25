@@ -317,6 +317,7 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.show()
     highlightedEvidenceDate.show()
     highlightedEvidenceDescription.show()
+    $("#evidenceDetailsLinkedUsersDiv").show()
     addCategoriesToEvidence(evidenceDetails.categories)
 
     if (userBeingViewedId === userIdent) {
@@ -449,7 +450,7 @@ function setDetailsToNoEvidenceExists() {
     $("#evidenceDetailsCategories").empty()
     $("#evidenceWebLinks").empty()
     $("#evidenceDetailsSkills").empty()
-
+    $("#evidenceDetailsLinkedUsersDiv").hide()
 }
 
 
