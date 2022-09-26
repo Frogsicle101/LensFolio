@@ -105,6 +105,16 @@ public class EvidenceDTO {
         this.associateIds = associateIds;
     }
 
+    public void addAssociatedId(Integer userId) {
+        if (! associateIds.contains(userId)) {
+            associateIds.add(userId);
+        }
+    }
+
+    public void removeAssociatedId(Integer userId) {
+            associateIds.remove(userId);
+    }
+
     public Integer getId() {
         return id;
     }

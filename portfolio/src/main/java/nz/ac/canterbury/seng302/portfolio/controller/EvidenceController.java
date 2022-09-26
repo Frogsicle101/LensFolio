@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
@@ -389,5 +390,18 @@ public class EvidenceController {
             associates.add(userDTO);
         }
         return associates;
+    }
+
+
+    /**
+     * Handles exceptions when a request body cannot be parsed to the required DTO.
+     *
+     * @param exception - The exception thrown by the endpoint
+     * @return a response entity with a generic message, and a bad request status
+     */
+    @ExceptionHandler(InvalidDefinitionException.class)
+    public ResponseEntity<Object> handleError(InvalidDefinitionException exception) {
+        logger.warn("Evidence endpoint InvalidDefinitionError resolved {}", exception.getMessage());
+        return new ResponseEntity<>("One or more fields are invalid", HttpStatus.BAD_REQUEST);
     }
 }
