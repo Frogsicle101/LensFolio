@@ -240,6 +240,8 @@ $(document).on("click", "#editEvidenceButton" , () => {
     document.getElementById("linkedUsersTitle").style = "display;"
 
     document.getElementById("linkedUsers").innerHTML = uselinkedList.innerHTML
+
+
     let deleteUserLinkedButtons = document.getElementById("addOrEditEvidenceModal").querySelectorAll('#deleteLinkedUser')
     for (let i = 0; i < deleteUserLinkedButtons.length; i++) {
         deleteUserLinkedButtons[i].style = "display;"

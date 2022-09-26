@@ -598,7 +598,7 @@ function extractLast(term) {
  * @returns [integer] the list of user id's to be attached
  */
 function getLinkedUsers() {
-    let linkedUsers = $("#linkedUsers").children()
+    let linkedUsers = document.getElementById("linkedUsers").querySelectorAll(".linkedUser")
     let userIds = [];
     $.each(linkedUsers, function (i) {
         try {
