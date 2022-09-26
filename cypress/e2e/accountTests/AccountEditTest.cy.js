@@ -59,9 +59,9 @@ describe('Editing user account info', () => {
         cy.get("#bio").should("have.css", "border-color", INVALID_BORDER_COLOUR);
         cy.get("#personalPronouns").should("have.css", "border-color", INVALID_BORDER_COLOUR);
 
-        cy.get("#firstNameError").should("be.visible").should('contain.text', "at least one (multi-lingual) letter. Can also include punctuation and whitespace.")
-        cy.get("#middleNameError").should("be.visible").should('contain.text', "at least one (multi-lingual) letter. Can also include punctuation and whitespace.")
-        cy.get("#lastNameError").should("be.visible").should('contain.text', "at least one (multi-lingual) letter. Can also include punctuation and whitespace.")
+        cy.get("#firstNameError").should("be.visible").should('contain.text', "at least one letter. Can also include punctuation and whitespace.")
+        cy.get("#middleNameError").should("be.visible").should('contain.text', "at least one letter. Can also include punctuation and whitespace.")
+        cy.get("#lastNameError").should("be.visible").should('contain.text', "at least one letter. Can also include punctuation and whitespace.")
         cy.get("#nickNameError").should("be.visible").should('contain.text', "can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace.")
         cy.get("#emailError").should("be.visible").should('contain.text', " must be of a valid email format, e.g. example@email.com.")
         cy.get("#bioError").should("be.visible").should('contain.text', "can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace.")
