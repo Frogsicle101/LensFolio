@@ -187,10 +187,10 @@ $(document).on("click", "#editEvidenceButton" , () => {
     resetAddOrEditEvidencePage()
     document.getElementById("addOrEditEvidenceTitle").innerHTML = "Edit Evidence";
     document.getElementById("evidenceSaveButton").innerHTML = "Save Changes";
+    $("#evidenceSaveButton").prop("disabled", false);
 
     // Reset addOrEditEvidenceModal with pre-filling evidence details
     let evidenceHighlight = document.querySelector(".evidenceDetailsContainer")
-    let currentEvidenceId = document.getElementById("evidenceDetailsId").innerHTML
 
     //name, date, description
     let currentEvidenceTitle =  document.getElementById("evidenceDetailsTitle").innerHTML
@@ -278,4 +278,5 @@ function resetAddOrEditEvidencePage() {
         categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
     }
     document.getElementById("linkedUsers").innerHTML="";
+    $("#evidenceSaveButton").prop("disabled", true);
 }
