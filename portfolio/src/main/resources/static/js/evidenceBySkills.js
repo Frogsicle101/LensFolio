@@ -238,8 +238,11 @@ $(document).on("click", "#editEvidenceButton" , () => {
     //users linked
     let uselinkedList = document.getElementById("evidenceDetailsLinkedUsers")
     document.getElementById("linkedUsersTitle").style = "display;"
-
     document.getElementById("linkedUsers").innerHTML = uselinkedList.innerHTML
+    console.log("#linkedUserId"+userIdent)
+    document.getElementById("linkedUserId"+userIdent).parentNode().outerHTML = "";
+
+
 
 
     let deleteUserLinkedButtons = document.getElementById("addOrEditEvidenceModal").querySelectorAll('#deleteLinkedUser')
