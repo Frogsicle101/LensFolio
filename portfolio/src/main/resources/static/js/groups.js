@@ -806,7 +806,7 @@ function populateGroupRepoInformation(container, repo) {
         <div id="groupSettingsRepoInformationSection">
             <div id="groupSettingsRepoHeader">
                 <h3 id="groupSettingsPageRepoName">${sanitise(repo.alias)}</h3>
-                <button type="button" class="editIcon noStyleButton marginSides1" data-bs-toggle="tooltip"
+                <button type="button" class="editRepo editIcon noStyleButton marginSides1" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Edit Repository Settings">
                     <svg class="bi bi-pencil" fill="currentColor" height="18" viewBox="0 0 16 16" width="18"
                          xmlns="http://www.w3.org/2000/svg">
