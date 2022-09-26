@@ -134,7 +134,7 @@
     background-color: #eaeaea;
 }
 
-#addEvidenceModal {
+#addOrEditEvidenceModal {
     display: none;
     position: fixed;
     z-index: 5;
