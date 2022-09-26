@@ -239,11 +239,7 @@ $(document).on("click", "#editEvidenceButton" , () => {
     let uselinkedList = document.getElementById("evidenceDetailsLinkedUsers")
     document.getElementById("linkedUsersTitle").style = "display;"
     document.getElementById("linkedUsers").innerHTML = uselinkedList.innerHTML
-    console.log("#linkedUserId"+userIdent)
-    document.getElementById("linkedUserId"+userIdent).parentNode().outerHTML = "";
-
-
-
+    document.getElementById("addOrEditEvidenceModal").querySelector("#linkedUserId"+userIdent).parentElement.outerHTML = "";
 
     let deleteUserLinkedButtons = document.getElementById("addOrEditEvidenceModal").querySelectorAll('#deleteLinkedUser')
     for (let i = 0; i < deleteUserLinkedButtons.length; i++) {

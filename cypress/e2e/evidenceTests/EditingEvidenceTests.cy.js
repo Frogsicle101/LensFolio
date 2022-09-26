@@ -19,7 +19,7 @@ describe('Edit evidence', () => {
         cy.get(".evidenceCategoryTickIcon").should('be.visible')
     })
 
-    it("Web Linke can be deleted", () => {
+    it("Web Link can be deleted", () => {
         cy.get("#editEvidenceButton").click()
         cy.get("#evidenceCancelButton").click()
         cy.get("#editEvidenceButton").click()
