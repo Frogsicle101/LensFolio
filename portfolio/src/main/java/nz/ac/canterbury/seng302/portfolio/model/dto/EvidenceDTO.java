@@ -6,6 +6,7 @@ import java.util.List;
  * Evidence Data Transfer Object, used for representing the data required to make a piece of evidence.
  */
 public class EvidenceDTO {
+    Integer id;
     String title;
     String date;
     String description;
@@ -30,6 +31,13 @@ public class EvidenceDTO {
         this.skills = skills;
         this.categories = categories;
         this.associateIds = associateIds;
+    }
+
+
+    public EvidenceDTO(Integer id, String title, String date, String description, List<WebLinkDTO> webLinks,
+                       List<String> skills, List<String> categories, Long projectId, List<Integer> associateIds) {
+        this(title, date, description, webLinks, skills, categories, projectId, associateIds);
+        this.id = id;
     }
 
 
@@ -95,5 +103,13 @@ public class EvidenceDTO {
 
     public void setAssociateIds(List<Integer> associateIds) {
         this.associateIds = associateIds;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

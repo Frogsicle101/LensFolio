@@ -96,13 +96,54 @@ public class EvidenceService {
                                 EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
         logger.info("CREATING EVIDENCE - Attempting to create evidence with title: {}", evidenceDTO.getTitle());
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+        checkValidEvidenceDTO(evidenceDTO);
+
+        List<Integer> associates = evidenceDTO.getAssociateIds();
+        if (associates == null) {
+            associates = new ArrayList<>();
+        }
+        associates = new ArrayList<>(new LinkedHashSet<>(associates));
+        associates.remove((Object) user.getId());
+        associates.add(user.getId());
+
+        return createEvidenceForAssociates(evidenceDTO, associates);
+    }
+
+
+    public Evidence editEvidence(Authentication principal,
+                                 EvidenceDTO evidenceDTO) throws MalformedURLException {
+        logger.info("EDITING EVIDENCE - Attempting to edit evidence with title: {}", evidenceDTO.getTitle());
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+        Optional<Evidence> optionalOriginalEvidence = evidenceRepository.findById(evidenceDTO.getId());
+        if (optionalOriginalEvidence.isEmpty()) {
+            String message = "No evidence found with id: " + evidenceDTO.getId();
+            logger.warn("Failed to edit evidence with message - {}", message);
+            throw new CheckException(message);
+        }
+        Evidence originalEvidence = optionalOriginalEvidence.get();
+        checkValidEvidenceDTO(evidenceDTO);
+        List<Integer> associates = evidenceDTO.getAssociateIds();
+        if (associates == null) {
+            associates = new ArrayList<>();
+        }
+        associates = new ArrayList<>(new LinkedHashSet<>(associates));
+        associates.add(user.getId());
+        // Create new evidence for new associated users.
+        List<Integer> unassociatedUsers = getUnassociatedUsers(originalEvidence, associates);
+        if (!unassociatedUsers.isEmpty()) {
+            createEvidenceForAssociates(evidenceDTO, unassociatedUsers);
+        }
+        return updateExistingEvidence(originalEvidence, evidenceDTO);
+    }
+
+
+
+    private void checkValidEvidenceDTO(EvidenceDTO evidenceDTO) {
         long projectId = evidenceDTO.getProjectId();
         String title = evidenceDTO.getTitle();
         String description = evidenceDTO.getDescription();
         List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
         String date = evidenceDTO.getDate();
-        List<String> categories = evidenceDTO.getCategories();
-        List<String> skills = evidenceDTO.getSkills();
 
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isEmpty()) {
@@ -116,27 +157,36 @@ public class EvidenceService {
 
         regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 5, 50, "Title");
         regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 5, 500, "Description");
+    }
 
-        List<Integer> associates = evidenceDTO.getAssociateIds();
-        if (associates == null) {
-            associates = new ArrayList<>();
-        }
-        /*
-        This will save a piece of evidence for each user, including the owner
-        However, because the owner's ID is added last, the last iteration
-        will be the evidence that belongs to the owner, which is what we return
-         */
-        associates = new ArrayList<>(new LinkedHashSet<>(associates));
-        associates.remove((Object) user.getId());
-        associates.add(user.getId());
+
+    public Evidence createEvidenceForAssociates(EvidenceDTO evidenceDTO, List<Integer> associates) throws MalformedURLException {
         Evidence ownerEvidence = null;
-        for (Integer associateID : associates) {
-            checkAssociateId(associateID);
-            ownerEvidence = addEvidenceForUser(associateID, title, description, localDate, categories, associates);
-            addWeblinks(ownerEvidence, webLinks);
-            addSkills(ownerEvidence, skills);
+        for (Integer ownersId : associates) {
+            checkAssociateId(ownersId);
+            ownerEvidence = addEvidenceForUser(ownersId, evidenceDTO, associates);
+            addWeblinks(ownerEvidence, evidenceDTO.getWebLinks());
+            addSkills(ownerEvidence, evidenceDTO.getSkills());
         }
         return ownerEvidence;
+    }
+
+
+    private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws MalformedURLException {
+        originalEvidence.setTitle(evidenceDTO.getTitle());
+        originalEvidence.setDescription(evidenceDTO.getDescription());
+        originalEvidence.setDate(LocalDate.parse(evidenceDTO.getDate()));
+        originalEvidence.clearCategories();
+        addCategoriesToEvidence(originalEvidence, evidenceDTO.getCategories());
+        originalEvidence.clearSkills();
+        addSkills(originalEvidence, evidenceDTO.getSkills());
+        originalEvidence.clearWeblinks();
+        addWeblinks(originalEvidence, evidenceDTO.getWebLinks());
+        originalEvidence.clearAssociatedIds();
+        for (Integer userId : evidenceDTO.getAssociateIds()) {
+            originalEvidence.addAssociateId(userId);
+        }
+        return evidenceRepository.save(originalEvidence);
     }
 
 
@@ -152,11 +202,21 @@ public class EvidenceService {
      *                     This should include the original creator of the evidence.
      * @return the evidence object after saving it in the evidence repository
      */
-    private Evidence addEvidenceForUser(int userId, String title, String description, LocalDate localDate,
-                                    List<String> categories, List<Integer> associateIds) {
+    private Evidence addEvidenceForUser(int userId, EvidenceDTO evidenceDTO, List<Integer> associateIds) {
         logger.info("CREATING EVIDENCE - attempting to create evidence for user: {}", userId);
-        Evidence evidence = new Evidence(userId, title, localDate, description);
+        Evidence evidence = new Evidence(userId, evidenceDTO.getTitle(), LocalDate.parse(evidenceDTO.getDate()), evidenceDTO.getDescription());
 
+        addCategoriesToEvidence(evidence, evidenceDTO.getCategories());
+        logger.info("Adding associate IDs: {}", associateIds);
+        for (Integer associate : associateIds) {
+            evidence.addAssociateId(associate);
+        }
+
+        return evidenceRepository.save(evidence);
+    }
+
+
+    private void addCategoriesToEvidence(Evidence evidence, List<String> categories) {
         for (String categoryString : categories) {
             switch (categoryString) {
                 case "SERVICE" -> evidence.addCategory(Category.SERVICE);
@@ -165,12 +225,6 @@ public class EvidenceService {
                 default -> logger.warn("Evidence service - evidence {} attempted to add category {}", evidence.getId(), categoryString);
             }
         }
-        logger.info("Adding associate IDs: {}", associateIds);
-        for (Integer associate : associateIds) {
-            evidence.addAssociateId(associate);
-        }
-
-        return evidenceRepository.save(evidence);
     }
 
 
@@ -244,6 +298,23 @@ public class EvidenceService {
             evidence.addWebLink(webLink);
             evidenceRepository.save(evidence);
         }
+    }
+
+
+    /**
+     * Takes a piece of evidence and updates the associated users for that evidence.
+     *
+     * If the piece of evidence has new associated users then the evidence is created
+     * for that user too.
+     */
+    public List<Integer> getUnassociatedUsers(Evidence originalEvidence, List<Integer> associatedUsers) {
+        List<Integer> usersToGiveEvidence = new ArrayList<>();
+        for (Integer userId : associatedUsers) {
+            if (! originalEvidence.getArchivedIds().contains(userId)) {
+                usersToGiveEvidence.add(userId);
+            }
+        }
+        return usersToGiveEvidence;
     }
 
 
