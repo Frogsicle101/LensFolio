@@ -18,9 +18,14 @@ public enum RegexPattern {
     GENERAL_UNICODE_NO_SPACES(Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\p{Sc}\\p{Sk}\\p{Sm}]*", Pattern.CASE_INSENSITIVE),
             " can only contain letters, numbers, punctuation and symbols (but not emojis)."),
 
-    /** Regex that is all unicode letters, punctuation, modifier symbols and whitespace */
-    NAME(Pattern.compile("[\\p{L}\\p{P}\\s]*[\\p{L}]+[\\p{L}\\p{P}\\s]*", Pattern.CASE_INSENSITIVE),
+    /** Regex that is all unicode letters, punctuation, modifier symbols and whitespace.
+     * Must include at least one letter. */
+    FIRST_LAST_NAME(Pattern.compile("[\\p{L}\\p{P}\\s]*[\\p{L}]+[\\p{L}\\p{P}\\s]*", Pattern.CASE_INSENSITIVE),
             " must include at least one (multi-lingual) letter. Can also include punctuation and whitespace."),
+
+   /** Regex that is all unicode letters, punctuation, modifier symbols and whitespace */
+    MIDDLE_NAME(Pattern.compile("([\\p{L}\\p{P}\\s]*[\\p{L}]+[\\p{L}\\p{P}\\s]*)?", Pattern.CASE_INSENSITIVE),
+            " can only contain unicode letters, punctuation and whitespace"),
 
     /** Restricts to valid email format, e.g., example@email.com */
     EMAIL(Pattern.compile("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$"),

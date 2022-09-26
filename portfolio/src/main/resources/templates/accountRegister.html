@@ -49,28 +49,28 @@
         <div class="row mb-3">
             <div class="col">
                 <label class="required form-label" for="firstname">First name(s)</label>
-                <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                <!--/*@thymesVar id="firstLastNameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
                 <input class="form-control canDisable" id="firstname" maxlength="100" name="firstname"
                        required
-                       th:pattern="${nameRegex.getPatternString()}"
-                       th:title="${'First name' + nameRegex.getRequirements()}"
+                       th:pattern="${firstLastNameRegex.getPatternString()}"
+                       th:title="${'First name' + firstLastNameRegex.getRequirements()}"
                        type="text">
             </div>
             <div class="col">
                 <label class="form-label" for="middlename">Middle name(s)</label>
-                <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                <!--/*@thymesVar id="middleNameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
                 <input class="form-control canDisable" id="middlename" maxlength="100" name="middlename"
-                       th:pattern="${nameRegex.getPatternString()}"
-                       th:title="${'Middle name' + nameRegex.getRequirements()}"
+                       th:pattern="${middleNameRegex.getPatternString()}"
+                       th:title="${'Middle name' + middleNameRegex.getRequirements()}"
                        type="text">
             </div>
             <div class="col">
                 <label class="required form-label" for="lastname">Last name(s)</label>
-                <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                <!--/*@thymesVar id="firstLastNameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
                 <input class="form-control canDisable" id="lastname" maxlength="100" name="lastname"
                        required
-                       th:pattern="${nameRegex.getPatternString()}"
-                       th:title="${'Last name' + nameRegex.getRequirements()}"
+                       th:pattern="${firstLastNameRegex.getPatternString()}"
+                       th:title="${'Last name' + firstLastNameRegex.getRequirements()}"
                        type="text">
             </div>
         </div>
