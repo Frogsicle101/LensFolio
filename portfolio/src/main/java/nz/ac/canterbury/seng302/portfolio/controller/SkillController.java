@@ -146,11 +146,12 @@ public class SkillController {
             Skill skill = optionalSkill.get();
             int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
             List<Skill> usersSkills = skillRepository.findDistinctByEvidenceUserId(userId);
-            if (usersSkills.stream().anyMatch(o -> skillId.equals(o.getId()))) {
+            if (usersSkills.stream().noneMatch(o -> skillId.equals(o.getId()))) {
                 logger.warn(methodLoggingTemplate, "User attempted to edit another users skill.");
                 return new ResponseEntity<>("You can only edit your own skills", HttpStatus.UNAUTHORIZED);
             }
             skill.setName(skillName);
+            skillRepository.save(skill);
             String message = "Successfully edited skill " + skillId;
             logger.info(methodLoggingTemplate, message);
             return new ResponseEntity<>(skill.getEvidence(), HttpStatus.OK);
