@@ -193,9 +193,9 @@ $(document).on("click", "#editEvidenceButton" , () => {
     let evidenceHighlight = document.querySelector(".evidenceDetailsContainer")
 
     //name, date, description
-    let currentEvidenceTitle =  document.getElementById("evidenceDetailsTitle").innerHTML
+    let currentEvidenceTitle =  reversTranslationHTML(document.getElementById("evidenceDetailsTitle").innerHTML)
     let currentEvidenceDate =  document.getElementById("evidenceDetailsDate").innerHTML
-    let currentEvidenceDescription =  document.getElementById("evidenceDetailsDescription").innerHTML
+    let currentEvidenceDescription =  reversTranslationHTML(document.getElementById("evidenceDetailsDescription").innerHTML)
     document.getElementById("evidenceName").value = currentEvidenceTitle;
     document.getElementById("evidenceDate").value = currentEvidenceDate;
     document.getElementById("evidenceDescription").value = currentEvidenceDescription;
@@ -203,7 +203,7 @@ $(document).on("click", "#editEvidenceButton" , () => {
     //skills
     let currentSkillsList = evidenceHighlight.querySelectorAll(".skillChip")
     for (let i = 0; i < currentSkillsList.length; i++) {
-        let skillName = currentSkillsList[i].querySelector(".chipText").innerHTML
+        let skillName = reversTranslationHTML(currentSkillsList[i].querySelector(".chipText").innerHTML)
         let skillChip = `
                 <div class="chip skillChip">
                     <p class="chipText">${sanitise(skillName)}</p>  
@@ -279,4 +279,13 @@ function resetAddOrEditEvidencePage() {
     }
     document.getElementById("linkedUsers").innerHTML="";
     $("#evidenceSaveButton").prop("disabled", true);
+}
+
+
+/**
+ *  Revers translation string to html.
+ */
+function reversTranslationHTML(strHTML) {
+    let doc = new DOMParser().parseFromString(strHTML, 'text/html')
+    return doc.documentElement.textContent
 }
