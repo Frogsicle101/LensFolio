@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.PortfolioApplication;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.demodata.DataInitialisationManagerPortfolio;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
@@ -33,6 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -50,6 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = PortfolioApplication.class)
 @WebMvcTest(controllers = EvidenceController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class EvidenceControllerTest {
