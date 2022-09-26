@@ -97,7 +97,10 @@ function setHighlightedEvidenceWebLinks(response) {
     for (let index in response) {
         let webLink = response[index]
         webLinksDiv.append(detailsWeblinkElement(webLink.url, webLink.alias))
-        $('#deleteWeblink').hide()
+    }
+    let deleteButtons = document.querySelectorAll('#deleteWeblink')
+    for (let i = 0; i < deleteButtons.length; i++) {
+        deleteButtons[i].style = "display: none;"
     }
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
@@ -431,6 +434,10 @@ function addLinkedUsersToEvidence(users) {
     $.each(users, function (i, user) {
         linkedUsersDiv.append(linkedUserElement(user));
     })
+    let deleteButtons = document.querySelectorAll('#deleteLinkedUser')
+    for (let i = 0; i < deleteButtons.length; i++) {
+        deleteButtons[i].style = "display: none;"
+    }
 }
 
 
@@ -679,7 +686,7 @@ function extractLast(term) {
  * @returns [integer] the list of user id's to be attached
  */
 function getLinkedUsers() {
-    let linkedUsers = $("#linkedUsers").children()
+    let linkedUsers = document.getElementById("linkedUsers").querySelectorAll(".linkedUser")
     let userIds = [];
     $.each(linkedUsers, function (i) {
         try {
@@ -750,26 +757,33 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "categories": categories,
             "associateIds": linkedUsers
         })
-        $.ajax({
-            url: 'evidence',
-            type: "POST",
-            contentType: "application/json",
-            data,
-            success: function (response) {
-                selectedEvidenceId = response.id
-                getAndAddEvidencePreviews()
-                addSkillResponseToArray(response)
-                addSkillsToSideBar();
-                closeModal()
-                clearAddEvidenceModalValues()
-                $(".alert").remove()
-                createAlert("Created evidence", AlertTypes.Success)
-                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                resetWeblink()
-            }, error: function (error) {
-                createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
-            }
-        })
+
+        let buttonName = document.getElementById("evidenceSaveButton").innerHTML
+
+        if (buttonName === "Create") { // create a new evidence
+            $.ajax({
+                url: 'evidence',
+                type: "POST",
+                contentType: "application/json",
+                data,
+                success: function (response) {
+                    selectedEvidenceId = response.id
+                    getAndAddEvidencePreviews()
+                    addSkillResponseToArray(response)
+                    addSkillsToSideBar();
+                    closeModal()
+                    clearAddEvidenceModalValues()
+                    $(".alert").remove()
+                    createAlert("Created evidence", AlertTypes.Success)
+                    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+                    resetWeblink()
+                }, error: function (error) {
+                    createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
+                }
+            })
+        } else { // edit a exist evidence
+            // ToDo: Connect Save Button to Endpoint
+        }
     }
 })
 
@@ -807,6 +821,15 @@ $(document).on('click', '#deleteWeblink', function (e) {
 
 
 /**
+ * Listens for when delete web link button is clicked.
+ * the web link will be deleted.
+ */
+$(document).on('click', '#deleteLinkedUser', function (e) {
+    $(this).parent().remove();
+})
+
+
+/**
  * Closes the add weblink form and resets weblink form buttons when the weblink add is cancelled.
  */
 $(document).on('click', '#cancelWeblinkButton', () => {
@@ -817,7 +840,7 @@ $(document).on('click', '#cancelWeblinkButton', () => {
 /**
  * Prevents the add evidence modal from being closed if an alert is present.
  */
-$('#addEvidenceModal').on('hide.bs.modal', function (e) {
+$('#addOrEditEvidenceModal').on('hide.bs.modal', function (e) {
     let alert = $("#alertPopUp")
     if (alert.is(":visible") && alert.hasClass("backgroundRed")) {
         alert.effect("shake")
@@ -999,7 +1022,16 @@ function addLinkedUser(user) {
  * Creates the element for displaying the linked user
  */
 function linkedUserElement(user) {
-    return `<div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">${user.firstName} ${user.lastName} (${user.username})</div>`
+    return `<div id="linkedUserElement">
+                <button id="deleteLinkedUser">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                    </button>
+                <div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">
+                     ${user.firstName} ${user.lastName} (${user.username})</div>
+           </div> `
 }
 
 
