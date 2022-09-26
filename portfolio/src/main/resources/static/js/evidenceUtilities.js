@@ -34,6 +34,10 @@ let categoriesMapping = new Map([
     ["SERVICE", "Service"]
 ])
 
+/** Protocols urls can begin with **/
+const VALID_PROTOCOLS = ["https://", "http://", "ftp://"]
+
+
 $(() => {
         // Counting characters
         let textInput = $(".text-input");
@@ -92,7 +96,7 @@ function setHighlightedEvidenceWebLinks(response) {
 
     for (let index in response) {
         let webLink = response[index]
-        webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
+        webLinksDiv.append(detailsWeblinkElement(webLink.url, webLink.alias))
         $('#deleteWeblink').hide()
     }
     if (webLinksDiv.children().length < 1) {
@@ -105,61 +109,145 @@ function setHighlightedEvidenceWebLinks(response) {
 
 
 /**
- * Given a web url and an alias, creates and returns a web link element.
+ * Given a web url and an alias, creates and returns a web link element with a delete icon.
  * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
  *
  * If the url doesn't start with https, it will show an un-filled, unlocked icon.
  * If it does, it will show a locked, filled icon.
  *
  * @param url The web url of the web link
- * @param alias The alias/nickname of the web url. Everything before the first // occurrence will be cut off
- * (e.g. https://www.goggle.com becomes www.google.com)
+ * @param alias The alias/nickname of the web url.
  * @returns {string} A single-div webLink element, wrapped in ` - e.g. `<div>stuff!</div>`
  */
-function webLinkElement(url, alias) {
-    let icon;
-    let security = "unsecured"
+function deletableWeblinkElement(url, alias) {
+    const icon = getWeblinkIcon(url)
+    const formattedWeblink = getFormattedUrl(url)
+    const security = getWeblinkSecurity(url)
+
+    return (`
+        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
+            <button id="deleteWeblink" class="deleteWeblinkButton">
+                <svg class="bi bi-trash" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                    fill-rule="evenodd"/>
+                </svg>
+            </button>
+            ${icon}
+            <a href="${sanitise(url)}" 
+               class="addedWebLink" 
+               data-bs-toggle="tooltip" 
+               data-bs-placement="top"
+               data-bs-title="${formattedWeblink}" 
+               data-bs-custom-class="webLinkTooltip" 
+               target="_blank">${sanitise(alias)}</a>
+        </div>
+    `)
+}
+
+
+/**
+ * Given a web url and an alias, creates and returns a web link element with no delete icon.
+ * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
+ *
+ * If the url doesn't start with https, it will show an un-filled, unlocked icon.
+ * If it does, it will show a locked, filled icon.
+ *
+ * @param url The url of the weblink
+ * @param alias The name associated with the weblink
+ * @returns {string} HTML representing the weblink element's div.
+ */
+function detailsWeblinkElement(url, alias) {
+    const icon = getWeblinkIcon(url)
+    const security = getWeblinkSecurity(url)
+    const formattedUrl = getFormattedUrl(url)
+
+    return (
+        `<div class="webLinkElement ${security}" data-value="${sanitise(url)}">
+            ${icon}
+            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="${formattedUrl}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
+        </div>`
+    )
+}
+
+
+/**
+ * Gets the icon indicating weblink security based on the link protocol.
+ *
+ * @param url The url the icon is associated with
+ * @returns {string} The HTML for the svg lock icon
+ */
+function getWeblinkIcon(url) {
+    let icon
 
     if (url.startsWith("https://")) {
-        security = "secured"
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill lockIcon text-success" viewBox="0 0 16 16">
-        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
         </svg>
         `
     } else {
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock lockIcon text-danger" viewBox="0 0 16 16">
-        <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"/>
+            <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"/>
         </svg>
         `
     }
 
-    let slashIndex = url.search("//") + 2
-    let urlSlashed
-    if (slashIndex > 1) {
-        urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    return icon
+}
+
+
+/**
+ * Gets the security value indicating weblink security based on the link protocol.
+ *
+ * @param url The url the icon is associated with
+ * @returns {string} The security status of the weblink. Either "secure" or "unsecure".
+ */
+function getWeblinkSecurity(url) {
+    let security
+
+    if (url.startsWith("https://")) {
+        security = "secure"
     } else {
-        urlSlashed = url // The url does not have a protocol attached to it
-        url = "http://" + url
+        security = "unsecure"
     }
 
-    return (`
-        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
-        
-            <button id="deleteWeblink" class="deleteWeblinkButton">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-            </svg>
-            </button>
-            
-            ${icon}
-            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
-            
-        </div>
-    `)
+    return security
+}
+
+
+/**
+ * Removes the protocol from the weblink, if it has one.
+ * Protocols are defined globally, but the VALID_PROTOCOLS list.
+ *
+ * @param url The url to be formatted.
+ * @returns The url, formatted to not include any protocol.
+ */
+function getFormattedUrl(url) {
+    let hasProtocol = false
+    let formattedUrl
+
+    $.each(VALID_PROTOCOLS, (i, protocol) => {
+        if (url.startsWith(protocol)) {
+            hasProtocol = true
+            return false
+        }
+    })
+
+    if (hasProtocol) {
+        let slashIndex = url.search("//") + 2
+        if (slashIndex > 1) {
+            formattedUrl = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+        } else {
+            formattedUrl = url // The url does not have a protocol attached to it
+            url = "http://" + url
+        }
+    }
+
+    return formattedUrl
 }
 
 
@@ -883,7 +971,7 @@ function submitWebLink() {
 
     if (alias.val().length > 0) {
         webLinkTitle.show()
-        addedWebLinks.append(webLinkElement(url.val(), alias.val()))
+        addedWebLinks.append(deletableWeblinkElement(url.val(), alias.val()))
         initialiseTooltips()
         url.val("")
         alias.val("")
