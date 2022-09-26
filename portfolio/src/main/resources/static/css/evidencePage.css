@@ -285,13 +285,13 @@
     color: #ffffff;
 }
 
-.evidenceEditButton{
+#editEvidenceButton{
     border: none;
     background: none;
     color: black;
 }
 
-.evidenceEditButton:hover{
+#editEvidenceButton:hover{
     border: none;
     background: none;
     color: red;

@@ -1,10 +1,9 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
-import com.google.protobuf.Timestamp;
-import nz.ac.canterbury.seng302.identityprovider.model.User;
-import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.model.Group;
 import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,8 +31,8 @@ class GroupServiceTest {
 
     @Test
     void testAddUser() throws Exception {
-        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
+        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         List<User> userList = new ArrayList<>();
         userList.add(user);
         userList.add(user2);
@@ -56,8 +55,8 @@ class GroupServiceTest {
 
     @Test
     void testAddAlreadyPresentUser() throws Exception {
-        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
+        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         List<User> userList = new ArrayList<>();
         userList.add(user);
         userList.add(user2);
@@ -80,8 +79,8 @@ class GroupServiceTest {
 
     @Test
     void testDeleteUser() throws Exception {
-        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
+        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         List<User> userList = new ArrayList<>();
         userList.add(user);
         userList.add(user2);
@@ -106,7 +105,7 @@ class GroupServiceTest {
 
     @Test
     void testRemoveUserFromLastGroup() throws Exception {
-        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         List<User> userList = new ArrayList<>();
         userList.add(user);
         ArrayList<Integer> userIds = new ArrayList<>();
@@ -127,7 +126,7 @@ class GroupServiceTest {
 
     @Test
     void testAddUserToNewGroupRemovedFromMwag() throws Exception {
-        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         List<User> userList = new ArrayList<>();
         userList.add(user);
         ArrayList<Integer> userIds = new ArrayList<>();
@@ -150,7 +149,7 @@ class GroupServiceTest {
 
     @Test
     void testUserAddedToMwagRemovedFromOtherGroups() throws Exception {
-        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         List<User> userList = new ArrayList<>();
         userList.add(user);
         ArrayList<Integer> userIds = new ArrayList<>();

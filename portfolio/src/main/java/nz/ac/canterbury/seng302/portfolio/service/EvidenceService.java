@@ -114,8 +114,8 @@ public class EvidenceService {
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
 
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 2, 50, "Title");
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 2, 500, "Description");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 5, 50, "Title");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 5, 500, "Description");
 
         List<Integer> associates = evidenceDTO.getAssociateIds();
         if (associates == null) {
