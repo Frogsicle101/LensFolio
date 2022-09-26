@@ -314,7 +314,7 @@ public class EvidenceController {
             if (request.getName().length() > WebLink.MAXNAMELENGTH) {
                 throw new CheckException("Link name should be no more than " + WebLink.MAXNAMELENGTH + " characters in length");
             }
-            regexService.checkInput(RegexPattern.WEBLINK, request.getUrl(), 1, 2000, "Weblink");
+            regexService.checkInput(RegexPattern.WEBLINK, request.getUrl(), 1, WebLink.MAXURLLENGTH, "Weblink");
 
             return new ResponseEntity<>(HttpStatus.OK);
 
