@@ -93,10 +93,7 @@ function setHighlightedEvidenceWebLinks(response) {
     for (let index in response) {
         let webLink = response[index]
         webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
-        let deleteButtons = document.querySelectorAll('#deleteWeblink')
-        for (let i = 0; i < deleteButtons.length; i++) {
-            deleteButtons[i].style = "display: none;"
-        }
+        $('#deleteWeblink').hide()
     }
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
@@ -665,33 +662,26 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "categories": categories,
             "associateIds": linkedUsers
         })
-
-        let buttonName = document.getElementById("evidenceSaveButton").innerHTML
-
-        if (buttonName === "Create") { // create a new evidence
-            $.ajax({
-                url: 'evidence',
-                type: "POST",
-                contentType: "application/json",
-                data,
-                success: function (response) {
-                    selectedEvidenceId = response.id
-                    getAndAddEvidencePreviews()
-                    addSkillResponseToArray(response)
-                    addSkillsToSideBar();
-                    closeModal()
-                    clearAddEvidenceModalValues()
-                    $(".alert").remove()
-                    createAlert("Created evidence", AlertTypes.Success)
-                    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                    resetWeblink()
-                }, error: function (error) {
-                    createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
-                }
-            })
-        } else { // edit a exist evidence
-            // ToDo: Connect Save Button to Endpoint
-        }
+        $.ajax({
+            url: 'evidence',
+            type: "POST",
+            contentType: "application/json",
+            data,
+            success: function (response) {
+                selectedEvidenceId = response.id
+                getAndAddEvidencePreviews()
+                addSkillResponseToArray(response)
+                addSkillsToSideBar();
+                closeModal()
+                clearAddEvidenceModalValues()
+                $(".alert").remove()
+                createAlert("Created evidence", AlertTypes.Success)
+                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+                resetWeblink()
+            }, error: function (error) {
+                createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
+            }
+        })
     }
 })
 
@@ -739,7 +729,7 @@ $(document).on('click', '#cancelWeblinkButton', () => {
 /**
  * Prevents the add evidence modal from being closed if an alert is present.
  */
-$('#addOrEditEvidenceModal').on('hide.bs.modal', function (e) {
+$('#addEvidenceModal').on('hide.bs.modal', function (e) {
     let alert = $("#alertPopUp")
     if (alert.is(":visible") && alert.hasClass("backgroundRed")) {
         alert.effect("shake")

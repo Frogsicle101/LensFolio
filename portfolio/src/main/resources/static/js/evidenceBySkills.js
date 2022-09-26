@@ -134,13 +134,7 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
  *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling
  */
 $(document).on("click", "#createEvidenceButton" , () => {
-
-    // Reset addOrEditEvidenceModal without pre-filling evidence details
-    resetAddOrEditEvidencePage()
-    document.getElementById("addOrEditEvidenceTitle").innerHTML = "Add Evidence";
-    document.getElementById("evidenceSaveButton").innerHTML = "Create";
-
-    $("#addOrEditEvidenceModal").show()
+    $("#addEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 })
@@ -159,7 +153,7 @@ $(document).on("click", "#evidenceCancelButton", function () {
  *  calls the function to close the modal.
  */
 window.onmousedown = function(event) {
-    let modalDisplay = $("#addOrEditEvidenceModal").css("display")
+    let modalDisplay = $("#addEvidenceModal").css("display")
     if (modalDisplay === "block" && !event.target.closest(".modalContent") && !event.target.closest(".alert")) {
         closeModal()
     }
@@ -170,117 +164,6 @@ window.onmousedown = function(event) {
  *  Closes the modal and allows the page below to scroll again
  */
 function closeModal() {
-    $(".modalContent").hide("drop", {direction: "up"}, 200, () => {$("#addOrEditEvidenceModal").hide()})
+    $(".modalContent").hide("drop", {direction: "up"}, 200, () => {$("#addEvidenceModal").hide()})
     $('body,html').css('overflow','auto');
-}
-
-
-// -------------------------------------- Evidence Editing -----------------------------------
-
-
-/**
- *  A Listener for the edit evidence button. This displays the modal and prevents the page below from scrolling
- */
-$(document).on("click", "#editEvidenceButton" , () => {
-
-    //clean up the edit evidence page
-    resetAddOrEditEvidencePage()
-    document.getElementById("addOrEditEvidenceTitle").innerHTML = "Edit Evidence";
-    document.getElementById("evidenceSaveButton").innerHTML = "Save Changes";
-
-    // Reset addOrEditEvidenceModal with pre-filling evidence details
-    let evidenceHighlight = document.querySelector(".evidenceDetailsContainer")
-    let currentEvidenceId = document.getElementById("evidenceDetailsId").innerHTML
-
-    //name, date, description
-    let currentEvidenceTitle =  reversTranslationHTML(document.getElementById("evidenceDetailsTitle").innerHTML)
-    let currentEvidenceDate =  document.getElementById("evidenceDetailsDate").innerHTML
-    let currentEvidenceDescription =  reversTranslationHTML(document.getElementById("evidenceDetailsDescription").innerHTML)
-
-    document.getElementById("evidenceName").value = currentEvidenceTitle;
-    document.getElementById("evidenceDate").value = currentEvidenceDate;
-    document.getElementById("evidenceDescription").value = currentEvidenceDescription;
-
-    //skills
-    let currentSkillsList = evidenceHighlight.querySelectorAll(".skillChip")
-    for (let i = 0; i < currentSkillsList.length; i++) {
-        let skillName = reversTranslationHTML(currentSkillsList[i].querySelector(".chipText").innerHTML)
-        let skillChip = `
-                <div class="chip skillChip">
-                    <p class="chipText">${sanitise(skillName)}</p>  
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                    </svg>
-                </div>`
-        document.getElementById("tagInputChips").innerHTML += skillChip;
-    }
-
-    //categories
-    let currentCategoriesList = evidenceHighlight.querySelectorAll(".categoryChip")
-    for (let i = 0; i < currentCategoriesList.length; i++) {
-        let categoryName = currentCategoriesList[i].querySelector(".chipText").innerHTML
-        let categoryButton =  document.getElementById("button"+categoryName)
-        categoryButton.className = "btn inlineText evidenceFormCategoryButton btn-success"
-        categoryButton.querySelector(".evidenceCategoryTickIcon").style = "display: inline-block;"
-    }
-
-    //webLinks
-    let webLinksList = evidenceHighlight.querySelectorAll(".webLinkElement")
-    document.getElementById("webLinkTitle").style = "display;"
-    for (let i = 0; i < webLinksList.length; i++) {
-        document.getElementById("addedWebLinks").innerHTML += webLinksList[i].outerHTML;
-    }
-    let deleteButtons = document.getElementById("addOrEditEvidenceModal").querySelectorAll(".deleteWeblinkButton")
-    for (let i = 0; i < deleteButtons.length; i++) {
-        deleteButtons[i].style = "display;"
-    }
-
-    //users linked
-    let uselinkedList = document.getElementById("evidenceDetailsLinkedUsers")
-    document.getElementById("linkedUsersTitle").style = "display;"
-    document.getElementById("linkedUsers").innerHTML = uselinkedList.innerHTML
-
-    $("#addOrEditEvidenceModal").show()
-    $(".modalContent").show("drop", {direction: "up"}, 200)
-    $('body,html').css('overflow','hidden');
-})
-
-
-/**
- *  Get today date as format of yyyy-mm-dd
- */
-function getTodayDate() {
-    let today = new Date()
-    let year = today.getFullYear()
-    let month = String(today.getMonth() + 1).padStart(2,'0')
-    let day = String(today.getDate()).padStart(2, '0')
-    return year + '-' + month + '-' +day
-}
-
-
-/**
- *  Clean up the evidence adding and editing page.
- */
-function resetAddOrEditEvidencePage() {
-    document.getElementById("evidenceName").value = "";
-    document.getElementById("evidenceDate").value = getTodayDate();
-    document.getElementById("evidenceDescription").value = "";
-    document.getElementById("tagInputChips").innerHTML ="";     // clean up skills
-    document.getElementById("addedWebLinks").innerHTML ="";
-    let categories = document.querySelectorAll(".evidenceFormCategoryButton")
-    for (let i = 0; i < categories.length; i++) {
-        categories[i].className = "btn inlineText evidenceFormCategoryButton btn-secondary"
-        categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
-    }
-    document.getElementById("linkedUsers").innerHTML = "";
-}
-
-
-/**
- *  Revers translation string to html.
- */
-function reversTranslationHTML(strHTML) {
-    let doc = new DOMParser().parseFromString(strHTML, 'text/html')
-    return doc.documentElement.textContent
 }
