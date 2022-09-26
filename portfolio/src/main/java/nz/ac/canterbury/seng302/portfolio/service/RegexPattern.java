@@ -25,7 +25,7 @@ public enum RegexPattern {
 
    /** Regex that is all unicode letters, punctuation, modifier symbols and whitespace */
     MIDDLE_NAME(Pattern.compile("([\\p{L}\\p{P}\\s]*[\\p{L}]+[\\p{L}\\p{P}\\s]*)?", Pattern.CASE_INSENSITIVE),
-            " can only contain unicode letters, punctuation and whitespace"),
+           " must be empty or contain at least one (multi-lingual) letter. Can also include punctuation and whitespace."),
 
     /** Restricts to valid email format, e.g., example@email.com */
     EMAIL(Pattern.compile("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$"),
