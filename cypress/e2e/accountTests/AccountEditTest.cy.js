@@ -65,4 +65,30 @@ describe('Editing user account info', () => {
         cy.get("#bioError").should("be.visible")
         cy.get("#pronounsError").should("be.visible")
     })
+
+
+    it("names must have one alphanumeric character", () => {
+        cy.get(".editUserButton").click()
+        cy.get("#firstname").invoke('val', "!@#&*()_-[{]}\\'\";:,./?")
+        cy.get("#middlename").invoke('val', "!@#&*()_-[{]}\\'\";:,./")
+        cy.get("#lastname").invoke('val', "!@#&*()_-[{]}\\'\";:,./")
+
+        cy.get("#firstname").should("have.css", "border-color", 'rgb(220, 53, 69)');
+        cy.get("#middlename").should("have.css", "border-color", 'rgb(220, 53, 69)');
+        cy.get("#lastname").should("have.css", "border-color", 'rgb(220, 53, 69)');
+        cy.get("#firstNameError").should("be.visible")
+        cy.get("#middleNameError").should("be.visible")
+        cy.get("#lastNameError").should("be.visible")
+
+        cy.get("#firstname").type('A', {force: true})
+        cy.get("#middlename").type('A', {force: true})
+        cy.get("#lastname").type('A', {force: true})
+
+        cy.get("#firstname").should("not.have.css", "border-color", 'rgb(220, 53, 69)');
+        cy.get("#middlename").should("not.have.css", "border-color", 'rgb(220, 53, 69)');
+        cy.get("#lastname").should("not.have.css", "border-color", 'rgb(220, 53, 69)');
+        cy.get("#firstNameError").should("not.be.visible")
+        cy.get("#middleNameError").should("not.be.visible")
+        cy.get("#lastNameError").should("not.be.visible")
+    })
 })

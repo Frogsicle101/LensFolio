@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
-import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
 import nz.ac.canterbury.seng302.identityprovider.model.Group;
 import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
@@ -56,8 +55,8 @@ class UserAccountsServerServiceTest {
                 "test",
                 "test",
                 "test/test",
-                "test@example.com",
-                TimeService.getTimeStamp());
+                "test@example.com"
+        );
         initialUser = Mockito.spy(initialUser);
 
         Group teacherGroup = new Group(1, "Teachers", "Teaching staff group");
@@ -554,8 +553,8 @@ class UserAccountsServerServiceTest {
                 "steve",
                 "steve",
                 "steve/steve",
-                "steve@example.com",
-                TimeService.getTimeStamp());
+                "steve@example.com"
+        );
 
         //clear and repopulate repositories
         newUser.addRole(UserRole.TEACHER);
@@ -982,12 +981,12 @@ class UserAccountsServerServiceTest {
 
     @Test
     void getPaginatedFilteredUsers() throws PasswordEncryptionException {
-        User user1 = new User("John", "password", "John", "", "Wayne", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user2 = new User("Johnny", "password", "John", "", "Smith", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user3 = new User("Amy", "password", "Amy", "", "Johnson", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user4 = new User("Steve", "password", "Steve", "", "Stevenson", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user5 = new User("Tom", "password", "Tom", "", "Biggs", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user6 = new User("Connor", "password", "Connor", "", "Donaldson", "", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user1 = new User("John", "password", "John", "", "Wayne", "", "", "", "Steve@steve.com");
+        User user2 = new User("Johnny", "password", "John", "", "Smith", "", "", "", "Steve@steve.com");
+        User user3 = new User("Amy", "password", "Amy", "", "Johnson", "", "", "", "Steve@steve.com");
+        User user4 = new User("Steve", "password", "Steve", "", "Stevenson", "", "", "", "Steve@steve.com");
+        User user5 = new User("Tom", "password", "Tom", "", "Biggs", "", "", "", "Steve@steve.com");
+        User user6 = new User("Connor", "password", "Connor", "", "Donaldson", "", "", "", "Steve@steve.com");
         List<User> userList = new ArrayList<>();
         userList.add(user1);
         userList.add(user2);
@@ -1074,12 +1073,12 @@ class UserAccountsServerServiceTest {
      */
     private void createUsers() throws PasswordEncryptionException {
         List<User> userList = new ArrayList<>();
-        User user1 = new User("SteveA", "password", "Stevea", "Stevensonb", "McSteveF", "KingSteved", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user2 = new User("SteveB", "password", "SteveB", "StevensonA", "McSteveE", "KingStevee", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user3 = new User("SteveC", "password", "Stevec", "Stevensond", "McSteveD", "KingStevef", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user4 = new User("SteveD", "password", "SteveD", "StevensonC", "McStevec", "KingSteveA", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user5 = new User("SteveE", "password", "Stevee", "Stevensonf", "McSteveb", "KingSteveB", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
-        User user6 = new User("SteveF", "password", "SteveF", "StevensonE", "McStevea", "KingSteveC", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user1 = new User("SteveA", "password", "Stevea", "Stevensonb", "McSteveF", "KingSteved", "", "", "Steve@steve.com");
+        User user2 = new User("SteveB", "password", "SteveB", "StevensonA", "McSteveE", "KingStevee", "", "", "Steve@steve.com");
+        User user3 = new User("SteveC", "password", "Stevec", "Stevensond", "McSteveD", "KingStevef", "", "", "Steve@steve.com");
+        User user4 = new User("SteveD", "password", "SteveD", "StevensonC", "McStevec", "KingSteveA", "", "", "Steve@steve.com");
+        User user5 = new User("SteveE", "password", "Stevee", "Stevensonf", "McSteveb", "KingSteveB", "", "", "Steve@steve.com");
+        User user6 = new User("SteveF", "password", "SteveF", "StevensonE", "McStevea", "KingSteveC", "", "", "Steve@steve.com");
         user1.addRole(UserRole.STUDENT);
         user2.addRole(UserRole.TEACHER);
         user3.addRole(UserRole.COURSE_ADMINISTRATOR);

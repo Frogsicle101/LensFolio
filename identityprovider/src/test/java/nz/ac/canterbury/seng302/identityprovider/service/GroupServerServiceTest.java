@@ -1,12 +1,11 @@
 package nz.ac.canterbury.seng302.identityprovider.service;
 
 import com.google.protobuf.Empty;
-import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
-import nz.ac.canterbury.seng302.identityprovider.model.User;
-import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.model.Group;
 import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
+import nz.ac.canterbury.seng302.identityprovider.model.User;
+import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
 import nz.ac.canterbury.seng302.shared.util.PaginationRequestOptions;
 import org.junit.jupiter.api.Assertions;
@@ -195,9 +194,9 @@ class GroupServerServiceTest {
         Group group = new Group(1, "Short", "Long");
         ReflectionTestUtils.setField(group, "userList", new ArrayList<>());
 
-        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         user = spy(user);
-        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         user2 = spy(user2);
         group.addGroupMember(user);
         group.addGroupMember(user2);
@@ -250,9 +249,9 @@ class GroupServerServiceTest {
     void testGetTeachingGroup() throws PasswordEncryptionException {
         Group teachingGroup = new Group(0, "Teachers", "Teaching Staff");
 
-        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         user = spy(user);
-        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         user2 = spy(user2);
         List<User> userList = new ArrayList<>();
         userList.add(user);
@@ -322,9 +321,9 @@ class GroupServerServiceTest {
     void testGetMembersWithoutAGroup() throws PasswordEncryptionException {
         Group nonGroup = new Group(1, "Non-Group", "Non-Group");
 
-        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         user = spy(user);
-        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         user2 = spy(user2);
         List<User> userList = new ArrayList<>();
         userList.add(user);
@@ -704,11 +703,11 @@ class GroupServerServiceTest {
         groupsList.add(group2);
         groupsList.add(group3);
 
-        User user1 = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user1 = new User("Steve1", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         user1 = spy(user1);
-        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user2 = new User("Steve2", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         user2 = spy(user2);
-        User user3 = new User("Steve3", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com", Timestamp.newBuilder().build());
+        User user3 = new User("Steve3", "password", "Steve", "Stevenson", "McSteve", "KingSteve", "", "", "Steve@steve.com");
         user3 = spy(user3);
         mockUserResponses(List.of(user1, user2, user3));
 

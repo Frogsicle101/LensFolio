@@ -11,7 +11,6 @@
 <header th:insert="fragments/general.html :: header"></header>
 <section class="flexContainer">
     <div class="skillSideBar">
-
         <div class="categoryContainer">
             <h3 class="categoriesHeader">Categories</h3>
             <div id="categoryList" class="flexContainer flexWrap"></div>
@@ -40,16 +39,17 @@
                     <div class="evidenceDetailsHeader">
                         <p id="evidenceDetailsId" style="display: none"></p>
                         <p id="evidenceDetailsDate" class="evidenceDetailsDate"></p>
-                        <button id="deleteEvidenceButton" type="button" class="noStyleButton">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-circle deleteEvidenceSvg" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                            </svg>
-                        </button>
+                        <div>
+                            <button id="editEvidenceButton" type="button">
+                                <span th:insert="fragments/icons.html :: editIcon"></span>
+                            </button>
+                            <button id="deleteEvidenceButton" type="button" class="noStyleButton">
+                                <span th:insert="fragments/icons.html :: deleteIcon"></span>
+                            </button>
+                        </div>
                     </div>
                     <h2 id="evidenceDetailsTitle" class="evidenceDetailsTitle"></h2>
                     <div id="evidenceDetailsCategories" class="evidencePreviewTags"></div>
-
                     <hr style="margin-top: 1rem">
                     <div id="evidenceWebLinks"></div>
                     <hr id="evidenceWebLinksBreakLine">
@@ -74,10 +74,10 @@
                 <div class="modalBody">
                     <div class="form-group evidenceFormName">
                         <label for="evidenceName" class="col-form-label required">Name:</label>
-                        <small class="form-text text-muted">Name must include letters. </small>
+                        <span th:insert="fragments/icons.html :: infoTooltipIcon(title='Can include letters, numbers, and punctuation. Must be between 5 and 50 characters long.')"></span>
                         <input class="form-control text-input" id="evidenceName"
                                maxlength="50"
-                               minlength="2"
+                               minlength="5"
                                placeholder="Name"
                                required
                                type="text">
@@ -85,20 +85,13 @@
                         <small class="form-text form-text-counted text-muted countCharName">0 characters
                             remaining</small>
                     </div>
+                    <!--/*@thymesVar id="currentDate" type="java.time.LocalDate"*/-->
+                    <!--/*@thymesVar id="project" type="nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project"*/-->
+                    <!--/*@thymesVar id="projectStartDate" type="java.lang.String"*/-->
+                    <!--/*@thymesVar id="evidenceMaxDate" type="java.time.LocalDate"*/-->
                     <div class="form-group evidenceFormDate">
                         <label class="form-label required" for="evidenceDate">Date: </label>
-                        <svg class="bi bi-question-circle"
-                             data-bs-custom-class="custom-tooltip"
-                             data-bs-placement="top"
-                             data-bs-title="This is the date the evidence occurred. It must fall within the project dates and not be in the future"
-                             data-bs-toggle="tooltip"
-                             fill="currentColor"
-                             height="16" viewBox="0 0 16 16"
-                             width="16"
-                             xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
-                        </svg>
+                        <span th:insert="fragments/icons.html :: infoTooltipIcon(title='This is the date the evidence occurred. It must fall within the project dates and not be in the future.')"></span>
                         <input class="form-control form-control-sm milestoneInputEndDate"
                                id="evidenceDate"
                                name="evidenceDate"
@@ -107,40 +100,28 @@
                                th:max="${evidenceMaxDate}"
                                required
                                type="date">
+                        <small class="form-text text-muted" id="projectDatesLabel" th:text="'Project dates: ' + ${project.getStartDateFormatted()} + ' - ' + ${project.getEndDateFormatted()}"></small>
                     </div>
                     <div class="form-group evidenceFormDescription">
                         <label for="evidenceDescription" class="col-form-label required">Description:</label>
-                        <small class="form-text text-muted">Description must include letters. </small>
+                        <span th:insert="fragments/icons.html :: infoTooltipIcon(title='Can include letters, numbers, and punctuation. Must be between 5 and 500 characters long.')"></span>
                         <textarea class="form-control text-input"
                                   id="evidenceDescription"
                                   rows="4"
                                   placeholder="Description"
                                   maxlength="500"
-                                  minlength="2"
+                                  minlength="5"
                                   required></textarea>
                         <div class="invalid-feedback" id="evidenceDescriptionFeedback"></div>
                         <small class="form-text text-muted form-text-counted countCharDescription">0 characters remaining</small>
                     </div>
                     <div class="form-group evidenceFormSkills ui-widget">
                         <label for="skillsInput" class="col-form-label">Skills:</label>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             width="16"
-                             height="16"
-                             fill="currentColor"
-                             class="bi bi-question-circle"
-                             viewBox="0 0 16 16"
-                             data-bs-toggle="tooltip" data-bs-placement="top"
-                             data-bs-custom-class="custom-tooltip"
-                             data-bs-title="Skills cannot be longer than 30 characters.">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
-                        </svg>
-
+                        <span th:insert="fragments/icons.html :: infoTooltipIcon(title='Can include letters, numbers, and hyphens, and be up to 30 characters long. Separate skills with spaces. Use underscores to create multi-word skills e.g: Manual_Testing')"></span>
                         <div class="tagInputContainer">
                             <div id="tagInputChips"></div>
                             <input id="skillsInput" class="noDisplayInput" type="text"/>
                         </div>
-                        <small class="form-text text-muted">Type in your skills and separate them with a space. If they are multiple words, separate them with an underscore eg: Intra-team_Communication</small>
                     </div>
                     <div id="evidenceFormCategories" class="form-group">
                         <label class="col-form-label">Categories:</label>
@@ -184,10 +165,14 @@
                                 <div id="weblinkForm" style="display:none">
                                     <div class="form-group ">
                                         <label class="col-form-label" for="webLinkUrl">Link:</label>
+                                        <!--/*@thymesVar id="webLinkRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                                        <!--/*@thymesVar id="webLinkMaxUrlLength" type="int"*/-->
                                         <input class="form-control"
                                                id="webLinkUrl"
                                                placeholder="https://www.example.com"
                                                type="text"
+                                               th:pattern="${webLinkRegex.getPatternString()}"
+                                               th:title="${'Weblinks' + webLinkRegex.getRequirements()}"
                                                th:maxlength="${webLinkMaxUrlLength}" required>
                                     </div>
                                     <div class="form-group ">
@@ -209,18 +194,7 @@
                                         type="button">
                                     Cancel
                                 </button>
-                                <svg class="bi bi-question-circle"
-                                     data-bs-custom-class="custom-tooltip"
-                                     data-bs-placement="top"
-                                     data-bs-title="Use web links to support your evidence. A maximum of ten web links can be added"
-                                     data-bs-toggle="tooltip"
-                                     fill="currentColor"
-                                     height="16" viewBox="0 0 16 16"
-                                     width="16"
-                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
-                                </svg>
+                                <span th:insert="fragments/icons.html :: infoTooltipIcon(title=${'Use web links to support your evidence. A maximum of ten web links can be added'})"></span>
                                 <h5 id="webLinkFull" style="display:none">10 web links have been added</h5>
                             </div>
                             <div>
@@ -261,5 +235,8 @@
 <script th:src="@{js/evidenceBySkills.js}" type="application/javascript"></script>
 <script th:src="@{js/addEditEvidence.js}" type="application/javascript"></script>
 <script th:src="@{js/notifications.js}" type="application/javascript"></script>
-<script th:inline="javascript"> let todaysDate =/*[[${currentDate}]]*/ </script>
+<script th:inline="javascript">
+    let todaysDate =/*[[${currentDate}]]*/
+    let weblinkRegex =/*[[${webLinkRegex}]]*/
+</script>
 </html>

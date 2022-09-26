@@ -33,9 +33,9 @@ public class GitRepositoryData {
      */
     public void createGitRepositoriesData() {
         logger.info("Creating default git repositories");
-        GitRepository repo1 = new GitRepository(3, 13661, "Team 100's git Repository", "szMkVx_xM39gB5yRxSmL");
+        GitRepository repo1 = new GitRepository(3, 13661, "Team 0's git Repository", "szMkVx_xM39gB5yRxSmL");
         gitRepoRepository.save(repo1);
-        GitRepository repo2 = new GitRepository(4, 13737, "Team 200's git Repository", "ixgv4UTo--zGZ5Km1rQ");
+        GitRepository repo2 = new GitRepository(4, 13737, "Team 1's git Repository", "ixgv4UTo--zGZ5Km1rQ");
         gitRepoRepository.save(repo2);
     }
 }

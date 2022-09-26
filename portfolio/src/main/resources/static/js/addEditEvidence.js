@@ -13,8 +13,11 @@ let oldInput = ""
  */
 function addUniqueSkill(skillName) {
     if (! skillsToCreate.includes(skillName)) {
-        skillsToCreate.push(skillName.replaceAll("_", " "))
-        return true
+        let skillNameFormatted = skillName.replaceAll("_", " ")
+        if (skillNameFormatted.trim().length > 0) {
+            skillsToCreate.push(skillNameFormatted)
+            return true
+        }
     }
     return false
 }
