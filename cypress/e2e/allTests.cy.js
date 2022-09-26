@@ -9,6 +9,8 @@ import "./evidenceTests/EvidenceFormTest.cy"
 import "./evidenceTests/FilteringEvidenceTest.cy"
 import "./evidenceTests/LinkedUsersTest.cy"
 import "./evidenceTests/WebLinkTest.cy"
+import "./evidenceTests/ValidWeblinksTest.cy"
+import "./evidenceTests/InvalidWeblinksTest.cy"
 import "./evidenceTests/SkillTests.cy"
 
 import "./groupsTests/GroupMemberSelectionTest.cy"

@@ -42,7 +42,7 @@ public class RegexService {
     /**
      * Helper function to check the input string meets the minimum length requirements
      *
-     *  @param valueToCheck - The string to check the length of
+     * @param valueToCheck - The string to check the length of
      * @param minLength - An integer value that is the min length of the string
      * @param inputName - The name of the input i.e, sprint description
      */
