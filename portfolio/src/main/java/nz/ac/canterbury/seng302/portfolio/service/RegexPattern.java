@@ -11,7 +11,7 @@ public enum RegexPattern {
 
     /** Regex that is all unicode letters, numbers, punctuation, modifier/currency/math symbols and whitespace */
     GENERAL_UNICODE(Pattern.compile("[\\p{L}\\p{Nd}\\p{P}\\p{Sc}\\p{Sk}\\p{Sm}\\s]*", Pattern.CASE_INSENSITIVE),
-            " can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace"),
+            " can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace."),
 
     /** Regex that is all unicode letters, numbers, punctuation & modifier/currency/math symbols.
      * Intended for usernames and passwords */
@@ -20,19 +20,19 @@ public enum RegexPattern {
 
     /** Regex that is all unicode letters, punctuation, modifier symbols and whitespace */
     NAME(Pattern.compile("[\\p{L}\\p{P}\\s]*[\\p{L}]+[\\p{L}\\p{P}\\s]*", Pattern.CASE_INSENSITIVE),
-            " can only contain unicode letters, punctuation and whitespace"),
+            " must include at least one (multi-lingual) letter. Can also include punctuation and whitespace."),
 
     /** Restricts to valid email format, e.g., example@email.com */
     EMAIL(Pattern.compile("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$"),
-            " must be of a valid email format e.g., example@email.com"),
+            " must be of a valid email format e.g., example@email.com."),
 
     /** Regex that is a valid hex colour code **/
     HEX_COLOUR(Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"), " must be a valid hex colour."),
 
     /** Regex to check the titles of occasions, this should be checked. */
-    OCCASION_TITLE(Pattern.compile("(\\w+\\s?)+"), " can only contain letters, numbers and spaces and must not start with whitespace"),
+    OCCASION_TITLE(Pattern.compile("(\\w+\\s?)+"), " can only contain letters, numbers and spaces and must not start with whitespace."),
 
-    WEBLINK(WeblinkRegex.getWeblinkPattern(), " must be a valid weblink");
+    WEBLINK(WeblinkRegex.getWeblinkPattern(), " must be a valid URL.");
 
 
     // Enum attribute declaration
