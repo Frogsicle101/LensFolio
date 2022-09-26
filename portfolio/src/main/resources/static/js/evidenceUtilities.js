@@ -98,10 +98,7 @@ function setHighlightedEvidenceWebLinks(response) {
         let webLink = response[index]
         webLinksDiv.append(detailsWeblinkElement(webLink.url, webLink.alias))
     }
-    let deleteButtons = document.querySelectorAll('#deleteWeblink')
-    for (let i = 0; i < deleteButtons.length; i++) {
-        deleteButtons[i].style = "display: none;"
-    }
+
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
     } else {
@@ -129,7 +126,7 @@ function deletableWeblinkElement(url, alias) {
 
     return (`
         <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
-            <button id="deleteWeblink" class="deleteIcon">
+            <button class="deleteWeblink deleteIcon">
                 <svg class="bi bi-trash" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
                     xmlns="http://www.w3.org/2000/svg">
                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -138,13 +135,9 @@ function deletableWeblinkElement(url, alias) {
                 </svg>
             </button>
             ${icon}
-            <a href="${sanitise(url)}" 
-               class="addedWebLink" 
-               data-bs-toggle="tooltip" 
-               data-bs-placement="top"
-               data-bs-title="${formattedWeblink}" 
-               data-bs-custom-class="webLinkTooltip" 
-               target="_blank">${sanitise(alias)}</a>
+            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+               data-bs-title="${formattedWeblink}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}
+            </a>
         </div>
     `)
 }
@@ -434,10 +427,10 @@ function addLinkedUsersToEvidence(users) {
     $.each(users, function (i, user) {
         linkedUsersDiv.append(linkedUserElement(user));
     })
-    let deleteButtons = document.querySelectorAll('#deleteLinkedUser')
-    for (let i = 0; i < deleteButtons.length; i++) {
-        deleteButtons[i].style = "display: none;"
-    }
+
+    $(".deleteLinkedUser").each((i, button) => {
+        button.remove()
+    })
 }
 
 
@@ -686,11 +679,10 @@ function extractLast(term) {
  * @returns [integer] the list of user id's to be attached
  */
 function getLinkedUsers() {
-    let linkedUsers = document.getElementById("linkedUsers").querySelectorAll(".linkedUser")
     let userIds = [];
-    $.each(linkedUsers, function (i) {
+    $(".linkedUsers").each((i, user) => {
         try {
-            let userId = parseInt(linkedUsers[i].id.replace("linkedUserId", ""));
+            let userId = parseInt(user.id.replace("linkedUserId", ""));
             userIds.push(userId)
         } catch (error) {
             createAlert("Oops! there was an error with one or more of the linked users", AlertTypes.Failure)
@@ -758,7 +750,7 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "associateIds": linkedUsers
         })
 
-        let buttonName = document.getElementById("evidenceSaveButton").innerHTML
+        let buttonName = $("#evidenceSaveButton").innerHTML
 
         if (buttonName === "Create") { // create a new evidence
             $.ajax({
@@ -815,16 +807,16 @@ $(document).on('click', '#addWeblinkButton', function (e) {
  * Listens for when delete web link button is clicked.
  * the web link will be deleted.
  */
-$(document).on('click', '#deleteWeblink', function (e) {
+$(document).on('click', '.deleteWeblink', function (e) {
     $(this).parent().remove();
 })
 
 
 /**
  * Listens for when delete web link button is clicked.
- * the web link will be deleted.
+ * The user will be removed.
  */
-$(document).on('click', '#deleteLinkedUser', function (e) {
+$(document).on('click', '.deleteLinkedUser', function (e) {
     $(this).parent().remove();
 })
 
@@ -1023,14 +1015,15 @@ function addLinkedUser(user) {
  */
 function linkedUserElement(user) {
     return `<div id="linkedUserElement">
-                <button id="deleteLinkedUser">
+                <button class="deleteLinkedUser deleteIcon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                     <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                     </svg>
-                    </button>
+                </button>
                 <div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">
-                     ${user.firstName} ${user.lastName} (${user.username})</div>
+                     ${user.firstName} ${user.lastName} (${user.username})
+                </div>
            </div> `
 }
 
@@ -1040,7 +1033,6 @@ function linkedUserElement(user) {
  */
 $(document).on("click", ".linkedUser", function () {
     let userId = this.getAttribute("data-id")
-    console.log(userId)
     redirectToUsersHomePage(userId) //redirect to the user's evidence page
 })
 
