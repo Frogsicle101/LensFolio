@@ -98,7 +98,6 @@ function setHighlightedEvidenceWebLinks(response) {
     for (let i = 0; i < deleteButtons.length; i++) {
         deleteButtons[i].style = "display: none;"
     }
-
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
     } else {

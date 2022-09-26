@@ -48,7 +48,7 @@
     margin-bottom: 1rem;
 }
 
-.deleteEvidenceSvg:hover {
+#deleteEvidenceButton :hover {
     fill:red;
 }
 
@@ -134,7 +134,7 @@
     background-color: #eaeaea;
 }
 
-#addOrEditEvidenceModal {
+#addEvidenceModal {
     display: none;
     position: fixed;
     z-index: 5;

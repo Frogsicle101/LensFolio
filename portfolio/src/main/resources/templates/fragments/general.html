@@ -103,6 +103,7 @@
 
     </div>
     <div class="profileNav" id="navbar">
+        <!--/*@thymesVar id="user" type="nz.ac.canterbury.seng302.shared.identityprovider.UserResponse"*/-->
         <div class="profileDropdown" th:object="${user}">
             <img alt="Your profile photo!" class="profilePic" id="profile" th:if="${user != null}"
                  th:src="${user.profileImagePath}">
@@ -147,6 +148,9 @@
         <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
     </div>
 </div>
+
+
+
 <!--<aside>-->
 <!--    <div>This is a sidebar</div>-->
 <!--</aside>-->
