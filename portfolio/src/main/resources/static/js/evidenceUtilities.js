@@ -126,7 +126,7 @@ function deletableWeblinkElement(url, alias) {
 
     return (`
         <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
-            <button id="deleteWeblink" class="deleteWeblinkButton">
+            <button id="deleteWeblink" class="deleteIcon">
                 <svg class="bi bi-trash" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
                     xmlns="http://www.w3.org/2000/svg">
                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
