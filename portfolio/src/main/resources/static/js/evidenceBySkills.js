@@ -198,7 +198,7 @@ $(document).on("click", "#editEvidenceButton" , () => {
     let currentEvidenceDescription =  document.getElementById("evidenceDetailsDescription").innerHTML
     document.getElementById("evidenceName").value = currentEvidenceTitle;
     document.getElementById("evidenceDate").value = currentEvidenceDate;
-    document.getElementById("evidenceDescription").innerHTML = currentEvidenceDescription;
+    document.getElementById("evidenceDescription").value = currentEvidenceDescription;
 
     //skills
     let currentSkillsList = evidenceHighlight.querySelectorAll(".skillChip")
@@ -269,7 +269,7 @@ function getTodayDate() {
 function resetAddOrEditEvidencePage() {
     document.getElementById("evidenceName").value = "";
     document.getElementById("evidenceDate").value = getTodayDate();
-    document.getElementById("evidenceDescription").innerHTML = "";
+    document.getElementById("evidenceDescription").value = "";
     document.getElementById("tagInputChips").innerHTML ="";     // clean up skills
     document.getElementById("addedWebLinks").innerHTML ="";
     let categories = document.querySelectorAll(".evidenceFormCategoryButton")
