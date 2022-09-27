@@ -39,6 +39,7 @@ public enum RegexPattern {
 
     WEBLINK(WeblinkRegex.getWeblinkPattern(), " must be a valid URL."),
 
+    /** Regex to check access tokens for git repos added to groups */
     GITLAB_TOKEN(Pattern.compile("[A-Za-z0-9-_]{20}"),
             " should be a 20 character long string consisting of numbers, letters, hyphens, and underscores");
 
