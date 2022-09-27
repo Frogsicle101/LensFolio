@@ -279,7 +279,6 @@ public class EvidenceService {
             }
             Optional<Skill> optionalSkill = skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(evidence.getUserId(), skillName);
             Skill theSkill;
-            logger.warn("Optional skill = {}", optionalSkill);
             if (optionalSkill.isEmpty()) {
                 if (skillName.equalsIgnoreCase("No Skill")) {
                     continue;

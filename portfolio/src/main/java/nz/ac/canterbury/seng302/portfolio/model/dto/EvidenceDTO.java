@@ -34,14 +34,6 @@ public class EvidenceDTO {
         this.associateIds = associateIds;
     }
 
-
-    public EvidenceDTO(Integer id, String title, String date, String description, List<WebLinkDTO> webLinks,
-                       List<String> skills, List<String> categories, Long projectId, List<Integer> associateIds) {
-        this(title, date, description, webLinks, skills, categories, projectId, associateIds);
-        this.id = id;
-    }
-
-
     public String getTitle() {
         return title;
     }
@@ -131,17 +123,9 @@ public class EvidenceDTO {
         private List<Integer> associateIds;
         private Long projectId;
 
-        public Integer getId() {
-            return id;
-        }
-
         public EvidenceDTOBuilder setId(Integer id) {
             this.id = id;
             return this;
-        }
-
-        public String getTitle() {
-            return title;
         }
 
         public EvidenceDTOBuilder setTitle(String title) {
@@ -149,17 +133,9 @@ public class EvidenceDTO {
             return this;
         }
 
-        public String getDate() {
-            return date;
-        }
-
         public EvidenceDTOBuilder setDate(String date) {
             this.date = date;
             return this;
-        }
-
-        public String getDescription() {
-            return description;
         }
 
         public EvidenceDTOBuilder setDescription(String description) {
@@ -167,17 +143,9 @@ public class EvidenceDTO {
             return this;
         }
 
-        public List<WebLinkDTO> getWebLinks() {
-            return webLinks;
-        }
-
         public EvidenceDTOBuilder setWebLinks(List<WebLinkDTO> webLinks) {
             this.webLinks = webLinks;
             return this;
-        }
-
-        public List<String> getCategories() {
-            return categories;
         }
 
         public EvidenceDTOBuilder setCategories(List<String> categories) {
@@ -185,26 +153,14 @@ public class EvidenceDTO {
             return this;
         }
 
-        public List<String> getSkills() {
-            return skills;
-        }
-
         public EvidenceDTOBuilder setSkills(List<String> skills) {
             this.skills = skills;
             return this;
         }
 
-        public List<Integer> getAssociateIds() {
-            return associateIds;
-        }
-
         public EvidenceDTOBuilder setAssociateIds(List<Integer> associateIds) {
             this.associateIds = associateIds;
             return this;
-        }
-
-        public Long getProjectId() {
-            return projectId;
         }
 
         public EvidenceDTOBuilder setProjectId(Long projectId) {

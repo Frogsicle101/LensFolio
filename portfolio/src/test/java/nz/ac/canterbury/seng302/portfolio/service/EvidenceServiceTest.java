@@ -241,7 +241,6 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        System.out.println(exception.getMessage());
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("title is longer than the maximum length of 50 characters"));
     }
 
@@ -293,7 +292,6 @@ class EvidenceServiceTest {
                 CheckException.class,
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
-        System.out.println(exception.getMessage().toLowerCase());
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("description is longer than the maximum length of 500 characters"));
     }
 
@@ -787,8 +785,6 @@ class EvidenceServiceTest {
         for (WebLinkDTO webLinkDTO : evidenceDTO.getWebLinks()) {
             Assertions.assertTrue(evidence.getWebLinks().stream().anyMatch(link -> link.getAlias().equals(webLinkDTO.getName())));
         }
-        System.out.println(evidence.getSkills());
-        System.out.println(evidenceDTO.getSkills());
         Assertions.assertEquals(evidence.getSkills().size(), evidenceDTO.getSkills().size());
         for (String skillString : evidenceDTO.getSkills()) {
             Assertions.assertTrue(evidence.getSkills().stream().anyMatch(skill -> skill.getName().equals(skillString)));
