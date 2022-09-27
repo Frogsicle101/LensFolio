@@ -131,14 +131,13 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 
 
 /**
- *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling
+ *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling.
+ *  Resets the form values to be empty.
  */
 $(document).on("click", "#createEvidenceButton" , () => {
-
-    // Reset addOrEditEvidenceModal without pre-filling evidence details
     resetAddOrEditEvidenceForm()
-    document.getElementById("addOrEditEvidenceTitle").innerHTML = "Add Evidence";
-    document.getElementById("evidenceSaveButton").innerHTML = "Create";
+    $("#addOrEditEvidenceTitle").html("Add Evidence")
+    $("#evidenceSaveButton").html("Create")
 
     $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
@@ -261,13 +260,15 @@ function setSkills(evidenceHighlight) {
  * @param evidenceHighlight The highlighted evidence div containing the weblinks.
  */
 function setWeblinks(evidenceHighlight) {
-    $("#webLinkTitle").hide()
+    const webLinksList = evidenceHighlight.find(".webLinkElement")
+    $("#webLinkTitle").style = "display;"
 
-    $(".webLinkElement").each(function() {
-        $("#addedWebLinks").append($(this).parent())
-    })
+    for (let i = 0; i < webLinksList.length; i++) {
+        document.getElementById("addedWebLinks").innerHTML += webLinksList[i].outerHTML;
+    }
 
-    $("#addOrEditEvidenceModal").find(".deleteWeblinkButton").each(function() {
+    const deleteWebLinkButtons = $("#addOrEditEvidenceModal").find(".deleteWeblinkButton")
+    deleteWebLinkButtons.each(function() {
         $(this).show()
     })
 }
@@ -299,7 +300,7 @@ function setLinkedUsers() {
     $("#linkedUsers").html(userLinkedList)
 
     editEvidenceModal.find(`#linkedUserId${userIdent}`).parent().prop("outerHTML", "")
-    editEvidenceModal.find("#deleteLinkedUser").hide()
+    editEvidenceModal.find(".deleteLinkedUserButton").hide()
 }
 
 

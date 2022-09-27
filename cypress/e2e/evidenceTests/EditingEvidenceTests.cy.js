@@ -22,7 +22,7 @@ describe('Edit evidence', () => {
         cy.get(".evidenceCategoryTickIcon").should('be.visible')
     })
 
-    it("Web Link can be deleted", () => {
+    it("User can be deleted", () => {
         cy.get("#editEvidenceButton").click()
         cy.get("#editEvidenceButton").click()
         cy.get("#editEvidenceButton").click()
@@ -32,6 +32,5 @@ describe('Edit evidence', () => {
         cy.get("#addOrEditEvidenceModal").find("#deleteLinkedUser").first().click("center")
         cy.get("#addOrEditEvidenceModal").find("#deleteLinkedUser").click("center")
         cy.get("#addOrEditEvidenceModal").find('.linkedUser').should('not.exist');
-
     })
 })
