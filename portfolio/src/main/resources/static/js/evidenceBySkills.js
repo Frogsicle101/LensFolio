@@ -228,9 +228,9 @@ function resetEvidenceButtonsToEditing(){
  * Sets these values in the edit evidence modal.
  */
 function setEvidenceData() {
-    const currentEvidenceTitle =  sanitise($("#evidenceDetailsTitle").html())
-    const currentEvidenceDate =  $("#evidenceDetailsDate").html()
-    const currentEvidenceDescription =  sanitise($("#evidenceDetailsDescription").html())
+    const currentEvidenceTitle =  ($("#evidenceDetailsTitle").text())
+    const currentEvidenceDate =  $("#evidenceDetailsDate").text()
+    const currentEvidenceDescription =  ($("#evidenceDetailsDescription").text())
 
     $("#evidenceName").val(currentEvidenceTitle)
     $("#evidenceDate").val(currentEvidenceDate);
@@ -246,7 +246,7 @@ function setEvidenceData() {
 function setSkills(evidenceHighlight) {
     const currentSkillsList = evidenceHighlight.find(".skillChip")
     currentSkillsList.each(function() {
-        const skillName = sanitise($(this).find(".chipText").html())
+        const skillName = ($(this).find(".chipText").text())
         const skillChip = createDeletableSkillChip(skillName)
         $("#tagInputChips").append(skillChip);
     })
@@ -281,7 +281,7 @@ function setWeblinks(evidenceHighlight) {
  */
 function setCategories(evidenceHighlight) {
     evidenceHighlight.find(".categoryChip").each(function() {
-        const categoryName = $(this).find(".chipText").html()
+        const categoryName = $(this).find(".chipText").text()
         const categoryButton = $(`#button${categoryName}`)
         categoryButton.addClass("btn-success")
         categoryButton.removeClass("btn-secondary")
@@ -294,7 +294,7 @@ function setCategories(evidenceHighlight) {
  * Retrieves linked users from the highlighted evidence and adds them to the edit evidence modal.
  */
 function setLinkedUsers() {
-    const userLinkedList = $("#evidenceDetailsLinkedUsers").html()
+    const userLinkedList = $("#evidenceDetailsLinkedUsers").text()
     const editEvidenceModal = $("#addOrEditEvidenceModal")
     $("#linkedUsersTitle").hide()
     $("#linkedUsers").html(userLinkedList)
