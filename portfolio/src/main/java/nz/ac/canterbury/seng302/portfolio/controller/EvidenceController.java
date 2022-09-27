@@ -3,7 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
-import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
+import nz.ac.canterbury.seng302.portfolio.service.*;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -33,8 +33,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -63,16 +61,20 @@ public class EvidenceController {
     /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
+    private final RegexService regexService;
+
 
     @Autowired
     public EvidenceController(UserAccountsClientService userAccountsClientService,
                            ProjectRepository projectRepository,
                            EvidenceRepository evidenceRepository,
-                           EvidenceService evidenceService) {
+                           EvidenceService evidenceService,
+                           RegexService regexService) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
         this.evidenceService = evidenceService;
+        this.regexService = regexService;
     }
 
 
@@ -96,10 +98,13 @@ public class EvidenceController {
         LocalDate projectStartDate = project.getStartDate();
         LocalDate currentDate = LocalDate.now();
         LocalDate evidenceMaxDate = LocalDate.now();
+
         modelAndView.addObject("currentDate", currentDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("webLinkMaxUrlLength", WebLink.MAXURLLENGTH);
         modelAndView.addObject("webLinkMaxNameLength", WebLink.MAXNAMELENGTH);
+        modelAndView.addObject(project);
+        modelAndView.addObject("webLinkRegex", RegexPattern.WEBLINK);
         modelAndView.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
 
 
@@ -291,18 +296,12 @@ public class EvidenceController {
 
     /**
      * Checks if the provided web address is valid, i.e. could lead to a website.
-     * The criteria are specified by java.net.URL, and is protocol dependent.
-     * This doesn't guarantee that the website actually exists; just that it could.
+     * The criteria are specified in the WeblinkRegex class.
      *
-     * Response codes:
-     * OK means the address is valid
-     * BAD_REQUEST means the URL is invalid
-     * INTERNAL_SERVER_ERROR means some other error occurred while validating the URL
-     *
-     * @param request - the full address to be validated
+     * @param request the full address and name to be validated
      * @return A response entity with the required response code. If it is valid, the status will be OK.
      * No response body will be returned in any instance.
-     * @see java.net.URL
+     * @see WeblinkRegex
      */
     @PostMapping("/validateWebLink")
     @ResponseBody
@@ -313,26 +312,24 @@ public class EvidenceController {
             if (address.contains("&nbsp")) {
                 throw new MalformedURLException("The non-breaking space is not a valid character");
             }
-            if (address.length() > WebLink.MAXURLLENGTH) {
-                throw new CheckException("URL address is longer than the maximum of " + WebLink.MAXURLLENGTH);
-            }
             if (request.getName().length() < 1) {
                 throw new CheckException("Link name should be at least 1 character");
             }
             if (request.getName().length() > WebLink.MAXNAMELENGTH) {
                 throw new CheckException("Link name should be no more than " + WebLink.MAXNAMELENGTH + " characters in length");
             }
-            new URL(address).toURI(); //The constructor does all the validation for us
-            //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
+            regexService.checkInput(RegexPattern.WEBLINK, request.getUrl(), 1, WebLink.MAXURLLENGTH, "Weblink");
+
             return new ResponseEntity<>(HttpStatus.OK);
+
         } catch (CheckException exception) {
             logger.warn("/validateWebLink - Invalid address: {}", address);
             logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>(exception.getMessage(),HttpStatus.BAD_REQUEST);
-        } catch (MalformedURLException | URISyntaxException exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (MalformedURLException exception) {
             logger.warn("/validateWebLink - Invalid address: {}", address);
             logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/", HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());

@@ -2,7 +2,6 @@ package nz.ac.canterbury.seng302.identityprovider;
 
 import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptionException;
-import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,8 @@ class UserTest {
                 "test",
                 "test",
                 "test/test",
-                "test@example.com",
-                TimeService.getTimeStamp());
+                "test@example.com"
+        );
     }
 
 

@@ -48,7 +48,7 @@
     margin-bottom: 1rem;
 }
 
-.deleteEvidenceSvg:hover {
+#deleteEvidenceButton :hover {
     fill:red;
 }
 
@@ -134,7 +134,7 @@
     background-color: #eaeaea;
 }
 
-#addEvidenceModal {
+#addOrEditEvidenceModal {
     display: none;
     position: fixed;
     z-index: 5;
@@ -259,6 +259,14 @@
     margin-top: 0;
 }
 
+#showAllEvidence{
+    color: #b5d1fb;
+}
+
+#createEvidenceButton{
+    color: #b5d1fb;
+}
+
 .deleteWeblinkButton{
     height: 2rem;
     width: 2rem;
@@ -275,4 +283,38 @@
     border: none;
     background: #175fbd;
     color: #ffffff;
+}
+
+#editEvidenceButton{
+    border: none;
+    background: none;
+    color: black;
+}
+
+#editEvidenceButton:hover{
+    border: none;
+    background: none;
+    color: red;
+}
+
+#deleteLinkedUser{
+    height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border: none;
+    color: black;
+    background: #ffffff;
+}
+
+#deleteLinkedUser:hover{
+    height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border: none;
+    background: #175fbd;
+    color: #ffffff;
+}
+
+#linkedUserElement{
+    display : flex;
 }

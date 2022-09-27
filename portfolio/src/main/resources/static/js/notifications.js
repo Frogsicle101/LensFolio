@@ -94,6 +94,9 @@ function handleNotification(notification) {
                 case 'update user details':
                     updateUserDetails(message);
                     break;
+                case 'update user photo':
+                    updateUserProfilePhoto(message)
+                    break;
                 case 'newGroup':
                     liveUpdateGroupList();
                     break;

@@ -6,7 +6,6 @@ import nz.ac.canterbury.seng302.identityprovider.model.GroupRepository;
 import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptionException;
-import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,8 +43,7 @@ class GroupTest {
                 "Stev",
                 "kdsflkdjf",
                 "He/Him",
-                "steve@example.com",
-                TimeService.getTimeStamp()
+                "steve@example.com"
         );
         User test2 = new User(
                 "test2",
@@ -56,8 +54,7 @@ class GroupTest {
                 "Stev",
                 "kdsflkdjf",
                 "He/Him",
-                "steve@example.com",
-                TimeService.getTimeStamp()
+                "steve@example.com"
         );
         User test3 = new User(
                 "test3",
@@ -68,8 +65,7 @@ class GroupTest {
                 "Stev",
                 "kdsflkdjf",
                 "He/Him",
-                "steve@example.com",
-                TimeService.getTimeStamp()
+                "steve@example.com"
         );
         User test4 = new User(
                 "test4",
@@ -80,8 +76,7 @@ class GroupTest {
                 "Stev",
                 "kdsflkdjf",
                 "He/Him",
-                "steve@example.com",
-                TimeService.getTimeStamp()
+                "steve@example.com"
         );
         User test5 = new User(
                 "test5",
@@ -92,8 +87,7 @@ class GroupTest {
                 "Stev",
                 "kdsflkdjf",
                 "He/Him",
-                "steve@example.com",
-                TimeService.getTimeStamp()
+                "steve@example.com"
         );
         test1.addRole(UserRole.STUDENT);
         test2.addRole(UserRole.STUDENT);

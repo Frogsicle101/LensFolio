@@ -1,5 +1,7 @@
 describe('Editing user account info', () => {
 
+    let INVALID_BORDER_COLOUR = 'rgb(220, 53, 69)';
+
     beforeEach(() => {
         cy.adminLogin()
         cy.visit("/account")
@@ -49,20 +51,46 @@ describe('Editing user account info', () => {
         cy.get("#bio").type("Ⅵ")
         cy.get("#personalPronouns").invoke('val', "Ⅴ")
 
-        cy.get("#firstname").should("have.css", "border-color", 'rgb(220, 53, 69)');
-        cy.get("#middlename").should("have.css", "border-color", 'rgb(220, 53, 69)');
-        cy.get("#lastname").should("have.css", "border-color", 'rgb(220, 53, 69)');
-        cy.get("#nickname").should("have.css", "border-color", 'rgb(220, 53, 69)');
-        cy.get("#email").should("have.css", "border-color", 'rgb(220, 53, 69)');
-        cy.get("#bio").should("have.css", "border-color", 'rgb(220, 53, 69)');
-        cy.get("#personalPronouns").should("have.css", "border-color", 'rgb(220, 53, 69)');
+        cy.get("#firstname").should("have.css", "border-color", );
+        cy.get("#middlename").should("have.css", "border-color", INVALID_BORDER_COLOUR);
+        cy.get("#lastname").should("have.css", "border-color", INVALID_BORDER_COLOUR);
+        cy.get("#nickname").should("have.css", "border-color", INVALID_BORDER_COLOUR);
+        cy.get("#email").should("have.css", "border-color", INVALID_BORDER_COLOUR);
+        cy.get("#bio").should("have.css", "border-color", INVALID_BORDER_COLOUR);
+        cy.get("#personalPronouns").should("have.css", "border-color", INVALID_BORDER_COLOUR);
 
+        cy.get("#firstNameError").should("be.visible").should('contain.text', "at least one letter. Can also include punctuation and whitespace.")
+        cy.get("#middleNameError").should("be.visible").should('contain.text', "at least one letter. Can also include punctuation and whitespace.")
+        cy.get("#lastNameError").should("be.visible").should('contain.text', "at least one letter. Can also include punctuation and whitespace.")
+        cy.get("#nickNameError").should("be.visible").should('contain.text', "can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace.")
+        cy.get("#emailError").should("be.visible").should('contain.text', " must be of a valid email format, e.g. example@email.com.")
+        cy.get("#bioError").should("be.visible").should('contain.text', "can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace.")
+        cy.get("#pronounsError").should("be.visible").should('contain.text', "can only contain unicode letters, numbers, punctuation, symbols (but not emojis) and whitespace.")
+    })
+
+
+    it("names must have one alphanumeric character", () => {
+        cy.get(".editUserButton").click()
+        cy.get("#firstname").invoke('val', "!@#&*()_-[{]}\\'\";:,./?")
+        cy.get("#middlename").invoke('val', "!@#&*()_-[{]}\\'\";:,./")
+        cy.get("#lastname").invoke('val', "!@#&*()_-[{]}\\'\";:,./")
+
+        cy.get("#firstname").should("have.css", "border-color", INVALID_BORDER_COLOUR);
+        cy.get("#middlename").should("have.css", "border-color", INVALID_BORDER_COLOUR);
+        cy.get("#lastname").should("have.css", "border-color", INVALID_BORDER_COLOUR);
         cy.get("#firstNameError").should("be.visible")
         cy.get("#middleNameError").should("be.visible")
         cy.get("#lastNameError").should("be.visible")
-        cy.get("#nickNameError").should("be.visible")
-        cy.get("#emailError").should("be.visible")
-        cy.get("#bioError").should("be.visible")
-        cy.get("#pronounsError").should("be.visible")
+
+        cy.get("#firstname").type('A', {force: true})
+        cy.get("#middlename").type('A', {force: true})
+        cy.get("#lastname").type('A', {force: true})
+
+        cy.get("#firstname").should("not.have.css", "border-color", INVALID_BORDER_COLOUR);
+        cy.get("#middlename").should("not.have.css", "border-color", INVALID_BORDER_COLOUR);
+        cy.get("#lastname").should("not.have.css", "border-color", INVALID_BORDER_COLOUR);
+        cy.get("#firstNameError").should("not.be.visible")
+        cy.get("#middleNameError").should("not.be.visible")
+        cy.get("#lastNameError").should("not.be.visible")
     })
 })
