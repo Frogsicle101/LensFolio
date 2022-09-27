@@ -37,7 +37,9 @@ public enum RegexPattern {
     /** Regex to check the titles of occasions, this should be checked. */
     OCCASION_TITLE(Pattern.compile("(\\w+\\s?)+"), " can only contain letters, numbers and spaces and must not start with whitespace."),
 
-    WEBLINK(WeblinkRegex.getWeblinkPattern(), " must be a valid URL.");
+    WEBLINK(WeblinkRegex.getWeblinkPattern(), " must be a valid URL."),
+
+    GITLAB_TOKEN(Pattern.compile("[A-Za-z0-9-_]{20}"), " should be a 20 character long string consisting of numbers, letters, hyphens, and underscores");
 
 
     // Enum attribute declaration
