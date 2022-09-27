@@ -39,8 +39,8 @@ public enum RegexPattern {
 
     WEBLINK(WeblinkRegex.getWeblinkPattern(), " must be a valid URL."),
 
-    GITLAB_TOKEN(Pattern.compile("[A-Za-z0-9-_]{20}"), " should be a 20 character long string consisting of numbers, letters, hyphens, and underscores");
-
+    GITLAB_TOKEN(Pattern.compile("[A-Za-z0-9-_]{20}"),
+            " should be a 20 character long string consisting of numbers, letters, hyphens, and underscores");
 
     // Enum attribute declaration
 

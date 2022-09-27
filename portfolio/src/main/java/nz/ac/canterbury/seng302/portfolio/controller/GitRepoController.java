@@ -69,9 +69,7 @@ public class GitRepoController {
                 throw new CheckException("Pattern is not in the correct format");
             }
 
-
             GitRepository repo = buildRepo(groupId, projectId, alias, accessToken);
-
 
             gitRepoRepository.save(repo);
             logger.info("POST /gitRepo/add: Success");
