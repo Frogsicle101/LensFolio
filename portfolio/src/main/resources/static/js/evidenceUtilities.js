@@ -6,8 +6,10 @@
 
 const RESERVED_SKILL_TAGS = ["no_skill"];
 
-/** A regex contain emoji */
-const emojiRegx = new RegExp("/(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]/g");
+// /** A regex contain emoji */
+const emojiRegex = new RegExp("/(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]/g");
+const skillRegex = new RegExp("(\\p{P}\\p{L}\\p{Nl}\\p{Nd})*[A-Za-z]+(\\p{P}\\p{L}\\p{Nl}\\p{Nd})*", 'u')
+//
 
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;

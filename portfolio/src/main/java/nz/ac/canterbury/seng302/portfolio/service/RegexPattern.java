@@ -37,7 +37,10 @@ public enum RegexPattern {
     /** Regex to check the titles of occasions, this should be checked. */
     OCCASION_TITLE(Pattern.compile("(\\w+\\s?)+"), " can only contain letters, numbers and spaces and must not start with whitespace."),
 
-    WEBLINK(WeblinkRegex.getWeblinkPattern(), " must be a valid URL.");
+    WEBLINK(WeblinkRegex.getWeblinkPattern(), " must be a valid URL."),
+
+    /** Regex to check contains at least one letter. */
+    SKILL(Pattern.compile("(\\p{P}\\p{L}\\p{Nl}\\p{Nd})*[A-Za-z]+(\\p{P}\\p{L}\\p{Nl}\\p{Nd})*"), " can only contain letters, numbers, and punctuation. Must contain at least one letter.");
 
 
     // Enum attribute declaration
