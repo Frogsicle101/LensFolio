@@ -692,7 +692,7 @@ function extractLast(term) {
 
 
 /**
- * Returns all the linked users id's from the evidence creation form
+ * Returns all the linked users' id's from the evidence creation form
  *
  * @returns [integer] the list of user id's to be attached
  */
@@ -740,61 +740,9 @@ $(document).on("submit", "#evidenceCreationForm", function (e) {
 /**
  * Saves the evidence input during creating a new piece of evidence
  */
-$(document).on("click", "#evidenceSaveButton", function (event) {
-    event.preventDefault()
-    let skillsInput = $("#skillsInput")
-    removeDuplicatesFromInput(skillsInput)
-    let evidenceCreationForm = $("#evidenceCreationForm")[0]
-    toggleRequiredIfCheckURLInputsAreEmpty()
-    if (!evidenceCreationForm.checkValidity()) {
-        evidenceCreationForm.reportValidity()
-    } else {
-        const title = $("#evidenceName").val()
-        const date = $("#evidenceDate").val()
-        const description = $("#evidenceDescription").val()
-        const projectId = 1
-        let webLinks = getWeblinksList();
-        const linkedUsers = getLinkedUsers();
-        const categories = getCategories();
-
-        let data = JSON.stringify({
-            "title": title,
-            "date": date,
-            "description": description,
-            "projectId": projectId,
-            "webLinks": webLinks,
-            "skills": skillsToCreate,
-            "categories": categories,
-            "associateIds": linkedUsers
-        })
-
-        let buttonName = $("#evidenceSaveButton").innerHTML
-
-        if (buttonName === "Create") { // create a new evidence
-            $.ajax({
-                url: 'evidence',
-                type: "POST",
-                contentType: "application/json",
-                data,
-                success: function (response) {
-                    selectedEvidenceId = response.id
-                    getAndAddEvidencePreviews()
-                    addSkillResponseToArray(response)
-                    addSkillsToSideBar();
-                    closeModal()
-                    clearAddEvidenceModalValues()
-                    $(".alert").remove()
-                    createAlert("Created evidence", AlertTypes.Success)
-                    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                    resetWeblink()
-                }, error: function (error) {
-                    createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
-                }
-            })
-        } else { // edit a exist evidence
-            // ToDo: Connect Save Button to Endpoint
-        }
-    }
+$(document).on("click", "#evidenceSaveButton", function (e) {
+    e.preventDefault()
+    handleEvidenceSave()
 })
 
 
@@ -1197,5 +1145,102 @@ function createCategoryChip(categoryName, isMenuItem) {
             <div class="chip categoryChip">
                 <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
+    }
+}
+
+
+
+// ----------------------------- SAVING EVIDENCE -----------------------------------
+
+/**
+ * Retrieves input values from the add evidence form and formats them in JSON.
+ *
+ * @returns {string} A JSON string of the evidence's data, formatted as an EvidenceDTO.
+ */
+function getDataFromEvidenceForm() {
+    const title = $("#evidenceName").val()
+    const date = $("#evidenceDate").val()
+    const description = $("#evidenceDescription").val()
+    const projectId = 1
+    let webLinks = getWeblinksList();
+    const linkedUsers = getLinkedUsers();
+    const categories = getCategories();
+
+    return JSON.stringify({
+        "title": title,
+        "date": date,
+        "description": description,
+        "projectId": projectId,
+        "webLinks": webLinks,
+        "skills": skillsToCreate,
+        "categories": categories,
+        "associateIds": linkedUsers
+    })
+}
+
+
+/**
+ * Updates the evidence page and resets the add evidence modal.
+ *
+ * @param response A server response containing data about the saved evidence, including its Id and skills.
+ */
+function handleSuccessfulEvidenceSave(response) {
+    selectedEvidenceId = response.id
+    getAndAddEvidencePreviews()
+    addSkillResponseToArray(response)
+    addSkillsToSideBar();
+    closeModal()
+    clearAddEvidenceModalValues()
+    $(".alert").remove()
+    createAlert("Created evidence", AlertTypes.Success)
+    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+    resetWeblink()
+}
+
+
+/**
+ * Makes an endpoint request to save a new piece of evidence.
+ *
+ * @param data the data for the evidence being created.
+ */
+function createEvidence(data) {
+    $.ajax({
+        url: 'evidence',
+        type: "POST",
+        contentType: "application/json",
+        data,
+        success: (response) => {
+            handleSuccessfulEvidenceSave(response)
+        }, error: (error) => {
+            createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
+        }
+    })
+}
+
+
+/**
+ * Validates the inputs in the evidence form. Calls the method to create a nw piece of evidence, if the evidence save
+ * button has the text "Create".
+ */
+function handleEvidenceSave() {
+    const skillsInput = $("#skillsInput")
+    removeDuplicatesFromInput(skillsInput)
+
+    const evidenceCreationForm = $("#evidenceCreationForm")[0]
+    toggleRequiredIfCheckURLInputsAreEmpty()
+
+    if (!evidenceCreationForm.checkValidity()) {
+        evidenceCreationForm.reportValidity()
+
+    } else {
+        const evidenceData = getDataFromEvidenceForm()
+        const buttonName = $("#evidenceSaveButton").text()
+
+        if (buttonName === "Create") { // create a new evidence
+            createEvidence(evidenceData)
+
+        } else { // edit a exist evidence
+            // ToDo: Connect Save Button to Endpoint
+        }
     }
 }
