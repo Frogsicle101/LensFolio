@@ -13,6 +13,9 @@ let oldInput = ""
  * @returns {boolean} True if the skill was added, false otherwise
  */
 function addUniqueSkill(skillName) {
+
+    console.log("add unique skill t akills to create --"+ skillName)
+
     if (! skillsToCreate.includes(skillName)) {
         let skillNameFormatted = skillName.replaceAll("_", " ")
         if (skillNameFormatted.trim().length > 0) {
@@ -37,6 +40,13 @@ function validateSkillInput(inputValue, showAlert) {
         if (showAlert) {
             skillsInput.addClass("skillChipInvalid")
             createAlert("Maximum skill length is 30 characters", AlertTypes.Failure)
+        }
+        return false
+    }
+    if (!skillRegex.test(inputValue)) {
+        if (showAlert) {
+            skillsInput.addClass("skillChipInvalid")
+            createAlert("Skill name must contain at least one letter.", AlertTypes.Failure)
         }
         return false
     }
@@ -69,10 +79,11 @@ function updateSkillsInput() {
     chipDisplay.empty()
     skillsToCreate.forEach(function (element) {
         element = element.replaceAll("_", " ");
+        console.log("------------")
+        console.log("element is "+element)
         if (skillRegex.test(element)) {
+            console.log("if")
             chipDisplay.append(createDeletableSkillChip(element))
-        } else {
-            createAlert("Skill name must contain at least one letter.", AlertTypes.Failure)
         }
     })
     oldInput = ""
@@ -92,13 +103,26 @@ function handleSkillInputKeypress(event) {
     const isValidSkillName = validateSkillInput(inputValue, true)
     let needsUpdate = false
 
+    console.log("============")
+    console.log("inputValue is "+inputValue)
+    console.log("event key is " + event.key)
+
     if (event.key === "Backspace" && oldInput.length === 0 && skillsToCreate.length > 0) {
+
+        console.log("space")
+
         skillsToCreate.pop()
         needsUpdate = true
     }
 
     if (event.key === " " || event.key === "Enter" || event.key === "Tab" ) {
+
+        console.log("enter")
+
         if (isValidSkillName) {
+
+            console.log("add unique skill")
+
             needsUpdate = addUniqueSkill(inputValue)
         }
         skillsInput.removeClass("skillChipInvalid")
@@ -106,6 +130,9 @@ function handleSkillInputKeypress(event) {
     }
     oldInput = inputValue
     if (needsUpdate) {
+
+        console.log("input")
+
        updateSkillsInput()
     }
 }
@@ -157,6 +184,9 @@ function removeDuplicatesFromInput(input) {
     let newArray = []
 
     inputArray.forEach(function (element) {
+
+
+
         if (skillRegex.test(element)) {
             while (element.slice(-1) === "_") {
                 element = element.slice(0, -1)
