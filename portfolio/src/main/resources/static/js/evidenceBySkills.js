@@ -136,7 +136,7 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 $(document).on("click", "#createEvidenceButton" , () => {
 
     // Reset addOrEditEvidenceModal without pre-filling evidence details
-    resetAddOrEditEvidencePage()
+    resetAddOrEditEvidenceForm()
     document.getElementById("addOrEditEvidenceTitle").innerHTML = "Add Evidence";
     document.getElementById("evidenceSaveButton").innerHTML = "Create";
 
@@ -177,43 +177,26 @@ function closeModal() {
 
 // -------------------------------------- Evidence Editing -----------------------------------
 
+function handleEvidenceEdit() {
+    let evidenceHighlight = $("#evidenceDetailsContainer")
+    resetAddOrEditEvidenceForm()
+    resetEvidenceButtonsToEditing()
+    retrieveEvidenceData()
+    retrieveSkills( evidenceHighlight)
+}
+
 
 /**
  *  A Listener for the edit evidence button. This displays the modal and prevents the page below from scrolling
  */
-$(document).on("click", "#editEvidenceButton" , () => {
+$(document).on("click", "#editEvidenceButton" , handleEvidenceEdit)
 
-    //clean up the edit evidence page
-    resetAddOrEditEvidencePage()
-    document.getElementById("addOrEditEvidenceTitle").innerHTML = "Edit Evidence";
-    document.getElementById("evidenceSaveButton").innerHTML = "Save Changes";
-    $("#evidenceSaveButton").prop("disabled", false);
 
-    // Reset addOrEditEvidenceModal with pre-filling evidence details
-    let evidenceHighlight = document.querySelector(".evidenceDetailsContainer")
 
-    //name, date, description
-    let currentEvidenceTitle =  reversTranslationHTML(document.getElementById("evidenceDetailsTitle").innerHTML)
-    let currentEvidenceDate =  document.getElementById("evidenceDetailsDate").innerHTML
-    let currentEvidenceDescription =  reversTranslationHTML(document.getElementById("evidenceDetailsDescription").innerHTML)
-    document.getElementById("evidenceName").value = currentEvidenceTitle;
-    document.getElementById("evidenceDate").value = currentEvidenceDate;
-    document.getElementById("evidenceDescription").value = currentEvidenceDescription;
 
-    //skills
-    let currentSkillsList = evidenceHighlight.querySelectorAll(".skillChip")
-    for (let i = 0; i < currentSkillsList.length; i++) {
-        let skillName = reversTranslationHTML(currentSkillsList[i].querySelector(".chipText").innerHTML)
-        let skillChip = `
-                <div class="chip skillChip">
-                    <p class="chipText">${sanitise(skillName)}</p>  
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                    </svg>
-                </div>`
-        document.getElementById("tagInputChips").innerHTML += skillChip;
-    }
+
+
+
 
     //categories
     let currentCategoriesList = evidenceHighlight.querySelectorAll(".categoryChip")
@@ -249,7 +232,7 @@ $(document).on("click", "#editEvidenceButton" , () => {
     $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
-})
+
 
 
 /**
@@ -267,19 +250,52 @@ function getTodayDate() {
 /**
  *  Clean up the evidence adding and editing page.
  */
-function resetAddOrEditEvidencePage() {
-    document.getElementById("evidenceName").value = "";
-    document.getElementById("evidenceDate").value = getTodayDate();
-    document.getElementById("evidenceDescription").value = "";
-    document.getElementById("tagInputChips").innerHTML ="";     // clean up skills
-    document.getElementById("addedWebLinks").innerHTML ="";
-    let categories = document.querySelectorAll(".evidenceFormCategoryButton")
-    for (let i = 0; i < categories.length; i++) {
-        categories[i].className = "btn inlineText evidenceFormCategoryButton btn-secondary"
-        categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
-    }
-    document.getElementById("linkedUsers").innerHTML="";
-    $("#evidenceSaveButton").prop("disabled", true);
+function resetAddOrEditEvidenceForm() {
+    $("#evidenceName").val("")
+    $("#evidenceDate").val(getTodayDate())
+    $("#evidenceDescription").val("");
+    $("#tagInputChips").empty();     // clean up skills
+    $("#addedWebLinks").empty();
+
+    $(".evidenceFormCategoryButton").each((i, button) => {
+        button.className = "btn inlineText evidenceFormCategoryButton btn-secondary"
+        button.find(".evidenceCategoryTickIcon").hide()
+
+    })
+
+    $("#linkedUsers").empty()
+    $("#evidenceSaveButton").prop("disabled", true)
+}
+
+/**
+ * reset the evidence buttons to editing evidence.
+ */
+function resetEvidenceButtonsToEditing(){
+    $("#addOrEditEvidenceTitle").html( "Edit Evidence");
+    $("#evidenceSaveButton").html("Save Changes");
+    $("#evidenceSaveButton").prop("disabled", false);
+}
+
+/**
+ * retrieve evidence name, date, and description.
+ */
+function retrieveEvidenceData() {
+    const currentEvidenceTitle =  sanitise($("#evidenceDetailsTitle").html())
+    const currentEvidenceDate =  $("#evidenceDetailsDate").html()
+    const currentEvidenceDescription =  sanitise($("#evidenceDetailsDescription").html())
+    $("#evidenceName").val(currentEvidenceTitle)
+    $("#evidenceDate").val(currentEvidenceDate);
+    $("#evidenceDescription").val(currentEvidenceDescription);
+}
+
+function retrieveSkills( evidenceHighlight) {
+    const currentSkillsList = evidenceHighlight.find(".skillChip")
+    currentSkillsList.each((i,skill)=>{
+        const skillName = sanitise(skill.find(".chipText").html())
+        const skillChip = createDeletableSkillChip(skillName)
+        $("#tagInputChips").append(skillChip);
+
+    })
 }
 
 
