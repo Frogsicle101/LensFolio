@@ -1,7 +1,9 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepoRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.repositories.GitRepository;
+import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetGroupDetailsRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GroupDetailsResponse;
@@ -61,28 +63,21 @@ public class GitRepoController {
 
         try {
             if (alias.isBlank()) {
-                throw new RuntimeException("The repository name cannot be empty");
+                throw new CheckException("The repository name cannot be empty");
             }
-            if (accessToken.length() < 20) {
-                throw new RuntimeException("Access token must be at least 20 characters");
+            if (!accessToken.matches(RegexPattern.GITLAB_TOKEN.getPatternString())) {
+                throw new CheckException("Pattern is not in the correct format");
             }
 
 
-            GitRepository repo;
-            try {
-                repo = gitRepoRepository.findAllByGroupId(groupId).get(0);
-                repo.setProjectId(projectId);
-                repo.setAlias(alias);
-                repo.setAccessToken(accessToken);
-            } catch (IndexOutOfBoundsException e) {
-                repo = new GitRepository(groupId, projectId, alias, accessToken);
-            }
+            GitRepository repo = buildRepo(groupId, projectId, alias, accessToken);
+
 
             gitRepoRepository.save(repo);
             logger.info("POST /gitRepo/add: Success");
             return new ResponseEntity<>(repo, HttpStatus.OK);
 
-        } catch (RuntimeException exception) {
+        } catch (CheckException exception) {
             logger.error("ERROR /gitRepo/add - an error occurred while adding git repo {} to group {}", alias, groupId);
             logger.error(exception.getMessage());
             return new ResponseEntity<>("Unable to edit the repository information. \n" +
@@ -124,6 +119,29 @@ public class GitRepoController {
             logger.error(exception.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    /**
+     * Creates or edits a git repository depending on whether one already exists for the group
+     *
+     * @param groupId The group id to check
+     * @param projectId The id of the project to associate the repo with
+     * @param alias A string to refer to the repo in a readable way
+     * @param accessToken The token to access the repo
+     *
+     * @return A reference to the repo object (edited or created)
+     */
+    private GitRepository buildRepo(int groupId, int projectId, String alias, String accessToken) {
+        GitRepository repo;
+        try {
+            repo = gitRepoRepository.findAllByGroupId(groupId).get(0);
+            repo.setProjectId(projectId);
+            repo.setAlias(alias);
+            repo.setAccessToken(accessToken);
+        } catch (IndexOutOfBoundsException e) {
+            repo = new GitRepository(groupId, projectId, alias, accessToken);
+        }
+        return repo;
     }
 }
 
