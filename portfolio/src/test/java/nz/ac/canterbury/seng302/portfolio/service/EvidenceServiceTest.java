@@ -732,78 +732,6 @@ class EvidenceServiceTest {
     }
 
 
-    private void setupEditEvidenceTests() throws Exception {
-        evidenceDTO = new EvidenceDTO.EvidenceDTOBuilder()
-                .setId(10)
-                .setTitle("New Title")
-                .setDate(LocalDate.now().toString())
-                .setDescription("New description")
-                .setWebLinks(new ArrayList<>(
-                        Arrays.asList(
-                                new WebLinkDTO("New weblink 1", "http://www.google.com"),
-                                new WebLinkDTO("New weblink 2", "https://localhost:9000/test")
-                        )))
-                .setCategories(new ArrayList<>(
-                        Arrays.asList("SERVICE", "QUANTITATIVE"
-                        )))
-                .setSkills(new ArrayList<>(
-                        Arrays.asList("Testing", "Backend")
-                ))
-                .setAssociateIds(new ArrayList<>(
-                        Arrays.asList(2, 3, 4, 5)
-                ))
-                .setProjectId(1L)
-                .build();
-        evidence = new Evidence(10,
-                                1,
-                                "Test Original title",
-                                LocalDate.now().minusDays(1) ,
-                                "Test Original Description");
-        evidence.addWebLink(new WebLink(evidence, "Original Link", new URL("https://localhost:8080")));
-        evidence.addSkill(new Skill("Java"));
-        evidence.addCategory(Category.QUALITATIVE);
-        evidence.addCategory(Category.QUANTITATIVE);
-        evidence.addAssociateId(2);
-        // Adds the archived ID
-        evidence.addAssociateId(3);
-        evidence.removeAssociateId(3);
-
-        project = new Project("Project title");
-        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), any())).thenReturn(Optional.empty());
-        Mockito.when(evidenceRepository.findById(evidenceDTO.getId())).thenReturn(Optional.of(evidence));
-        Mockito.when(projectRepository.findById(Mockito.any())).thenReturn(Optional.of(project));
-    }
-
-
-    private void assertEvidenceDtoMatchesEvidence(Integer userId) {
-        Assertions.assertEquals(evidence.getId(), evidenceDTO.getId());
-        Assertions.assertEquals(evidence.getUserId(), userId);
-        Assertions.assertEquals(evidence.getTitle(), evidenceDTO.getTitle());
-        Assertions.assertEquals(evidence.getDate(), LocalDate.parse(evidenceDTO.getDate()));
-        Assertions.assertEquals(evidence.getDescription(), evidenceDTO.getDescription());
-        Assertions.assertEquals(evidence.getWebLinks().size(), evidenceDTO.getWebLinks().size());
-        for (WebLinkDTO webLinkDTO : evidenceDTO.getWebLinks()) {
-            Assertions.assertTrue(evidence.getWebLinks().stream().anyMatch(link -> link.getAlias().equals(webLinkDTO.getName())));
-        }
-        Assertions.assertEquals(evidence.getSkills().size(), evidenceDTO.getSkills().size());
-        for (String skillString : evidenceDTO.getSkills()) {
-            Assertions.assertTrue(evidence.getSkills().stream().anyMatch(skill -> skill.getName().equals(skillString)));
-        }
-        Assertions.assertEquals(evidence.getCategories().size(), evidenceDTO.getCategories().size());
-        for (String categoryString : evidenceDTO.getCategories()) {
-            switch (categoryString) {
-                case "QUANTITATIVE" -> Assertions.assertTrue(evidence.getCategories().contains(Category.QUANTITATIVE));
-                case "QUALITATIVE" -> Assertions.assertTrue(evidence.getCategories().contains(Category.QUALITATIVE));
-                case "SERVICE" -> Assertions.assertTrue(evidence.getCategories().contains(Category.SERVICE));
-            }
-        }
-        Assertions.assertEquals(evidence.getAssociateIds().size(), evidenceDTO.getAssociateIds().size());
-        for (Integer associateId : evidenceDTO.getAssociateIds()) {
-            Assertions.assertTrue(evidence.getAssociateIds().contains(associateId));
-        }
-    }
-
-
     @Test
     void testEditServiceUpdatesWhenAllFieldsAreValid() throws Exception {
         setUserToStudent();
@@ -890,6 +818,78 @@ class EvidenceServiceTest {
     }
 
     // ---------------------------------------------------
+
+
+    private void setupEditEvidenceTests() throws Exception {
+        evidenceDTO = new EvidenceDTO.EvidenceDTOBuilder()
+                .setId(10)
+                .setTitle("New Title")
+                .setDate(LocalDate.now().toString())
+                .setDescription("New description")
+                .setWebLinks(new ArrayList<>(
+                        Arrays.asList(
+                                new WebLinkDTO("New weblink 1", "http://www.google.com"),
+                                new WebLinkDTO("New weblink 2", "https://localhost:9000/test")
+                        )))
+                .setCategories(new ArrayList<>(
+                        Arrays.asList("SERVICE", "QUANTITATIVE"
+                        )))
+                .setSkills(new ArrayList<>(
+                        Arrays.asList("Testing", "Backend")
+                ))
+                .setAssociateIds(new ArrayList<>(
+                        Arrays.asList(2, 3, 4, 5)
+                ))
+                .setProjectId(1L)
+                .build();
+        evidence = new Evidence(10,
+                1,
+                "Test Original title",
+                LocalDate.now().minusDays(1) ,
+                "Test Original Description");
+        evidence.addWebLink(new WebLink(evidence, "Original Link", new URL("https://localhost:8080")));
+        evidence.addSkill(new Skill("Java"));
+        evidence.addCategory(Category.QUALITATIVE);
+        evidence.addCategory(Category.QUANTITATIVE);
+        evidence.addAssociateId(2);
+        // Adds the archived ID
+        evidence.addAssociateId(3);
+        evidence.removeAssociateId(3);
+
+        project = new Project("Project title");
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), any())).thenReturn(Optional.empty());
+        Mockito.when(evidenceRepository.findById(evidenceDTO.getId())).thenReturn(Optional.of(evidence));
+        Mockito.when(projectRepository.findById(Mockito.any())).thenReturn(Optional.of(project));
+    }
+
+
+    private void assertEvidenceDtoMatchesEvidence(Integer userId) {
+        Assertions.assertEquals(evidence.getId(), evidenceDTO.getId());
+        Assertions.assertEquals(evidence.getUserId(), userId);
+        Assertions.assertEquals(evidence.getTitle(), evidenceDTO.getTitle());
+        Assertions.assertEquals(evidence.getDate(), LocalDate.parse(evidenceDTO.getDate()));
+        Assertions.assertEquals(evidence.getDescription(), evidenceDTO.getDescription());
+        Assertions.assertEquals(evidence.getWebLinks().size(), evidenceDTO.getWebLinks().size());
+        for (WebLinkDTO webLinkDTO : evidenceDTO.getWebLinks()) {
+            Assertions.assertTrue(evidence.getWebLinks().stream().anyMatch(link -> link.getAlias().equals(webLinkDTO.getName())));
+        }
+        Assertions.assertEquals(evidence.getSkills().size(), evidenceDTO.getSkills().size());
+        for (String skillString : evidenceDTO.getSkills()) {
+            Assertions.assertTrue(evidence.getSkills().stream().anyMatch(skill -> skill.getName().equals(skillString)));
+        }
+        Assertions.assertEquals(evidence.getCategories().size(), evidenceDTO.getCategories().size());
+        for (String categoryString : evidenceDTO.getCategories()) {
+            switch (categoryString) {
+                case "QUANTITATIVE" -> Assertions.assertTrue(evidence.getCategories().contains(Category.QUANTITATIVE));
+                case "QUALITATIVE" -> Assertions.assertTrue(evidence.getCategories().contains(Category.QUALITATIVE));
+                case "SERVICE" -> Assertions.assertTrue(evidence.getCategories().contains(Category.SERVICE));
+            }
+        }
+        Assertions.assertEquals(evidence.getAssociateIds().size(), evidenceDTO.getAssociateIds().size());
+        for (Integer associateId : evidenceDTO.getAssociateIds()) {
+            Assertions.assertTrue(evidence.getAssociateIds().contains(associateId));
+        }
+    }
 
 
     private void setUserToStudent() {

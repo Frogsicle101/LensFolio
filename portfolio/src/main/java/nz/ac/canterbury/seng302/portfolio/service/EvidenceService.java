@@ -97,15 +97,12 @@ public class EvidenceService {
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         checkValidEvidenceDTO(evidenceDTO);
 
-        List<Integer> associates = evidenceDTO.getAssociateIds();
-        if (associates == null) {
-            associates = new ArrayList<>();
-        }
-        associates = new ArrayList<>(new LinkedHashSet<>(associates));
-        associates.remove((Object) user.getId());
-        associates.add(user.getId());
+        evidenceDTO.setAssociateIds(evidenceDTO.getAssociateIds() == null ?
+                new ArrayList<>() :
+                new ArrayList<>(new LinkedHashSet<>(evidenceDTO.getAssociateIds())));
+        evidenceDTO.addAssociatedId(user.getId());
 
-        return createEvidenceForUsers(evidenceDTO, associates);
+        return createEvidenceForUsers(evidenceDTO, evidenceDTO.getAssociateIds());
     }
 
 
