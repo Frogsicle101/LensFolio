@@ -28,7 +28,7 @@ $(document).on("click", ".editRepo", () => {
             </div>
             <div class="mb-1">
                 <label class="form-label">Project ID (must be a number):</label>
-                <input type="number" id="projectId" class="form-control" required max=${maxProjectIdNumber} value="${sanitise($(".groupSettingsPageProjectId").text())}">
+                <input type="number" id="projectId" class="form-control" required max=${maxProjectIdNumber} value="${sanitise($("#groupSettingsPageProjectId").text())}">
             </div>
             <div class="mb-1">
                 <label class="form-label">Access Token (minimum 20 characters):</label>
