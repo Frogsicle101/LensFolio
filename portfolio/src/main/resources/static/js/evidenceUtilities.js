@@ -94,10 +94,9 @@ function setHighlightedEvidenceWebLinks(response) {
     let webLinksDiv = $("#evidenceWebLinks")
     webLinksDiv.empty()
 
-    for (let index in response) {
-        let webLink = response[index]
-        webLinksDiv.append(detailsWeblinkElement(webLink.url, webLink.alias))
-    }
+    $.each(response, (i, weblink) => {
+        webLinksDiv.append(detailsWeblinkElement(weblink.url, weblink.alias))
+    })
 
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
@@ -121,8 +120,13 @@ function setHighlightedEvidenceWebLinks(response) {
  */
 function deletableWeblinkElement(url, alias) {
     const icon = getWeblinkIcon(url)
-    const formattedWeblink = getFormattedUrl(url)
+    const formattedUrl = getFormattedUrl(url)
     const security = getWeblinkSecurity(url)
+    let urlWithProtocol = url
+
+    if (!hasProtocol(url)) {
+        urlWithProtocol = "http://" + url
+    }
 
     return (`
         <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
@@ -135,8 +139,8 @@ function deletableWeblinkElement(url, alias) {
                 </svg>
             </button>
             ${icon}
-            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
-               data-bs-title="${formattedWeblink}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}
+            <a href="${sanitise(urlWithProtocol)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+               data-bs-title="${formattedUrl}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}
             </a>
         </div>
     `)
@@ -158,11 +162,16 @@ function detailsWeblinkElement(url, alias) {
     const icon = getWeblinkIcon(url)
     const security = getWeblinkSecurity(url)
     const formattedUrl = getFormattedUrl(url)
+    let urlWithProtocol = url
+
+    if (!hasProtocol(url)) {
+        urlWithProtocol = "http://" + url
+    }
 
     return (
         `<div class="webLinkElement ${security}" data-value="${sanitise(url)}">
             ${icon}
-            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+            <a href="${sanitise(urlWithProtocol)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
             data-bs-title="${formattedUrl}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
         </div>`
     )
@@ -223,27 +232,36 @@ function getWeblinkSecurity(url) {
  * @returns The url, formatted to not include any protocol.
  */
 function getFormattedUrl(url) {
-    let hasProtocol = false
     let formattedUrl
+
+    if (hasProtocol(url)) {
+        let slashIndex = url.search("//") + 2
+            formattedUrl = url.slice(slashIndex)
+    } else {
+        formattedUrl = url
+    }
+
+    return formattedUrl
+}
+
+
+/**
+ * Checks whether a given url address starts with any of the protocols defined in the VALID_PROTOCOLS list.
+ *
+ * @param url The url to be checked.
+ * @returns {boolean} True if the url starts with one of the protocols, false otherwise/
+ */
+function hasProtocol(url) {
+    let urlHasProtocol = false
 
     $.each(VALID_PROTOCOLS, (i, protocol) => {
         if (url.startsWith(protocol)) {
-            hasProtocol = true
+            urlHasProtocol = true
             return false
         }
     })
 
-    if (hasProtocol) {
-        let slashIndex = url.search("//") + 2
-        if (slashIndex > 1) {
-            formattedUrl = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
-        } else {
-            formattedUrl = url // The url does not have a protocol attached to it
-            url = "http://" + url
-        }
-    }
-
-    return formattedUrl
+    return urlHasProtocol
 }
 
 
