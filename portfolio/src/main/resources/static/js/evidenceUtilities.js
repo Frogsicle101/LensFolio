@@ -6,9 +6,6 @@
 
 const RESERVED_SKILL_TAGS = ["no_skill"];
 
-/** A regex only allowing English characters, numbers, hyphens and underscores */
-const regexSkills = new RegExp("[A-Za-z0-9_-]+");
-
 /** A regex contain emoji */
 const emojiRegx = new RegExp("/(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]/g");
 

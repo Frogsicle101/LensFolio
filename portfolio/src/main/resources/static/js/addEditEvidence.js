@@ -4,6 +4,9 @@ let skillsToCreate = []
 const skillsInput = $("#skillsInput")
 let oldInput = ""
 
+/** A regex contains at least one letter */
+const regexSkills = new RegExp(".*[A-Za-z]+.*");
+
 
 /**
  * Adds a string to the skillsToCreate list if it is not present.
@@ -68,7 +71,11 @@ function updateSkillsInput() {
     chipDisplay.empty()
     skillsToCreate.forEach(function (element) {
         element = element.replaceAll("_", " ");
-        chipDisplay.append(createDeletableSkillChip(element))
+        if (regexSkills.test(element)) {
+            chipDisplay.append(createDeletableSkillChip(element))
+        } else {
+            createAlert("Skill name contains at least one letter.", AlertTypes.Failure)
+        }
     })
     oldInput = ""
 }
@@ -152,56 +159,6 @@ function handleChipDelete(event) {
     skillsToCreate = skillsToCreate.filter(addedSkill => addedSkill !== skillName)
 
     updateSkillsInput()
-}
-
-
-
-/**
- * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
- * exist in it, it checks for case insensitivity as well.
- *
- * @param input the jQuery call to the input to check
- */
-function removeDuplicatesFromInput(input) {
-    let inputArray = input.val().trim().split(/\s+/)
-    let newArray = []
-
-    inputArray.forEach(function (element) {
-        if (regexSkills.test(element)) {
-            while (element.slice(-1) === "_") {
-                element = element.slice(0, -1)
-            }
-            while (element.slice(0, 1) === "_") {
-                element = element.slice(1, element.length)
-            }
-            element = element.replaceAll("_", " ")
-                .replace(/\s+/g, ' ')
-                .trim()
-                .replaceAll(" ", "_")
-            if (element.match(emojiRegx)) {
-                createAlert("Emojis not allowed in Skill name", AlertTypes.Failure)
-            }
-            if (element.length > 30) { //Shortens down the elements to 30 characters
-                element = element.split("").splice(0, 30).join("")
-                createAlert("Length of skill name should be less than 30", AlertTypes.Failure)
-            }
-            if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
-                newArray.push(element)
-            }
-        } else if (element.length > 0) {
-            createAlert("Skill names containing only special symbols are not allowed.", AlertTypes.Failure)
-        }
-    })
-
-    newArray.forEach(function (element, index) {
-        skillsArray.forEach(function (alreadyExistingSkill) {
-            if (element.toLowerCase() === alreadyExistingSkill.toLowerCase()) {
-                newArray[index] = alreadyExistingSkill;
-            }
-        })
-    })
-
-    input.val(newArray.join(" "))
 }
 
 
