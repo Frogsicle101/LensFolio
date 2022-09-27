@@ -19,12 +19,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -39,6 +40,8 @@ class EvidenceServiceTest {
     private Authentication principal;
     private Evidence evidence;
     private EvidenceService evidenceService;
+    private EvidenceDTO evidenceDTO;
+    private Project project;
 
     @BeforeEach
     void setUp() {
@@ -46,6 +49,8 @@ class EvidenceServiceTest {
         evidence = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         when(userAccountsClientService.getUserAccountById(any())).thenReturn(UserResponse.newBuilder().setId(1).build());
         when(evidenceRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(skillRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        evidenceService = Mockito.spy(evidenceService);
     }
 
 
@@ -728,6 +733,166 @@ class EvidenceServiceTest {
         Mockito.verify(skillRepository, Mockito.times(1)).save(Mockito.any());
     }
 
+
+    private void setupEditEvidenceTests() throws Exception {
+        evidenceDTO = new EvidenceDTO.EvidenceDTOBuilder()
+                .setId(10)
+                .setTitle("New Title")
+                .setDate(LocalDate.now().toString())
+                .setDescription("New description")
+                .setWebLinks(new ArrayList<>(
+                        Arrays.asList(
+                                new WebLinkDTO("New weblink 1", "http://www.google.com"),
+                                new WebLinkDTO("New weblink 2", "https://localhost:9000/test")
+                        )))
+                .setCategories(new ArrayList<>(
+                        Arrays.asList("SERVICE", "QUANTITATIVE"
+                        )))
+                .setSkills(new ArrayList<>(
+                        Arrays.asList("Testing", "Backend")
+                ))
+                .setAssociateIds(new ArrayList<>(
+                        Arrays.asList(2, 3, 4, 5)
+                ))
+                .setProjectId(1L)
+                .build();
+        evidence = new Evidence(10,
+                                1,
+                                "Test Original title",
+                                LocalDate.now().minusDays(1) ,
+                                "Test Original Description");
+        evidence.addWebLink(new WebLink(evidence, "Original Link", new URL("https://localhost:8080")));
+        evidence.addSkill(new Skill("Java"));
+        evidence.addCategory(Category.QUALITATIVE);
+        evidence.addCategory(Category.QUANTITATIVE);
+        evidence.addAssociateId(2);
+        // Adds the archived ID
+        evidence.addAssociateId(3);
+        evidence.removeAssociateId(3);
+
+        project = new Project("Project title");
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), any())).thenReturn(Optional.empty());
+        Mockito.when(evidenceRepository.findById(evidenceDTO.getId())).thenReturn(Optional.of(evidence));
+        Mockito.when(projectRepository.findById(Mockito.any())).thenReturn(Optional.of(project));
+    }
+
+
+    private void assertEvidenceDtoMatchesEvidence(Integer userId) {
+        Assertions.assertEquals(evidence.getId(), evidenceDTO.getId());
+        Assertions.assertEquals(evidence.getUserId(), userId);
+        Assertions.assertEquals(evidence.getTitle(), evidenceDTO.getTitle());
+        Assertions.assertEquals(evidence.getDate(), LocalDate.parse(evidenceDTO.getDate()));
+        Assertions.assertEquals(evidence.getDescription(), evidenceDTO.getDescription());
+        Assertions.assertEquals(evidence.getWebLinks().size(), evidenceDTO.getWebLinks().size());
+        for (WebLinkDTO webLinkDTO : evidenceDTO.getWebLinks()) {
+            Assertions.assertTrue(evidence.getWebLinks().stream().anyMatch(link -> link.getAlias().equals(webLinkDTO.getName())));
+        }
+        System.out.println(evidence.getSkills());
+        System.out.println(evidenceDTO.getSkills());
+        Assertions.assertEquals(evidence.getSkills().size(), evidenceDTO.getSkills().size());
+        for (String skillString : evidenceDTO.getSkills()) {
+            Assertions.assertTrue(evidence.getSkills().stream().anyMatch(skill -> skill.getName().equals(skillString)));
+        }
+        Assertions.assertEquals(evidence.getCategories().size(), evidenceDTO.getCategories().size());
+        for (String categoryString : evidenceDTO.getCategories()) {
+            switch (categoryString) {
+                case "QUANTITATIVE" -> Assertions.assertTrue(evidence.getCategories().contains(Category.QUANTITATIVE));
+                case "QUALITATIVE" -> Assertions.assertTrue(evidence.getCategories().contains(Category.QUALITATIVE));
+                case "SERVICE" -> Assertions.assertTrue(evidence.getCategories().contains(Category.SERVICE));
+            }
+        }
+        Assertions.assertEquals(evidence.getAssociateIds().size(), evidenceDTO.getAssociateIds().size());
+        for (Integer associateId : evidenceDTO.getAssociateIds()) {
+            Assertions.assertTrue(evidence.getAssociateIds().contains(associateId));
+        }
+    }
+
+
+    @Test
+    void testEditServiceUpdatesWhenAllFieldsAreValid() throws Exception {
+        setUserToStudent();
+        setupEditEvidenceTests();
+        Integer originalEvidenceUserId = evidence.getUserId();
+
+        evidenceService.editEvidence(principal, evidenceDTO);
+
+        ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
+        Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
+
+        evidence = captor.getValue();
+
+        assertEvidenceDtoMatchesEvidence(originalEvidenceUserId);
+    }
+
+
+    @Test
+    void testEditEvidenceWhenUserDoesntOwnTheEvidence() throws Exception {
+        setUserToStudent();
+        setupEditEvidenceTests();
+        evidence.setUserId(2);
+
+        CheckException exception = Assertions.assertThrows(
+                CheckException.class,
+                () -> evidenceService.editEvidence(principal, evidenceDTO)
+        );
+        Mockito.verify(evidenceRepository, never()).save(any());
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("owned by a different user"));
+    }
+
+
+    @Test
+    void testEditEvidenceWhenEvidenceDoesntExist() throws Exception {
+        setUserToStudent();
+        setupEditEvidenceTests();
+
+        Mockito.when(evidenceRepository.findById(evidenceDTO.getId())).thenReturn(Optional.empty());
+
+        CheckException exception = Assertions.assertThrows(
+                CheckException.class,
+                () -> evidenceService.editEvidence(principal, evidenceDTO)
+        );
+        Mockito.verify(evidenceRepository, never()).save(any());
+        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("no evidence found"));
+    }
+
+
+    @Test
+    void testRequiredValidationIsCalledOnEvidenceEdit() throws Exception {
+        setUserToStudent();
+        setupEditEvidenceTests();
+
+        evidenceService.editEvidence(principal, evidenceDTO);
+
+        ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
+        Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
+
+        Mockito.verify(regexService, times(1)).checkInput(eq(RegexPattern.GENERAL_UNICODE), any(), anyInt(), anyInt(), eq("Title"));
+        Mockito.verify(regexService, times(1)).checkInput(eq(RegexPattern.GENERAL_UNICODE), any(), anyInt(), anyInt(), eq("Description"));
+        Mockito.verify(evidenceService, times(1)).checkValidEvidenceDTO(evidenceDTO);
+        evidence = captor.getValue();
+    }
+
+
+    @Test
+    void testOnlyTheRightUsersGetNewEvidenceOnEdit() throws Exception {
+        setUserToStudent();
+        setupEditEvidenceTests();
+
+        evidenceService.editEvidence(principal, evidenceDTO);
+
+        ArgumentCaptor<Evidence> captor = ArgumentCaptor.forClass(Evidence.class);
+        Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
+
+        List<Evidence> capturedEvidence = captor.getAllValues();
+        Set<Integer> usersWithSavedEvidence = capturedEvidence.stream().map(Evidence::getUserId).collect(Collectors.toSet());
+        Set<Integer> expectedUsersToHaveSave = new HashSet<>(Arrays.asList(1, 4, 5));
+
+        for (Integer user : usersWithSavedEvidence) {
+            Assertions.assertTrue(expectedUsersToHaveSave.contains(user));
+        }
+        Assertions.assertEquals(expectedUsersToHaveSave.size(), usersWithSavedEvidence.size());
+    }
+
     // ---------------------------------------------------
 
 
@@ -740,5 +905,4 @@ class EvidenceServiceTest {
                 .addClaims(ClaimDTO.newBuilder().setType("role").setValue("student").build())
                 .build());
     }
-
 }

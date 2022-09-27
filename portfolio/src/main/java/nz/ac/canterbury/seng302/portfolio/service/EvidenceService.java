@@ -154,10 +154,8 @@ public class EvidenceService {
      * @param evidenceDTO the evidenceDTO to be validated
      * @throws CheckException an exception containing the message why the validation failed.
      */
-    private void checkValidEvidenceDTO(EvidenceDTO evidenceDTO) throws CheckException {
+    protected void checkValidEvidenceDTO(EvidenceDTO evidenceDTO) throws CheckException {
         long projectId = evidenceDTO.getProjectId();
-        String title = evidenceDTO.getTitle();
-        String description = evidenceDTO.getDescription();
         List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
         String date = evidenceDTO.getDate();
 
@@ -172,8 +170,8 @@ public class EvidenceService {
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
 
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 5, 50, "Title");
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 5, 500, "Description");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, evidenceDTO.getTitle(), 5, 50, "Title");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, evidenceDTO.getDescription(), 5, 500, "Description");
     }
 
 
@@ -207,6 +205,7 @@ public class EvidenceService {
      * @throws MalformedURLException when the URL is not parse correctly.
      */
     private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws MalformedURLException {
+        logger.info("Updating evidence details for evidence {}", originalEvidence.getId());
         originalEvidence.setTitle(evidenceDTO.getTitle());
         originalEvidence.setDescription(evidenceDTO.getDescription());
         originalEvidence.setDate(LocalDate.parse(evidenceDTO.getDate()));
@@ -241,7 +240,6 @@ public class EvidenceService {
             checkAssociateId(associate);
             evidence.addAssociateId(associate);
         }
-
         return evidenceRepository.save(evidence);
     }
 
@@ -281,6 +279,7 @@ public class EvidenceService {
             }
             Optional<Skill> optionalSkill = skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(evidence.getUserId(), skillName);
             Skill theSkill;
+            logger.warn("Optional skill = {}", optionalSkill);
             if (optionalSkill.isEmpty()) {
                 if (skillName.equalsIgnoreCase("No Skill")) {
                     continue;
