@@ -134,7 +134,7 @@
     background-color: #eaeaea;
 }
 
-#addEvidenceModal {
+#addOrEditEvidenceModal {
     display: none;
     position: fixed;
     z-index: 5;
@@ -295,4 +295,26 @@
     border: none;
     background: none;
     color: red;
+}
+
+#deleteLinkedUser{
+    height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border: none;
+    color: black;
+    background: #ffffff;
+}
+
+#deleteLinkedUser:hover{
+    height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border: none;
+    background: #175fbd;
+    color: #ffffff;
+}
+
+#linkedUserElement{
+    display : flex;
 }

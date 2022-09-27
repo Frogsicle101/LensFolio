@@ -38,40 +38,40 @@
                     <div class="mb-3">
                         <label class="required form-label" for="firstname">First name</label>
                         <!--/*@thymesVar id="user" type="nz.ac.canterbury.seng302.shared.identityprovider.UserResponse"*/-->
-                        <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                        <!--/*@thymesVar id="firstLastNameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
                         <input class="form-control canDisable" disabled id="firstname" minlength="2" maxlength="100"
                                name="firstname" required
-                               th:pattern="${nameRegex.getPatternString()}"
-                               th:title="${'First name' + nameRegex.getRequirements()}"
+                               th:pattern="${firstLastNameRegex.getPatternString()}"
+                               th:title="${'First name' + firstLastNameRegex.getRequirements()}"
                                th:value="${user.getFirstName()}"
                                type="text">
-                        <div id="firstNameError" class="invalid-feedback" th:text="${'First name must be 2-100 characters and ' + nameRegex.getRequirements()}"></div>
+                        <div id="firstNameError" class="invalid-feedback" th:text="${'First name must be 2-100 characters and ' + firstLastNameRegex.getRequirements()}"></div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="middlename">Middle name</label>
                         <!--/*@thymesVar id="user" type="nz.ac.canterbury.seng302.shared.identityprovider.UserResponse"*/-->
-                        <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                        <!--/*@thymesVar id="middleNameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
                         <input class="form-control canDisable" disabled id="middlename" maxlength="100"
                                name="middlename"
-                               th:pattern="${nameRegex.getPatternString()}"
-                               th:title="${'Middle name' + nameRegex.getRequirements()}"
+                               th:pattern="${middleNameRegex.getPatternString()}"
+                               th:title="${'Middle name' + middleNameRegex.getRequirements()}"
                                th:value="${user.getMiddleName()}"
                                type="text">
-                        <div id="middleNameError" class="invalid-feedback" th:text="${'Middle name' + nameRegex.getRequirements()}"></div>
+                        <div id="middleNameError" class="invalid-feedback" th:text="${'Middle name' + middleNameRegex.getRequirements()}"></div>
                     </div>
 
                     <div class="mb-3">
                         <label class="required form-label" for="lastname">Last name</label>
                         <!--/*@thymesVar id="user" type="nz.ac.canterbury.seng302.shared.identityprovider.UserResponse"*/-->
-                        <!--/*@thymesVar id="nameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                        <!--/*@thymesVar id="firstLastNameRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
                         <input class="form-control canDisable" disabled id="lastname" minlength="2" maxlength="100"
                                name="lastname" required
-                               th:pattern="${nameRegex.getPatternString()}"
-                               th:title="${'Last name' + nameRegex.getRequirements()}"
+                               th:pattern="${firstLastNameRegex.getPatternString()}"
+                               th:title="${'Last name' + firstLastNameRegex.getRequirements()}"
                                th:value="${user.getLastName()}"
                                type="text">
-                        <div id="lastNameError" class="invalid-feedback" th:text="${'Last name must be 2-100 characters and ' + nameRegex.getRequirements()}"></div>
+                        <div id="lastNameError" class="invalid-feedback" th:text="${'Last name must be 2-100 characters and ' + firstLastNameRegex.getRequirements()}"></div>
                     </div>
 
                 </div>
