@@ -34,6 +34,10 @@ let categoriesMapping = new Map([
     ["SERVICE", "Service"]
 ])
 
+/** Protocols urls can begin with **/
+const VALID_PROTOCOLS = ["https://", "http://", "ftp://"]
+
+
 $(() => {
         // Counting characters
         let textInput = $(".text-input");
@@ -90,14 +94,10 @@ function setHighlightedEvidenceWebLinks(response) {
     let webLinksDiv = $("#evidenceWebLinks")
     webLinksDiv.empty()
 
-    for (let index in response) {
-        let webLink = response[index]
-        webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
-    }
-    let deleteButtons = $('#deleteWeblink')
-    for (let i = 0; i < deleteButtons.length; i++) {
-        deleteButtons[i].style = "display: none;"
-    }
+    $.each(response, (i, weblink) => {
+        webLinksDiv.append(detailsWeblinkElement(weblink.url, weblink.alias))
+    })
+
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
     } else {
@@ -108,61 +108,160 @@ function setHighlightedEvidenceWebLinks(response) {
 
 
 /**
- * Given a web url and an alias, creates and returns a web link element.
+ * Given a web url and an alias, creates and returns a web link element with a delete icon.
  * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
  *
  * If the url doesn't start with https, it will show an un-filled, unlocked icon.
  * If it does, it will show a locked, filled icon.
  *
  * @param url The web url of the web link
- * @param alias The alias/nickname of the web url. Everything before the first // occurrence will be cut off
- * (e.g. https://www.goggle.com becomes www.google.com)
+ * @param alias The alias/nickname of the web url.
  * @returns {string} A single-div webLink element, wrapped in ` - e.g. `<div>stuff!</div>`
  */
-function webLinkElement(url, alias) {
-    let icon;
-    let security = "unsecured"
+function deletableWeblinkElement(url, alias) {
+    const icon = getWeblinkIcon(url)
+    const formattedUrl = getFormattedUrl(url)
+    const security = getWeblinkSecurity(url)
+    let urlWithProtocol = url
+
+    if (!hasProtocol(url)) {
+        urlWithProtocol = "http://" + url
+    }
+
+    return (`
+        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
+            <button class="deleteWeblink deleteIcon">
+                <svg class="bi bi-trash" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                    fill-rule="evenodd"/>
+                </svg>
+            </button>
+            ${icon}
+            <a href="${sanitise(urlWithProtocol)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+               data-bs-title="${formattedUrl}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}
+            </a>
+        </div>
+    `)
+}
+
+
+/**
+ * Given a web url and an alias, creates and returns a web link element with no delete icon.
+ * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
+ *
+ * If the url doesn't start with https, it will show an un-filled, unlocked icon.
+ * If it does, it will show a locked, filled icon.
+ *
+ * @param url The url of the weblink
+ * @param alias The name associated with the weblink
+ * @returns {string} HTML representing the weblink element's div.
+ */
+function detailsWeblinkElement(url, alias) {
+    const icon = getWeblinkIcon(url)
+    const security = getWeblinkSecurity(url)
+    const formattedUrl = getFormattedUrl(url)
+    let urlWithProtocol = url
+
+    if (!hasProtocol(url)) {
+        urlWithProtocol = "http://" + url
+    }
+
+    return (
+        `<div class="webLinkElement ${security}" data-value="${sanitise(url)}">
+            ${icon}
+            <a href="${sanitise(urlWithProtocol)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="${formattedUrl}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
+        </div>`
+    )
+}
+
+
+/**
+ * Gets the icon indicating weblink security based on the link protocol.
+ *
+ * @param url The url the icon is associated with
+ * @returns {string} The HTML for the svg lock icon
+ */
+function getWeblinkIcon(url) {
+    let icon
 
     if (url.startsWith("https://")) {
-        security = "secured"
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill lockIcon text-success" viewBox="0 0 16 16">
-        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
         </svg>
         `
     } else {
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock lockIcon text-danger" viewBox="0 0 16 16">
-        <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"/>
+            <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"/>
         </svg>
         `
     }
 
-    let slashIndex = url.search("//") + 2
-    let urlSlashed
-    if (slashIndex > 1) {
-        urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    return icon
+}
+
+
+/**
+ * Gets the security value indicating weblink security based on the link protocol.
+ *
+ * @param url The url the icon is associated with
+ * @returns {string} The security status of the weblink. Either "secure" or "unsecure".
+ */
+function getWeblinkSecurity(url) {
+    let security
+
+    if (url.startsWith("https://")) {
+        security = "secure"
     } else {
-        urlSlashed = url // The url does not have a protocol attached to it
-        url = "http://" + url
+        security = "unsecure"
     }
 
-    return (`
-        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
-        
-            <button id="deleteWeblink" class="deleteWeblinkButton">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-            </svg>
-            </button>
-            
-            ${icon}
-            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
-            
-        </div>
-    `)
+    return security
+}
+
+
+/**
+ * Removes the protocol from the weblink, if it has one.
+ * Protocols are defined globally, but the VALID_PROTOCOLS list.
+ *
+ * @param url The url to be formatted.
+ * @returns The url, formatted to not include any protocol.
+ */
+function getFormattedUrl(url) {
+    let formattedUrl
+
+    if (hasProtocol(url)) {
+        let slashIndex = url.search("//") + 2
+            formattedUrl = url.slice(slashIndex)
+    } else {
+        formattedUrl = url
+    }
+
+    return formattedUrl
+}
+
+
+/**
+ * Checks whether a given url address starts with any of the protocols defined in the VALID_PROTOCOLS list.
+ *
+ * @param url The url to be checked.
+ * @returns {boolean} True if the url starts with one of the protocols, false otherwise/
+ */
+function hasProtocol(url) {
+    let urlHasProtocol = false
+
+    $.each(VALID_PROTOCOLS, (i, protocol) => {
+        if (url.startsWith(protocol)) {
+            urlHasProtocol = true
+            return false
+        }
+    })
+
+    return urlHasProtocol
 }
 
 
@@ -348,7 +447,9 @@ function addLinkedUsersToEvidence(users) {
         linkedUsersDiv.append(linkedUserElement(user));
     })
 
-    $('.deleteLinkedUserButton').hide()
+    $(".deleteLinkedUserButton").each((i, button) => {
+        button.remove()
+    })
 }
 
 
@@ -592,15 +693,14 @@ function extractLast(term) {
 
 
 /**
- * Returns all the linked users id's from the evidence creation form
+ * Returns all the linked users' id's from the evidence creation form
  *
  * @returns [integer] the list of user id's to be attached
  */
 function getLinkedUsers() {
-    let linkedUsers = $("#linkedUsers").find(".linkedUser")
     let userIds = [];
 
-    $.each(linkedUsers, function (i, user) {
+    $(".linkedUsers").each((i, user) => {
         try {
             let userId = parseInt(user.id.replace("linkedUserId", ""));
             userIds.push(userId)
@@ -642,61 +742,9 @@ $(document).on("submit", "#evidenceCreationForm", function (e) {
 /**
  * Saves the evidence input during creating a new piece of evidence
  */
-$(document).on("click", "#evidenceSaveButton", function (event) {
-    event.preventDefault()
-    let skillsInput = $("#skillsInput")
-    removeDuplicatesFromInput(skillsInput)
-    let evidenceCreationForm = $("#evidenceCreationForm")[0]
-    toggleRequiredIfCheckURLInputsAreEmpty()
-    if (!evidenceCreationForm.checkValidity()) {
-        evidenceCreationForm.reportValidity()
-    } else {
-        const title = $("#evidenceName").val()
-        const date = $("#evidenceDate").val()
-        const description = $("#evidenceDescription").val()
-        const projectId = 1
-        let webLinks = getWeblinksList();
-        const linkedUsers = getLinkedUsers();
-        const categories = getCategories();
-
-        let data = JSON.stringify({
-            "title": title,
-            "date": date,
-            "description": description,
-            "projectId": projectId,
-            "webLinks": webLinks,
-            "skills": skillsToCreate,
-            "categories": categories,
-            "associateIds": linkedUsers
-        })
-
-        let buttonName = $("#evidenceSaveButton").html()
-
-        if (buttonName === "Create") { // create a new evidence
-            $.ajax({
-                url: 'evidence',
-                type: "POST",
-                contentType: "application/json",
-                data,
-                success: function (response) {
-                    selectedEvidenceId = response.id
-                    getAndAddEvidencePreviews()
-                    addSkillResponseToArray(response)
-                    addSkillsToSideBar();
-                    closeModal()
-                    clearAddEvidenceModalValues()
-                    $(".alert").remove()
-                    createAlert("Created evidence", AlertTypes.Success)
-                    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                    resetWeblink()
-                }, error: function (error) {
-                    createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
-                }
-            })
-        } else { // edit a exist evidence
-            // ToDo: Connect Save Button to Endpoint
-        }
-    }
+$(document).on("click", "#evidenceSaveButton", function (e) {
+    e.preventDefault()
+    handleEvidenceSave()
 })
 
 
@@ -727,14 +775,14 @@ $(document).on('click', '#addWeblinkButton', function (e) {
  * Listens for when delete web link button is clicked.
  * the web link will be deleted.
  */
-$(document).on('click', '#deleteWeblink', function () {
+$(document).on('click', '.deleteWeblink', function () {
     $(this).parent().remove();
 })
 
 
 /**
  * Listens for when delete web link button is clicked.
- * the web link will be deleted.
+ * The user will be removed.
  */
 $(document).on('click', '.deleteLinkedUserButton', function () {
     $(this).parent().remove();
@@ -906,7 +954,7 @@ function submitWebLink() {
 
     if (alias.val().length > 0) {
         webLinkTitle.show()
-        addedWebLinks.append(webLinkElement(url.val(), alias.val()))
+        addedWebLinks.append(deletableWeblinkElement(url.val(), alias.val()))
         initialiseTooltips()
         url.val("")
         alias.val("")
@@ -935,14 +983,15 @@ function addLinkedUser(user) {
  */
 function linkedUserElement(user) {
     return `<div id="linkedUserElement">
-                <button class="deleteButton deleteLinkedUserButton">
+                <button class="deleteButton deleteLinkedUserButton deleteLinkedUser deleteIcon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                     <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                     </svg>
-                    </button>
+                </button>
                 <div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">
-                     ${user.firstName} ${user.lastName} (${user.username})</div>
+                     ${user.firstName} ${user.lastName} (${user.username})
+                </div>
            </div> `
 }
 
@@ -952,7 +1001,6 @@ function linkedUserElement(user) {
  */
 $(document).on("click", ".linkedUser", function () {
     let userId = this.getAttribute("data-id")
-    console.log(userId)
     redirectToUsersHomePage(userId) //redirect to the user's evidence page
 })
 
@@ -1099,5 +1147,102 @@ function createCategoryChip(categoryName, isMenuItem) {
             <div class="chip categoryChip">
                 <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
+    }
+}
+
+
+
+// ----------------------------- SAVING EVIDENCE -----------------------------------
+
+/**
+ * Retrieves input values from the add evidence form and formats them in JSON.
+ *
+ * @returns {string} A JSON string of the evidence's data, formatted as an EvidenceDTO.
+ */
+function getDataFromEvidenceForm() {
+    const title = $("#evidenceName").val()
+    const date = $("#evidenceDate").val()
+    const description = $("#evidenceDescription").val()
+    const projectId = 1
+    let webLinks = getWeblinksList();
+    const linkedUsers = getLinkedUsers();
+    const categories = getCategories();
+
+    return JSON.stringify({
+        "title": title,
+        "date": date,
+        "description": description,
+        "projectId": projectId,
+        "webLinks": webLinks,
+        "skills": skillsToCreate,
+        "categories": categories,
+        "associateIds": linkedUsers
+    })
+}
+
+
+/**
+ * Updates the evidence page and resets the add evidence modal.
+ *
+ * @param response A server response containing data about the saved evidence, including its Id and skills.
+ */
+function handleSuccessfulEvidenceSave(response) {
+    selectedEvidenceId = response.id
+    getAndAddEvidencePreviews()
+    addSkillResponseToArray(response)
+    addSkillsToSideBar();
+    closeModal()
+    clearAddEvidenceModalValues()
+    $(".alert").remove()
+    createAlert("Created evidence", AlertTypes.Success)
+    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+    resetWeblink()
+}
+
+
+/**
+ * Makes an endpoint request to save a new piece of evidence.
+ *
+ * @param data the data for the evidence being created.
+ */
+function createEvidence(data) {
+    $.ajax({
+        url: 'evidence',
+        type: "POST",
+        contentType: "application/json",
+        data,
+        success: (response) => {
+            handleSuccessfulEvidenceSave(response)
+        }, error: (error) => {
+            createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
+        }
+    })
+}
+
+
+/**
+ * Validates the inputs in the evidence form. Calls the method to create a nw piece of evidence, if the evidence save
+ * button has the text "Create".
+ */
+function handleEvidenceSave() {
+    const skillsInput = $("#skillsInput")
+    removeDuplicatesFromInput(skillsInput)
+
+    const evidenceCreationForm = $("#evidenceCreationForm")[0]
+    toggleRequiredIfCheckURLInputsAreEmpty()
+
+    if (!evidenceCreationForm.checkValidity()) {
+        evidenceCreationForm.reportValidity()
+
+    } else {
+        const evidenceData = getDataFromEvidenceForm()
+        const buttonName = $("#evidenceSaveButton").text()
+
+        if (buttonName === "Create") { // create a new evidence
+            createEvidence(evidenceData)
+
+        } else { // edit a exist evidence
+            // ToDo: Connect Save Button to Endpoint
+        }
     }
 }
