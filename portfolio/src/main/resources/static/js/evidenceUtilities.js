@@ -1225,8 +1225,7 @@ function createEvidence(data) {
  * button has the text "Create".
  */
 function handleEvidenceSave() {
-    const skillsInput = $("#skillsInput")
-    removeDuplicatesFromInput(skillsInput)
+    removeDuplicatesFromInput()
 
     const evidenceCreationForm = $("#evidenceCreationForm")[0]
     toggleRequiredIfCheckURLInputsAreEmpty()
