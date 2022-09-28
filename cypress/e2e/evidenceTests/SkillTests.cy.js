@@ -53,16 +53,14 @@ describe('Skill creation', () => {
     })
 
     it("Should allow special characters", () => {
-        cy.get("#skillsInput").type("C# (a) [-=]_;:'/?.><,*&^%$~`@! ")
-        cy.get("#tagInputChips").find(".skillChip").should("have.length", 3)
+        cy.get("#skillsInput").type("C# a@! ")
+        cy.get("#tagInputChips").find(".skillChip").should("have.length", 2)
     })
 
     it("Should not allow only special characters", () => {
         cy.get("#skillsInput").type("@ ")
-        cy.get("#skillsInput").should("have.class", "skillChipInvalid")
         cy.contains("Skill name must contain at least one letter.").should('be.visible')
         cy.get("#skillsInput").type("@%& ")
-        cy.get("#skillsInput").should("have.class", "skillChipInvalid")
         cy.contains("Skill name must contain at least one letter.").should('be.visible')
     })
 
