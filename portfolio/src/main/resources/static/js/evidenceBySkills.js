@@ -131,14 +131,13 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 
 
 /**
- *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling
+ *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling.
+ *  Resets the form values to be empty.
  */
 $(document).on("click", "#createEvidenceButton" , () => {
-
-    // Reset addOrEditEvidenceModal without pre-filling evidence details
-    resetAddOrEditEvidencePage()
-    document.getElementById("addOrEditEvidenceTitle").innerHTML = "Add Evidence";
-    document.getElementById("evidenceSaveButton").innerHTML = "Create";
+    resetAddOrEditEvidenceForm()
+    $("#addOrEditEvidenceTitle").html("Add Evidence")
+    $("#evidenceSaveButton").html("Create")
 
     $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
@@ -179,82 +178,6 @@ function closeModal() {
 
 
 /**
- *  A Listener for the edit evidence button. This displays the modal and prevents the page below from scrolling
- */
-$(document).on("click", "#editEvidenceButton" , () => {
-
-    //clean up the edit evidence page
-    resetAddOrEditEvidencePage()
-    document.getElementById("addOrEditEvidenceTitle").innerHTML = "Edit Evidence";
-    document.getElementById("evidenceSaveButton").innerHTML = "Save Changes";
-    $("#evidenceSaveButton").prop("disabled", false);
-
-    // Reset addOrEditEvidenceModal with pre-filling evidence details
-    let evidenceHighlight = document.querySelector(".evidenceDetailsContainer")
-
-    //name, date, description
-    let currentEvidenceTitle =  reversTranslationHTML(document.getElementById("evidenceDetailsTitle").innerHTML)
-    let currentEvidenceDate =  document.getElementById("evidenceDetailsDate").innerHTML
-    let currentEvidenceDescription =  reversTranslationHTML(document.getElementById("evidenceDetailsDescription").innerHTML)
-    document.getElementById("evidenceName").value = currentEvidenceTitle;
-    document.getElementById("evidenceDate").value = currentEvidenceDate;
-    document.getElementById("evidenceDescription").value = currentEvidenceDescription;
-
-    //skills
-    let currentSkillsList = evidenceHighlight.querySelectorAll(".skillChip")
-    for (let i = 0; i < currentSkillsList.length; i++) {
-        let skillName = reversTranslationHTML(currentSkillsList[i].querySelector(".chipText").innerHTML)
-        if (skillName !== "No Skill") {
-            let skillChip = `
-                <div class="chip skillChip">
-                    <p class="chipText">${sanitise(skillName)}</p>  
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                    </svg>
-                </div>`
-            document.getElementById("tagInputChips").innerHTML += skillChip;
-        }
-    }
-
-    //categories
-    let currentCategoriesList = evidenceHighlight.querySelectorAll(".categoryChip")
-    for (let i = 0; i < currentCategoriesList.length; i++) {
-        let categoryName = currentCategoriesList[i].querySelector(".chipText").innerHTML
-        let categoryButton =  document.getElementById("button"+categoryName)
-        categoryButton.className = "btn inlineText evidenceFormCategoryButton btn-success"
-        categoryButton.querySelector(".evidenceCategoryTickIcon").style = "display: inline-block;"
-    }
-
-    //webLinks
-    let webLinksList = evidenceHighlight.querySelectorAll(".webLinkElement")
-    document.getElementById("webLinkTitle").style = "display;"
-    for (let i = 0; i < webLinksList.length; i++) {
-        document.getElementById("addedWebLinks").innerHTML += webLinksList[i].outerHTML;
-    }
-    let deleteWebLinkButtons = document.getElementById("addOrEditEvidenceModal").querySelectorAll(".deleteWeblinkButton")
-    for (let i = 0; i < deleteWebLinkButtons.length; i++) {
-        deleteWebLinkButtons[i].style = "display;"
-    }
-
-    //users linked
-    let uselinkedList = document.getElementById("evidenceDetailsLinkedUsers")
-    document.getElementById("linkedUsersTitle").style = "display;"
-    document.getElementById("linkedUsers").innerHTML = uselinkedList.innerHTML
-    document.getElementById("addOrEditEvidenceModal").querySelector("#linkedUserId"+userIdent).parentElement.outerHTML = "";
-
-    let deleteUserLinkedButtons = document.getElementById("addOrEditEvidenceModal").querySelectorAll('#deleteLinkedUser')
-    for (let i = 0; i < deleteUserLinkedButtons.length; i++) {
-        deleteUserLinkedButtons[i].style = "display;"
-    }
-
-    $("#addOrEditEvidenceModal").show()
-    $(".modalContent").show("drop", {direction: "up"}, 200)
-    $('body,html').css('overflow','hidden');
-})
-
-
-/**
  *  Get today date as format of yyyy-mm-dd
  */
 function getTodayDate() {
@@ -267,28 +190,142 @@ function getTodayDate() {
 
 
 /**
- *  Clean up the evidence adding and editing page.
+ *  Resets evidence modal values to be blank and disables the save button.
  */
-function resetAddOrEditEvidencePage() {
-    document.getElementById("evidenceName").value = "";
-    document.getElementById("evidenceDate").value = getTodayDate();
-    document.getElementById("evidenceDescription").value = "";
-    document.getElementById("tagInputChips").innerHTML ="";     // clean up skills
-    document.getElementById("addedWebLinks").innerHTML ="";
-    let categories = document.querySelectorAll(".evidenceFormCategoryButton")
-    for (let i = 0; i < categories.length; i++) {
-        categories[i].className = "btn inlineText evidenceFormCategoryButton btn-secondary"
-        categories[i].querySelector(".evidenceCategoryTickIcon").style = "display: none;"
-    }
-    document.getElementById("linkedUsers").innerHTML="";
-    $("#evidenceSaveButton").prop("disabled", true);
+function resetAddOrEditEvidenceForm() {
+    $("#evidenceName").val("")
+    $("#evidenceDate").val(getTodayDate())
+    $("#evidenceDescription").val("");
+    $("#tagInputChips").empty();
+    $("#addedWebLinks").empty();
+
+    $(".evidenceFormCategoryButton").each(function() {
+        $(this).removeClass("btn-success")
+        $(this).addClass("btn-secondary")
+        $(this).parent().find(".evidenceCategoryTickIcon").hide()
+    })
+
+    $("#linkedUsers").empty()
+    $("#evidenceSaveButton").prop("disabled", true)
 }
 
 
 /**
- *  Revers translation string to html.
+ * Sets the evidence modal buttons & title for editing evidence.
+ * "Save" buttons reads "Save Changes", and the title is "Edit Evidence"
  */
-function reversTranslationHTML(strHTML) {
-    let doc = new DOMParser().parseFromString(strHTML, 'text/html')
-    return doc.documentElement.textContent
+function resetEvidenceButtonsToEditing(){
+    const evidenceSaveButton = $("#evidenceSaveButton")
+
+    $("#addOrEditEvidenceTitle").html( "Edit Evidence");
+    evidenceSaveButton.html("Save Changes");
+    evidenceSaveButton.prop("disabled", false);
 }
+
+
+/**
+ * Retrieves evidence name, date, and description from the highlighted evidence.
+ * Sets these values in the edit evidence modal.
+ */
+function setEvidenceData() {
+    const currentEvidenceTitle =  ($("#evidenceDetailsTitle").text())
+    const currentEvidenceDate =  $("#evidenceDetailsDate").text()
+    const currentEvidenceDescription =  ($("#evidenceDetailsDescription").text())
+
+    $("#evidenceName").val(currentEvidenceTitle)
+    $("#evidenceDate").val(currentEvidenceDate);
+    $("#evidenceDescription").val(currentEvidenceDescription);
+}
+
+
+/**
+ * Retrieves the skills from the given highlighted evidence div, and adds each skill as a tag to the #tagInputChips div.
+ *
+ * @param evidenceHighlight The highlighted evidence div containing the skills.
+ */
+function setSkills(evidenceHighlight) {
+    const currentSkillsList = evidenceHighlight.find(".skillChip")
+    currentSkillsList.each(function() {
+        const skillName = ($(this).find(".chipText").text())
+        const skillChip = createDeletableSkillChip(skillName)
+        $("#tagInputChips").append(skillChip);
+    })
+}
+
+
+/**
+ * Hides the added weblinks title on the edit evidence modal.
+ * Gets each weblink from the highlighted evidence and appends the weblink to the edit form.
+ *
+ * @param evidenceHighlight The highlighted evidence div containing the weblinks.
+ */
+function setWeblinks(evidenceHighlight) {
+    const webLinksList = evidenceHighlight.find(".webLinkElement")
+    $("#webLinkTitle").style = "display;"
+
+    for (let i = 0; i < webLinksList.length; i++) {
+        document.getElementById("addedWebLinks").innerHTML += webLinksList[i].outerHTML;
+    }
+
+    const deleteWebLinkButtons = $("#addOrEditEvidenceModal").find(".deleteWeblinkButton")
+    deleteWebLinkButtons.each(function() {
+        $(this).show()
+    })
+}
+
+
+/**
+ * Gets the categories from the selected evidence and selects them in the evidence edit form.
+ *
+ * @param evidenceHighlight The highlighted evidence div containing the categories.
+ */
+function setCategories(evidenceHighlight) {
+    evidenceHighlight.find(".categoryChip").each(function() {
+        const categoryName = $(this).find(".chipText").text()
+        const categoryButton = $(`#button${categoryName}`)
+        categoryButton.addClass("btn-success")
+        categoryButton.removeClass("btn-secondary")
+        categoryButton.find(".evidenceCategoryTickIcon").css("display", "inline-block")
+    })
+}
+
+
+/**
+ * Retrieves linked users from the highlighted evidence and adds them to the edit evidence modal.
+ */
+function setLinkedUsers() {
+    const userLinkedList = $("#evidenceDetailsLinkedUsers").text()
+    const editEvidenceModal = $("#addOrEditEvidenceModal")
+    $("#linkedUsersTitle").hide()
+    $("#linkedUsers").html(userLinkedList)
+
+    editEvidenceModal.find(`#linkedUserId${userIdent}`).parent().prop("outerHTML", "")
+    editEvidenceModal.find(".deleteLinkedUserButton").hide()
+}
+
+
+/**
+ * Sets values on the evidence edit form to match the currently selected piece of evidence.
+ * Opens the modal with the populated fields.
+ */
+function handleEvidenceEdit() {
+    let selectedEvidence = $("#evidenceDetailsContainer")
+    resetAddOrEditEvidenceForm()
+    resetEvidenceButtonsToEditing()
+    setEvidenceData()
+    setSkills(selectedEvidence)
+    setCategories(selectedEvidence)
+    setWeblinks(selectedEvidence)
+    setLinkedUsers()
+
+    $("#addOrEditEvidenceModal").show()
+    $(".modalContent").show("drop", {direction: "up"}, 200)
+    $('body,html').css('overflow','hidden');
+}
+
+
+/**
+ *  A Listener for the edit evidence button. This displays the modal and prevents the page below from scrolling
+ */
+$(document).on("click", "#editEvidenceButton" , handleEvidenceEdit)
+
