@@ -32,20 +32,38 @@ import java.util.Optional;
 @Service
 public class EvidenceService {
 
+    /** For logging the flow of evidence service events */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /** For retrieving information about the users. */
     private final UserAccountsClientService userAccountsClientService;
 
+    /** For checking evidence occurs within the project. */
     private final ProjectRepository projectRepository;
 
+    /** For persisting CRUD operations on pieces of evidence. */
     private final EvidenceRepository evidenceRepository;
 
+    /** For persisting CRUD operations on weblinks. */
     private final WebLinkRepository webLinkRepository;
 
+    /** For persisting CRUD operations on skills. */
     private final SkillRepository skillRepository;
 
+    /** For validating inputs against the central regex. */
     private final RegexService regexService;
 
+
+    /**
+     * Autowired constructor for injecting the required dependencies.
+     *
+     * @param userAccountsClientService for retrieving information about the users.
+     * @param projectRepository for checking evidence occurs within the project.
+     * @param evidenceRepository for persisting CRUD operations on pieces of evidence.
+     * @param webLinkRepository for persisting CRUD operations on weblinks.
+     * @param skillRepository for persisting CRUD operations on skills.
+     * @param regexService for validating inputs against the central regex.
+     */
     @Autowired
     public EvidenceService(
             UserAccountsClientService userAccountsClientService,
@@ -65,98 +83,171 @@ public class EvidenceService {
 
 
     /**
-     * Checks if the evidence date is within the project dates.
-     * Also checks that the date isn't in the future
-     * Throws a checkException if it's not valid.
-     *
-     * @param project      the project to check dates for.
-     * @param evidenceDate the date of the evidence
-     */
-    private void checkDate(Project project, LocalDate evidenceDate) {
-        if (evidenceDate.isBefore(project.getStartDateAsLocalDateTime().toLocalDate())
-                || evidenceDate.isAfter(project.getEndDateAsLocalDateTime().toLocalDate())) {
-            throw new CheckException("Date is outside project dates");
-        }
-
-        if (evidenceDate.isAfter(LocalDate.now())) {
-            throw new CheckException("Date is in the future");
-        }
-    }
-
-
-    /**
      * Creates a new evidence object and saves it to the repository. Adds and saves any web link objects and categories
      * to the evidence object.
      *
      * @param principal The authentication principal
      * @return The evidence object, after it has been added to the database.
      * @throws MalformedURLException When one of the web links has a malformed url
+     * @throws CheckException when one or more variables fail the validation
      */
     public Evidence addEvidence(Authentication principal,
                                 EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
         logger.info("CREATING EVIDENCE - Attempting to create evidence with title: {}", evidenceDTO.getTitle());
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+        checkValidEvidenceDTO(evidenceDTO);
+
+        evidenceDTO.setAssociateIds(evidenceDTO.getAssociateIds() == null ?
+                new ArrayList<>() :
+                new ArrayList<>(new LinkedHashSet<>(evidenceDTO.getAssociateIds())));
+        evidenceDTO.addAssociatedId(user.getId());
+
+        return createEvidenceForUsers(evidenceDTO, evidenceDTO.getAssociateIds());
+    }
+
+
+    /**
+     * Updates the evidence object with the same evidence ID and saves it to the repository.
+     *
+     * Also creates new evidence objects with the same details for any associated users who are newly added.
+     *
+     * @param principal the authentication principal of the user making the update.
+     * @param evidenceDTO the evidenceDto containing the details of the evidence update.
+     * @return the piece of evidence created for the user.
+     * @throws MalformedURLException when one of the web links has a malformed url
+     * @throws CheckException when one or more variables fail the validation
+     */
+    public Evidence editEvidence(Authentication principal,
+                                 EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
+        logger.info("EDITING EVIDENCE - Attempting to edit evidence with title: {}", evidenceDTO.getTitle());
+        UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+        Optional<Evidence> optionalOriginalEvidence = evidenceRepository.findById(evidenceDTO.getId());
+        if (optionalOriginalEvidence.isEmpty()) {
+            String message = "No evidence found with id " + evidenceDTO.getId();
+            logger.warn("Failed to edit evidence with message - {}", message);
+            throw new CheckException(message);
+        }
+        Evidence originalEvidence = optionalOriginalEvidence.get();
+        if (originalEvidence.getUserId() != user.getId()) {
+            throw new CheckException("Cannot edit evidence owned by a different user");
+        }
+        checkValidEvidenceDTO(evidenceDTO);
+        evidenceDTO.setAssociateIds(evidenceDTO.getAssociateIds() == null ?
+                                    new ArrayList<>() :
+                                    new ArrayList<>(new LinkedHashSet<>(evidenceDTO.getAssociateIds())));
+        evidenceDTO.addAssociatedId(user.getId());
+
+        List<Integer> unassociatedUsers = getUnassociatedUsers(originalEvidence, evidenceDTO.getAssociateIds());
+        if (!unassociatedUsers.isEmpty()) {
+            createEvidenceForUsers(evidenceDTO, unassociatedUsers);
+        }
+        return updateExistingEvidence(originalEvidence, evidenceDTO);
+    }
+
+
+    /**
+     * Validates the values of a EvidenceDTO, if any issues are found, a Check Exception is thrown
+     *
+     * @param evidenceDTO the evidenceDTO to be validated
+     * @throws CheckException an exception containing the message why the validation failed.
+     */
+    protected void checkValidEvidenceDTO(EvidenceDTO evidenceDTO) throws CheckException {
         long projectId = evidenceDTO.getProjectId();
-        String title = evidenceDTO.getTitle();
-        String description = evidenceDTO.getDescription();
         List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
         String date = evidenceDTO.getDate();
-        List<String> categories = evidenceDTO.getCategories();
-        List<Skill> skills = evidenceDTO.getSkills();
 
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isEmpty()) {
             throw new CheckException("Project Id does not match any project");
-        } else if (webLinks.size() > 10) {
+        }
+        if (webLinks.size() > 10) {
             throw new CheckException("This piece of evidence has too many weblinks attached to it; 10 is the limit");
         }
         Project project = optionalProject.get();
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
 
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, title, 5, 50, "Title");
-        regexService.checkInput(RegexPattern.GENERAL_UNICODE, description, 5, 500, "Description");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, evidenceDTO.getTitle(), 5, 50, "Title");
+        regexService.checkInput(RegexPattern.GENERAL_UNICODE, evidenceDTO.getDescription(), 5, 500, "Description");
+    }
 
-        List<Integer> associates = evidenceDTO.getAssociateIds();
-        if (associates == null) {
-            associates = new ArrayList<>();
-        }
-        /*
-        This will save a piece of evidence for each user, including the owner
-        However, because the owner's ID is added last, the last iteration
-        will be the evidence that belongs to the owner, which is what we return
-         */
-        associates = new ArrayList<>(new LinkedHashSet<>(associates));
-        associates.remove((Object) user.getId());
-        associates.add(user.getId());
+
+    /**
+     * Creates a piece of evidence for each of the users in the given list.
+     *
+     * @param evidenceDTO the evidenceDto with all the attributes of the evidence to be made.
+     * @param userIds the userIds of the users that are getting the new evidence.
+     * @return The last piece of evidence created.
+     * @throws MalformedURLException when a weblink is invalid.
+     */
+    public Evidence createEvidenceForUsers(EvidenceDTO evidenceDTO, List<Integer> userIds) throws MalformedURLException {
         Evidence ownerEvidence = null;
-        for (Integer associateID : associates) {
-            checkAssociateId(associateID);
-            ownerEvidence = addEvidenceForUser(associateID, title, description, localDate, categories, associates);
-            addWeblinks(ownerEvidence, webLinks);
-            addSkills(ownerEvidence, skills);
+        for (Integer ownersId : userIds) {
+            checkAssociateId(ownersId);
+            ownerEvidence = addEvidenceForUser(ownersId, evidenceDTO);
+            addWeblinks(ownerEvidence, evidenceDTO.getWebLinks());
+            addSkills(ownerEvidence, evidenceDTO.getSkills());
         }
         return ownerEvidence;
     }
 
 
     /**
-     * Helper method that adds a piece of evidence to the specified user id
+     * Used for editing a piece of evidence, this method updated an existing piece of evidence,
+     * keeping its ID the same. On successful modification, the evidence is saved and returned.
      *
-     * @param userId The id of the user that you are adding evidence to
-     * @param title The title of the evidence
-     * @param description The description of the evidence
-     * @param localDate The date of the evidence, in localDate form
-     * @param categories The categories of the evidence
-     * @param associateIds The user ids of any associated users.
-     *                     This should include the original creator of the evidence.
-     * @return the evidence object after saving it in the evidence repository
+     * @param originalEvidence the piece of evidence to be modified in place.
+     * @param evidenceDTO an evidenceDto object with all the required updates.
+     * @return the newly updated piece of evidence.
+     * @throws MalformedURLException when the URL is not parse correctly.
      */
-    private Evidence addEvidenceForUser(int userId, String title, String description, LocalDate localDate,
-                                    List<String> categories, List<Integer> associateIds) {
-        logger.info("CREATING EVIDENCE - attempting to create evidence for user: {}", userId);
-        Evidence evidence = new Evidence(userId, title, localDate, description);
+    private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws MalformedURLException {
+        logger.info("Updating evidence details for evidence {}", originalEvidence.getId());
+        originalEvidence.setTitle(evidenceDTO.getTitle());
+        originalEvidence.setDescription(evidenceDTO.getDescription());
+        originalEvidence.setDate(LocalDate.parse(evidenceDTO.getDate()));
+        originalEvidence.clearCategories();
+        addCategoriesToEvidence(originalEvidence, evidenceDTO.getCategories());
+        originalEvidence.clearSkills();
+        addSkills(originalEvidence, evidenceDTO.getSkills());
+        originalEvidence.clearWeblinks();
+        addWeblinks(originalEvidence, evidenceDTO.getWebLinks());
+        originalEvidence.clearAssociatedIds();
+        for (Integer userId : evidenceDTO.getAssociateIds()) {
+            originalEvidence.addAssociateId(userId);
+        }
+        return evidenceRepository.save(originalEvidence);
+    }
 
+
+    /**
+     * Helper method that adds a piece of evidence to the specified user id.
+     *
+     * @param userId the user to have the evidence added for.
+     * @param evidenceDTO an evidence dto which holds the attributes of the new evidence
+     * @return The created piece of evidence
+     */
+    private Evidence addEvidenceForUser(int userId, EvidenceDTO evidenceDTO) {
+        logger.info("CREATING EVIDENCE - attempting to create evidence for user: {}", userId);
+        Evidence evidence = new Evidence(userId, evidenceDTO.getTitle(), LocalDate.parse(evidenceDTO.getDate()), evidenceDTO.getDescription());
+
+        addCategoriesToEvidence(evidence, evidenceDTO.getCategories());
+        logger.info("Adding associate IDs: {}", evidenceDTO.getAssociateIds());
+        for (Integer associate : evidenceDTO.getAssociateIds()) {
+            checkAssociateId(associate);
+            evidence.addAssociateId(associate);
+        }
+        return evidenceRepository.save(evidence);
+    }
+
+
+    /**
+     * Adds the given categories to the supplied piece of evidence.
+     *
+     * @param evidence the piece of evidence to add the categories to.
+     * @param categories a list of strings containing string representations of the categories.
+     */
+    private void addCategoriesToEvidence(Evidence evidence, List<String> categories) {
         for (String categoryString : categories) {
             switch (categoryString) {
                 case "SERVICE" -> evidence.addCategory(Category.SERVICE);
@@ -165,12 +256,6 @@ public class EvidenceService {
                 default -> logger.warn("Evidence service - evidence {} attempted to add category {}", evidence.getId(), categoryString);
             }
         }
-        logger.info("Adding associate IDs: {}", associateIds);
-        for (Integer associate : associateIds) {
-            evidence.addAssociateId(associate);
-        }
-
-        return evidenceRepository.save(evidence);
     }
 
 
@@ -248,6 +333,23 @@ public class EvidenceService {
 
 
     /**
+     * Takes a piece of evidence and updates the associated users for that evidence.
+     *
+     * If the piece of evidence has new associated users then the evidence is created
+     * for that user too.
+     */
+    private List<Integer> getUnassociatedUsers(Evidence originalEvidence, List<Integer> associatedUsers) {
+        List<Integer> usersToGiveEvidence = new ArrayList<>();
+        for (Integer userId : associatedUsers) {
+            if (! originalEvidence.getArchivedIds().contains(userId)) {
+                usersToGiveEvidence.add(userId);
+            }
+        }
+        return usersToGiveEvidence;
+    }
+
+
+    /**
      * Helper method that checks if a user exists.
      * Tries to find the user with the specific ID.
      * If it can't find it, throw an exception.
@@ -260,6 +362,27 @@ public class EvidenceService {
         if (associate.getId() < 1) {
             logger.error("CREATING EVIDENCE: Bad id: {}", associateId);
             throw new CheckException("Could not find associated user with ID: " + associateId);
+        }
+    }
+
+
+    /**
+     * Checks if the evidence date is within the project dates.
+     * Also checks that the date isn't in the future
+     * Throws a checkException if it's not valid.
+     *
+     * @param project      the project to check dates for.
+     * @param evidenceDate the date of the evidence
+     * @throws CheckException if the date is not valid
+     */
+    private void checkDate(Project project, LocalDate evidenceDate) throws CheckException {
+        if (evidenceDate.isBefore(project.getStartDateAsLocalDateTime().toLocalDate())
+                || evidenceDate.isAfter(project.getEndDateAsLocalDateTime().toLocalDate())) {
+            throw new CheckException("Date is outside project dates");
+        }
+
+        if (evidenceDate.isAfter(LocalDate.now())) {
+            throw new CheckException("Date is in the future");
         }
     }
 }
