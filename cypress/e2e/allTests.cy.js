@@ -17,6 +17,7 @@ import "./groupsTests/GroupMemberSelectionTest.cy"
 import "./groupsTests/GroupsPaginationTesting.cy"
 import "./groupsTests/GroupLiveUpdateTest.cy"
 import "./groupsTests/GroupCommits.cy"
+import "./groupsTests/GroupSettingsTest.cy"
 
 import "./portfolioTest/EditingProjectTest.cy"
 import "./portfolioTest/EditingSprintTest.cy"

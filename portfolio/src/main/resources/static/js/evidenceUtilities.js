@@ -39,12 +39,8 @@ const VALID_PROTOCOLS = ["https://", "http://", "ftp://"]
 
 
 $(() => {
-        // Counting characters
-        let textInput = $(".text-input");
-        textInput.each(countCharacters)
-        textInput.on("keyup", countCharacters)
-    }
-)
+    startCharacterCounting("text-input");
+})
 
 
 /**
