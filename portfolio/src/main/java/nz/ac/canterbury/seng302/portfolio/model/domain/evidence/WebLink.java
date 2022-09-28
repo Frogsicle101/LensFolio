@@ -57,6 +57,10 @@ public class WebLink {
         return url;
     }
 
+    public String getAlias() {
+        return alias;
+    }
+
     public void setUrl(String url) {
         this.url = url;
     }

@@ -109,7 +109,7 @@ class EvidenceServiceTest {
         Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
-        Assertions.assertEquals(url, evidence.getWebLinks().iterator().next().getUrl().toString());
+        Assertions.assertEquals(url, evidence.getWebLinks().iterator().next().getUrl());
     }
 
 
@@ -689,7 +689,8 @@ class EvidenceServiceTest {
                 "Test Original title",
                 LocalDate.now().minusDays(1) ,
                 "Test Original Description");
-        evidence.addWebLink(new WebLink(evidence, "Original Link", new URL("https://localhost:8080")));
+        WebLinkDTO webLinkDTO = new WebLinkDTO( "Original Link", "https://localhost:8080");
+        evidence.addWebLink(new WebLink(evidence, webLinkDTO));
         evidence.addSkill(new Skill("Java"));
         evidence.addCategory(Category.QUALITATIVE);
         evidence.addCategory(Category.QUANTITATIVE);

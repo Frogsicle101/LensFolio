@@ -62,7 +62,6 @@ public class EvidenceController {
     /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
-    private final RegexService regexService;
 
     private final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
 
