@@ -57,6 +57,7 @@ public class WeblinkRegexTest {
         expectedPasses.add("www.canterbury.ac.nz");
         expectedPasses.add("csse.canterbury.ac.nz");
         expectedPasses.add("http://132.181.106.9");
+        expectedPasses.add("♨️.com");
 
         assertPasses();
     }
@@ -108,8 +109,8 @@ public class WeblinkRegexTest {
 
     @Test
     public void regexProtocolFails() {
-        expectedFails.add("."); //passed
-        expectedFails.add("urn:oasis:names:specification:docbook:dtd:xml:4.1.2");
+        expectedFails.add(".");
+        expectedFails.add("urn:oasis:names:specification:docbook:dtd:xml:4.1.2"); // FIXME passed from here on
         expectedFails.add("tel:+1-816-555-1212");
         expectedFails.add("telnet://192.0.2.16:80/");
         expectedFails.add("mailto:John.Doe@example.com");
@@ -130,7 +131,6 @@ public class WeblinkRegexTest {
     public void regexDomainFails() {
         expectedFails.add(".example");
         expectedFails.add("http://.example");
-        expectedFails.add("♨️.com");
         expectedFails.add("i am a website.com");
         expectedFails.add("'quote'.com");
         expectedFails.add("$$$money$$$.com");

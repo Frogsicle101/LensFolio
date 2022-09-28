@@ -46,7 +46,6 @@ describe("Adding Invalid Weblinks to Evidence", () => {
     it('Domain tests for invalid weblinks', () => {
         WEBLINKS_TO_ADD = [
             ".example",
-            "♨️.com",
             "i am a website.com",
             "'quote'.com",
             "$$$money$$$.nz",

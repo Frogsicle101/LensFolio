@@ -47,7 +47,7 @@ describe("Adding Valid Weblinks to Evidence", () => {
             "csse.canterbury.ac.nz",
             "http://132.181.106.9",
             "http://www.w3.org",
-
+            "♨️.com"
         ]
 
         assertPasses()

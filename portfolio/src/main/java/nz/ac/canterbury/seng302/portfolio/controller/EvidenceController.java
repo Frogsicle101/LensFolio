@@ -287,7 +287,6 @@ public class EvidenceController {
                     evidenceDTO.getId(), err.getMessage());
             return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
 
