@@ -72,8 +72,8 @@ class SkillFrequencyServiceTest {
         ArrayList<Evidence> evidenceListTotal = new ArrayList<>();
         Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(1, skill)).thenReturn(evidenceListWithSkill);
         Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(1)).thenReturn(evidenceListTotal);
-        Exception exception = Assertions.assertThrows(CheckException.class, () -> skillFrequencyService.getSkillFrequency(skill, 1));
-        Assertions.assertTrue(exception.getMessage().contains("User has no evidence"));
+        double frequency = skillFrequencyService.getSkillFrequency(skill, 1);
+        Assertions.assertEquals(0.0, frequency);
     }
 
 

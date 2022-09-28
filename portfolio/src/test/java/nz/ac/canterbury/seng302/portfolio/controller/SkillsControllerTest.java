@@ -6,6 +6,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
+import nz.ac.canterbury.seng302.portfolio.service.SkillFrequencyService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -62,6 +64,9 @@ class SkillsControllerTest {
 
     @MockBean
     private EvidenceRepository evidenceRepository;
+
+    @SpyBean
+    private SkillFrequencyService skillFrequencyService;
 
     @MockBean
     private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
@@ -140,6 +145,99 @@ class SkillsControllerTest {
 
         String responseContent = result.getResponse().getContentAsString();
         Assertions.assertEquals(expectedResponseString, responseContent);
+    }
+
+
+    @Test
+    void testGetSkillsFrequencyForUser() throws Exception {
+        Skill usersSkill1 = new Skill(1, "Skill 1");
+        List<Skill> emptySkills = new ArrayList<>();
+        emptySkills.add(usersSkill1);
+
+        ArrayList<Evidence> evidences = new ArrayList<>();
+        Evidence evidence = new Evidence(validUserId, "test", LocalDate.now(), "test");
+        evidence.addSkill(usersSkill1);
+        evidences.add(evidence);
+        usersSkill1.setFrequency(1.0);
+
+
+        String expectedResponseString = "[" + usersSkill1.toJsonString() + "]";
+        UserResponse validUserResponse = UserResponse.newBuilder().setId(validUserId).build();
+
+        Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(validUserId, usersSkill1)).thenReturn(evidences);
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(validUserId)).thenReturn(evidences);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
+        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
+
+        MvcResult result = mockMvc.perform(get("/skills")
+                        .param("userId", String.valueOf(validUserId)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResponseString, responseContent);
+        Assertions.assertTrue(expectedResponseString.contains("1.0"));
+    }
+
+
+    @Test
+    void testGetSkillsFrequencyForUserPointFive() throws Exception {
+        Skill usersSkill1 = new Skill(1, "Skill 1");
+        List<Skill> emptySkills = new ArrayList<>();
+        emptySkills.add(usersSkill1);
+
+        ArrayList<Evidence> evidencesWithSkills = new ArrayList<>();
+        ArrayList<Evidence> evidences = new ArrayList<>();
+        Evidence evidence = new Evidence(validUserId, "test", LocalDate.now(), "test");
+        Evidence evidence1 = new Evidence(validUserId, "test", LocalDate.now(), "test");
+        evidence.addSkill(usersSkill1);
+        evidencesWithSkills.add(evidence);
+        evidences.add(evidence);
+        evidences.add(evidence1);
+        usersSkill1.setFrequency(0.5);
+
+
+        String expectedResponseString = "[" + usersSkill1.toJsonString() + "]";
+        UserResponse validUserResponse = UserResponse.newBuilder().setId(validUserId).build();
+
+        Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(validUserId, usersSkill1)).thenReturn(evidencesWithSkills);
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(validUserId)).thenReturn(evidences);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
+        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
+
+        MvcResult result = mockMvc.perform(get("/skills")
+                        .param("userId", String.valueOf(validUserId)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResponseString, responseContent);
+        Assertions.assertTrue(expectedResponseString.contains("0.5"));
+    }
+
+
+    @Test
+    void testGetSkillsFrequencyForUserNoEvidence() throws Exception {
+        Skill usersSkill1 = new Skill(1, "Skill 1");
+        List<Skill> emptySkills = new ArrayList<>();
+        emptySkills.add(usersSkill1);
+        ArrayList<Evidence> evidences = new ArrayList<>();
+        String expectedResponseString = "[" + usersSkill1.toJsonString() + "]";
+        UserResponse validUserResponse = UserResponse.newBuilder().setId(validUserId).build();
+
+        Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(validUserId, usersSkill1)).thenReturn(evidences);
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(validUserId)).thenReturn(evidences);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
+        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
+
+        MvcResult result = mockMvc.perform(get("/skills")
+                        .param("userId", String.valueOf(validUserId)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResponseString, responseContent);
+        Assertions.assertTrue(expectedResponseString.contains("0.0"));
     }
 
 
