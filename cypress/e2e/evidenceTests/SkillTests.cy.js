@@ -57,6 +57,15 @@ describe('Skill creation', () => {
         cy.get("#tagInputChips").find(".skillChip").should("have.length", 3)
     })
 
+    it("Should not allow only special characters", () => {
+        cy.get("#skillsInput").type("@ ")
+        cy.get("#skillsInput").should("have.class", "skillChipInvalid")
+        cy.contains("Skill name must contain at least one letter.").should('be.visible')
+        cy.get("#skillsInput").type("@%& ")
+        cy.get("#skillsInput").should("have.class", "skillChipInvalid")
+        cy.contains("Skill name must contain at least one letter.").should('be.visible')
+    })
+
     it("Should display red and how error message for skill length > 30", () => {
         cy.get("#skillsInput").type("Definitely_more_than_30_characters")
         cy.get("#skillsInput").should("have.class", "skillChipInvalid")
