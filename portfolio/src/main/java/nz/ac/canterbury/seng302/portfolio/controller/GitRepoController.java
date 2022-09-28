@@ -66,7 +66,7 @@ public class GitRepoController {
                 throw new CheckException("The repository name cannot be empty");
             }
             if (!accessToken.matches(RegexPattern.GITLAB_TOKEN.getPatternString())) {
-                throw new CheckException("Access token" + GITLAB_TOKEN.getRequirements());
+                throw new CheckException("Access token" + RegexPattern.GITLAB_TOKEN.getRequirements());
             }
 
             GitRepository repo = buildRepo(groupId, projectId, alias, accessToken);
