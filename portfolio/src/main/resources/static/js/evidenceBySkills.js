@@ -248,8 +248,9 @@ function setSkills(evidenceHighlight) {
     currentSkillsList.each(function() {
         const skillName = ($(this).find(".chipText").text())
         const skillChip = createDeletableSkillChip(skillName)
+        const tagInputChips = $("#tagInputChips")
         if (skillName !== "No Skill") {
-            $("#tagInputChips").append(skillChip);
+            tagInputChips.append(skillChip);
         }
     })
 }
@@ -264,11 +265,10 @@ function setSkills(evidenceHighlight) {
 function setWeblinks(evidenceHighlight) {
     const webLinksList = evidenceHighlight.find(".webLinkElement")
     $("#webLinkTitle").style = "display;"
-
+    const addedWebLinks = document.getElementById("addedWebLinks")
     for (let i = 0; i < webLinksList.length; i++) {
-        document.getElementById("addedWebLinks").innerHTML += webLinksList[i].outerHTML;
+        addedWebLinks.innerHTML += webLinksList[i].outerHTML;
     }
-
     const deleteWebLinkButtons = $("#addOrEditEvidenceModal").find(".deleteWeblinkButton")
     deleteWebLinkButtons.each(function() {
         $(this).show()
