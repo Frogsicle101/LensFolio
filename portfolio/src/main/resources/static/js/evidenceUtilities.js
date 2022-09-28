@@ -799,6 +799,11 @@ function checkWeblinkAddressValidity() {
         return false
     }
 
+    if (webLinkUrl.length > 2000) {
+        updateErrorMessage(weblinkAddressErrorDiv, `Weblink address cannot be longer than 2000 characters`)
+        return false
+    }
+
     updateErrorMessage(weblinkAddressErrorDiv, "")
     return true
 }
@@ -820,6 +825,11 @@ function checkWeblinkNameValidity() {
 
     if (! regex.test(webLinkName)) {
         updateErrorMessage(weblinkNameErrorDiv, `Weblink name ${GENERAL_UNICODE_REQUIREMENTS}`)
+        return false
+    }
+
+    if (webLinkName.length > 50) {
+        updateErrorMessage(weblinkNameErrorDiv, `Weblink name cannot be longer than 50 characters`)
         return false
     }
 
