@@ -259,12 +259,16 @@ function setSkills(evidenceHighlight) {
  */
 function setWeblinks() {
     const webLinksList = $(".addedWebLink")
-    $("#webLinkTitle").style = "display;"
-    $.each(webLinksList, function (i, web) {
-        const webName = web.innerText
-        const webUrl = web.getAttribute("href")
-        $("#addedWebLinks").append(deletableWeblinkElement(webUrl, webName))
-    })
+    if (webLinksList.length > 0) {
+        $("#webLinkTitle").show()
+        webLinksList.each(function () {
+            const webName = $(this).text()
+            const webUrl = $(this).attr("href")
+            $("#addedWebLinks").append(deletableWeblinkElement(webUrl, webName))
+        })
+    } else {
+        $("#webLinkTitle").hide()
+    }
 }
 
 
