@@ -2,9 +2,7 @@ $(() => {
     //Jquery selectors to remove duplicity
     let shortName = $("#shortName")
     let longName = $("#longName")
-    let formControl = $(".form-control");
-    formControl.each(countCharacters)
-    formControl.on("keyup", countCharacters)
+    startCharacterCounting("form-control");
 
     // On create group form submit
     $("#createGroupForm").on("submit", function (event) {

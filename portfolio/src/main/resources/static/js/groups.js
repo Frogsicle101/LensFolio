@@ -805,7 +805,7 @@ function populateGroupRepoInformation(container, repo) {
     container.append(`
         <div id="groupSettingsRepoInformationSection">
             <div id="groupSettingsRepoHeader">
-                <h3 id="groupSettingsPageRepoName">${sanitise(repo.alias)}</h3>
+                <h3 id="groupSettingsPageRepoName" class="text-truncate">${sanitise(repo.alias)}</h3>
                 <button type="button" class="editRepo editIcon noStyleButton marginSides1" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Edit Repository Settings">
                     <svg class="bi bi-pencil" fill="currentColor" height="18" viewBox="0 0 16 16" width="18"
@@ -1077,9 +1077,7 @@ $(document).on("click", ".editButton", () => {
     }
     $("#groupEditInfo").slideDown();
 
-    let formControl = $(".form-control");
-    formControl.each(countCharacters);
-    formControl.on("keyup", countCharacters);
+    startCharacterCounting("form-control");
 })
 
 
