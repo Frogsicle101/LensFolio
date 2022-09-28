@@ -297,7 +297,6 @@ function setCategories(evidenceHighlight) {
  */
 function setLinkedUsers() {
     const userLinkedList = $("#evidenceDetailsLinkedUsers").find(".linkedUser")
-    const editEvidenceModal = $("#addOrEditEvidenceModal")
     $("#linkedUsersTitle").show()
     $.each(userLinkedList, function (i, user) {
         const userId = user.getAttribute("data-id")

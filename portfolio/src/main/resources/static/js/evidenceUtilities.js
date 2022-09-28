@@ -695,9 +695,10 @@ function extractLast(term) {
  * @returns [integer] the list of user id's to be attached
  */
 function getLinkedUsers() {
+    let linkedUsers = $("#linkedUsers").find(".linkedUser")
     let userIds = [];
 
-    $(".linkedUsers").each((i, user) => {
+    $.each(linkedUsers, function (i, user) {
         try {
             let userId = parseInt(user.id.replace("linkedUserId", ""));
             userIds.push(userId)
