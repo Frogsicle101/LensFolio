@@ -109,7 +109,7 @@ public class WeblinkRegexTest {
     public void regexProtocolFails() {
         expectedFails.add(".");
         expectedPasses.add("ftp://ftp.is.co.za/rfc/rfc1808.txt");
-        expectedFails.add("urn:oasis:names:specification:docbook:dtd:xml:4.1.2"); // FIXME passed from here on
+        expectedFails.add("urn:oasis:names:specification:docbook:dtd:xml:4.1.2");
         expectedFails.add("tel:+1-816-555-1212");
         expectedFails.add("telnet://192.0.2.16:80/");
         expectedFails.add("mailto:John.Doe@example.com");
