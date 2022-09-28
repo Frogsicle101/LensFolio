@@ -5,7 +5,6 @@
     <!--/*/ <th:block th:include="fragments/general.html :: headerfiles">
             </th:block> /*/-->
     <link rel="stylesheet" th:href="@{css/evidencePage.css}">
-
 </head>
 <body>
 <header th:insert="fragments/general.html :: header"></header>
@@ -34,16 +33,16 @@
                 <div id="evidenceList"></div>
             </div>
             <div class="col">
-                <div class="box evidenceDetailsContainer">
+                <div id="evidenceDetailsContainer" class="box">
 
                     <div class="evidenceDetailsHeader">
                         <p id="evidenceDetailsId" style="display: none"></p>
                         <p id="evidenceDetailsDate" class="evidenceDetailsDate"></p>
                         <div>
-                            <button id="editEvidenceButton" type="button">
+                            <button id="editEvidenceButton" class="editIcon" type="button">
                                 <span th:insert="fragments/icons.html :: editIcon"></span>
                             </button>
-                            <button id="deleteEvidenceButton" type="button" class="noStyleButton">
+                            <button id="deleteEvidenceButton" class="deleteIcon noStyleButton" type="button">
                                 <span th:insert="fragments/icons.html :: deleteIcon"></span>
                             </button>
                         </div>
@@ -64,11 +63,11 @@
             </div>
         </div>
     </div>
-    <div id="addEvidenceModal">
+    <div id="addOrEditEvidenceModal">
         <div th:insert="fragments/general.html :: unicode"></div>
         <div class="modalContent">
             <div class="modalHeader">
-                <h5 class="modal-title" id="addEvidenceTitle">Add Evidence</h5>
+                <h5 class="modal-title" id="addOrEditEvidenceTitle">Add Evidence</h5>
             </div>
             <form id="evidenceCreationForm">
                 <div class="modalBody">
@@ -100,6 +99,7 @@
                                th:max="${evidenceMaxDate}"
                                required
                                type="date">
+                        <div class="invalid-feedback" id="evidenceDateFeedback"></div>
                         <small class="form-text text-muted" id="projectDatesLabel" th:text="'Project dates: ' + ${project.getStartDateFormatted()} + ' - ' + ${project.getEndDateFormatted()}"></small>
                     </div>
                     <div class="form-group evidenceFormDescription">
@@ -122,26 +122,27 @@
                             <div id="tagInputChips"></div>
                             <input id="skillsInput" class="noDisplayInput" type="text"/>
                         </div>
+                        <div class="invalid-feedback" id="evidenceSkillFeedback"></div>
                     </div>
                     <div id="evidenceFormCategories" class="form-group">
                         <label class="col-form-label">Categories:</label>
                         <div class="row">
                             <div class="col center">
-                                <button type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
+                                <button id="buttonQualitative" type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
                                         value="QUALITATIVE">
                                     Qualitative
                                     <label class="evidenceCategoryTickIcon">&#10003;</label>
                                 </button>
                             </div>
                             <div class="col center">
-                                <button type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
+                                <button id="buttonQuantitative" type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
                                         value="QUANTITATIVE">
                                     Quantitative
                                     <label class="evidenceCategoryTickIcon">&#10003;</label>
                                 </button>
                             </div>
                             <div class="col center">
-                                <button type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
+                                <button id="buttonService" type="button" class="btn btn-secondary inlineText evidenceFormCategoryButton"
                                         value="SERVICE">
                                     Service
                                     <label class="evidenceCategoryTickIcon">&#10003;</label>
@@ -175,6 +176,7 @@
                                                th:title="${'Weblinks' + webLinkRegex.getRequirements()}"
                                                th:maxlength="${webLinkMaxUrlLength}" required>
                                     </div>
+                                    <div class="invalid-feedback" id="evidenceWeblinkAddressFeedback"></div>
                                     <div class="form-group ">
                                         <input class="form-control"
                                                id="webLinkName"
@@ -182,6 +184,7 @@
                                                type="text"
                                                minlength="1" required>
                                     </div>
+                                    <div class="invalid-feedback" id="evidenceWeblinkNameFeedback"></div>
                                 </div>
                                 <button class="btn btn-secondary evidenceFormButton"
                                         id="addWeblinkButton"
@@ -222,7 +225,7 @@
                     <button class="btn btn-primary"
                             disabled
                             id="evidenceSaveButton" type="submit">
-                        Save
+                        Create
                     </button>
                 </div>
             </form>
@@ -236,7 +239,12 @@
 <script th:src="@{js/addEditEvidence.js}" type="application/javascript"></script>
 <script th:src="@{js/notifications.js}" type="application/javascript"></script>
 <script th:inline="javascript">
-    let todaysDate =/*[[${currentDate}]]*/
-    let weblinkRegex =/*[[${webLinkRegex}]]*/
+    const todaysDate =/*[[${currentDate}]]*/
+    const evidenceMaxDate =/*[[${evidenceMaxDate}]]*/
+    const projectStartDate =/*[[${projectStartDate}]]*/
+    const projectStartFormatted =/*[[${project.getStartDateFormatted()}]]*/
+    const projectEndFormatted = /*[[${project.getEndDateFormatted()}]]*/
+    const weblinkRegexPattern =/*[[${webLinkRegex.getPatternString()}]]*/
+    const weblinkRegexRequirements =/*[[${webLinkRegex.getRequirements()}]]*/
 </script>
 </html>

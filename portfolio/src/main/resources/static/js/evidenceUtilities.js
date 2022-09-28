@@ -34,6 +34,10 @@ let categoriesMapping = new Map([
     ["SERVICE", "Service"]
 ])
 
+/** Protocols urls can begin with **/
+const VALID_PROTOCOLS = ["https://", "http://", "ftp://"]
+
+
 $(() => {
         // Counting characters
         let textInput = $(".text-input");
@@ -90,11 +94,10 @@ function setHighlightedEvidenceWebLinks(response) {
     let webLinksDiv = $("#evidenceWebLinks")
     webLinksDiv.empty()
 
-    for (let index in response) {
-        let webLink = response[index]
-        webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
-        $('#deleteWeblink').hide()
-    }
+    $.each(response, (i, weblink) => {
+        webLinksDiv.append(detailsWeblinkElement(weblink.url, weblink.alias))
+    })
+
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
     } else {
@@ -105,61 +108,160 @@ function setHighlightedEvidenceWebLinks(response) {
 
 
 /**
- * Given a web url and an alias, creates and returns a web link element.
+ * Given a web url and an alias, creates and returns a web link element with a delete icon.
  * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
  *
  * If the url doesn't start with https, it will show an un-filled, unlocked icon.
  * If it does, it will show a locked, filled icon.
  *
  * @param url The web url of the web link
- * @param alias The alias/nickname of the web url. Everything before the first // occurrence will be cut off
- * (e.g. https://www.goggle.com becomes www.google.com)
+ * @param alias The alias/nickname of the web url.
  * @returns {string} A single-div webLink element, wrapped in ` - e.g. `<div>stuff!</div>`
  */
-function webLinkElement(url, alias) {
-    let icon;
-    let security = "unsecured"
+function deletableWeblinkElement(url, alias) {
+    const icon = getWeblinkIcon(url)
+    const formattedUrl = getFormattedUrl(url)
+    const security = getWeblinkSecurity(url)
+    let urlWithProtocol = url
+
+    if (!hasProtocol(url)) {
+        urlWithProtocol = "http://" + url
+    }
+
+    return (`
+        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
+            <button class="deleteWeblink deleteIcon">
+                <svg class="bi bi-trash" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                    fill-rule="evenodd"/>
+                </svg>
+            </button>
+            ${icon}
+            <a href="${sanitise(urlWithProtocol)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+               data-bs-title="${formattedUrl}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}
+            </a>
+        </div>
+    `)
+}
+
+
+/**
+ * Given a web url and an alias, creates and returns a web link element with no delete icon.
+ * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
+ *
+ * If the url doesn't start with https, it will show an un-filled, unlocked icon.
+ * If it does, it will show a locked, filled icon.
+ *
+ * @param url The url of the weblink
+ * @param alias The name associated with the weblink
+ * @returns {string} HTML representing the weblink element's div.
+ */
+function detailsWeblinkElement(url, alias) {
+    const icon = getWeblinkIcon(url)
+    const security = getWeblinkSecurity(url)
+    const formattedUrl = getFormattedUrl(url)
+    let urlWithProtocol = url
+
+    if (!hasProtocol(url)) {
+        urlWithProtocol = "http://" + url
+    }
+
+    return (
+        `<div class="webLinkElement ${security}" data-value="${sanitise(url)}">
+            ${icon}
+            <a href="${sanitise(urlWithProtocol)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="${formattedUrl}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
+        </div>`
+    )
+}
+
+
+/**
+ * Gets the icon indicating weblink security based on the link protocol.
+ *
+ * @param url The url the icon is associated with
+ * @returns {string} The HTML for the svg lock icon
+ */
+function getWeblinkIcon(url) {
+    let icon
 
     if (url.startsWith("https://")) {
-        security = "secured"
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill lockIcon text-success" viewBox="0 0 16 16">
-        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
         </svg>
         `
     } else {
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock lockIcon text-danger" viewBox="0 0 16 16">
-        <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"/>
+            <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"/>
         </svg>
         `
     }
 
-    let slashIndex = url.search("//") + 2
-    let urlSlashed
-    if (slashIndex > 1) {
-        urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    return icon
+}
+
+
+/**
+ * Gets the security value indicating weblink security based on the link protocol.
+ *
+ * @param url The url the icon is associated with
+ * @returns {string} The security status of the weblink. Either "secure" or "unsecure".
+ */
+function getWeblinkSecurity(url) {
+    let security
+
+    if (url.startsWith("https://")) {
+        security = "secure"
     } else {
-        urlSlashed = url // The url does not have a protocol attached to it
-        url = "http://" + url
+        security = "unsecure"
     }
 
-    return (`
-        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
-        
-            <button id="deleteWeblink" class="deleteWeblinkButton">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-            </svg>
-            </button>
-            
-            ${icon}
-            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
-            
-        </div>
-    `)
+    return security
+}
+
+
+/**
+ * Removes the protocol from the weblink, if it has one.
+ * Protocols are defined globally, but the VALID_PROTOCOLS list.
+ *
+ * @param url The url to be formatted.
+ * @returns The url, formatted to not include any protocol.
+ */
+function getFormattedUrl(url) {
+    let formattedUrl
+
+    if (hasProtocol(url)) {
+        let slashIndex = url.search("//") + 2
+            formattedUrl = url.slice(slashIndex)
+    } else {
+        formattedUrl = url
+    }
+
+    return formattedUrl
+}
+
+
+/**
+ * Checks whether a given url address starts with any of the protocols defined in the VALID_PROTOCOLS list.
+ *
+ * @param url The url to be checked.
+ * @returns {boolean} True if the url starts with one of the protocols, false otherwise/
+ */
+function hasProtocol(url) {
+    let urlHasProtocol = false
+
+    $.each(VALID_PROTOCOLS, (i, protocol) => {
+        if (url.startsWith(protocol)) {
+            urlHasProtocol = true
+            return false
+        }
+    })
+
+    return urlHasProtocol
 }
 
 
@@ -340,8 +442,13 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
 function addLinkedUsersToEvidence(users) {
     let linkedUsersDiv = $("#evidenceDetailsLinkedUsers")
     linkedUsersDiv.empty()
+
     $.each(users, function (i, user) {
         linkedUsersDiv.append(linkedUserElement(user));
+    })
+
+    $(".deleteLinkedUserButton").each((i, button) => {
+        button.remove()
     })
 }
 
@@ -558,7 +665,7 @@ $(document).on("click", ".evidenceListItem", function () {
  * Listen for a keypress in the weblink address field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkUrl', function () {
-    $("#weblinkAddressAlert").alert('close')
+    updateErrorMessage($("#evidenceWeblinkAddressFeedback"), "")
 })
 
 
@@ -566,7 +673,7 @@ $(document).on('keypress', '#webLinkUrl', function () {
  * Listen for a keypress in the weblink name field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkName', function () {
-    $("#weblinkNameAlert").alert('close')
+    updateErrorMessage($("#evidenceWeblinkNameFeedback"), "")
 })
 
 
@@ -594,6 +701,7 @@ $(document).on("change keyup", "#evidenceDescription", function () {
  */
 $(document).on("change", ".form-control", function () {
     disableEnableSaveButtonOnValidity()
+    checkDateValidity()
 })
 
 
@@ -647,16 +755,16 @@ function extractLast(term) {
 
 
 /**
- * Returns all the linked users id's from the evidence creation form
+ * Returns all the linked users' id's from the evidence creation form
  *
  * @returns [integer] the list of user id's to be attached
  */
 function getLinkedUsers() {
-    let linkedUsers = $("#linkedUsers").children()
     let userIds = [];
-    $.each(linkedUsers, function (i) {
+
+    $(".linkedUsers").each((i, user) => {
         try {
-            let userId = parseInt(linkedUsers[i].id.replace("linkedUserId", ""));
+            let userId = parseInt(user.id.replace("linkedUserId", ""));
             userIds.push(userId)
         } catch (error) {
             createAlert("Oops! there was an error with one or more of the linked users", AlertTypes.Failure)
@@ -696,45 +804,9 @@ $(document).on("submit", "#evidenceCreationForm", function (e) {
 /**
  * Saves the evidence input during creating a new piece of evidence
  */
-$(document).on("click", "#evidenceSaveButton", function (event) {
-    event.preventDefault()
-    let skillsInput = $("#skillsInput")
-    removeDuplicatesFromInput(skillsInput)
-    let evidenceCreationForm = $("#evidenceCreationForm")[0]
-    toggleRequiredIfCheckURLInputsAreEmpty()
-    if (!evidenceCreationForm.checkValidity()) {
-        evidenceCreationForm.reportValidity()
-    } else {
-        const title = $("#evidenceName").val()
-        const date = $("#evidenceDate").val()
-        const description = $("#evidenceDescription").val()
-        const projectId = 1
-        let webLinks = getWeblinksList();
-        const linkedUsers = getLinkedUsers();
-        const categories = getCategories();
-
-        let data = JSON.stringify({
-            "title": title,
-            "date": date,
-            "description": description,
-            "projectId": projectId,
-            "webLinks": webLinks,
-            "skills": skillsToCreate,
-            "categories": categories,
-            "associateIds": linkedUsers
-        })
-        $.ajax({
-            url: 'evidence',
-            type: "POST",
-            contentType: "application/json",
-            data,
-            success: function (response) {
-                handleSuccessfulEvidenceSave(response)
-            }, error: function (error) {
-                createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
-            }
-        })
-    }
+$(document).on("click", "#evidenceSaveButton", function (e) {
+    e.preventDefault()
+    handleEvidenceSave()
 })
 
 
@@ -756,25 +828,82 @@ function handleSuccessfulEvidenceSave(response) {
 
 
 /**
+ * If the weblink form is closed, calls the function to toggle it open.
+ * If the weblink form is open, calls the function to submit the form.
+ */
+function handleWeblinkAdd() {
+    const button = $("#addWeblinkButton");
+
+    if (button.hasClass("toggled")) {
+        submitWebLink()
+    } else {
+        webLinkButtonToggle()
+    }
+}
+
+
+/**
+ * Checks the validity of the address in the weblink error form against the central weblink requirements.
+ *
+ * @returns {boolean} True if the address is valid.
+ */
+function checkWeblinkAddressValidity() {
+    const webLinkUrl = $("#webLinkUrl").val();
+    const weblinkAddressErrorDiv = $("#evidenceWeblinkAddressFeedback")
+
+    const weblinkRegex = new RegExp(weblinkRegexPattern)
+
+    if (! weblinkRegex.test(webLinkUrl)) {
+        updateErrorMessage(weblinkAddressErrorDiv, `Weblink address ${weblinkRegexRequirements}`)
+        return false
+    }
+
+    if (webLinkUrl.length > 2000) {
+        updateErrorMessage(weblinkAddressErrorDiv, `Weblink address cannot be longer than 2000 characters`)
+        return false
+    }
+
+    updateErrorMessage(weblinkAddressErrorDiv, "")
+    return true
+}
+
+
+/**
+ * Checks the validity of the name in the weblink error form against the general unicode requirements.
+ *
+ * @returns {boolean} True if the name is valid.
+ */
+function checkWeblinkNameValidity() {
+    const webLinkName = $("#webLinkName").val();
+    const weblinkNameErrorDiv = $("#evidenceWeblinkNameFeedback")
+
+    if (webLinkName.length === 0) {
+        updateErrorMessage(weblinkNameErrorDiv, "Weblink name must not be empty")
+        return false
+    }
+
+    if (! regex.test(webLinkName)) {
+        updateErrorMessage(weblinkNameErrorDiv, `Weblink name ${GENERAL_UNICODE_REQUIREMENTS}`)
+        return false
+    }
+
+    if (webLinkName.length > 50) {
+        updateErrorMessage(weblinkNameErrorDiv, `Weblink name cannot be longer than 50 characters`)
+        return false
+    }
+
+    updateErrorMessage(weblinkNameErrorDiv, "")
+    return true
+}
+
+
+/**
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '#addWeblinkButton', function (e) {
-    let button = $("#addWeblinkButton");
-    if (button.hasClass("toggled")) {
-        e.preventDefault()
-        let webLinkUrl = $("#webLinkUrl");
-        let webLinkName = $("#webLinkName");
-        if (!webLinkUrl[0].checkValidity() || !webLinkName[0].checkValidity()) {
-            webLinkUrl[0].reportValidity()
-            webLinkName[0].reportValidity()
-            return false
-        }
-        //validate the link
-        validateWebLinkAtBackend()
-    } else {
-        webLinkButtonToggle()
-    }
+    e.preventDefault()
+    handleWeblinkAdd()
 })
 
 
@@ -782,7 +911,30 @@ $(document).on('click', '#addWeblinkButton', function (e) {
  * Listens for when delete web link button is clicked.
  * the web link will be deleted.
  */
-$(document).on('click', '#deleteWeblink', function (e) {
+$(document).on('click', '#deleteWeblink', function () {
+    $(this).parent().remove();
+})
+
+
+/**
+ * Listens for when delete web link button is clicked.
+ * Refreshes error messages on the form.
+ * */
+$(document).on('change keyup', '#webLinkUrl', checkWeblinkAddressValidity)
+
+
+/**
+ * Listens for a change of the web link name in the web link form.
+ * Refreshes error messages on the form.
+ */
+$(document).on('change keyup', '#webLinkName', checkWeblinkNameValidity)
+
+
+/**
+ * Listens for when delete web link button is clicked.
+ * The user will be removed.
+ */
+$(document).on('click', '.deleteLinkedUserButton', function () {
     $(this).parent().remove();
 })
 
@@ -798,7 +950,7 @@ $(document).on('click', '#cancelWeblinkButton', () => {
 /**
  * Prevents the add evidence modal from being closed if an alert is present.
  */
-$('#addEvidenceModal').on('hide.bs.modal', function (e) {
+$('#addOrEditEvidenceModal').on('hide.bs.modal', function (e) {
     let alert = $("#alertPopUp")
     if (alert.is(":visible") && alert.hasClass("backgroundRed")) {
         alert.effect("shake")
@@ -814,20 +966,6 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
  */
 function removeWebLinkAlerts() {
     $(".weblinkAlert").remove()
-}
-
-
-/**
- * Handles the error messages for an invalid web link.
- */
-function handleInvalidWebLink(form, message) {
-    removeWebLinkAlerts()
-    form.append(`
-        <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
-          ${sanitise(message)}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `);
 }
 
 
@@ -850,52 +988,6 @@ function toggleRequiredIfCheckURLInputsAreEmpty() {
         webLinkName.attr("required", "required")
         webLinkName.attr("minlength", "1")
     }
-}
-
-
-/**
- * Validates the weblink server-side.
- * Takes the URL and makes a call to the server to check if it's valid.
- * If valid, save the web link and toggle the form.
- *
- * If there's an issue, or it's not valid, calls a function to display an alert
- */
-function validateWebLinkAtBackend() {
-    let form = $("#weblinkForm")
-    let address = $("#webLinkUrl").val()
-    let hasDoubleSlash = address.search("//") !== -1
-    if (!hasDoubleSlash) {
-
-        if (address.search(":/") !== -1) {
-            handleInvalidWebLink(form, "Addresses in the format [protocol]:/[something else] are not valid " +
-                "(two slashes required)");
-            return;
-        }
-
-        // Address does not have protocol, so assume http
-        address = "http://" + address
-    }
-    let data = JSON.stringify({
-        "url": address,
-        "name": $("#webLinkName").val()
-    })
-    $.ajax({
-        url: `validateWebLink`,
-        type: "POST",
-        contentType: "application/json",
-        data,
-        success: () => {
-            submitWebLink()
-            webLinkButtonToggle()
-        },
-        error: (error) => {
-            if (error.status === 400) {
-                handleInvalidWebLink(form, error.responseText)
-            } else {
-                handleInvalidWebLink(form, "Something went wrong. Try again later.");
-            }
-        }
-    })
 }
 
 
@@ -942,23 +1034,22 @@ $(document).on('click', '#linkUsersToEvidenceButton', function () {
 
 
 /**
- * Appends a new link to the list of added links in the Add Evidence form.
+ * Appends a new link to the list of added links in the Add Evidence form, if the form contents are valid.
  */
 function submitWebLink() {
-    let alias = $("#webLinkName")
-    let url = $("#webLinkUrl")
-    let addedWebLinks = $("#addedWebLinks")
-    let webLinkTitle = $("#webLinkTitle")
+    if (checkWeblinkAddressValidity() && checkWeblinkNameValidity()) {
+        const alias = $("#webLinkName")
+        const url = $("#webLinkUrl")
+        const addedWebLinks = $("#addedWebLinks")
+        const webLinkTitle = $("#webLinkTitle")
 
-    if (alias.val().length > 0) {
         webLinkTitle.show()
-        addedWebLinks.append(webLinkElement(url.val(), alias.val()))
-        initialiseTooltips()
+        addedWebLinks.append(deletableWeblinkElement(url.val(), alias.val()))
         url.val("")
         alias.val("")
         webLinksCount += 1
         checkWeblinkCount()
-        $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+        initialiseTooltips()
     }
 }
 
@@ -980,7 +1071,17 @@ function addLinkedUser(user) {
  * Creates the element for displaying the linked user
  */
 function linkedUserElement(user) {
-    return `<div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">${user.firstName} ${user.lastName} (${user.username})</div>`
+    return `<div id="linkedUserElement">
+                <button class="deleteButton deleteLinkedUserButton deleteLinkedUser deleteIcon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                </button>
+                <div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">
+                     ${user.firstName} ${user.lastName} (${user.username})
+                </div>
+           </div> `
 }
 
 
@@ -989,7 +1090,6 @@ function linkedUserElement(user) {
  */
 $(document).on("click", ".linkedUser", function () {
     let userId = this.getAttribute("data-id")
-    console.log(userId)
     redirectToUsersHomePage(userId) //redirect to the user's evidence page
 })
 
@@ -1041,7 +1141,7 @@ function checkNameValidity() {
     const name = $("#evidenceName")
     const nameVal = name.val()
     const nameError = $("#evidenceNameFeedback")
-    const nameIsValid = regex.test(nameVal)
+    const nameIsValid = GENERAL_UNICODE_REGEX.test(nameVal)
 
     if (nameIsValid) {
         name.removeClass("invalid")
@@ -1068,7 +1168,7 @@ function checkDescriptionValidity() {
     const description = $("#evidenceDescription")
     const descriptionVal = description.val()
     const descriptionError = $("#evidenceDescriptionFeedback")
-    const descriptionIsValid = regex.test(descriptionVal)
+    const descriptionIsValid = GENERAL_UNICODE_REGEX.test(descriptionVal)
 
     if (descriptionIsValid) {
         description.removeClass("invalid")
@@ -1083,6 +1183,32 @@ function checkDescriptionValidity() {
         }
 
         descriptionError.show()
+    }
+}
+
+
+/**
+ * Checks that the current date in the evidence modal date picker is within the project dates and not in the future.
+ * If the date is invalid, a relevant error message is displayed.
+ */
+function checkDateValidity() {
+    const date = $("#evidenceDate")
+    const proposedDate = Date.parse(date.val().toString())
+    const earliestDate = Date.parse(projectStartDate)
+    const latestDate = Date.parse(evidenceMaxDate)
+    const dateError = $("#evidenceDateFeedback")
+
+    if (proposedDate < earliestDate) {
+        dateError.text(`Date cannot be before project start.\n Please choose a date between ${projectStartFormatted} and ${projectEndFormatted}`)
+        dateError.show()
+    }
+    else if (proposedDate > latestDate) {
+        dateError.text(`Evidence date must be before the project end and not in the future.\n Please choose a date between ${projectStartFormatted} and ${projectEndFormatted}`)
+        dateError.show()
+    }
+    else {
+        dateError.text("")
+        dateError.hide()
     }
 }
 
@@ -1119,5 +1245,83 @@ function createCategoryChip(categoryName, isMenuItem) {
             <div class="chip categoryChip">
                 <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
+    }
+}
+
+
+
+// ----------------------------- SAVING EVIDENCE -----------------------------------
+
+/**
+ * Retrieves input values from the add evidence form and formats them in JSON.
+ *
+ * @returns {string} A JSON string of the evidence's data, formatted as an EvidenceDTO.
+ */
+function getDataFromEvidenceForm() {
+    const title = $("#evidenceName").val()
+    const date = $("#evidenceDate").val()
+    const description = $("#evidenceDescription").val()
+    const projectId = 1
+    let webLinks = getWeblinksList();
+    const linkedUsers = getLinkedUsers();
+    const categories = getCategories();
+
+    return JSON.stringify({
+        "title": title,
+        "date": date,
+        "description": description,
+        "projectId": projectId,
+        "webLinks": webLinks,
+        "skills": skillsToCreate,
+        "categories": categories,
+        "associateIds": linkedUsers
+    })
+}
+
+
+/**
+ * Makes an endpoint request to save a new piece of evidence.
+ *
+ * @param data the data for the evidence being created.
+ */
+function createEvidence(data) {
+    $.ajax({
+        url: 'evidence',
+        type: "POST",
+        contentType: "application/json",
+        data,
+        success: (response) => {
+            handleSuccessfulEvidenceSave(response)
+        }, error: (error) => {
+            createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
+        }
+    })
+}
+
+
+/**
+ * Validates the inputs in the evidence form. Calls the method to create a nw piece of evidence, if the evidence save
+ * button has the text "Create".
+ */
+function handleEvidenceSave() {
+    const skillsInput = $("#skillsInput")
+    removeDuplicatesFromInput(skillsInput)
+
+    const evidenceCreationForm = $("#evidenceCreationForm")[0]
+    toggleRequiredIfCheckURLInputsAreEmpty()
+
+    if (!evidenceCreationForm.checkValidity()) {
+        evidenceCreationForm.reportValidity()
+
+    } else {
+        const evidenceData = getDataFromEvidenceForm()
+        const buttonName = $("#evidenceSaveButton").text()
+
+        if (buttonName === "Create") { // create a new evidence
+            createEvidence(evidenceData)
+
+        } else { // edit a exist evidence
+            // ToDo: Connect Save Button to Endpoint
+        }
     }
 }

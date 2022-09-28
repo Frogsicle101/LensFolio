@@ -36,6 +36,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -78,6 +79,8 @@ class EvidenceControllerTest {
     @Autowired
     private RegexService regexService;
 
+    private final String WEBLINK_ADDRESS = "https://www.canterbury.ac.nz/";
+
 
     @BeforeEach
     public void init() {
@@ -96,7 +99,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -175,7 +178,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -255,7 +258,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -316,7 +319,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -395,7 +398,7 @@ class EvidenceControllerTest {
         long projectId = 1;
         Project project = new Project("Testing");
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
 
         EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
@@ -428,6 +431,91 @@ class EvidenceControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+
+    // ------------------------------------ PATCH evidence tests -------------------------------------
+
+
+    @Test
+    void testEditEvidence() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        EvidenceDTO testEvidence = createDefaultEvidenceDTO();
+        mockMvc.perform(patch("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(buildEvidenceJSON(testEvidence))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void testEditEvidenceCheckException() throws Exception {
+
+        final String MESSAGE = "Error message";
+
+        setUserToStudent();
+        setUpContext();
+        EvidenceDTO testEvidence = createDefaultEvidenceDTO();
+
+        when(evidenceService.editEvidence(any(), any())).thenThrow(new CheckException(MESSAGE));
+
+        MvcResult result = mockMvc.perform(patch("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(buildEvidenceJSON(testEvidence))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest()).andReturn();
+
+        Assertions.assertTrue(result.getResponse().getContentAsString().contains(MESSAGE));
+    }
+
+
+    @Test
+    void testEditEvidenceDateTimeParseException() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        EvidenceDTO testEvidence = createDefaultEvidenceDTO();
+        testEvidence.setDate("Four score and seven years ago");
+
+
+        when(evidenceService.editEvidence(any(), any())).thenThrow(new DateTimeParseException("test", "test", 0));
+
+        mockMvc.perform(patch("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(buildEvidenceJSON(testEvidence))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testEditEvidenceMalformedURLException() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        EvidenceDTO testEvidence = createDefaultEvidenceDTO();
+
+        when(evidenceService.editEvidence(any(), any())).thenThrow(new MalformedURLException());
+
+        mockMvc.perform(patch("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(buildEvidenceJSON(testEvidence))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testEditEvidenceGenericError() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        EvidenceDTO testEvidence = createDefaultEvidenceDTO();
+
+        when(evidenceService.editEvidence(any(), any())).thenThrow(new RuntimeException("I am an error"));
+
+        mockMvc.perform(patch("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(buildEvidenceJSON(testEvidence))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
 
     // ------------------------------------ GET evidence tests -------------------------------------
 
@@ -659,7 +747,8 @@ class EvidenceControllerTest {
         setUpContext();
         int evidenceId = 1;
         Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLink testLink = new WebLink(evidence1, "test link", new URL("https://www.canterbury.ac.nz/"));
+        WebLinkDTO webLinkDTO = new WebLinkDTO("test link", WEBLINK_ADDRESS);
+        WebLink testLink = new WebLink(evidence1, webLinkDTO);
         evidence1.addWebLink(testLink);
         when(evidenceRepository.findById(any())).thenReturn(Optional.of(evidence1));
 
@@ -680,7 +769,8 @@ class EvidenceControllerTest {
         setUpContext();
         int evidenceId = 1;
         Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLink testLink = new WebLink(evidence1, "test link", new URL("https://www.canterbury.ac.nz/"));
+        WebLinkDTO webLinkDTO = new WebLinkDTO("test link", WEBLINK_ADDRESS);
+        WebLink testLink = new WebLink(evidence1, webLinkDTO);
         evidence1.addWebLink(testLink);
         when(evidenceRepository.findById(evidenceId)).thenReturn(Optional.of(evidence1));
 
@@ -708,9 +798,13 @@ class EvidenceControllerTest {
         setUpContext();
         int evidenceId = 1;
         Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLink testLink1 = new WebLink(evidence1, "test link 1", new URL("https://www.canterbury.ac.nz/"));
-        WebLink testLink2 = new WebLink(evidence1, "test link 2", new URL("https://www.canterbury.ac.nz/"));
-        WebLink testLink3 = new WebLink(evidence1, "test link 3", new URL("https://www.canterbury.ac.nz/"));
+        WebLinkDTO webLinkDTO1 = new WebLinkDTO("test link", WEBLINK_ADDRESS);
+        WebLinkDTO webLinkDTO2 = new WebLinkDTO("test link", WEBLINK_ADDRESS);
+        WebLinkDTO webLinkDTO3 = new WebLinkDTO("test link", WEBLINK_ADDRESS);
+
+        WebLink testLink1 = new WebLink(evidence1, webLinkDTO1);
+        WebLink testLink2 = new WebLink(evidence1, webLinkDTO2);
+        WebLink testLink3 = new WebLink(evidence1, webLinkDTO3);
         evidence1.addWebLink(testLink1);
         evidence1.addWebLink(testLink2);
         evidence1.addWebLink(testLink3);
@@ -725,90 +819,6 @@ class EvidenceControllerTest {
         Assertions.assertTrue(responseContent.contains(testLink1.toJsonString()));
         Assertions.assertTrue(responseContent.contains(testLink2.toJsonString()));
         Assertions.assertTrue(responseContent.contains(testLink3.toJsonString()));
-    }
-
-    @Test
-    void TestValidateWebLinkValid() throws Exception {
-        mockMvc.perform(post("/validateWebLink")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"A Test Weblink\", \"url\": \"https://www.canterbury.ac.nz/\"}")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void TestValidateWebLinkNameTooLong() throws Exception {
-        String name = "t".repeat(WebLink.MAXNAMELENGTH + 1);
-        mockMvc.perform(post("/validateWebLink")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"" + name + "\", \"url\": \"https://www.canterbury.ac.nz/\"}")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void TestValidateWebLinkURLTooLong() throws Exception {
-        String name = "c".repeat(WebLink.MAXURLLENGTH + 1);
-        mockMvc.perform(post("/validateWebLink")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"A Test Weblink\", \"url\": \"https://www." + name + ".ac.nz/\"}")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void TestValidateWebLinkURLIsEmpty() throws Exception {
-        mockMvc.perform(post("/validateWebLink")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"A Test Weblink\", \"url\": \"\"}")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @Test
-    void TestValidateWebLinkURLIsOnlyProtocol() throws Exception {
-        mockMvc.perform(post("/validateWebLink")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"A Test Weblink\", \"url\": \"https://\"}")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void TestValidateWebLinkValidURLNoProtocol() throws Exception {
-        mockMvc.perform(post("/validateWebLink")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"A Test Weblink\", \"url\": \"www.canterbury.ac.nz/\"}")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void TestValidateWebLinkInvalidURLIllegalCharactersNonBreakingSpace() throws Exception {
-        mockMvc.perform(post("/validateWebLink")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"A Test Weblink\", \"url\": \"https://www.google.com&nbsp;\"}")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void TestValidateWebLinkInvalidURLIllegalCharactersHTMLTags() throws Exception {
-        mockMvc.perform(post("/validateWebLink")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"A Test Weblink\", \"url\": \"https://www.<script>Something naughty!</script>place.com\"}")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void TestValidateWebLinkInvalidName() throws Exception {
-        mockMvc.perform(post("/validateWebLink")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"\", \"url\": \"https://www.place.com\"}")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
     }
 
 
@@ -877,6 +887,43 @@ class EvidenceControllerTest {
 
 
     // -------------- Helper context functions ----------------------------------------------------
+
+
+    /**
+     * Takes an EvidenceDTO object and returns a JSON string representation of it.
+     * Used for making post requests
+     *
+     * @param evidenceDTO The EvidenceDTO you want to convert into JSON
+     *
+     * @return a JSON representation of the DTO
+     */
+    private String buildEvidenceJSON(EvidenceDTO evidenceDTO) {
+        return "{ \"title\": \"" + evidenceDTO.getTitle() + "\", \"date\": \"" + evidenceDTO.getDate() + "\", " +
+                "\"description\": \"" + evidenceDTO.getDescription() + "\", \"webLinks\": " + evidenceDTO.getWebLinks() + ", " +
+                "\"categories\": " + evidenceDTO.getCategories() + ", \"skills\": " + evidenceDTO.getSkills() + ", " +
+                "\"associateIds\": " + evidenceDTO.getAssociateIds() + ", \"projectId\": \"" + evidenceDTO.getProjectId() + "\"" +
+                "}";
+    }
+
+
+    /**
+     * Creates a default evidence DTO
+     *
+     * @return an EvidenceDTO, with arbitrary (but valid) values and empty lists.
+     */
+    private EvidenceDTO createDefaultEvidenceDTO() {
+        EvidenceDTO.EvidenceDTOBuilder builder = new EvidenceDTO.EvidenceDTOBuilder();
+        builder.setId(1)
+                .setTitle("Default Evidence")
+                .setDate(LocalDate.now().plusDays(2).toString())
+                .setDescription("The Default Evidence Description")
+                .setWebLinks(new ArrayList<>())
+                .setCategories(new ArrayList<>())
+                .setSkills(new ArrayList<>())
+                .setAssociateIds(new ArrayList<>())
+                .setProjectId(1L);
+        return builder.build();
+    }
 
 
     private void setUpContext() {

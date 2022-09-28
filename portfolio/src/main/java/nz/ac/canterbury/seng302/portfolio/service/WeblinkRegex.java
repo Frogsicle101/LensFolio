@@ -47,7 +47,7 @@ public class WeblinkRegex {
      * Each additional key-value assignment is prefaced by an "&" character.
      * Optional.
      */
-    private static final String QUERY = "(\\?((([%s])+=([%<s])+)+(&([%<s])+=([%<s])+)*)+)?".formatted(URIC);
+    private static final String QUERY = "(\\?(((%s)+=(%<s)+)+(&(%<s)+=(%<s)+)*)+)?".formatted(URIC);
 
     /**
      * The fragment starts with a "#" character.

@@ -545,7 +545,7 @@ function appendEventToSprint(elementToAppendTo, event) {
                     <div class="col">
                         <div class="eventInSprint eventInSprint${sanitise(event.id)}" >
                             <div class="occasionInSprintName">
-                                <svg data-toggle="tooltip" class="iconInSprint bi bi-calendar3-event-fill calendarOccasion" id="eventIconInSprint"
+                                <svg data-toggle="tooltip" class="bi bi-calendar3-event-fill calendarOccasion iconInSprint" id="eventIconInSprint"
                                         xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="-3 -3 20 20">
                                         <path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2h16a2 2 0 0 0-2-2H2zM0 14V3h16v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm12-8a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
                                         </svg>
@@ -752,7 +752,7 @@ function appendEventForm(element) {
 
     let formControl = $(".form-control")
     formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    formControl.on("keyup", countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#editEventForm").slideDown();
 }
 
@@ -805,7 +805,7 @@ function appendMilestoneForm(element) {
     });
     let formControl = $(".form-control")
     formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    formControl.on("keyup", countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#milestoneEditForm").slideDown();
 }
 
@@ -857,7 +857,7 @@ function appendDeadlineForm(element) {
     });
     let formControl = $(".form-control")
     formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    formControl.on("keyup", countCharacters) //Runs when key is pressed (well released) on form-control elements.
     $("#editDeadlineForm").slideDown();
 }
 

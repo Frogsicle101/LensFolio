@@ -1,9 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
-import nz.ac.canterbury.seng302.portfolio.service.*;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -11,7 +9,10 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.service.*;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -61,20 +62,20 @@ public class EvidenceController {
     /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
-    private final RegexService regexService;
+
+    private final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
 
 
     @Autowired
     public EvidenceController(UserAccountsClientService userAccountsClientService,
                            ProjectRepository projectRepository,
                            EvidenceRepository evidenceRepository,
-                           EvidenceService evidenceService,
-                           RegexService regexService) {
+                           EvidenceService evidenceService
+                           ) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
         this.evidenceService = evidenceService;
-        this.regexService = regexService;
     }
 
 
@@ -103,9 +104,9 @@ public class EvidenceController {
         modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("webLinkMaxUrlLength", WebLink.MAXURLLENGTH);
         modelAndView.addObject("webLinkMaxNameLength", WebLink.MAXNAMELENGTH);
-        modelAndView.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
         modelAndView.addObject(project);
         modelAndView.addObject("webLinkRegex", RegexPattern.WEBLINK);
+        modelAndView.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;
@@ -247,8 +248,46 @@ public class EvidenceController {
             return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
-            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    /**
+     * Entrypoint for editing an evidence object
+     *
+     * @param principal The authentication principal for the logged-in user
+     * @param evidenceDTO The EvidenceDTO object containing the required data for the evidence instance being created.
+     *
+     * @return returns a ResponseEntity. This entity includes the edited piece of evidence if successful.
+     */
+    @PatchMapping("/evidence")
+    @ResponseBody
+    public ResponseEntity<Object> editEvidence(
+            @AuthenticationPrincipal Authentication principal,
+            @RequestBody EvidenceDTO evidenceDTO
+    ) {
+        logger.info("PATCH REQUEST /evidence - attempt to edit evidence");
+
+        try {
+            return new ResponseEntity<>(evidenceService.editEvidence(principal, evidenceDTO), HttpStatus.OK);
+        } catch (CheckException err) {
+            logger.warn("PATCH REQUEST /evidence - attempt to edit evidence with id {}: Bad input: {}",
+                    evidenceDTO.getId(), err.getMessage());
+            return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (DateTimeParseException err) {
+            logger.warn("PATCH REQUEST /evidence - attempt to edit evidence with id {}: Bad date", evidenceDTO.getId());
+            return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
+        } catch (MalformedURLException err) {
+            logger.warn("PATCH REQUEST /evidence - attempt to edit evidence with id {}: Bad url {}",
+                    evidenceDTO.getId(), err.getMessage());
+            return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
+        } catch (Exception err) {
+            logger.error("PATCH REQUEST /evidence - attempt to edit evidence with id {}: ERROR: {}",
+                    evidenceDTO.getId(), err.getMessage());
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 
@@ -294,50 +333,6 @@ public class EvidenceController {
 
 
     /**
-     * Checks if the provided web address is valid, i.e. could lead to a website.
-     * The criteria are specified in the WeblinkRegex class.
-     *
-     * @param request the full address and name to be validated
-     * @return A response entity with the required response code. If it is valid, the status will be OK.
-     * No response body will be returned in any instance.
-     * @see WeblinkRegex
-     */
-    @PostMapping("/validateWebLink")
-    @ResponseBody
-    public ResponseEntity<Object> validateWebLink(@RequestBody WebLinkDTO request) {
-        String address = request.getUrl();
-        logger.info("GET REQUEST /validateWebLink - validating address {}", address);
-        try {
-            if (address.contains("&nbsp")) {
-                throw new MalformedURLException("The non-breaking space is not a valid character");
-            }
-            if (request.getName().length() < 1) {
-                throw new CheckException("Link name should be at least 1 character");
-            }
-            if (request.getName().length() > WebLink.MAXNAMELENGTH) {
-                throw new CheckException("Link name should be no more than " + WebLink.MAXNAMELENGTH + " characters in length");
-            }
-            regexService.checkInput(RegexPattern.WEBLINK, request.getUrl(), 1, WebLink.MAXURLLENGTH, "Weblink");
-
-            return new ResponseEntity<>(HttpStatus.OK);
-
-        } catch (CheckException exception) {
-            logger.warn("/validateWebLink - Invalid address: {}", address);
-            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (MalformedURLException exception) {
-            logger.warn("/validateWebLink - Invalid address: {}", address);
-            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/", HttpStatus.BAD_REQUEST);
-        } catch (Exception exception) {
-            logger.warn(exception.getClass().getName());
-            logger.warn(exception.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    /**
      * A get request for retrieving the users that match the string being typed
      *
      * @param name The name that is being typed by the user
@@ -369,7 +364,7 @@ public class EvidenceController {
         } catch (Exception e){
             logger.warn(e.getClass().getName());
             logger.warn(e.getMessage());
-            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -392,5 +387,18 @@ public class EvidenceController {
             associates.add(userDTO);
         }
         return associates;
+    }
+
+
+    /**
+     * Handles exceptions when a request body cannot be parsed to the required DTO.
+     *
+     * @param exception - The exception thrown by the endpoint
+     * @return a response entity with a generic message, and a bad request status
+     */
+    @ExceptionHandler(InvalidDefinitionException.class)
+    public ResponseEntity<Object> handleError(InvalidDefinitionException exception) {
+        logger.warn("Evidence endpoint InvalidDefinitionError resolved {}", exception.getMessage());
+        return new ResponseEntity<>("One or more fields are invalid", HttpStatus.BAD_REQUEST);
     }
 }
