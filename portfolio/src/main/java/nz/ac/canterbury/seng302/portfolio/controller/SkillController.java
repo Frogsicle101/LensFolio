@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
-import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
@@ -13,10 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -116,48 +113,6 @@ public class SkillController {
         } catch (Exception exception) {
             logger.error("GET REQUEST /evidenceLinkedToSkill - Internal Server Error attempt skill: {}", skillName);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    /**
-     * Takes a skills id and a string of the new name and changes the name of the skill. It then returns the list of
-     * evidences that have this skill so that they can be updated
-     *
-     * @param principal The user who made the request.
-     * @param skillId The id of the skill to be changed
-     * @param skillName The new name of the skill
-     * @return A ResponseEntity that contains a list of evidences associated with the skill.
-     */
-    @PatchMapping("/editSkill")
-    public ResponseEntity<Object> editSkill(@AuthenticationPrincipal Authentication principal,
-                                            @RequestParam Integer skillId,
-                                            @RequestParam String skillName) {
-        String methodLoggingTemplate = "PATCH /editSkill: {}";
-        logger.info(methodLoggingTemplate, "Called");
-
-        try {
-            Optional<Skill> optionalSkill = skillRepository.findById(skillId);
-            if (optionalSkill.isEmpty()) {
-                String message = "No skill found with id " + skillId;
-                logger.info(methodLoggingTemplate, message);
-                return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
-            }
-            Skill skill = optionalSkill.get();
-            int userId = PrincipalAttributes.getIdFromPrincipal(principal.getAuthState());
-            List<Skill> usersSkills = skillRepository.findDistinctByEvidenceUserId(userId);
-            if (usersSkills.stream().noneMatch(o -> skillId.equals(o.getId()))) {
-                logger.warn(methodLoggingTemplate, "User attempted to edit another users skill.");
-                return new ResponseEntity<>("You can only edit your own skills", HttpStatus.UNAUTHORIZED);
-            }
-            skill.setName(skillName);
-            skillRepository.save(skill);
-            String message = "Successfully edited skill " + skillId;
-            logger.info(methodLoggingTemplate, message);
-            return new ResponseEntity<>(skill.getEvidence(), HttpStatus.OK);
-        } catch (Exception exception) {
-            logger.error(methodLoggingTemplate, exception.getMessage());
-            return new ResponseEntity<>("An unexpected error has occurred", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

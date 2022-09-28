@@ -7,6 +7,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.SkillDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
@@ -95,7 +96,7 @@ public class EvidenceService {
                                 EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
         logger.info("CREATING EVIDENCE - Attempting to create evidence with title: {}", evidenceDTO.getTitle());
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-        checkValidEvidenceDTO(evidenceDTO);
+        checkValidEvidenceDTO(user, evidenceDTO);
 
         evidenceDTO.setAssociateIds(evidenceDTO.getAssociateIds() == null ?
                 new ArrayList<>() :
@@ -131,7 +132,7 @@ public class EvidenceService {
         if (originalEvidence.getUserId() != user.getId()) {
             throw new CheckException("Cannot edit evidence owned by a different user");
         }
-        checkValidEvidenceDTO(evidenceDTO);
+        checkValidEvidenceDTO(user, evidenceDTO);
         evidenceDTO.setAssociateIds(evidenceDTO.getAssociateIds() == null ?
                                     new ArrayList<>() :
                                     new ArrayList<>(new LinkedHashSet<>(evidenceDTO.getAssociateIds())));
@@ -151,7 +152,7 @@ public class EvidenceService {
      * @param evidenceDTO the evidenceDTO to be validated
      * @throws CheckException an exception containing the message why the validation failed.
      */
-    protected void checkValidEvidenceDTO(EvidenceDTO evidenceDTO) throws CheckException {
+    protected void checkValidEvidenceDTO(UserResponse user, EvidenceDTO evidenceDTO) throws CheckException {
         long projectId = evidenceDTO.getProjectId();
         List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
         String date = evidenceDTO.getDate();
@@ -163,6 +164,15 @@ public class EvidenceService {
         if (webLinks.size() > 10) {
             throw new CheckException("This piece of evidence has too many weblinks attached to it; 10 is the limit");
         }
+        for (SkillDTO skillInfo : evidenceDTO.getSkills()) {
+            if (skillInfo.getId() != null) {
+                Optional<Skill> optionalSkill = skillRepository.findDistinctByEvidenceUserIdAndId(user.getId(), skillInfo.getId());
+                if (optionalSkill.isEmpty()) {
+                    throw new CheckException("You can't edit another users skills");
+                }
+            }
+        }
+
         Project project = optionalProject.get();
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
@@ -265,25 +275,27 @@ public class EvidenceService {
      * @param evidence - The  piece of evidence
      * @param skills   - The list of the skills in string form
      */
-    public void addSkills(Evidence evidence, List<String> skills) {
-        for(String skillName: skills){
+    public void addSkills(Evidence evidence, List<SkillDTO> skills) {
+        for(SkillDTO skillInfo: skills){
             try {
-                regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 1, 30, "Skill name");
+                regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillInfo.getName(), 1, 30, "Skill name");
             } catch (CheckException e) {
                 removeWeblinks(evidence);
                 evidenceRepository.delete(evidence);
                 throw new CheckException(e.getMessage());
             }
-            Optional<Skill> optionalSkill = skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(evidence.getUserId(), skillName);
+            Optional<Skill> optionalSkill = skillRepository.findById(skillInfo.getId());
             Skill theSkill;
             if (optionalSkill.isEmpty()) {
-                if (skillName.equalsIgnoreCase("No Skill")) {
+                if (skillInfo.getName().equalsIgnoreCase("No Skill")) {
                     continue;
                 }
-                Skill createSkill = new Skill(skillName);
+                Skill createSkill = new Skill(skillInfo.getName());
                 theSkill = skillRepository.save(createSkill);
             } else {
                 theSkill = optionalSkill.get();
+                theSkill.setName(skillInfo.getName());
+                skillRepository.save(theSkill);
             }
             evidence.addSkill(theSkill);
         }
