@@ -149,7 +149,6 @@ function webLinkElement(url, alias) {
 
     return (`
         <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
-        
             <button id="deleteWeblink" class="deleteWeblinkButton">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
             <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -160,7 +159,6 @@ function webLinkElement(url, alias) {
             ${icon}
             <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
             data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
-            
         </div>
     `)
 }
@@ -565,7 +563,7 @@ $(document).on("click", ".evidenceListItem", function () {
  * Listen for a keypress in the weblink address field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkUrl', function () {
-    $("#weblinkAddressAlert").alert('close')
+    updateErrorMessage($("#evidenceWeblinkAddressFeedback"), "")
 })
 
 
@@ -573,7 +571,7 @@ $(document).on('keypress', '#webLinkUrl', function () {
  * Listen for a keypress in the weblink name field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkName', function () {
-    $("#weblinkNameAlert").alert('close')
+    updateErrorMessage($("#evidenceWeblinkNameFeedback"), "")
 })
 
 
@@ -886,20 +884,21 @@ function toggleRequiredIfCheckURLInputsAreEmpty() {
  * If there's an issue, or it's not valid, calls a function to display an alert
  */
 function validateWebLinkAtBackend() {
-    let form = $("#weblinkForm")
+    const weblinkAddressFeedback = $("#evidenceWeblinkAddressFeedback")
     let address = $("#webLinkUrl").val()
-    let hasDoubleSlash = address.search("//") !== -1
-    if (!hasDoubleSlash) {
+    const hasDoubleSlash = address.search("//") !== -1
 
+    if (!hasDoubleSlash) {
         if (address.search(":/") !== -1) {
-            handleInvalidWebLink(form, "Addresses in the format [protocol]:/[something else] are not valid " +
-                "(two slashes required)");
+            updateErrorMessage(weblinkAddressFeedback, "Addresses in the format [protocol]:/[something else] are not valid " +
+                "(two slashes required)")
             return;
         }
 
         // Address does not have protocol, so assume http
         address = "http://" + address
     }
+
     let data = JSON.stringify({
         "url": address,
         "name": $("#webLinkName").val()
@@ -915,9 +914,9 @@ function validateWebLinkAtBackend() {
         },
         error: (error) => {
             if (error.status === 400) {
-                handleInvalidWebLink(form, error.responseText)
+                updateErrorMessage(weblinkAddressFeedback, error.responseText)
             } else {
-                handleInvalidWebLink(form, "Something went wrong. Try again later.");
+                updateErrorMessage(weblinkAddressFeedback, "Something went wrong. Try again later.")
             }
         }
     })

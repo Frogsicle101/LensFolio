@@ -176,6 +176,7 @@
                                                th:title="${'Weblinks' + webLinkRegex.getRequirements()}"
                                                th:maxlength="${webLinkMaxUrlLength}" required>
                                     </div>
+                                    <div class="invalid-feedback" id="evidenceWeblinkAddressFeedback"></div>
                                     <div class="form-group ">
                                         <input class="form-control"
                                                id="webLinkName"
@@ -183,6 +184,7 @@
                                                type="text"
                                                minlength="1" required>
                                     </div>
+                                    <div class="invalid-feedback" id="evidenceWeblinkNameFeedback"></div>
                                 </div>
                                 <button class="btn btn-secondary evidenceFormButton"
                                         id="addWeblinkButton"
