@@ -33,16 +33,16 @@
                 <div id="evidenceList"></div>
             </div>
             <div class="col">
-                <div class="box evidenceDetailsContainer">
+                <div id="evidenceDetailsContainer" class="box">
 
                     <div class="evidenceDetailsHeader">
                         <p id="evidenceDetailsId" style="display: none"></p>
                         <p id="evidenceDetailsDate" class="evidenceDetailsDate"></p>
                         <div>
-                            <button id="editEvidenceButton" type="button">
+                            <button id="editEvidenceButton" class="editIcon" type="button">
                                 <span th:insert="fragments/icons.html :: editIcon"></span>
                             </button>
-                            <button id="deleteEvidenceButton" type="button" class="noStyleButton">
+                            <button id="deleteEvidenceButton" class="deleteIcon noStyleButton" type="button">
                                 <span th:insert="fragments/icons.html :: deleteIcon"></span>
                             </button>
                         </div>

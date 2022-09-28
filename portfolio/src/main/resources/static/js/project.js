@@ -154,7 +154,7 @@ function appendSprint(sprintObject, index) {
                     <p>${sanitise(sprintObject.description)}</p>
                 </div>
                 <div class="mb3 hasTeacherOrAbove">
-                    <button type="button" class="deleteSprint noStyleButton sprintButton" data-bs-toggle="tooltip"
+                    <button type="button" class="deleteSprint deleteIcon noStyleButton sprintButton" data-bs-toggle="tooltip"
                             data-bs-placement="top" title="Delete Sprint">
                             <svg class="bi bi-trash" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
                                  xmlns="http://www.w3.org/2000/svg">
@@ -163,7 +163,7 @@ function appendSprint(sprintObject, index) {
                                       fill-rule="evenodd"/>
                             </svg>
                     </button>
-                    <button type="button" class="editSprint noStyleButton sprintButton" data-bs-toggle="tooltip"
+                    <button type="button" class="editSprint editIcon noStyleButton sprintButton" data-bs-toggle="tooltip"
                             data-bs-placement="top" title="Edit Sprint">
                           <svg class="bi bi-pencil" fill="currentColor" height="18" viewBox="0 0 16 16" width="18"
                                  xmlns="http://www.w3.org/2000/svg">
