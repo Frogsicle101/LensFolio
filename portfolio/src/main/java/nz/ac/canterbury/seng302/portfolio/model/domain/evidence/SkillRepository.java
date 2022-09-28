@@ -54,4 +54,8 @@ public interface SkillRepository extends CrudRepository<Skill, Integer> {
      */
     @Query
     Optional<Skill> findDistinctByEvidenceUserIdAndNameIgnoreCase(int userId, String skillName);
+
+
+    @Query
+    Optional<Skill> findDistinctByEvidenceUserIdAndId(int userId, Integer id);
 }
