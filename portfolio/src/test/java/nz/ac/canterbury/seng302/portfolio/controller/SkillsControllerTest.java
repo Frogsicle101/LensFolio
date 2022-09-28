@@ -151,8 +151,8 @@ class SkillsControllerTest {
     @Test
     void testGetSkillsFrequencyForUser() throws Exception {
         Skill usersSkill1 = new Skill(1, "Skill 1");
-        List<Skill> emptySkills = new ArrayList<>();
-        emptySkills.add(usersSkill1);
+        List<Skill> skillList = new ArrayList<>();
+        skillList.add(usersSkill1);
 
         ArrayList<Evidence> evidences = new ArrayList<>();
         Evidence evidence = new Evidence(validUserId, "test", LocalDate.now(), "test");
@@ -166,7 +166,7 @@ class SkillsControllerTest {
 
         Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(validUserId, usersSkill1)).thenReturn(evidences);
         Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(validUserId)).thenReturn(evidences);
-        Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(skillList);
         Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
 
         MvcResult result = mockMvc.perform(get("/skills")
