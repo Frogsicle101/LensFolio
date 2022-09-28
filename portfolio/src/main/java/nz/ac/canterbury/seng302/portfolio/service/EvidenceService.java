@@ -102,7 +102,7 @@ public class EvidenceService {
         List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
         String date = evidenceDTO.getDate();
         List<String> categories = evidenceDTO.getCategories();
-        List<String> skills = evidenceDTO.getSkills();
+        List<Skill> skills = evidenceDTO.getSkills();
 
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isEmpty()) {
@@ -180,8 +180,8 @@ public class EvidenceService {
      * @param evidence - The  piece of evidence
      * @param skills   - The list of the skills in string form
      */
-    public void addSkills(Evidence evidence, List<String> skills) {
-        for(String skillName: skills){
+    public void addSkills(Evidence evidence, List<Skill> skills) {
+        for(String skillName: new ArrayList<String>()){
             try {
                 regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 1, 30, "Skill name");
             } catch (CheckException e) {

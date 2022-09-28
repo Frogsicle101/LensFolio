@@ -1,6 +1,6 @@
 
 /** For adding the skills to as the chips are added. */
-let skillsToCreate = []
+let skillsToCreate = new Map()
 const skillsInput = $("#skillsInput")
 let oldInput = ""
 
@@ -12,10 +12,11 @@ let oldInput = ""
  * @returns {boolean} True if the skill was added, false otherwise
  */
 function addUniqueSkill(skillName) {
-    if (! skillsToCreate.includes(skillName)) {
+    const lowercaseSkills = Array.from(skillsToCreate.keys(), skillNames => skillNames.toLowerCase())
+    if (! lowercaseSkills.includes(skillName)) {
         let skillNameFormatted = skillName.replaceAll("_", " ")
         if (skillNameFormatted.trim().length > 0) {
-            skillsToCreate.push(skillNameFormatted)
+            skillsToCreate.set(skillNameFormatted, skillsMap.get(skillNameFormatted))
             return true
         }
     }
@@ -66,9 +67,9 @@ function updateSkillsInput() {
     $('[data-toggle="tooltip"]').tooltip("hide")
 
     chipDisplay.empty()
-    skillsToCreate.forEach(function (element) {
-        element = element.replaceAll("_", " ");
-        chipDisplay.append(createDeletableSkillChip(element))
+    skillsToCreate.forEach((value, key) => {
+        key = key.replaceAll("_", " ");
+        chipDisplay.append(createSkillChip(key, value, true))
     })
     oldInput = ""
 }
@@ -86,9 +87,9 @@ function handleSkillInputKeypress(event) {
     const inputValue = skillsInput.val().trim()
     const isValidSkillName = validateSkillInput(inputValue, true)
     let needsUpdate = false
-
-    if (event.key === "Backspace" && oldInput.length === 0 && skillsToCreate.length > 0) {
-        skillsToCreate.pop()
+    if (event.key === "Backspace" && oldInput.length === 0 && skillsToCreate.size > 0) {
+        const chipToRemove = $("#tagInputChips").children().last().find(".chipText").text()
+        skillsToCreate.delete(chipToRemove)
         needsUpdate = true
     }
 
@@ -126,7 +127,6 @@ function handleSkillInputPaste() {
 
     updateSkillsInput()
     skillsInput.val("")
-    console.log(invalidSkillNames.size)
     if (invalidSkillNames.size > 0) {
         if (invalidSkillNames.size < 5) {
             let skillNamesString = []
@@ -149,59 +149,9 @@ function handleSkillInputPaste() {
 function handleChipDelete(event) {
     event.stopPropagation()
     const skillName = $(this).siblings(".chipText").text()
-    skillsToCreate = skillsToCreate.filter(addedSkill => addedSkill !== skillName)
+    skillsToCreate.delete(skillName)
 
     updateSkillsInput()
-}
-
-
-
-/**
- * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
- * exist in it, it checks for case insensitivity as well.
- *
- * @param input the jQuery call to the input to check
- */
-function removeDuplicatesFromInput(input) {
-    let inputArray = input.val().trim().split(/\s+/)
-    let newArray = []
-
-    inputArray.forEach(function (element) {
-        if (regexSkills.test(element)) {
-            while (element.slice(-1) === "_") {
-                element = element.slice(0, -1)
-            }
-            while (element.slice(0, 1) === "_") {
-                element = element.slice(1, element.length)
-            }
-            element = element.replaceAll("_", " ")
-                .replace(/\s+/g, ' ')
-                .trim()
-                .replaceAll(" ", "_")
-            if (element.match(emojiRegx)) {
-                createAlert("Emojis not allowed in Skill name", AlertTypes.Failure)
-            }
-            if (element.length > 30) { //Shortens down the elements to 30 characters
-                element = element.split("").splice(0, 30).join("")
-                createAlert("Length of skill name should be less than 30", AlertTypes.Failure)
-            }
-            if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
-                newArray.push(element)
-            }
-        } else if (element.length > 0) {
-            createAlert("Skill names containing only special symbols are not allowed.", AlertTypes.Failure)
-        }
-    })
-
-    newArray.forEach(function (element, index) {
-        skillsArray.forEach(function (alreadyExistingSkill) {
-            if (element.toLowerCase() === alreadyExistingSkill.toLowerCase()) {
-                newArray[index] = alreadyExistingSkill;
-            }
-        })
-    })
-
-    input.val(newArray.join(" "))
 }
 
 
@@ -223,10 +173,10 @@ skillsInput
         autoFocus: true, // This default selects the top result
         minLength: 1,
         source: function (request, response) {
-            let filteredSkills = $.ui.autocomplete.filter(skillsArray, extractLast(request.term))
+            let filteredSkills = $.ui.autocomplete.filter(Array.from(skillsMap.keys()), extractLast(request.term))
             let existingSkills = [];
-            $.each(skillsToCreate , function (i, element) {
-                existingSkills.push(element.toLowerCase())
+            skillsToCreate.forEach((value, key) => {
+                existingSkills.push(key.toLowerCase())
             })
             filteredSkills = filteredSkills.filter(element => !existingSkills.includes(element.toLowerCase()))
             response(filteredSkills.sort());
@@ -346,14 +296,6 @@ $(document).on("keydown", "#skillsInput", (event) => {
 $(document).on("paste", "#skillsInput", () => {
     setTimeout(() => handleSkillInputPaste(), 0)
     // Above is in a timeout so that it runs after the paste event has happened
-})
-
-
-/**
- * The below listener trigger the rendering of the skill chips
- */
-$(document).on("click", ".ui-autocomplete", () => {
-    removeDuplicatesFromInput($("#skillsInput"))
 })
 
 

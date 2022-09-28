@@ -25,10 +25,10 @@ function addSkillsToSideBar() {
     let skillsContainer = $('#skillList')
     skillsContainer.empty()
 
-    skillsContainer.append(createSkillChip("No Skill"))
-    for (let skill of skillsArray) {
-        skillsContainer.append(createSkillChip(skill.replaceAll("_", " ")))
-    }
+    skillsContainer.append(createSkillChip("No Skill", undefined))
+    skillsMap.forEach((value, key) => {
+        skillsContainer.append(createSkillChip(key.replaceAll("_", " "), value))
+    })
 }
 
 
@@ -247,7 +247,8 @@ function setSkills(evidenceHighlight) {
     const currentSkillsList = evidenceHighlight.find(".skillChip")
     currentSkillsList.each(function() {
         const skillName = ($(this).find(".chipText").text())
-        const skillChip = createDeletableSkillChip(skillName)
+        const skillId = $(this).attr("data-id")
+        const skillChip = createSkillChip(skillName, skillId, true)
         $("#tagInputChips").append(skillChip);
     })
 }

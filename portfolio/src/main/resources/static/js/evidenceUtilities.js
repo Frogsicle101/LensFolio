@@ -22,7 +22,7 @@ let selectedEvidenceId;
 let webLinksCount = 0;
 
 /** The existing skills of the user, updated as the user's evidence is retrieved */
-let skillsArray = []
+let skillsMap = new Map()
 
 /** The array of user ids who are linked to a piece of evidence */
 let linkedUserIdsArray = []
@@ -368,11 +368,9 @@ function getSkills(callback = () => {
     $.ajax({
         url: "skills?userId=" + userBeingViewedId, type: "GET",
         success: function (response) {
-            skillsArray = []
+            skillsMap.clear()
             $.each(response, function (i) {
-                if (!skillsArray.includes(response[i].name)) {
-                    skillsArray.push(response[i].name)
-                }
+                skillsMap.set(response[i].name, response[i].id)
             })
             callback()
         },
@@ -468,7 +466,7 @@ function addSkillsToEvidence(skills) {
         highlightedEvidenceSkills.append(createSkillChip("No Skill"))
     } else {
         $.each(skills, function (i) {
-            highlightedEvidenceSkills.append(createSkillChip(skills[i].name))
+            highlightedEvidenceSkills.append(createSkillChip(skills[i].name, skills[i].id))
         })
     }
 }
@@ -521,7 +519,7 @@ function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     let skillsHTML = ``
     $.each(skills, function (i) {
-        skillsHTML += createSkillChip(skills[i].name)
+        skillsHTML += createSkillChip(skills[i].name, skills[i].id)
     })
     return skillsHTML
 }
@@ -1017,7 +1015,7 @@ function clearAddEvidenceModalValues() {
     $("#addedWebLinks").empty()
     $("#linkedUsers").empty()
     $("#webLinkTitle").hide()
-    skillsToCreate = []
+    skillsToCreate.clear()
     updateSkillsInput()
     $("#linkedUsersTitle").hide()
     $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
@@ -1119,12 +1117,21 @@ $(document).on("click", "#deleteEvidenceButton", function () {
  * Creates HTMl for a skill chip with the given skill name.
  *
  * @param skillName The name to be displayed in the skill chip.
+ * @param skillId The ID of the skill saved in the database.
+ * @param deletable Optional parameter determining if the chip is deletable, false by default
  * @returns {string} The string of HTMl representing the skill chip.
  */
-function createSkillChip(skillName) {
+function createSkillChip(skillName, skillId, deletable = false) {
+    const deleteIcon = deletable ? `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg>` : ""
+
     return `
-        <div class="chip skillChip">
+        <div class="chip skillChip" ${skillId !== undefined ? "data-id=" + skillId: ""}>
             <p class="chipText">${sanitise(skillName)}</p>
+            ${deleteIcon}
         </div>`
 }
 
@@ -1174,7 +1181,7 @@ function getDataFromEvidenceForm() {
         "description": description,
         "projectId": projectId,
         "webLinks": webLinks,
-        "skills": skillsToCreate,
+        "skills": Array.from(skillsToCreate.keys(), key => ({"id" : skillsMap.get(key), "name" : key})),
         "categories": categories,
         "associateIds": linkedUsers
     })
@@ -1189,8 +1196,9 @@ function getDataFromEvidenceForm() {
 function handleSuccessfulEvidenceSave(response) {
     selectedEvidenceId = response.id
     getAndAddEvidencePreviews()
-    addSkillResponseToArray(response)
-    addSkillsToSideBar();
+    // addSkillResponseToArray(response)
+    getSkills(addSkillsToSideBar)
+    // addSkillsToSideBar();
     closeModal()
     clearAddEvidenceModalValues()
     $(".alert").remove()
@@ -1225,8 +1233,6 @@ function createEvidence(data) {
  * button has the text "Create".
  */
 function handleEvidenceSave() {
-    const skillsInput = $("#skillsInput")
-    removeDuplicatesFromInput(skillsInput)
 
     const evidenceCreationForm = $("#evidenceCreationForm")[0]
     toggleRequiredIfCheckURLInputsAreEmpty()
