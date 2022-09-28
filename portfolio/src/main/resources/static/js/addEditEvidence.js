@@ -161,8 +161,6 @@ function removeDuplicatesFromInput(input) {
 
     inputArray.forEach(function (element) {
 
-
-
         if (skillRegex.test(element)) {
             while (element.slice(-1) === "_") {
                 element = element.slice(0, -1)
