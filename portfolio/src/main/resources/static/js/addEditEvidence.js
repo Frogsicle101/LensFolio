@@ -13,9 +13,6 @@ let oldInput = ""
  * @returns {boolean} True if the skill was added, false otherwise
  */
 function addUniqueSkill(skillName) {
-
-    console.log("add unique skill t akills to create --"+ skillName)
-
     if (! skillsToCreate.includes(skillName)) {
         let skillNameFormatted = skillName.replaceAll("_", " ")
         if (skillNameFormatted.trim().length > 0) {
@@ -79,10 +76,7 @@ function updateSkillsInput() {
     chipDisplay.empty()
     skillsToCreate.forEach(function (element) {
         element = element.replaceAll("_", " ");
-        console.log("------------")
-        console.log("element is "+element)
         if (skillRegex.test(element)) {
-            console.log("if")
             chipDisplay.append(createDeletableSkillChip(element))
         }
     })
@@ -102,27 +96,13 @@ function handleSkillInputKeypress(event) {
     const inputValue = skillsInput.val().trim()
     const isValidSkillName = validateSkillInput(inputValue, true)
     let needsUpdate = false
-
-    console.log("============")
-    console.log("inputValue is "+inputValue)
-    console.log("event key is " + event.key)
-
     if (event.key === "Backspace" && oldInput.length === 0 && skillsToCreate.length > 0) {
-
-        console.log("space")
-
         skillsToCreate.pop()
         needsUpdate = true
     }
 
     if (event.key === " " || event.key === "Enter" || event.key === "Tab" ) {
-
-        console.log("enter")
-
         if (isValidSkillName) {
-
-            console.log("add unique skill")
-
             needsUpdate = addUniqueSkill(inputValue)
         }
         skillsInput.removeClass("skillChipInvalid")
@@ -130,9 +110,6 @@ function handleSkillInputKeypress(event) {
     }
     oldInput = inputValue
     if (needsUpdate) {
-
-        console.log("input")
-
        updateSkillsInput()
     }
 }
@@ -158,7 +135,6 @@ function handleSkillInputPaste() {
 
     updateSkillsInput()
     skillsInput.val("")
-    console.log(invalidSkillNames.size)
     if (invalidSkillNames.size > 0) {
         if (invalidSkillNames.size < 5) {
             let skillNamesString = []
