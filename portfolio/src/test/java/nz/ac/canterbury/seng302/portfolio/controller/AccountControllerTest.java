@@ -84,7 +84,8 @@ class AccountControllerTest {
 
         Assertions.assertTrue(model.hasView());
         Assertions.assertTrue(model.getModel().containsKey("generalUnicodeRegex"));
-        Assertions.assertTrue(model.getModel().containsKey("nameRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("firstLastNameRegex"));
+        Assertions.assertTrue(model.getModel().containsKey("middleNameRegex"));
         Assertions.assertTrue(model.getModel().containsKey("generalUnicodeNoSpacesRegex"));
         Assertions.assertTrue(model.getModel().containsKey("emailRegex"));
     }
@@ -706,7 +707,8 @@ class AccountControllerTest {
         Assertions.assertTrue(modelAndView.hasView());
         Assertions.assertTrue(modelAndView.getModel().containsKey("generalUnicodeNoSpacesRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("generalUnicodeRegex"));
-        Assertions.assertTrue(modelAndView.getModel().containsKey("nameRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("firstLastNameRegex"));
+        Assertions.assertTrue(modelAndView.getModel().containsKey("middleNameRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("emailRegex"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("user"));
         Assertions.assertTrue(modelAndView.getModel().containsKey("membersince"));

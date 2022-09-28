@@ -131,10 +131,15 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 
 
 /**
- *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling
+ *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling.
+ *  Resets the form values to be empty.
  */
 $(document).on("click", "#createEvidenceButton" , () => {
-    $("#addEvidenceModal").show()
+    resetAddOrEditEvidenceForm()
+    $("#addOrEditEvidenceTitle").html("Add Evidence")
+    $("#evidenceSaveButton").html("Create")
+
+    $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 })
@@ -153,7 +158,7 @@ $(document).on("click", "#evidenceCancelButton", function () {
  *  calls the function to close the modal.
  */
 window.onmousedown = function(event) {
-    let modalDisplay = $("#addEvidenceModal").css("display")
+    let modalDisplay = $("#addOrEditEvidenceModal").css("display")
     if (modalDisplay === "block" && !event.target.closest(".modalContent") && !event.target.closest(".alert")) {
         closeModal()
     }
@@ -164,6 +169,163 @@ window.onmousedown = function(event) {
  *  Closes the modal and allows the page below to scroll again
  */
 function closeModal() {
-    $(".modalContent").hide("drop", {direction: "up"}, 200, () => {$("#addEvidenceModal").hide()})
+    $(".modalContent").hide("drop", {direction: "up"}, 200, () => {$("#addOrEditEvidenceModal").hide()})
     $('body,html').css('overflow','auto');
 }
+
+
+// -------------------------------------- Evidence Editing -----------------------------------
+
+
+/**
+ *  Get today date as format of yyyy-mm-dd
+ */
+function getTodayDate() {
+    let today = new Date()
+    let year = today.getFullYear()
+    let month = String(today.getMonth() + 1).padStart(2,'0')
+    let day = String(today.getDate()).padStart(2, '0')
+    return year + '-' + month + '-' +day
+}
+
+
+/**
+ *  Resets evidence modal values to be blank and disables the save button.
+ */
+function resetAddOrEditEvidenceForm() {
+    $("#evidenceName").val("")
+    $("#evidenceDate").val(getTodayDate())
+    $("#evidenceDescription").val("");
+    $("#tagInputChips").empty();
+    $("#addedWebLinks").empty();
+
+    $(".evidenceFormCategoryButton").each(function() {
+        $(this).removeClass("btn-success")
+        $(this).addClass("btn-secondary")
+        $(this).parent().find(".evidenceCategoryTickIcon").hide()
+    })
+
+    $("#linkedUsers").empty()
+    $("#evidenceSaveButton").prop("disabled", true)
+}
+
+
+/**
+ * Sets the evidence modal buttons & title for editing evidence.
+ * "Save" buttons reads "Save Changes", and the title is "Edit Evidence"
+ */
+function resetEvidenceButtonsToEditing(){
+    const evidenceSaveButton = $("#evidenceSaveButton")
+
+    $("#addOrEditEvidenceTitle").html( "Edit Evidence");
+    evidenceSaveButton.html("Save Changes");
+    evidenceSaveButton.prop("disabled", false);
+}
+
+
+/**
+ * Retrieves evidence name, date, and description from the highlighted evidence.
+ * Sets these values in the edit evidence modal.
+ */
+function setEvidenceData() {
+    const currentEvidenceTitle =  ($("#evidenceDetailsTitle").text())
+    const currentEvidenceDate =  $("#evidenceDetailsDate").text()
+    const currentEvidenceDescription =  ($("#evidenceDetailsDescription").text())
+
+    $("#evidenceName").val(currentEvidenceTitle)
+    $("#evidenceDate").val(currentEvidenceDate);
+    $("#evidenceDescription").val(currentEvidenceDescription);
+}
+
+
+/**
+ * Retrieves the skills from the given highlighted evidence div, and adds each skill as a tag to the #tagInputChips div.
+ *
+ * @param evidenceHighlight The highlighted evidence div containing the skills.
+ */
+function setSkills(evidenceHighlight) {
+    const currentSkillsList = evidenceHighlight.find(".skillChip")
+    currentSkillsList.each(function() {
+        const skillName = ($(this).find(".chipText").text())
+        const skillChip = createDeletableSkillChip(skillName)
+        $("#tagInputChips").append(skillChip);
+    })
+}
+
+
+/**
+ * Hides the added weblinks title on the edit evidence modal.
+ * Gets each weblink from the highlighted evidence and appends the weblink to the edit form.
+ *
+ * @param evidenceHighlight The highlighted evidence div containing the weblinks.
+ */
+function setWeblinks(evidenceHighlight) {
+    const webLinksList = evidenceHighlight.find(".webLinkElement")
+    $("#webLinkTitle").style = "display;"
+
+    for (let i = 0; i < webLinksList.length; i++) {
+        document.getElementById("addedWebLinks").innerHTML += webLinksList[i].outerHTML;
+    }
+
+    const deleteWebLinkButtons = $("#addOrEditEvidenceModal").find(".deleteWeblinkButton")
+    deleteWebLinkButtons.each(function() {
+        $(this).show()
+    })
+}
+
+
+/**
+ * Gets the categories from the selected evidence and selects them in the evidence edit form.
+ *
+ * @param evidenceHighlight The highlighted evidence div containing the categories.
+ */
+function setCategories(evidenceHighlight) {
+    evidenceHighlight.find(".categoryChip").each(function() {
+        const categoryName = $(this).find(".chipText").text()
+        const categoryButton = $(`#button${categoryName}`)
+        categoryButton.addClass("btn-success")
+        categoryButton.removeClass("btn-secondary")
+        categoryButton.find(".evidenceCategoryTickIcon").css("display", "inline-block")
+    })
+}
+
+
+/**
+ * Retrieves linked users from the highlighted evidence and adds them to the edit evidence modal.
+ */
+function setLinkedUsers() {
+    const userLinkedList = $("#evidenceDetailsLinkedUsers").text()
+    const editEvidenceModal = $("#addOrEditEvidenceModal")
+    $("#linkedUsersTitle").hide()
+    $("#linkedUsers").html(userLinkedList)
+
+    editEvidenceModal.find(`#linkedUserId${userIdent}`).parent().prop("outerHTML", "")
+    editEvidenceModal.find(".deleteLinkedUserButton").hide()
+}
+
+
+/**
+ * Sets values on the evidence edit form to match the currently selected piece of evidence.
+ * Opens the modal with the populated fields.
+ */
+function handleEvidenceEdit() {
+    let selectedEvidence = $("#evidenceDetailsContainer")
+    resetAddOrEditEvidenceForm()
+    resetEvidenceButtonsToEditing()
+    setEvidenceData()
+    setSkills(selectedEvidence)
+    setCategories(selectedEvidence)
+    setWeblinks(selectedEvidence)
+    setLinkedUsers()
+
+    $("#addOrEditEvidenceModal").show()
+    $(".modalContent").show("drop", {direction: "up"}, 200)
+    $('body,html').css('overflow','hidden');
+}
+
+
+/**
+ *  A Listener for the edit evidence button. This displays the modal and prevents the page below from scrolling
+ */
+$(document).on("click", "#editEvidenceButton" , handleEvidenceEdit)
+

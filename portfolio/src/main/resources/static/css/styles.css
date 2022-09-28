@@ -98,7 +98,7 @@ section{
     --secondary-text-colour: #c4c3c3;
     --main-text-color: #1f1f1f;
     --secondary-text-colour-darker: #696969;
-    --select-green: #95fd97;
+    --select-green: #388571;
     --select-red: #ff0000;
     --alert-red: rgba(222, 121, 121, 0.95);
     --alert-green: rgba(140, 222, 121, 0.95);
@@ -409,10 +409,6 @@ section{
     padding-left: 0.5rem;
 }
 
-.editRepo:hover {
-    color: var(--select-green);
-}
-
 #repoSettingsContainer {
     display: none;
 }
@@ -661,6 +657,24 @@ section{
     padding-top: 1rem;
 }
 
-.infoMessage{
+.infoMessage {
     overflow-wrap: anywhere;
+}
+
+.editIcon, .deleteIcon {
+    border: none !important;
+    background: none !important;
+    color: black;
+}
+
+.deleteIcon :hover{
+    border: none;
+    background: none;
+    color: red;
+}
+
+.editIcon :hover {
+    border: none;
+    background: none;
+    color: var(--select-green);
 }

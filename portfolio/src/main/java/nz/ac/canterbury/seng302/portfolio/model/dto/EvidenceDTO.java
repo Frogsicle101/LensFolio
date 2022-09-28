@@ -20,6 +20,7 @@ public class EvidenceDTO {
     List<Integer> associateIds;
     Long projectId;
 
+    private EvidenceDTO() {}
 
     public EvidenceDTO(String title, String date, String description, List<WebLinkDTO> webLinks,
                        List<String> skills, List<String> categories, Long projectId, List<Integer> associateIds) {
@@ -32,14 +33,6 @@ public class EvidenceDTO {
         this.categories = categories;
         this.associateIds = associateIds;
     }
-
-
-    public EvidenceDTO(Integer id, String title, String date, String description, List<WebLinkDTO> webLinks,
-                       List<String> skills, List<String> categories, Long projectId, List<Integer> associateIds) {
-        this(title, date, description, webLinks, skills, categories, projectId, associateIds);
-        this.id = id;
-    }
-
 
     public String getTitle() {
         return title;
@@ -105,11 +98,88 @@ public class EvidenceDTO {
         this.associateIds = associateIds;
     }
 
+    public void addAssociatedId(Integer userId) {
+        if (! associateIds.contains(userId)) {
+            associateIds.add(userId);
+        }
+    }
+
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public static class EvidenceDTOBuilder {
+        private Integer id;
+        private String title;
+        private String date;
+        private String description;
+        private List<WebLinkDTO> webLinks;
+        private List<String> categories;
+        private List<String> skills;
+        private List<Integer> associateIds;
+        private Long projectId;
+
+        public EvidenceDTOBuilder setId(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public EvidenceDTOBuilder setTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public EvidenceDTOBuilder setDate(String date) {
+            this.date = date;
+            return this;
+        }
+
+        public EvidenceDTOBuilder setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public EvidenceDTOBuilder setWebLinks(List<WebLinkDTO> webLinks) {
+            this.webLinks = webLinks;
+            return this;
+        }
+
+        public EvidenceDTOBuilder setCategories(List<String> categories) {
+            this.categories = categories;
+            return this;
+        }
+
+        public EvidenceDTOBuilder setSkills(List<String> skills) {
+            this.skills = skills;
+            return this;
+        }
+
+        public EvidenceDTOBuilder setAssociateIds(List<Integer> associateIds) {
+            this.associateIds = associateIds;
+            return this;
+        }
+
+        public EvidenceDTOBuilder setProjectId(Long projectId) {
+            this.projectId = projectId;
+            return this;
+        }
+
+        public EvidenceDTO build() {
+            EvidenceDTO evidenceDTO = new EvidenceDTO();
+            evidenceDTO.setId(this.id);
+            evidenceDTO.setTitle(title);
+            evidenceDTO.setDate(date);
+            evidenceDTO.setDescription(description);
+            evidenceDTO.setWebLinks(webLinks);
+            evidenceDTO.setCategories(categories);
+            evidenceDTO.setSkills(skills);
+            evidenceDTO.setAssociateIds(associateIds);
+            evidenceDTO.setProjectId(projectId);
+            return evidenceDTO;
+        }
     }
 }

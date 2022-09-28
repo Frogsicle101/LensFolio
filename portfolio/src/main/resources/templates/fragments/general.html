@@ -63,6 +63,14 @@
     </script>
 </div>
 
+<!--Add this fragment if you want to use the GITLAB_TOKEN_REGEX-->
+<div th:fragment="gitlabToken">
+    <script th:inline="javascript">
+        const GITLAB_TOKEN = [[${gitlabToken.getPatternString()}]];
+        const GITLAB_TOKEN_REQUIREMENTS = [[${gitlabToken.getRequirements()}]];
+    </script>
+</div>
+
 
 <body>
 
