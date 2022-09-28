@@ -30,8 +30,7 @@ describe("Adding Valid Weblinks to Evidence", () => {
             "http://example.com/",
             "http://example.com:/",
             "http://example.com:80/",
-            "https://www.google.com",
-            "ftp://ftp.is.co.za/rfc/rfc1808.txt"
+            "https://www.google.com"
         ]
 
         assertPasses()
@@ -47,7 +46,6 @@ describe("Adding Valid Weblinks to Evidence", () => {
             "csse.canterbury.ac.nz",
             "http://132.181.106.9",
             "http://www.w3.org",
-            "♨️.com"
         ]
 
         assertPasses()
