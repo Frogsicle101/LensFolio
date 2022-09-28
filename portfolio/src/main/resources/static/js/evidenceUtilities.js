@@ -1074,7 +1074,7 @@ function checkNameValidity() {
     const name = $("#evidenceName")
     const nameVal = name.val()
     const nameError = $("#evidenceNameFeedback")
-    const nameIsValid = regex.test(nameVal)
+    const nameIsValid = GENERAL_UNICODE_REGEX.test(nameVal)
 
     if (nameIsValid) {
         name.removeClass("invalid")
@@ -1101,7 +1101,7 @@ function checkDescriptionValidity() {
     const description = $("#evidenceDescription")
     const descriptionVal = description.val()
     const descriptionError = $("#evidenceDescriptionFeedback")
-    const descriptionIsValid = regex.test(descriptionVal)
+    const descriptionIsValid = GENERAL_UNICODE_REGEX.test(descriptionVal)
 
     if (descriptionIsValid) {
         description.removeClass("invalid")
