@@ -5,6 +5,7 @@ import nz.ac.canterbury.seng302.portfolio.model.dto.GroupCreationDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.GroupResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.service.GroupService;
 import nz.ac.canterbury.seng302.portfolio.service.PaginationService;
+import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
 import nz.ac.canterbury.seng302.portfolio.service.UserService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -89,6 +90,7 @@ public class GroupsController {
             modelAndView.addObject("user", user);
             modelAndView.addObject("footerNumberSequence", footerNumberSequence);
             modelAndView.addObject("selectedGroupsPerPage", this.groupsPerPageLimit);
+            modelAndView.addObject("gitlabToken", RegexPattern.GITLAB_TOKEN);
 
         } catch (Exception e) {
             logger.error("ERROR /groups - an error occurred while retrieving groups and modelAndView");
