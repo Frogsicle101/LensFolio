@@ -125,8 +125,6 @@ function handleSkillInputPaste() {
     })
 
     updateSkillsInput()
-    skillsInput.val("")
-    console.log(invalidSkillNames.size)
     if (invalidSkillNames.size > 0) {
         if (invalidSkillNames.size < 5) {
             let skillNamesString = []
@@ -149,9 +147,10 @@ function handleSkillInputPaste() {
 function handleChipDelete(event) {
     event.stopPropagation()
     const skillName = $(this).siblings(".chipText").text()
+    const skillsInputValue = skillsInput.val()
     skillsToCreate = skillsToCreate.filter(addedSkill => addedSkill !== skillName)
-
     updateSkillsInput()
+    skillsInput.val(skillsInputValue)
 }
 
 
@@ -159,11 +158,9 @@ function handleChipDelete(event) {
 /**
  * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
  * exist in it, it checks for case insensitivity as well.
- *
- * @param input the jQuery call to the input to check
  */
-function removeDuplicatesFromInput(input) {
-    let inputArray = input.val().trim().split(/\s+/)
+function removeDuplicatesFromInput() {
+    let inputArray = skillsInput.val().trim().split(/\s+/)
     let newArray = []
 
     inputArray.forEach(function (element) {
@@ -201,7 +198,7 @@ function removeDuplicatesFromInput(input) {
         })
     })
 
-    input.val(newArray.join(" "))
+    skillsInput.val(newArray.join(" "))
 }
 
 
@@ -353,7 +350,7 @@ $(document).on("paste", "#skillsInput", () => {
  * The below listener trigger the rendering of the skill chips
  */
 $(document).on("click", ".ui-autocomplete", () => {
-    removeDuplicatesFromInput($("#skillsInput"))
+    removeDuplicatesFromInput()
 })
 
 
