@@ -730,7 +730,6 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
             "associateIds": linkedUsers
         })
 
-
         let buttonName = document.getElementById("evidenceSaveButton").innerHTML
 
         if (buttonName === "Create") { // create a new evidence
@@ -770,25 +769,72 @@ function handleSuccessfulEvidenceSave(response) {
 
 
 /**
+ * If the weblink form is closed, calls the function to toggle it open.
+ * If the weblink form is open, calls the function to submit the form.
+ */
+function handleWeblinkAdd() {
+    const button = $("#addWeblinkButton");
+
+    if (button.hasClass("toggled")) {
+        submitWebLink()
+    } else {
+        webLinkButtonToggle()
+    }
+}
+
+
+/**
+ * Checks the validity of the address in the weblink error form against the central weblink requirements.
+ *
+ * @returns {boolean} True if the address is valid.
+ */
+function checkWeblinkAddressValidity() {
+    const webLinkUrl = $("#webLinkUrl").val();
+    const weblinkAddressErrorDiv = $("#evidenceWeblinkAddressFeedback")
+
+    const weblinkRegex = new RegExp(weblinkRegexPattern)
+
+    if (! weblinkRegex.test(webLinkUrl)) {
+        updateErrorMessage(weblinkAddressErrorDiv, `Weblink address ${weblinkRegexRequirements}`)
+        return false
+    }
+
+    updateErrorMessage(weblinkAddressErrorDiv, "")
+    return true
+}
+
+
+/**
+ * Checks the validity of the name in the weblink error form against the general unicode requirements.
+ *
+ * @returns {boolean} True if the name is valid.
+ */
+function checkWeblinkNameValidity() {
+    const webLinkName = $("#webLinkName").val();
+    const weblinkNameErrorDiv = $("#evidenceWeblinkNameFeedback")
+
+    if (webLinkName.length === 0) {
+        updateErrorMessage(weblinkNameErrorDiv, "Weblink name must not be empty")
+        return false
+    }
+
+    if (! regex.test(webLinkName)) {
+        updateErrorMessage(weblinkNameErrorDiv, `Weblink name ${GENERAL_UNICODE_REQUIREMENTS}`)
+        return false
+    }
+
+    updateErrorMessage(weblinkNameErrorDiv, "")
+    return true
+}
+
+
+/**
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '#addWeblinkButton', function (e) {
-    let button = $("#addWeblinkButton");
-    if (button.hasClass("toggled")) {
-        e.preventDefault()
-        let webLinkUrl = $("#webLinkUrl");
-        let webLinkName = $("#webLinkName");
-        if (!webLinkUrl[0].checkValidity() || !webLinkName[0].checkValidity()) {
-            webLinkUrl[0].reportValidity()
-            webLinkName[0].reportValidity()
-            return false
-        }
-        //validate the link
-        validateWebLinkAtBackend()
-    } else {
-        webLinkButtonToggle()
-    }
+    e.preventDefault()
+    handleWeblinkAdd()
 })
 
 
@@ -796,16 +842,30 @@ $(document).on('click', '#addWeblinkButton', function (e) {
  * Listens for when delete web link button is clicked.
  * the web link will be deleted.
  */
-$(document).on('click', '#deleteWeblink', function (e) {
+$(document).on('click', '#deleteWeblink', function () {
     $(this).parent().remove();
 })
 
 
 /**
  * Listens for when delete web link button is clicked.
+ * Refreshes error messages on the form.
+ * */
+$(document).on('change keyup', '#webLinkUrl', checkWeblinkAddressValidity)
+
+
+/**
+ * Listens for a change of the web link name in the web link form.
+ * Refreshes error messages on the form.
+ */
+$(document).on('change keyup', '#webLinkName', checkWeblinkNameValidity)
+
+
+/**
+ * Listens for when delete web link button is clicked.
  * the web link will be deleted.
  */
-$(document).on('click', '#deleteLinkedUser', function (e) {
+$(document).on('click', '#deleteLinkedUser', function () {
     $(this).parent().remove();
 })
 
@@ -841,20 +901,6 @@ function removeWebLinkAlerts() {
 
 
 /**
- * Handles the error messages for an invalid web link.
- */
-function handleInvalidWebLink(form, message) {
-    removeWebLinkAlerts()
-    form.append(`
-        <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
-          ${sanitise(message)}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `);
-}
-
-
-/**
  * This disabled the requirement for the web link forms to be filled out if they are empty.
  * This was because the overall "Add Evidence" form does a validation of all its fields when something changes.
  * Because these fields are required to both be filled then they don't allow that check to pass if they are empty.
@@ -873,53 +919,6 @@ function toggleRequiredIfCheckURLInputsAreEmpty() {
         webLinkName.attr("required", "required")
         webLinkName.attr("minlength", "1")
     }
-}
-
-
-/**
- * Validates the weblink server-side.
- * Takes the URL and makes a call to the server to check if it's valid.
- * If valid, save the web link and toggle the form.
- *
- * If there's an issue, or it's not valid, calls a function to display an alert
- */
-function validateWebLinkAtBackend() {
-    const weblinkAddressFeedback = $("#evidenceWeblinkAddressFeedback")
-    let address = $("#webLinkUrl").val()
-    const hasDoubleSlash = address.search("//") !== -1
-
-    if (!hasDoubleSlash) {
-        if (address.search(":/") !== -1) {
-            updateErrorMessage(weblinkAddressFeedback, "Addresses in the format [protocol]:/[something else] are not valid " +
-                "(two slashes required)")
-            return;
-        }
-
-        // Address does not have protocol, so assume http
-        address = "http://" + address
-    }
-
-    let data = JSON.stringify({
-        "url": address,
-        "name": $("#webLinkName").val()
-    })
-    $.ajax({
-        url: `validateWebLink`,
-        type: "POST",
-        contentType: "application/json",
-        data,
-        success: () => {
-            submitWebLink()
-            webLinkButtonToggle()
-        },
-        error: (error) => {
-            if (error.status === 400) {
-                updateErrorMessage(weblinkAddressFeedback, error.responseText)
-            } else {
-                updateErrorMessage(weblinkAddressFeedback, "Something went wrong. Try again later.")
-            }
-        }
-    })
 }
 
 
@@ -966,23 +965,22 @@ $(document).on('click', '#linkUsersToEvidenceButton', function () {
 
 
 /**
- * Appends a new link to the list of added links in the Add Evidence form.
+ * Appends a new link to the list of added links in the Add Evidence form, if the form contents are valid.
  */
 function submitWebLink() {
-    let alias = $("#webLinkName")
-    let url = $("#webLinkUrl")
-    let addedWebLinks = $("#addedWebLinks")
-    let webLinkTitle = $("#webLinkTitle")
+    if (checkWeblinkAddressValidity() && checkWeblinkNameValidity()) {
+        const alias = $("#webLinkName")
+        const url = $("#webLinkUrl")
+        const addedWebLinks = $("#addedWebLinks")
+        const webLinkTitle = $("#webLinkTitle")
 
-    if (alias.val().length > 0) {
         webLinkTitle.show()
         addedWebLinks.append(webLinkElement(url.val(), alias.val()))
-        initialiseTooltips()
         url.val("")
         alias.val("")
         webLinksCount += 1
         checkWeblinkCount()
-        $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+        initialiseTooltips()
     }
 }
 
