@@ -318,3 +318,7 @@
 #linkedUserElement{
     display : flex;
 }
+
+#evidenceSkillFeedback {
+    white-space: pre-wrap;
+}

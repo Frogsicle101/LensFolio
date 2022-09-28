@@ -596,15 +596,6 @@ $(document).on("change keyup", "#evidenceDescription", function () {
 
 
 /**
- * Calls the validity checking function on change of the description.
- */
-$(document).on("click", "#evidenceDate", function () {
-    disableEnableSaveButtonOnValidity()
-    checkDateValidity()
-})
-
-
-/**
  * Calls the validity checking function on change of form inputs.
  * This is different from keyup as it checks when the date changes.
  */
