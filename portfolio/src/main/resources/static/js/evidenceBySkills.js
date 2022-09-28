@@ -248,7 +248,9 @@ function setSkills(evidenceHighlight) {
     currentSkillsList.each(function() {
         const skillName = ($(this).find(".chipText").text())
         const skillChip = createDeletableSkillChip(skillName)
-        $("#tagInputChips").append(skillChip);
+        if (skillName !== "No Skill") {
+            $("#tagInputChips").append(skillChip);
+        }
     })
 }
 
