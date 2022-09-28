@@ -63,6 +63,8 @@ class GitRepoControllerTest {
     private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
 
 
+    private final String VALID_ACCESS_TOKEN = "MysE3EYxRooxpDijMpHW";
+
     @Test
     void testAddGitRepoValidWithExistingRepo() throws Exception {
         setUserRoleToStudent();
@@ -79,7 +81,7 @@ class GitRepoControllerTest {
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
-                        .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
+                        .param("accessToken", VALID_ACCESS_TOKEN))
                 .andExpect(status().isOk());
 
         ArgumentCaptor<GitRepository> argument = ArgumentCaptor.forClass(GitRepository.class);
@@ -101,7 +103,7 @@ class GitRepoControllerTest {
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
-                        .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
+                        .param("accessToken", VALID_ACCESS_TOKEN))
                 .andExpect(status().isOk());
 
         ArgumentCaptor<GitRepository> argument = ArgumentCaptor.forClass(GitRepository.class);
@@ -121,7 +123,7 @@ class GitRepoControllerTest {
                         .param("groupId", "2")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
-                        .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
+                        .param("accessToken", VALID_ACCESS_TOKEN))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -136,7 +138,7 @@ class GitRepoControllerTest {
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
-                        .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
+                        .param("accessToken", VALID_ACCESS_TOKEN))
                 .andExpect(status().isOk());
     }
 
@@ -151,7 +153,7 @@ class GitRepoControllerTest {
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
-                        .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
+                        .param("accessToken", VALID_ACCESS_TOKEN))
                 .andExpect(status().isOk());
     }
 
@@ -166,7 +168,7 @@ class GitRepoControllerTest {
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
-                        .param("accessToken", "abcdef0123456789abcdef0123456789abcdef01"))
+                        .param("accessToken", VALID_ACCESS_TOKEN))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -181,7 +183,7 @@ class GitRepoControllerTest {
                         .param("groupId", "invalid")
                         .param("projectId", "1")
                         .param("alias", "repo alias")
-                        .param("accessToken", "access token"))
+                        .param("accessToken", VALID_ACCESS_TOKEN))
                 .andExpect(status().isBadRequest());
     }
 
@@ -196,7 +198,7 @@ class GitRepoControllerTest {
                         .param("groupId", "1")
                         .param("projectId", "invalid")
                         .param("alias", "repo alias")
-                        .param("accessToken", "access token"))
+                        .param("accessToken", VALID_ACCESS_TOKEN))
                 .andExpect(status().isBadRequest());
     }
 
@@ -211,7 +213,7 @@ class GitRepoControllerTest {
                         .param("groupId", "1")
                         .param("projectId", "1")
                         .param("alias", "")
-                        .param("accessToken", "access token"))
+                        .param("accessToken", VALID_ACCESS_TOKEN))
                 .andExpect(status().isBadRequest());
     }
 

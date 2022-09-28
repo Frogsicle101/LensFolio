@@ -167,7 +167,6 @@ section{
     padding-right: 2rem;
     align-items: center;
     height: 100%;
-
 }
 
 .sprint {
@@ -192,7 +191,6 @@ section{
     top: 0.5rem;
     left: 0.5rem;
     color: var(--background-colour-darkBlue);
-
 }
 
 .deleteSprint {
@@ -201,17 +199,8 @@ section{
     right: 0.5rem;
 }
 
-.deleteSprint:hover {
-    color: #ff5959;
-
-}
-
 .editSprint {
     position: absolute;
     top: 0.5rem;
     right: 2rem;
-}
-
-.editSprint:hover {
-    color: var(--select-green);
 }

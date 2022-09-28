@@ -16,7 +16,6 @@
     flex-direction: row
 }
 
-
 #evidenceDetailsContainer {
     padding: 1rem 2rem 2rem;
     margin-right: 2rem;
@@ -48,10 +47,6 @@
     margin-bottom: 1rem;
 }
 
-#deleteEvidenceButton :hover {
-    fill:red;
-}
-
 .evidenceListContainer {
     display: flex;
     width: 100%;
@@ -59,7 +54,6 @@
     max-width: 30%;
     padding-right: 0;
     padding-left: 0;
-
 }
 
 .evidenceListMenu, .evidenceList {
@@ -94,11 +88,6 @@
     color: var(--secondary-text-colour-darker);
     font-weight: lighter;
     text-align: end;
-}
-
-.evidenceDeleteButton {
-    display: flex;
-    justify-content: flex-end;
 }
 
 .evidenceFormName, .evidenceFormDate, .evidenceFormDescription {
@@ -231,8 +220,6 @@
     word-break: break-word;
 }
 
-
-
 .chipDelete {
     position: absolute;
     top: -0.2rem;
@@ -267,35 +254,7 @@
     color: #b5d1fb;
 }
 
-.deleteWeblinkButton{
-    height: 2rem;
-    width: 2rem;
-    text-align: center;
-    border: none;
-    color: #175fbd;
-    background: #ffffff;
-}
 
-.deleteWeblinkButton:hover{
-    height: 2rem;
-    width: 2rem;
-    text-align: center;
-    border: none;
-    background: #175fbd;
-    color: #ffffff;
-}
-
-#editEvidenceButton{
-    border: none;
-    background: none;
-    color: black;
-}
-
-#editEvidenceButton:hover{
-    border: none;
-    background: none;
-    color: red;
-}
 
 .deleteLinkedUserButton{
     height: 2rem;
