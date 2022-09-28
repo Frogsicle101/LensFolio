@@ -32,6 +32,7 @@ class SkillFrequencyServiceTest {
     Assertions.assertEquals(0.5, frequency);
     }
 
+
     @Test
     void testFrequencyPointTwo(){
         ArrayList<Evidence> evidenceListWithSkill = createEvidenceList(20, 100, true);
