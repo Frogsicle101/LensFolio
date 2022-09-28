@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -118,7 +119,7 @@ public class EvidenceService {
      * @throws CheckException when one or more variables fail the validation
      */
     public Evidence editEvidence(Authentication principal,
-                                 EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
+                                 EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException, DateTimeParseException {
         logger.info("EDITING EVIDENCE - Attempting to edit evidence with title: {}", evidenceDTO.getTitle());
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
         Optional<Evidence> optionalOriginalEvidence = evidenceRepository.findById(evidenceDTO.getId());
@@ -151,7 +152,7 @@ public class EvidenceService {
      * @param evidenceDTO the evidenceDTO to be validated
      * @throws CheckException an exception containing the message why the validation failed.
      */
-    protected void checkValidEvidenceDTO(UserResponse user, EvidenceDTO evidenceDTO) throws CheckException {
+    protected void checkValidEvidenceDTO(UserResponse user, EvidenceDTO evidenceDTO) throws CheckException, DateTimeParseException {
         long projectId = evidenceDTO.getProjectId();
         List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
         String date = evidenceDTO.getDate();
@@ -212,15 +213,20 @@ public class EvidenceService {
      */
     private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws MalformedURLException {
         logger.info("Updating evidence details for evidence {}", originalEvidence.getId());
+
         originalEvidence.setTitle(evidenceDTO.getTitle());
         originalEvidence.setDescription(evidenceDTO.getDescription());
         originalEvidence.setDate(LocalDate.parse(evidenceDTO.getDate()));
         originalEvidence.clearCategories();
+
         addCategoriesToEvidence(originalEvidence, evidenceDTO.getCategories());
+
         originalEvidence.clearSkills();
         addSkills(originalEvidence, evidenceDTO.getSkills());
+
         originalEvidence.clearWeblinks();
         addWeblinks(originalEvidence, evidenceDTO.getWebLinks());
+
         originalEvidence.clearAssociatedIds();
         for (Integer userId : evidenceDTO.getAssociateIds()) {
             originalEvidence.addAssociateId(userId);
