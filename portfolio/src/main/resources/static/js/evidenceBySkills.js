@@ -261,7 +261,7 @@ function setWeblinks() {
     const webLinksList = $(".addedWebLink")
     if (webLinksList.length > 0) {
         $("#webLinkTitle").show()
-        webLinksList.each(function () {
+        $.each(webLinksList, function () {
             const webName = $(this).text()
             const webUrl = $(this).attr("href")
             $("#addedWebLinks").append(deletableWeblinkElement(webUrl, webName))
