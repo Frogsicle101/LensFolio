@@ -17,7 +17,7 @@ describe("Adding Valid Weblinks to Evidence", () => {
             cy.get('#webLinkName').wait(100)
                 .invoke('val', "link name")
             cy.get('#addWeblinkButton').click().wait(100)
-            cy.contains("Weblink must be a valid weblink").should("not.exist")
+            cy.contains("must be a valid").should("not.exist")
         })
     }
 
