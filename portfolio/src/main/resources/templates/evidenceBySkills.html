@@ -99,6 +99,7 @@
                                th:max="${evidenceMaxDate}"
                                required
                                type="date">
+                        <div class="invalid-feedback" id="evidenceDateFeedback"></div>
                         <small class="form-text text-muted" id="projectDatesLabel" th:text="'Project dates: ' + ${project.getStartDateFormatted()} + ' - ' + ${project.getEndDateFormatted()}"></small>
                     </div>
                     <div class="form-group evidenceFormDescription">
@@ -235,7 +236,11 @@
 <script th:src="@{js/addEditEvidence.js}" type="application/javascript"></script>
 <script th:src="@{js/notifications.js}" type="application/javascript"></script>
 <script th:inline="javascript">
-    let todaysDate =/*[[${currentDate}]]*/
-    let weblinkRegex =/*[[${webLinkRegex}]]*/
+    const todaysDate =/*[[${currentDate}]]*/
+    const evidenceMaxDate =/*[[${evidenceMaxDate}]]*/
+    const projectStartDate =/*[[${projectStartDate}]]*/
+    const projectStartFormatted =/*[[${project.getStartDateFormatted()}]]*/
+    const projectEndFormatted = /*[[${project.getEndDateFormatted()}]]*/
+    const weblinkRegex =/*[[${webLinkRegex}]]*/
 </script>
 </html>

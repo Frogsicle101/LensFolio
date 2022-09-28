@@ -596,11 +596,21 @@ $(document).on("change keyup", "#evidenceDescription", function () {
 
 
 /**
+ * Calls the validity checking function on change of the description.
+ */
+$(document).on("click", "#evidenceDate", function () {
+    disableEnableSaveButtonOnValidity()
+    checkDateValidity()
+})
+
+
+/**
  * Calls the validity checking function on change of form inputs.
  * This is different from keyup as it checks when the date changes.
  */
 $(document).on("change", ".form-control", function () {
     disableEnableSaveButtonOnValidity()
+    checkDateValidity()
 })
 
 
@@ -1116,6 +1126,32 @@ function checkDescriptionValidity() {
         }
 
         descriptionError.show()
+    }
+}
+
+
+/**
+ * Checks that the current date in the evidence modal date picker is within the project dates and not in the future.
+ * If the date is invalid, a relevant error message is displayed.
+ */
+function checkDateValidity() {
+    const date = $("#evidenceDate")
+    const proposedDate = Date.parse(date.val().toString())
+    const earliestDate = Date.parse(projectStartDate)
+    const latestDate = Date.parse(evidenceMaxDate)
+    const dateError = $("#evidenceDateFeedback")
+
+    if (proposedDate < earliestDate) {
+        dateError.text(`Date cannot be before project start.\n Please choose a date between ${projectStartFormatted} and ${projectEndFormatted}`)
+        dateError.show()
+    }
+    else if (proposedDate > latestDate) {
+        dateError.text(`Evidence date must be before the project end and not in the future.\n Please choose a date between ${projectStartFormatted} and ${projectEndFormatted}`)
+        dateError.show()
+    }
+    else {
+        dateError.text("")
+        dateError.hide()
     }
 }
 

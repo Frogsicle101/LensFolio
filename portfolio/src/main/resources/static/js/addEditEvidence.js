@@ -126,7 +126,7 @@ function handleSkillInputPaste() {
 
     updateSkillsInput()
     skillsInput.val("")
-    console.log(invalidSkillNames.size)
+
     if (invalidSkillNames.size > 0) {
         if (invalidSkillNames.size < 5) {
             let skillNamesString = []
