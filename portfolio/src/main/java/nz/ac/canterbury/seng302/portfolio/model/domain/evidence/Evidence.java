@@ -34,7 +34,7 @@ public class Evidence {
     private String description;
 
     /** A list of the web links associated with a piece of Evidence */
-    @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private final Set<WebLink> webLinks = new HashSet<>() {
     };
 

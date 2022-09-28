@@ -2,7 +2,6 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.service.*;
@@ -13,10 +12,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
-import nz.ac.canterbury.seng302.portfolio.service.*;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
@@ -66,7 +62,7 @@ public class EvidenceController {
 
     private final RegexService regexService;
 
-    private final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
+    private static final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
 
 
     @Autowired
@@ -161,6 +157,7 @@ public class EvidenceController {
      * @param evidenceId - The ID of the piece of evidence
      * @return A response entity with the required response code. Response body is the evidence is the status is OK
      */
+    // TODO remove this method and its tests its not used.
     @GetMapping("/evidencePieceWebLinks")
     public ResponseEntity<Object> getEvidenceWebLinks(@RequestParam("evidenceId") Integer evidenceId) {
         logger.info("GET REQUEST /evidencePieceWebLinks - attempt to get web links with evidence Id {}", evidenceId);

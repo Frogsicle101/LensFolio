@@ -90,7 +90,7 @@ function showHighlightedEvidenceDetails() {
  *
  * @param response The response from the backend, which contains the web links for a piece of evidence.
  */
-function setHighlightedEvidenceWebLinks(response) {
+function addWeblinksToEvidence(response) {
     let webLinksDiv = $("#evidenceWebLinks")
     webLinksDiv.empty()
 
@@ -127,7 +127,6 @@ function deletableWeblinkElement(url, alias) {
     if (!hasProtocol(url)) {
         urlWithProtocol = "http://" + url
     }
-
     return (`
         <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
             <button class="deleteWeblink deleteIcon">
@@ -287,6 +286,8 @@ function getAndAddEvidencePreviews() {
     $.ajax({
         url: "evidenceData?userId=" + userBeingViewedId,
         success: function (response, status, xhr) {
+            console.log("EU 290")
+            console.log(response)
             displayNameOrButton(xhr)
             addEvidencePreviews(response)
             updateSelectedEvidence();
@@ -328,7 +329,6 @@ function getHighlightedEvidenceDetails() {
         $.ajax({
             url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
                 setHighlightEvidenceAttributes(response)
-                getHighlightedEvidenceWeblinks()
             }, error: function (error) {
                 console.log(error)
                 createAlert("Failed to receive active evidence", AlertTypes.Failure)
@@ -337,23 +337,6 @@ function getHighlightedEvidenceDetails() {
     } else {
         setDetailsToNoEvidenceExists()
     }
-}
-
-
-/**
- * Makes a request to the backend to retrieve all the web links for a piece of evidence. If the request is successful,
- * a function is called to add the web links to the document.
- */
-function getHighlightedEvidenceWeblinks() {
-    $.ajax({
-        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId, success: function (response) {
-            setHighlightedEvidenceWebLinks(response)
-        }, error: function (response) {
-            if (response.status !== 404) {
-                createAlert("Failed to receive evidence links", AlertTypes.Failure)
-            }
-        }
-    })
 }
 
 
@@ -411,6 +394,7 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
+    addWeblinksToEvidence(evidenceDetails.webLinks)
     addLinkedUsersToEvidence(evidenceDetails.associates)
     addSkillsToEvidence(evidenceDetails.skills)
 
@@ -1181,9 +1165,7 @@ function getDataFromEvidenceForm() {
 function handleSuccessfulEvidenceSave(response) {
     selectedEvidenceId = response.id
     getAndAddEvidencePreviews()
-    // addSkillResponseToArray(response)
     getSkills(addSkillsToSideBar)
-    // addSkillsToSideBar();
     closeModal()
     clearAddEvidenceModalValues()
     $(".alert").remove()
@@ -1244,7 +1226,6 @@ function handleEvidenceSave() {
 
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
-
     } else {
         const evidenceData = getDataFromEvidenceForm()
         const buttonName = $("#evidenceSaveButton").text()
@@ -1254,7 +1235,6 @@ function handleEvidenceSave() {
 
         } else { // edit a exist evidence
             editEvidence(evidenceData)
-            // ToDo: Connect Save Button to Endpoint
         }
     }
 }
