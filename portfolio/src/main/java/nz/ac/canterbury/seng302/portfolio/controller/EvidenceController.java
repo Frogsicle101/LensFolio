@@ -1,9 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
-import nz.ac.canterbury.seng302.portfolio.service.*;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -11,7 +9,10 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.service.*;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
@@ -60,6 +61,8 @@ public class EvidenceController {
     private final EvidenceService evidenceService;
 
     private final RegexService regexService;
+
+    private final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
 
 
     @Autowired
@@ -245,8 +248,46 @@ public class EvidenceController {
             return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
-            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    /**
+     * Entrypoint for editing an evidence object
+     *
+     * @param principal The authentication principal for the logged-in user
+     * @param evidenceDTO The EvidenceDTO object containing the required data for the evidence instance being created.
+     *
+     * @return returns a ResponseEntity. This entity includes the edited piece of evidence if successful.
+     */
+    @PatchMapping("/evidence")
+    @ResponseBody
+    public ResponseEntity<Object> editEvidence(
+            @AuthenticationPrincipal Authentication principal,
+            @RequestBody EvidenceDTO evidenceDTO
+    ) {
+        logger.info("PATCH REQUEST /evidence - attempt to edit evidence");
+
+        try {
+            return new ResponseEntity<>(evidenceService.editEvidence(principal, evidenceDTO), HttpStatus.OK);
+        } catch (CheckException err) {
+            logger.warn("PATCH REQUEST /evidence - attempt to edit evidence with id {}: Bad input: {}",
+                    evidenceDTO.getId(), err.getMessage());
+            return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (DateTimeParseException err) {
+            logger.warn("PATCH REQUEST /evidence - attempt to edit evidence with id {}: Bad date", evidenceDTO.getId());
+            return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
+        } catch (MalformedURLException err) {
+            logger.warn("PATCH REQUEST /evidence - attempt to edit evidence with id {}: Bad url {}",
+                    evidenceDTO.getId(), err.getMessage());
+            return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
+        } catch (Exception err) {
+            logger.error("PATCH REQUEST /evidence - attempt to edit evidence with id {}: ERROR: {}",
+                    evidenceDTO.getId(), err.getMessage());
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 
@@ -367,7 +408,7 @@ public class EvidenceController {
         } catch (Exception e){
             logger.warn(e.getClass().getName());
             logger.warn(e.getMessage());
-            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -390,5 +431,18 @@ public class EvidenceController {
             associates.add(userDTO);
         }
         return associates;
+    }
+
+
+    /**
+     * Handles exceptions when a request body cannot be parsed to the required DTO.
+     *
+     * @param exception - The exception thrown by the endpoint
+     * @return a response entity with a generic message, and a bad request status
+     */
+    @ExceptionHandler(InvalidDefinitionException.class)
+    public ResponseEntity<Object> handleError(InvalidDefinitionException exception) {
+        logger.warn("Evidence endpoint InvalidDefinitionError resolved {}", exception.getMessage());
+        return new ResponseEntity<>("One or more fields are invalid", HttpStatus.BAD_REQUEST);
     }
 }

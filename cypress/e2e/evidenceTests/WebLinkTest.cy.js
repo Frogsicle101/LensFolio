@@ -106,7 +106,7 @@ describe("Adding Weblinks to Evidence", () => {
     })
 
     it('Can save evidence with web addresses', () => {
-        cy.get("#evidenceName").invoke('val', "name")
+        cy.get("#evidenceName").invoke('val', "namee")
         cy.get("#evidenceDescription").invoke('val', "description")
         cy.get('#addWeblinkButton').click()
         cy.get('#webLinkUrl').type('www.a.ac.nz')
@@ -127,8 +127,8 @@ describe("Adding Weblinks to Evidence", () => {
                 .invoke('val', 'Wl ' + i.toString())
             cy.get('#addWeblinkButton').click()
         }
-        cy.get('[data-value="http://www.a1.ac.nz"]').find("#deleteWeblink").click()
-        cy.get('[data-value="http://www.a2.ac.nz"]').find("#deleteWeblink").click()
+        cy.get('[data-value="http://www.a1.ac.nz"]').find(".deleteWeblink").click()
+        cy.get('[data-value="http://www.a2.ac.nz"]').find(".deleteWeblink").click()
 
         cy.get('[data-value="http://www.a3.ac.nz"]'). should('exist');
         cy.get('[data-value="http://www.a4.ac.nz"]'). should('exist');

@@ -68,9 +68,9 @@ class CalendarControllerTest {
 
 
     private String joinParameters(HashMap<String, String> parameters) {
-        String searchParams = "?";
+        StringBuilder searchParams = new StringBuilder("?");
         for (String key : parameters.keySet()) {
-            searchParams += key + "=" + parameters.get(key) + "&";
+            searchParams.append(key).append("=").append(parameters.get(key)).append("&");
         }
         return searchParams.substring(0, searchParams.length() - 1);
     }
@@ -304,8 +304,6 @@ class CalendarControllerTest {
 
         String expectedDeadline1End = "start=2022-03-24, classNames=deadlineCalendar, end=2022-03-24";
         String expectedDeadline2End = "start=2022-05-24, classNames=deadlineCalendar, end=2022-05-24";
-        System.out.println(expectedDeadline1End);
-        System.out.println(expectedDeadline2End);
         Assertions.assertTrue(content.contains(expectedDeadline2End));
         Assertions.assertTrue(content.contains(expectedDeadline1End));
     }
@@ -336,7 +334,6 @@ class CalendarControllerTest {
 
         String expectedMilestone1End = "start=2022-03-24, classNames=milestoneCalendar, end=2022-03-24";
         String expectedMilestone2End = "start=2022-05-24, classNames=milestoneCalendar, end=2022-05-24";
-        System.out.println(content);
         Assertions.assertTrue(content.contains(expectedMilestone1End));
         Assertions.assertTrue(content.contains(expectedMilestone2End));
     }
