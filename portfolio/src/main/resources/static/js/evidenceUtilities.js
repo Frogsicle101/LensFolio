@@ -773,6 +773,8 @@ $(document).on('click', '#addWeblinkButton', function (e) {
  */
 $(document).on('click', '.deleteWeblink', function () {
     $(this).parent().remove();
+    webLinksCount -= 1;
+    checkWeblinkCount();
 })
 
 
