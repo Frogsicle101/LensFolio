@@ -32,8 +32,10 @@ public class SkillFrequencyService {
      * Gets a list of evidence that's associated with a skill and a user and a list of evidence for a user and
      * divides them by each other to get the frequency, then rounds down to 2 decimal place.
      * Will return 0.0 if the user has no evidence.
+     *
      * @param skill The skill object we want the frequency for
      * @param userId The id of the user that we want to find evidence for
+     *
      * @return How frequently the skill appears in the users evidence. Ranges from 0 (none of the time) to 1 (all of the time).
      */
     public double getSkillFrequency(Skill skill, Integer userId){
