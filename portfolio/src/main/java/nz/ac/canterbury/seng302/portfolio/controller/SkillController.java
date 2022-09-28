@@ -1,9 +1,12 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.SkillDTO;
+import nz.ac.canterbury.seng302.portfolio.service.SkillFrequencyService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +42,8 @@ public class SkillController {
     /** For checking is a user exists and getting their details. */
     private final UserAccountsClientService userAccountsClientService;
 
+    private final SkillFrequencyService skillFrequencyService;
+
 
     /**
      * Autowired constructor for injecting the required beans.
@@ -49,10 +55,12 @@ public class SkillController {
     @Autowired
     public SkillController(SkillRepository skillRepository,
                            EvidenceRepository evidenceRepository,
-                           UserAccountsClientService userAccountsClientService) {
+                           UserAccountsClientService userAccountsClientService,
+                           SkillFrequencyService skillFrequencyService) {
         this.skillRepository = skillRepository;
         this.evidenceRepository = evidenceRepository;
         this.userAccountsClientService = userAccountsClientService;
+        this.skillFrequencyService = skillFrequencyService;
     }
 
 
@@ -75,9 +83,17 @@ public class SkillController {
                     return new ResponseEntity<>("User does not exist", HttpStatus.NOT_FOUND);
                 }
             }
+            List<SkillDTO> skillDTOList = new ArrayList<>();
+            skills.forEach((skill -> {
+                SkillDTO skillDTO = new SkillDTO(skill);
+                skillDTO.setFrequency(skillFrequencyService.getSkillFrequency(skill, userId));
+                skillDTOList.add(skillDTO);
+            }));
             logger.info("GET REQUEST /skills - found and returned {} skills for user: {}", skills.size() ,userId);
-            return new ResponseEntity<>(skills, HttpStatus.OK);
+            return new ResponseEntity<>(skillDTOList, HttpStatus.OK);
 
+        } catch (CheckException exception){
+            logger.error("GET REQUEST /skills - User has skills but no evidence: {}", userId);
         } catch (Exception exception) {
             logger.error("GET REQUEST /skills - Internal Server Error attempt user: {}", userId);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

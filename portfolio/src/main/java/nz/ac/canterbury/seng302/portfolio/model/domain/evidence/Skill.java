@@ -20,6 +20,7 @@ public class Skill {
     @Column
     private String name;
 
+
     /** The set of evidence this skill is associated with */
     @JsonIgnore
     @ManyToMany(mappedBy = "skills", fetch = FetchType.EAGER)
