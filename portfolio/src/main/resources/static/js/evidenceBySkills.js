@@ -296,22 +296,16 @@ function setCategories(evidenceHighlight) {
  * Retrieves linked users from the highlighted evidence and adds them to the edit evidence modal.
  */
 function setLinkedUsers() {
-    const userLinkedList = $("#evidenceDetailsLinkedUsers")
+    const userLinkedList = $("#evidenceDetailsLinkedUsers").find(".linkedUser")
     const editEvidenceModal = $("#addOrEditEvidenceModal")
-    const listOfLinkedUsers = $(".linkedUser")
-    //console.log(listOfLinkedUsers)
     $("#linkedUsersTitle").show()
-    $("#linkedUsers").html(userLinkedList)
-    for (let index in listOfLinkedUsers) {
-        console.log(index)
-        console.log($(userLinkedList[index]))
-        console.log($(userLinkedList[index]).attr("data-id"))
-        //console.log(userLinkedList[index].text())
-        //div.append(linkedUserElement({"firstname" : "dave", "lastname" : "john", "userId" : 109}, true)
-
-    }
-    editEvidenceModal.find(`#linkedUserId${userIdent}`).parent().remove()
-
+    $.each(userLinkedList, function (i, user) {
+        const userId = user.getAttribute("data-id")
+        const userName = user.innerText
+        if (userId !== String(userIdent)){
+            $("#linkedUsers").append(linkedUserElement(userId, userName,true))
+        }
+    })
 }
 
 

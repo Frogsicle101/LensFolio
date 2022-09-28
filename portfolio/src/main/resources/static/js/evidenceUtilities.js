@@ -342,7 +342,8 @@ function addLinkedUsersToEvidence(users) {
     linkedUsersDiv.empty()
 
     $.each(users, function (i, user) {
-        linkedUsersDiv.append(linkedUserElement(user, false));
+        const userName = user.firstName + " " + user.lastName + " (" + user.username +")"
+        linkedUsersDiv.append(linkedUserElement(user.id, userName,false));
     })
 }
 
@@ -920,7 +921,8 @@ function addLinkedUser(user) {
     if (!linkedUserIdsArray.includes(user.id)) {
         $("#linkedUsersTitle").show()
         linkedUserIdsArray.push(user.id)
-        linkedUsersDiv.append(linkedUserElement(user, true))
+        const userName = user.firstName + " " + user.lastName + " (" + user.username +")"
+        linkedUsersDiv.append(linkedUserElement(user.id, userName, true))
         $('.deleteLinkedUserButton').show()
     }
 }
@@ -929,7 +931,7 @@ function addLinkedUser(user) {
 /**
  * Creates the element for displaying the linked user
  */
-function linkedUserElement(user, deletable) {
+function linkedUserElement(userId, userName, deletable) {
     let deleteIcon = ''
     if (deletable) {
         deleteIcon = `
@@ -944,8 +946,8 @@ function linkedUserElement(user, deletable) {
 
     return `<div id="linkedUserElement">
                 ${deleteIcon}
-                <div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">
-                     ${user.firstName} ${user.lastName} (${user.username})</div>
+                <div class="linkedUser" id="linkedUserId${userId}" data-id="${userId}">
+                     ${userName}</div>
            </div> `
 }
 
