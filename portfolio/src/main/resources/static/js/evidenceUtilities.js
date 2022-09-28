@@ -962,14 +962,6 @@ $('#addOrEditEvidenceModal').on('hide.bs.modal', function (e) {
 
 
 /**
- * Remove any open alerts for weblinks
- */
-function removeWebLinkAlerts() {
-    $(".weblinkAlert").remove()
-}
-
-
-/**
  * This disabled the requirement for the web link forms to be filled out if they are empty.
  * This was because the overall "Add Evidence" form does a validation of all its fields when something changes.
  * Because these fields are required to both be filled then they don't allow that check to pass if they are empty.
@@ -979,7 +971,7 @@ function removeWebLinkAlerts() {
 function toggleRequiredIfCheckURLInputsAreEmpty() {
     let webLinkUrl = $("#webLinkUrl")
     let webLinkName = $("#webLinkName")
-    if (webLinkUrl.val() < 1 && webLinkName.val() < 1) {
+    if (webLinkUrl.val().length < 1 && webLinkName.val().length < 1) {
         webLinkUrl.removeAttr("required")
         webLinkName.removeAttr("required")
         webLinkName.removeAttr("minlength")
