@@ -193,6 +193,8 @@ function getTodayDate() {
  *  Resets evidence modal values to be blank and disables the save button.
  */
 function resetAddOrEditEvidenceForm() {
+    $("#addOrEditEvidenceModal").removeAttr("data-id")
+
     $("#evidenceName").val("")
     $("#evidenceDate").val(getTodayDate())
     $("#evidenceDescription").val("");
@@ -318,8 +320,9 @@ function handleEvidenceEdit() {
     setCategories(selectedEvidence)
     setWeblinks(selectedEvidence)
     setLinkedUsers()
-
-    $("#addOrEditEvidenceModal").show()
+    const editModal = $("#addOrEditEvidenceModal")
+    editModal.attr("data-id", parseInt($("#evidenceDetailsId").text(), 10))
+    editModal.show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 }

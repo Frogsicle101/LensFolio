@@ -1150,6 +1150,7 @@ function createCategoryChip(categoryName, isMenuItem) {
  * @returns {string} A JSON string of the evidence's data, formatted as an EvidenceDTO.
  */
 function getDataFromEvidenceForm() {
+    const evidenceId = $("#addOrEditEvidenceModal").attr("data-id")
     const title = $("#evidenceName").val()
     const date = $("#evidenceDate").val()
     const description = $("#evidenceDescription").val()
@@ -1159,6 +1160,7 @@ function getDataFromEvidenceForm() {
     const categories = getCategories();
 
     return JSON.stringify({
+        "id": evidenceId,
         "title": title,
         "date": date,
         "description": description,
@@ -1212,6 +1214,26 @@ function createEvidence(data) {
 
 
 /**
+ * Makes an endpoint request to save a new piece of evidence.
+ *
+ * @param data the data for the evidence being created.
+ */
+function editEvidence(data) {
+    $.ajax({
+        url: 'evidence',
+        type: "PATCH",
+        contentType: "application/json",
+        data,
+        success: (response) => {
+            handleSuccessfulEvidenceSave(response)
+        }, error: (error) => {
+            createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
+        }
+    })
+}
+
+
+/**
  * Validates the inputs in the evidence form. Calls the method to create a nw piece of evidence, if the evidence save
  * button has the text "Create".
  */
@@ -1231,6 +1253,7 @@ function handleEvidenceSave() {
             createEvidence(evidenceData)
 
         } else { // edit a exist evidence
+            editEvidence(evidenceData)
             // ToDo: Connect Save Button to Endpoint
         }
     }

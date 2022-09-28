@@ -121,7 +121,7 @@ public class EvidenceDTO {
         private String description;
         private List<WebLinkDTO> webLinks;
         private List<String> categories;
-        private List<String> skills;
+        private List<Skill> skills;
         private List<Integer> associateIds;
         private Long projectId;
 
@@ -155,7 +155,7 @@ public class EvidenceDTO {
             return this;
         }
 
-        public EvidenceDTOBuilder setSkills(List<String> skills) {
+        public EvidenceDTOBuilder setSkills(List<Skill> skills) {
             this.skills = skills;
             return this;
         }

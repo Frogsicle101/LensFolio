@@ -2,6 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.service.*;
@@ -230,7 +231,9 @@ public class EvidenceController {
             @RequestBody EvidenceDTO evidenceDTO
     ) {
         logger.info("POST REQUEST /evidence - attempt to create new evidence");
-
+        for (Skill skill : evidenceDTO.getSkills()) {
+            logger.error("{} : {}", skill.getId(), skill.getName());
+        }
         try {
             Evidence evidence = evidenceService.addEvidence(principal, evidenceDTO);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
