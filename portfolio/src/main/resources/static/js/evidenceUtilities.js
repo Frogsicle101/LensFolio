@@ -94,10 +94,7 @@ function setHighlightedEvidenceWebLinks(response) {
         let webLink = response[index]
         webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
     }
-    let deleteButtons = $('#deleteWeblink')
-    for (let i = 0; i < deleteButtons.length; i++) {
-        deleteButtons[i].style = "display: none;"
-    }
+    $('.deleteWeblinkButton').hide()
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
     } else {
@@ -345,10 +342,8 @@ function addLinkedUsersToEvidence(users) {
     linkedUsersDiv.empty()
 
     $.each(users, function (i, user) {
-        linkedUsersDiv.append(linkedUserElement(user));
+        linkedUsersDiv.append(linkedUserElement(user, false));
     })
-
-    $('.deleteLinkedUserButton').hide()
 }
 
 
@@ -925,7 +920,8 @@ function addLinkedUser(user) {
     if (!linkedUserIdsArray.includes(user.id)) {
         $("#linkedUsersTitle").show()
         linkedUserIdsArray.push(user.id)
-        linkedUsersDiv.append(linkedUserElement(user))
+        linkedUsersDiv.append(linkedUserElement(user, true))
+        $('.deleteLinkedUserButton').show()
     }
 }
 
@@ -933,14 +929,21 @@ function addLinkedUser(user) {
 /**
  * Creates the element for displaying the linked user
  */
-function linkedUserElement(user) {
-    return `<div id="linkedUserElement">
-                <button class="deleteButton deleteLinkedUserButton">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+function linkedUserElement(user, deletable) {
+    let deleteIcon = ''
+    if (deletable) {
+        deleteIcon = `
+            <button class="deleteLinkedUserButton">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                     <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                    </svg>
-                    </button>
+                </svg>
+            </button>
+        `
+    }
+
+    return `<div id="linkedUserElement">
+                ${deleteIcon}
                 <div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">
                      ${user.firstName} ${user.lastName} (${user.username})</div>
            </div> `

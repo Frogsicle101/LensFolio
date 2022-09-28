@@ -297,24 +297,20 @@
     color: red;
 }
 
-#deleteLinkedUser{
+.deleteLinkedUserButton{
     height: 2rem;
     width: 2rem;
     text-align: center;
     border: none;
     color: black;
-    background: #ffffff;
+    background : transparent;
 }
 
-#deleteLinkedUser:hover{
-    height: 2rem;
-    width: 2rem;
-    text-align: center;
-    border: none;
-    background: #175fbd;
-    color: #ffffff;
+.deleteLinkedUserButton:hover{
+    color: red;
 }
 
-#linkedUserElement{
+#linkedUserElement {
     display : flex;
+    align-items: center;
 }

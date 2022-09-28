@@ -264,7 +264,7 @@ function setSkills(evidenceHighlight) {
  */
 function setWeblinks(evidenceHighlight) {
     const webLinksList = evidenceHighlight.find(".webLinkElement")
-    $("#webLinkTitle").style = "display;"
+    $("#webLinkTitle").show()
     const addedWebLinks = document.getElementById("addedWebLinks")
     for (let i = 0; i < webLinksList.length; i++) {
         addedWebLinks.innerHTML += webLinksList[i].outerHTML;
@@ -296,13 +296,22 @@ function setCategories(evidenceHighlight) {
  * Retrieves linked users from the highlighted evidence and adds them to the edit evidence modal.
  */
 function setLinkedUsers() {
-    const userLinkedList = $("#evidenceDetailsLinkedUsers").text()
+    const userLinkedList = $("#evidenceDetailsLinkedUsers")
     const editEvidenceModal = $("#addOrEditEvidenceModal")
-    $("#linkedUsersTitle").hide()
+    const listOfLinkedUsers = $(".linkedUser")
+    //console.log(listOfLinkedUsers)
+    $("#linkedUsersTitle").show()
     $("#linkedUsers").html(userLinkedList)
+    for (let index in listOfLinkedUsers) {
+        console.log(index)
+        console.log($(userLinkedList[index]))
+        console.log($(userLinkedList[index]).attr("data-id"))
+        //console.log(userLinkedList[index].text())
+        //div.append(linkedUserElement({"firstname" : "dave", "lastname" : "john", "userId" : 109}, true)
 
-    editEvidenceModal.find(`#linkedUserId${userIdent}`).parent().prop("outerHTML", "")
-    editEvidenceModal.find(".deleteLinkedUserButton").hide()
+    }
+    editEvidenceModal.find(`#linkedUserId${userIdent}`).parent().remove()
+
 }
 
 
