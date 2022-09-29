@@ -58,7 +58,7 @@ public class EvidenceController {
     /** The repository containing the projects. */
     private final ProjectRepository projectRepository;
 
-    /** The repository contains all the skills */
+    /** The repository containing all the skills */
     private final SkillRepository skillRepository;
 
     /** Provides helper functions for Crud operations on evidence */
