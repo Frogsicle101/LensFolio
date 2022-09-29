@@ -263,58 +263,6 @@ class SkillsControllerTest {
     }
 
 
-    @Test
-    void testEditSkillInvalidSkillId() throws Exception {
-        Mockito.when(skillRepository.findById(1)).thenReturn(null);
-        mockMvc.perform(patch("/editSkill")
-                        .param("skillId", "1")
-                        .param("skillName", "new_name"))
-                .andExpect(status().isNotFound());
-    }
-
-
-    @Test
-    void testEditSkillSomeoneElsesSkill() throws Exception {
-        Skill testSkill = new Skill(1, "writing_tests");
-
-        Mockito.when(skillRepository.findById(testSkill.getId())).thenReturn(Optional.of(testSkill));
-        Mockito.when(skillRepository.findDistinctByEvidenceUserId(2)).thenReturn(null);
-        mockMvc.perform(patch("/editSkill")
-                        .param("skillId", "1")
-                        .param("skillName", "new_name"))
-                .andExpect(status().isUnauthorized());
-    }
-
-
-    @Test
-    void testEditSkillEvidenceIsReturned() throws Exception {
-        Skill testSkill = new Skill(1, "writing_tests");
-        Evidence evidence1 = new Evidence(1, 1, "Title", LocalDate.now(), "description");
-        Evidence evidence2 = new Evidence(2, 1, "Title", LocalDate.now(), "description");
-        Evidence evidence3 = new Evidence(3, 1, "Title", LocalDate.now(), "description");
-        testSkill.getEvidence().add(evidence1);
-        testSkill.getEvidence().add(evidence2);
-        testSkill.getEvidence().add(evidence3);
-        List<Skill> skills = new ArrayList<>();
-        skills.add(testSkill);
-
-        Mockito.when(skillRepository.findById(testSkill.getId())).thenReturn(Optional.of(testSkill));
-        Mockito.when(skillRepository.findDistinctByEvidenceUserId(1)).thenReturn(skills);
-        MvcResult result = mockMvc.perform(patch("/editSkill")
-                        .param("skillId", "1")
-                        .param("skillName", "new_name"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        // Because the result is a set, we can't guarantee the order
-        String responseContent = result.getResponse().getContentAsString();
-        Assertions.assertTrue(responseContent.contains(evidence1.toJsonString()));
-        Assertions.assertTrue(responseContent.contains(evidence1.toJsonString()));
-        Assertions.assertTrue(responseContent.contains(evidence1.toJsonString()));
-        Assertions.assertEquals("new_name", testSkill.getName());
-    }
-
-
     // -------------- Helper context functions ----------------------------------------------------
 
 

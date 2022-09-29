@@ -303,7 +303,7 @@ public class EvidenceService {
                     theSkill.setName(skillInfo.getName());
                     skillRepository.save(theSkill);
                 } else {
-                    throw new CheckException("Invalid Skill id");
+                    throw new CheckException("Invalid Skill Id");
                 }
 
             }
