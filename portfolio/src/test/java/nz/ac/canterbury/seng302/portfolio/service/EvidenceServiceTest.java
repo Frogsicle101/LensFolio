@@ -699,7 +699,7 @@ class EvidenceServiceTest {
                 () -> evidenceService.editEvidence(principal, evidenceDTO)
         );
 
-        Assertions.assertEquals("You can't edit another users skills", exception.getMessage());
+        Assertions.assertEquals("Could not retrieve one or more skills", exception.getMessage());
     }
 
 
