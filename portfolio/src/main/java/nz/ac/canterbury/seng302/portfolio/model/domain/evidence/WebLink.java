@@ -1,12 +1,11 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.evidence;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import nz.ac.canterbury.seng302.portfolio.CheckException;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 
 import javax.persistence.*;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Objects;
+
 
 /**
  * Represents an WebLink Entity
@@ -23,8 +22,7 @@ public class WebLink {
 
     private String alias;
     @Column(length = MAXURLLENGTH + 1)
-    private URL url;
-    private Boolean isSecured;
+    private String url;
 
     @ManyToOne
     @JsonIgnore
@@ -36,21 +34,13 @@ public class WebLink {
      * Constructs an instance of the WebLink Object
      *
      * @param evidence The evidence that this web link is associated with
-     * @param alias     the name of the web link
-     * @param url      the url of the web link
+     * @param webLinkDTO The DTO containing the weblink's alias, address, and security.
      * @throws MalformedURLException when the url string is not valid. This Weblink is not allowed to be created.
      */
-    public WebLink(Evidence evidence, String alias, URL url) throws MalformedURLException {
-        if (alias.length() > MAXNAMELENGTH) {
-            throw new CheckException("WebLink name should be " + MAXNAMELENGTH + " characters or less");
-        }
-        if (alias.length() < 1) {
-            throw new CheckException("WebLink name should be at least 1 character in length");
-        }
-        this.alias = alias;
+    public WebLink(Evidence evidence, WebLinkDTO webLinkDTO) {
+        this.alias = webLinkDTO.getName();
         this.evidence = evidence;
-        this.url = url;
-        this.isSecured = Objects.equals(this.url.getProtocol(), "https");
+        this.url = webLinkDTO.getUrl();
     }
 
     /**
@@ -63,33 +53,20 @@ public class WebLink {
         return id;
     }
 
+    public String getUrl() {
+        return url;
+    }
 
     public String getAlias() {
         return alias;
     }
 
-    public URL getUrl() {
-        return url;
-    }
-
-    public Boolean getIsSecured() {
-        return isSecured;
-    }
-
-    public void setAlias(String name) {
-        this.alias = name;
-    }
-
-    public void setUrl(URL url) {
+    public void setUrl(String url) {
         this.url = url;
     }
 
     public void setEvidence(Evidence evidence) {
         this.evidence = evidence;
-    }
-
-    public void setIsSecured(Boolean isSecured) {
-        this.isSecured = isSecured;
     }
 
     public Evidence getEvidence() {
@@ -110,8 +87,7 @@ public class WebLink {
                 "\"id\":" + id +
                 ",\"alias\":\"" + alias + "\"" +
                 ",\"url\":\"" + url +
-                "\",\"isSecured\":" + isSecured +
-                ",\"maxURLLength\":" + getMaxURLLength() +
+                "\",\"maxURLLength\":" + getMaxURLLength() +
                 "}";
     }
 }

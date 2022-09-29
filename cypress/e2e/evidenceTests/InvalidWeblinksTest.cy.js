@@ -17,7 +17,7 @@ describe("Adding Invalid Weblinks to Evidence", () => {
             cy.get('#webLinkName').wait(100)
                 .invoke('val', "link name")
             cy.get('#addWeblinkButton').click().wait(100)
-            cy.contains("valid").should("be.visible")
+            cy.contains("Weblink address").should("be.visible")
         })
     }
 
@@ -26,6 +26,7 @@ describe("Adding Invalid Weblinks to Evidence", () => {
         WEBLINKS_TO_ADD = [
             ".",
             "urn:oasis:names:specification:docbook:dtd:xml:4.1.2",
+            "ftp://ftp.is.co.za/rfc/rfc1808.txt",
             "tel:+1-816-555-1212",
             "telnet://192.0.2.16:80/",
             "mailto:John.Doe@example.com",
@@ -46,12 +47,12 @@ describe("Adding Invalid Weblinks to Evidence", () => {
     it('Domain tests for invalid weblinks', () => {
         WEBLINKS_TO_ADD = [
             ".example",
-            "♨️.com",
             "i am a website.com",
             "'quote'.com",
             "$$$money$$$.nz",
             "@.com",
-            "!.com"
+            "!.com",
+            "♨️.com"
         ]
 
         assertFails()

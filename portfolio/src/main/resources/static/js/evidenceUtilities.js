@@ -648,7 +648,7 @@ $(document).on("click", ".evidenceListItem", function () {
  * Listen for a keypress in the weblink address field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkUrl', function () {
-    $("#weblinkAddressAlert").alert('close')
+    updateErrorMessage($("#evidenceWeblinkAddressFeedback"), "")
 })
 
 
@@ -656,8 +656,70 @@ $(document).on('keypress', '#webLinkUrl', function () {
  * Listen for a keypress in the weblink name field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkName', function () {
-    $("#weblinkNameAlert").alert('close')
+    updateErrorMessage($("#evidenceWeblinkNameFeedback"), "")
 })
+
+
+/**
+ * Calls the validity checking function on keyup of form inputs.
+ */
+$(document).on("change keyup", "#evidenceName", function () {
+    disableEnableSaveButtonOnValidity()
+    checkNameValidity()
+})
+
+
+/**
+ * Calls the validity checking function on change of the description.
+ */
+$(document).on("change keyup", "#evidenceDescription", function () {
+    disableEnableSaveButtonOnValidity()
+    checkDescriptionValidity()
+})
+
+
+/**
+ * Calls the validity checking function on change of form inputs.
+ * This is different from keyup as it checks when the date changes.
+ */
+$(document).on("change", ".form-control", function () {
+    disableEnableSaveButtonOnValidity()
+    checkDateValidity()
+})
+
+
+/**
+ * Pops up a confirmation message on the click of evidence deletion. If the confirmation is accepted,
+ * then the delete request is sent. On a successful request the page is reloaded and an alert is made.
+ */
+$(document).on("click", "#deleteEvidenceButton", function () {
+    const evidenceId = $("#evidenceDetailsId").text()
+    const evidenceName = $("#evidenceDetailsTitle").text()
+    if (window.confirm(`Are you sure you want to delete the evidence \n${evidenceName}`)) {
+        $.ajax({
+            url: `evidence?evidenceId=${evidenceId}`,
+            type: "DELETE",
+            success: () => {
+                handleSuccessfulEvidenceDelete(evidenceName)
+                 }, error: (response) => {
+                createAlert(response.responseText, AlertTypes.Failure)
+            }
+        })
+    }
+})
+
+
+/**
+ * Refreshes the evidence page and creates an alert for successful evidence deletion.
+ *
+ * @param evidenceName The name of the deleted evidence.
+ */
+function handleSuccessfulEvidenceDelete(evidenceName) {
+    selectedEvidenceId = null
+    getAndAddEvidencePreviews()
+    getSkills(addSkillsToSideBar)
+    createAlert("Successfully deleted evidence: " + sanitise(evidenceName), AlertTypes.Success)
+}
 
 
 // --------------------------------- Autocomplete -----------------------------------------
@@ -755,25 +817,99 @@ $(document).on("click", "#evidenceSaveButton", function (e) {
 
 
 /**
+ * Refreshes the evidence page and evidence modal, and creates an alert for successful evidence deletion.
+ */
+function handleSuccessfulEvidenceSave(response) {
+    selectedEvidenceId = response.id
+    getAndAddEvidencePreviews()
+    addSkillResponseToArray(response)
+    addSkillsToSideBar();
+    closeModal()
+    clearAddEvidenceModalValues()
+    $(".alert").remove()
+    createAlert("Created evidence", AlertTypes.Success)
+    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+    resetWeblink()
+}
+
+
+/**
+ * If the weblink form is closed, calls the function to toggle it open.
+ * If the weblink form is open, calls the function to submit the form.
+ */
+function handleWeblinkAdd() {
+    const button = $("#addWeblinkButton");
+
+    if (button.hasClass("toggled")) {
+        submitWebLink()
+    } else {
+        webLinkButtonToggle()
+    }
+}
+
+
+/**
+ * Checks the validity of the address in the weblink error form against the central weblink requirements.
+ *
+ * @returns {boolean} True if the address is valid.
+ */
+function checkWeblinkAddressValidity() {
+    const webLinkUrl = $("#webLinkUrl").val();
+    const weblinkAddressErrorDiv = $("#evidenceWeblinkAddressFeedback")
+
+    const weblinkRegex = new RegExp(weblinkRegexPattern)
+
+    if (!weblinkRegex.test(webLinkUrl)) {
+        updateErrorMessage(weblinkAddressErrorDiv, `Weblink address ${weblinkRegexRequirements}`)
+        return false
+    }
+
+    if (webLinkUrl.length > 2000) {
+        updateErrorMessage(weblinkAddressErrorDiv, `Weblink address cannot be longer than 2000 characters`)
+        return false
+    }
+
+    updateErrorMessage(weblinkAddressErrorDiv, "")
+    return true
+}
+
+
+/**
+ * Checks the validity of the name in the weblink error form against the general unicode requirements.
+ *
+ * @returns {boolean} True if the name is valid.
+ */
+function checkWeblinkNameValidity() {
+    const webLinkName = $("#webLinkName").val();
+    const weblinkNameErrorDiv = $("#evidenceWeblinkNameFeedback")
+
+    if (webLinkName.length === 0) {
+        updateErrorMessage(weblinkNameErrorDiv, "Weblink name must not be empty")
+        return false
+    }
+
+    if (!regex.test(webLinkName)) {
+        updateErrorMessage(weblinkNameErrorDiv, `Weblink name ${GENERAL_UNICODE_REQUIREMENTS}`)
+        return false
+    }
+
+    if (webLinkName.length > 50) {
+        updateErrorMessage(weblinkNameErrorDiv, `Weblink name cannot be longer than 50 characters`)
+        return false
+    }
+
+    updateErrorMessage(weblinkNameErrorDiv, "")
+    return true
+}
+
+
+/**
  * Listens for when add web link button is clicked.
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '#addWeblinkButton', function (e) {
-    let button = $("#addWeblinkButton");
-    if (button.hasClass("toggled")) {
-        e.preventDefault()
-        let webLinkUrl = $("#webLinkUrl");
-        let webLinkName = $("#webLinkName");
-        if (!webLinkUrl[0].checkValidity() || !webLinkName[0].checkValidity()) {
-            webLinkUrl[0].reportValidity()
-            webLinkName[0].reportValidity()
-            return false
-        }
-        //validate the link
-        validateWebLinkAtBackend()
-    } else {
-        webLinkButtonToggle()
-    }
+    e.preventDefault()
+    handleWeblinkAdd()
 })
 
 
@@ -781,11 +917,25 @@ $(document).on('click', '#addWeblinkButton', function (e) {
  * Listens for when delete web link button is clicked.
  * the web link will be deleted.
  */
-$(document).on('click', '.deleteWeblink', function () {
+$(document).on('click', '#deleteWeblink', function () {
     $(this).parent().remove();
     webLinksCount -= 1;
     checkWeblinkCount();
 })
+
+
+/**
+ * Listens for when delete web link button is clicked.
+ * Refreshes error messages on the form.
+ * */
+$(document).on('change keyup', '#webLinkUrl', checkWeblinkAddressValidity)
+
+
+/**
+ * Listens for a change of the web link name in the web link form.
+ * Refreshes error messages on the form.
+ */
+$(document).on('change keyup', '#webLinkName', checkWeblinkNameValidity)
 
 
 /**
@@ -820,28 +970,6 @@ $('#addOrEditEvidenceModal').on('hide.bs.modal', function (e) {
 
 
 /**
- * Remove any open alerts for weblinks
- */
-function removeWebLinkAlerts() {
-    $(".weblinkAlert").remove()
-}
-
-
-/**
- * Handles the error messages for an invalid web link.
- */
-function handleInvalidWebLink(form, message) {
-    removeWebLinkAlerts()
-    form.append(`
-        <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
-          ${sanitise(message)}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `);
-}
-
-
-/**
  * This disabled the requirement for the web link forms to be filled out if they are empty.
  * This was because the overall "Add Evidence" form does a validation of all its fields when something changes.
  * Because these fields are required to both be filled then they don't allow that check to pass if they are empty.
@@ -851,7 +979,7 @@ function handleInvalidWebLink(form, message) {
 function toggleRequiredIfCheckURLInputsAreEmpty() {
     let webLinkUrl = $("#webLinkUrl")
     let webLinkName = $("#webLinkName")
-    if (webLinkUrl.val() < 1 && webLinkName.val() < 1) {
+    if (webLinkUrl.val().length < 1 && webLinkName.val().length < 1) {
         webLinkUrl.removeAttr("required")
         webLinkName.removeAttr("required")
         webLinkName.removeAttr("minlength")
@@ -860,52 +988,6 @@ function toggleRequiredIfCheckURLInputsAreEmpty() {
         webLinkName.attr("required", "required")
         webLinkName.attr("minlength", "1")
     }
-}
-
-
-/**
- * Validates the weblink server-side.
- * Takes the URL and makes a call to the server to check if it's valid.
- * If valid, save the web link and toggle the form.
- *
- * If there's an issue, or it's not valid, calls a function to display an alert
- */
-function validateWebLinkAtBackend() {
-    let form = $("#weblinkForm")
-    let address = $("#webLinkUrl").val()
-    let hasDoubleSlash = address.search("//") !== -1
-    if (!hasDoubleSlash) {
-
-        if (address.search(":/") !== -1) {
-            handleInvalidWebLink(form, "Addresses in the format [protocol]:/[something else] are not valid " +
-                "(two slashes required)");
-            return;
-        }
-
-        // Address does not have protocol, so assume http
-        address = "http://" + address
-    }
-    let data = JSON.stringify({
-        "url": address,
-        "name": $("#webLinkName").val()
-    })
-    $.ajax({
-        url: `validateWebLink`,
-        type: "POST",
-        contentType: "application/json",
-        data,
-        success: () => {
-            submitWebLink()
-            webLinkButtonToggle()
-        },
-        error: (error) => {
-            if (error.status === 400) {
-                handleInvalidWebLink(form, error.responseText)
-            } else {
-                handleInvalidWebLink(form, "Something went wrong. Try again later.");
-            }
-        }
-    })
 }
 
 
@@ -952,23 +1034,22 @@ $(document).on('click', '#linkUsersToEvidenceButton', function () {
 
 
 /**
- * Appends a new link to the list of added links in the Add Evidence form.
+ * Appends a new link to the list of added links in the Add Evidence form, if the form contents are valid.
  */
 function submitWebLink() {
-    let alias = $("#webLinkName")
-    let url = $("#webLinkUrl")
-    let addedWebLinks = $("#addedWebLinks")
-    let webLinkTitle = $("#webLinkTitle")
+    if (checkWeblinkAddressValidity() && checkWeblinkNameValidity()) {
+        const alias = $("#webLinkName")
+        const url = $("#webLinkUrl")
+        const addedWebLinks = $("#addedWebLinks")
+        const webLinkTitle = $("#webLinkTitle")
 
-    if (alias.val().length > 0) {
         webLinkTitle.show()
         addedWebLinks.append(deletableWeblinkElement(url.val(), alias.val()))
-        initialiseTooltips()
         url.val("")
         alias.val("")
         webLinksCount += 1
         checkWeblinkCount()
-        $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+        initialiseTooltips()
     }
 }
 
@@ -1061,74 +1142,83 @@ function disableEnableSaveButtonOnValidity() {
 
 
 /**
- * Checks that the name and description of a piece of evidence match the required regex.
+ * Checks that the name of a piece of evidence match the required regex.
+ * Adds appropriate error messages for invalid inputs - not matching regex or empty fields.
  */
-function checkTextInputRegex() {
-    let name = $("#evidenceName")
-    let description = $("#evidenceDescription")
-    let nameVal = name.val()
-    let descriptionVal = description.val()
+function checkNameValidity() {
+    const name = $("#evidenceName")
+    const nameVal = name.val()
+    const nameError = $("#evidenceNameFeedback")
+    const nameIsValid = GENERAL_UNICODE_REGEX.test(nameVal)
 
-    if (!regex.test(nameVal) || !regex.test(descriptionVal)) {
-        $("#evidenceSaveButton").prop("disabled", true)
-    }
-
-    if (!regex.test(nameVal) && nameVal.length > 0) {
-        name.addClass("invalid")
-    } else {
+    if (nameIsValid) {
         name.removeClass("invalid")
-    }
-
-    if (!regex.test(descriptionVal) && descriptionVal.length > 0) {
-        description.addClass("invalid")
-
+        nameError.hide()
     } else {
-        description.removeClass("invalid")
+        name.addClass("invalid")
+
+        if (nameVal.trim().length === 0) {
+            nameError.text("Name cannot be empty")
+        } else {
+            nameError.text("Name " + GENERAL_UNICODE_REQUIREMENTS)
+        }
+
+        nameError.show()
     }
 }
 
 
 /**
- * Calls the validity checking function on keyup of form inputs.
+ * Checks that the description of a piece of evidence match the required regex.
+ * Adds appropriate error messages for invalid inputs - not matching regex or empty fields.
  */
-$(document).on("keyup", ".text-input", function () {
-    disableEnableSaveButtonOnValidity()
-    checkTextInputRegex()
-})
+function checkDescriptionValidity() {
+    const description = $("#evidenceDescription")
+    const descriptionVal = description.val()
+    const descriptionError = $("#evidenceDescriptionFeedback")
+    const descriptionIsValid = GENERAL_UNICODE_REGEX.test(descriptionVal)
 
+    if (descriptionIsValid) {
+        description.removeClass("invalid")
+        descriptionError.hide()
+    } else {
+        description.addClass("invalid")
 
-/**
- * Calls the validity checking function on change of form inputs.
- * This is different from keyup as it checks when the date changes.
- */
-$(document).on("change", ".form-control", function () {
-    disableEnableSaveButtonOnValidity()
-    checkTextInputRegex()
-})
+        if (descriptionVal.trim().length === 0) {
+            descriptionError.text("Description cannot be empty")
+        } else {
+            descriptionError.text("Description " + GENERAL_UNICODE_REQUIREMENTS)
+        }
 
-
-/**
- * Pops up a confirmation message on the click of evidence deletion. If the confirmation is accepted,
- * then the delete request is sent. On a successful request the page is reloaded and an alert is made.
- */
-$(document).on("click", "#deleteEvidenceButton", function () {
-    const evidenceId = $("#evidenceDetailsId").text()
-    const evidenceName = $("#evidenceDetailsTitle").text()
-    if (window.confirm(`Are you sure you want to delete the evidence \n${evidenceName}`)) {
-        $.ajax({
-            url: `evidence?evidenceId=${evidenceId}`,
-            type: "DELETE",
-            success: () => {
-                selectedEvidenceId = null
-                getAndAddEvidencePreviews()
-                getSkills(addSkillsToSideBar)
-                createAlert("Successfully deleted evidence: " + sanitise(evidenceName), AlertTypes.Success)
-            }, error: (response) => {
-                createAlert(response.responseText, AlertTypes.Failure)
-            }
-        })
+        descriptionError.show()
     }
-})
+}
+
+
+/**
+ * Checks that the current date in the evidence modal date picker is within the project dates and not in the future.
+ * If the date is invalid, a relevant error message is displayed.
+ */
+function checkDateValidity() {
+    const date = $("#evidenceDate")
+    const proposedDate = Date.parse(date.val().toString())
+    const earliestDate = Date.parse(projectStartDate)
+    const latestDate = Date.parse(evidenceMaxDate)
+    const dateError = $("#evidenceDateFeedback")
+
+    if (proposedDate < earliestDate) {
+        dateError.text(`Date cannot be before project start.\n Please choose a date between ${projectStartFormatted} and ${projectEndFormatted}`)
+        dateError.show()
+    }
+    else if (proposedDate > latestDate) {
+        dateError.text(`Evidence date must be before the project end and not in the future.\n Please choose a date between ${projectStartFormatted} and ${projectEndFormatted}`)
+        dateError.show()
+    }
+    else {
+        dateError.text("")
+        dateError.hide()
+    }
+}
 
 
 /**
@@ -1184,24 +1274,6 @@ function getDataFromEvidenceForm() {
 
 
 /**
- * Updates the evidence page and resets the add evidence modal.
- *
- * @param response A server response containing data about the saved evidence, including its Id and skills.
- */
-function handleSuccessfulEvidenceSave(response) {
-    selectedEvidenceId = response.id
-    getAndAddEvidencePreviews()
-    getSkills(addSkillsToSideBar);
-    closeModal()
-    clearAddEvidenceModalValues()
-    $(".alert").remove()
-    createAlert("Created evidence", AlertTypes.Success)
-    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-    resetWeblink()
-}
-
-
-/**
  * Makes an endpoint request to save a new piece of evidence.
  *
  * @param data the data for the evidence being created.
@@ -1226,7 +1298,6 @@ function createEvidence(data) {
  * button has the text "Create".
  */
 function handleEvidenceSave() {
-    const skillsInput = $("#skillsInput")
     removeDuplicatesFromInput(skillsInput)
 
     const evidenceCreationForm = $("#evidenceCreationForm")[0]
