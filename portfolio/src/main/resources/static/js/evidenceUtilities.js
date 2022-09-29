@@ -367,7 +367,10 @@ function getSkills(callback = () => {
             skillsArray = []
             $.each(response, function (i) {
                 if (!skillsArray.includes(response[i].name)) {
-                    skillsArray.push(response[i].name)
+                    skillsArray.push({
+                        name: response[i].name,
+                        frequency: response[i].frequency
+                    })
                 }
             })
             callback()
@@ -380,19 +383,6 @@ function getSkills(callback = () => {
 
 
 // --------------------------- Functional HTML Components ------------------------------------
-
-
-/**
- *  A helper function to take a response from an ajax call and add it to the array of skills
- */
-function addSkillResponseToArray(response) {
-    let skills = []
-    for (let i in response.skills) {
-        skills.push(response.skills[i].name)
-    }
-    skillsArray = [...new Set(skillsArray.concat(skills))];
-}
-
 
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
@@ -458,10 +448,10 @@ function addSkillsToEvidence(skills) {
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     if (skills.length < 1) {
-        highlightedEvidenceSkills.append(createSkillChip("No Skill"))
+        highlightedEvidenceSkills.append(createSkillChip("No Skill", 0.5))
     } else {
         $.each(skills, function (i) {
-            highlightedEvidenceSkills.append(createSkillChip(skills[i].name))
+            highlightedEvidenceSkills.append(createSkillChip(skills[i].name, skills[i].frequency))
         })
     }
 }
@@ -514,7 +504,7 @@ function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     let skillsHTML = ``
     $.each(skills, function (i) {
-        skillsHTML += createSkillChip(skills[i].name)
+        skillsHTML += createSkillChip(skills[i].name, skills[i].frequency)
     })
     return skillsHTML
 }
@@ -781,9 +771,9 @@ function getLinkedUsers() {
  * If it is not in the array, this returns the input string.
  */
 function replaceWithStringFromSkillArray(string) {
-    for (let i in skillsArray) {
-        if (skillsArray[i].localeCompare(string, undefined, {sensitivity : 'accent'}) === 0) {
-            return skillsArray[i] // There exists a skill, so use that
+    for (let skill of skillsArray) {
+        if (skill.name.localeCompare(string, undefined, {sensitivity : 'accent'}) === 0) {
+            return skill.name // There exists a skill, so use that
         }
     }
     return string
@@ -832,8 +822,7 @@ $(document).on("click", "#evidenceSaveButton", function (e) {
 function handleSuccessfulEvidenceSave(response) {
     selectedEvidenceId = response.id
     getAndAddEvidencePreviews()
-    addSkillResponseToArray(response)
-    addSkillsToSideBar();
+    getSkills(addSkillsToSideBar)
     closeModal()
     clearAddEvidenceModalValues()
     $(".alert").remove()
@@ -1228,20 +1217,6 @@ function checkDateValidity() {
         dateError.text("")
         dateError.hide()
     }
-}
-
-
-/**
- * Creates HTMl for a skill chip with the given skill name.
- *
- * @param skillName The name to be displayed in the skill chip.
- * @returns {string} The string of HTMl representing the skill chip.
- */
-function createSkillChip(skillName) {
-    return `
-        <div class="chip skillChip">
-            <p class="chipText">${sanitise(skillName)}</p>
-        </div>`
 }
 
 

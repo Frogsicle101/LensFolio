@@ -62,7 +62,10 @@ public class SkillFrequencyService {
      */
     public void updateAllSkillFrequenciesForUser(Integer userId) {
         skillRepository.findDistinctByEvidenceUserId(userId).forEach((
-                skill -> skill.setFrequency(getSkillFrequency(skill, userId))
+                skill -> {
+                    skill.setFrequency(getSkillFrequency(skill, userId));
+                    skillRepository.save(skill);
+                }
         ));
     }
 
