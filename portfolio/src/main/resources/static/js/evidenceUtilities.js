@@ -822,8 +822,7 @@ $(document).on("click", "#evidenceSaveButton", function (e) {
 function handleSuccessfulEvidenceSave(response) {
     selectedEvidenceId = response.id
     getAndAddEvidencePreviews()
-    addSkillResponseToArray(response)
-    addSkillsToSideBar();
+    getSkills(addSkillsToSideBar)
     closeModal()
     clearAddEvidenceModalValues()
     $(".alert").remove()
