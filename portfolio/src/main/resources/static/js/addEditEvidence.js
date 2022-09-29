@@ -28,7 +28,7 @@ function addUniqueSkill(skillName) {
  * Creates error messages and adds error classes as required.
  *
  * @param inputValue The skill name to be checked
- * @param showMessage Boolean value representing whether a message will be shown on fail
+ * @param showMessage Boolean value representing whether a message should be shown on fail
  * @returns {boolean} True if the skill is valid, false otherwise
  */
 function validateSkillInput(inputValue, showMessage) {
