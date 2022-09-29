@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,11 +20,11 @@ public interface EvidenceRepository extends CrudRepository<Evidence, Integer> {
 
     /** Returns an arrayList of all the evidence for a user in order by date descending */
     @Query
-    ArrayList<Evidence> findAllByUserIdOrderByOccurrenceDateDesc(int id);
+    List<Evidence> findAllByUserIdOrderByOccurrenceDateDesc(int id);
 
     /** Returns an arrayList that contains all the evidence of a user of a certain category. */
     @Query
-    ArrayList<Evidence> findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(int id, Category category);
+    List<Evidence> findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(int id, Category category);
 
     /** Returns an arrayList that contains all the evidence of a user with no skills. */
     @Query
