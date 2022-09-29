@@ -700,7 +700,7 @@ function getLinkedUsers() {
 
     $.each(linkedUsers, function (i, user) {
         try {
-            let userId = parseInt(user.id.replace("linkedUserId", ""));
+            let userId = parseInt(user.id.replace("linkedUserId", ""), 10);
             userIds.push(userId)
         } catch (error) {
             createAlert("Oops! there was an error with one or more of the linked users", AlertTypes.Failure)
