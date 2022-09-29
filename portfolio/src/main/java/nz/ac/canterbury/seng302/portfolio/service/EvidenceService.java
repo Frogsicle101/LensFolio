@@ -17,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -322,22 +320,13 @@ public class EvidenceService {
      * @param webLinks The list of weblinks to add, in their raw DTO form
      * @throws MalformedURLException if a weblink has an invalid URL
      */
-    private void addWeblinks(Evidence evidence, List<WebLinkDTO> webLinks) throws MalformedURLException {
-        for (WebLinkDTO dto : webLinks) {
-            URL weblinkURL = new URL(dto.getUrl());
-            if (dto.getUrl().contains("&nbsp")) {
-                evidenceRepository.delete(evidence);
-                throw new MalformedURLException("The non-breaking space is not a valid character");
-            }
-            try {
-                weblinkURL.toURI(); // The toURI covers cases that the URL constructor does not, so we use both
-            } catch (URISyntaxException e) {
-                evidenceRepository.delete(evidence);
-                throw new CheckException("The URL for the weblink " + dto.getName() + " is not correctly formatted.");
-            }
+    private void addWeblinks(Evidence evidence, List<WebLinkDTO> webLinks) throws CheckException {
+        for (WebLinkDTO webLinkDTO : webLinks) {
             // This requires the evidence object to be saved, since it needs to refer to it
-            WebLink webLink = new WebLink(evidence, dto.getName(), weblinkURL);
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, webLinkDTO.getName(), 1, WebLink.MAXNAMELENGTH, "Weblink name");
+            regexService.checkInput(RegexPattern.WEBLINK, webLinkDTO.getUrl(), 1, WebLink.MAXURLLENGTH, "Weblink url");
+
+            WebLink webLink = new WebLink(evidence, webLinkDTO);
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
             evidenceRepository.save(evidence);

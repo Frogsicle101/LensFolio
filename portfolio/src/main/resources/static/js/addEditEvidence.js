@@ -30,38 +30,36 @@ function addUniqueSkill(skillName) {
  * Checks that a skill name is between 1 and 30 characters (inclusive), and is not a reserved skill.
  * Creates error messages and adds error classes as required.
  *
- * @param inputValue The skill name ot be checked
- * @param showAlert Boolean value representing whether an alert will be shown on fail
+ * @param inputValue The skill name to be checked
+ * @param showMessage Boolean value representing whether a message should be shown on fail
  * @returns {boolean} True if the skill is valid, false otherwise
  */
-function validateSkillInput(inputValue, showAlert) {
+function validateSkillInput(inputValue, showMessage) {
+    const evidenceSkillFeedback = $("#evidenceSkillFeedback")
+    let isValid = true
+    let errorMessage = ""
+
     if (inputValue.length > 30) {
-        if (showAlert) {
-            skillsInput.addClass("skillChipInvalid")
-            createAlert("Maximum skill length is 30 characters", AlertTypes.Failure)
-        }
-        return false
+        errorMessage = "Skill names cannot be longer than 30 characters."
+        isValid = false
+    } else if (! GENERAL_UNICODE_REGEX.test(inputValue)) {
+        errorMessage =`Invalid character in skill name. \nSkill names${GENERAL_UNICODE_REQUIREMENTS}`
+        isValid = false
+    } else if (RESERVED_SKILL_TAGS.includes(inputValue.toLowerCase())) {
+        errorMessage = "This is a reserved tag and cannot be manually created."
+        isValid = false
+    } else if (inputValue.trim().length === 0) {
+        return false // does not style the div as there is no text to style
+    } else if (inputValue.length > 0 && !skillRegex.test(inputValue)) { // TODO check this is used over gen unicode
+        errorMessage = "Skill name must contain at least one letter."
+        isValid = false
     }
-    if (inputValue.length > 0 && !skillRegex.test(inputValue)) {
-        if (showAlert) {
-            skillsInput.addClass("skillChipInvalid")
-            createAlert("Skill name must contain at least one letter.", AlertTypes.Failure)
-        }
-        return false
-    }
-    if (inputValue.trim().length === 0) {
-        return false
-    }
-    if (RESERVED_SKILL_TAGS.includes(inputValue.toLowerCase())) {
-        if (showAlert) {
-            skillsInput.addClass("skillChipInvalid")
-            createAlert("This is a reserved tag and cannot be manually created", AlertTypes.Failure)
-        }
-        return false
-    }
-    skillsInput.removeClass("skillChipInvalid")
-    removeAlert()
-    return true
+
+    (!isValid ? skillsInput.addClass("skillChipInvalid") :
+        skillsInput.removeClass("skillChipInvalid"))
+
+    updateErrorMessage(evidenceSkillFeedback, errorMessage)
+    return isValid
 }
 
 
@@ -97,7 +95,9 @@ function updateSkillsInput() {
 function handleSkillInputKeypress(event) {
     const inputValue = skillsInput.val().trim()
     const isValidSkillName = validateSkillInput(inputValue, true)
+    const evidenceSkillFeedback = $("#evidenceSkillFeedback")
     let needsUpdate = false
+
     if (event.key === "Backspace" && oldInput.length === 0 && skillsToCreate.length > 0) {
         skillsToCreate.pop()
         needsUpdate = true
@@ -107,8 +107,10 @@ function handleSkillInputKeypress(event) {
         if (isValidSkillName) {
             needsUpdate = addUniqueSkill(inputValue)
         }
+
         skillsInput.removeClass("skillChipInvalid")
         skillsInput.val("")
+        updateErrorMessage(evidenceSkillFeedback, "")
     }
     oldInput = inputValue
     if (needsUpdate) {
@@ -125,7 +127,10 @@ function handleSkillInputKeypress(event) {
  */
 function handleSkillInputPaste() {
     const inputValues = skillsInput.val().trim().split(/\s+/)
+    const evidenceSkillFeedback = $("#evidenceSkillFeedback")
+    const existingSkillFeedback = evidenceSkillFeedback.text()
     const invalidSkillNames = new Set()
+    let errorMessage = ""
 
     inputValues.forEach(skillName => {
         if (validateSkillInput(skillName, false)) {
@@ -137,17 +142,20 @@ function handleSkillInputPaste() {
 
     updateSkillsInput()
     skillsInput.val("")
+
     if (invalidSkillNames.size > 0) {
         if (invalidSkillNames.size < 5) {
             let skillNamesString = []
             invalidSkillNames.forEach( (el) => {
                 skillNamesString.push("\n" + el)
             })
-            createAlert("Invalid skill(s) not added: " + skillNamesString, AlertTypes.Failure)
+            errorMessage = `${existingSkillFeedback} \nInvalid skill(s) not added: ${skillNamesString}`
         } else {
-            createAlert("Discarded " + invalidSkillNames.size + " invalid skills", AlertTypes.Failure)
+            errorMessage = `${existingSkillFeedback} \nDiscarded ${invalidSkillNames.size} invalid skills`
         }
     }
+
+    updateErrorMessage(evidenceSkillFeedback, errorMessage)
 }
 
 
@@ -160,7 +168,6 @@ function removeDuplicatesFromInput(input) {
     let newArray = []
 
     inputArray.forEach(function (element) {
-
         if (skillRegex.test(element)) {
             while (element.slice(-1) === "_") {
                 element = element.slice(0, -1)
@@ -321,6 +328,7 @@ $("#linkUsersInput")
 
 
 // --------------------------------------------------- Event listeners -------------------------------------------------
+
 
 /**
  * Toggles category button appearance on the evidence creation form.

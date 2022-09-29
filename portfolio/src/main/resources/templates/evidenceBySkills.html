@@ -64,6 +64,7 @@
         </div>
     </div>
     <div id="addOrEditEvidenceModal">
+        <div th:insert="fragments/general.html :: unicode"></div>
         <div class="modalContent">
             <div class="modalHeader">
                 <h5 class="modal-title" id="addOrEditEvidenceTitle">Add Evidence</h5>
@@ -79,6 +80,7 @@
                                placeholder="Name"
                                required
                                type="text">
+                        <div class="invalid-feedback" id="evidenceNameFeedback"></div>
                         <small class="form-text form-text-counted text-muted countCharName">0 characters
                             remaining</small>
                     </div>
@@ -97,6 +99,7 @@
                                th:max="${evidenceMaxDate}"
                                required
                                type="date">
+                        <div class="invalid-feedback" id="evidenceDateFeedback"></div>
                         <small class="form-text text-muted" id="projectDatesLabel" th:text="'Project dates: ' + ${project.getStartDateFormatted()} + ' - ' + ${project.getEndDateFormatted()}"></small>
                     </div>
                     <div class="form-group evidenceFormDescription">
@@ -109,6 +112,7 @@
                                   maxlength="500"
                                   minlength="5"
                                   required></textarea>
+                        <div class="invalid-feedback" id="evidenceDescriptionFeedback"></div>
                         <small class="form-text text-muted form-text-counted countCharDescription">0 characters remaining</small>
                     </div>
                     <div class="form-group evidenceFormSkills ui-widget">
@@ -121,6 +125,7 @@
                                    th:pattern="${skillRegex.getPatternString()}"
                                    th:title="${'Skills' + skillRegex.getRequirements()}"/>
                         </div>
+                        <div class="invalid-feedback" id="evidenceSkillFeedback"></div>
                     </div>
                     <div id="evidenceFormCategories" class="form-group">
                         <label class="col-form-label">Categories:</label>
@@ -174,6 +179,7 @@
                                                th:title="${'Weblinks' + webLinkRegex.getRequirements()}"
                                                th:maxlength="${webLinkMaxUrlLength}" required>
                                     </div>
+                                    <div class="invalid-feedback" id="evidenceWeblinkAddressFeedback"></div>
                                     <div class="form-group ">
                                         <input class="form-control"
                                                id="webLinkName"
@@ -181,6 +187,7 @@
                                                type="text"
                                                minlength="1" required>
                                     </div>
+                                    <div class="invalid-feedback" id="evidenceWeblinkNameFeedback"></div>
                                 </div>
                                 <button class="btn btn-secondary evidenceFormButton"
                                         id="addWeblinkButton"
@@ -235,7 +242,12 @@
 <script th:src="@{js/addEditEvidence.js}" type="application/javascript"></script>
 <script th:src="@{js/notifications.js}" type="application/javascript"></script>
 <script th:inline="javascript">
-    let todaysDate =/*[[${currentDate}]]*/
-    let weblinkRegex =/*[[${webLinkRegex}]]*/
+    const todaysDate =/*[[${currentDate}]]*/
+    const evidenceMaxDate =/*[[${evidenceMaxDate}]]*/
+    const projectStartDate =/*[[${projectStartDate}]]*/
+    const projectStartFormatted =/*[[${project.getStartDateFormatted()}]]*/
+    const projectEndFormatted = /*[[${project.getEndDateFormatted()}]]*/
+    const weblinkRegexPattern =[[${webLinkRegex.getPatternString()}]]
+    const weblinkRegexRequirements =[[${webLinkRegex.getRequirements()}]]
 </script>
 </html>

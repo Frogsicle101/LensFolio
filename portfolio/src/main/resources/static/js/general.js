@@ -333,7 +333,7 @@ function countCharacters() {
     let maxlength = $(this).attr("maxLength")
     let lengthOfCurrentInput = $(this).val().length;
     let counter = maxlength - lengthOfCurrentInput;
-    let helper = $(this).next(".form-text-counted"); //Gets the next div with a class that is form-text
+    let helper = $(this).siblings(".form-text-counted").first(); // Gets the next element with a class that is form-text
 
     //If one character remains, changes from "characters remaining" to "character remaining"
     if (counter !== 1) {
@@ -364,4 +364,21 @@ let regex = new RegExp("[\\p{L}\\p{Nd}\\p{P}]+", 'u')
  */
 function redirectToUsersHomePage(userId) {
     window.location.href = "evidence?userId=" + userId //redirect to the user's evidence page
+}
+
+
+/**
+ * Updates the display of a message in a div. If the message length is 0, the div is not displayed. Otherwise, the text
+ * is added and the div displayed.
+ *
+ * @param errorDiv The div that will have its text updated to the message's value
+ * @param message The value to set the div's text attribute.
+ */
+function updateErrorMessage(errorDiv, message) {
+    errorDiv.text(message)
+    if (message.length === 0) {
+        errorDiv.hide()
+    } else {
+        errorDiv.show()
+    }
 }

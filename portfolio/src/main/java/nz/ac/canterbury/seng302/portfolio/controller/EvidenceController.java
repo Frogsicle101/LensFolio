@@ -13,6 +13,8 @@ import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.*;
+import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
+import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
@@ -122,6 +124,7 @@ public class EvidenceController {
         modelAndView.addObject("webLinkMaxNameLength", WebLink.MAXNAMELENGTH);
         modelAndView.addObject(project);
         modelAndView.addObject("webLinkRegex", RegexPattern.WEBLINK);
+        modelAndView.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
         modelAndView.addObject("skillRegex", RegexPattern.SKILL);
 
         if (projectEndDate.isBefore(currentDate)) {
@@ -303,7 +306,6 @@ public class EvidenceController {
                     evidenceDTO.getId(), err.getMessage());
             return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
 
@@ -346,50 +348,6 @@ public class EvidenceController {
         } catch (Exception exception) {
             logger.error(methodLoggingTemplate, exception.getMessage());
             return new ResponseEntity<>("An unexpected error has occurred", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    /**
-     * Checks if the provided web address is valid, i.e. could lead to a website.
-     * The criteria are specified in the WeblinkRegex class.
-     *
-     * @param request the full address and name to be validated
-     * @return A response entity with the required response code. If it is valid, the status will be OK.
-     * No response body will be returned in any instance.
-     * @see WeblinkRegex
-     */
-    @PostMapping("/validateWebLink")
-    @ResponseBody
-    public ResponseEntity<Object> validateWebLink(@RequestBody WebLinkDTO request) {
-        String address = request.getUrl();
-        logger.info("GET REQUEST /validateWebLink - validating address {}", address);
-        try {
-            if (address.contains("&nbsp")) {
-                throw new MalformedURLException("The non-breaking space is not a valid character");
-            }
-            if (request.getName().length() < 1) {
-                throw new CheckException("Link name should be at least 1 character");
-            }
-            if (request.getName().length() > WebLink.MAXNAMELENGTH) {
-                throw new CheckException("Link name should be no more than " + WebLink.MAXNAMELENGTH + " characters in length");
-            }
-            regexService.checkInput(RegexPattern.WEBLINK, request.getUrl(), 1, WebLink.MAXURLLENGTH, "Weblink");
-
-            return new ResponseEntity<>(HttpStatus.OK);
-
-        } catch (CheckException exception) {
-            logger.warn("/validateWebLink - Invalid address: {}", address);
-            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (MalformedURLException exception) {
-            logger.warn("/validateWebLink - Invalid address: {}", address);
-            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/", HttpStatus.BAD_REQUEST);
-        } catch (Exception exception) {
-            logger.warn(exception.getClass().getName());
-            logger.warn(exception.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
