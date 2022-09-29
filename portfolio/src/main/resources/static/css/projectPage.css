@@ -181,8 +181,8 @@ section{
     will-change: transform;
 }
 
-.sprintDescription {
-    overflow-x: auto;
+#sprintDescription {
+    word-wrap: break-word;
 }
 
 .sprint h6 {

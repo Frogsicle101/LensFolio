@@ -151,6 +151,7 @@ section{
     width: 700px;
 }
 .projectColLeft, .projectColRight{
+    width : 50%;
     height: 90vh;
     display: flex;
     flex-direction: column;
