@@ -7,13 +7,14 @@ let oldInput = ""
 
 /**
  * Adds a string to the skillsToCreate list if it is not present.
+ * If there's a case-insensitive alternative in the skills array, use that instead.
  *
  * @param skillName Name of skill to be added
  * @returns {boolean} True if the skill was added, false otherwise
  */
 function addUniqueSkill(skillName) {
-    if (! skillsToCreate.includes(skillName)) {
-        let skillNameFormatted = skillName.replaceAll("_", " ")
+    let skillNameFormatted = replaceWithStringFromSkillArray(skillName.replaceAll("_", " "))
+    if (! skillsToCreate.includes(skillNameFormatted)) {
         if (skillNameFormatted.trim().length > 0) {
             skillsToCreate.push(skillNameFormatted)
             return true
