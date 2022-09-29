@@ -54,6 +54,9 @@ public class EvidenceService {
     /** For validating inputs against the central regex. */
     private final RegexService regexService;
 
+    /** For all services related to skill frequency */
+    private final SkillFrequencyService skillFrequencyService;
+
 
     /**
      * Autowired constructor for injecting the required dependencies.
@@ -72,7 +75,8 @@ public class EvidenceService {
             EvidenceRepository evidenceRepository,
             WebLinkRepository webLinkRepository,
             SkillRepository skillRepository,
-            RegexService regexService
+            RegexService regexService,
+            SkillFrequencyService skillFrequencyService
     ) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
@@ -80,6 +84,7 @@ public class EvidenceService {
         this.webLinkRepository = webLinkRepository;
         this.skillRepository = skillRepository;
         this.regexService = regexService;
+        this.skillFrequencyService = skillFrequencyService;
     }
 
 
@@ -293,6 +298,9 @@ public class EvidenceService {
             }
             evidence.addSkill(theSkill);
         }
+        skillRepository.findDistinctByEvidenceUserId(evidence.getUserId()).forEach((
+                skill -> skill.setFrequency(skillFrequencyService.getSkillFrequency(skill, evidence.getUserId()))
+        ));
         evidenceRepository.save(evidence);
     }
 

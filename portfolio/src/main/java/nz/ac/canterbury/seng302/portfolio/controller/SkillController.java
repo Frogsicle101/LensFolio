@@ -39,7 +39,6 @@ public class SkillController {
     /** For checking is a user exists and getting their details. */
     private final UserAccountsClientService userAccountsClientService;
 
-    private final SkillFrequencyService skillFrequencyService;
 
 
     /**
@@ -57,7 +56,6 @@ public class SkillController {
         this.skillRepository = skillRepository;
         this.evidenceRepository = evidenceRepository;
         this.userAccountsClientService = userAccountsClientService;
-        this.skillFrequencyService = skillFrequencyService;
     }
 
 
@@ -80,7 +78,6 @@ public class SkillController {
                     return new ResponseEntity<>("User does not exist", HttpStatus.NOT_FOUND);
                 }
             }
-            skills.forEach((skill -> skill.setFrequency(skillFrequencyService.getSkillFrequency(skill, userId))));
             logger.info("GET REQUEST /skills - found and returned {} skills for user: {}", skills.size() ,userId);
             return new ResponseEntity<>(skills, HttpStatus.OK);
 
