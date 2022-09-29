@@ -53,8 +53,15 @@ describe('Skill creation', () => {
     })
 
     it("Should allow special characters", () => {
-        cy.get("#skillsInput").type("C# (a) [-=]_;:'/?.><,*&^%$~`@! ")
-        cy.get("#tagInputChips").find(".skillChip").should("have.length", 3)
+        cy.get("#skillsInput").type("C# a@! ")
+        cy.get("#tagInputChips").find(".skillChip").should("have.length", 2)
+    })
+
+    it("Should not allow only special characters", () => {
+        cy.get("#skillsInput").type("@ ")
+        cy.contains("Skill name must contain at least one letter.").should('be.visible')
+        cy.get("#skillsInput").type("@%& ")
+        cy.contains("Skill name must contain at least one letter.").should('be.visible')
     })
 
     it("Should display red and how error message for skill length > 30", () => {

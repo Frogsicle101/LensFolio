@@ -5,6 +5,7 @@ const skillsInput = $("#skillsInput")
 let oldInput = ""
 
 
+
 /**
  * Adds a string to the skillsToCreate list if it is not present.
  * If there's a case-insensitive alternative in the skills array, use that instead.
@@ -42,6 +43,13 @@ function validateSkillInput(inputValue, showAlert) {
         }
         return false
     }
+    if (inputValue.length > 0 && !skillRegex.test(inputValue)) {
+        if (showAlert) {
+            skillsInput.addClass("skillChipInvalid")
+            createAlert("Skill name must contain at least one letter.", AlertTypes.Failure)
+        }
+        return false
+    }
     if (inputValue.trim().length === 0) {
         return false
     }
@@ -71,7 +79,9 @@ function updateSkillsInput() {
     chipDisplay.empty()
     skillsToCreate.forEach(function (element) {
         element = element.replaceAll("_", " ");
-        chipDisplay.append(createDeletableSkillChip(element))
+        if (skillRegex.test(element)) {
+            chipDisplay.append(createDeletableSkillChip(element))
+        }
     })
     oldInput = ""
 }
@@ -89,7 +99,6 @@ function handleSkillInputKeypress(event) {
     const inputValue = skillsInput.val().trim()
     const isValidSkillName = validateSkillInput(inputValue, true)
     let needsUpdate = false
-
     if (event.key === "Backspace" && oldInput.length === 0 && skillsToCreate.length > 0) {
         skillsToCreate.pop()
         needsUpdate = true
@@ -129,7 +138,6 @@ function handleSkillInputPaste() {
 
     updateSkillsInput()
     skillsInput.val("")
-    console.log(invalidSkillNames.size)
     if (invalidSkillNames.size > 0) {
         if (invalidSkillNames.size < 5) {
             let skillNamesString = []
@@ -145,21 +153,6 @@ function handleSkillInputPaste() {
 
 
 /**
- * Removes the selected skill from the skills input and from the list of skills to be saved.
- *
- * @param event The click event on the skill delete button.
- */
-function handleChipDelete(event) {
-    event.stopPropagation()
-    const skillName = $(this).siblings(".chipText").text()
-    skillsToCreate = skillsToCreate.filter(addedSkill => addedSkill !== skillName)
-
-    updateSkillsInput()
-}
-
-
-
-/**
  * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
  * exist in it, it checks for case insensitivity as well.
  *
@@ -170,7 +163,8 @@ function removeDuplicatesFromInput(input) {
     let newArray = []
 
     inputArray.forEach(function (element) {
-        if (regexSkills.test(element)) {
+
+        if (skillRegex.test(element)) {
             while (element.slice(-1) === "_") {
                 element = element.slice(0, -1)
             }
@@ -181,7 +175,7 @@ function removeDuplicatesFromInput(input) {
                 .replace(/\s+/g, ' ')
                 .trim()
                 .replaceAll(" ", "_")
-            if (element.match(emojiRegx)) {
+            if (element.match(emojiRegex)) {
                 createAlert("Emojis not allowed in Skill name", AlertTypes.Failure)
             }
             if (element.length > 30) { //Shortens down the elements to 30 characters
@@ -205,6 +199,20 @@ function removeDuplicatesFromInput(input) {
     })
 
     input.val(newArray.join(" "))
+}
+
+
+/**
+ * Removes the selected skill from the skills input and from the list of skills to be saved.
+ *
+ * @param event The click event on the skill delete button.
+ */
+function handleChipDelete(event) {
+    event.stopPropagation()
+    const skillName = $(this).siblings(".chipText").text()
+    skillsToCreate = skillsToCreate.filter(addedSkill => addedSkill !== skillName)
+
+    updateSkillsInput()
 }
 
 
