@@ -1236,7 +1236,7 @@ function handleEvidenceSave() {
         if (buttonName === "Create") { // create a new evidence
             createEvidence(evidenceData)
 
-        } else { // edit a exist evidence
+        } else { // edit an existing piece of evidence
             editEvidence(evidenceData)
         }
     }

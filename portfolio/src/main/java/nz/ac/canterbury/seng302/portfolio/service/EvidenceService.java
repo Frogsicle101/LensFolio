@@ -289,25 +289,25 @@ public class EvidenceService {
                 evidenceRepository.delete(evidence);
                 throw new CheckException(e.getMessage());
             }
-            Skill theSkill;
+            Skill savedSkill;
             if (skillInfo.getId() == null){
                 if (skillInfo.getName().equalsIgnoreCase("No Skill")) {
                     continue;
                 }
                 Skill createSkill = new Skill(skillInfo.getName());
-                theSkill = skillRepository.save(createSkill);
+                savedSkill = skillRepository.save(createSkill);
             } else {
                 Optional<Skill> optionalSkill = skillRepository.findById(skillInfo.getId());
                 if (optionalSkill.isPresent()) {
-                    theSkill = optionalSkill.get();
-                    theSkill.setName(skillInfo.getName());
-                    skillRepository.save(theSkill);
+                    savedSkill = optionalSkill.get();
+                    savedSkill.setName(skillInfo.getName());
+                    skillRepository.save(savedSkill);
                 } else {
                     throw new CheckException("Invalid Skill Id");
                 }
 
             }
-            evidence.addSkill(theSkill);
+            evidence.addSkill(savedSkill);
         }
         evidenceRepository.save(evidence);
     }
