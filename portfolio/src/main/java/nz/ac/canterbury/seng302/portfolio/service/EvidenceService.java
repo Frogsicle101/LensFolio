@@ -282,6 +282,7 @@ public class EvidenceService {
      */
     public void addSkills(Evidence evidence, List<Skill> skills) {
         for(Skill skillInfo: skills){
+            logger.warn("Adding skill {} with id {} to evidence {}", skillInfo.getName(), skillInfo.getId(), evidence.getId());
             try {
                 regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillInfo.getName(), 1, 30, "Skill name");
             } catch (CheckException e) {

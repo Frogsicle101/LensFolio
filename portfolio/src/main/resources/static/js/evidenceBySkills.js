@@ -110,7 +110,7 @@ function updateSelectedEvidence() {
  *    2. Add the selected class to the clicked div, and assign it as selected
  *    3. Populate the display with the selected evidence details.
  */
-$(document).on("click", ".chip" , function (event) {
+$(document).on("click", ".sortableChip" , function (event) {
     $(".selected").removeClass("selected")
 
     let clicked = $(this)
@@ -123,8 +123,21 @@ $(document).on("click", ".chip" , function (event) {
     } else {
         showEvidenceWithCategory()
     }
-    event.stopPropagation() //prevent evidence below chip from being selected
+    event.stopPropagation()
 })
+
+
+function setChipToEditMode(chip) {
+    originalSkillName = chip.find(".chipText").text()
+    chip.find(".chipText").attr("contenteditable", true)
+    chip.find(".noDisplayInput").focus()
+}
+
+$(document).on("click", ".editableChip", function() {
+    setChipToEditMode($(this))
+})
+
+
 
 
 $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
@@ -335,4 +348,17 @@ function handleEvidenceEdit() {
  *  A Listener for the edit evidence button. This displays the modal and prevents the page below from scrolling
  */
 $(document).on("click", "#editEvidenceButton" , handleEvidenceEdit)
+
+
+$(document).on("focusout", ".chipText", function () {
+    const theElement = $(this)
+    const skillChip = theElement.parent()
+    skillChip.attr("contenteditable", false)
+    const skillName = theElement.text()
+    // ValidateTheThing
+    // if validate the thing:
+        updateSkillInSkillsToCreate(skillName)
+    updateSkillsInput(false)
+    originalSkillName = null
+})
 

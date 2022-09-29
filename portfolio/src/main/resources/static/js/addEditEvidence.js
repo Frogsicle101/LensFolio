@@ -3,6 +3,7 @@
 let skillsToCreate = new Map()
 const skillsInput = $("#skillsInput")
 let oldInput = ""
+let originalSkillName;
 
 
 /**
@@ -21,6 +22,17 @@ function addUniqueSkill(skillName) {
         }
     }
     return false
+}
+
+
+/**
+ * Updates an existing skill in the skills to create, and replaces it with the new name
+ */
+function updateSkillInSkillsToCreate(newSkillName) {
+    const originalId = skillsToCreate.get(originalSkillName)
+    skillsToCreate.delete(originalSkillName)
+    skillsToCreate.set(newSkillName, originalId)
+    console.log(originalId)
 }
 
 
@@ -67,16 +79,18 @@ function validateSkillInput(inputValue, showAlert) {
  * Adds skill chips to the skill input.
  * Underscores are replaced with spaces.
  * Clears existing input.
+ *
+ * @param shouldClear true by default, defines if the input should be cleared on call.
  */
-function updateSkillsInput() {
+function updateSkillsInput(shouldClear = true) {
     skillsInput.val("")
     let chipDisplay = $("#tagInputChips")
     $('[data-toggle="tooltip"]').tooltip("hide")
 
     chipDisplay.empty()
-    skillsToCreate.forEach(function (element) {
-        element = element.replaceAll("_", " ");
-        if (skillRegex.test(element)) {
+    skillsToCreate.forEach(function (value, key) {
+        key = key.replaceAll("_", " ");
+        if (skillRegex.test(key)) {
             chipDisplay.append(createSkillChip(key, value, true))
         }
     })
