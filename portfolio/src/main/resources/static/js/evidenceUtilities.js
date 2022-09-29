@@ -721,14 +721,12 @@ function getLinkedUsers() {
  * If it is not in the array, this returns the input string.
  */
 function replaceWithStringFromSkillArray(string) {
-    let output = string
     for (let i in skillsArray) {
         if (skillsArray[i].localeCompare(string, undefined, {sensitivity : 'accent'}) === 0) {
-            output = skillsArray[i] // There exists a skill, so use that
-            break
+            return skillsArray[i] // There exists a skill, so use that
         }
     }
-    return output
+    return string
 }
 
 
