@@ -116,9 +116,8 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService, skillFrequencyService);
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
 
@@ -192,9 +191,10 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService, skillFrequencyService);
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
+        evidenceDTO.setTitle(title);
+
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
 
@@ -269,9 +269,10 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService, skillFrequencyService);
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
+        evidenceDTO.setDescription(description);
+
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
 
@@ -330,9 +331,8 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService, skillFrequencyService);
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date.toString(), description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
 
@@ -403,9 +403,8 @@ class EvidenceControllerTest {
         long projectId = 1;
         Project project = new Project("Testing");
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService, skillFrequencyService);
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(principal, evidenceDTO)).thenThrow(new RuntimeException());
 
