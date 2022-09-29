@@ -190,7 +190,7 @@ public class EvidenceService {
      * @return The last piece of evidence created.
      * @throws MalformedURLException when a weblink is invalid.
      */
-    public Evidence createEvidenceForUsers(EvidenceDTO evidenceDTO, List<Integer> userIds) throws MalformedURLException {
+    public Evidence createEvidenceForUsers(EvidenceDTO evidenceDTO, List<Integer> userIds) throws MalformedURLException, CheckException  {
         Evidence ownerEvidence = null;
         for (Integer ownersId : userIds) {
             checkAssociateId(ownersId);
@@ -211,7 +211,7 @@ public class EvidenceService {
      * @return the newly updated piece of evidence.
      * @throws MalformedURLException when the URL is not parse correctly.
      */
-    private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws MalformedURLException {
+    private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
         logger.info("Updating evidence details for evidence {}", originalEvidence.getId());
 
         originalEvidence.setTitle(evidenceDTO.getTitle());
@@ -280,8 +280,8 @@ public class EvidenceService {
      * @param evidence - The  piece of evidence
      * @param skills   - The list of the skills in string form
      */
-    public void addSkills(Evidence evidence, List<Skill> skills) {
-        for(Skill skillInfo: skills){
+    public void addSkills(Evidence evidence, List<Skill> skills) throws CheckException {
+        for (Skill skillInfo: skills) {
             try {
                 regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillInfo.getName(), 1, 30, "Skill name");
             } catch (CheckException e) {
@@ -290,7 +290,7 @@ public class EvidenceService {
                 throw new CheckException(e.getMessage());
             }
             Skill savedSkill;
-            if (skillInfo.getId() == null){
+            if (skillInfo.getId() == null) {
                 if (skillInfo.getName().equalsIgnoreCase("No Skill")) {
                     continue;
                 }
