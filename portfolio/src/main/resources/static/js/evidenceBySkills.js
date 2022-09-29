@@ -355,9 +355,10 @@ $(document).on("focusout", ".chipText", function () {
     const skillChip = theElement.parent()
     skillChip.attr("contenteditable", false)
     const skillName = theElement.text()
-    // ValidateTheThing
-    // if validate the thing:
+    if (validateSkillInput(skillName, true)) {
         updateSkillInSkillsToCreate(skillName)
+    }
+
     updateSkillsInput(false)
     originalSkillName = null
 })
