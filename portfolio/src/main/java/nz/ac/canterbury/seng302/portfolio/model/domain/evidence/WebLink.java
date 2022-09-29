@@ -37,7 +37,7 @@ public class WebLink {
      * @param webLinkDTO The DTO containing the weblink's alias, address, and security.
      * @throws MalformedURLException when the url string is not valid. This Weblink is not allowed to be created.
      */
-    public WebLink(Evidence evidence, WebLinkDTO webLinkDTO) throws MalformedURLException {
+    public WebLink(Evidence evidence, WebLinkDTO webLinkDTO) {
         this.alias = webLinkDTO.getName();
         this.evidence = evidence;
         this.url = webLinkDTO.getUrl();

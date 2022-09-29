@@ -849,7 +849,7 @@ function checkWeblinkAddressValidity() {
 
     const weblinkRegex = new RegExp(weblinkRegexPattern)
 
-    if (! weblinkRegex.test(webLinkUrl)) {
+    if (!weblinkRegex.test(webLinkUrl)) {
         updateErrorMessage(weblinkAddressErrorDiv, `Weblink address ${weblinkRegexRequirements}`)
         return false
     }
@@ -878,7 +878,7 @@ function checkWeblinkNameValidity() {
         return false
     }
 
-    if (! regex.test(webLinkName)) {
+    if (!regex.test(webLinkName)) {
         updateErrorMessage(weblinkNameErrorDiv, `Weblink name ${GENERAL_UNICODE_REQUIREMENTS}`)
         return false
     }

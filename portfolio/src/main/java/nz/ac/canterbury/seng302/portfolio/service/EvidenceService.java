@@ -313,7 +313,7 @@ public class EvidenceService {
      * @param webLinks The list of weblinks to add, in their raw DTO form
      * @throws MalformedURLException if a weblink has an invalid URL
      */
-    private void addWeblinks(Evidence evidence, List<WebLinkDTO> webLinks) throws CheckException, MalformedURLException {
+    private void addWeblinks(Evidence evidence, List<WebLinkDTO> webLinks) throws CheckException {
         for (WebLinkDTO webLinkDTO : webLinks) {
             // This requires the evidence object to be saved, since it needs to refer to it
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, webLinkDTO.getName(), 1, WebLink.MAXNAMELENGTH, "Weblink name");
