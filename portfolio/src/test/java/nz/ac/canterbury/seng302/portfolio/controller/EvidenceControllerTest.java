@@ -37,7 +37,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -738,80 +737,6 @@ class EvidenceControllerTest {
 
     // ----------------------------------- WebLink Tests ------------------------------------------
 
-
-    @Test
-    void TestGetSingleWebLinkValidId() throws Exception {
-        setUserToStudent();
-        setUpContext();
-        int evidenceId = 1;
-        Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLink testLink = new WebLink(evidence1, "test link", new URL("https://www.canterbury.ac.nz/"));
-        evidence1.addWebLink(testLink);
-        when(evidenceRepository.findById(any())).thenReturn(Optional.of(evidence1));
-
-        MvcResult result = mockMvc.perform(get("/evidencePieceWebLinks")
-                        .queryParam("evidenceId", String.valueOf(evidenceId)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String expectedResult = "[" + testLink.toJsonString() + "]";
-        String responseContent = result.getResponse().getContentAsString();
-        Assertions.assertEquals(expectedResult, responseContent);
-    }
-
-
-    @Test
-    void TestGetSingleWebLinkInvalidId() throws Exception {
-        setUserToStudent();
-        setUpContext();
-        int evidenceId = 1;
-        Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLink testLink = new WebLink(evidence1, "test link", new URL("https://www.canterbury.ac.nz/"));
-        evidence1.addWebLink(testLink);
-        when(evidenceRepository.findById(evidenceId)).thenReturn(Optional.of(evidence1));
-
-        mockMvc.perform(get("/evidencePieceWebLinks")
-                        .queryParam("evidenceId", "Invalid ID"))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @Test
-    void TestGetSingleWebLinkNoEvidence() throws Exception {
-        setUserToStudent();
-        setUpContext();
-
-        mockMvc.perform(get("/evidencePieceWebLinks")
-                        .queryParam("evidenceId", "1"))
-                .andExpect(status().isNotFound())
-                .andReturn();
-    }
-
-
-    @Test
-    void TestGetMultipleWebLinkValidId() throws Exception {
-        setUserToStudent();
-        setUpContext();
-        int evidenceId = 1;
-        Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLink testLink1 = new WebLink(evidence1, "test link 1", new URL("https://www.canterbury.ac.nz/"));
-        WebLink testLink2 = new WebLink(evidence1, "test link 2", new URL("https://www.canterbury.ac.nz/"));
-        WebLink testLink3 = new WebLink(evidence1, "test link 3", new URL("https://www.canterbury.ac.nz/"));
-        evidence1.addWebLink(testLink1);
-        evidence1.addWebLink(testLink2);
-        evidence1.addWebLink(testLink3);
-        when(evidenceRepository.findById(any())).thenReturn(Optional.of(evidence1));
-
-        MvcResult result = mockMvc.perform(get("/evidencePieceWebLinks")
-                        .queryParam("evidenceId", String.valueOf(evidenceId)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String responseContent = result.getResponse().getContentAsString();
-        Assertions.assertTrue(responseContent.contains(testLink1.toJsonString()));
-        Assertions.assertTrue(responseContent.contains(testLink2.toJsonString()));
-        Assertions.assertTrue(responseContent.contains(testLink3.toJsonString()));
-    }
 
     @Test
     void TestValidateWebLinkValid() throws Exception {
