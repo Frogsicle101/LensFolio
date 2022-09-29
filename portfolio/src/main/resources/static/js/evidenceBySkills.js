@@ -267,7 +267,7 @@ function setWeblinks(evidenceHighlight) {
     $("#webLinkTitle").show()
     const addedWebLinks = $("#addedWebLinks")
     for (let i = 0; i < webLinksList.length; i++) {
-        addedWebLinks.innerHTML += webLinksList[i].outerHTML;
+        addedWebLinks.append(webLinksList[i].outerHTML);
     }
     const deleteWebLinkButtons = $("#addOrEditEvidenceModal").find(".deleteWeblinkButton")
     deleteWebLinkButtons.each(function() {
