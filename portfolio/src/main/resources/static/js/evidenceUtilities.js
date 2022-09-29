@@ -282,8 +282,6 @@ function getAndAddEvidencePreviews() {
     $.ajax({
         url: "evidenceData?userId=" + userBeingViewedId,
         success: function (response, status, xhr) {
-            console.log("EU 290")
-            console.log(response)
             displayNameOrButton(xhr)
             addEvidencePreviews(response)
             updateSelectedEvidence();
@@ -1100,8 +1098,8 @@ function createSkillChip(skillName, skillId, deletable = false) {
         </svg>` : ""
 
     return `
-        <div class="chip skillChip" ${skillId !== undefined ? "data-id=" + skillId: ""}>
-            <p class="chipText">${sanitise(skillName)}</p>
+        <div class="chip skillChip ${deletable ? "editableChip" : "sortableChip"}" ${skillId !== undefined ? "data-id=" + skillId: ""}>
+            <span class="chipText noDisplayInput focus" role="textbox">${sanitise(skillName)}</span>
             ${deleteIcon}
         </div>`
 }
@@ -1122,7 +1120,7 @@ function createCategoryChip(categoryName, isMenuItem) {
             </div>`
     } else {
         return `
-            <div class="chip categoryChip">
+            <div class="chip categoryChip sortableChip">
                 <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
     }

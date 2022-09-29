@@ -15,9 +15,17 @@ let originalSkillName;
 function addUniqueSkill(skillName) {
     const lowercaseSkills = Array.from(skillsToCreate.keys(), skillNames => skillNames.toLowerCase())
     if (! lowercaseSkills.includes(skillName)) {
-        let skillNameFormatted = skillName.replaceAll("_", " ")
+        const skillNameFormatted = skillName.replaceAll("_", " ")
+        const skillId = skillsMap.get(skillNameFormatted)
+
+        $.each(skillsToCreate, (name, id) => {
+            if (id === skillId) {
+                skillsToCreate[name] = "undefined"
+            }
+        })
+
         if (skillNameFormatted.trim().length > 0) {
-            skillsToCreate.set(skillNameFormatted, skillsMap.get(skillNameFormatted))
+            skillsToCreate.set(skillNameFormatted, skillId)
             return true
         }
     }
@@ -26,13 +34,16 @@ function addUniqueSkill(skillName) {
 
 
 /**
- * Updates an existing skill in the skills to create, and replaces it with the new name
+ * Updates an existing skill in the skills to create, and replaces it with the new name.
  */
 function updateSkillInSkillsToCreate(newSkillName) {
     const originalId = skillsToCreate.get(originalSkillName)
-    skillsToCreate.delete(originalSkillName)
-    skillsToCreate.set(newSkillName, originalId)
-    console.log(originalId)
+    if (typeof originalId != "undefined") {
+        addUniqueSkill(newSkillName)
+    } else {
+        skillsToCreate.delete(originalSkillName)
+        skillsToCreate.set(newSkillName, originalId)
+    }
 }
 
 
