@@ -2,10 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
@@ -14,6 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
+import nz.ac.canterbury.seng302.portfolio.service.SkillFrequencyService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -75,18 +73,33 @@ class EvidenceControllerTest {
     ProjectRepository projectRepository;
 
     @MockBean
+    SkillRepository skillRepository;
+
+    @MockBean
     EvidenceService evidenceService;
+
+    @MockBean
+    SkillFrequencyService skillFrequencyService;
 
     @Autowired
     private RegexService regexService;
 
     private EvidenceDTO evidenceDTO;
 
+    private EvidenceController evidenceController;
+
+
 
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
         initialiseEvidenceDto();
+        evidenceController = new EvidenceController(userAccountsClientService,
+                projectRepository,
+                evidenceRepository,
+                evidenceService,
+                regexService,
+                skillFrequencyService);
     }
 
 
@@ -101,7 +114,6 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService);
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
 
@@ -319,8 +331,6 @@ class EvidenceControllerTest {
         setUpContext();
         long projectId = 1;
         Project project = new Project("Testing");
-
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService);
 
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(principal, evidenceDTO)).thenThrow(new RuntimeException());
