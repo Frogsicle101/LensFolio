@@ -40,7 +40,7 @@ function validateSkillInput(inputValue, showAlert) {
         }
         return false
     }
-    if (!skillRegex.test(inputValue)) {
+    if (inputValue.length > 0 && !skillRegex.test(inputValue)) {
         if (showAlert) {
             skillsInput.addClass("skillChipInvalid")
             createAlert("Skill name must contain at least one letter.", AlertTypes.Failure)
