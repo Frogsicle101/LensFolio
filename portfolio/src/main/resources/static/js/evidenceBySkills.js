@@ -259,20 +259,19 @@ function setSkills(evidenceHighlight) {
 /**
  * Hides the added weblinks title on the edit evidence modal.
  * Gets each weblink from the highlighted evidence and appends the weblink to the edit form.
- *
- * @param evidenceHighlight The highlighted evidence div containing the weblinks.
  */
-function setWeblinks(evidenceHighlight) {
-    const webLinksList = evidenceHighlight.find(".webLinkElement")
-    $("#webLinkTitle").show()
-    const addedWebLinks = $("#addedWebLinks")
-    for (let i = 0; i < webLinksList.length; i++) {
-        addedWebLinks.append(webLinksList[i].outerHTML);
+function setWeblinks() {
+    const webLinksList = $(".addedWebLink")
+    if (webLinksList.length > 0) {
+        $("#webLinkTitle").show()
+        $.each(webLinksList, function () {
+            const webName = $(this).text()
+            const webUrl = $(this).attr("href")
+            $("#addedWebLinks").append(deletableWeblinkElement(webUrl, webName))
+        })
+    } else {
+        $("#webLinkTitle").hide()
     }
-    const deleteWebLinkButtons = $("#addOrEditEvidenceModal").find(".deleteWeblinkButton")
-    deleteWebLinkButtons.each(function() {
-        $(this).show()
-    })
 }
 
 
