@@ -1,12 +1,9 @@
 let thisUserIsEditing = false;
 
 $(() => {
-    let formControl = $(".form-control");
-
     removeElementIfNotAuthorized()
 
-    formControl.each(countCharacters)
-    formControl.on("keyup", countCharacters) // Runs when key is pressed (well released) on form-control elements.
+    startCharacterCounting("form-control");
 })
 
 
@@ -750,9 +747,7 @@ function appendEventForm(element) {
         }
     });
 
-    let formControl = $(".form-control")
-    formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    startCharacterCounting("form-control");
     $("#editEventForm").slideDown();
 }
 
@@ -803,9 +798,7 @@ function appendMilestoneForm(element) {
             this.setAttribute("selected", "selected")
         }
     });
-    let formControl = $(".form-control")
-    formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    startCharacterCounting("form-control");
     $("#milestoneEditForm").slideDown();
 }
 
@@ -855,9 +848,7 @@ function appendDeadlineForm(element) {
             this.setAttribute("selected", "selected")
         }
     });
-    let formControl = $(".form-control")
-    formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    startCharacterCounting("formControl");
     $("#editDeadlineForm").slideDown();
 }
 

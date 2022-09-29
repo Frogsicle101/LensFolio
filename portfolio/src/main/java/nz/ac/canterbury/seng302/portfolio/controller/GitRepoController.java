@@ -64,8 +64,9 @@ public class GitRepoController {
         try {
             if (alias.isBlank()) {
                 throw new CheckException("The repository name cannot be empty");
-            }
-            if (!accessToken.matches(RegexPattern.GITLAB_TOKEN.getPatternString())) {
+            } else if (alias.length() > 100) {
+                throw new CheckException("The repository name must be no longer than 100 characters");
+            } else if (!accessToken.matches(RegexPattern.GITLAB_TOKEN.getPatternString())) {
                 throw new CheckException("Access token" + RegexPattern.GITLAB_TOKEN.getRequirements());
             }
 
@@ -78,8 +79,8 @@ public class GitRepoController {
         } catch (CheckException exception) {
             logger.error("ERROR /gitRepo/add - an error occurred while adding git repo {} to group {}", alias, groupId);
             logger.error(exception.getMessage());
-            return new ResponseEntity<>("Unable to edit the repository information. \n" +
-                    "Check the new information is valid", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Unable to edit the repository information. \n" + exception.getMessage(),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
