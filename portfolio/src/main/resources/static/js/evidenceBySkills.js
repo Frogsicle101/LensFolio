@@ -326,6 +326,7 @@ function handleEvidenceEdit() {
     const editModal = $("#addOrEditEvidenceModal")
     editModal.attr("data-id", parseInt($("#evidenceDetailsId").text(), 10))
     editModal.show()
+    startCharacterCounting("form-control")
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 }

@@ -86,7 +86,7 @@ function showHighlightedEvidenceDetails() {
  *
  * @param response The response from the backend, which contains the web links for a piece of evidence.
  */
-function addWeblinksToEvidence(response) {
+function addWeblinksToDisplayedEvidence(response) {
     let webLinksDiv = $("#evidenceWebLinks")
     webLinksDiv.empty()
 
@@ -282,8 +282,6 @@ function getAndAddEvidencePreviews() {
     $.ajax({
         url: "evidenceData?userId=" + userBeingViewedId,
         success: function (response, status, xhr) {
-            console.log("EU 290")
-            console.log(response)
             displayNameOrButton(xhr)
             addEvidencePreviews(response)
             updateSelectedEvidence();
@@ -390,7 +388,7 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
-    addWeblinksToEvidence(evidenceDetails.webLinks)
+    addWeblinksToDisplayedEvidence(evidenceDetails.webLinks)
     addLinkedUsersToEvidence(evidenceDetails.associates)
     addSkillsToEvidence(evidenceDetails.skills)
 
@@ -1173,7 +1171,6 @@ function handleSuccessfulEvidenceSave(response) {
     closeModal()
     clearAddEvidenceModalValues()
     $(".alert").remove()
-    createAlert("Created evidence", AlertTypes.Success)
     disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
     resetWeblink()
 }
@@ -1192,6 +1189,7 @@ function createEvidence(data) {
         data,
         success: (response) => {
             handleSuccessfulEvidenceSave(response)
+            createAlert("Created evidence", AlertTypes.Success)
         }, error: (error) => {
             createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
         }
@@ -1212,6 +1210,7 @@ function editEvidence(data) {
         data,
         success: (response) => {
             handleSuccessfulEvidenceSave(response)
+            createAlert("Successfully edited evidence", AlertTypes.Success)
         }, error: (error) => {
             createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
         }
