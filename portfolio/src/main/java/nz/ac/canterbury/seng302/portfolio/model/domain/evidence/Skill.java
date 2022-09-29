@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -20,6 +19,8 @@ public class Skill {
 
     @Column
     private String name;
+
+    private double frequency;
 
     /** The set of evidence this skill is associated with */
     @JsonIgnore
@@ -70,10 +71,13 @@ public class Skill {
         return evidence;
     }
 
-    public double getFrequency() {
-        return (new Random()).nextDouble();
+    public void setFrequency(double frequency) {
+        this.frequency = frequency;
     }
 
+    public double getFrequency() {
+        return frequency;
+    }
 
     /**
      * For testing returns the expected json string of the object.
@@ -82,6 +86,7 @@ public class Skill {
      */
     public String toJsonString() {
         return "{\"id\":" + id +
-                ",\"name\":\"" + name + "\"}";
+                ",\"name\":\"" + name +
+                "\",\"frequency\":" + frequency +"}";
     }
 }

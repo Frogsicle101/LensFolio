@@ -25,7 +25,6 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -37,6 +36,7 @@ class EvidenceServiceTest {
     private final WebLinkRepository webLinkRepository = Mockito.mock(WebLinkRepository.class);
     private final SkillRepository skillRepository = Mockito.mock(SkillRepository.class);
     private final RegexService regexService = Mockito.spy(RegexService.class);
+    private final SkillFrequencyService skillFrequencyService = new SkillFrequencyService(evidenceRepository, skillRepository);
     private Authentication principal;
     private Evidence evidence;
     private EvidenceService evidenceService;
@@ -44,7 +44,13 @@ class EvidenceServiceTest {
 
     @BeforeEach
     void setUp() {
-        evidenceService = new EvidenceService(userAccountsClientService, projectRepository, evidenceRepository, webLinkRepository, skillRepository, regexService);
+        evidenceService = new EvidenceService(userAccountsClientService,
+                projectRepository,
+                evidenceRepository,
+                webLinkRepository,
+                skillRepository,
+                regexService,
+                skillFrequencyService);
         evidence = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         when(userAccountsClientService.getUserAccountById(any())).thenReturn(UserResponse.newBuilder().setId(1).build());
         when(evidenceRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);

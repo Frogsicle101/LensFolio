@@ -251,7 +251,10 @@ function setSkills(evidenceHighlight) {
     currentSkillsList.each(function() {
         const skillName = ($(this).find(".chipText").text())
         const skillChip = createDeletableSkillChip(skillName)
-        $("#tagInputChips").append(skillChip);
+        const tagInputChips = $("#tagInputChips")
+        if (skillName !== "No Skill") {
+            tagInputChips.append(skillChip);
+        }
     })
 }
 
@@ -259,21 +262,19 @@ function setSkills(evidenceHighlight) {
 /**
  * Hides the added weblinks title on the edit evidence modal.
  * Gets each weblink from the highlighted evidence and appends the weblink to the edit form.
- *
- * @param evidenceHighlight The highlighted evidence div containing the weblinks.
  */
-function setWeblinks(evidenceHighlight) {
-    const webLinksList = evidenceHighlight.find(".webLinkElement")
-    $("#webLinkTitle").style = "display;"
-
-    for (let i = 0; i < webLinksList.length; i++) {
-        document.getElementById("addedWebLinks").innerHTML += webLinksList[i].outerHTML;
+function setWeblinks() {
+    const webLinksList = $(".addedWebLink")
+    if (webLinksList.length > 0) {
+        $("#webLinkTitle").show()
+        $.each(webLinksList, function () {
+            const webName = $(this).text()
+            const webUrl = $(this).attr("href")
+            $("#addedWebLinks").append(deletableWeblinkElement(webUrl, webName))
+        })
+    } else {
+        $("#webLinkTitle").hide()
     }
-
-    const deleteWebLinkButtons = $("#addOrEditEvidenceModal").find(".deleteWeblinkButton")
-    deleteWebLinkButtons.each(function() {
-        $(this).show()
-    })
 }
 
 
@@ -297,13 +298,15 @@ function setCategories(evidenceHighlight) {
  * Retrieves linked users from the highlighted evidence and adds them to the edit evidence modal.
  */
 function setLinkedUsers() {
-    const userLinkedList = $("#evidenceDetailsLinkedUsers").text()
-    const editEvidenceModal = $("#addOrEditEvidenceModal")
-    $("#linkedUsersTitle").hide()
-    $("#linkedUsers").html(userLinkedList)
-
-    editEvidenceModal.find(`#linkedUserId${userIdent}`).parent().prop("outerHTML", "")
-    editEvidenceModal.find(".deleteLinkedUserButton").hide()
+    const userLinkedList = $("#evidenceDetailsLinkedUsers").find(".linkedUser")
+    $("#linkedUsersTitle").show()
+    $.each(userLinkedList, function (i, user) {
+        const userId = user.getAttribute("data-id")
+        const userName = user.innerText
+        if (userId !== String(userIdent)){
+            $("#linkedUsers").append(linkedUserElement(userId, userName,true))
+        }
+    })
 }
 
 
