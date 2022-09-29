@@ -3,10 +3,13 @@
 let skillsToCreate = new Map()
 const skillsInput = $("#skillsInput")
 let oldInput = ""
+let originalSkillName;
 
 
 /**
  * Adds a string to the skillsToCreate list if it is not present.
+ * If there is another skill in the list with the same Id, the other skill is given an undefined Id, since it must be an
+ * edited version of this skill.
  *
  * @param skillName Name of skill to be added
  * @returns {boolean} True if the skill was added, false otherwise
@@ -14,13 +17,47 @@ let oldInput = ""
 function addUniqueSkill(skillName) {
     const lowercaseSkills = Array.from(skillsToCreate.keys(), skillNames => skillNames.toLowerCase())
     if (! lowercaseSkills.includes(skillName)) {
-        let skillNameFormatted = skillName.replaceAll("_", " ")
+        const skillNameFormatted = skillName.replaceAll("_", " ")
+        const skillId = skillsMap.get(skillNameFormatted)
+
+        for(let [name, id] of skillsToCreate.entries()) {
+            if (id === skillId) {
+                skillsToCreate.set(name, undefined)
+            }
+        }
+
         if (skillNameFormatted.trim().length > 0) {
-            skillsToCreate.set(skillNameFormatted, skillsMap.get(skillNameFormatted))
+            skillsToCreate.set(skillNameFormatted, skillId)
             return true
         }
     }
     return false
+}
+
+
+/**
+ * Updates an existing skill in the skills to create, and replaces it with the new name.
+ *
+ * If the old skill name was an existing skill for the user, then the updated skill name will replace the old skill name.
+ * Otherwise, if the old skill was not on of the user's skills, and the new skill is, then the skill will retain its Id.
+ * If the old skill and new skill are both skills that the user did not previously have, then the skill has an undefined
+ * Id and will be added to the user as a new skill.
+ */
+function updateSkillInSkillsToCreate(newSkillName) {
+    const originalId = skillsToCreate.get(originalSkillName)
+    const newId = skillsMap.get(newSkillName)
+
+    skillsToCreate.delete(originalSkillName)
+
+    if (typeof originalId === "number") {
+        if (typeof newId === "number") {
+            skillsToCreate.set(newSkillName, newId)
+        } else {
+            skillsToCreate.set(newSkillName, originalId)
+        }
+    } else {
+        skillsToCreate.set(newSkillName, newId)
+    }
 }
 
 
@@ -67,16 +104,18 @@ function validateSkillInput(inputValue, showAlert) {
  * Adds skill chips to the skill input.
  * Underscores are replaced with spaces.
  * Clears existing input.
+ *
+ * @param shouldClear true by default, defines if the input should be cleared on call.
  */
-function updateSkillsInput() {
+function updateSkillsInput(shouldClear = true) {
     skillsInput.val("")
     let chipDisplay = $("#tagInputChips")
     $('[data-toggle="tooltip"]').tooltip("hide")
 
     chipDisplay.empty()
-    skillsToCreate.forEach(function (element) {
-        element = element.replaceAll("_", " ");
-        if (skillRegex.test(element)) {
+    skillsToCreate.forEach(function (value, key) {
+        key = key.replaceAll("_", " ");
+        if (skillRegex.test(key)) {
             chipDisplay.append(createSkillChip(key, value, true))
         }
     })

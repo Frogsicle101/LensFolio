@@ -1098,8 +1098,8 @@ function createSkillChip(skillName, skillId, deletable = false) {
         </svg>` : ""
 
     return `
-        <div class="chip skillChip" ${skillId !== undefined ? "data-id=" + skillId: ""}>
-            <p class="chipText">${sanitise(skillName)}</p>
+        <div class="chip skillChip ${deletable ? "editableChip" : "sortableChip"}" ${skillId !== undefined ? "data-id=" + skillId: ""}>
+            <span class="chipText noDisplayInput focus" role="textbox">${sanitise(skillName)}</span>
             ${deleteIcon}
         </div>`
 }
@@ -1120,7 +1120,7 @@ function createCategoryChip(categoryName, isMenuItem) {
             </div>`
     } else {
         return `
-            <div class="chip categoryChip">
+            <div class="chip categoryChip sortableChip">
                 <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
     }
@@ -1142,8 +1142,9 @@ function getDataFromEvidenceForm() {
     const description = $("#evidenceDescription").val()
     const projectId = 1
     let webLinks = getWeblinksList();
-    const linkedUsers = getLinkedUsers();
+    const skills = Array.from(skillsToCreate, ([key, val]) => ({"id" : val, "name" : key}))
     const categories = getCategories();
+    const linkedUsers = getLinkedUsers();
 
     return JSON.stringify({
         "id": evidenceId,
@@ -1152,7 +1153,7 @@ function getDataFromEvidenceForm() {
         "description": description,
         "projectId": projectId,
         "webLinks": webLinks,
-        "skills": Array.from(skillsToCreate.keys(), key => ({"id" : skillsMap.get(key), "name" : key})),
+        "skills": skills,
         "categories": categories,
         "associateIds": linkedUsers
     })
