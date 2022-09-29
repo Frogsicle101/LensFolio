@@ -333,7 +333,7 @@ function countCharacters() {
     let maxlength = $(this).attr("maxLength")
     let lengthOfCurrentInput = $(this).val().length;
     let counter = maxlength - lengthOfCurrentInput;
-    let helper = $(this).next(".form-text-counted"); //Gets the next div with a class that is form-text
+    let helper = $(this).siblings(".form-text-counted").first(); // Gets the next element with a class that is form-text
 
     //If one character remains, changes from "characters remaining" to "character remaining"
     if (counter !== 1) {
