@@ -181,6 +181,10 @@ section{
     will-change: transform;
 }
 
+.sprintDescription {
+    overflow-x: auto;
+}
+
 .sprint h6 {
     color: var(--secondary-text-colour-darker);
 }

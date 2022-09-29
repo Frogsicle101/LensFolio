@@ -150,7 +150,7 @@ function appendSprint(sprintObject, index) {
                     <p class="dateDivider">-</p>
                     <h6>${sanitise(sprintObject.endDateFormatted)}</h6>
                 </div>
-                <div class="mb-3">
+                <div id="sprintDescription" class="mb-3">
                     <p>${sanitise(sprintObject.description)}</p>
                 </div>
                 <div class="mb3 hasTeacherOrAbove">
