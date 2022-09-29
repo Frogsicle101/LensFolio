@@ -195,7 +195,7 @@ function removeDuplicatesFromInput(input) {
 
     newArray.forEach(function (element, index) {
         skillsArray.forEach(function (alreadyExistingSkill) {
-            if (element.toLowerCase() === alreadyExistingSkill.toLowerCase()) {
+            if (element.toLowerCase() === alreadyExistingSkill.name.toLowerCase()) {
                 newArray[index] = alreadyExistingSkill;
             }
         })

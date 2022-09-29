@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -67,6 +68,10 @@ public class Skill {
 
     public Set<Evidence> getEvidence() {
         return evidence;
+    }
+
+    public double getFrequency() {
+        return (new Random()).nextDouble();
     }
 
 

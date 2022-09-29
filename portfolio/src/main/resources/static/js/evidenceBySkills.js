@@ -25,9 +25,12 @@ function addSkillsToSideBar() {
     let skillsContainer = $('#skillList')
     skillsContainer.empty()
 
-    skillsContainer.append(createSkillChip("No Skill"))
+    skillsContainer.append(createSkillChip("No Skill", 0.5));
     for (let skill of skillsArray) {
-        skillsContainer.append(createSkillChip(skill.replaceAll("_", " ")))
+        skillsContainer.append(createSkillChip(
+            skill.name.replaceAll("_", " "),
+            skill.frequency
+        ))
     }
 }
 

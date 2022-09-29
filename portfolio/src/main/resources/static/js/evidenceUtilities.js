@@ -371,7 +371,10 @@ function getSkills(callback = () => {
             skillsArray = []
             $.each(response, function (i) {
                 if (!skillsArray.includes(response[i].name)) {
-                    skillsArray.push(response[i].name)
+                    skillsArray.push({
+                        name: response[i].name,
+                        frequency: response[i].frequency
+                    })
                 }
             })
             callback()
@@ -392,7 +395,10 @@ function getSkills(callback = () => {
 function addSkillResponseToArray(response) {
     let skills = []
     for (let i in response.skills) {
-        skills.push(response.skills[i].name)
+        skills.push({
+            name: response.skills[i].name,
+            frequency: response.skills[i].frequency
+        })
     }
     skillsArray = [...new Set(skillsArray.concat(skills))];
 }
@@ -465,10 +471,10 @@ function addSkillsToEvidence(skills) {
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     if (skills.length < 1) {
-        highlightedEvidenceSkills.append(createSkillChip("No Skill"))
+        highlightedEvidenceSkills.append(createSkillChip("No Skill", 0.5))
     } else {
         $.each(skills, function (i) {
-            highlightedEvidenceSkills.append(createSkillChip(skills[i].name))
+            highlightedEvidenceSkills.append(createSkillChip(skills[i].name, skills[i].frequency))
         })
     }
 }
@@ -521,7 +527,7 @@ function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     let skillsHTML = ``
     $.each(skills, function (i) {
-        skillsHTML += createSkillChip(skills[i].name)
+        skillsHTML += createSkillChip(skills[i].name, skills[i].frequency)
     })
     return skillsHTML
 }
@@ -1113,20 +1119,6 @@ $(document).on("click", "#deleteEvidenceButton", function () {
         })
     }
 })
-
-
-/**
- * Creates HTMl for a skill chip with the given skill name.
- *
- * @param skillName The name to be displayed in the skill chip.
- * @returns {string} The string of HTMl representing the skill chip.
- */
-function createSkillChip(skillName) {
-    return `
-        <div class="chip skillChip">
-            <p class="chipText">${sanitise(skillName)}</p>
-        </div>`
-}
 
 
 /**
