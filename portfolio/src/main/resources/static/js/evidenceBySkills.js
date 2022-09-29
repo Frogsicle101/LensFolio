@@ -136,6 +136,7 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
  */
 $(document).on("click", "#createEvidenceButton" , () => {
     resetAddOrEditEvidenceForm()
+    startCharacterCounting("form-control")
     $("#addOrEditEvidenceTitle").html("Add Evidence")
     $("#evidenceSaveButton").html("Create")
 

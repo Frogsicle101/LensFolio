@@ -168,7 +168,7 @@ public class EvidenceService {
             if (skillInfo.getId() != null) {
                 Optional<Skill> optionalSkill = skillRepository.findDistinctByEvidenceUserIdAndId(user.getId(), skillInfo.getId());
                 if (optionalSkill.isEmpty()) {
-                    throw new CheckException("You can't edit another users skills");
+                    throw new CheckException("Could not retrieve one or more skills");
                 }
             }
         }
