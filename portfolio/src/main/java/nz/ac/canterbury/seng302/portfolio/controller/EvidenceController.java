@@ -62,20 +62,38 @@ public class EvidenceController {
     /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
+    /** Provides helper functions for skill frequency operations */
+    private final SkillFrequencyService skillFrequencyService;
 
-    private final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
+    /** Provides validation for various fields. */
+    private final RegexService regexService;
+
+    private static final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
 
 
+    /**
+     * Autowired constructor for injecting the required beans.
+     *
+     * @param userAccountsClientService For requesting user information form the IdP
+     * @param projectRepository The repository containing the projects.
+     * @param evidenceRepository The repository containing users pieces of evidence.
+     * @param evidenceService Provides helper functions for Crud operations on evidence.
+     * @param regexService Provides validation for various fields.
+     * @param skillFrequencyService Provides helper functions for skill frequency operations
+     */
     @Autowired
     public EvidenceController(UserAccountsClientService userAccountsClientService,
-                           ProjectRepository projectRepository,
-                           EvidenceRepository evidenceRepository,
-                           EvidenceService evidenceService
-                           ) {
+                              ProjectRepository projectRepository,
+                              EvidenceRepository evidenceRepository,
+                              EvidenceService evidenceService,
+                              RegexService regexService,
+                              SkillFrequencyService skillFrequencyService) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
         this.evidenceService = evidenceService;
+        this.regexService = regexService;
+        this.skillFrequencyService = skillFrequencyService;
     }
 
 
@@ -107,6 +125,7 @@ public class EvidenceController {
         modelAndView.addObject(project);
         modelAndView.addObject("webLinkRegex", RegexPattern.WEBLINK);
         modelAndView.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
+        modelAndView.addObject("skillRegex", RegexPattern.SKILL);
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;
@@ -320,7 +339,9 @@ public class EvidenceController {
                 logger.warn(methodLoggingTemplate, "User attempted to delete evidence they don't own.");
                 return new ResponseEntity<>("You can only delete evidence that you own.", HttpStatus.UNAUTHORIZED);
             }
+
             evidenceRepository.delete(evidence);
+            skillFrequencyService.updateAllSkillFrequenciesForUser(evidence.getUserId());
             String message = "Successfully deleted evidence " + evidenceId;
             logger.info(methodLoggingTemplate, message);
             return new ResponseEntity<>(message, HttpStatus.OK);

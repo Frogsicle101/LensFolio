@@ -15,7 +15,7 @@ describe('Skill creation', () => {
             description: "description",
             projectId: projectId,
             webLinks: [],
-            skills: ["test evidence"],
+            skills: ["test evidence", "MAKING tests", "ALLCAPS"],
             categories: [],
             associateIds: []
         }
@@ -53,8 +53,15 @@ describe('Skill creation', () => {
     })
 
     it("Should allow special characters", () => {
-        cy.get("#skillsInput").type("C# (a) [-=]_;:'/?.><,*&^%$~`@! ")
-        cy.get("#tagInputChips").find(".skillChip").should("have.length", 3)
+        cy.get("#skillsInput").type("C# a@! ")
+        cy.get("#tagInputChips").find(".skillChip").should("have.length", 2)
+    })
+
+    it("Should not allow only special characters", () => {
+        cy.get("#skillsInput").type("@ ")
+        cy.contains("Skill name must contain at least one letter.").should('be.visible')
+        cy.get("#skillsInput").type("@%& ")
+        cy.contains("Skill name must contain at least one letter.").should('be.visible')
     })
 
     it("Should display red and how error message for skill length > 30", () => {
@@ -97,6 +104,24 @@ describe('Skill creation', () => {
     it ("Should not allow a skill with all underscores to be made", () => {
         cy.get("#skillsInput").type("______ Normal_Skill ______ ")
         cy.get("#tagInputChips").find(".skillChip").should("have.length", 1)
+    })
+
+    it ("Should correct to the casing of saved skills", () => {
+        postNewEvidence(() => {
+            cy.reload()
+            cy.get('#createEvidenceButton').click()
+            cy.get("#skillsInput").type("MAKING_TESTS ")
+            cy.get("#skillsInput").type("allcaps ")
+            cy.get("#skillsInput").type("tEsT_eViDeNcE ")
+            cy.get("#tagInputChips").should("contain", "MAKING tests")
+            cy.get("#tagInputChips").should("contain", "ALLCAPS")
+            cy.get("#tagInputChips").should("contain", "test evidence")
+        })
+    })
+
+    it ("Should not create duplicate skill chips", () => {
+        cy.get("#skillsInput").type("Normal_Skill Normal_Skill Normal_Skill strange________skill strange_skill ")
+        cy.get("#tagInputChips").find(".skillChip").should("have.length", 2)
     })
 })
 

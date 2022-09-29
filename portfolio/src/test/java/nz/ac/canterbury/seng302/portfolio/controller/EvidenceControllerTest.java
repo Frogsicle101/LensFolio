@@ -2,10 +2,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
@@ -14,6 +11,7 @@ import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
 import nz.ac.canterbury.seng302.portfolio.service.RegexService;
+import nz.ac.canterbury.seng302.portfolio.service.SkillFrequencyService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.*;
@@ -41,6 +39,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,17 +73,35 @@ class EvidenceControllerTest {
     ProjectRepository projectRepository;
 
     @MockBean
+    SkillRepository skillRepository;
+
+    @MockBean
     EvidenceService evidenceService;
+
+    @MockBean
+    SkillFrequencyService skillFrequencyService;
 
     @Autowired
     private RegexService regexService;
 
     private final String WEBLINK_ADDRESS = "https://www.canterbury.ac.nz/";
 
+    private EvidenceDTO evidenceDTO;
+
+    private EvidenceController evidenceController;
+
+
 
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
+        initialiseEvidenceDto();
+        evidenceController = new EvidenceController(userAccountsClientService,
+                projectRepository,
+                evidenceRepository,
+                evidenceService,
+                regexService,
+                skillFrequencyService);
     }
 
 
@@ -92,9 +109,9 @@ class EvidenceControllerTest {
     void testAddEvidence() throws Exception {
         setUserToStudent();
         setUpContext();
-        String title = "test";
+        String title = "test title";
         LocalDate date = LocalDate.now();
-        String description = "testing";
+        String description = "testing title";
         long projectId = 1;
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
@@ -118,7 +135,6 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(1).toString();
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Date is in the future"));
         mockMvc.perform(post("/evidence")
@@ -137,7 +153,6 @@ class EvidenceControllerTest {
         String date = LocalDate.now().minusDays(1).toString();
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Date is outside project dates"));
         mockMvc.perform(post("/evidence")
@@ -156,7 +171,6 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Title should be longer than 1 character"));
         mockMvc.perform(post("/evidence")
@@ -197,7 +211,6 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Title cannot be more than 50 characters"));
         mockMvc.perform(post("/evidence")
@@ -216,7 +229,6 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Title shouldn't be strange"));
         mockMvc.perform(post("/evidence")
@@ -235,7 +247,6 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Text should be longer than 1 character"));
 
@@ -275,9 +286,9 @@ class EvidenceControllerTest {
         setUpContext();
         String title = "test";
         String date = LocalDate.now().plusDays(2).toString();
-        String description = "This should almost definitely be past 500 characters in length?                                                                                                                                                                                                                                                                      This should almost definitely be past 500 characters in length?                                                                                                                                                                                                                                                                      ";
+        String description = "This should definitely be past 500 characters in length".repeat(10);
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
+        evidenceDTO.setDescription(description);
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Description cannot be more than 500 characters"));
         mockMvc.perform(post("/evidence")
@@ -297,7 +308,7 @@ class EvidenceControllerTest {
         String date = LocalDate.now().plusDays(2).toString();
         String description = "@@@";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
+        evidenceDTO.setDescription(description);
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Text shouldn't be strange"));
         mockMvc.perform(post("/evidence")
@@ -339,7 +350,6 @@ class EvidenceControllerTest {
         String description = "testing";
         long projectId = 1;
 
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new CheckException("Project Id does not match any project"));
         mockMvc.perform(post("/evidence")
@@ -358,7 +368,6 @@ class EvidenceControllerTest {
         String date = "WOW this shouldn't work";
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new DateTimeParseException("test", "test", 0));
         mockMvc.perform(post("/evidence")
@@ -377,7 +386,6 @@ class EvidenceControllerTest {
         String date = "";
         String description = "testing";
         long projectId = 1;
-        EvidenceDTO evidenceDTO = new EvidenceDTO(title, date, description, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), projectId, new ArrayList<>());
         Mockito.when(evidenceService.addEvidence(any(), eq(evidenceDTO)))
                 .thenThrow(new DateTimeParseException("test", "test", 0));
         mockMvc.perform(post("/evidence")
@@ -392,9 +400,6 @@ class EvidenceControllerTest {
     void testAddEvidenceException() throws Exception {
         setUserToStudent();
         setUpContext();
-        String title = "test";
-        String date = "WOW this shouldn't work";
-        String description = "testing";
         long projectId = 1;
         Project project = new Project("Testing");
 
@@ -974,4 +979,30 @@ class EvidenceControllerTest {
         UserResponse notFoundResponse = UserResponse.newBuilder().setId(-1).build();
         Mockito.when(userAccountsClientService.getUserAccountById(nonExistentUserRequest)).thenReturn(notFoundResponse);
     }
+
+
+    private void initialiseEvidenceDto() {
+        evidenceDTO = new EvidenceDTO.EvidenceDTOBuilder()
+                .setId(10)
+                .setTitle("New Title")
+                .setDate(LocalDate.now().toString())
+                .setDescription("New description")
+                .setWebLinks(new ArrayList<>(
+                        Arrays.asList(
+                                new WebLinkDTO("New weblink 1", "http://www.google.com"),
+                                new WebLinkDTO("New weblink 2", "https://localhost:9000/test")
+                        )))
+                .setCategories(new ArrayList<>(
+                        Arrays.asList("SERVICE", "QUANTITATIVE"
+                        )))
+                .setSkills(new ArrayList<>(
+                        Arrays.asList("Testing", "Backend")
+                ))
+                .setAssociateIds(new ArrayList<>(
+                        Arrays.asList(2, 3, 4, 5)
+                ))
+                .setProjectId(1L)
+                .build();
+    }
+
 }

@@ -137,4 +137,28 @@ describe("Adding Weblinks to Evidence", () => {
         cy.get('[data-value="http://www.a1.ac.nz"]').should('not.exist');
         cy.get('[data-value="http://www.a2.ac.nz"]').should('not.exist');
     })
+
+    it('Can add max 10 weblinks, delete 1, then add another', () => {
+        for (let i = 1; i < 11; i++) {
+            cy.get('#addWeblinkButton').click()
+            cy.get('#webLinkUrl').wait(100)
+                .invoke('val', 'http://www.a.ac.nz')
+            cy.get('#webLinkName').wait(100)
+                .invoke('val', 'Wl ' + i.toString())
+            cy.get('#addWeblinkButton').click()
+        }
+
+        cy.get('#webLinkFull').should('be.visible');
+        cy.get(".deleteWeblink").first().click()
+        cy.get('#webLinkFull').should('not.be.visible');
+
+        cy.get('#addWeblinkButton').click()
+        cy.get('#webLinkUrl').wait(100)
+            .invoke('val', 'http://www.a.ac.nz')
+        cy.get('#webLinkName').wait(100)
+            .invoke('val', 'Wlfinal')
+        cy.get('#addWeblinkButton').click()
+
+        cy.get('#webLinkFull').should('be.visible');
+    })
 })

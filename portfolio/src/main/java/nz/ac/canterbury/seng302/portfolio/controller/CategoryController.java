@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -48,7 +48,7 @@ public class CategoryController {
                 return new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
             }
 
-            ArrayList <Evidence> evidence = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(userId, optionalCategory.get());
+            List<Evidence> evidence = evidenceRepository.findAllByUserIdAndCategoriesContainingOrderByOccurrenceDateDesc(userId, optionalCategory.get());
             logger.info("GET REQUEST /evidenceLinkedToCategory - found and returned {} evidences for category: {}", evidence.size() ,category);
             return new ResponseEntity<>(evidence, HttpStatus.OK);
 

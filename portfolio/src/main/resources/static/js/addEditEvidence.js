@@ -7,13 +7,16 @@ let oldInput = ""
 
 /**
  * Adds a string to the skillsToCreate list if it is not present.
+ * If there's a case-insensitive alternative in the skills array, use that instead.
+ * Multiple consecutive underscores in a string will be condensed to a single space.
  *
  * @param skillName Name of skill to be added
  * @returns {boolean} True if the skill was added, false otherwise
  */
 function addUniqueSkill(skillName) {
-    if (! skillsToCreate.includes(skillName)) {
-        let skillNameFormatted = skillName.replaceAll("_", " ")
+    let oneOrMoreUnderScores = new RegExp("[_]+", "g")
+    let skillNameFormatted = replaceWithStringFromSkillArray(skillName.replaceAll(oneOrMoreUnderScores, " "))
+    if (! skillsToCreate.includes(skillNameFormatted)) {
         if (skillNameFormatted.trim().length > 0) {
             skillsToCreate.push(skillNameFormatted)
             return true
@@ -47,6 +50,9 @@ function validateSkillInput(inputValue, showMessage) {
         isValid = false
     } else if (inputValue.trim().length === 0) {
         return false // does not style the div as there is no text to style
+    } else if (inputValue.length > 0 && !skillRegex.test(inputValue)) { // TODO check this is used over gen unicode
+        errorMessage = "Skill name must contain at least one letter."
+        isValid = false
     }
 
     (!isValid ? skillsInput.addClass("skillChipInvalid") :
@@ -70,9 +76,10 @@ function updateSkillsInput() {
     chipDisplay.empty()
     skillsToCreate.forEach(function (element) {
         element = element.replaceAll("_", " ");
-        chipDisplay.append(createDeletableSkillChip(element))
+        if (skillRegex.test(element)) {
+            chipDisplay.append(createDeletableSkillChip(element))
+        }
     })
-
     oldInput = ""
 }
 
@@ -153,21 +160,6 @@ function handleSkillInputPaste() {
 
 
 /**
- * Removes the selected skill from the skills input and from the list of skills to be saved.
- *
- * @param event The click event on the skill delete button.
- */
-function handleChipDelete(event) {
-    event.stopPropagation()
-    const skillName = $(this).siblings(".chipText").text()
-    skillsToCreate = skillsToCreate.filter(addedSkill => addedSkill !== skillName)
-
-    updateSkillsInput()
-}
-
-
-
-/**
  * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
  * exist in it, it checks for case insensitivity as well.
  *
@@ -178,7 +170,7 @@ function removeDuplicatesFromInput(input) {
     let newArray = []
 
     inputArray.forEach(function (element) {
-        if (regexSkills.test(element)) {
+        if (skillRegex.test(element)) {
             while (element.slice(-1) === "_") {
                 element = element.slice(0, -1)
             }
@@ -189,7 +181,7 @@ function removeDuplicatesFromInput(input) {
                 .replace(/\s+/g, ' ')
                 .trim()
                 .replaceAll(" ", "_")
-            if (element.match(emojiRegx)) {
+            if (element.match(emojiRegex)) {
                 createAlert("Emojis not allowed in Skill name", AlertTypes.Failure)
             }
             if (element.length > 30) { //Shortens down the elements to 30 characters
@@ -213,6 +205,20 @@ function removeDuplicatesFromInput(input) {
     })
 
     input.val(newArray.join(" "))
+}
+
+
+/**
+ * Removes the selected skill from the skills input and from the list of skills to be saved.
+ *
+ * @param event The click event on the skill delete button.
+ */
+function handleChipDelete(event) {
+    event.stopPropagation()
+    const skillName = $(this).siblings(".chipText").text()
+    skillsToCreate = skillsToCreate.filter(addedSkill => addedSkill !== skillName)
+
+    updateSkillsInput()
 }
 
 
