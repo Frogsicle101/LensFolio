@@ -265,7 +265,7 @@ function setSkills(evidenceHighlight) {
 function setWeblinks(evidenceHighlight) {
     const webLinksList = evidenceHighlight.find(".webLinkElement")
     $("#webLinkTitle").show()
-    const addedWebLinks = document.getElementById("addedWebLinks")
+    const addedWebLinks = $("#addedWebLinks")
     for (let i = 0; i < webLinksList.length; i++) {
         addedWebLinks.innerHTML += webLinksList[i].outerHTML;
     }
