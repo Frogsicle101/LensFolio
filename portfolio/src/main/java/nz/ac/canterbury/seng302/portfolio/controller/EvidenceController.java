@@ -106,6 +106,7 @@ public class EvidenceController {
         modelAndView.addObject("webLinkMaxNameLength", WebLink.MAXNAMELENGTH);
         modelAndView.addObject(project);
         modelAndView.addObject("webLinkRegex", RegexPattern.WEBLINK);
+        modelAndView.addObject("skillRegex", RegexPattern.SKILL);
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;
