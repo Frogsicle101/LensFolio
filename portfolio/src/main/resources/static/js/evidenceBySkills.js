@@ -301,6 +301,7 @@ function setLinkedUsers() {
     $("#linkedUsersTitle").show()
     $.each(userLinkedList, function (i, user) {
         const userId = user.getAttribute("data-id")
+        linkedUserIdsArray.push(parseInt(userId, 10))
         const userName = user.innerText
         if (userId !== String(userIdent)){
             $("#linkedUsers").append(linkedUserElement(userId, userName,true))
