@@ -86,7 +86,7 @@ function showHighlightedEvidenceDetails() {
  *
  * @param response The response from the backend, which contains the web links for a piece of evidence.
  */
-function addWeblinksToEvidence(response) {
+function addWeblinksToDisplayedEvidence(response) {
     let webLinksDiv = $("#evidenceWebLinks")
     webLinksDiv.empty()
 
@@ -1237,7 +1237,7 @@ function handleEvidenceSave() {
         if (buttonName === "Create") { // create a new evidence
             createEvidence(evidenceData)
 
-        } else { // edit a exist evidence
+        } else { // edit an existing piece of evidence
             editEvidence(evidenceData)
         }
     }
