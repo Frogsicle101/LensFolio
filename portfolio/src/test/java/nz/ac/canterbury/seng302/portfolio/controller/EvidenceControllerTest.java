@@ -36,6 +36,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -428,6 +429,91 @@ class EvidenceControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+
+    // ------------------------------------ PATCH evidence tests -------------------------------------
+
+
+    @Test
+    void testEditEvidence() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        EvidenceDTO testEvidence = createDefaultEvidenceDTO();
+        mockMvc.perform(patch("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(buildEvidenceJSON(testEvidence))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void testEditEvidenceCheckException() throws Exception {
+
+        final String MESSAGE = "Error message";
+
+        setUserToStudent();
+        setUpContext();
+        EvidenceDTO testEvidence = createDefaultEvidenceDTO();
+
+        when(evidenceService.editEvidence(any(), any())).thenThrow(new CheckException(MESSAGE));
+
+        MvcResult result = mockMvc.perform(patch("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(buildEvidenceJSON(testEvidence))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest()).andReturn();
+
+        Assertions.assertTrue(result.getResponse().getContentAsString().contains(MESSAGE));
+    }
+
+
+    @Test
+    void testEditEvidenceDateTimeParseException() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        EvidenceDTO testEvidence = createDefaultEvidenceDTO();
+        testEvidence.setDate("Four score and seven years ago");
+
+
+        when(evidenceService.editEvidence(any(), any())).thenThrow(new DateTimeParseException("test", "test", 0));
+
+        mockMvc.perform(patch("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(buildEvidenceJSON(testEvidence))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void testEditEvidenceMalformedURLException() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        EvidenceDTO testEvidence = createDefaultEvidenceDTO();
+
+        when(evidenceService.editEvidence(any(), any())).thenThrow(new MalformedURLException());
+
+        mockMvc.perform(patch("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(buildEvidenceJSON(testEvidence))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testEditEvidenceGenericError() throws Exception {
+        setUserToStudent();
+        setUpContext();
+        EvidenceDTO testEvidence = createDefaultEvidenceDTO();
+
+        when(evidenceService.editEvidence(any(), any())).thenThrow(new RuntimeException("I am an error"));
+
+        mockMvc.perform(patch("/evidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(buildEvidenceJSON(testEvidence))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
 
     // ------------------------------------ GET evidence tests -------------------------------------
 
@@ -877,6 +963,43 @@ class EvidenceControllerTest {
 
 
     // -------------- Helper context functions ----------------------------------------------------
+
+
+    /**
+     * Takes an EvidenceDTO object and returns a JSON string representation of it.
+     * Used for making post requests
+     *
+     * @param evidenceDTO The EvidenceDTO you want to convert into JSON
+     *
+     * @return a JSON representation of the DTO
+     */
+    private String buildEvidenceJSON(EvidenceDTO evidenceDTO) {
+        return "{ \"title\": \"" + evidenceDTO.getTitle() + "\", \"date\": \"" + evidenceDTO.getDate() + "\", " +
+                "\"description\": \"" + evidenceDTO.getDescription() + "\", \"webLinks\": " + evidenceDTO.getWebLinks() + ", " +
+                "\"categories\": " + evidenceDTO.getCategories() + ", \"skills\": " + evidenceDTO.getSkills() + ", " +
+                "\"associateIds\": " + evidenceDTO.getAssociateIds() + ", \"projectId\": \"" + evidenceDTO.getProjectId() + "\"" +
+                "}";
+    }
+
+
+    /**
+     * Creates a default evidence DTO
+     *
+     * @return an EvidenceDTO, with arbitrary (but valid) values and empty lists.
+     */
+    private EvidenceDTO createDefaultEvidenceDTO() {
+        EvidenceDTO.EvidenceDTOBuilder builder = new EvidenceDTO.EvidenceDTOBuilder();
+        builder.setId(1)
+                .setTitle("Default Evidence")
+                .setDate(LocalDate.now().plusDays(2).toString())
+                .setDescription("The Default Evidence Description")
+                .setWebLinks(new ArrayList<>())
+                .setCategories(new ArrayList<>())
+                .setSkills(new ArrayList<>())
+                .setAssociateIds(new ArrayList<>())
+                .setProjectId(1L);
+        return builder.build();
+    }
 
 
     private void setUpContext() {
