@@ -1322,7 +1322,6 @@ function createEvidence(data) {
  * button has the text "Create".
  */
 function handleEvidenceSave() {
-    const skillsInput = $("#skillsInput")
     removeDuplicatesFromInput(skillsInput)
 
     const evidenceCreationForm = $("#evidenceCreationForm")[0]

@@ -162,8 +162,6 @@ function handleSkillInputPaste() {
 /**
  * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
  * exist in it, it checks for case insensitivity as well.
- *
- * @param input the jQuery call to the input to check
  */
 function removeDuplicatesFromInput(input) {
     let inputArray = input.val().trim().split(/\s+/)
@@ -216,9 +214,10 @@ function removeDuplicatesFromInput(input) {
 function handleChipDelete(event) {
     event.stopPropagation()
     const skillName = $(this).siblings(".chipText").text()
+    const skillsInputValue = skillsInput.val()
     skillsToCreate = skillsToCreate.filter(addedSkill => addedSkill !== skillName)
-
     updateSkillsInput()
+    skillsInput.val(skillsInputValue)
 }
 
 
