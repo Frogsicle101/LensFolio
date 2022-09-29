@@ -27,7 +27,7 @@ function addUniqueSkill(skillName) {
  * Checks that a skill name is between 1 and 30 characters (inclusive), and is not a reserved skill.
  * Creates error messages and adds error classes as required.
  *
- * @param inputValue The skill name ot be checked
+ * @param inputValue The skill name to be checked
  * @param showMessage Boolean value representing whether a message will be shown on fail
  * @returns {boolean} True if the skill is valid, false otherwise
  */
@@ -37,28 +37,21 @@ function validateSkillInput(inputValue, showMessage) {
     let errorMessage = ""
 
     if (inputValue.length > 30) {
-        if (showMessage) {
-            skillsInput.addClass("skillChipInvalid")
-            errorMessage = "Skill names cannot be longer than 30 characters."
-        }
-        isValid = false
-    } else if (inputValue.trim().length === 0) {
+        errorMessage = "Skill names cannot be longer than 30 characters."
         isValid = false
     } else if (! GENERAL_UNICODE_REGEX.test(inputValue)) {
-        if (showMessage) {
-            skillsInput.addClass("skillChipInvalid")
-            errorMessage =`Invalid character in skill name. \nSkill names${GENERAL_UNICODE_REQUIREMENTS}`
-        }
+        errorMessage =`Invalid character in skill name. \nSkill names${GENERAL_UNICODE_REQUIREMENTS}`
         isValid = false
     } else if (RESERVED_SKILL_TAGS.includes(inputValue.toLowerCase())) {
-        if (showMessage) {
-            skillsInput.addClass("skillChipInvalid")
-            errorMessage = "This is a reserved tag and cannot be manually created."
-        }
+        errorMessage = "This is a reserved tag and cannot be manually created."
         isValid = false
+    } else if (inputValue.trim().length === 0) {
+        return false // does not style the div as there is no text to style
     }
 
-    skillsInput.removeClass("skillChipInvalid")
+    (!isValid ? skillsInput.addClass("skillChipInvalid") :
+        skillsInput.removeClass("skillChipInvalid"))
+
     updateErrorMessage(evidenceSkillFeedback, errorMessage)
     return isValid
 }
