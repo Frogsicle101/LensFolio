@@ -149,9 +149,9 @@ function handleSkillInputPaste() {
             invalidSkillNames.forEach( (el) => {
                 skillNamesString.push("\n" + el)
             })
-            errorMessage = `${existingSkillFeedback} \n Invalid skill(s) not added: ${skillNamesString}`
+            errorMessage = `${existingSkillFeedback} \nInvalid skill(s) not added: ${skillNamesString}`
         } else {
-            errorMessage = `${existingSkillFeedback} \n Discarded ${invalidSkillNames.size} invalid skills`
+            errorMessage = `${existingSkillFeedback} \nDiscarded ${invalidSkillNames.size} invalid skills`
         }
     }
 
