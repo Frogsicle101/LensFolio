@@ -34,9 +34,6 @@ function addUniqueSkill(skillName) {
 function validateSkillInput(inputValue, showAlert) {
     if (inputValue.length > 30) {
         if (showAlert) {
-
-            console.log("1, skillsInput is : "+skillsInput)
-
             skillsInput.addClass("skillChipInvalid")
             createAlert("Maximum skill length is 30 characters", AlertTypes.Failure)
         }
@@ -128,33 +125,27 @@ function handleSkillInputPaste() {
     const inputValues = skillsInput.val().trim().split(/\s+/)
     const invalidSkillNames = new Set()
 
-    inputValues.forEach(skillName => {
-        if (validateSkillInput(skillName, false)) {
-            addUniqueSkill(skillName)
-        } else {
-            invalidSkillNames.add(skillName.length > 30 ? skillName.substring(0, 27) + "..." : skillName)
-        }
-    })
+    if (inputValues.length > 1) {
+        inputValues.forEach(skillName => {
+            if (validateSkillInput(skillName, false)) {
+                addUniqueSkill(skillName)
+            } else {
+                invalidSkillNames.add(skillName.length > 30 ? skillName.substring(0, 27) + "..." : skillName)
+            }
+        })
 
-    updateSkillsInput()
-    skillsInput.val("")
-    console.log(invalidSkillNames.size)
-
-    console.log("invalidSkillNames is : "+invalidSkillNames)
-
-    if (invalidSkillNames.size > 0) {
-        if (invalidSkillNames.size < 5) {
-            let skillNamesString = []
-            invalidSkillNames.forEach( (el) => {
-                skillNamesString.push("\n" + el)
-            })
-
-            console.log("skillNamesString is : "+skillNamesString)
-
-
-            createAlert("Invalid skill(s) not added: " + skillNamesString, AlertTypes.Failure)
-        } else {
-            createAlert("Discarded " + invalidSkillNames.size + " invalid skills", AlertTypes.Failure)
+        updateSkillsInput()
+        skillsInput.val("")
+        if (invalidSkillNames.size > 0) {
+            if (invalidSkillNames.size < 5) {
+                let skillNamesString = []
+                invalidSkillNames.forEach( (el) => {
+                    skillNamesString.push("\n" + el)
+                })
+                createAlert("Invalid skill(s) not added: " + skillNamesString, AlertTypes.Failure)
+            } else {
+                createAlert("Discarded " + invalidSkillNames.size + " invalid skills", AlertTypes.Failure)
+            }
         }
     }
 }
