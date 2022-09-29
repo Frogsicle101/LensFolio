@@ -8,12 +8,14 @@ let oldInput = ""
 /**
  * Adds a string to the skillsToCreate list if it is not present.
  * If there's a case-insensitive alternative in the skills array, use that instead.
+ * Multiple consecutive underscores in a string will be condensed to a single space.
  *
  * @param skillName Name of skill to be added
  * @returns {boolean} True if the skill was added, false otherwise
  */
 function addUniqueSkill(skillName) {
-    let skillNameFormatted = replaceWithStringFromSkillArray(skillName.replaceAll("_", " "))
+    let oneOrMoreUnderScores = new RegExp("[_]+", "g")
+    let skillNameFormatted = replaceWithStringFromSkillArray(skillName.replaceAll(oneOrMoreUnderScores, " "))
     if (! skillsToCreate.includes(skillNameFormatted)) {
         if (skillNameFormatted.trim().length > 0) {
             skillsToCreate.push(skillNameFormatted)
