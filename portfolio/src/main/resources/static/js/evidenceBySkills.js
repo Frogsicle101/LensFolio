@@ -149,6 +149,7 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
  */
 $(document).on("click", "#createEvidenceButton" , () => {
     resetAddOrEditEvidenceForm()
+    startCharacterCounting("form-control")
     $("#addOrEditEvidenceTitle").html("Add Evidence")
     $("#evidenceSaveButton").html("Create")
 
@@ -339,6 +340,7 @@ function handleEvidenceEdit() {
     const editModal = $("#addOrEditEvidenceModal")
     editModal.attr("data-id", parseInt($("#evidenceDetailsId").text(), 10))
     editModal.show()
+    startCharacterCounting("form-control")
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 }

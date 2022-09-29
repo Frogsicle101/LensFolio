@@ -2,9 +2,6 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
-import nz.ac.canterbury.seng302.portfolio.service.*;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -12,7 +9,10 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.service.*;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
@@ -37,7 +37,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Controller for all the Evidence based end points
@@ -140,36 +139,6 @@ public class EvidenceController {
 
             EvidenceResponseDTO response = new EvidenceResponseDTO(evidence.get(), getUsers(evidence.get().getAssociateIds()));
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception exception) {
-            logger.warn(exception.getClass().getName());
-            logger.warn(exception.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-
-    /**
-     * Gets the details for a piece of evidence with the given id
-     *
-     * Response codes: NOT_FOUND means the piece of evidence does not exist
-     *                 OK means the evidence exists and web link details are returned.
-     *                 BAD_REQUEST when the user doesn't interact with the endpoint correctly, i.e., no or invalid evidenceId
-     *
-     * @param evidenceId - The ID of the piece of evidence
-     * @return A response entity with the required response code. Response body is the evidence is the status is OK
-     */
-    // TODO remove this method and its tests its not used.
-    @GetMapping("/evidencePieceWebLinks")
-    public ResponseEntity<Object> getEvidenceWebLinks(@RequestParam("evidenceId") Integer evidenceId) {
-        logger.info("GET REQUEST /evidencePieceWebLinks - attempt to get web links with evidence Id {}", evidenceId);
-        try {
-            Optional<Evidence> evidence = evidenceRepository.findById(evidenceId);
-            if (evidence.isEmpty()) {
-                logger.info("GET REQUEST /evidence - evidence {} does not exist", evidenceId);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            Set<WebLink> webLinks = evidence.get().getWebLinks();
-            return new ResponseEntity<>(webLinks, HttpStatus.OK);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());

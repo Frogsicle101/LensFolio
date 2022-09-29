@@ -168,7 +168,7 @@ public class EvidenceService {
             if (skillInfo.getId() != null) {
                 Optional<Skill> optionalSkill = skillRepository.findDistinctByEvidenceUserIdAndId(user.getId(), skillInfo.getId());
                 if (optionalSkill.isEmpty()) {
-                    throw new CheckException("You can't edit another users skills");
+                    throw new CheckException("Could not retrieve one or more skills");
                 }
             }
         }
@@ -190,7 +190,7 @@ public class EvidenceService {
      * @return The last piece of evidence created.
      * @throws MalformedURLException when a weblink is invalid.
      */
-    public Evidence createEvidenceForUsers(EvidenceDTO evidenceDTO, List<Integer> userIds) throws MalformedURLException {
+    public Evidence createEvidenceForUsers(EvidenceDTO evidenceDTO, List<Integer> userIds) throws MalformedURLException, CheckException  {
         Evidence ownerEvidence = null;
         for (Integer ownersId : userIds) {
             checkAssociateId(ownersId);
@@ -211,7 +211,7 @@ public class EvidenceService {
      * @return the newly updated piece of evidence.
      * @throws MalformedURLException when the URL is not parse correctly.
      */
-    private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws MalformedURLException {
+    private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
         logger.info("Updating evidence details for evidence {}", originalEvidence.getId());
 
         originalEvidence.setTitle(evidenceDTO.getTitle());
@@ -280,9 +280,8 @@ public class EvidenceService {
      * @param evidence - The  piece of evidence
      * @param skills   - The list of the skills in string form
      */
-    public void addSkills(Evidence evidence, List<Skill> skills) {
-        for(Skill skillInfo: skills){
-            logger.warn("Adding skill {} with id {} to evidence {}", skillInfo.getName(), skillInfo.getId(), evidence.getId());
+    public void addSkills(Evidence evidence, List<Skill> skills) throws CheckException {
+        for (Skill skillInfo: skills) {
             try {
                 regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillInfo.getName(), 1, 30, "Skill name");
             } catch (CheckException e) {
@@ -290,25 +289,25 @@ public class EvidenceService {
                 evidenceRepository.delete(evidence);
                 throw new CheckException(e.getMessage());
             }
-            Skill theSkill;
-            if (skillInfo.getId() == null){
+            Skill savedSkill;
+            if (skillInfo.getId() == null) {
                 if (skillInfo.getName().equalsIgnoreCase("No Skill")) {
                     continue;
                 }
                 Skill createSkill = new Skill(skillInfo.getName());
-                theSkill = skillRepository.save(createSkill);
+                savedSkill = skillRepository.save(createSkill);
             } else {
                 Optional<Skill> optionalSkill = skillRepository.findById(skillInfo.getId());
                 if (optionalSkill.isPresent()) {
-                    theSkill = optionalSkill.get();
-                    theSkill.setName(skillInfo.getName());
-                    skillRepository.save(theSkill);
+                    savedSkill = optionalSkill.get();
+                    savedSkill.setName(skillInfo.getName());
+                    skillRepository.save(savedSkill);
                 } else {
-                    throw new CheckException("Invalid Skill id");
+                    throw new CheckException("Invalid Skill Id");
                 }
 
             }
-            evidence.addSkill(theSkill);
+            evidence.addSkill(savedSkill);
         }
         evidenceRepository.save(evidence);
     }

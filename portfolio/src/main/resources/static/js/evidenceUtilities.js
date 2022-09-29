@@ -86,7 +86,7 @@ function showHighlightedEvidenceDetails() {
  *
  * @param response The response from the backend, which contains the web links for a piece of evidence.
  */
-function addWeblinksToEvidence(response) {
+function addWeblinksToDisplayedEvidence(response) {
     let webLinksDiv = $("#evidenceWebLinks")
     webLinksDiv.empty()
 
@@ -388,7 +388,7 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
-    addWeblinksToEvidence(evidenceDetails.webLinks)
+    addWeblinksToDisplayedEvidence(evidenceDetails.webLinks)
     addLinkedUsersToEvidence(evidenceDetails.associates)
     addSkillsToEvidence(evidenceDetails.skills)
 
@@ -1172,7 +1172,6 @@ function handleSuccessfulEvidenceSave(response) {
     closeModal()
     clearAddEvidenceModalValues()
     $(".alert").remove()
-    createAlert("Created evidence", AlertTypes.Success)
     disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
     resetWeblink()
 }
@@ -1191,6 +1190,7 @@ function createEvidence(data) {
         data,
         success: (response) => {
             handleSuccessfulEvidenceSave(response)
+            createAlert("Created evidence", AlertTypes.Success)
         }, error: (error) => {
             createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
         }
@@ -1211,6 +1211,7 @@ function editEvidence(data) {
         data,
         success: (response) => {
             handleSuccessfulEvidenceSave(response)
+            createAlert("Successfully edited evidence", AlertTypes.Success)
         }, error: (error) => {
             createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
         }
@@ -1236,7 +1237,7 @@ function handleEvidenceSave() {
         if (buttonName === "Create") { // create a new evidence
             createEvidence(evidenceData)
 
-        } else { // edit an existing evidence
+        } else { // edit an existing piece of evidence
             editEvidence(evidenceData)
         }
     }
