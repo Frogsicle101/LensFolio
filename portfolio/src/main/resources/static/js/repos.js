@@ -24,7 +24,10 @@ $(document).on("click", ".editRepo", () => {
         `<form id="editRepoForm" class="marginSides1">
             <div class="mb-1">
                 <label class="form-label">Repository Name (cannot be empty):</label>
-                <input type="text" id="repoName" class="form-control" required minlength=1 value="${sanitise($("#groupSettingsPageRepoName").text())}">
+                <input type="text" id="repoName" class="form-control countable" 
+                required minlength=1 maxlength="100" 
+                value="${sanitise($("#groupSettingsPageRepoName").text())}">
+                <small class="form-text-counted text-muted countChar">0 characters remaining</small>
             </div>
             <div class="mb-1">
                 <label class="form-label">Project ID (must be a number):</label>
@@ -61,7 +64,7 @@ $(document).on("click", ".editRepo", () => {
     );
     $('#tokenHintTooltip').tooltip();
     parent.slideDown();
-
+    startCharacterCounting();
 })
 
 

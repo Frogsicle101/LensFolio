@@ -116,7 +116,10 @@
                         <span th:insert="fragments/icons.html :: infoTooltipIcon(title='Can include letters, numbers, and hyphens, and be up to 30 characters long. Separate skills with spaces. Use underscores to create multi-word skills e.g: Manual_Testing')"></span>
                         <div class="tagInputContainer">
                             <div id="tagInputChips"></div>
-                            <input id="skillsInput" class="noDisplayInput" type="text" onfocus="this.oldvalue = this.value;" onchange="this.oldvalue = this.value;"/>
+                            <!--/*@thymesVar id="skillRegex" type="nz.ac.canterbury.seng302.portfolio.service.RegexPattern"*/-->
+                            <input id="skillsInput" class="noDisplayInput" type="text"
+                                   th:pattern="${skillRegex.getPatternString()}"
+                                   th:title="${'Skills' + skillRegex.getRequirements()}"/>
                         </div>
                     </div>
                     <div id="evidenceFormCategories" class="form-group">

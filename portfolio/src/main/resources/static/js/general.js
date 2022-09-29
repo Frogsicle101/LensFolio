@@ -26,7 +26,6 @@ $(function () {
     })
 
     removeElementIfNotAuthorized()
-
 });
 
 
@@ -312,6 +311,19 @@ function sanitise(string) {
     const reg = /[&<>"'/]/ig;
     return string.toString().replace(reg, (match) => (map[match]));
 }
+
+/**
+ * Sets up listeners on any element that has the given class. Call this function again if you add new elements to
+ * the DOM that you want to be counted.
+ *
+ * @param className The name of the class you wish to count. Defaults to countable if none given
+ */
+function startCharacterCounting(className="countable") {
+    const countable = $("." + className)
+    countable.each(countCharacters)
+    countable.on("keyup", countCharacters) //Runs when key is pressed (well released) on form-control elements.
+}
+
 
 
 /**

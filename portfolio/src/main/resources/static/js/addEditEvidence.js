@@ -40,6 +40,13 @@ function validateSkillInput(inputValue, showAlert) {
         }
         return false
     }
+    if (!skillRegex.test(inputValue)) {
+        if (showAlert) {
+            skillsInput.addClass("skillChipInvalid")
+            createAlert("Skill name must contain at least one letter.", AlertTypes.Failure)
+        }
+        return false
+    }
     if (inputValue.trim().length === 0) {
         return false
     }
@@ -67,9 +74,11 @@ function updateSkillsInput() {
     $('[data-toggle="tooltip"]').tooltip("hide")
 
     chipDisplay.empty()
-    skillsToCreate.forEach((value, key) => {
-        key = key.replaceAll("_", " ");
-        chipDisplay.append(createSkillChip(key, value, true))
+    skillsToCreate.forEach(function (element) {
+        element = element.replaceAll("_", " ");
+        if (skillRegex.test(element)) {
+            chipDisplay.append(createSkillChip(key, value, true))
+        }
     })
     oldInput = ""
 }
