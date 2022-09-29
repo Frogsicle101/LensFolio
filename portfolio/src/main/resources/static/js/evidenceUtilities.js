@@ -384,22 +384,6 @@ function getSkills(callback = () => {
 
 // --------------------------- Functional HTML Components ------------------------------------
 
-
-/**
- *  A helper function to take a response from an ajax call and add it to the array of skills
- */
-function addSkillResponseToArray(response) {
-    let skills = []
-    for (let i in response.skills) {
-        skills.push({
-            name: response.skills[i].name,
-            frequency: response.skills[i].frequency
-        })
-    }
-    skillsArray = [...new Set(skillsArray.concat(skills))];
-}
-
-
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
  *
@@ -725,9 +709,9 @@ function getLinkedUsers() {
  * If it is not in the array, this returns the input string.
  */
 function replaceWithStringFromSkillArray(string) {
-    for (let i in skillsArray) {
-        if (skillsArray[i].localeCompare(string, undefined, {sensitivity : 'accent'}) === 0) {
-            return skillsArray[i] // There exists a skill, so use that
+    for (let skill of skillsArray) {
+        if (skill.name.localeCompare(string, undefined, {sensitivity : 'accent'}) === 0) {
+            return skill.name // There exists a skill, so use that
         }
     }
     return string
@@ -1207,8 +1191,7 @@ function getDataFromEvidenceForm() {
 function handleSuccessfulEvidenceSave(response) {
     selectedEvidenceId = response.id
     getAndAddEvidencePreviews()
-    addSkillResponseToArray(response)
-    addSkillsToSideBar();
+    getSkills(addSkillsToSideBar);
     closeModal()
     clearAddEvidenceModalValues()
     $(".alert").remove()

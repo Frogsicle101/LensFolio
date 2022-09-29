@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.demodata;
 
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
+import nz.ac.canterbury.seng302.portfolio.service.SkillFrequencyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +29,19 @@ public class EvidenceData {
     /** The repository contain the skills */
     private final SkillRepository skillRepository;
 
+    /** Provides helper functions for skill frequency operations */
+    private final SkillFrequencyService skillFrequencyService;
+
 
     @Autowired
     public EvidenceData(EvidenceRepository evidenceRepository,
                         WebLinkRepository webLinkRepository,
-                        SkillRepository skillRepository) {
+                        SkillRepository skillRepository,
+                        SkillFrequencyService skillFrequencyService) {
         this.evidenceRepository = evidenceRepository;
         this.webLinkRepository = webLinkRepository;
         this.skillRepository = skillRepository;
+        this.skillFrequencyService = skillFrequencyService;
     }
 
 
@@ -103,6 +109,8 @@ public class EvidenceData {
             evidenceRepository.save(evidence2);
             evidenceRepository.save(evidence3);
             evidenceRepository.save(evidence4);
+
+            skillFrequencyService.updateAllSkillFrequenciesForUser(adminId);
         } catch (MalformedURLException exception) {
             logger.error("Error occurred loading default evidence");
             logger.error(exception.getMessage());

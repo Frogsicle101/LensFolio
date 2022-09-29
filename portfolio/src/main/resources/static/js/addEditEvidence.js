@@ -193,7 +193,7 @@ function removeDuplicatesFromInput(input) {
     newArray.forEach(function (element, index) {
         skillsArray.forEach(function (alreadyExistingSkill) {
             if (element.toLowerCase() === alreadyExistingSkill.name.toLowerCase()) {
-                newArray[index] = alreadyExistingSkill;
+                newArray[index] = alreadyExistingSkill.name;
             }
         })
     })
@@ -234,7 +234,7 @@ skillsInput
         autoFocus: true, // This default selects the top result
         minLength: 1,
         source: function (request, response) {
-            let filteredSkills = $.ui.autocomplete.filter(skillsArray, extractLast(request.term))
+            let filteredSkills = $.ui.autocomplete.filter(Array.from(skillsArray, skill => skill.name), extractLast(request.term))
             let existingSkills = [];
             $.each(skillsToCreate , function (i, element) {
                 existingSkills.push(element.toLowerCase())
