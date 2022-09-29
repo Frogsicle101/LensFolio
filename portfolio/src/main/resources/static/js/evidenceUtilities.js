@@ -1142,8 +1142,9 @@ function getDataFromEvidenceForm() {
     const description = $("#evidenceDescription").val()
     const projectId = 1
     let webLinks = getWeblinksList();
-    const linkedUsers = getLinkedUsers();
+    const skills = Array.from(skillsToCreate, ([key, val]) => ({"id" : val, "name" : key}))
     const categories = getCategories();
+    const linkedUsers = getLinkedUsers();
 
     return JSON.stringify({
         "id": evidenceId,
@@ -1152,7 +1153,7 @@ function getDataFromEvidenceForm() {
         "description": description,
         "projectId": projectId,
         "webLinks": webLinks,
-        "skills": Array.from(skillsToCreate.keys(), key => ({"id" : skillsMap.get(key), "name" : key})),
+        "skills": skills,
         "categories": categories,
         "associateIds": linkedUsers
     })
@@ -1235,7 +1236,7 @@ function handleEvidenceSave() {
         if (buttonName === "Create") { // create a new evidence
             createEvidence(evidenceData)
 
-        } else { // edit a exist evidence
+        } else { // edit an existing evidence
             editEvidence(evidenceData)
         }
     }

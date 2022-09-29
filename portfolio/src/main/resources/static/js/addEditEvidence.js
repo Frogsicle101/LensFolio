@@ -22,7 +22,7 @@ function addUniqueSkill(skillName) {
 
         for(let [name, id] of skillsToCreate.entries()) {
             if (id === skillId) {
-                skillsToCreate.set(name, "undefined")
+                skillsToCreate.set(name, undefined)
             }
         }
 
@@ -50,7 +50,11 @@ function updateSkillInSkillsToCreate(newSkillName) {
     skillsToCreate.delete(originalSkillName)
 
     if (typeof originalId === "number") {
-        skillsToCreate.set(newSkillName, originalId)
+        if (typeof newId === "number") {
+            skillsToCreate.set(newSkillName, newId)
+        } else {
+            skillsToCreate.set(newSkillName, originalId)
+        }
     } else {
         skillsToCreate.set(newSkillName, newId)
     }
