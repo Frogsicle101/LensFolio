@@ -67,6 +67,7 @@ public class EvidenceService {
      * @param webLinkRepository for persisting CRUD operations on weblinks.
      * @param skillRepository for persisting CRUD operations on skills.
      * @param regexService for validating inputs against the central regex.
+     * @param skillFrequencyService for all services related to skill frequency.
      */
     @Autowired
     public EvidenceService(
@@ -298,9 +299,7 @@ public class EvidenceService {
             }
             evidence.addSkill(theSkill);
         }
-        skillRepository.findDistinctByEvidenceUserId(evidence.getUserId()).forEach((
-                skill -> skill.setFrequency(skillFrequencyService.getSkillFrequency(skill, evidence.getUserId()))
-        ));
+        skillFrequencyService.updateAllSkillFrequenciesForUser(evidence.getUserId());
         evidenceRepository.save(evidence);
     }
 

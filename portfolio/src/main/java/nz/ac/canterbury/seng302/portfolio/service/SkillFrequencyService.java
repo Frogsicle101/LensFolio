@@ -3,8 +3,10 @@ package nz.ac.canterbury.seng302.portfolio.service;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 /**
@@ -18,13 +20,18 @@ public class SkillFrequencyService {
     private final EvidenceRepository evidenceRepository;
 
 
+    private final SkillRepository skillRepository;
+
+
     /**
      * Autowired constructor
      * @param evidenceRepository Evidence storage
+     * @param skillRepository
      */
     @Autowired
-    public SkillFrequencyService(EvidenceRepository evidenceRepository) {
+    public SkillFrequencyService(EvidenceRepository evidenceRepository, SkillRepository skillRepository) {
         this.evidenceRepository = evidenceRepository;
+        this.skillRepository = skillRepository;
     }
 
 
@@ -47,6 +54,16 @@ public class SkillFrequencyService {
         }
         double value = (double) evidenceListAssociatedWithSkill.size() / evidenceListForUser.size();
         return Double.parseDouble(String.format("%.2f", value));
+    }
+
+    /**
+     * Retrieves all skills for the given user from the database and then calls getSkillFrequency on each one
+     * @param userId The id of the user that we want to update skills for.
+     */
+    public void updateAllSkillFrequenciesForUser(Integer userId) {
+        skillRepository.findDistinctByEvidenceUserId(userId).forEach((
+                skill -> skill.setFrequency(getSkillFrequency(skill, userId))
+        ));
     }
 
 

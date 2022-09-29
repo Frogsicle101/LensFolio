@@ -95,7 +95,6 @@ class EvidenceControllerTest {
                 evidenceRepository,
                 evidenceService,
                 regexService,
-                skillRepository,
                 skillFrequencyService);
     }
 

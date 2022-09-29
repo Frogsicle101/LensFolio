@@ -5,7 +5,6 @@ import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
-import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
@@ -58,34 +57,38 @@ public class EvidenceController {
     /** The repository containing the projects. */
     private final ProjectRepository projectRepository;
 
-    /** The repository containing all the skills */
-    private final SkillRepository skillRepository;
-
     /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
     /** Provides helper functions for skill frequency operations */
     private final SkillFrequencyService skillFrequencyService;
 
+    /** Provides validation for various fields. */
     private final RegexService regexService;
 
     private final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
 
-
+    /**
+     * Autowired constructor
+     * @param userAccountsClientService For requesting user information form the IdP
+     * @param projectRepository The repository containing the projects.
+     * @param evidenceRepository The repository containing users pieces of evidence.
+     * @param evidenceService Provides helper functions for Crud operations on evidence.
+     * @param regexService Provides validation for various fields.
+     * @param skillFrequencyService Provides helper functions for skill frequency operations
+     */
     @Autowired
     public EvidenceController(UserAccountsClientService userAccountsClientService,
                               ProjectRepository projectRepository,
                               EvidenceRepository evidenceRepository,
                               EvidenceService evidenceService,
                               RegexService regexService,
-                              SkillRepository skillRepository,
                               SkillFrequencyService skillFrequencyService) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
         this.evidenceService = evidenceService;
         this.regexService = regexService;
-        this.skillRepository = skillRepository;
         this.skillFrequencyService = skillFrequencyService;
     }
 
@@ -333,9 +336,7 @@ public class EvidenceController {
             }
 
             evidenceRepository.delete(evidence);
-            skillRepository.findDistinctByEvidenceUserId(evidence.getUserId()).forEach((
-                    skill -> skill.setFrequency(skillFrequencyService.getSkillFrequency(skill, evidence.getUserId()))
-            ));
+            skillFrequencyService.updateAllSkillFrequenciesForUser(evidence.getUserId());
             String message = "Successfully deleted evidence " + evidenceId;
             logger.info(methodLoggingTemplate, message);
             return new ResponseEntity<>(message, HttpStatus.OK);

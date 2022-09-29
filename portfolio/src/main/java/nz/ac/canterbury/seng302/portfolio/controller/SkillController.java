@@ -4,7 +4,6 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
-import nz.ac.canterbury.seng302.portfolio.service.SkillFrequencyService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserResponse;
@@ -43,7 +42,6 @@ public class SkillController {
 
     /**
      * Autowired constructor for injecting the required beans.
-     *
      * @param skillRepository Holds persisted information about skills
      * @param evidenceRepository Holds persisted information about evidence
      * @param userAccountsClientService For checking is a user exists and getting their details.
@@ -51,8 +49,7 @@ public class SkillController {
     @Autowired
     public SkillController(SkillRepository skillRepository,
                            EvidenceRepository evidenceRepository,
-                           UserAccountsClientService userAccountsClientService,
-                           SkillFrequencyService skillFrequencyService) {
+                           UserAccountsClientService userAccountsClientService) {
         this.skillRepository = skillRepository;
         this.evidenceRepository = evidenceRepository;
         this.userAccountsClientService = userAccountsClientService;

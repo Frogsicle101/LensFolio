@@ -4,6 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,16 +12,18 @@ import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+
 import static org.mockito.Mockito.spy;
 
 class SkillFrequencyServiceTest {
 
     private final EvidenceRepository evidenceRepository = spy(EvidenceRepository.class);
+    private final SkillRepository skillRepository = spy(SkillRepository.class);
     private Skill skill;
 
 
     @InjectMocks
-    private SkillFrequencyService skillFrequencyService = new SkillFrequencyService(evidenceRepository);
+    private SkillFrequencyService skillFrequencyService = new SkillFrequencyService(evidenceRepository, skillRepository);
 
 
     @Test
