@@ -66,10 +66,12 @@ public class EvidenceController {
     /** Provides validation for various fields. */
     private final RegexService regexService;
 
-    private final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
+    private static final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
+
 
     /**
-     * Autowired constructor
+     * Autowired constructor for injecting the required beans.
+     *
      * @param userAccountsClientService For requesting user information form the IdP
      * @param projectRepository The repository containing the projects.
      * @param evidenceRepository The repository containing users pieces of evidence.

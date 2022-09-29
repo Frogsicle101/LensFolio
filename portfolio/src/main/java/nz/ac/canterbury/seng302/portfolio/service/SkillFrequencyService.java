@@ -19,14 +19,14 @@ public class SkillFrequencyService {
     /** Holds persisted information about evidence */
     private final EvidenceRepository evidenceRepository;
 
-
+    /** Holds persisted information about skills */
     private final SkillRepository skillRepository;
 
 
     /**
      * Autowired constructor
      * @param evidenceRepository Evidence storage
-     * @param skillRepository
+     * @param skillRepository Holds persisted information about skills
      */
     @Autowired
     public SkillFrequencyService(EvidenceRepository evidenceRepository, SkillRepository skillRepository) {
