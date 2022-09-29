@@ -17,7 +17,7 @@ describe("Adding Valid Weblinks to Evidence", () => {
             cy.get('#webLinkName').wait(100)
                 .invoke('val', "link name")
             cy.get('#addWeblinkButton').click().wait(100)
-            cy.contains("Weblink must be a valid weblink").should("not.exist")
+            cy.contains("must be a valid").should("not.exist")
         })
     }
 
@@ -30,8 +30,7 @@ describe("Adding Valid Weblinks to Evidence", () => {
             "http://example.com/",
             "http://example.com:/",
             "http://example.com:80/",
-            "https://www.google.com",
-            "ftp://ftp.is.co.za/rfc/rfc1808.txt"
+            "https://www.google.com"
         ]
 
         assertPasses()
@@ -47,7 +46,6 @@ describe("Adding Valid Weblinks to Evidence", () => {
             "csse.canterbury.ac.nz",
             "http://132.181.106.9",
             "http://www.w3.org",
-
         ]
 
         assertPasses()

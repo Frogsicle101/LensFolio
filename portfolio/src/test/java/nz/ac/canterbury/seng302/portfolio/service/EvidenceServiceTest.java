@@ -115,7 +115,7 @@ class EvidenceServiceTest {
         Mockito.verify(evidenceRepository, atLeast(1)).save(captor.capture());
 
         Evidence evidence = captor.getValue();
-        Assertions.assertEquals(url, evidence.getWebLinks().iterator().next().getUrl().toString());
+        Assertions.assertEquals(url, evidence.getWebLinks().iterator().next().getUrl());
     }
 
 
@@ -233,55 +233,6 @@ class EvidenceServiceTest {
                 () -> evidenceService.addEvidence(principal, evidenceDTO)
         );
         Assertions.assertTrue(exception.getMessage().toLowerCase().contains("description is longer than the maximum length of 500 characters"));
-    }
-
-
-    @Test
-    void testWeblinkWithShortName() {
-        setUserToStudent();
-
-        List<WebLinkDTO> webLinks = new ArrayList<>();
-        webLinks.add(new WebLinkDTO("", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
-        evidenceDTO.setWebLinks(webLinks);
-
-        CheckException exception = Assertions.assertThrows(
-                CheckException.class,
-                () -> evidenceService.addEvidence(principal, evidenceDTO)
-        );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("name should be at least 1 character in length"));
-    }
-
-
-    @Test
-    void testWeblinkWithLongName() {
-        setUserToStudent();
-
-        List<WebLinkDTO> webLinks = new ArrayList<>();
-        webLinks.add(new WebLinkDTO("a".repeat(WebLink.MAXNAMELENGTH + 1), "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
-        evidenceDTO.setWebLinks(webLinks);
-
-        CheckException exception = Assertions.assertThrows(
-                CheckException.class,
-                () -> evidenceService.addEvidence(principal, evidenceDTO)
-        );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("should be 50 characters or less"));
-    }
-
-    @Test
-    void testWeblinkWithIllegalSymbol() {
-        setUserToStudent();
-
-        List<WebLinkDTO> webLinks = new ArrayList<>();
-        webLinks.add(new WebLinkDTO("Hazardous:☢", "https://csse-s302g6.canterbury.ac.nz/prod/potfolio"));
-
-        evidenceDTO.setWebLinks(webLinks);
-
-        CheckException exception = Assertions.assertThrows(
-                CheckException.class,
-                () -> evidenceService.addEvidence(principal, evidenceDTO)
-        );
-        Assertions.assertTrue(exception.getMessage().toLowerCase().contains("web link name can only contain unicode " +
-                "letters, numbers, punctuation, symbols (but not emojis) and whitespace"));
     }
 
 
@@ -695,7 +646,8 @@ class EvidenceServiceTest {
                 "Test Original title",
                 LocalDate.now().minusDays(1) ,
                 "Test Original Description");
-        evidence.addWebLink(new WebLink(evidence, "Original Link", new URL("https://localhost:8080")));
+        WebLinkDTO webLinkDTO = new WebLinkDTO( "Original Link", "https://localhost:8080");
+        evidence.addWebLink(new WebLink(evidence, webLinkDTO));
         evidence.addSkill(new Skill("Java"));
         evidence.addCategory(Category.QUALITATIVE);
         evidence.addCategory(Category.QUANTITATIVE);
