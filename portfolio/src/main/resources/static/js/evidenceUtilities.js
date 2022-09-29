@@ -707,6 +707,28 @@ function getLinkedUsers() {
 
 
 /**
+ * Searches the skill array for a version of the given string.
+ * This is a case-insensitive search, though accents (like a vs â) are treated as different.
+ * If the skill array contains the given string, return it.
+ * Otherwise, return the original string.
+ *
+ * This does not perform whitespace to underscore conversion; you'll have to do it yourself.
+ *
+ * @param string The string you want to look for
+ * @returns {*} The skill array's (possibly case-different) version of this string.
+ * If it is not in the array, this returns the input string.
+ */
+function replaceWithStringFromSkillArray(string) {
+    for (let i in skillsArray) {
+        if (skillsArray[i].localeCompare(string, undefined, {sensitivity : 'accent'}) === 0) {
+            return skillsArray[i] // There exists a skill, so use that
+        }
+    }
+    return string
+}
+
+
+/**
  * This function returns the html for the chips
  *
  * @param element the name of the skill
