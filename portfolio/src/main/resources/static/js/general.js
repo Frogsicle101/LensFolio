@@ -287,10 +287,6 @@ function displayRoleChangeMessage(notification, action) {
     }
 }
 
-function handleRoleChangeEvent(notification, action) {
-    displayRoleChangeMessage(notification, action)
-}
-
 
 /**
  * Removes HTML tags from a string
@@ -343,15 +339,6 @@ function countCharacters() {
     }
 }
 
-function addTooltip(element, text) {
-    element.attr('data-toggle', 'tooltip');
-    element.attr('title', text);
-    element.tooltip({trigger: "hover"});
-}
-
-function removeTooltip(element) {
-    element.tooltip("hide");
-}
 
 /**
  * Regex that is all unicode letters, decimal numbers and punctuation
@@ -381,4 +368,11 @@ function updateErrorMessage(errorDiv, message) {
     } else {
         errorDiv.show()
     }
+}
+
+/**
+ * Redirects to project home page.
+ */
+function redirectToProjectHomePage() {
+    window.location.href = "portfolio?projectId=1" //redirect to the project evidence page
 }
