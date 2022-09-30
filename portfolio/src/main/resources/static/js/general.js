@@ -263,6 +263,16 @@ function addAlert(alert) {
     alert.show("slide", 100)
 }
 
+/**
+ * Generic handler for changing your role that will be called if not overridden in a different file. Despite intellij
+ * saying it's not used, it actually is
+ * @param notification
+ * @param action
+ */
+function handleRoleChangeEvent(notification, action) {
+    displayRoleChangeMessage(notification, action)
+}
+
 
 /**
  * Handles the receiving of a role change event notification. If the logged-in user is the same as the user whose role
