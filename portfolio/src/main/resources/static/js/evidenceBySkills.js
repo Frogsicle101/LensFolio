@@ -25,9 +25,13 @@ function addSkillsToSideBar() {
     let skillsContainer = $('#skillList')
     skillsContainer.empty()
 
-    skillsContainer.append(createSkillChip("No Skill"))
+    skillsContainer.append(createSkillChip("No Skill", undefined, 0.5));
     for (let skill of skillsArray) {
-        skillsContainer.append(createSkillChip(skill.replaceAll("_", " ")))
+        skillsContainer.append(createSkillChip(
+            skill.name.replaceAll("_", " "),
+            skill.id,
+            skill.frequency
+        ))
     }
 }
 
@@ -110,7 +114,7 @@ function updateSelectedEvidence() {
  *    2. Add the selected class to the clicked div, and assign it as selected
  *    3. Populate the display with the selected evidence details.
  */
-$(document).on("click", ".chip" , function (event) {
+$(document).on("click", ".sortableChip" , function (event) {
     $(".selected").removeClass("selected")
 
     let clicked = $(this)
@@ -123,10 +127,25 @@ $(document).on("click", ".chip" , function (event) {
     } else {
         showEvidenceWithCategory()
     }
-    event.stopPropagation() //prevent evidence below chip from being selected
+    event.stopPropagation()
 })
 
 
+//todo document
+function setChipToEditMode(chip) {
+    originalSkillName = chip.find(".chipText").text()
+    chip.find(".chipText").attr("contenteditable", true)
+    chip.find(".noDisplayInput").focus()
+}
+
+
+//todo document
+$(document).on("click", ".editableChip", function() {
+    setChipToEditMode($(this))
+})
+
+
+//todo document
 $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 
 
@@ -136,6 +155,7 @@ $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
  */
 $(document).on("click", "#createEvidenceButton" , () => {
     resetAddOrEditEvidenceForm()
+    startCharacterCounting("form-control")
     $("#addOrEditEvidenceTitle").html("Add Evidence")
     $("#evidenceSaveButton").html("Create")
 
@@ -193,6 +213,8 @@ function getTodayDate() {
  *  Resets evidence modal values to be blank and disables the save button.
  */
 function resetAddOrEditEvidenceForm() {
+    $("#addOrEditEvidenceModal").removeAttr("data-id")
+
     $("#evidenceName").val("")
     $("#evidenceDate").val(getTodayDate())
     $("#evidenceDescription").val("");
@@ -207,7 +229,7 @@ function resetAddOrEditEvidenceForm() {
 
     $("#linkedUsers").empty()
     $("#evidenceSaveButton").prop("disabled", true)
-    skillsToCreate = []
+    skillsToCreate.clear()
 }
 
 
@@ -246,14 +268,14 @@ function setEvidenceData() {
  */
 function setSkills(evidenceHighlight) {
     const currentSkillsList = evidenceHighlight.find(".skillChip")
-    skillsToCreate = []
+    skillsToCreate.clear()
     currentSkillsList.each(function() {
         const skillName = ($(this).find(".chipText").text())
-        skillsToCreate.push(skillName)
-        const skillChip = createDeletableSkillChip(skillName)
-        const tagInputChips = $("#tagInputChips")
+        const skillId = $(this).attr("data-id")
+        skillsToCreate.set(skillName, skillId)
+        const skillChip = createSkillChip(skillName, skillId, undefined, true)
         if (skillName !== "No Skill") {
-            tagInputChips.append(skillChip);
+            $("#tagInputChips").append(skillChip);
         }
     })
 }
@@ -302,6 +324,7 @@ function setLinkedUsers() {
     $("#linkedUsersTitle").show()
     $.each(userLinkedList, function (i, user) {
         const userId = user.getAttribute("data-id")
+        linkedUserIdsArray.push(parseInt(userId, 10))
         const userName = user.innerText
         if (userId !== String(userIdent)){
             $("#linkedUsers").append(linkedUserElement(userId, userName,true))
@@ -323,8 +346,10 @@ function handleEvidenceEdit() {
     setCategories(selectedEvidence)
     setWeblinks(selectedEvidence)
     setLinkedUsers()
-
-    $("#addOrEditEvidenceModal").show()
+    const editModal = $("#addOrEditEvidenceModal")
+    editModal.attr("data-id", parseInt($("#evidenceDetailsId").text(), 10))
+    editModal.show()
+    startCharacterCounting("form-control")
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 }
@@ -334,4 +359,18 @@ function handleEvidenceEdit() {
  *  A Listener for the edit evidence button. This displays the modal and prevents the page below from scrolling
  */
 $(document).on("click", "#editEvidenceButton" , handleEvidenceEdit)
+
+
+$(document).on("focusout", ".chipText", function () {
+    const theElement = $(this)
+    const skillChip = theElement.parent()
+    skillChip.attr("contenteditable", false)
+    const skillName = theElement.text()
+    if (validateSkillInput(skillName, true)) {
+        updateSkillInSkillsToCreate(skillName)
+    }
+
+    updateSkillsInput(false)
+    originalSkillName = null
+})
 

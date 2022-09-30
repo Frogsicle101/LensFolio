@@ -4,6 +4,8 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.util.List;
 @Service
 public class SkillFrequencyService {
 
+    /** For logging */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** Holds persisted information about evidence */
     private final EvidenceRepository evidenceRepository;
@@ -61,9 +65,14 @@ public class SkillFrequencyService {
      * @param userId The id of the user that we want to update skills for.
      */
     public void updateAllSkillFrequenciesForUser(Integer userId) {
+        logger.info("Before");
         skillRepository.findDistinctByEvidenceUserId(userId).forEach((
-                skill -> skill.setFrequency(getSkillFrequency(skill, userId))
+                skill -> {
+                    skill.setFrequency(getSkillFrequency(skill, userId));
+                    skillRepository.save(skill);
+                }
         ));
+        logger.info("after");
     }
 
 

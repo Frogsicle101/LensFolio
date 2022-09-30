@@ -86,7 +86,7 @@ function showHighlightedEvidenceDetails() {
  *
  * @param response The response from the backend, which contains the web links for a piece of evidence.
  */
-function setHighlightedEvidenceWebLinks(response) {
+function addWeblinksToDisplayedEvidence(response) {
     let webLinksDiv = $("#evidenceWebLinks")
     webLinksDiv.empty()
 
@@ -123,7 +123,6 @@ function deletableWeblinkElement(url, alias) {
     if (!hasProtocol(url)) {
         urlWithProtocol = "http://" + url
     }
-
     return (`
         <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
             <button class="deleteWeblink deleteIcon">
@@ -324,7 +323,6 @@ function getHighlightedEvidenceDetails() {
         $.ajax({
             url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
                 setHighlightEvidenceAttributes(response)
-                getHighlightedEvidenceWeblinks()
             }, error: function (error) {
                 console.log(error)
                 createAlert("Failed to receive active evidence", AlertTypes.Failure)
@@ -333,23 +331,6 @@ function getHighlightedEvidenceDetails() {
     } else {
         setDetailsToNoEvidenceExists()
     }
-}
-
-
-/**
- * Makes a request to the backend to retrieve all the web links for a piece of evidence. If the request is successful,
- * a function is called to add the web links to the document.
- */
-function getHighlightedEvidenceWeblinks() {
-    $.ajax({
-        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId, success: function (response) {
-            setHighlightedEvidenceWebLinks(response)
-        }, error: function (response) {
-            if (response.status !== 404) {
-                createAlert("Failed to receive evidence links", AlertTypes.Failure)
-            }
-        }
-    })
 }
 
 
@@ -367,7 +348,11 @@ function getSkills(callback = () => {
             skillsArray = []
             $.each(response, function (i) {
                 if (!skillsArray.includes(response[i].name)) {
-                    skillsArray.push(response[i].name)
+                    skillsArray.push({
+                        id: response[i].id,
+                        name: response[i].name,
+                        frequency: response[i].frequency
+                    })
                 }
             })
             callback()
@@ -380,19 +365,6 @@ function getSkills(callback = () => {
 
 
 // --------------------------- Functional HTML Components ------------------------------------
-
-
-/**
- *  A helper function to take a response from an ajax call and add it to the array of skills
- */
-function addSkillResponseToArray(response) {
-    let skills = []
-    for (let i in response.skills) {
-        skills.push(response.skills[i].name)
-    }
-    skillsArray = [...new Set(skillsArray.concat(skills))];
-}
-
 
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
@@ -409,6 +381,7 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
+    addWeblinksToDisplayedEvidence(evidenceDetails.webLinks)
     addLinkedUsersToEvidence(evidenceDetails.associates)
     addSkillsToEvidence(evidenceDetails.skills)
 
@@ -458,10 +431,10 @@ function addSkillsToEvidence(skills) {
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     if (skills.length < 1) {
-        highlightedEvidenceSkills.append(createSkillChip("No Skill"))
+        highlightedEvidenceSkills.append(createSkillChip("No Skill", 0.5))
     } else {
         $.each(skills, function (i) {
-            highlightedEvidenceSkills.append(createSkillChip(skills[i].name))
+            highlightedEvidenceSkills.append(createSkillChip(skills[i].name, skills[i].id, skills[i].frequency))
         })
     }
 }
@@ -514,7 +487,7 @@ function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     let skillsHTML = ``
     $.each(skills, function (i) {
-        skillsHTML += createSkillChip(skills[i].name)
+        skillsHTML += createSkillChip(skills[i].name, skills[i].id, skills[i].frequency)
     })
     return skillsHTML
 }
@@ -728,7 +701,7 @@ function handleSuccessfulEvidenceDelete(evidenceName) {
     selectedEvidenceId = null
     getAndAddEvidencePreviews()
     getSkills(addSkillsToSideBar)
-    createAlert("Successfully deleted evidence: " + sanitise(evidenceName), AlertTypes.Success)
+    createAlert("Successfully deleted evidence: " + evidenceName, AlertTypes.Success)
 }
 
 
@@ -781,29 +754,12 @@ function getLinkedUsers() {
  * If it is not in the array, this returns the input string.
  */
 function replaceWithStringFromSkillArray(string) {
-    for (let i in skillsArray) {
-        if (skillsArray[i].localeCompare(string, undefined, {sensitivity : 'accent'}) === 0) {
-            return skillsArray[i] // There exists a skill, so use that
+    for (let skill of skillsArray) {
+        if (skill.name.localeCompare(string, undefined, {sensitivity : 'accent'}) === 0) {
+            return skill.name // There exists a skill, so use that
         }
     }
     return string
-}
-
-
-/**
- * This function returns the html for the chips
- *
- * @param element the name of the skill
- * @returns {string} the html for the chip
- */
-function createDeletableSkillChip(element) {
-    return `<div class="chip skillChip">
-                <p class="chipText">${sanitise(element)}</p>  
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                </svg>
-            </div>`
 }
 
 
@@ -824,23 +780,6 @@ $(document).on("click", "#evidenceSaveButton", function (e) {
     e.preventDefault()
     handleEvidenceSave()
 })
-
-
-/**
- * Refreshes the evidence page and evidence modal, and creates an alert for successful evidence deletion.
- */
-function handleSuccessfulEvidenceSave(response) {
-    selectedEvidenceId = response.id
-    getAndAddEvidencePreviews()
-    addSkillResponseToArray(response)
-    addSkillsToSideBar();
-    closeModal()
-    clearAddEvidenceModalValues()
-    $(".alert").remove()
-    createAlert("Created evidence", AlertTypes.Success)
-    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-    resetWeblink()
-}
 
 
 /**
@@ -927,7 +866,7 @@ $(document).on('click', '#addWeblinkButton', function (e) {
  * Listens for when delete web link button is clicked.
  * the web link will be deleted.
  */
-$(document).on('click', '#deleteWeblink', function () {
+$(document).on('click', '.deleteWeblink', function () {
     $(this).parent().remove();
     webLinksCount -= 1;
     checkWeblinkCount();
@@ -1124,7 +1063,7 @@ function clearAddEvidenceModalValues() {
     $("#addedWebLinks").empty()
     $("#linkedUsers").empty()
     $("#webLinkTitle").hide()
-    skillsToCreate = []
+    skillsToCreate.clear()
     updateSkillsInput()
     $("#linkedUsersTitle").hide()
     $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
@@ -1223,8 +1162,7 @@ function checkDateValidity() {
     else if (proposedDate > latestDate) {
         dateError.text(`Evidence date must be before the project end and not in the future.\n Please choose a date between ${projectStartFormatted} and ${projectEndFormatted}`)
         dateError.show()
-    }
-    else {
+    } else {
         dateError.text("")
         dateError.hide()
     }
@@ -1235,12 +1173,22 @@ function checkDateValidity() {
  * Creates HTMl for a skill chip with the given skill name.
  *
  * @param skillName The name to be displayed in the skill chip.
+ * @param skillId The ID of the skill saved in the database.
+ * @param deletable Optional parameter determining if the chip is deletable, false by default
  * @returns {string} The string of HTMl representing the skill chip.
  */
-function createSkillChip(skillName) {
+//Todo make skill chips not bad
+function createSkillChip(skillName, skillId, deletable = false) {
+    const deleteIcon = deletable ? `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg>` : ""
+
     return `
-        <div class="chip skillChip">
-            <p class="chipText">${sanitise(skillName)}</p>
+        <div class="chip skillChip ${deletable ? "editableChip" : "sortableChip"}" ${skillId !== undefined ? "data-id=" + skillId: ""}>
+            <span class="chipText noDisplayInput focus" role="textbox">${sanitise(skillName)}</span>
+            ${deleteIcon}
         </div>`
 }
 
@@ -1260,7 +1208,7 @@ function createCategoryChip(categoryName, isMenuItem) {
             </div>`
     } else {
         return `
-            <div class="chip categoryChip">
+            <div class="chip categoryChip sortableChip">
                 <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
     }
@@ -1276,24 +1224,44 @@ function createCategoryChip(categoryName, isMenuItem) {
  * @returns {string} A JSON string of the evidence's data, formatted as an EvidenceDTO.
  */
 function getDataFromEvidenceForm() {
+    const evidenceId = $("#addOrEditEvidenceModal").attr("data-id")
     const title = $("#evidenceName").val()
     const date = $("#evidenceDate").val()
     const description = $("#evidenceDescription").val()
     const projectId = 1
     let webLinks = getWeblinksList();
-    const linkedUsers = getLinkedUsers();
+    const skills = Array.from(skillsToCreate, ([key, val]) => ({"id" : val, "name" : key}))
     const categories = getCategories();
+    const linkedUsers = getLinkedUsers();
 
     return JSON.stringify({
+        "id": evidenceId,
         "title": title,
         "date": date,
         "description": description,
         "projectId": projectId,
         "webLinks": webLinks,
-        "skills": skillsToCreate,
+        "skills": skills,
         "categories": categories,
         "associateIds": linkedUsers
     })
+}
+
+
+/**
+ * Updates the evidence page and resets the add evidence modal.
+ *
+ * @param response A server response containing data about the saved evidence, including its Id and skills.
+ */
+function handleSuccessfulEvidenceSave(response) {
+    selectedEvidenceId = response.id
+    getAndAddEvidencePreviews()
+    getSkills(addSkillsToSideBar)
+    closeModal()
+    clearAddEvidenceModalValues()
+    $(".alert").remove()
+    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+    resetWeblink()
 }
 
 
@@ -1310,6 +1278,28 @@ function createEvidence(data) {
         data,
         success: (response) => {
             handleSuccessfulEvidenceSave(response)
+            createAlert("Created evidence", AlertTypes.Success)
+        }, error: (error) => {
+            createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
+        }
+    })
+}
+
+
+/**
+ * Makes an endpoint request to save a new piece of evidence.
+ *
+ * @param data the data for the evidence being created.
+ */
+function editEvidence(data) {
+    $.ajax({
+        url: 'evidence',
+        type: "PATCH",
+        contentType: "application/json",
+        data,
+        success: (response) => {
+            handleSuccessfulEvidenceSave(response)
+            createAlert("Successfully edited evidence", AlertTypes.Success)
         }, error: (error) => {
             createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
         }
@@ -1322,14 +1312,11 @@ function createEvidence(data) {
  * button has the text "Create".
  */
 function handleEvidenceSave() {
-    removeDuplicatesFromInput(skillsInput)
-
     const evidenceCreationForm = $("#evidenceCreationForm")[0]
     toggleRequiredIfCheckURLInputsAreEmpty()
 
     if (!evidenceCreationForm.checkValidity()) {
         evidenceCreationForm.reportValidity()
-
     } else {
         const evidenceData = getDataFromEvidenceForm()
         const buttonName = $("#evidenceSaveButton").text()
@@ -1337,8 +1324,8 @@ function handleEvidenceSave() {
         if (buttonName === "Create") { // create a new evidence
             createEvidence(evidenceData)
 
-        } else { // edit a exist evidence
-            // ToDo: Connect Save Button to Endpoint
+        } else { // edit an existing piece of evidence
+            editEvidence(evidenceData)
         }
     }
 }

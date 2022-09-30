@@ -38,7 +38,7 @@ public class EvidenceResponseDTO {
     /**
      * The weblinks associated to the evidence.
      */
-    private final Set<WebLink> webLinks;
+    private final Set<nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink> webLinks;
     /**
      * The skills associated to the evidence.
      */
@@ -108,7 +108,7 @@ public class EvidenceResponseDTO {
         }
         associateUsers.append("]");
         //The JSON returns without spaces in between elements, so we remove them.
-        String associateIdsNoSpaces = associateIds.toString().replaceAll(" ", "");
+        String associateIdsNoSpaces = associateIds.toString().replace(" ", "");
         return "{" +
                 "\"id\":" + id +
                 "," + "\"userId\":" + userId +

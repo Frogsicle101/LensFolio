@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
  * Represents an WebLink Entity
  */
 @Entity
+@Table(name = "weblinks")
 public class WebLink {
 
     public static final int MAXURLLENGTH = 2000;
