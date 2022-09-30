@@ -51,12 +51,17 @@ public class EvidenceData {
         try {
             LocalDate date = LocalDate.now();
 
-            int adminId = 109;
+            int adminId = 29;
+            int steveId = 30;
+
             Evidence evidence = evidenceRepository.save(new Evidence(adminId, "Title", date, "Description"));
             Evidence evidence1 = evidenceRepository.save(new Evidence(adminId, "Created test Data", date, "Created a selection of default evidence objects for testing"));
             Evidence evidence2 = evidenceRepository.save(new Evidence(adminId, "making more evidence", date, "Description of another one"));
             Evidence evidence3 = evidenceRepository.save(new Evidence(adminId, "Writing Long Descriptions", date, "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
             Evidence evidence4 = evidenceRepository.save(new Evidence(adminId, "No Skill Evidence", date, "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
+
+            Evidence steveEvidence = evidenceRepository.save(new Evidence(steveId, "Created Python Program", date, "I created a python program that ran through the library's database to find all of shakespears books"));
+            Evidence steveEvidence1 = evidenceRepository.save(new Evidence(steveId, "Created test Data", date, "Created a selection of test data to make sure our application runs smoothly"));
 
             WebLinkDTO webLinkDTO = new WebLinkDTO( "localhost",  "https://localhost");
             WebLinkDTO webLinkDTO2 = new WebLinkDTO( "evidence1 weblink",  "https://localhost/evidence1");
@@ -75,6 +80,9 @@ public class EvidenceData {
             evidence1.addWebLink(webLink1);
             evidence1.addWebLink(webLink2);
 
+            steveEvidence.addWebLink(webLink1);
+            steveEvidence1.addWebLink(webLink2);
+
             evidence.addSkill(skill);
             evidence.addSkill(skill1);
             evidence.addSkill(skill2);
@@ -92,6 +100,10 @@ public class EvidenceData {
             evidence3.addSkill(skill2);
             evidence3.addSkill(skill3);
 
+            steveEvidence.addSkill(skill2);
+            steveEvidence1.addSkill(skill);
+            steveEvidence1.addSkill(skill3);
+
             evidence.addCategory(Category.SERVICE);
             evidence.addCategory(Category.QUALITATIVE);
             evidence.addCategory(Category.QUANTITATIVE);
@@ -101,11 +113,17 @@ public class EvidenceData {
             evidence3.addCategory(Category.QUALITATIVE);
             evidence4.addCategory(Category.QUANTITATIVE);
 
+            steveEvidence.addCategory(Category.QUANTITATIVE);
+            steveEvidence1.addCategory(Category.SERVICE);
+
             evidence.addAssociateId(adminId);
             evidence1.addAssociateId(adminId);
             evidence2.addAssociateId(adminId);
             evidence3.addAssociateId(adminId);
             evidence4.addAssociateId(adminId);
+
+            steveEvidence.addAssociateId(steveId);
+            steveEvidence1.addAssociateId(steveId);
 
             evidenceRepository.save(evidence);
             evidenceRepository.save(evidence1);
@@ -114,6 +132,10 @@ public class EvidenceData {
             evidenceRepository.save(evidence4);
 
             skillFrequencyService.updateAllSkillFrequenciesForUser(adminId);
+            skillFrequencyService.updateAllSkillFrequenciesForUser(steveId);
+
+            evidenceRepository.save(steveEvidence);
+            evidenceRepository.save(steveEvidence1);
         } catch (Exception exception) {
             logger.error("Error occurred loading default evidence");
             logger.error(exception.getMessage());
