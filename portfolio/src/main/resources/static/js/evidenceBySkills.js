@@ -25,10 +25,14 @@ function addSkillsToSideBar() {
     let skillsContainer = $('#skillList')
     skillsContainer.empty()
 
-    skillsContainer.append(createSkillChip("No Skill", undefined))
-    skillsMap.forEach((value, key) => {
-        skillsContainer.append(createSkillChip(key.replaceAll("_", " "), value))
-    })
+    skillsContainer.append(createSkillChip("No Skill", undefined, 0.5));
+    for (let skill of skillsArray) {
+        skillsContainer.append(createSkillChip(
+            skill.name.replaceAll("_", " "),
+            skill.id,
+            skill.frequency
+        ))
+    }
 }
 
 
@@ -127,19 +131,21 @@ $(document).on("click", ".sortableChip" , function (event) {
 })
 
 
+//todo document
 function setChipToEditMode(chip) {
     originalSkillName = chip.find(".chipText").text()
     chip.find(".chipText").attr("contenteditable", true)
     chip.find(".noDisplayInput").focus()
 }
 
+
+//todo document
 $(document).on("click", ".editableChip", function() {
     setChipToEditMode($(this))
 })
 
 
-
-
+//todo document
 $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 
 
@@ -223,6 +229,7 @@ function resetAddOrEditEvidenceForm() {
 
     $("#linkedUsers").empty()
     $("#evidenceSaveButton").prop("disabled", true)
+    skillsToCreate.clear() //TODO check this line is needed
 }
 
 
@@ -261,10 +268,11 @@ function setEvidenceData() {
  */
 function setSkills(evidenceHighlight) {
     const currentSkillsList = evidenceHighlight.find(".skillChip")
+    skillsToCreate.clear()
     currentSkillsList.each(function() {
         const skillName = ($(this).find(".chipText").text())
         const skillId = $(this).attr("data-id")
-        const skillChip = createSkillChip(skillName, skillId, true)
+        const skillChip = createSkillChip(skillName, skillId, undefined, true)
         if (skillName !== "No Skill") {
             $("#tagInputChips").append(skillChip);
         }

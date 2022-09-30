@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class WeblinkRegex {
 
-    private static final String[] ALLOWED_PROTOCOLS = {"http", "https", "ftp"};
+    private static final String[] ALLOWED_PROTOCOLS = {"http", "https"};
 
     //from rfc https://www.ietf.org/rfc/rfc2396.txt
     private static final String ESCAPED = "(%[\\da-f][\\da-f])";
@@ -13,7 +13,7 @@ public class WeblinkRegex {
     private static final String UNRESERVED = "-\\w\\.!~\\*'\\(\\)";
     private static final String URIC = "[" + UNRESERVED + RESERVED + "]" + "|" + ESCAPED;
 
-    private static final String PATH_CHARS = "[-\\w\\.~!\\$&'\\(\\)\\*\\+,;=:@/]" + "|" + ESCAPED;
+    private static final String PATH_CHARS = "[-\\w\\.~!\\$&'\\(\\)\\*\\+,;=:@\\/]" + "|" + ESCAPED;
 
     /**
      * The protocol can be any of the options in the ALLOWED_PROTOCOL array above.
@@ -47,7 +47,7 @@ public class WeblinkRegex {
      * Each additional key-value assignment is prefaced by an "&" character.
      * Optional.
      */
-    private static final String QUERY = "(\\?((([%s])+=([%<s])+)+(&([%<s])+=([%<s])+)*)+)?".formatted(URIC);
+    private static final String QUERY = "(\\?(((%s)+=(%<s)+)+(&(%<s)+=(%<s)+)*)+)?".formatted(URIC);
 
     /**
      * The fragment starts with a "#" character.
@@ -63,15 +63,17 @@ public class WeblinkRegex {
      * Otherwise, only the domain and path are allowed. In this case, it is a web address.
      */
     private static final Pattern WEBLINK = Pattern.compile(
-                    PROTOCOL +
-                    DOMAIN +
-                    PORT +
-                    PATH +
-                    QUERY +
-                    FRAGMENT +
-                    "|" +
-                    DOMAIN +
-                    PATH
+            "^" +
+            PROTOCOL +
+            DOMAIN +
+            PORT +
+            PATH +
+            QUERY +
+            FRAGMENT +
+            "$|^" +
+            DOMAIN +
+            PATH +
+            "$"
     );
 
     private WeblinkRegex() {}

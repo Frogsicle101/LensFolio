@@ -43,7 +43,6 @@ public class WeblinkRegexTest {
         expectedPasses.add("http://example.com:/"); // from RFC documentation
         expectedPasses.add("http://example.com:80/"); // from RFC documentation
         expectedPasses.add("https://www.google.com");
-        expectedPasses.add("ftp://ftp.is.co.za/rfc/rfc1808.txt");
 
         assertPasses();
     }
@@ -108,7 +107,8 @@ public class WeblinkRegexTest {
 
     @Test
     public void regexProtocolFails() {
-        expectedFails.add("."); //passed
+        expectedFails.add(".");
+        expectedFails.add("ftp://ftp.is.co.za/rfc/rfc1808.txt");
         expectedFails.add("urn:oasis:names:specification:docbook:dtd:xml:4.1.2");
         expectedFails.add("tel:+1-816-555-1212");
         expectedFails.add("telnet://192.0.2.16:80/");
@@ -130,12 +130,12 @@ public class WeblinkRegexTest {
     public void regexDomainFails() {
         expectedFails.add(".example");
         expectedFails.add("http://.example");
-        expectedFails.add("♨️.com");
         expectedFails.add("i am a website.com");
         expectedFails.add("'quote'.com");
         expectedFails.add("$$$money$$$.com");
         expectedFails.add("@.com");
         expectedFails.add("!.com");
+        expectedFails.add("♨️.com");
         expectedFails.add("https://www.<script>Something naughty!</script>place.com");
 
         assertFails();

@@ -17,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -54,6 +52,9 @@ public class EvidenceService {
     /** For validating inputs against the central regex. */
     private final RegexService regexService;
 
+    /** For all services related to skill frequency */
+    private final SkillFrequencyService skillFrequencyService;
+
 
     /**
      * Autowired constructor for injecting the required dependencies.
@@ -64,6 +65,7 @@ public class EvidenceService {
      * @param webLinkRepository for persisting CRUD operations on weblinks.
      * @param skillRepository for persisting CRUD operations on skills.
      * @param regexService for validating inputs against the central regex.
+     * @param skillFrequencyService for all services related to skill frequency.
      */
     @Autowired
     public EvidenceService(
@@ -72,7 +74,8 @@ public class EvidenceService {
             EvidenceRepository evidenceRepository,
             WebLinkRepository webLinkRepository,
             SkillRepository skillRepository,
-            RegexService regexService
+            RegexService regexService,
+            SkillFrequencyService skillFrequencyService
     ) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
@@ -80,6 +83,7 @@ public class EvidenceService {
         this.webLinkRepository = webLinkRepository;
         this.skillRepository = skillRepository;
         this.regexService = regexService;
+        this.skillFrequencyService = skillFrequencyService;
     }
 
 
@@ -309,6 +313,7 @@ public class EvidenceService {
             }
             evidence.addSkill(savedSkill);
         }
+        skillFrequencyService.updateAllSkillFrequenciesForUser(evidence.getUserId());
         evidenceRepository.save(evidence);
     }
 
@@ -331,22 +336,13 @@ public class EvidenceService {
      * @param webLinks The list of weblinks to add, in their raw DTO form
      * @throws MalformedURLException if a weblink has an invalid URL
      */
-    private void addWeblinks(Evidence evidence, List<WebLinkDTO> webLinks) throws MalformedURLException {
-        for (WebLinkDTO dto : webLinks) {
-            URL weblinkURL = new URL(dto.getUrl());
-            if (dto.getUrl().contains("&nbsp")) {
-                evidenceRepository.delete(evidence);
-                throw new MalformedURLException("The non-breaking space is not a valid character");
-            }
-            try {
-                weblinkURL.toURI(); // The toURI covers cases that the URL constructor does not, so we use both
-            } catch (URISyntaxException e) {
-                evidenceRepository.delete(evidence);
-                throw new CheckException("The URL for the weblink " + dto.getName() + " is not correctly formatted.");
-            }
+    private void addWeblinks(Evidence evidence, List<WebLinkDTO> webLinks) throws CheckException {
+        for (WebLinkDTO webLinkDTO : webLinks) {
             // This requires the evidence object to be saved, since it needs to refer to it
-            WebLink webLink = new WebLink(evidence, dto.getName(), weblinkURL);
-            regexService.checkInput(RegexPattern.GENERAL_UNICODE, dto.getName(), 1, 50, "web link name");
+            regexService.checkInput(RegexPattern.GENERAL_UNICODE, webLinkDTO.getName(), 1, WebLink.MAXNAMELENGTH, "Weblink name");
+            regexService.checkInput(RegexPattern.WEBLINK, webLinkDTO.getUrl(), 1, WebLink.MAXURLLENGTH, "Weblink url");
+
+            WebLink webLink = new WebLink(evidence, webLinkDTO);
             webLinkRepository.save(webLink);
             evidence.addWebLink(webLink);
             evidenceRepository.save(evidence);

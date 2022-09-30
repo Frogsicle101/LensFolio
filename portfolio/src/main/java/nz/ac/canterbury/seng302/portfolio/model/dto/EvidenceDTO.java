@@ -22,19 +22,6 @@ public class EvidenceDTO {
     List<Integer> associateIds;
     Long projectId;
 
-    private EvidenceDTO() {}
-
-    public EvidenceDTO(String title, String date, String description, List<WebLinkDTO> webLinks,
-                       List<Skill> skills, List<String> categories, Long projectId, List<Integer> associateIds) {
-        this.title = title;
-        this.date = date;
-        this.description = description;
-        this.webLinks = webLinks;
-        this.projectId = projectId;
-        this.skills = skills;
-        this.categories = categories;
-        this.associateIds = associateIds;
-    }
 
     public String getTitle() {
         return title;

@@ -6,6 +6,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.SkillRepository;
+import nz.ac.canterbury.seng302.portfolio.service.SkillFrequencyService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.AuthenticateClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.GroupsClientService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -29,8 +31,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -64,18 +69,26 @@ class SkillsControllerTest {
     @MockBean
     private EvidenceRepository evidenceRepository;
 
+    @SpyBean
+    private SkillFrequencyService skillFrequencyService;
+
     @MockBean
     private DataInitialisationManagerPortfolio dataInitialisationManagerPortfolio;
 
     private final Integer validUserId = 1;
     private final Integer nonExistentUserId = 2;
     private final String invalidUserId = "Not an Id";
+    private String expectedResponseString;
+    private UserResponse validUserResponse;
 
 
     @BeforeEach
     public void setup() {
         setUserToStudent();
         setUpContext();
+
+        validUserResponse = UserResponse.newBuilder().setId(validUserId).build();
+        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
     }
 
 
@@ -83,10 +96,10 @@ class SkillsControllerTest {
     void testGetSkillsForUserWhenUserHasNoSkills() throws Exception {
         List<Skill> emptySkills = new ArrayList<>();
         String expectedResponseString = "[]";
-        UserResponse validUserResponse = UserResponse.newBuilder().setId(validUserId).build();
+        
 
         Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
-        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
+
 
         MvcResult result = mockMvc.perform(get("/skills")
                 .param("userId", String.valueOf(validUserId)))
@@ -104,10 +117,9 @@ class SkillsControllerTest {
         List<Skill> emptySkills = new ArrayList<>();
         emptySkills.add(usersSkill);
         String expectedResponseString = "[" + usersSkill.toJsonString() + "]";
-        UserResponse validUserResponse = UserResponse.newBuilder().setId(validUserId).build();
 
         Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
-        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
+        
 
         MvcResult result = mockMvc.perform(get("/skills")
                         .param("userId", String.valueOf(validUserId)))
@@ -129,10 +141,9 @@ class SkillsControllerTest {
         emptySkills.add(usersSkill2);
         emptySkills.add(usersSkill3);
         String expectedResponseString = "[" + usersSkill1.toJsonString() + "," + usersSkill2.toJsonString() +  "," + usersSkill3.toJsonString() + "]";
-        UserResponse validUserResponse = UserResponse.newBuilder().setId(validUserId).build();
 
         Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(emptySkills);
-        Mockito.when(userAccountsClientService.getUserAccountById(any())).thenReturn(validUserResponse);
+
 
         MvcResult result = mockMvc.perform(get("/skills")
                         .param("userId", String.valueOf(validUserId)))
@@ -141,6 +152,71 @@ class SkillsControllerTest {
 
         String responseContent = result.getResponse().getContentAsString();
         Assertions.assertEquals(expectedResponseString, responseContent);
+    }
+
+
+    @Test
+    void testGetSkillsFrequencyForUser() throws Exception {
+        List<Skill> skillList = getDefaultSkillsList();
+
+        ArrayList<Evidence> evidences = new ArrayList<>();
+        Evidence evidence = new Evidence(validUserId, "test", LocalDate.now(), "test");
+        evidence.addSkill(skillList.get(0));
+        evidences.add(evidence);
+        skillList.get(0).setFrequency(1.0);
+
+        setUpMocks(skillList, evidences);
+
+        MvcResult result = mockMvc.perform(get("/skills")
+                        .param("userId", String.valueOf(validUserId)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        makeFrequencyAssertions(result, "1.0");
+
+    }
+
+
+
+    @Test
+    void testGetSkillsFrequencyForUserPointFive() throws Exception {
+        List<Skill> skillList = getDefaultSkillsList();
+
+        ArrayList<Evidence> evidencesWithSkills = new ArrayList<>();
+        ArrayList<Evidence> evidences = new ArrayList<>();
+        Evidence evidence = new Evidence(validUserId, "test", LocalDate.now(), "test");
+        Evidence evidence1 = new Evidence(validUserId, "test", LocalDate.now(), "test");
+        evidence.addSkill(skillList.get(0));
+        evidencesWithSkills.add(evidence);
+        evidences.add(evidence);
+        evidences.add(evidence1);
+        skillList.get(0).setFrequency(0.5);
+
+        setUpMocks(skillList, evidences);
+        Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(validUserId, skillList.get(0))).thenReturn(evidencesWithSkills);
+
+        MvcResult result = mockMvc.perform(get("/skills")
+                        .param("userId", String.valueOf(validUserId)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        makeFrequencyAssertions(result, "0.5");
+    }
+
+
+    @Test
+    void testGetSkillsFrequencyForUserNoEvidence() throws Exception {
+        List<Skill> skillList = getDefaultSkillsList();
+        ArrayList<Evidence> evidences = new ArrayList<>();
+
+        setUpMocks(skillList, evidences);
+
+        MvcResult result = mockMvc.perform(get("/skills")
+                        .param("userId", String.valueOf(validUserId)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        makeFrequencyAssertions(result, "0.0");
     }
 
 
@@ -300,6 +376,28 @@ class SkillsControllerTest {
 
         when(PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService)).thenReturn(userBuilder.build());
         Mockito.when(authenticateClientService.checkAuthState()).thenReturn(principal.getAuthState());
+    }
 
+
+    private List<Skill> getDefaultSkillsList() {
+        Skill usersSkill1 = new Skill(1, "Skill 1");
+        List<Skill> skillList = new ArrayList<>();
+        skillList.add(usersSkill1);
+        return skillList;
+    }
+
+
+    private void setUpMocks(List<Skill> skillList, List<Evidence> evidences) {
+        expectedResponseString = "[" + skillList.get(0).toJsonString() + "]";
+
+        Mockito.when(evidenceRepository.findAllByUserIdAndSkillsContainingOrderByOccurrenceDateDesc(validUserId, skillList.get(0))).thenReturn(evidences);
+        Mockito.when(evidenceRepository.findAllByUserIdOrderByOccurrenceDateDesc(validUserId)).thenReturn(evidences);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserId(validUserId)).thenReturn(skillList);
+    }
+
+    private void makeFrequencyAssertions(MvcResult result, String expectedFrequency) throws UnsupportedEncodingException {
+        String responseContent = result.getResponse().getContentAsString();
+        Assertions.assertEquals(expectedResponseString, responseContent);
+        Assertions.assertTrue(expectedResponseString.contains(expectedFrequency));
     }
 }

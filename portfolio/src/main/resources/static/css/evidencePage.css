@@ -274,3 +274,7 @@
     display : flex;
     align-items: center;
 }
+
+#evidenceSkillFeedback {
+    white-space: pre-wrap;
+}
