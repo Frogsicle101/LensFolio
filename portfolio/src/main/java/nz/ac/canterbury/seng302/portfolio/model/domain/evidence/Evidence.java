@@ -1,5 +1,6 @@
 package nz.ac.canterbury.seng302.portfolio.model.domain.evidence;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -33,9 +34,8 @@ public class Evidence {
     private String description;
 
     /** A list of the web links associated with a piece of Evidence */
-    @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER, orphanRemoval = true)
-    private final Set<WebLink> webLinks = new HashSet<>() {
-    };
+    @OneToMany(mappedBy = "evidence", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+    private final Set<WebLink> webLinks = new HashSet<>();
 
     /** A list of the skills associated with the piece of Evidence */
     @ManyToMany
@@ -45,7 +45,7 @@ public class Evidence {
             inverseJoinColumns = @JoinColumn(name = "skillId"))
     private final Set<Skill> skills = new HashSet<>();
 
-    /** The set of categories, can have SERVICE, QUANTITATIVE and QUALITATIVE. Can be multiple*/
+    /** The set of categories, can have SERVICE, QUANTITATIVE and QUALITATIVE. Can be multiple */
     @Enumerated(EnumType.ORDINAL)
     @ElementCollection(fetch = FetchType.EAGER)
     private final Set<Category> categories = new HashSet<>();
@@ -56,6 +56,14 @@ public class Evidence {
      */
     @ElementCollection(fetch = FetchType.EAGER)
     private final Set<Integer> associateIds = new HashSet<>();
+
+    /**
+     * A list of all the user ids which are currently, or have been associated to this piece of
+     * evidence
+     */
+    @JsonIgnore
+    @ElementCollection(fetch = FetchType.EAGER)
+    private final Set<Integer> archivedIds = new HashSet<>();
 
 
     /**
@@ -152,6 +160,10 @@ public class Evidence {
         this.webLinks.add(webLink);
     }
 
+    public void clearWeblinks() {
+        webLinks.clear();
+    }
+
     /**
      * Verifies that the description is less than 500 characters, and sets the property if so.
      *
@@ -170,6 +182,10 @@ public class Evidence {
         skills.add(skill);
     }
 
+    public void clearSkills() {
+        skills.clear();
+    }
+
     public Set<Category> getCategories() {
         return categories;
     }
@@ -178,11 +194,30 @@ public class Evidence {
         categories.add(category);
     }
 
+    public void clearCategories() {
+        categories.clear();
+    }
+
     public List<Integer> getAssociateIds() {
         return new ArrayList<>(associateIds);
     }
 
-    public void addAssociateId(Integer associateId) { associateIds.add(associateId); }
+    public void addAssociateId(Integer associateId) {
+        associateIds.add(associateId);
+        archivedIds.add(associateId);
+    }
+
+    public void removeAssociateId(Integer associateId) {
+        associateIds.remove(associateId);
+    }
+
+    public void clearAssociatedIds() {
+        associateIds.clear();
+    }
+
+    public Set<Integer> getArchivedIds() {
+        return archivedIds;
+    }
 
     /**
      * This method is used to help with testing. It returns the expected JSON string created for this object.

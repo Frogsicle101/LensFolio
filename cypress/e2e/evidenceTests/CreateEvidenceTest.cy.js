@@ -51,7 +51,7 @@ describe("Closing evidence creation form without save", () => {
 
     it("Cancelling evidence creation does not clear form", () => {
         cy.get("#createEvidenceButton").click({force: true})
-        cy.get("#evidenceName").type("test")
+        cy.get("#evidenceName").type("tests")
         cy.get("#evidenceDescription").type("desc")
         cy.get("#skillsInput").type("skill")
         cy.get("#addWeblinkButton").click()
@@ -66,5 +66,4 @@ describe("Closing evidence creation form without save", () => {
         cy.get(".skillChipDisplay").contains("skill")
         cy.get("#addedWebLinks").contains("name")
     })
-
 })

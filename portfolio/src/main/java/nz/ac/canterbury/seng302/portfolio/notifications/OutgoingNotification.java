@@ -18,12 +18,12 @@ public class OutgoingNotification {
     /**
      * The subtype of occasion. One of 'event', 'milestone', 'deadline', 'addRole', or 'deleteRole'
      */
-    private final String occasionType;
+    private final String data;
 
     /**
      * The ID of the edited occasion or role
      */
-    private final String occasionId;
+    private final String id;
 
     /**
      * The type of message
@@ -36,15 +36,15 @@ public class OutgoingNotification {
      *
      * @param editorId     The id of the user making changes
      * @param editorName   The name of the user making changes
-     * @param occasionType The type of occasion we are editing
-     * @param occasionId   The ID of that occasion
+     * @param data The type of occasion we are editing
+     * @param id   The ID of that occasion
      * @param action       The action that has been performed. One of create, delete, edit, or stop.
      */
-    public OutgoingNotification(String editorId, String editorName, String occasionType, String occasionId, String action) {
+    public OutgoingNotification(String editorId, String editorName, String data, String id, String action) {
         this.editorId = editorId;
         this.editorName = editorName;
-        this.occasionType = occasionType;
-        this.occasionId = occasionId;
+        this.data = data;
+        this.id = id;
         this.action = action;
     }
 
@@ -59,13 +59,13 @@ public class OutgoingNotification {
     }
 
 
-    public String getOccasionType() {
-        return occasionType;
+    public String getData() {
+        return data;
     }
 
 
-    public String getOccasionId() {
-        return occasionId;
+    public String getId() {
+        return id;
     }
 
 

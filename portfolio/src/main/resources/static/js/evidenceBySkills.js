@@ -25,9 +25,13 @@ function addSkillsToSideBar() {
     let skillsContainer = $('#skillList')
     skillsContainer.empty()
 
-    skillsContainer.append(createSkillChip("No Skill", true))
+    skillsContainer.append(createSkillChip("No Skill", undefined, 0.5));
     for (let skill of skillsArray) {
-        skillsContainer.append(createSkillChip(skill.replaceAll("_", " "), true))
+        skillsContainer.append(createSkillChip(
+            skill.name.replaceAll("_", " "),
+            skill.id,
+            skill.frequency
+        ))
     }
 }
 
@@ -60,7 +64,7 @@ function showEvidenceWithSkill() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 }
@@ -79,7 +83,7 @@ function showEvidenceWithCategory() {
             updateSelectedEvidence()
             showHighlightedEvidenceDetails()
         }, error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 }
@@ -110,15 +114,12 @@ function updateSelectedEvidence() {
  *    2. Add the selected class to the clicked div, and assign it as selected
  *    3. Populate the display with the selected evidence details.
  */
-$(document).on("click", ".chip" , function (event) {
+$(document).on("click", ".sortableChip" , function (event) {
     $(".selected").removeClass("selected")
 
     let clicked = $(this)
     selectedChip = clicked.find('.chipText').text()
     let isSkill = clicked.hasClass("skillChip")
-    let chipId = isSkill ? ("#skillCalled" + selectedChip.replaceAll(" ", "_")) : ("#categoryCalled" + selectedChip)
-    $("[data-id='" + chipId + "'").addClass("selected")
-
     let title = $(".evidenceTitle").first()
     title.text(selectedChip)
     if (isSkill) {
@@ -126,18 +127,39 @@ $(document).on("click", ".chip" , function (event) {
     } else {
         showEvidenceWithCategory()
     }
-    event.stopPropagation() //prevent evidence below chip from being selected
+    event.stopPropagation()
 })
 
 
+//todo document
+function setChipToEditMode(chip) {
+    originalSkillName = chip.find(".chipText").text()
+    chip.find(".chipText").attr("contenteditable", true)
+    chip.find(".noDisplayInput").focus()
+}
+
+
+//todo document
+$(document).on("click", ".editableChip", function() {
+    setChipToEditMode($(this))
+})
+
+
+//todo document
 $(document).on("click", "#showAllEvidence", () => getAndAddEvidencePreviews())
 
 
 /**
- *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling
+ *  A Listener for the create evidence button. This displays the modal and prevents the page below from scrolling.
+ *  Resets the form values to be empty.
  */
 $(document).on("click", "#createEvidenceButton" , () => {
-    $("#addEvidenceModal").show()
+    resetAddOrEditEvidenceForm()
+    startCharacterCounting("form-control")
+    $("#addOrEditEvidenceTitle").html("Add Evidence")
+    $("#evidenceSaveButton").html("Create")
+
+    $("#addOrEditEvidenceModal").show()
     $(".modalContent").show("drop", {direction: "up"}, 200)
     $('body,html').css('overflow','hidden');
 })
@@ -156,7 +178,7 @@ $(document).on("click", "#evidenceCancelButton", function () {
  *  calls the function to close the modal.
  */
 window.onmousedown = function(event) {
-    let modalDisplay = $("#addEvidenceModal").css("display")
+    let modalDisplay = $("#addOrEditEvidenceModal").css("display")
     if (modalDisplay === "block" && !event.target.closest(".modalContent") && !event.target.closest(".alert")) {
         closeModal()
     }
@@ -167,6 +189,188 @@ window.onmousedown = function(event) {
  *  Closes the modal and allows the page below to scroll again
  */
 function closeModal() {
-    $(".modalContent").hide("drop", {direction: "up"}, 200, () => {$("#addEvidenceModal").hide()})
+    $(".modalContent").hide("drop", {direction: "up"}, 200, () => {$("#addOrEditEvidenceModal").hide()})
     $('body,html').css('overflow','auto');
 }
+
+
+// -------------------------------------- Evidence Editing -----------------------------------
+
+
+/**
+ *  Get today date as format of yyyy-mm-dd
+ */
+function getTodayDate() {
+    let today = new Date()
+    let year = today.getFullYear()
+    let month = String(today.getMonth() + 1).padStart(2,'0')
+    let day = String(today.getDate()).padStart(2, '0')
+    return year + '-' + month + '-' +day
+}
+
+
+/**
+ *  Resets evidence modal values to be blank and disables the save button.
+ */
+function resetAddOrEditEvidenceForm() {
+    $("#addOrEditEvidenceModal").removeAttr("data-id")
+
+    $("#evidenceName").val("")
+    $("#evidenceDate").val(getTodayDate())
+    $("#evidenceDescription").val("");
+    $("#tagInputChips").empty();
+    $("#addedWebLinks").empty();
+
+    $(".evidenceFormCategoryButton").each(function() {
+        $(this).removeClass("btn-success")
+        $(this).addClass("btn-secondary")
+        $(this).parent().find(".evidenceCategoryTickIcon").hide()
+    })
+
+    $("#linkedUsers").empty()
+    $("#evidenceSaveButton").prop("disabled", true)
+    skillsToCreate.clear()
+}
+
+
+/**
+ * Sets the evidence modal buttons & title for editing evidence.
+ * "Save" buttons reads "Save Changes", and the title is "Edit Evidence"
+ */
+function resetEvidenceButtonsToEditing(){
+    const evidenceSaveButton = $("#evidenceSaveButton")
+
+    $("#addOrEditEvidenceTitle").html( "Edit Evidence");
+    evidenceSaveButton.html("Save Changes");
+    evidenceSaveButton.prop("disabled", false);
+}
+
+
+/**
+ * Retrieves evidence name, date, and description from the highlighted evidence.
+ * Sets these values in the edit evidence modal.
+ */
+function setEvidenceData() {
+    const currentEvidenceTitle =  ($("#evidenceDetailsTitle").text())
+    const currentEvidenceDate =  $("#evidenceDetailsDate").text()
+    const currentEvidenceDescription =  ($("#evidenceDetailsDescription").text())
+
+    $("#evidenceName").val(currentEvidenceTitle)
+    $("#evidenceDate").val(currentEvidenceDate);
+    $("#evidenceDescription").val(currentEvidenceDescription);
+}
+
+
+/**
+ * Retrieves the skills from the given highlighted evidence div, and adds each skill as a tag to the #tagInputChips div.
+ *
+ * @param evidenceHighlight The highlighted evidence div containing the skills.
+ */
+function setSkills(evidenceHighlight) {
+    const currentSkillsList = evidenceHighlight.find(".skillChip")
+    skillsToCreate.clear()
+    currentSkillsList.each(function() {
+        const skillName = ($(this).find(".chipText").text())
+        const skillId = $(this).attr("data-id")
+        skillsToCreate.set(skillName, skillId)
+        const skillChip = createSkillChip(skillName, skillId, undefined, true)
+        if (skillName !== "No Skill") {
+            $("#tagInputChips").append(skillChip);
+        }
+    })
+}
+
+
+/**
+ * Hides the added weblinks title on the edit evidence modal.
+ * Gets each weblink from the highlighted evidence and appends the weblink to the edit form.
+ */
+function setWeblinks() {
+    const webLinksList = $(".addedWebLink")
+    if (webLinksList.length > 0) {
+        $("#webLinkTitle").show()
+        $.each(webLinksList, function () {
+            const webName = $(this).text()
+            const webUrl = $(this).attr("href")
+            $("#addedWebLinks").append(deletableWeblinkElement(webUrl, webName))
+        })
+    } else {
+        $("#webLinkTitle").hide()
+    }
+}
+
+
+/**
+ * Gets the categories from the selected evidence and selects them in the evidence edit form.
+ *
+ * @param evidenceHighlight The highlighted evidence div containing the categories.
+ */
+function setCategories(evidenceHighlight) {
+    evidenceHighlight.find(".categoryChip").each(function() {
+        const categoryName = $(this).find(".chipText").text()
+        const categoryButton = $(`#button${categoryName}`)
+        categoryButton.addClass("btn-success")
+        categoryButton.removeClass("btn-secondary")
+        categoryButton.find(".evidenceCategoryTickIcon").css("display", "inline-block")
+    })
+}
+
+
+/**
+ * Retrieves linked users from the highlighted evidence and adds them to the edit evidence modal.
+ */
+function setLinkedUsers() {
+    const userLinkedList = $("#evidenceDetailsLinkedUsers").find(".linkedUser")
+    $("#linkedUsersTitle").show()
+    $.each(userLinkedList, function (i, user) {
+        const userId = user.getAttribute("data-id")
+        linkedUserIdsArray.push(parseInt(userId, 10))
+        const userName = user.innerText
+        if (userId !== String(userIdent)){
+            $("#linkedUsers").append(linkedUserElement(userId, userName,true))
+        }
+    })
+}
+
+
+/**
+ * Sets values on the evidence edit form to match the currently selected piece of evidence.
+ * Opens the modal with the populated fields.
+ */
+function handleEvidenceEdit() {
+    let selectedEvidence = $("#evidenceDetailsContainer")
+    resetAddOrEditEvidenceForm()
+    resetEvidenceButtonsToEditing()
+    setEvidenceData()
+    setSkills(selectedEvidence)
+    setCategories(selectedEvidence)
+    setWeblinks(selectedEvidence)
+    setLinkedUsers()
+    const editModal = $("#addOrEditEvidenceModal")
+    editModal.attr("data-id", parseInt($("#evidenceDetailsId").text(), 10))
+    editModal.show()
+    startCharacterCounting("form-control")
+    $(".modalContent").show("drop", {direction: "up"}, 200)
+    $('body,html').css('overflow','hidden');
+}
+
+
+/**
+ *  A Listener for the edit evidence button. This displays the modal and prevents the page below from scrolling
+ */
+$(document).on("click", "#editEvidenceButton" , handleEvidenceEdit)
+
+
+$(document).on("focusout", ".chipText", function () {
+    const theElement = $(this)
+    const skillChip = theElement.parent()
+    skillChip.attr("contenteditable", false)
+    const skillName = theElement.text()
+    if (validateSkillInput(skillName, true)) {
+        updateSkillInSkillsToCreate(skillName)
+    }
+
+    updateSkillsInput(false)
+    originalSkillName = null
+})
+

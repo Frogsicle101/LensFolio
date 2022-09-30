@@ -73,5 +73,4 @@ public class MockImageResponseStreamObserver implements StreamObserver<FileUploa
         this.numChunks = requestChunks.size();
         requestObserver.onNext(requestChunks.get(currentChunk++));
     }
-
 }

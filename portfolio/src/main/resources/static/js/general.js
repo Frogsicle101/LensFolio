@@ -1,6 +1,12 @@
 let liveAlertIsShown;
 let alertIsShown;
 
+const AlertTypes = {
+    Failure: "failure",
+    Success: "success",
+    Info: "info"
+}
+
 $(function () {
     // Checks to see if there is an error message to be displayed
     if (!$(".errorMessage").is(':empty')) {
@@ -20,8 +26,17 @@ $(function () {
     })
 
     removeElementIfNotAuthorized()
-
 });
+
+
+
+/**
+ * When a user clicks on a nav item it finds the a link inside it and goes to that address
+ */
+$(document).on("click", ".navItem", function() {
+    let link = $(this).children("a").attr("href")
+    location.replace(link)
+})
 
 
 /**
@@ -77,7 +92,7 @@ function removeAlert() {
  * Displays a dismissible alert down the bottom right of the screen.
  *
  * @param alertMessage
- * @param type the type of alert. Accepts "success", "fail", and "info".
+ * @param type the type of alert. Accepts AlertTypes.Success, AlertTypes.Failure, and AlertTypes.Info.
  * @param window - the location to show the error
  */
 function createAlert(alertMessage, type, window = "body") {
@@ -138,7 +153,7 @@ function createLiveAlert(alertMessage, alertId, window = "body") {
  * Creates an alert message, and appends it to the window.
  *
  * The type of the alert determines the colour of the alert.
- * "success" = green, "failure" = red, and "info" = yellow.
+ * AlertTypes.Success = green, AlertTypes.Failure = red, and AlertTypes.Info = yellow.
  *
  * @param alertMessage The message to be displayed in the alert box.
  * @param type The type of the message to be displayed. Determines the alert background colour.
@@ -147,10 +162,12 @@ function createLiveAlert(alertMessage, alertId, window = "body") {
 function alert(alertMessage, type, window = "body") {
     let alertDiv = `<div id="alertPopUp" class="alert checkAlert" style="display: none">
                      <p id="alertPopUpMessage">${sanitise(alertMessage)}</p>
-                     <button id="alertPopUpCloseButton" onclick="removeAlert()" class="noStyleButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x-circle" viewBox="0 0 16 16">
-                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                     </svg></button>
+                     <button id="alertPopUpCloseButton" onclick="removeAlert()" class="noStyleButton">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"  class="bi bi-x-circle" viewBox="0 0 16 16">
+                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                         </svg>
+                     </button>
                  </div>`
 
     $(window).append(alertDiv)
@@ -159,17 +176,17 @@ function alert(alertMessage, type, window = "body") {
     alertIsShown = true;
 
     switch (type) {
-        case "failure":
+        case AlertTypes.Failure:
             alert.removeClass("backgroundGreen")
             alert.removeClass("backgroundYellow")
             alert.addClass("backgroundRed")
             break;
-        case "success":
+        case AlertTypes.Success:
             alert.removeClass("backgroundRed")
             alert.removeClass("backgroundYellow")
             alert.addClass("backgroundGreen")
             break;
-        case "info":
+        case AlertTypes.Info:
             alert.removeClass("backgroundRed")
             alert.removeClass("backgroundGreen")
             alert.addClass("backgroundYellow")
@@ -246,6 +263,16 @@ function addAlert(alert) {
     alert.show("slide", 100)
 }
 
+/**
+ * Generic handler for changing your role that will be called if not overridden in a different file. Despite intellij
+ * saying it's not used, it actually is
+ * @param notification
+ * @param action
+ */
+function handleRoleChangeEvent(notification, action) {
+    displayRoleChangeMessage(notification, action)
+}
+
 
 /**
  * Handles the receiving of a role change event notification. If the logged-in user is the same as the user whose role
@@ -254,10 +281,10 @@ function addAlert(alert) {
  * @param notification The data describing the role that was changed, and the user who changed it.
  * @param action The action representing the addition of removal of a role.
  */
-function handleRoleChangeEvent(notification, action) {
-    if (userIdent === parseInt(notification.occasionId)) {
+function displayRoleChangeMessage(notification, action) {
+    if (userIdent === parseInt(notification.id)) {
         const editorName = notification.editorName;
-        let roleChanged = notification.occasionType;
+        let roleChanged = notification.data;
         roleChanged = roleChanged.replace("_", " ").toLowerCase()
 
         let message
@@ -266,7 +293,7 @@ function handleRoleChangeEvent(notification, action) {
         } else {
             message = `${editorName} removed from you the role: ${roleChanged}`
         }
-        createAlert(message, "info")
+        createAlert(message, AlertTypes.Info)
     }
 }
 
@@ -291,6 +318,19 @@ function sanitise(string) {
     return string.toString().replace(reg, (match) => (map[match]));
 }
 
+/**
+ * Sets up listeners on any element that has the given class. Call this function again if you add new elements to
+ * the DOM that you want to be counted.
+ *
+ * @param className The name of the class you wish to count. Defaults to countable if none given
+ */
+function startCharacterCounting(className="countable") {
+    const countable = $("." + className)
+    countable.each(countCharacters)
+    countable.on("keyup", countCharacters) //Runs when key is pressed (well released) on form-control elements.
+}
+
+
 
 /**
  * Function that gets the maxlength of an input field and lets the user know how many characters they have left.
@@ -299,7 +339,7 @@ function countCharacters() {
     let maxlength = $(this).attr("maxLength")
     let lengthOfCurrentInput = $(this).val().length;
     let counter = maxlength - lengthOfCurrentInput;
-    let helper = $(this).next(".form-text-counted"); //Gets the next div with a class that is form-text
+    let helper = $(this).siblings(".form-text-counted").first(); // Gets the next element with a class that is form-text
 
     //If one character remains, changes from "characters remaining" to "character remaining"
     if (counter !== 1) {
@@ -309,29 +349,40 @@ function countCharacters() {
     }
 }
 
-function addTooltip(element, text) {
-    element.attr('data-toggle', 'tooltip');
-    element.attr('title', text);
-    element.tooltip({trigger: "hover"});
-}
-
-function removeTooltip(element) {
-    element.tooltip("hide");
-}
 
 /**
  * Regex that is all unicode letters, decimal numbers and punctuation
  */
 let regex = new RegExp("[\\p{L}\\p{Nd}\\p{P}]+", 'u')
 
-/**
- * Regex that is all unicode letters, numbers, punctuation, modifier/currency/math symbols and whitespace
- */
-let GENERAL_UNICODE_REGEX = new RegExp("\^[\\p{L}\\p{Nd}\\p{P}\\p{Sc}\\p{Sk}\\p{Sm}\\s]+\$", 'gu')
 
 /**
  * Redirects to user's home page. This is currently the user's evidence page.
  */
 function redirectToUsersHomePage(userId) {
     window.location.href = "evidence?userId=" + userId //redirect to the user's evidence page
+}
+
+
+/**
+ * Updates the display of a message in a div. If the message length is 0, the div is not displayed. Otherwise, the text
+ * is added and the div displayed.
+ *
+ * @param errorDiv The div that will have its text updated to the message's value
+ * @param message The value to set the div's text attribute.
+ */
+function updateErrorMessage(errorDiv, message) {
+    errorDiv.text(message)
+    if (message.length === 0) {
+        errorDiv.hide()
+    } else {
+        errorDiv.show()
+    }
+}
+
+/**
+ * Redirects to project home page.
+ */
+function redirectToProjectHomePage() {
+    window.location.href = "portfolio?projectId=1" //redirect to the project evidence page
 }

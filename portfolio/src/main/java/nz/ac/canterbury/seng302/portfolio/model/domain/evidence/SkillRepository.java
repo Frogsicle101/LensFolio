@@ -54,4 +54,15 @@ public interface SkillRepository extends CrudRepository<Skill, Integer> {
      */
     @Query
     Optional<Skill> findDistinctByEvidenceUserIdAndNameIgnoreCase(int userId, String skillName);
+
+
+     /**
+     * Finds a unique skill by a user Id and skill Id.
+     *
+     * @param userId The Id of the user whose skills are being searched.
+     * @param id The id of the skill .
+     * @return The skill object, if it exists.
+     */
+    @Query
+    Optional<Skill> findDistinctByEvidenceUserIdAndId(int userId, Integer id);
 }

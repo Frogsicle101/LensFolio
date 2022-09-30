@@ -25,8 +25,8 @@ class LoginServiceTest {
                 "test",
                 "test",
                 "test/test",
-                "test@example.com",
-                TimeService.getTimeStamp());
+                "test@example.com"
+        );
     }
 
     @Test

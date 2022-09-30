@@ -92,7 +92,7 @@ class EventControllerTest {
 
         ResponseEntity<Object> response = eventController.addEvent(project.getId(), "test@Event", start.toString(), end.toString(), 1);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Event title can only contain letters, numbers and spaces and must not start with whitespace", response.getBody());
+        Assertions.assertEquals("Event title can only contain letters, numbers and spaces and must not start with whitespace.", response.getBody());
 
     }
 
@@ -218,7 +218,7 @@ class EventControllerTest {
         Mockito.when(mockEventRepository.findById(event.getId())).thenReturn(Optional.of(event));
         ResponseEntity<String> response = eventController.editEvent(event.getId(), "changed@Name", LocalDateTime.now().toString(), LocalDateTime.now().toString(), 2);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assertions.assertEquals("Event title can only contain letters, numbers and spaces and must not start with whitespace", response.getBody());
+        Assertions.assertEquals("Event title can only contain letters, numbers and spaces and must not start with whitespace.", response.getBody());
 
     }
 

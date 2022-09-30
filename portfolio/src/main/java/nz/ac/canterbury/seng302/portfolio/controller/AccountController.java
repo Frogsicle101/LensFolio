@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng302.portfolio.controller;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.dto.PasswordRequest;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
 import nz.ac.canterbury.seng302.portfolio.model.dto.UserRequest;
 import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.LoginService;
@@ -92,7 +93,8 @@ public class AccountController {
 
             ModelAndView model = new ModelAndView("account");
             model.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
-            model.addObject("nameRegex", RegexPattern.NAME);
+            model.addObject("firstLastNameRegex", RegexPattern.FIRST_LAST_NAME);
+            model.addObject("middleNameRegex", RegexPattern.MIDDLE_NAME);
             model.addObject("generalUnicodeNoSpacesRegex", RegexPattern.GENERAL_UNICODE_NO_SPACES);
             model.addObject("emailRegex", RegexPattern.EMAIL);
             model.addObject("user", user);
@@ -109,6 +111,27 @@ public class AccountController {
 
 
     /**
+     * Gets the user via the principal. This is used to fill in the account page info
+     *
+     * @param principal the principal
+     * @return a response entity with the userDTO
+     */
+    @GetMapping("/getUser")
+    public ResponseEntity<Object> getUser(@AuthenticationPrincipal Authentication principal) {
+        try {
+            UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
+            UserDTO userDTO = new UserDTO(user);
+            logger.info("GET REQUEST /account - retrieving account details for user {}", user.getUsername());
+
+            return new ResponseEntity<>(userDTO, HttpStatus.OK);
+        } catch (Exception err) {
+            logger.error("GET /account: {}", err.getMessage());
+            return new ResponseEntity<>("An error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
      * Returns the template for the register page.
      *
      * @return Thymeleaf template for the register screen.
@@ -118,7 +141,8 @@ public class AccountController {
         logger.info("GET REQUEST /register - get register page");
         ModelAndView model = new ModelAndView("accountRegister");
         model.addObject("generalUnicodeNoSpacesRegex", RegexPattern.GENERAL_UNICODE_NO_SPACES);
-        model.addObject("nameRegex", RegexPattern.NAME);
+        model.addObject("firstLastNameRegex", RegexPattern.FIRST_LAST_NAME);
+        model.addObject("middleNameRegex", RegexPattern.MIDDLE_NAME);
         model.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
         model.addObject("emailRegex", RegexPattern.EMAIL);
 
@@ -203,9 +227,9 @@ public class AccountController {
      */
     private ResponseEntity<Object> checkUserRequestNoPasswordOrUser(UserRequest userRequest) {
         try {
-            regexService.checkInput(RegexPattern.NAME, userRequest.getFirstname(), 2, 100, "First name");
-            regexService.checkInput(RegexPattern.NAME, userRequest.getMiddlename(), 0, 100, "Middle name");
-            regexService.checkInput(RegexPattern.NAME, userRequest.getLastname(), 2, 100, "Last name");
+            regexService.checkInput(RegexPattern.FIRST_LAST_NAME, userRequest.getFirstname(), 2, 100, "First name");
+            regexService.checkInput(RegexPattern.MIDDLE_NAME, userRequest.getMiddlename(), 0, 100, "Middle name");
+            regexService.checkInput(RegexPattern.FIRST_LAST_NAME, userRequest.getLastname(), 2, 100, "Last name");
             regexService.checkInput(RegexPattern.EMAIL, userRequest.getEmail(), 1, 100, "Email");
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getNickname(), 0, 50, "Nick name");
             regexService.checkInput(RegexPattern.GENERAL_UNICODE, userRequest.getPersonalPronouns(), 0, 50, "Pronouns");
@@ -264,15 +288,16 @@ public class AccountController {
             String lastname = editInfo.getLastname().trim();
             String nickname = editInfo.getNickname().trim();
 
-            editRequest.setUserId(userId)
+            EditUserRequest editUserRequest = editRequest.setUserId(userId)
                     .setFirstName(firstname)
                     .setMiddleName(middlename)
                     .setLastName(lastname)
                     .setNickname(nickname)
                     .setBio(editInfo.getBio())
                     .setPersonalPronouns(editInfo.getPersonalPronouns())
-                    .setEmail(editInfo.getEmail());
-            EditUserResponse reply = userAccountsClientService.editUser(editRequest.build());
+                    .setEmail(editInfo.getEmail())
+                    .build();
+            EditUserResponse reply = userAccountsClientService.editUser(editUserRequest);
             if (reply.getIsSuccess()) {
                 logger.info("Successfully updated details for user {}", userId);
             } else {
@@ -280,7 +305,7 @@ public class AccountController {
                 return new ResponseEntity<>(reply.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            return new ResponseEntity<>(reply.getMessage(), HttpStatus.OK);
+            return new ResponseEntity<>(new UserDTO(editUserRequest), HttpStatus.OK);
         } catch (Exception err) {
             logger.error("/edit/details ERROR: {}", err.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

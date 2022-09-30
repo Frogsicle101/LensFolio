@@ -2,9 +2,7 @@ $(() => {
     //Jquery selectors to remove duplicity
     let shortName = $("#shortName")
     let longName = $("#longName")
-    let formControl = $(".form-control");
-    formControl.each(countCharacters)
-    formControl.on("keyup", countCharacters)
+    startCharacterCounting("form-control");
 
     // On create group form submit
     $("#createGroupForm").on("submit", function (event) {
@@ -20,10 +18,11 @@ $(() => {
             type: "post",
             data: groupData,
             success: function () {
+                sendNotification("group", 0, "newGroup");
                 location.href = "groups" // On success reloads page
             },
             error: function (error) {//Displays error in box on failure
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     })

@@ -31,7 +31,7 @@ function eventResize(info) {
         type: "post",
         data: dataToSend,
         success: function () {
-            createAlert("Sprint dates updated successfully", "success")
+            createAlert("Sprint dates updated successfully", AlertTypes.Success)
             fcEvent.css("border-right", "solid 0px #13CEE2");
             fcEvent.css("border-left", "solid 0px #13CEE2");
             info.event.setProp("borderColor", '#c2080b');
@@ -39,7 +39,7 @@ function eventResize(info) {
             $(".fc-event-resizer-end").parent().css("border-right", "solid 5px red");
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
             fcEvent.css("border-right", "solid 0px #13CEE2");
             fcEvent.css("border-left", "solid 0px #13CEE2");
             info.revert()
@@ -72,7 +72,7 @@ function eventResizeStop(info) {
  */
 function eventClick(info) {
     let fcEvent = $(".fc-event")
-    let canEdit = $("#canEdit").val() === "true";
+    let canEdit = checkPrivilege()
     if (!canEdit || !info.event.extendedProps.isSprint) {
         return;
     }
@@ -213,8 +213,7 @@ $(function () {
                 extraParams: {
                     projectId: projectId.toString()
                 },
-                success: (response) => {
-                    console.log(response)
+                success: () => {
                 },
                 failure: function (err) {
                     console.log(err.responseText)
@@ -236,8 +235,8 @@ $(function () {
                 extraParams: {
                     projectId: projectId.toString()
                 },
-                success: (response) => {
-                    console.log(response)
+                success: () => {
+
                 },
                 failure: function (err) {
                     console.log(err.responseText)

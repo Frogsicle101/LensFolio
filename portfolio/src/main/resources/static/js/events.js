@@ -1,12 +1,9 @@
 let thisUserIsEditing = false;
 
 $(() => {
-    let formControl = $(".form-control");
-
     removeElementIfNotAuthorized()
 
-    formControl.each(countCharacters)
-    formControl.on("keyup", countCharacters) // Runs when key is pressed (well released) on form-control elements.
+    startCharacterCounting("form-control");
 })
 
 
@@ -57,7 +54,7 @@ function sortElementsByDate(div, childrenElement, dateElement) {
  * Displays the alert for when dates are the wrong way around (end before start)
  */
 function triggerEventAlertForDate() {
-    createAlert("Your event end date must be after your event start date!", "failure")
+    createAlert("Your event end date must be after your event start date!", AlertTypes.Failure)
 }
 
 
@@ -124,10 +121,10 @@ $(document).on('submit', "#addEventForm", function (event) {
                 Now you do.
                  */
                 sendNotification("event", response.id, "create");
-                createAlert("Event created!", "success")
+                createAlert("Event created!", AlertTypes.Success)
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     }
@@ -151,13 +148,13 @@ $(document).on("submit", ".milestoneForm", function (event) {
         type: "PUT",
         data: milestoneData,
         success: function (response) {
-            createAlert("Milestone created!", "success")
+            createAlert("Milestone created!", AlertTypes.Success)
             $(".milestoneForm").slideUp()
             $(".addEventSvg").toggleClass('rotated');
             sendNotification("milestone", response.id, "create");
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 })
@@ -182,13 +179,13 @@ $(document).on('submit', "#addDeadlineForm", function (event) {
         type: "put",
         data: deadlineData,
         success: function (response) {
-            createAlert("Deadline created!", "success")
+            createAlert("Deadline created!", AlertTypes.Success)
             $(".deadlineForm").slideUp();
             $(".addDeadlineSvg").toggleClass('rotated');
             sendNotification("deadline", response.id, "create");
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 })
@@ -228,12 +225,12 @@ $(document).on("submit", "#editEventForm", function (event) {
             type: "POST",
             data: eventData,
             success: function () {
-                createAlert("Event edited successfully!", "success")
+                createAlert("Event edited successfully!", AlertTypes.Success)
                 sendNotification("event", eventId, "stop") // Let the server know the event is no longer being edited
                 sendNotification("event", eventId, "update") //Let the server know that other clients should update the element
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     }
@@ -261,12 +258,12 @@ $(document).on("submit", "#milestoneEditForm", function (event) {
         type: "POST",
         data: milestoneData,
         success: function () {
-            createAlert("Milestone edited successfully!", "success")
+            createAlert("Milestone edited successfully!", AlertTypes.Success)
             sendNotification("milestone", milestoneId, "stop")
             sendNotification("milestone", milestoneId, "update")
         },
         error: function (error) {
-            createAlert(error.responseText, "failure")
+            createAlert(error.responseText, AlertTypes.Failure)
         }
     })
 })
@@ -307,12 +304,12 @@ $(document).on("submit", "#editDeadlineForm", function (event) {
             type: "POST",
             data: deadlineData,
             success: function () {
-                createAlert("Deadline edited successfully!", "success")
+                createAlert("Deadline edited successfully!", AlertTypes.Success)
                 sendNotification("deadline", deadlineId, "stop") // Let the server know the deadline is no longer being edited
                 sendNotification("deadline", deadlineId, "update") //Let the server know that other clients should update the element
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     }
@@ -367,11 +364,11 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: eventData,
             success: function () {
-                createAlert("Event deleted successfully!", "success")
+                createAlert("Event deleted successfully!", AlertTypes.Success)
                 sendNotification("event", eventData.eventId, "delete");
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     } else if (parent.hasClass('milestone')) {
@@ -381,11 +378,11 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: milestoneData,
             success: function () {
-                createAlert("Milestone deleted successfully!", "success")
+                createAlert("Milestone deleted successfully!", AlertTypes.Success)
                 sendNotification("milestone", milestoneData.milestoneId, "delete");
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     } else if (parent.hasClass('deadline')) {
@@ -395,11 +392,11 @@ $(document).on("click", ".deleteButton", function () {
             type: "DELETE",
             data: deadlineData,
             success: function () {
-                createAlert("Deadline deleted successfully!", "success")
+                createAlert("Deadline deleted successfully!", AlertTypes.Success)
                 sendNotification("deadline", deadlineData.deadlineId, "delete");
             },
             error: function (error) {
-                createAlert(error.responseText, "failure")
+                createAlert(error.responseText, AlertTypes.Failure)
             }
         })
     }
@@ -544,14 +541,18 @@ function appendEventToSprint(elementToAppendTo, event) {
                 <div class="row">
                     <div class="col">
                         <div class="eventInSprint eventInSprint${sanitise(event.id)}" >
-                            <svg data-toggle="tooltip" id="eventIconInSprint"
-                                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-calendar3-event-fill calendarOccasion" viewBox="-3 -3 20 20">
-                                    <path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2h16a2 2 0 0 0-2-2H2zM0 14V3h16v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm12-8a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
-                                    </svg>
-                            <p class="sprintEventName text-truncate">${sanitise(event.name)} : </p>
-                            <p class="sprintEventStart">${sanitise(event.startDateFormatted)}</p>
-                            <p>-</p>
-                            <p class="sprintEventEnd">${sanitise(event.endDateFormatted)}</p>
+                            <div class="occasionInSprintName">
+                                <svg data-toggle="tooltip" class="iconInSprint bi bi-calendar3-event-fill calendarOccasion" id="eventIconInSprint"
+                                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="-3 -3 20 20">
+                                        <path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2h16a2 2 0 0 0-2-2H2zM0 14V3h16v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm12-8a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
+                                        </svg>
+                                <p class="sprintEventName text-truncate">${sanitise(event.name)} : </p>
+                            </div>
+                            <div class="occasionInSprintName">
+                                <p class="sprintEventStart">${sanitise(event.startDateFormatted)}</p>
+                                <p>-</p>
+                                <p class="sprintEventEnd">${sanitise(event.endDateFormatted)}</p>
+                            </div>
                         </div>
                     </div>
                 </div>`
@@ -602,11 +603,13 @@ function appendMilestoneToSprint(elementToAppendTo, milestone) {
     let milestoneInSprint = `
                 <div class="row" >
                     <div class="milestoneInSprint milestoneInSprint${sanitise(milestone.id)}">
-                        <svg data-toggle="tooltip" id="milestoneIconInSprint"
-                                   xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trophy-fill calendarOccasion" viewBox="-3 -3 20 20">
-                                   <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5c0 .538-.012 1.05-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33.076 33.076 0 0 1 2.5.5zm.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935zm10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935z"/>
-                                   </svg>
-                        <p class="sprintMilestoneName text-truncate">${sanitise(milestone.name)} :&#160</p>
+                        <div class="occasionInSprintName">
+                            <svg data-toggle="tooltip" class="iconInSprint bi bi-trophy-fill calendarOccasion" id="milestoneIconInSprint"
+                                       xmlns="http://www.w3.org/2000/svg" min-width="20px" height="20" fill="currentColor" viewBox="-3 -3 20 20">
+                                       <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5c0 .538-.012 1.05-.034 1.536a3 3 0 1 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.377.135.537.255L13.3 15.1a.5.5 0 0 1-.3.9H3a.5.5 0 0 1-.3-.9l1.838-1.379c.16-.12.343-.207.537-.255L6.5 13.11v-2.173c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 1 1-1.132-5.89A33.076 33.076 0 0 1 2.5.5zm.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.588-2.346-.72-3.935zm10.083 3.935a2 2 0 0 0 .72-3.935c-.133 1.59-.388 2.885-.72 3.935z"/>
+                                       </svg>
+                            <p class="sprintMilestoneName text-truncate">${sanitise(milestone.name)} :&#160</p>
+                        </div>
                         <p class="sprintMilestoneEnd">${sanitise(milestone.endDateFormatted)}</p>
                     </div>
                 </div>`
@@ -658,11 +661,13 @@ function appendDeadlineToSprint(elementToAppendTo, deadline) {
     let deadlineInSprint = `
                 <div class="row" >
                     <div class="deadlineInSprint deadlineInSprint${sanitise(deadline.id)}">
-                        <svg data-toggle="tooltip" id="deadlineIconInSprint"
-                                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-hourglass-split calendarOccasion" viewBox="-3 -3 20 20">
+                        <div class="occasionInSprintName">
+                            <svg data-toggle="tooltip" class="iconInSprint bi bi-hourglass-split calendarOccasion" id="deadlineIconInSprint"
+                                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="-3 -3 20 20">
                                     <path d="M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11zm2-13v1c0 .537.12 1.045.337 1.5h6.326c.216-.455.337-.963.337-1.5V2h-7zm3 6.35c0 .701-.478 1.236-1.011 1.492A3.5 3.5 0 0 0 4.5 13s.866-1.299 3-1.48V8.35zm1 0v3.17c2.134.181 3 1.48 3 1.48a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351z"/>
                                     </svg>
-                        <p class="sprintDeadlineName text-truncate">${sanitise(deadline.name)}</p>
+                            <p class="sprintDeadlineName text-truncate">${sanitise(deadline.name)} :</p>
+                        </div>
                         <p class="sprintDeadlineEnd">${sanitise(deadline.endDateFormatted)}</p>
                     </div>
                 </div>`
@@ -742,9 +747,7 @@ function appendEventForm(element) {
         }
     });
 
-    let formControl = $(".form-control")
-    formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    startCharacterCounting("form-control");
     $("#editEventForm").slideDown();
 }
 
@@ -795,9 +798,7 @@ function appendMilestoneForm(element) {
             this.setAttribute("selected", "selected")
         }
     });
-    let formControl = $(".form-control")
-    formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    startCharacterCounting("form-control");
     $("#milestoneEditForm").slideDown();
 }
 
@@ -847,9 +848,7 @@ function appendDeadlineForm(element) {
             this.setAttribute("selected", "selected")
         }
     });
-    let formControl = $(".form-control")
-    formControl.each(countCharacters)
-    formControl.keyup(countCharacters) //Runs when key is pressed (well released) on form-control elements.
+    startCharacterCounting("formControl");
     $("#editDeadlineForm").slideDown();
 }
 
@@ -885,7 +884,7 @@ function createEventDiv(eventObject) {
     }
 
     return `
-            <div class="occasion event" id="${sanitise(eventObject.id)}">
+            <div class="occasion event " id="${sanitise(eventObject.id)}">
                 <p class="eventId" style="display: none">${sanitise(eventObject.id)}</p>
                 <p class="eventStartDateNilFormat" style="display: none">${sanitise(eventObject.start)}</p>
                 <p class="eventEndDateNilFormat" style="display: none">${sanitise(eventObject.end)}</p>
@@ -894,26 +893,29 @@ function createEventDiv(eventObject) {
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="eventName name text-truncate" >${sanitise(eventObject.name)}</p>
+                    <p class="eventName name" >${sanitise(eventObject.name)}</p>
                 </div>
                 <div class="controlButtons">
                     <button class="editButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Event">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
-                            <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
-                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
-                        </svg>
+                        <svg class="bi bi-pencil" fill="currentColor" height="18" viewBox="0 0 16 16" width="18"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                        </svg>                    
                     </button>
                     <button type="button" class="deleteButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Event">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                         <svg class="bi bi-trash" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                                  fill-rule="evenodd"/>
                         </svg>
                     </button>
                 </div>
                 
-                <div class="eventDateDiv">
-                    <p class="eventStart">Start Date: ${sanitise(eventObject.startFormatted)}</p>
-                    <p class="eventEnd">End Date: ${sanitise(eventObject.endFormatted)}</p>
+                <div class="eventDateDiv occasionDates">
+                    <p class="eventStart">${sanitise(eventObject.startFormatted)}</p>
+                    <p class="dateDivider">-</p>
+                    <p class="eventEnd">${sanitise(eventObject.endFormatted)}</p>
                 </div>
             </div>`;
 }
@@ -954,31 +956,30 @@ function createMilestoneDiv(milestoneObject) {
                 <p class="milestoneId" style="display: none">${sanitise(milestoneObject.id)}</p>
                 <p class="milestoneEndDateNilFormat" style="display: none">${sanitise(milestoneObject.endDate)}</p>
                 <p class="typeOfMilestone" style="display: none">${sanitise(milestoneObject.type)}</p>
-                
                 <div class="mb-2 occasionTitleDiv">
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="milestoneName name text-truncate">${sanitise(milestoneObject.name)}</p>
+                    <p class="milestoneName name">${sanitise(milestoneObject.name)}</p>
                 </div>
                 <div class="controlButtons">
                     <button class="editButton noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Milestone">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                 class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
-                                <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
-                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
+                            <svg class="bi bi-pencil" fill="currentColor" height="18" viewBox="0 0 16 16" width="18"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                             </svg>
                         </button>
                         <button type="button" class="deleteButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Milestone">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                 class="bi bi-x-circle" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                            <svg class="bi bi-trash" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                                      fill-rule="evenodd"/>
                             </svg>
                         </button>
                 </div>
                 
-                <div class="milestoneDateDiv">
+                <div class="milestoneDateDiv occasionDates">
                     <p class="milestoneEnd">${sanitise(milestoneObject.endDateFormatted)}</p>
                 </div>
             </div>
@@ -1025,25 +1026,25 @@ function createDeadlineDiv(deadlineObject) {
                     <div class="occasionIcon">
                         ${iconElement}
                     </div>
-                    <p class="deadlineName name text-truncate">${sanitise(deadlineObject.name)}</p>
+                    <p class="deadlineName name">${sanitise(deadlineObject.name)}</p>
                 </div>
                 <div class="controlButtons">
                         <button class="editButton noStyleButton hasTeacherOrAbove" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Deadline">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                 class="bi bi-wrench-adjustable-circle" viewBox="0 0 16 16">
-                                <path d="M12.496 8a4.491 4.491 0 0 1-1.703 3.526L9.497 8.5l2.959-1.11c.027.2.04.403.04.61Z"/>
-                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0Zm-1 0a7 7 0 1 0-13.202 3.249l1.988-1.657a4.5 4.5 0 0 1 7.537-4.623L7.497 6.5l1 2.5 1.333 3.11c-.56.251-1.18.39-1.833.39a4.49 4.49 0 0 1-1.592-.29L4.747 14.2A7 7 0 0 0 15 8Zm-8.295.139a.25.25 0 0 0-.288-.376l-1.5.5.159.474.808-.27-.595.894a.25.25 0 0 0 .287.376l.808-.27-.595.894a.25.25 0 0 0 .287.376l1.5-.5-.159-.474-.808.27.596-.894a.25.25 0 0 0-.288-.376l-.808.27.596-.894Z"/>
+                             <svg class="bi bi-pencil" fill="currentColor" height="18" viewBox="0 0 16 16" width="18"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                             </svg>
                         </button>
                         <button type="button" class="deleteButton noStyleButton hasTeacherOrAbove"  data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Deadline">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                 class="bi bi-x-circle" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                             <svg class="bi bi-trash" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                                      fill-rule="evenodd"/>
                             </svg>
                         </button>
                 </div>
-                        <div class="deadlineDateDiv">
+                        <div class="deadlineDateDiv occasionDates">
                             <p class="deadlineEnd">${sanitise(deadlineObject.endDateFormatted)}</p>
                         </div>
             </div>`;
@@ -1371,8 +1372,8 @@ function displayLiveUpdateMessage(message, editorId, eventId) {
 function handleCreateEvent(notification) {
     const editorId = notification.editorId;
     const editorName = notification.editorName;
-    const occasionType = notification.occasionType;
-    const occasionId = notification.occasionId;
+    const occasionType = notification.data;
+    const occasionId = notification.id;
 
     switch (occasionType) {
         case 'event':
@@ -1407,8 +1408,8 @@ function handleCreateEvent(notification) {
  * @param notification The update notification, from which we extract the ID (and also the type for logging)
  */
 function handleUpdateEvent(notification) {
-    const occasionType = notification.occasionType;
-    const occasionId = notification.occasionId;
+    const occasionType = notification.data;
+    const occasionId = notification.id;
     const editorId = notification.editorId;
     const editorName = notification.editorName;
     let eventDiv = $("#" + occasionId)
@@ -1446,8 +1447,8 @@ function handleUpdateEvent(notification) {
  * @param notification The JSON object we receive (modeled by OutgoingNotification).
  */
 function handleDeleteEvent(notification) {
-    const occasionType = notification.occasionType;
-    const occasionId = notification.occasionId;
+    const occasionType = notification.data;
+    const occasionId = notification.id;
     const editorId = notification.editorId;
     const editorName = notification.editorName;
     let eventDiv = $("#" + occasionId)
@@ -1490,7 +1491,7 @@ function handleNotifyEvent(notification) {
 
     const editorId = notification.editorId;
     const editorName = notification.editorName;
-    const occasionId = notification.occasionId;
+    const occasionId = notification.id;
 
     if (checkPrivilege()) {
         let infoContainer = $("#informationBar");
@@ -1524,7 +1525,7 @@ function handleNotifyEvent(notification) {
  */
 function handleStopEvent(notification) {
 
-    const occasionId = notification.occasionId;
+    const occasionId = notification.id;
     const editorId = notification.editorId
 
     if (checkPrivilege()) {

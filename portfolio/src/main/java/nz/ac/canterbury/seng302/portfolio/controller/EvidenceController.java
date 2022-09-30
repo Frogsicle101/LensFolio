@@ -1,9 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.controller;
 
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import nz.ac.canterbury.seng302.portfolio.CheckException;
-import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
-import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.authentication.Authentication;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
@@ -11,8 +9,12 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.Project;
 import nz.ac.canterbury.seng302.portfolio.model.domain.projects.ProjectRepository;
 import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceDTO;
-import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.EvidenceResponseDTO;
+import nz.ac.canterbury.seng302.portfolio.model.dto.UserDTO;
+import nz.ac.canterbury.seng302.portfolio.service.DateTimeService;
 import nz.ac.canterbury.seng302.portfolio.service.EvidenceService;
+import nz.ac.canterbury.seng302.portfolio.service.RegexPattern;
+import nz.ac.canterbury.seng302.portfolio.service.SkillFrequencyService;
 import nz.ac.canterbury.seng302.portfolio.service.grpc.UserAccountsClientService;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetPaginatedUsersFilteredRequest;
 import nz.ac.canterbury.seng302.shared.identityprovider.GetUserByIdRequest;
@@ -32,14 +34,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Controller for all the Evidence based end points
@@ -62,16 +61,31 @@ public class EvidenceController {
     /** Provides helper functions for Crud operations on evidence */
     private final EvidenceService evidenceService;
 
+    /** Provides helper functions for skill frequency operations */
+    private final SkillFrequencyService skillFrequencyService;
 
+    private static final String INTERNAL_SERVER_ERROR_MESSAGE = "An unknown error occurred. Please try again";
+
+
+    /**
+     * Autowired constructor for injecting the required beans.
+     *  @param userAccountsClientService For requesting user information form the IdP
+     * @param projectRepository The repository containing the projects.
+     * @param evidenceRepository The repository containing users pieces of evidence.
+     * @param evidenceService Provides helper functions for Crud operations on evidence.
+     * @param skillFrequencyService Provides helper functions for skill frequency operations
+     */
     @Autowired
     public EvidenceController(UserAccountsClientService userAccountsClientService,
-                           ProjectRepository projectRepository,
-                           EvidenceRepository evidenceRepository,
-                           EvidenceService evidenceService) {
+                              ProjectRepository projectRepository,
+                              EvidenceRepository evidenceRepository,
+                              EvidenceService evidenceService,
+                              SkillFrequencyService skillFrequencyService) {
         this.userAccountsClientService = userAccountsClientService;
         this.projectRepository = projectRepository;
         this.evidenceRepository = evidenceRepository;
         this.evidenceService = evidenceService;
+        this.skillFrequencyService = skillFrequencyService;
     }
 
 
@@ -95,10 +109,15 @@ public class EvidenceController {
         LocalDate projectStartDate = project.getStartDate();
         LocalDate currentDate = LocalDate.now();
         LocalDate evidenceMaxDate = LocalDate.now();
+
         modelAndView.addObject("currentDate", currentDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("projectStartDate", projectStartDate.format(DateTimeService.yearMonthDay()));
         modelAndView.addObject("webLinkMaxUrlLength", WebLink.MAXURLLENGTH);
         modelAndView.addObject("webLinkMaxNameLength", WebLink.MAXNAMELENGTH);
+        modelAndView.addObject(project);
+        modelAndView.addObject("webLinkRegex", RegexPattern.WEBLINK);
+        modelAndView.addObject("generalUnicodeRegex", RegexPattern.GENERAL_UNICODE);
+        modelAndView.addObject("skillRegex", RegexPattern.SKILL);
 
         if (projectEndDate.isBefore(currentDate)) {
             evidenceMaxDate = projectEndDate;
@@ -132,35 +151,6 @@ public class EvidenceController {
 
             EvidenceResponseDTO response = new EvidenceResponseDTO(evidence.get(), getUsers(evidence.get().getAssociateIds()));
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception exception) {
-            logger.warn(exception.getClass().getName());
-            logger.warn(exception.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-
-    /**
-     * Gets the details for a piece of evidence with the given id
-     *
-     * Response codes: NOT_FOUND means the piece of evidence does not exist
-     *                 OK means the evidence exists and web link details are returned.
-     *                 BAD_REQUEST when the user doesn't interact with the endpoint correctly, i.e., no or invalid evidenceId
-     *
-     * @param evidenceId - The ID of the piece of evidence
-     * @return A response entity with the required response code. Response body is the evidence is the status is OK
-     */
-    @GetMapping("/evidencePieceWebLinks")
-    public ResponseEntity<Object> getEvidenceWebLinks(@RequestParam("evidenceId") Integer evidenceId) {
-        logger.info("GET REQUEST /evidencePieceWebLinks - attempt to get web links with evidence Id {}", evidenceId);
-        try {
-            Optional<Evidence> evidence = evidenceRepository.findById(evidenceId);
-            if (evidence.isEmpty()) {
-                logger.info("GET REQUEST /evidence - evidence {} does not exist", evidenceId);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            Set<WebLink> webLinks = evidence.get().getWebLinks();
-            return new ResponseEntity<>(webLinks, HttpStatus.OK);
         } catch (Exception exception) {
             logger.warn(exception.getClass().getName());
             logger.warn(exception.getMessage());
@@ -240,7 +230,44 @@ public class EvidenceController {
             return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
         } catch (Exception err) {
             logger.error("POST REQUEST /evidence - attempt to create new evidence: ERROR: {}", err.getMessage());
-            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Entrypoint for editing an evidence object
+     *
+     * @param principal The authentication principal for the logged-in user
+     * @param evidenceDTO The EvidenceDTO object containing the required data for the evidence instance being created.
+     *
+     * @return returns a ResponseEntity. This entity includes the edited piece of evidence if successful.
+     */
+    @PatchMapping("/evidence")
+    @ResponseBody
+    public ResponseEntity<Object> editEvidence(
+            @AuthenticationPrincipal Authentication principal,
+            @RequestBody EvidenceDTO evidenceDTO
+    ) {
+        logger.info("PATCH REQUEST /evidence - attempt to edit evidence");
+
+        try {
+            return new ResponseEntity<>(evidenceService.editEvidence(principal, evidenceDTO), HttpStatus.OK);
+        } catch (CheckException err) {
+            logger.warn("PATCH REQUEST /evidence - attempt to edit evidence with id {}: Bad input: {}",
+                    evidenceDTO.getId(), err.getMessage());
+            return new ResponseEntity<>(err.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (DateTimeParseException err) {
+            logger.warn("PATCH REQUEST /evidence - attempt to edit evidence with id {}: Bad date", evidenceDTO.getId());
+            return new ResponseEntity<>("Date is not in a parsable format", HttpStatus.BAD_REQUEST);
+        } catch (MalformedURLException err) {
+            logger.warn("PATCH REQUEST /evidence - attempt to edit evidence with id {}: Bad url {}",
+                    evidenceDTO.getId(), err.getMessage());
+            return new ResponseEntity<>("Submitted web link URL is malformed", HttpStatus.BAD_REQUEST);
+        } catch (Exception err) {
+            logger.error("PATCH REQUEST /evidence - attempt to edit evidence with id {}: ERROR: {}",
+                    evidenceDTO.getId(), err.getMessage());
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -276,64 +303,15 @@ public class EvidenceController {
                 return new ResponseEntity<>("You can only delete evidence that you own.", HttpStatus.UNAUTHORIZED);
             }
             evidenceRepository.delete(evidence);
+            evidenceService.deleteOrphanSkills(evidence);
+
+            skillFrequencyService.updateAllSkillFrequenciesForUser(userId);
             String message = "Successfully deleted evidence " + evidenceId;
             logger.info(methodLoggingTemplate, message);
             return new ResponseEntity<>(message, HttpStatus.OK);
         } catch (Exception exception) {
             logger.error(methodLoggingTemplate, exception.getMessage());
             return new ResponseEntity<>("An unexpected error has occurred", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    /**
-     * Checks if the provided web address is valid, i.e. could lead to a website.
-     * The criteria are specified by java.net.URL, and is protocol dependent.
-     * This doesn't guarantee that the website actually exists; just that it could.
-     *
-     * Response codes:
-     * OK means the address is valid
-     * BAD_REQUEST means the URL is invalid
-     * INTERNAL_SERVER_ERROR means some other error occurred while validating the URL
-     *
-     * @param request - the full address to be validated
-     * @return A response entity with the required response code. If it is valid, the status will be OK.
-     * No response body will be returned in any instance.
-     * @see java.net.URL
-     */
-    @PostMapping("/validateWebLink")
-    @ResponseBody
-    public ResponseEntity<Object> validateWebLink(@RequestBody WebLinkDTO request) {
-        String address = request.getUrl();
-        logger.info("GET REQUEST /validateWebLink - validating address {}", address);
-        try {
-            if (address.contains("&nbsp")) {
-                throw new MalformedURLException("The non-breaking space is not a valid character");
-            }
-            if (address.length() > WebLink.MAXURLLENGTH) {
-                throw new CheckException("URL address is longer than the maximum of " + WebLink.MAXURLLENGTH);
-            }
-            if (request.getName().length() < 1) {
-                throw new CheckException("Link name should be at least 1 character");
-            }
-            if (request.getName().length() > WebLink.MAXNAMELENGTH) {
-                throw new CheckException("Link name should be no more than " + WebLink.MAXNAMELENGTH + " characters in length");
-            }
-            new URL(address).toURI(); //The constructor does all the validation for us
-            //If you want to ban a webLink URL, like, say, the original rick roll link, the code would go here.
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (CheckException exception) {
-            logger.warn("/validateWebLink - Invalid address: {}", address);
-            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>(exception.getMessage(),HttpStatus.BAD_REQUEST);
-        } catch (MalformedURLException | URISyntaxException exception) {
-            logger.warn("/validateWebLink - Invalid address: {}", address);
-            logger.warn("/validateWebLink - Error message: {}", exception.getMessage());
-            return new ResponseEntity<>("Please enter a valid address, like https://www.w3.org/WWW/",HttpStatus.BAD_REQUEST);
-        } catch (Exception exception) {
-            logger.warn(exception.getClass().getName());
-            logger.warn(exception.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -370,7 +348,7 @@ public class EvidenceController {
         } catch (Exception e){
             logger.warn(e.getClass().getName());
             logger.warn(e.getMessage());
-            return new ResponseEntity<>("An unknown error occurred. Please try again", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(INTERNAL_SERVER_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -393,5 +371,18 @@ public class EvidenceController {
             associates.add(userDTO);
         }
         return associates;
+    }
+
+
+    /**
+     * Handles exceptions when a request body cannot be parsed to the required DTO.
+     *
+     * @param exception - The exception thrown by the endpoint
+     * @return a response entity with a generic message, and a bad request status
+     */
+    @ExceptionHandler(InvalidDefinitionException.class)
+    public ResponseEntity<Object> handleError(InvalidDefinitionException exception) {
+        logger.warn("Evidence endpoint InvalidDefinitionError resolved {}", exception.getMessage());
+        return new ResponseEntity<>("One or more fields are invalid", HttpStatus.BAD_REQUEST);
     }
 }

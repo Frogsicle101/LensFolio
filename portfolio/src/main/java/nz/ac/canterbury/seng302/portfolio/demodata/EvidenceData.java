@@ -1,13 +1,13 @@
 package nz.ac.canterbury.seng302.portfolio.demodata;
 
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.*;
+import nz.ac.canterbury.seng302.portfolio.service.SkillFrequencyService;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.LocalDate;
 
 /**
@@ -28,14 +28,19 @@ public class EvidenceData {
     /** The repository contain the skills */
     private final SkillRepository skillRepository;
 
+    /** Provides helper functions for skill frequency operations */
+    private final SkillFrequencyService skillFrequencyService;
+
 
     @Autowired
     public EvidenceData(EvidenceRepository evidenceRepository,
                         WebLinkRepository webLinkRepository,
-                        SkillRepository skillRepository) {
+                        SkillRepository skillRepository,
+                        SkillFrequencyService skillFrequencyService) {
         this.evidenceRepository = evidenceRepository;
         this.webLinkRepository = webLinkRepository;
         this.skillRepository = skillRepository;
+        this.skillFrequencyService = skillFrequencyService;
     }
 
 
@@ -53,9 +58,13 @@ public class EvidenceData {
             Evidence evidence3 = evidenceRepository.save(new Evidence(adminId, "Writing Long Descriptions", date, "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
             Evidence evidence4 = evidenceRepository.save(new Evidence(adminId, "No Skill Evidence", date, "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
 
-            WebLink webLink =  webLinkRepository.save(new WebLink(evidence, "localhost", new URL("https://localhost")));
-            WebLink webLink1 = webLinkRepository.save(new WebLink(evidence1,  "evidence1 weblink", new URL("https://localhost/evidence1")));
-            WebLink webLink2 = webLinkRepository.save(new WebLink(evidence1,  "lots of web links", new URL("https://lotsOfTestWeblinks")));
+            WebLinkDTO webLinkDTO = new WebLinkDTO( "localhost",  "https://localhost");
+            WebLinkDTO webLinkDTO2 = new WebLinkDTO( "evidence1 weblink",  "https://localhost/evidence1");
+            WebLinkDTO webLinkDTO3 = new WebLinkDTO( "lots of web links",  "https://lotsOfTestWeblinks");
+
+            WebLink webLink =  webLinkRepository.save(new WebLink(evidence, webLinkDTO));
+            WebLink webLink1 = webLinkRepository.save(new WebLink(evidence1, webLinkDTO2));
+            WebLink webLink2 = webLinkRepository.save(new WebLink(evidence1, webLinkDTO3));
 
             Skill skill = skillRepository.save(new Skill("test"));
             Skill skill1 = skillRepository.save(new Skill("java"));
@@ -103,7 +112,9 @@ public class EvidenceData {
             evidenceRepository.save(evidence2);
             evidenceRepository.save(evidence3);
             evidenceRepository.save(evidence4);
-        } catch (MalformedURLException exception) {
+
+            skillFrequencyService.updateAllSkillFrequenciesForUser(adminId);
+        } catch (Exception exception) {
             logger.error("Error occurred loading default evidence");
             logger.error(exception.getMessage());
         }

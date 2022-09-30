@@ -4,6 +4,7 @@ import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Evidence;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.EvidenceRepository;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLink;
 import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.WebLinkRepository;
+import nz.ac.canterbury.seng302.portfolio.model.dto.WebLinkDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +25,14 @@ class WebLinkTest {
     @Autowired
     WebLinkRepository webLinkRepository;
 
+    private String WEBLINK_ADDRESS = "https://www.canterbury.ac.nz/";
+
 
     @Test
     void createTestEvidenceSingleWebLink() throws MalformedURLException {
         Evidence evidence = new Evidence(1, "test", LocalDate.now(), "test");
-        WebLink webLink = new WebLink(evidence, "Test", new URL("https://www.google.co.nz"));
+        WebLinkDTO webLinkDTO = new WebLinkDTO("name", WEBLINK_ADDRESS);
+        WebLink webLink = new WebLink(evidence, webLinkDTO);
         evidence.addWebLink(webLink);
         evidenceRepository.save(evidence);
         webLinkRepository.save(webLink);
@@ -43,9 +47,13 @@ class WebLinkTest {
     @Test
     void createTestEvidenceMultipleWebLinks() throws MalformedURLException {
         Evidence evidence = new Evidence(1, "test", LocalDate.now(), "test");
-        WebLink webLink = new WebLink(evidence, "Test", new URL("https://www.google.co.nz"));
-        WebLink webLink2 = new WebLink(evidence, "Test", new URL("https://www.google.co.nz"));
-        WebLink webLink3 = new WebLink(evidence, "Test", new URL("https://www.google.co.nz"));
+        WebLinkDTO webLinkDTO1 = new WebLinkDTO("name", WEBLINK_ADDRESS);
+        WebLinkDTO webLinkDTO2 = new WebLinkDTO("name", WEBLINK_ADDRESS);
+        WebLinkDTO webLinkDTO3 = new WebLinkDTO("name", WEBLINK_ADDRESS);
+
+        WebLink webLink = new WebLink(evidence, webLinkDTO1);
+        WebLink webLink2 = new WebLink(evidence, webLinkDTO2);
+        WebLink webLink3 = new WebLink(evidence, webLinkDTO3);
         evidence.addWebLink(webLink);
         evidence.addWebLink(webLink2);
         evidence.addWebLink(webLink3);

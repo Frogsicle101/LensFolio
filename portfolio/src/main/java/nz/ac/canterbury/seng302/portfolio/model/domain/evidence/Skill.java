@@ -20,6 +20,8 @@ public class Skill {
     @Column
     private String name;
 
+    private double frequency;
+
     /** The set of evidence this skill is associated with */
     @JsonIgnore
     @ManyToMany(mappedBy = "skills", fetch = FetchType.EAGER)
@@ -69,6 +71,17 @@ public class Skill {
         return evidence;
     }
 
+    public void setFrequency(double frequency) {
+        this.frequency = frequency;
+    }
+
+    public double getFrequency() {
+        return frequency;
+    }
+
+    public void removeEvidence(Evidence evidenceToRemove) {
+        evidence.remove(evidenceToRemove);
+    }
 
     /**
      * For testing returns the expected json string of the object.
@@ -77,6 +90,7 @@ public class Skill {
      */
     public String toJsonString() {
         return "{\"id\":" + id +
-                ",\"name\":\"" + name + "\"}";
+                ",\"name\":\"" + name +
+                "\",\"frequency\":" + frequency +"}";
     }
 }

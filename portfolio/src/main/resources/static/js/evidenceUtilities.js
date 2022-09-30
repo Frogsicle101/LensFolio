@@ -4,13 +4,13 @@
  */
 
 
-const RESERVED_SKILL_TAGS = ["no skill"];
-
-/** A regex only allowing English characters, numbers, hyphens and underscores */
-const regexSkills = new RegExp("[A-Za-z0-9_-]+");
+const RESERVED_SKILL_TAGS = ["no_skill"];
 
 /** A regex contain emoji */
-const emojiRegx = new RegExp("/(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]/g");
+const emojiRegex = new RegExp("/(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]/g");
+
+/** A regex contains at least one letter */
+const skillRegex = new RegExp("(\\p{P}\\p{L}\\p{Nl}\\p{Nd})*[A-Za-z]+(\\p{P}\\p{L}\\p{Nl}\\p{Nd})*", 'u')
 
 /** the user id of the user whose evidence page if being viewed */
 let userBeingViewedId;
@@ -34,13 +34,13 @@ let categoriesMapping = new Map([
     ["SERVICE", "Service"]
 ])
 
+/** Protocols urls can begin with **/
+const VALID_PROTOCOLS = ["https://", "http://", "ftp://"]
+
+
 $(() => {
-        // Counting characters
-        let textInput = $(".text-input");
-        textInput.each(countCharacters)
-        textInput.on("keyup", countCharacters)
-    }
-)
+    startCharacterCounting("text-input");
+})
 
 
 /**
@@ -86,15 +86,14 @@ function showHighlightedEvidenceDetails() {
  *
  * @param response The response from the backend, which contains the web links for a piece of evidence.
  */
-function setHighlightedEvidenceWebLinks(response) {
+function addWeblinksToDisplayedEvidence(response) {
     let webLinksDiv = $("#evidenceWebLinks")
     webLinksDiv.empty()
 
-    for (let index in response) {
-        let webLink = response[index]
-        webLinksDiv.append(webLinkElement(webLink.url, webLink.alias))
+    $.each(response, (i, weblink) => {
+        webLinksDiv.append(detailsWeblinkElement(weblink.url, weblink.alias))
+    })
 
-    }
     if (webLinksDiv.children().length < 1) {
         $("#evidenceWebLinksBreakLine").hide()
     } else {
@@ -105,52 +104,159 @@ function setHighlightedEvidenceWebLinks(response) {
 
 
 /**
- * Given a web url and an alias, creates and returns a web link element.
+ * Given a web url and an alias, creates and returns a web link element with a delete icon.
  * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
  *
  * If the url doesn't start with https, it will show an un-filled, unlocked icon.
  * If it does, it will show a locked, filled icon.
  *
  * @param url The web url of the web link
- * @param alias The alias/nickname of the web url. Everything before the first // occurrence will be cut off
- * (e.g. https://www.goggle.com becomes www.google.com)
+ * @param alias The alias/nickname of the web url.
  * @returns {string} A single-div webLink element, wrapped in ` - e.g. `<div>stuff!</div>`
  */
-function webLinkElement(url, alias) {
-    let icon;
-    let security = "unsecured"
+function deletableWeblinkElement(url, alias) {
+    const icon = getWeblinkIcon(url)
+    const formattedUrl = getFormattedUrl(url)
+    const security = getWeblinkSecurity(url)
+    let urlWithProtocol = url
+
+    if (!hasProtocol(url)) {
+        urlWithProtocol = "http://" + url
+    }
+    return (`
+        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
+            <button class="deleteWeblink deleteIcon">
+                <svg class="bi bi-trash" fill="currentColor" height="20" viewBox="0 0 16 16" width="20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                    fill-rule="evenodd"/>
+                </svg>
+            </button>
+            ${icon}
+            <a href="${sanitise(urlWithProtocol)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+               data-bs-title="${formattedUrl}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}
+            </a>
+        </div>
+    `)
+}
+
+
+/**
+ * Given a web url and an alias, creates and returns a web link element with no delete icon.
+ * The main div will have the class 'secured' if it is https, or 'unsecured' otherwise
+ *
+ * If the url doesn't start with https, it will show an un-filled, unlocked icon.
+ * If it does, it will show a locked, filled icon.
+ *
+ * @param url The url of the weblink
+ * @param alias The name associated with the weblink
+ * @returns {string} HTML representing the weblink element's div.
+ */
+function detailsWeblinkElement(url, alias) {
+    const icon = getWeblinkIcon(url)
+    const security = getWeblinkSecurity(url)
+    const formattedUrl = getFormattedUrl(url)
+    let urlWithProtocol = url
+
+    if (!hasProtocol(url)) {
+        urlWithProtocol = "http://" + url
+    }
+
+    return (
+        `<div class="webLinkElement ${security}" data-value="${sanitise(url)}">
+            ${icon}
+            <a href="${sanitise(urlWithProtocol)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
+            data-bs-title="${formattedUrl}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
+        </div>`
+    )
+}
+
+
+/**
+ * Gets the icon indicating weblink security based on the link protocol.
+ *
+ * @param url The url the icon is associated with
+ * @returns {string} The HTML for the svg lock icon
+ */
+function getWeblinkIcon(url) {
+    let icon
 
     if (url.startsWith("https://")) {
-        security = "secured"
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill lockIcon text-success" viewBox="0 0 16 16">
-        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
         </svg>
         `
     } else {
         icon = `
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock lockIcon text-danger" viewBox="0 0 16 16">
-        <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"/>
+            <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"/>
         </svg>
         `
     }
 
-    let slashIndex = url.search("//") + 2
-    let urlSlashed
-    if (slashIndex > 1) {
-        urlSlashed = url.slice(slashIndex) // Cut off the http:// or whatever else it might be
+    return icon
+}
+
+
+/**
+ * Gets the security value indicating weblink security based on the link protocol.
+ *
+ * @param url The url the icon is associated with
+ * @returns {string} The security status of the weblink. Either "secure" or "unsecure".
+ */
+function getWeblinkSecurity(url) {
+    let security
+
+    if (url.startsWith("https://")) {
+        security = "secure"
     } else {
-        urlSlashed = url // The url does not have a protocol attached to it
-        url = "http://" + url
+        security = "unsecure"
     }
 
-    return (`
-        <div class="webLinkElement ${security}" data-value="${sanitise(url)}">
-            ${icon}
-            <a href="${sanitise(url)}" class="addedWebLink" data-bs-toggle="tooltip" data-bs-placement="top"
-            data-bs-title="${urlSlashed}" data-bs-custom-class="webLinkTooltip" target="_blank">${sanitise(alias)}</a>
-        </div>
-    `)
+    return security
+}
+
+
+/**
+ * Removes the protocol from the weblink, if it has one.
+ * Protocols are defined globally, but the VALID_PROTOCOLS list.
+ *
+ * @param url The url to be formatted.
+ * @returns The url, formatted to not include any protocol.
+ */
+function getFormattedUrl(url) {
+    let formattedUrl
+
+    if (hasProtocol(url)) {
+        let slashIndex = url.search("//") + 2
+            formattedUrl = url.slice(slashIndex)
+    } else {
+        formattedUrl = url
+    }
+
+    return formattedUrl
+}
+
+
+/**
+ * Checks whether a given url address starts with any of the protocols defined in the VALID_PROTOCOLS list.
+ *
+ * @param url The url to be checked.
+ * @returns {boolean} True if the url starts with one of the protocols, false otherwise/
+ */
+function hasProtocol(url) {
+    let urlHasProtocol = false
+
+    $.each(VALID_PROTOCOLS, (i, protocol) => {
+        if (url.startsWith(protocol)) {
+            urlHasProtocol = true
+            return false
+        }
+    })
+
+    return urlHasProtocol
 }
 
 
@@ -181,7 +287,7 @@ function getAndAddEvidencePreviews() {
             updateSelectedEvidence();
             showHighlightedEvidenceDetails()
         }, error: function () {
-            createAlert("Could not retrieve evidence data", "failure")
+            createAlert("Could not retrieve evidence data", AlertTypes.Failure)
         }
     })
 }
@@ -217,32 +323,14 @@ function getHighlightedEvidenceDetails() {
         $.ajax({
             url: "evidencePiece?evidenceId=" + selectedEvidenceId, success: function (response) {
                 setHighlightEvidenceAttributes(response)
-                getHighlightedEvidenceWeblinks()
             }, error: function (error) {
                 console.log(error)
-                createAlert("Failed to receive active evidence", "failure")
+                createAlert("Failed to receive active evidence", AlertTypes.Failure)
             }
         })
     } else {
         setDetailsToNoEvidenceExists()
     }
-}
-
-
-/**
- * Makes a request to the backend to retrieve all the web links for a piece of evidence. If the request is successful,
- * a function is called to add the web links to the document.
- */
-function getHighlightedEvidenceWeblinks() {
-    $.ajax({
-        url: "evidencePieceWebLinks?evidenceId=" + selectedEvidenceId, success: function (response) {
-            setHighlightedEvidenceWebLinks(response)
-        }, error: function (response) {
-            if (response.status !== 404) {
-                createAlert("Failed to receive evidence links", "failure")
-            }
-        }
-    })
 }
 
 
@@ -260,7 +348,11 @@ function getSkills(callback = () => {
             skillsArray = []
             $.each(response, function (i) {
                 if (!skillsArray.includes(response[i].name)) {
-                    skillsArray.push(response[i].name)
+                    skillsArray.push({
+                        id: response[i].id,
+                        name: response[i].name,
+                        frequency: response[i].frequency
+                    })
                 }
             })
             callback()
@@ -273,19 +365,6 @@ function getSkills(callback = () => {
 
 
 // --------------------------- Functional HTML Components ------------------------------------
-
-
-/**
- *  A helper function to take a response from an ajax call and add it to the array of skills
- */
-function addSkillResponseToArray(response) {
-    let skills = []
-    for (let i in response.skills) {
-        skills.push(response.skills[i].name)
-    }
-    skillsArray = [...new Set(skillsArray.concat(skills))];
-}
-
 
 /**
  * Sets the evidence details (big display) values to the given piece of evidence.
@@ -302,18 +381,22 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
     highlightedEvidenceTitle.text(evidenceDetails.title)
     highlightedEvidenceDate.text(evidenceDetails.date)
     highlightedEvidenceDescription.text(evidenceDetails.description)
+    addWeblinksToDisplayedEvidence(evidenceDetails.webLinks)
     addLinkedUsersToEvidence(evidenceDetails.associates)
     addSkillsToEvidence(evidenceDetails.skills)
 
     highlightedEvidenceTitle.show()
     highlightedEvidenceDate.show()
     highlightedEvidenceDescription.show()
+    $("#evidenceDetailsLinkedUsersDiv").show()
     addCategoriesToEvidence(evidenceDetails.categories)
 
     if (userBeingViewedId === userIdent) {
         $("#deleteEvidenceButton").show()
+        $("#editEvidenceButton").show()
     } else {
-        $("#deleteEvidenceButton").hide()
+        $("#deleteEvidenceButton").remove()
+        $("#editEvidenceButton").remove()
     }
 }
 
@@ -328,8 +411,10 @@ function setHighlightEvidenceAttributes(evidenceDetails) {
 function addLinkedUsersToEvidence(users) {
     let linkedUsersDiv = $("#evidenceDetailsLinkedUsers")
     linkedUsersDiv.empty()
+
     $.each(users, function (i, user) {
-        linkedUsersDiv.append(linkedUserElement(user));
+        const userName = user.firstName + " " + user.lastName + " (" + user.username +")"
+        linkedUsersDiv.append(linkedUserElement(user.id, userName,false));
     })
 }
 
@@ -346,10 +431,10 @@ function addSkillsToEvidence(skills) {
     // Sorts in alphabetical order
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     if (skills.length < 1) {
-        highlightedEvidenceSkills.append(createSkillChip("No Skill", false))
+        highlightedEvidenceSkills.append(createSkillChip("No Skill", 0.5))
     } else {
         $.each(skills, function (i) {
-            highlightedEvidenceSkills.append(createSkillChip(skills[i].name, false))
+            highlightedEvidenceSkills.append(createSkillChip(skills[i].name, skills[i].id, skills[i].frequency))
         })
     }
 }
@@ -402,7 +487,7 @@ function getSkillTags(skills) {
     skills.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
     let skillsHTML = ``
     $.each(skills, function (i) {
-        skillsHTML += createSkillChip(skills[i].name, false)
+        skillsHTML += createSkillChip(skills[i].name, skills[i].id, skills[i].frequency)
     })
     return skillsHTML
 }
@@ -437,10 +522,11 @@ function setDetailsToNoEvidenceExists() {
     $("#evidenceDetailsDate").hide()
     $("#evidenceDetailsDescription").hide()
     $("#deleteEvidenceButton").hide()
+    $("#editEvidenceButton").hide()
     $("#evidenceDetailsCategories").empty()
     $("#evidenceWebLinks").empty()
     $("#evidenceDetailsSkills").empty()
-
+    $("#evidenceDetailsLinkedUsersDiv").hide()
 }
 
 
@@ -525,41 +611,6 @@ function getCategories() {
 
 
 /**
- * Toggles category button appearance on the evidence creation form.
- */
-$(".evidenceFormCategoryButton").on("click", function () {
-    let button = $(this)
-    if (button.hasClass("btn-secondary")) {
-        button.removeClass("btn-secondary")
-        button.addClass("btn-success")
-        button.find(".evidenceCategoryTickIcon").show("slide", 200)
-    } else {
-        button.removeClass("btn-success")
-        button.addClass("btn-secondary")
-        button.find(".evidenceCategoryTickIcon").hide("slide", 200)
-    }
-})
-
-
-/**
- * The below listener trigger the rendering of the skill chips
- */
-$(document).on("click", ".ui-autocomplete", () => {
-    removeDuplicatesFromInput($("#skillsInput"))
-    displayInputSkillChips()
-})
-
-
-/**
- * Cleans up the duplicates in the input when the user clicks away from the input.
- */
-$(document).on("click", () => {
-    removeDuplicatesFromInput($("#skillsInput"))
-    displayInputSkillChips()
-})
-
-
-/**
  * When an evidence div is clicked, it becomes selected and is displayed on the main display.
  *
  * There are 3 steps to this:
@@ -580,7 +631,7 @@ $(document).on("click", ".evidenceListItem", function () {
  * Listen for a keypress in the weblink address field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkUrl', function () {
-    $("#weblinkAddressAlert").alert('close')
+    updateErrorMessage($("#evidenceWeblinkAddressFeedback"), "")
 })
 
 
@@ -588,23 +639,70 @@ $(document).on('keypress', '#webLinkUrl', function () {
  * Listen for a keypress in the weblink name field, and closes the alert box
  */
 $(document).on('keypress', '#webLinkName', function () {
-    $("#weblinkNameAlert").alert('close')
+    updateErrorMessage($("#evidenceWeblinkNameFeedback"), "")
 })
 
 
 /**
- * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
- * skill we are deleting.
+ * Calls the validity checking function on keyup of form inputs.
  */
-$(document).on("click", ".chipDelete", function () {
-    let skillText = $(this).parent().find(".skillChipText").text().trim().split(" ").join("_")
-    let skillsInput = $("#skillsInput")
-    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
-        return value.toLowerCase() !== skillText.toLowerCase()
-    })
-    skillsInput.val(inputArray.join(" "))
-    displayInputSkillChips()
+$(document).on("change keyup", "#evidenceName", function () {
+    disableEnableSaveButtonOnValidity()
+    checkNameValidity()
 })
+
+
+/**
+ * Calls the validity checking function on change of the description.
+ */
+$(document).on("change keyup", "#evidenceDescription", function () {
+    disableEnableSaveButtonOnValidity()
+    checkDescriptionValidity()
+})
+
+
+/**
+ * Calls the validity checking function on change of form inputs.
+ * This is different from keyup as it checks when the date changes.
+ */
+$(document).on("change", ".form-control", function () {
+    disableEnableSaveButtonOnValidity()
+    checkDateValidity()
+})
+
+
+/**
+ * Pops up a confirmation message on the click of evidence deletion. If the confirmation is accepted,
+ * then the delete request is sent. On a successful request the page is reloaded and an alert is made.
+ */
+$(document).on("click", "#deleteEvidenceButton", function () {
+    const evidenceId = $("#evidenceDetailsId").text()
+    const evidenceName = $("#evidenceDetailsTitle").text()
+    if (window.confirm(`Are you sure you want to delete the evidence \n${evidenceName}`)) {
+        $.ajax({
+            url: `evidence?evidenceId=${evidenceId}`,
+            type: "DELETE",
+            success: () => {
+                handleSuccessfulEvidenceDelete(evidenceName)
+                 }, error: (response) => {
+                createAlert(response.responseText, AlertTypes.Failure)
+            }
+        })
+    }
+})
+
+
+/**
+ * Refreshes the evidence page and creates an alert for successful evidence deletion.
+ *
+ * @param evidenceName The name of the deleted evidence.
+ */
+function handleSuccessfulEvidenceDelete(evidenceName) {
+    selectedEvidenceId = null
+    getAndAddEvidencePreviews()
+    getSkills(addSkillsToSideBar)
+    createAlert("Successfully deleted evidence: " + sanitise(evidenceName), AlertTypes.Success)
+}
 
 
 // --------------------------------- Autocomplete -----------------------------------------
@@ -623,276 +721,20 @@ function extractLast(term) {
 
 
 /**
- * Autocomplete widget provided by jQueryUi
- * https://jqueryui.com/autocomplete/
- */
-$("#skillsInput")
-    // don't navigate away from the field on tab when selecting an item
-    .on("keydown", function (event) {
-        if (event.key === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
-            event.preventDefault();
-        }
-    })
-    .autocomplete({
-        autoFocus: true, // This default selects the top result
-        minLength: 1,
-        source: function (request, response) {
-            // delegate back to autocomplete, but extract the last term
-            let responseList = $.ui.autocomplete.filter(skillsArray, extractLast(request.term))
-            response(responseList.sort((element1, element2) => {
-                // This sorts the response list (the drop-down list) so that it shows the shortest match first
-                return element1.length - element2.length
-            }));
-        },
-        focus: function () {
-            // prevent value inserted on focus
-            return false;
-        },
-        select: function (event, ui) {
-            let terms = split(this.value);
-            // remove the current input
-            terms.pop();
-            // add the selected item
-            terms.push(ui.item.value);
-            // add placeholder to get the space at the end
-            terms.push("");
-            this.value = terms.join(" ");
-            return false;
-        },
-        appendTo: ".modalContent"
-    })
-    .data('ui-autocomplete')._renderItem = function (ul, item) {
-    //This handles the display of the drop-down menu.
-    return $("<li></li>")
-        .data("ui-autocomplete-item", item)
-        .append('<a>' + item.label + '</a>')
-        .appendTo(ul);
-};
-
-
-/**
- * Autocomplete widget provided by jQueryUi
- * https://jqueryui.com/autocomplete/
- */
-$("#linkUsersInput")
-    .autocomplete({
-        autoFocus: true, // This default selects the top result
-        minLength: 1,
-        delay: 700,
-        appendTo: ".modalContent",
-        source: function (request, response) {
-            $.ajax({
-                url: 'filteredUsers?name=' + request.term.toString(),
-                type: "GET",
-                contentType: "application/json",
-                success: function (res) {
-                    let users = [];
-                    $.each(res, function (i) {
-                        linkedUserIdsArray.push(userIdent)
-                        if (!linkedUserIdsArray.includes(res[i].id)){
-                            let user = {label: `${res[i].firstName} ${res[i].lastName}`, value: res[i]}
-                            users.push(user)
-                        }
-                    })
-                    response(users)
-                }, error: function (error) {
-                    createAlert(error.responseText, "failure", ".modalBody")
-                }
-            })
-        },
-        focus: function () {
-            // prevent value inserted on focus
-            return false;
-        },
-        select: function (event, ui) {
-            let terms = split(this.value);
-            // remove the current input
-            terms.pop();
-            // add the selected item
-            let user = ui.item.value
-            addLinkedUser(user);
-            $(this).val('')
-            return false;
-        }
-    })
-    .data('ui-autocomplete')._renderItem = function (ul, item) {
-    //This handles the display of the drop-down menu.
-    return $("<li></li>")
-        .data("ui-autocomplete-item", item)
-        .append('<a>' + item.label + '</a>')
-        .appendTo(ul);
-};
-
-
-/**
- * Listens out for a keydown event on the skills input.
- * If it is a delete button keydown then it removes the last word from the input box.
- * If it is a space, tab or enter then it checks for duplicates
- */
-$(document).on("keydown", "#skillsInput", function (event) {
-    let skillsInput = $("#skillsInput")
-    if (event.key === "Delete") {
-        event.preventDefault();
-        let inputArray = skillsInput.val().trim().split(/\s+/)
-        inputArray.pop()
-        skillsInput.val(inputArray.join(" ") + " ")
-    }
-    if (event.key === " " || event.key === "Tab" || event.key === "Enter") {
-        removeDuplicatesFromInput(skillsInput)
-    }
-    displayInputSkillChips()
-})
-
-
-/**
- * Listens out for a keyup event on the skills input.
- * Renders the skill chips when it detects a keyup event.
- */
-$(document).on("keyup", "#skillsInput", function () {
-    displayInputSkillChips()
-})
-
-
-/**
- * Runs the remove duplicates function after a paste event has occurred on the skills input
- */
-$(document).on("paste", "#skillsInput", () => {
-    setTimeout(() => removeDuplicatesFromInput($("#skillsInput")), 0)
-    // Above is in a timeout so that it runs after the paste event has happened
-})
-
-
-/**
- * Splits the input into an array and then creates a new array and pushed the elements too it if they don't already
- * exist in it, it checks for case insensitivity as well.
- *
- * @param input the jQuery call to the input to check
- */
-function removeDuplicatesFromInput(input) {
-    let inputArray = input.val().trim().split(/\s+/)
-    let newArray = []
-
-    inputArray.forEach(function (element) {
-        if (regexSkills.test(element)) {
-            while (element.slice(-1) === "_") {
-                element = element.slice(0, -1)
-            }
-            while (element.slice(0, 1) === "_") {
-                element = element.slice(1, element.length)
-            }
-            element = element.replaceAll("_", " ")
-                .replace(/\s+/g, ' ')
-                .trim()
-                .replaceAll(" ", "_")
-            if (element.match(emojiRegx)) {
-                createAlert("Emojis not allowed in Skill name", "failure")
-            }
-            if (element.length > 30) { //Shortens down the elements to 30 characters
-                element = element.split("").splice(0, 30).join("")
-                createAlert("Length of skill name should be less than 30", "failure")
-            }
-            if (!(newArray.includes(element) || newArray.map((item) => item.toLowerCase()).includes(element.toLowerCase()))) {
-                newArray.push(element)
-            }
-        } else if (element.length > 0) {
-        createAlert("Skill names containing only special symbols are not allowed.", "failure")
-        }
-    })
-
-    newArray.forEach(function (element, index) {
-        skillsArray.forEach(function (alreadyExistingSkill) {
-            if (element.toLowerCase() === alreadyExistingSkill.toLowerCase()) {
-                newArray[index] = alreadyExistingSkill;
-            }
-        })
-    })
-
-    input.val(newArray.join(" "))
-}
-
-
-/**
- * Triggers the rendering of the skill chips
- */
-$(document).on("change", "#skillsInput", () => displayInputSkillChips())
-$(document).on("click", ".ui-autocomplete", () => {
-    removeDuplicatesFromInput($("#skillsInput"))
-    displayInputSkillChips()
-})
-
-
-/**
- * Cleans up the duplicates in the input when the user clicks away from the input.
- */
-$(document).on("click", () => {
-    removeDuplicatesFromInput($("#skillsInput"))
-    displayInputSkillChips()
-})
-
-
-/**
- * This function gets the input string from the skills input and trims off the extra whitespace
- * then it separates each word into an array and creates chips for them.
- */
-function displayInputSkillChips() {
-    checkToShowSkillChips()
-    let skillsInput = $("#skillsInput")
-    let inputArray = skillsInput.val().trim().split(/\s+/)
-    let chipDisplay = $("#skillChipDisplay")
-
-    $('[data-toggle="tooltip"]').tooltip("hide")
-
-    chipDisplay.empty()
-    inputArray.forEach(function (element) {
-        element = element.replaceAll("_", " ");
-        chipDisplay.append(createDeletableSkillChip(sanitise(element)))
-    })
-    chipDisplay.find(".chipText").each(function () {
-        const parent = $(this).parent(".skillChip")
-        if ($(this).text().length < 1) {
-            parent.remove()
-        }
-        if ($(this).text().length > 30) {
-            parent.addClass("skillChipInvalid")
-            createAlert("Length of skill name should be less than 30", "failure")
-        }
-        if (RESERVED_SKILL_TAGS.includes($(this).text().toLowerCase())) {
-            const parent = $(this).parent(".skillChip")
-            parent.addClass("skillChipInvalid")
-            addTooltip(parent, "This is a reserved tag and cannot be manually created")
-        }
-    })
-}
-
-
-/**
- * Simple function that checks if the skill chip display should be visible or not.
- */
-function checkToShowSkillChips() {
-    let chipDisplay = $("#skillChipDisplay")
-    let skillsInput = $("#skillsInput")
-    if (skillsInput.val().trim().length > 0) {
-        chipDisplay.show()
-    } else {
-        chipDisplay.hide()
-    }
-}
-
-
-/**
- * Returns all the linked users id's from the evidence creation form
+ * Returns all the linked users' id's from the evidence creation form
  *
  * @returns [integer] the list of user id's to be attached
  */
 function getLinkedUsers() {
-    let linkedUsers = $("#linkedUsers").children()
+    let linkedUsers = $("#linkedUsers").find(".linkedUser")
     let userIds = [];
-    $.each(linkedUsers, function (i) {
+
+    $.each(linkedUsers, function (i, user) {
         try {
-            let userId = parseInt(linkedUsers[i].id.replace("linkedUserId", ""));
+            let userId = parseInt(user.id.replace("linkedUserId", ""), 10);
             userIds.push(userId)
         } catch (error) {
-            createAlert("Oops! there was an error with one or more of the linked users", "failure")
+            createAlert("Oops! there was an error with one or more of the linked users", AlertTypes.Failure)
         }
     })
     return userIds;
@@ -900,36 +742,25 @@ function getLinkedUsers() {
 
 
 /**
- * This function returns the html for the chips
+ * Searches the skill array for a version of the given string.
+ * This is a case-insensitive search, though accents (like a vs â) are treated as different.
+ * If the skill array contains the given string, return it.
+ * Otherwise, return the original string.
  *
- * @param element the name of the skill
- * @returns {string} the html for the chip
+ * This does not perform whitespace to underscore conversion; you'll have to do it yourself.
+ *
+ * @param string The string you want to look for
+ * @returns {*} The skill array's (possibly case-different) version of this string.
+ * If it is not in the array, this returns the input string.
  */
-function createDeletableSkillChip(element) {
-    return `<div class="chip skillChip">
-                <p class="chipText">${sanitise(element)}</p>  
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                </svg>
-            </div>`
+function replaceWithStringFromSkillArray(string) {
+    for (let skill of skillsArray) {
+        if (skill.name.localeCompare(string, undefined, {sensitivity : 'accent'}) === 0) {
+            return skill.name // There exists a skill, so use that
+        }
+    }
+    return string
 }
-
-
-/**
- * Listens for a click on the chip delete buttons, removes all the elements from the skill input that match the
- * skill we are deleting.
- */
-$(document).on("click", ".chipDelete", function (event) {
-    event.stopPropagation()
-    let skillText = $(this).parent().find(".chipText").text().trim().split(" ").join("_")
-    let skillsInput = $("#skillsInput")
-    let inputArray = skillsInput.val().trim().split(/\s+/).filter(function (value) {
-        return value.toLowerCase() !== skillText.toLowerCase()
-    })
-    skillsInput.val(inputArray.join(" "))
-    displayInputSkillChips()
-})
 
 
 /**
@@ -945,60 +776,80 @@ $(document).on("submit", "#evidenceCreationForm", function (e) {
 /**
  * Saves the evidence input during creating a new piece of evidence
  */
-$(document).on("click", "#evidenceSaveButton", function (event) {
-    event.preventDefault()
-    let skillsInput = $("#skillsInput")
-    removeDuplicatesFromInput(skillsInput)
-    let evidenceCreationForm = $("#evidenceCreationForm")[0]
-    toggleRequiredIfCheckURLInputsAreEmpty()
-    if (!evidenceCreationForm.checkValidity()) {
-        evidenceCreationForm.reportValidity()
-    } else {
-        const title = $("#evidenceName").val()
-        const date = $("#evidenceDate").val()
-        const description = $("#evidenceDescription").val()
-        const projectId = 1
-        let webLinks = getWeblinksList();
-        const linkedUsers = getLinkedUsers();
-        const categories = getCategories();
-
-        const skills = skillsInput.val().split(" ").filter(skill => skill.trim() !== "")
-        $.each(skills, function (i) {
-            skills[i] = skills[i].replaceAll("_", " ")
-        })
-
-        let data = JSON.stringify({
-            "title": title,
-            "date": date,
-            "description": description,
-            "projectId": projectId,
-            "webLinks": webLinks,
-            "skills": skills,
-            "categories": categories,
-            "associateIds": linkedUsers
-        })
-        $.ajax({
-            url: 'evidence',
-            type: "POST",
-            contentType: "application/json",
-            data,
-            success: function (response) {
-                selectedEvidenceId = response.id
-                getAndAddEvidencePreviews()
-                addSkillResponseToArray(response)
-                addSkillsToSideBar();
-                closeModal()
-                clearAddEvidenceModalValues()
-                $(".alert").remove()
-                createAlert("Created evidence", "success")
-                disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-                resetWeblink()
-            }, error: function (error) {
-                createAlert(error.responseText, "failure", ".modalBody")
-            }
-        })
-    }
+$(document).on("click", "#evidenceSaveButton", function (e) {
+    e.preventDefault()
+    handleEvidenceSave()
 })
+
+
+/**
+ * If the weblink form is closed, calls the function to toggle it open.
+ * If the weblink form is open, calls the function to submit the form.
+ */
+function handleWeblinkAdd() {
+    const button = $("#addWeblinkButton");
+
+    if (button.hasClass("toggled")) {
+        submitWebLink()
+    } else {
+        webLinkButtonToggle()
+    }
+}
+
+
+/**
+ * Checks the validity of the address in the weblink error form against the central weblink requirements.
+ *
+ * @returns {boolean} True if the address is valid.
+ */
+function checkWeblinkAddressValidity() {
+    const webLinkUrl = $("#webLinkUrl").val();
+    const weblinkAddressErrorDiv = $("#evidenceWeblinkAddressFeedback")
+
+    const weblinkRegex = new RegExp(weblinkRegexPattern)
+
+    if (!weblinkRegex.test(webLinkUrl)) {
+        updateErrorMessage(weblinkAddressErrorDiv, `Weblink address ${weblinkRegexRequirements}`)
+        return false
+    }
+
+    if (webLinkUrl.length > 2000) {
+        updateErrorMessage(weblinkAddressErrorDiv, `Weblink address cannot be longer than 2000 characters`)
+        return false
+    }
+
+    updateErrorMessage(weblinkAddressErrorDiv, "")
+    return true
+}
+
+
+/**
+ * Checks the validity of the name in the weblink error form against the general unicode requirements.
+ *
+ * @returns {boolean} True if the name is valid.
+ */
+function checkWeblinkNameValidity() {
+    const webLinkName = $("#webLinkName").val();
+    const weblinkNameErrorDiv = $("#evidenceWeblinkNameFeedback")
+
+    if (webLinkName.length === 0) {
+        updateErrorMessage(weblinkNameErrorDiv, "Weblink name must not be empty")
+        return false
+    }
+
+    if (!regex.test(webLinkName)) {
+        updateErrorMessage(weblinkNameErrorDiv, `Weblink name ${GENERAL_UNICODE_REQUIREMENTS}`)
+        return false
+    }
+
+    if (webLinkName.length > 50) {
+        updateErrorMessage(weblinkNameErrorDiv, `Weblink name cannot be longer than 50 characters`)
+        return false
+    }
+
+    updateErrorMessage(weblinkNameErrorDiv, "")
+    return true
+}
 
 
 /**
@@ -1006,21 +857,42 @@ $(document).on("click", "#evidenceSaveButton", function (event) {
  * Slide-toggles the web link portion of the form.
  */
 $(document).on('click', '#addWeblinkButton', function (e) {
-    let button = $("#addWeblinkButton");
-    if (button.hasClass("toggled")) {
-        e.preventDefault()
-        let webLinkUrl = $("#webLinkUrl");
-        let webLinkName = $("#webLinkName");
-        if (!webLinkUrl[0].checkValidity() || !webLinkName[0].checkValidity()) {
-            webLinkUrl[0].reportValidity()
-            webLinkName[0].reportValidity()
-            return false
-        }
-        //validate the link
-        validateWebLinkAtBackend()
-    } else {
-        webLinkButtonToggle()
-    }
+    e.preventDefault()
+    handleWeblinkAdd()
+})
+
+
+/**
+ * Listens for when delete web link button is clicked.
+ * the web link will be deleted.
+ */
+$(document).on('click', '.deleteWeblink', function () {
+    $(this).parent().remove();
+    webLinksCount -= 1;
+    checkWeblinkCount();
+})
+
+
+/**
+ * Listens for when delete web link button is clicked.
+ * Refreshes error messages on the form.
+ * */
+$(document).on('change keyup', '#webLinkUrl', checkWeblinkAddressValidity)
+
+
+/**
+ * Listens for a change of the web link name in the web link form.
+ * Refreshes error messages on the form.
+ */
+$(document).on('change keyup', '#webLinkName', checkWeblinkNameValidity)
+
+
+/**
+ * Listens for when delete web link button is clicked.
+ * The user will be removed.
+ */
+$(document).on('click', '.deleteLinkedUserButton', function () {
+    $(this).parent().remove();
 })
 
 
@@ -1035,7 +907,7 @@ $(document).on('click', '#cancelWeblinkButton', () => {
 /**
  * Prevents the add evidence modal from being closed if an alert is present.
  */
-$('#addEvidenceModal').on('hide.bs.modal', function (e) {
+$('#addOrEditEvidenceModal').on('hide.bs.modal', function (e) {
     let alert = $("#alertPopUp")
     if (alert.is(":visible") && alert.hasClass("backgroundRed")) {
         alert.effect("shake")
@@ -1044,28 +916,6 @@ $('#addEvidenceModal').on('hide.bs.modal', function (e) {
         return false;
     }
 });
-
-
-/**
- * Remove any open alerts for weblinks
- */
-function removeWebLinkAlerts() {
-    $(".weblinkAlert").remove()
-}
-
-
-/**
- * Handles the error messages for an invalid web link.
- */
-function handleInvalidWebLink(form, message) {
-    removeWebLinkAlerts()
-    form.append(`
-        <div class="alert alert-danger alert-dismissible show address-alert weblinkAlert" role="alert">
-          ${sanitise(message)}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `);
-}
 
 
 /**
@@ -1078,7 +928,7 @@ function handleInvalidWebLink(form, message) {
 function toggleRequiredIfCheckURLInputsAreEmpty() {
     let webLinkUrl = $("#webLinkUrl")
     let webLinkName = $("#webLinkName")
-    if (webLinkUrl.val() < 1 && webLinkName.val() < 1) {
+    if (webLinkUrl.val().length < 1 && webLinkName.val().length < 1) {
         webLinkUrl.removeAttr("required")
         webLinkName.removeAttr("required")
         webLinkName.removeAttr("minlength")
@@ -1087,52 +937,6 @@ function toggleRequiredIfCheckURLInputsAreEmpty() {
         webLinkName.attr("required", "required")
         webLinkName.attr("minlength", "1")
     }
-}
-
-
-/**
- * Validates the weblink server-side.
- * Takes the URL and makes a call to the server to check if it's valid.
- * If valid, save the web link and toggle the form.
- *
- * If there's an issue, or it's not valid, calls a function to display an alert
- */
-function validateWebLinkAtBackend() {
-    let form = $("#weblinkForm")
-    let address = $("#webLinkUrl").val()
-    let hasDoubleSlash = address.search("//") !== -1
-    if (!hasDoubleSlash) {
-
-        if (address.search(":/") !== -1) {
-            handleInvalidWebLink(form, "Addresses in the format [protocol]:/[something else] are not valid " +
-                "(two slashes required)");
-            return;
-        }
-
-        // Address does not have protocol, so assume http
-        address = "http://" + address
-    }
-    let data = JSON.stringify({
-        "url": address,
-        "name": $("#webLinkName").val()
-    })
-    $.ajax({
-        url: `validateWebLink`,
-        type: "POST",
-        contentType: "application/json",
-        data,
-        success: () => {
-            submitWebLink()
-            webLinkButtonToggle()
-        },
-        error: (error) => {
-            if (error.status === 400) {
-                handleInvalidWebLink(form, error.responseText)
-            } else {
-                handleInvalidWebLink(form, "Something went wrong. Try again later.");
-            }
-        }
-    })
 }
 
 
@@ -1179,23 +983,22 @@ $(document).on('click', '#linkUsersToEvidenceButton', function () {
 
 
 /**
- * Appends a new link to the list of added links in the Add Evidence form.
+ * Appends a new link to the list of added links in the Add Evidence form, if the form contents are valid.
  */
 function submitWebLink() {
-    let alias = $("#webLinkName")
-    let url = $("#webLinkUrl")
-    let addedWebLinks = $("#addedWebLinks")
-    let webLinkTitle = $("#webLinkTitle")
+    if (checkWeblinkAddressValidity() && checkWeblinkNameValidity()) {
+        const alias = $("#webLinkName")
+        const url = $("#webLinkUrl")
+        const addedWebLinks = $("#addedWebLinks")
+        const webLinkTitle = $("#webLinkTitle")
 
-    if (alias.val().length > 0) {
         webLinkTitle.show()
-        addedWebLinks.append(webLinkElement(url.val(), alias.val()))
-        initialiseTooltips()
+        addedWebLinks.append(deletableWeblinkElement(url.val(), alias.val()))
         url.val("")
         alias.val("")
         webLinksCount += 1
         checkWeblinkCount()
-        $('[data-bs-toggle="tooltip"]').tooltip(); //re-init tooltips so appended tooltip displays
+        initialiseTooltips()
     }
 }
 
@@ -1208,7 +1011,9 @@ function addLinkedUser(user) {
     if (!linkedUserIdsArray.includes(user.id)) {
         $("#linkedUsersTitle").show()
         linkedUserIdsArray.push(user.id)
-        linkedUsersDiv.append(linkedUserElement(user))
+        const userName = user.firstName + " " + user.lastName + " (" + user.username +")"
+        linkedUsersDiv.append(linkedUserElement(user.id, userName, true))
+        $('.deleteLinkedUserButton').show()
     }
 }
 
@@ -1216,8 +1021,24 @@ function addLinkedUser(user) {
 /**
  * Creates the element for displaying the linked user
  */
-function linkedUserElement(user) {
-    return `<div class="linkedUser" id="linkedUserId${user.id}" data-id="${user.id}">${user.firstName} ${user.lastName} (${user.username})</div>`
+function linkedUserElement(userId, userName, deletable) {
+    let deleteIcon = ''
+    if (deletable) {
+        deleteIcon = `
+            <button class="deleteLinkedUserButton">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+            </button>
+        `
+    }
+
+    return `<div id="linkedUserElement">
+                ${deleteIcon}
+                <div class="linkedUser" id="linkedUserId${userId}" data-id="${userId}">
+                     ${userName}</div>
+           </div> `
 }
 
 
@@ -1226,13 +1047,12 @@ function linkedUserElement(user) {
  */
 $(document).on("click", ".linkedUser", function () {
     let userId = this.getAttribute("data-id")
-    console.log(userId)
     redirectToUsersHomePage(userId) //redirect to the user's evidence page
 })
 
 
 /**
- * Clears all fields (except the date field) in the "Add Evidence" form.
+ * Clears all fields (except the date field, which is reset to today) in the "Add Evidence" form.
  */
 function clearAddEvidenceModalValues() {
     $("#evidenceName").val("")
@@ -1243,7 +1063,8 @@ function clearAddEvidenceModalValues() {
     $("#addedWebLinks").empty()
     $("#linkedUsers").empty()
     $("#webLinkTitle").hide()
-    $("#skillsInput").val("")
+    skillsToCreate.clear()
+    updateSkillsInput()
     $("#linkedUsersTitle").hide()
     $(".btn-success").addClass("btn-secondary").removeClass("btn-success")
     $(".evidenceCategoryTickIcon").hide();
@@ -1270,95 +1091,105 @@ function disableEnableSaveButtonOnValidity() {
 
 
 /**
- * Checks that the name and description of a piece of evidence match the required regex.
+ * Checks that the name of a piece of evidence match the required regex.
+ * Adds appropriate error messages for invalid inputs - not matching regex or empty fields.
  */
-function checkTextInputRegex() {
-    let name = $("#evidenceName")
-    let description = $("#evidenceDescription")
-    let nameVal = name.val()
-    let descriptionVal = description.val()
+function checkNameValidity() {
+    const name = $("#evidenceName")
+    const nameVal = name.val()
+    const nameError = $("#evidenceNameFeedback")
+    const nameIsValid = GENERAL_UNICODE_REGEX.test(nameVal)
 
-    if (!regex.test(nameVal) || !regex.test(descriptionVal)) {
-        $("#evidenceSaveButton").prop("disabled", true)
-    }
-
-    if (!regex.test(nameVal) && nameVal.length > 0) {
-        name.addClass("invalid")
-    } else {
+    if (nameIsValid) {
         name.removeClass("invalid")
-    }
-
-    if (!regex.test(descriptionVal) && descriptionVal.length > 0) {
-        description.addClass("invalid")
-
+        nameError.hide()
     } else {
-        description.removeClass("invalid")
+        name.addClass("invalid")
+
+        if (nameVal.trim().length === 0) {
+            nameError.text("Name cannot be empty")
+        } else {
+            nameError.text("Name " + GENERAL_UNICODE_REQUIREMENTS)
+        }
+
+        nameError.show()
     }
 }
 
 
 /**
- * Calls the validity checking function on keyup of form inputs.
+ * Checks that the description of a piece of evidence match the required regex.
+ * Adds appropriate error messages for invalid inputs - not matching regex or empty fields.
  */
-$(document).on("keyup", ".text-input", function () {
-    disableEnableSaveButtonOnValidity()
-    checkTextInputRegex()
-})
+function checkDescriptionValidity() {
+    const description = $("#evidenceDescription")
+    const descriptionVal = description.val()
+    const descriptionError = $("#evidenceDescriptionFeedback")
+    const descriptionIsValid = GENERAL_UNICODE_REGEX.test(descriptionVal)
 
+    if (descriptionIsValid) {
+        description.removeClass("invalid")
+        descriptionError.hide()
+    } else {
+        description.addClass("invalid")
 
-/**
- * Calls the validity checking function on change of form inputs.
- * This is different from keyup as it checks when the date changes.
- */
-$(document).on("change", ".form-control", function () {
-    disableEnableSaveButtonOnValidity()
-    checkTextInputRegex()
-})
+        if (descriptionVal.trim().length === 0) {
+            descriptionError.text("Description cannot be empty")
+        } else {
+            descriptionError.text("Description " + GENERAL_UNICODE_REQUIREMENTS)
+        }
 
-
-/**
- * Pops up a confirmation message on the click of evidence deletion. If the confirmation is accepted,
- * then the delete request is sent. On a successful request the page is reloaded and an alert is made.
- */
-$(document).on("click", "#deleteEvidenceButton", function () {
-    const evidenceId = $("#evidenceDetailsId").text()
-    const evidenceName = $("#evidenceDetailsTitle").text()
-    if (window.confirm(`Are you sure you want to delete the evidence \n${evidenceName}`)) {
-        $.ajax({
-            url: `evidence?evidenceId=${evidenceId}`,
-            type: "DELETE",
-            success: () => {
-                selectedEvidenceId = null
-                getAndAddEvidencePreviews()
-                getSkills(addSkillsToSideBar)
-                createAlert("Successfully deleted evidence: " + sanitise(evidenceName), "success")
-            }, error: (response) => {
-                createAlert(response.responseText, "failure")
-            }
-        })
+        descriptionError.show()
     }
-})
+}
+
+
+/**
+ * Checks that the current date in the evidence modal date picker is within the project dates and not in the future.
+ * If the date is invalid, a relevant error message is displayed.
+ */
+function checkDateValidity() {
+    const date = $("#evidenceDate")
+    const proposedDate = Date.parse(date.val().toString())
+    const earliestDate = Date.parse(projectStartDate)
+    const latestDate = Date.parse(evidenceMaxDate)
+    const dateError = $("#evidenceDateFeedback")
+
+    if (proposedDate < earliestDate) {
+        dateError.text(`Date cannot be before project start.\n Please choose a date between ${projectStartFormatted} and ${projectEndFormatted}`)
+        dateError.show()
+    }
+    else if (proposedDate > latestDate) {
+        dateError.text(`Evidence date must be before the project end and not in the future.\n Please choose a date between ${projectStartFormatted} and ${projectEndFormatted}`)
+        dateError.show()
+    } else {
+        dateError.text("")
+        dateError.hide()
+    }
+}
 
 
 /**
  * Creates HTMl for a skill chip with the given skill name.
  *
  * @param skillName The name to be displayed in the skill chip.
- * @param isMenuItem Boolean value reflecting whether the chip will be displayed in the menu bar.
+ * @param skillId The ID of the skill saved in the database.
+ * @param deletable Optional parameter determining if the chip is deletable, false by default
  * @returns {string} The string of HTMl representing the skill chip.
  */
-function createSkillChip(skillName, isMenuItem) {
-    if (isMenuItem) {
-        return `
-            <div data-id=${sanitise("skillCalled" + skillName.replaceAll(" ", "_"))} class="chip skillChip">
-                <p class="chipText">${sanitise(skillName)}</p>
-            </div>`
-    } else {
-        return `
-            <div class="chip skillChip">
-                <p class="chipText">${sanitise(skillName)}</p>
-            </div>`
-    }
+//Todo make skill chips not bad
+function createSkillChip(skillName, skillId, deletable = false) {
+    const deleteIcon = deletable ? `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle chipDelete" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg>` : ""
+
+    return `
+        <div class="chip skillChip ${deletable ? "editableChip" : "sortableChip"}" ${skillId !== undefined ? "data-id=" + skillId: ""}>
+            <span class="chipText noDisplayInput focus" role="textbox">${sanitise(skillName)}</span>
+            ${deleteIcon}
+        </div>`
 }
 
 
@@ -1377,8 +1208,124 @@ function createCategoryChip(categoryName, isMenuItem) {
             </div>`
     } else {
         return `
-            <div class="chip categoryChip">
+            <div class="chip categoryChip sortableChip">
                 <p class="chipText">${sanitise(categoryName)}</p>
             </div>`
+    }
+}
+
+
+
+// ----------------------------- SAVING EVIDENCE -----------------------------------
+
+/**
+ * Retrieves input values from the add evidence form and formats them in JSON.
+ *
+ * @returns {string} A JSON string of the evidence's data, formatted as an EvidenceDTO.
+ */
+function getDataFromEvidenceForm() {
+    const evidenceId = $("#addOrEditEvidenceModal").attr("data-id")
+    const title = $("#evidenceName").val()
+    const date = $("#evidenceDate").val()
+    const description = $("#evidenceDescription").val()
+    const projectId = 1
+    let webLinks = getWeblinksList();
+    const skills = Array.from(skillsToCreate, ([key, val]) => ({"id" : val, "name" : key}))
+    const categories = getCategories();
+    const linkedUsers = getLinkedUsers();
+
+    return JSON.stringify({
+        "id": evidenceId,
+        "title": title,
+        "date": date,
+        "description": description,
+        "projectId": projectId,
+        "webLinks": webLinks,
+        "skills": skills,
+        "categories": categories,
+        "associateIds": linkedUsers
+    })
+}
+
+
+/**
+ * Updates the evidence page and resets the add evidence modal.
+ *
+ * @param response A server response containing data about the saved evidence, including its Id and skills.
+ */
+function handleSuccessfulEvidenceSave(response) {
+    selectedEvidenceId = response.id
+    getAndAddEvidencePreviews()
+    getSkills(addSkillsToSideBar)
+    closeModal()
+    clearAddEvidenceModalValues()
+    $(".alert").remove()
+    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
+    resetWeblink()
+}
+
+
+/**
+ * Makes an endpoint request to save a new piece of evidence.
+ *
+ * @param data the data for the evidence being created.
+ */
+function createEvidence(data) {
+    $.ajax({
+        url: 'evidence',
+        type: "POST",
+        contentType: "application/json",
+        data,
+        success: (response) => {
+            handleSuccessfulEvidenceSave(response)
+            createAlert("Created evidence", AlertTypes.Success)
+        }, error: (error) => {
+            createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
+        }
+    })
+}
+
+
+/**
+ * Makes an endpoint request to save a new piece of evidence.
+ *
+ * @param data the data for the evidence being created.
+ */
+function editEvidence(data) {
+    $.ajax({
+        url: 'evidence',
+        type: "PATCH",
+        contentType: "application/json",
+        data,
+        success: (response) => {
+            handleSuccessfulEvidenceSave(response)
+            createAlert("Successfully edited evidence", AlertTypes.Success)
+        }, error: (error) => {
+            createAlert(error.responseText, AlertTypes.Failure, ".modalBody")
+        }
+    })
+}
+
+
+/**
+ * Validates the inputs in the evidence form. Calls the method to create a nw piece of evidence, if the evidence save
+ * button has the text "Create".
+ */
+function handleEvidenceSave() {
+    const evidenceCreationForm = $("#evidenceCreationForm")[0]
+    toggleRequiredIfCheckURLInputsAreEmpty()
+
+    if (!evidenceCreationForm.checkValidity()) {
+        evidenceCreationForm.reportValidity()
+    } else {
+        const evidenceData = getDataFromEvidenceForm()
+        const buttonName = $("#evidenceSaveButton").text()
+
+        if (buttonName === "Create") { // create a new evidence
+            createEvidence(evidenceData)
+
+        } else { // edit an existing piece of evidence
+            editEvidence(evidenceData)
+        }
     }
 }

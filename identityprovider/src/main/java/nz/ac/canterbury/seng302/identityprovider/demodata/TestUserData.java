@@ -3,7 +3,6 @@ package nz.ac.canterbury.seng302.identityprovider.demodata;
 import nz.ac.canterbury.seng302.identityprovider.model.User;
 import nz.ac.canterbury.seng302.identityprovider.model.UserRepository;
 import nz.ac.canterbury.seng302.identityprovider.service.PasswordEncryptionException;
-import nz.ac.canterbury.seng302.identityprovider.service.TimeService;
 import nz.ac.canterbury.seng302.shared.identityprovider.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +32,9 @@ public class TestUserData {
                 "McSteves",
                 "Wayne",
                 "Stev",
-                "kdsflkdjf",
+                "Hello! my name is John and I am your course administrator!",
                 "He/Him",
-                "steve@gmail.com",
-                TimeService.getTimeStamp()
+                "steve@gmail.com"
         );
         admin.addRole(UserRole.COURSE_ADMINISTRATOR);
         repository.save(admin);
@@ -61,8 +59,7 @@ public class TestUserData {
                 "Stev",
                 "My name is Steve. I am a teacher",
                 malePronouns,
-                "steve@gmail.com",
-                TimeService.getTimeStamp()
+                "steve@gmail.com"
         );
         tempUser.addRole(UserRole.TEACHER);
         repository.save(tempUser);
@@ -76,8 +73,7 @@ public class TestUserData {
                 "Rob",
                 "Musicaholic. Proud problem solver. Travel practitioner. Writer. Internet trailblazer.",
                 malePronouns,
-                "kale.kovace6@yahoo.com",
-                TimeService.getTimeStamp()
+                "kale.kovace6@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -91,8 +87,7 @@ public class TestUserData {
                 "Pam",
                 "Wannabe internet fanatic. Entrepreneur. Evil troublemaker. Coffee guru. Freelance communicator. Total beer fan.",
                 femalePronouns,
-                "johnathon2006@gmail.com",
-                TimeService.getTimeStamp()
+                "johnathon2006@gmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -106,8 +101,7 @@ public class TestUserData {
                 "Walt",
                 "Social media specialist. Amateur creator. Avid twitter fan. Friendly coffee buff. Proud explorer.",
                 malePronouns,
-                "clark1996@yahoo.com",
-                TimeService.getTimeStamp()
+                "clark1996@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -121,8 +115,7 @@ public class TestUserData {
                 "Ron",
                 "Alcohol geek. Total communicator. Problem solver. Analyst. Incurable zombie fanatic.",
                 malePronouns,
-                "Ronnie1972@yahoo.com",
-                TimeService.getTimeStamp()
+                "Ronnie1972@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -136,8 +129,7 @@ public class TestUserData {
                 "Shir",
                 "Student. Hipster-friendly food buff. Incurable music nerd. Internet practitioner. Tv scholar.",
                 femalePronouns,
-                "arch2001@hotmail.com",
-                TimeService.getTimeStamp()
+                "arch2001@hotmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -151,8 +143,7 @@ public class TestUserData {
                 "Kat",
                 "Food ninja. Typical explorer. Award-winning coffee maven. Social media trailblazer. Freelance zombie scholar. Beer nerd. Introvert.",
                 femalePronouns,
-                "keyon.moscis@yahoo.com",
-                TimeService.getTimeStamp()
+                "keyon.moscis@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -166,8 +157,7 @@ public class TestUserData {
                 "Matt",
                 "Food expert. Extreme internet aficionado. Typical problem solver. Web guru.",
                 malePronouns,
-                "robin_lin8@gmail.com",
-                TimeService.getTimeStamp()
+                "robin_lin8@gmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -181,8 +171,7 @@ public class TestUserData {
                 "Shir",
                 "Beer fanatic. Twitter enthusiast. Internet expert. Unapologetic web evangelist. Tv practitioner. Food fan.",
                 femalePronouns,
-                "jarred1996@hotmail.com",
-                TimeService.getTimeStamp()
+                "jarred1996@hotmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -196,8 +185,7 @@ public class TestUserData {
                 "Case",
                 "Introvert. Internet junkie. Hardcore food maven. Problem solver. Typical thinker.",
                 malePronouns,
-                "marianna2009@hotmail.com",
-                TimeService.getTimeStamp()
+                "marianna2009@hotmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -211,8 +199,7 @@ public class TestUserData {
                 "Irv",
                 "Avid writer. Social media guru. Web geek. Pop culture fan. Problem solver. Wannabe twitter junkie. Student.",
                 malePronouns,
-                "christ.bosc6@yahoo.com",
-                TimeService.getTimeStamp()
+                "christ.bosc6@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -226,8 +213,7 @@ public class TestUserData {
                 "Jo",
                 "Total zombieaholic. Lifelong beer lover. Food fan. Travel enthusiast. Alcohol evangelist. Incurable tv scholar. Amateur social media nerd.",
                 malePronouns,
-                "kenyon.volkm@yahoo.com",
-                TimeService.getTimeStamp()
+                "kenyon.volkm@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -241,8 +227,7 @@ public class TestUserData {
                 "Deb",
                 "Creator. Tv evangelist. Hardcore alcohol enthusiast. Avid web advocate. Entrepreneur. Award-winning twitter fanatic.",
                 femalePronouns,
-                "alexys1979@gmail.com",
-                TimeService.getTimeStamp()
+                "alexys1979@gmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -256,8 +241,7 @@ public class TestUserData {
                 "Lucy",
                 "Prone to fits of apathy. Certified internet maven. Zombie fanatic. Typical creator. Troublemaker. Travel lover.",
                 femalePronouns,
-                "dolly.vander@hotmail.com",
-                TimeService.getTimeStamp()
+                "dolly.vander@hotmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -271,8 +255,7 @@ public class TestUserData {
                 "Ames",
                 "Introvert. Friendly tv lover. Music enthusiast. Communicator. Incurable problem solver.",
                 femalePronouns,
-                "gunner_croo@yahoo.com",
-                TimeService.getTimeStamp()
+                "gunner_croo@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -286,8 +269,7 @@ public class TestUserData {
                 "Steve",
                 "Subtly charming troublemaker. Devoted student. Certified web enthusiast. Avid reader.",
                 malePronouns,
-                "baby_osinsk4@yahoo.com",
-                TimeService.getTimeStamp()
+                "baby_osinsk4@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -301,8 +283,7 @@ public class TestUserData {
                 "Curt",
                 "Web specialist. Infuriatingly humble beer buff. Entrepreneur. Bacon maven. Food junkie. Certified organizer",
                 malePronouns,
-                "gwen_klock2@hotmail.com",
-                TimeService.getTimeStamp()
+                "gwen_klock2@hotmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -316,8 +297,7 @@ public class TestUserData {
                 "Tony",
                 "Food scholar. Internet aficionado. Typical twitter enthusiast. Devoted student. Beer advocate.",
                 malePronouns,
-                "fern_kutc6@gmail.com",
-                TimeService.getTimeStamp()
+                "fern_kutc6@gmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -331,8 +311,7 @@ public class TestUserData {
                 "Micky",
                 "Subtly charming pop culture junkie. Certified twitter ninja. Student. Web fanatic.",
                 femalePronouns,
-                "maynard.gaylo@gmail.com",
-                TimeService.getTimeStamp()
+                "maynard.gaylo@gmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -346,8 +325,7 @@ public class TestUserData {
                 "Ken",
                 "Pop culture junkie. Tv fanatic. Award-winning music lover. Problem solver. Coffee practitioner.",
                 malePronouns,
-                "kaden1973@yahoo.com",
-                TimeService.getTimeStamp()
+                "kaden1973@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -361,8 +339,7 @@ public class TestUserData {
                 "JJ",
                 "Coffee fanatic. Incurable explorer. Future teen idol. Troublemaker. Tv evangelist. Proud beer maven.",
                 malePronouns,
-                "lewis1973@yahoo.com",
-                TimeService.getTimeStamp()
+                "lewis1973@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -376,8 +353,7 @@ public class TestUserData {
                 "Johnny",
                 "Prone to fits of apathy. Passionate student. Professional beer buff. Unapologetic internet fanatic.",
                 malePronouns,
-                "kristian2014@gmail.com",
-                TimeService.getTimeStamp()
+                "kristian2014@gmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -391,8 +367,7 @@ public class TestUserData {
                 "Mike",
                 "Thinker. Freelance zombie fanatic. Tv trailblazer. Writer. Infuriatingly humble troublemaker.",
                 malePronouns,
-                "julian2013@gmail.com",
-                TimeService.getTimeStamp()
+                "julian2013@gmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -406,8 +381,7 @@ public class TestUserData {
                 "Will",
                 "Travel maven. Music fanatic. Hardcore writer. Analyst. Friendly coffee junkie. Food guru.",
                 malePronouns,
-                "ernest_mill0@gmail.com",
-                TimeService.getTimeStamp()
+                "ernest_mill0@gmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -421,8 +395,7 @@ public class TestUserData {
                 "Jo",
                 "Organizer. Incurable troublemaker. Typical internetaholic. Explorer. Introvert. Social media trailblazer.",
                 femalePronouns,
-                "candace.herz@hotmail.com",
-                TimeService.getTimeStamp()
+                "candace.herz@hotmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -436,8 +409,7 @@ public class TestUserData {
                 "Andy",
                 "Introvert. Beer enthusiast. Falls down a lot. Pop culture scholar. Hipster-friendly music advocate.",
                 malePronouns,
-                "madonna.pri@yahoo.com",
-                TimeService.getTimeStamp()
+                "madonna.pri@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -451,8 +423,7 @@ public class TestUserData {
                 "Dee",
                 "Proud beeraholic. Unapologetic pop culture advocate. Tv lover. Hardcore zombie enthusiast. Problem solver. Creator.",
                 femalePronouns,
-                "antwan.herm@yahoo.com",
-                TimeService.getTimeStamp()
+                "antwan.herm@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -466,8 +437,7 @@ public class TestUserData {
                 "Matt",
                 "Bacon specialist. Coffee ninja. Internet guru. Friendly tv fan. Twitter fanatic. Subtly charming social media advocate. Pop culture geek.",
                 malePronouns,
-                "roberto.boe@hotmail.com",
-                TimeService.getTimeStamp()
+                "roberto.boe@hotmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -481,8 +451,7 @@ public class TestUserData {
                 "Sophie",
                 "Infuriatingly humble music evangelist. Evil web trailblazer. Explorer. Social media nerd.",
                 femalePronouns,
-                "king1987@yahoo.com",
-                TimeService.getTimeStamp()
+                "king1987@yahoo.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
@@ -496,8 +465,7 @@ public class TestUserData {
                 "Alex",
                 "Friendly food junkie. Lifelong introvert. Student. Avid coffee scholar. Unapologetic travel specialist. Zombie buff.",
                 malePronouns,
-                "rosalia1975@gmail.com",
-                TimeService.getTimeStamp()
+                "rosalia1975@gmail.com"
         );
         tempUser.addRole(UserRole.STUDENT);
         repository.save(tempUser);
