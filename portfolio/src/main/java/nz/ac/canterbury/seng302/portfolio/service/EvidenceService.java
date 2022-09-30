@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -304,8 +301,21 @@ public class EvidenceService {
                 Optional<Skill> optionalSkill = skillRepository.findById(skillInfo.getId());
                 if (optionalSkill.isPresent()) {
                     savedSkill = optionalSkill.get();
-                    savedSkill.setName(skillInfo.getName());
-                    skillRepository.save(savedSkill);
+                    if (! Objects.equals(savedSkill.getName(), skillInfo.getName())) {
+                        Optional<Skill> optionalSkillWithSameName = skillRepository.findByNameIgnoreCase(skillInfo.getName());
+                        savedSkill.setName(skillInfo.getName());
+                        skillRepository.save(savedSkill);
+                        if (optionalSkillWithSameName.isPresent()) {
+                            Skill skillWithSameName = optionalSkillWithSameName.get();
+                            Set<Evidence> evidenceList = skillWithSameName.getEvidence();
+                            for (Evidence evidenceToChange : evidenceList) {
+                                evidenceToChange.removeSkill(skillWithSameName);
+                                evidenceToChange.addSkill(savedSkill);
+                                evidenceRepository.save(evidenceToChange);
+                            }
+                            skillRepository.delete(skillWithSameName);
+                        }
+                    }
                 } else {
                     throw new CheckException("Invalid Skill Id");
                 }
