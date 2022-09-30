@@ -701,7 +701,7 @@ function handleSuccessfulEvidenceDelete(evidenceName) {
     selectedEvidenceId = null
     getAndAddEvidencePreviews()
     getSkills(addSkillsToSideBar)
-    createAlert("Successfully deleted evidence: " + sanitise(evidenceName), AlertTypes.Success)
+    createAlert("Successfully deleted evidence: " + evidenceName, AlertTypes.Success)
 }
 
 
