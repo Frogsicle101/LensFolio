@@ -186,6 +186,11 @@ public class Evidence {
         skills.clear();
     }
 
+    public void removeSkill(Skill skill) {
+        skills.remove(skill);
+    }
+
+
     public Set<Category> getCategories() {
         return categories;
     }
