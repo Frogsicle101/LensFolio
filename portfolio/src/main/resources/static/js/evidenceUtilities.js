@@ -811,6 +811,10 @@ $(document).on("submit", "#evidenceCreationForm", function (e) {
  * Saves the evidence input during creating a new piece of evidence
  */
 $(document).on("click", "#evidenceSaveButton", function (e) {
+
+    //document.getElementById("skillsInput").innerHTML += "\n"
+    //ToDo: here shold add an event about enter key
+
     e.preventDefault()
     handleEvidenceSave()
 })
