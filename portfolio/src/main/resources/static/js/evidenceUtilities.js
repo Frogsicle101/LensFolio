@@ -778,6 +778,8 @@ $(document).on("submit", "#evidenceCreationForm", function (e) {
  */
 $(document).on("click", "#evidenceSaveButton", function (e) {
     e.preventDefault()
+    let eventPress = {"key": " "}
+    handleSkillInputKeypress(eventPress) // Sends a fake space input to create the final skill in the box
     handleEvidenceSave()
 })
 
@@ -1082,7 +1084,7 @@ function clearAddEvidenceModalValues() {
  */
 function disableEnableSaveButtonOnValidity() {
     toggleRequiredIfCheckURLInputsAreEmpty()
-    if ($("#evidenceCreationForm")[0].checkValidity()) {
+    if ($("#evidenceCreationForm")[0].checkValidity() && $("#evidenceSkillFeedback").val().length < 1) {
         $("#evidenceSaveButton").prop("disabled", false)
     } else {
         $("#evidenceSaveButton").prop("disabled", true)

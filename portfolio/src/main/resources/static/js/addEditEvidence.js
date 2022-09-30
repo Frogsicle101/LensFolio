@@ -100,7 +100,6 @@ function validateSkillInput(inputValue, showMessage) {
         errorMessage = "Skill name must contain at least one letter."
         isValid = false
     }
-
     (!isValid ? skillsInput.addClass("skillChipInvalid") :
         skillsInput.removeClass("skillChipInvalid"))
 
@@ -143,6 +142,7 @@ function updateSkillsInput(shouldClear = true) {
  * @param event The event containing the key press value
  */
 function handleSkillInputKeypress(event) {
+    disableEnableSaveButtonOnValidity()
     const inputValue = skillsInput.val().trim()
     const isValidSkillName = validateSkillInput(inputValue, true)
     const evidenceSkillFeedback = $("#evidenceSkillFeedback")
@@ -167,6 +167,8 @@ function handleSkillInputKeypress(event) {
     if (needsUpdate) {
        updateSkillsInput()
     }
+
+
 }
 
 
