@@ -56,7 +56,6 @@ function updateSkillInSkillsToCreate(newSkillName) {
 
     const originalId = parseInt(skillsToCreate.get(originalSkillName), 10)
 
-
     skillsToCreate.delete(originalSkillName)
 
     if (typeof originalId === "number") {
