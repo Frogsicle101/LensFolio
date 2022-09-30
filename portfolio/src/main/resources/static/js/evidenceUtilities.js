@@ -812,11 +812,13 @@ $(document).on("submit", "#evidenceCreationForm", function (e) {
  */
 $(document).on("click", "#evidenceSaveButton", function (e) {
 
-    //document.getElementById("skillsInput").innerHTML += "\n"
-    //ToDo: here shold add an event about enter key
-
-    e.preventDefault()
-    handleEvidenceSave()
+    document.getElementById("skillsInput")
+    let eventPress = {"key": " "}
+    handleSkillInputKeypress(eventPress)
+    if ($("#skillsInput").val().length < 1) {
+        e.preventDefault()
+        handleEvidenceSave()
+    }
 })
 
 
@@ -1136,7 +1138,7 @@ function clearAddEvidenceModalValues() {
  */
 function disableEnableSaveButtonOnValidity() {
     toggleRequiredIfCheckURLInputsAreEmpty()
-    if ($("#evidenceCreationForm")[0].checkValidity()) {
+    if ($("#evidenceCreationForm")[0].checkValidity() && $("#evidenceSkillFeedback").val().length < 1) {
         $("#evidenceSaveButton").prop("disabled", false)
     } else {
         $("#evidenceSaveButton").prop("disabled", true)
