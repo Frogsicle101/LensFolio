@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  *The service to initialize the evidence, weblink and skills data.
@@ -45,12 +48,15 @@ public class EvidenceData {
         try {
             LocalDate date = LocalDate.now();
 
-            int adminId = 109;
+            int adminId = 29;
             Evidence evidence = evidenceRepository.save(new Evidence(adminId, "Title", date, "Description"));
             Evidence evidence1 = evidenceRepository.save(new Evidence(adminId, "Created test Data", date, "Created a selection of default evidence objects for testing"));
             Evidence evidence2 = evidenceRepository.save(new Evidence(adminId, "making more evidence", date, "Description of another one"));
             Evidence evidence3 = evidenceRepository.save(new Evidence(adminId, "Writing Long Descriptions", date, "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
             Evidence evidence4 = evidenceRepository.save(new Evidence(adminId, "No Skill Evidence", date, "A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. A really long Description. "));
+
+            Map<String, String> weblinks
+            addEvidenceAttributes(evidence, );
 
             WebLinkDTO webLinkDTO = new WebLinkDTO( "localhost",  "https://localhost");
             WebLinkDTO webLinkDTO2 = new WebLinkDTO( "evidence1 weblink",  "https://localhost/evidence1");
@@ -110,5 +116,29 @@ public class EvidenceData {
             logger.error("Error occurred loading default evidence");
             logger.error(exception.getMessage());
         }
+    }
+
+    private void addEvidenceAttributes(Evidence evidence, Map<String, String> weblinks, List<String> skills, List<Category> categories, Integer[] associateIds) {
+        for (String weblinkName : weblinks.keySet()) {
+            WebLinkDTO webLinkDTO = new WebLinkDTO(weblinkName, weblinks.get(weblinkName));
+            WebLink webLink = new WebLink(evidence, webLinkDTO);
+            webLinkRepository.save(webLink);
+            evidence.addWebLink(webLink);
+        }
+
+        for (String skillName : skills) {
+            Skill skill = skillRepository.save(new Skill(skillName));
+            evidence.addSkill(skill);
+        }
+
+        for (Category category: categories) {
+            evidence.addCategory(category);
+        }
+
+        for (Integer associateId : associateIds) {
+            evidence.addAssociateId(associateId);
+        }
+
+        evidenceRepository.save(evidence);
     }
 }
