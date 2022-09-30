@@ -229,7 +229,7 @@ function resetAddOrEditEvidenceForm() {
 
     $("#linkedUsers").empty()
     $("#evidenceSaveButton").prop("disabled", true)
-    skillsToCreate.clear() //TODO check this line is needed
+    skillsToCreate.clear()
 }
 
 
@@ -272,6 +272,7 @@ function setSkills(evidenceHighlight) {
     currentSkillsList.each(function() {
         const skillName = ($(this).find(".chipText").text())
         const skillId = $(this).attr("data-id")
+        skillsToCreate.set(skillName, skillId)
         const skillChip = createSkillChip(skillName, skillId, undefined, true)
         if (skillName !== "No Skill") {
             $("#tagInputChips").append(skillChip);

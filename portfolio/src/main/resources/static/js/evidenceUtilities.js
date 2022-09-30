@@ -349,6 +349,7 @@ function getSkills(callback = () => {
             $.each(response, function (i) {
                 if (!skillsArray.includes(response[i].name)) {
                     skillsArray.push({
+                        id: response[i].id,
                         name: response[i].name,
                         frequency: response[i].frequency
                     })
@@ -782,22 +783,6 @@ $(document).on("click", "#evidenceSaveButton", function (e) {
 
 
 /**
- * Refreshes the evidence page and evidence modal, and creates an alert for successful evidence deletion.
- */
-function handleSuccessfulEvidenceSave(response) {
-    selectedEvidenceId = response.id
-    getAndAddEvidencePreviews()
-    getSkills(addSkillsToSideBar)
-    closeModal()
-    clearAddEvidenceModalValues()
-    $(".alert").remove()
-    createAlert("Created evidence", AlertTypes.Success)
-    disableEnableSaveButtonOnValidity() //Gets run to disable the save button on form clearance.
-    resetWeblink()
-}
-
-
-/**
  * If the weblink form is closed, calls the function to toggle it open.
  * If the weblink form is open, calls the function to submit the form.
  */
@@ -881,7 +866,6 @@ $(document).on('click', '#addWeblinkButton', function (e) {
  * Listens for when delete web link button is clicked.
  * the web link will be deleted.
  */
-// Todo check class or id
 $(document).on('click', '.deleteWeblink', function () {
     $(this).parent().remove();
     webLinksCount -= 1;
@@ -1269,7 +1253,6 @@ function getDataFromEvidenceForm() {
  *
  * @param response A server response containing data about the saved evidence, including its Id and skills.
  */
-// Todo this is repeat?
 function handleSuccessfulEvidenceSave(response) {
     selectedEvidenceId = response.id
     getAndAddEvidencePreviews()

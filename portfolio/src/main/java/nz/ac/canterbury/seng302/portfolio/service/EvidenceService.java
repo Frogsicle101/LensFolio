@@ -215,7 +215,7 @@ public class EvidenceService {
      * @return the newly updated piece of evidence.
      * @throws MalformedURLException when the URL is not parse correctly.
      */
-    private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
+    private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws CheckException {
         logger.info("Updating evidence details for evidence {}", originalEvidence.getId());
 
         originalEvidence.setTitle(evidenceDTO.getTitle());
@@ -315,6 +315,25 @@ public class EvidenceService {
         }
         skillFrequencyService.updateAllSkillFrequenciesForUser(evidence.getUserId());
         evidenceRepository.save(evidence);
+    }
+
+    /**
+     * Takes a piece of evidence and deletes all the skills which aren't in any other evidence
+     *
+     * @param evidence the piece of evidence
+     */
+    public void deleteOrphanSkills(Evidence evidence) {
+        for (Skill skill : evidence.getSkills()) {
+            if (skill.getEvidence().size() == 1) {
+                logger.info("DELETE SKILL {}", skill.getName());
+                skillRepository.delete(skill);
+                logger.info("DELETED SKILL {}", skill.getName());
+            } else {
+                skill.removeEvidence(evidence);
+                skillRepository.save(skill);
+
+            }
+        }
     }
 
 

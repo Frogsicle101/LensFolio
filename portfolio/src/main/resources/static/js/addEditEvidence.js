@@ -19,9 +19,12 @@ let originalSkillName;
 function addUniqueSkill(skillName) {
     let oneOrMoreUnderScores = new RegExp("[_]+", "g")
     let skillNameFormatted = replaceWithStringFromSkillArray(skillName.replaceAll(oneOrMoreUnderScores, " "))
-    if (! skillsToCreate.keys().includes(skillNameFormatted)) {
-        const skillId = skillsMap.get(skillNameFormatted)
-
+    if (! Array.from(skillsToCreate.keys()).includes(skillNameFormatted)) {
+        let skillId;
+        const match = skillsArray.find(skill => {return skill.name === skillNameFormatted})
+        if (match) {
+            skillId = match.id
+        }
         for(let [name, id] of skillsToCreate.entries()) {
             if (id === skillId) {
                 skillsToCreate.set(name, undefined)
@@ -46,8 +49,14 @@ function addUniqueSkill(skillName) {
  * Id and will be added to the user as a new skill.
  */
 function updateSkillInSkillsToCreate(newSkillName) {
+    let oneOrMoreUnderScores = new RegExp("[_]+", "g")
+    let skillNameFormatted = replaceWithStringFromSkillArray(newSkillName.replaceAll(oneOrMoreUnderScores, " "))
     const originalId = skillsToCreate.get(originalSkillName)
-    const newId = skillsMap.get(newSkillName)
+    let newId;
+    const match = skillsArray.find(skill => {return skill.name === skillNameFormatted})
+    if (match) {
+        newId = match.id
+    }
 
     skillsToCreate.delete(originalSkillName)
 
@@ -115,7 +124,7 @@ function updateSkillsInput(shouldClear = true) {
     skillsToCreate.forEach(function (value, key) {
         key = key.replaceAll("_", " ");
         if (skillRegex.test(key)) {
-            chipDisplay.append(createSkillChip(key, value, true))
+            chipDisplay.append(createSkillChip(key, value, undefined, true))
         }
     })
     if (shouldClear) {
