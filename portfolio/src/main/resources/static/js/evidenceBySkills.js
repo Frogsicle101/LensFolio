@@ -224,6 +224,9 @@ function resetAddOrEditEvidenceForm() {
     $("#tagInputChips").empty();
     $("#addedWebLinks").empty();
 
+    $("#skillsInput").val("")
+    $("#evidenceSkillFeedback").text("")
+
     $(".evidenceFormCategoryButton").each(function() {
         $(this).removeClass("btn-success")
         $(this).addClass("btn-secondary")

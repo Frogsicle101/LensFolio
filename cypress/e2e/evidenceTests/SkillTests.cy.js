@@ -68,6 +68,9 @@ describe('Skill creation', () => {
         cy.get("#skillsInput").type("Definitely_more_than_30_characters")
         cy.get("#skillsInput").should("have.class", "skillChipInvalid")
         cy.contains("Maximum skill length is 30 characters").should('be.visible')
+        cy.get("#skillsInput").type("https://en.wikipedia.org/wiki/Main_Page")
+        cy.get("#skillsInput").should("have.class", "skillChipInvalid")
+        cy.contains("Maximum skill length is 30 characters").should('be.visible')
     })
 
     it("Should make skill chip on Space key press", () => {
