@@ -100,7 +100,7 @@ public class EvidenceService {
                                 EvidenceDTO evidenceDTO) throws MalformedURLException, CheckException {
         logger.info("CREATING EVIDENCE - Attempting to create evidence with title: {}", evidenceDTO.getTitle());
         UserResponse user = PrincipalAttributes.getUserFromPrincipal(principal.getAuthState(), userAccountsClientService);
-        checkValidEvidenceDTO(evidenceDTO);
+        checkValidEvidenceDTO(user, evidenceDTO);
 
         evidenceDTO.setAssociateIds(evidenceDTO.getAssociateIds() == null ?
                 new ArrayList<>() :
@@ -136,7 +136,7 @@ public class EvidenceService {
         if (originalEvidence.getUserId() != user.getId()) {
             throw new CheckException("Cannot edit evidence owned by a different user");
         }
-        checkValidEvidenceDTO(evidenceDTO);
+        checkValidEvidenceDTO(user, evidenceDTO);
         evidenceDTO.setAssociateIds(evidenceDTO.getAssociateIds() == null ?
                                     new ArrayList<>() :
                                     new ArrayList<>(new LinkedHashSet<>(evidenceDTO.getAssociateIds())));
@@ -156,7 +156,7 @@ public class EvidenceService {
      * @param evidenceDTO the evidenceDTO to be validated
      * @throws CheckException an exception containing the message why the validation failed.
      */
-    protected void checkValidEvidenceDTO(EvidenceDTO evidenceDTO) throws CheckException, DateTimeParseException {
+    protected void checkValidEvidenceDTO(UserResponse user, EvidenceDTO evidenceDTO) throws CheckException, DateTimeParseException {
         long projectId = evidenceDTO.getProjectId();
         List<WebLinkDTO> webLinks = evidenceDTO.getWebLinks();
         String date = evidenceDTO.getDate();
@@ -168,6 +168,15 @@ public class EvidenceService {
         if (webLinks.size() > 10) {
             throw new CheckException("This piece of evidence has too many weblinks attached to it; 10 is the limit");
         }
+        for (Skill skillInfo : evidenceDTO.getSkills()) {
+            if (skillInfo.getId() != null) {
+                Optional<Skill> optionalSkill = skillRepository.findDistinctByEvidenceUserIdAndId(user.getId(), skillInfo.getId());
+                if (optionalSkill.isEmpty()) {
+                    throw new CheckException("Could not retrieve one or more skills");
+                }
+            }
+        }
+
         Project project = optionalProject.get();
         LocalDate localDate = LocalDate.parse(date);
         checkDate(project, localDate);
@@ -185,7 +194,7 @@ public class EvidenceService {
      * @return The last piece of evidence created.
      * @throws MalformedURLException when a weblink is invalid.
      */
-    public Evidence createEvidenceForUsers(EvidenceDTO evidenceDTO, List<Integer> userIds) throws MalformedURLException {
+    public Evidence createEvidenceForUsers(EvidenceDTO evidenceDTO, List<Integer> userIds) throws MalformedURLException, CheckException  {
         Evidence ownerEvidence = null;
         for (Integer ownersId : userIds) {
             checkAssociateId(ownersId);
@@ -206,7 +215,7 @@ public class EvidenceService {
      * @return the newly updated piece of evidence.
      * @throws MalformedURLException when the URL is not parse correctly.
      */
-    private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws MalformedURLException {
+    private Evidence updateExistingEvidence(Evidence originalEvidence, EvidenceDTO evidenceDTO) throws CheckException {
         logger.info("Updating evidence details for evidence {}", originalEvidence.getId());
 
         originalEvidence.setTitle(evidenceDTO.getTitle());
@@ -275,30 +284,56 @@ public class EvidenceService {
      * @param evidence - The  piece of evidence
      * @param skills   - The list of the skills in string form
      */
-    public void addSkills(Evidence evidence, List<String> skills) {
-        for(String skillName: skills){
+    public void addSkills(Evidence evidence, List<Skill> skills) throws CheckException {
+        for (Skill skillInfo: skills) {
             try {
-                regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillName, 1, 30, "Skill name");
+                regexService.checkInput(RegexPattern.GENERAL_UNICODE, skillInfo.getName(), 1, 30, "Skill name");
             } catch (CheckException e) {
                 removeWeblinks(evidence);
                 evidenceRepository.delete(evidence);
                 throw new CheckException(e.getMessage());
             }
-            Optional<Skill> optionalSkill = skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(evidence.getUserId(), skillName);
-            Skill theSkill;
-            if (optionalSkill.isEmpty()) {
-                if (skillName.equalsIgnoreCase("No Skill")) {
+            Skill savedSkill;
+            if (skillInfo.getId() == null) {
+                if (skillInfo.getName().equalsIgnoreCase("No Skill")) {
                     continue;
                 }
-                Skill createSkill = new Skill(skillName);
-                theSkill = skillRepository.save(createSkill);
+                Skill createSkill = new Skill(skillInfo.getName());
+                savedSkill = skillRepository.save(createSkill);
             } else {
-                theSkill = optionalSkill.get();
+                Optional<Skill> optionalSkill = skillRepository.findById(skillInfo.getId());
+                if (optionalSkill.isPresent()) {
+                    savedSkill = optionalSkill.get();
+                    savedSkill.setName(skillInfo.getName());
+                    skillRepository.save(savedSkill);
+                } else {
+                    throw new CheckException("Invalid Skill Id");
+                }
+
             }
-            evidence.addSkill(theSkill);
+            evidence.addSkill(savedSkill);
         }
         skillFrequencyService.updateAllSkillFrequenciesForUser(evidence.getUserId());
         evidenceRepository.save(evidence);
+    }
+
+    /**
+     * Takes a piece of evidence and deletes all the skills which aren't in any other evidence
+     *
+     * @param evidence the piece of evidence
+     */
+    public void deleteOrphanSkills(Evidence evidence) {
+        for (Skill skill : evidence.getSkills()) {
+            if (skill.getEvidence().size() == 1) {
+                logger.info("DELETE SKILL {}", skill.getName());
+                skillRepository.delete(skill);
+                logger.info("DELETED SKILL {}", skill.getName());
+            } else {
+                skill.removeEvidence(evidence);
+                skillRepository.save(skill);
+
+            }
+        }
     }
 
 

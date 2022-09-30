@@ -151,7 +151,7 @@ function appendSprint(sprintObject, index) {
                     <h6>${sanitise(sprintObject.endDateFormatted)}</h6>
                 </div>
                 <div class="mb-3">
-                    <p>${sanitise(sprintObject.description)}</p>
+                    <p id="sprintDescription">${sanitise(sprintObject.description)}</p>
                 </div>
                 <div class="mb3 hasTeacherOrAbove">
                     <button type="button" class="deleteSprint deleteIcon noStyleButton sprintButton" data-bs-toggle="tooltip"

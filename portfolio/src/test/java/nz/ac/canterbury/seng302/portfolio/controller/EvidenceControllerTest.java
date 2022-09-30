@@ -35,7 +35,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -100,7 +99,6 @@ class EvidenceControllerTest {
                 projectRepository,
                 evidenceRepository,
                 evidenceService,
-                regexService,
                 skillFrequencyService);
     }
 
@@ -116,7 +114,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService, skillFrequencyService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, skillFrequencyService);
 
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
@@ -191,7 +189,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService, skillFrequencyService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, skillFrequencyService);
 
         evidenceDTO.setTitle(title);
 
@@ -269,7 +267,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService, skillFrequencyService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, skillFrequencyService);
 
         evidenceDTO.setDescription(description);
 
@@ -331,7 +329,7 @@ class EvidenceControllerTest {
         Project project = new Project("Testing");
         Evidence evidence = new Evidence(1, title, date, description);
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService, skillFrequencyService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, skillFrequencyService);
 
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(any(), any())).thenReturn(evidence);
@@ -403,7 +401,7 @@ class EvidenceControllerTest {
         long projectId = 1;
         Project project = new Project("Testing");
 
-        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, regexService, skillFrequencyService);
+        EvidenceController evidenceController = new EvidenceController(userAccountsClientService, projectRepository, evidenceRepository, evidenceService, skillFrequencyService);
 
         Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         Mockito.when(evidenceService.addEvidence(principal, evidenceDTO)).thenThrow(new RuntimeException());
@@ -742,90 +740,6 @@ class EvidenceControllerTest {
     }
 
 
-    // ----------------------------------- WebLink Tests ------------------------------------------
-
-
-    @Test
-    void TestGetSingleWebLinkValidId() throws Exception {
-        setUserToStudent();
-        setUpContext();
-        int evidenceId = 1;
-        Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLinkDTO webLinkDTO = new WebLinkDTO("test link", WEBLINK_ADDRESS);
-        WebLink testLink = new WebLink(evidence1, webLinkDTO);
-        evidence1.addWebLink(testLink);
-        when(evidenceRepository.findById(any())).thenReturn(Optional.of(evidence1));
-
-        MvcResult result = mockMvc.perform(get("/evidencePieceWebLinks")
-                        .queryParam("evidenceId", String.valueOf(evidenceId)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String expectedResult = "[" + testLink.toJsonString() + "]";
-        String responseContent = result.getResponse().getContentAsString();
-        Assertions.assertEquals(expectedResult, responseContent);
-    }
-
-
-    @Test
-    void TestGetSingleWebLinkInvalidId() throws Exception {
-        setUserToStudent();
-        setUpContext();
-        int evidenceId = 1;
-        Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLinkDTO webLinkDTO = new WebLinkDTO("test link", WEBLINK_ADDRESS);
-        WebLink testLink = new WebLink(evidence1, webLinkDTO);
-        evidence1.addWebLink(testLink);
-        when(evidenceRepository.findById(evidenceId)).thenReturn(Optional.of(evidence1));
-
-        mockMvc.perform(get("/evidencePieceWebLinks")
-                        .queryParam("evidenceId", "Invalid ID"))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @Test
-    void TestGetSingleWebLinkNoEvidence() throws Exception {
-        setUserToStudent();
-        setUpContext();
-
-        mockMvc.perform(get("/evidencePieceWebLinks")
-                        .queryParam("evidenceId", "1"))
-                .andExpect(status().isNotFound())
-                .andReturn();
-    }
-
-
-    @Test
-    void TestGetMultipleWebLinkValidId() throws Exception {
-        setUserToStudent();
-        setUpContext();
-        int evidenceId = 1;
-        Evidence evidence1 = new Evidence(evidenceId, 1, "Title", LocalDate.now(), "description");
-        WebLinkDTO webLinkDTO1 = new WebLinkDTO("test link", WEBLINK_ADDRESS);
-        WebLinkDTO webLinkDTO2 = new WebLinkDTO("test link", WEBLINK_ADDRESS);
-        WebLinkDTO webLinkDTO3 = new WebLinkDTO("test link", WEBLINK_ADDRESS);
-
-        WebLink testLink1 = new WebLink(evidence1, webLinkDTO1);
-        WebLink testLink2 = new WebLink(evidence1, webLinkDTO2);
-        WebLink testLink3 = new WebLink(evidence1, webLinkDTO3);
-        evidence1.addWebLink(testLink1);
-        evidence1.addWebLink(testLink2);
-        evidence1.addWebLink(testLink3);
-        when(evidenceRepository.findById(any())).thenReturn(Optional.of(evidence1));
-
-        MvcResult result = mockMvc.perform(get("/evidencePieceWebLinks")
-                        .queryParam("evidenceId", String.valueOf(evidenceId)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String responseContent = result.getResponse().getContentAsString();
-        Assertions.assertTrue(responseContent.contains(testLink1.toJsonString()));
-        Assertions.assertTrue(responseContent.contains(testLink2.toJsonString()));
-        Assertions.assertTrue(responseContent.contains(testLink3.toJsonString()));
-    }
-
-
     @Test
     void testDeleteEvidenceValidEvidenceId() throws Exception {
         setUserToStudent();
@@ -995,13 +909,14 @@ class EvidenceControllerTest {
                         Arrays.asList("SERVICE", "QUANTITATIVE"
                         )))
                 .setSkills(new ArrayList<>(
-                        Arrays.asList("Testing", "Backend")
-                ))
+                        Arrays.asList(
+                                new Skill("Testing"),
+                                new Skill("Backend")
+                )))
                 .setAssociateIds(new ArrayList<>(
                         Arrays.asList(2, 3, 4, 5)
                 ))
                 .setProjectId(1L)
                 .build();
     }
-
 }

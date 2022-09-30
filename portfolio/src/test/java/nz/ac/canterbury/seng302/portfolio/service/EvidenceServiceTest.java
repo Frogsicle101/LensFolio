@@ -51,11 +51,14 @@ class EvidenceServiceTest {
                 skillRepository,
                 regexService,
                 skillFrequencyService);
+        // TODO maybe change 2 in second param to 1
         evidence = new Evidence(1, 2, "Title", LocalDate.now(), "description");
         when(userAccountsClientService.getUserAccountById(any())).thenReturn(UserResponse.newBuilder().setId(1).build());
         when(evidenceRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
         when(skillRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
         evidenceService = Mockito.spy(evidenceService);
+        Skill skill1 = new Skill(1,"Testing");
+        Skill skill2 = new Skill(2, "Backend");
         evidenceDTO = new EvidenceDTO.EvidenceDTOBuilder()
                 .setId(10)
                 .setTitle("New Title")
@@ -70,13 +73,19 @@ class EvidenceServiceTest {
                         Arrays.asList("SERVICE", "QUANTITATIVE"
                         )))
                 .setSkills(new ArrayList<>(
-                        Arrays.asList("Testing", "Backend")
+                        Arrays.asList(skill1, skill2)
                 ))
                 .setAssociateIds(new ArrayList<>(
                         Arrays.asList(2, 3, 4, 5)
                 ))
                 .setProjectId(1L)
                 .build();
+        evidence.addSkill(skill1);
+        evidence.addSkill(skill2);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndId(1, 1)).thenReturn(Optional.of(skill1));
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndId(1, 2)).thenReturn(Optional.of(skill2));
+        Mockito.when(skillRepository.findById(Integer.valueOf(1))).thenReturn(Optional.of(skill1));
+        Mockito.when(skillRepository.findById(Integer.valueOf(2))).thenReturn(Optional.of(skill2));
 
         Project project = new Project("Testing");
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
@@ -411,7 +420,7 @@ class EvidenceServiceTest {
 
     @Test
     void testAddSkillToEvidenceWhenNoSkill() {
-        List<String> listSkills = new ArrayList<>();
+        List<Skill> listSkills = new ArrayList<>();
         evidenceService.addSkills(evidence, listSkills);
         Mockito.verify(skillRepository, Mockito.never()).findByNameIgnoreCase(Mockito.any());
     }
@@ -419,68 +428,64 @@ class EvidenceServiceTest {
     @Test
     void testAddSkillToEvidenceWhenSkillExist() {
         Skill usersSkill1 = new Skill(1, "Skill_1");
-        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("Skill_1"))).thenReturn(Optional.of(usersSkill1));
-        List<String> listSkills = new ArrayList<>();
-        listSkills.add("Skill_1");
+        Mockito.when(skillRepository.findById(Integer.valueOf(anyInt()))).thenReturn(Optional.of(usersSkill1));
+        List<Skill> listSkills = new ArrayList<>();
+        listSkills.add(new Skill(1,"Skill_1"));
 
         evidenceService.addSkills(evidence, listSkills);
-        Mockito.verify(skillRepository, Mockito.times(1)).findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), Mockito.any());
-        Mockito.verify(skillRepository, Mockito.never()).save(Mockito.any());
+        Mockito.verify(skillRepository, Mockito.times(1)).findById(Integer.valueOf(anyInt()));
+        Mockito.verify(skillRepository, times(1)).save(Mockito.any());
         Mockito.verify(evidenceRepository, times(1)).save(Mockito.any());
     }
 
     @Test
     void testAddSkillToEvidenceWhenSkillExistInDiffCase() {
         Skill usersSkill1 = new Skill(1, "Skill 1");
-        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("sKILL 1"))).thenReturn(Optional.of(usersSkill1));
-        List<String> listSkills = new ArrayList<>();
-        listSkills.add("sKILL 1");
+        Mockito.when(skillRepository.findById(Integer.valueOf(1))).thenReturn(Optional.of(usersSkill1));
+        List<Skill> listSkills = new ArrayList<>();
+        listSkills.add(new Skill(1,"sKILL 1"));
         evidenceService.addSkills(evidence, listSkills);
-        Mockito.verify(skillRepository, Mockito.times(1)).findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), Mockito.any());
-        Mockito.verify(skillRepository, Mockito.never()).save(Mockito.any());
+        Mockito.verify(skillRepository, Mockito.times(1)).findById(Integer.valueOf((anyInt())));
+        Mockito.verify(skillRepository, times(1)).save(Mockito.any());
         Mockito.verify(evidenceRepository, times(1)).save(Mockito.any());
     }
 
     @Test
     void testAddMultipleSkillsToEvidenceWhenSkillsExist() {
         Skill usersSkill1 = new Skill(1, "Skill 1");
-        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("Skill 1"))).thenReturn(Optional.of(usersSkill1));
-        Skill usersSkill2 = new Skill(1, "Skill 2");
-        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("Skill 2"))).thenReturn(Optional.of(usersSkill2));
+        Mockito.when(skillRepository.findById(Integer.valueOf(1))).thenReturn(Optional.of(usersSkill1));
+        Skill usersSkill2 = new Skill(2, "Skill 2");
+        Mockito.when(skillRepository.findById(Integer.valueOf(2))).thenReturn(Optional.of(usersSkill2));
 
-        List<String> listSkills = new ArrayList<>();
-        listSkills.add("Skill 1");
-        listSkills.add("Skill 2");
+        List<Skill> listSkills = new ArrayList<>();
+        listSkills.add(new Skill(1,"Skill 1"));
+        listSkills.add(new Skill(2,"Skill 2"));
 
         evidenceService.addSkills(evidence, listSkills);
-        Mockito.verify(skillRepository, Mockito.times(2)).findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), Mockito.any());
-        Mockito.verify(skillRepository, Mockito.never()).save(Mockito.any());
+        Mockito.verify(skillRepository, Mockito.times(2)).findById(Integer.valueOf(anyInt()));
+        Mockito.verify(skillRepository, Mockito.times(2)).save(Mockito.any());
         Mockito.verify(evidenceRepository, times(1)).save(Mockito.any());
     }
 
     @Test
     void testAddSkillToEvidenceWhenSkillNotExist() {
-        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("Skill_1"))).thenReturn(Optional.empty());
 
-        List<String> listSkills = new ArrayList<>();
-        listSkills.add("Skill 1");
+        List<Skill> listSkills = new ArrayList<>();
+        listSkills.add(new Skill(null,"Skill 1"));
         evidenceService.addSkills(evidence, listSkills);
 
-        Mockito.verify(skillRepository, Mockito.times(1)).findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), Mockito.any());
+        Mockito.verify(skillRepository, Mockito.never()).findById(Integer.valueOf(anyInt()));
         Mockito.verify(skillRepository, Mockito.times(1)).save(Mockito.any());
         Mockito.verify(evidenceRepository, Mockito.times(1)).save(Mockito.any());
     }
 
     @Test
     void testAddMultipleSkillsToEvidenceWhenSkillsNotExist() {
-        Mockito.when(skillRepository.findByNameIgnoreCase("Skill 1")).thenReturn(Optional.empty());
-        Mockito.when(skillRepository.findByNameIgnoreCase("Skill 2")).thenReturn(Optional.empty());
-        List<String> listSkills = new ArrayList<>();
-        listSkills.add("Skill 1");
-        listSkills.add("Skill 2");
+        List<Skill> listSkills = new ArrayList<>();
+        listSkills.add(new Skill(null,"Skill 1"));
+        listSkills.add(new Skill(null,"Skill 2"));
         evidenceService.addSkills(evidence, listSkills);
 
-        Mockito.verify(skillRepository, Mockito.times(2)).findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), Mockito.any());
         Mockito.verify(skillRepository, Mockito.times(2)).save(Mockito.any());
         Mockito.verify(evidenceRepository, Mockito.times(1)).save(Mockito.any());
     }
@@ -488,23 +493,22 @@ class EvidenceServiceTest {
     @Test
     void testAddMultipleSkillsToEvidenceWhenSomeSkillsExistSomeNot() {
         Skill usersSkill1 = new Skill(1, "Skill 1");
-        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("Skill 1"))).thenReturn(Optional.of(usersSkill1));
-        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("Skill 2"))).thenReturn(Optional.empty());
+        Mockito.when(skillRepository.findById(Integer.valueOf(1))).thenReturn(Optional.of(usersSkill1));
 
-        List<String> listSkills = new ArrayList<>();
-        listSkills.add("Skill 1");
-        listSkills.add("Skill 2");
+        List<Skill> listSkills = new ArrayList<>();
+        listSkills.add(new Skill(1,"Skill 1"));
+        listSkills.add(new Skill(null,"Skill 2"));
 
         evidenceService.addSkills(evidence, listSkills);
-        Mockito.verify(skillRepository, Mockito.times(2)).findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), Mockito.any());
-        Mockito.verify(skillRepository, Mockito.times(1)).save(Mockito.any());
+        Mockito.verify(skillRepository, Mockito.times(1)).findById(Integer.valueOf(anyInt()));
+        Mockito.verify(skillRepository, Mockito.times(2)).save(Mockito.any());
         Mockito.verify(evidenceRepository, Mockito.times(1)).save(Mockito.any());
     }
 
     @Test
     void testAddSkillNameTooShort() {
-        List<String> listSkills = new ArrayList<>();
-        listSkills.add("");
+        List<Skill> listSkills = new ArrayList<>();
+        listSkills.add(new Skill(3,""));
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -515,9 +519,9 @@ class EvidenceServiceTest {
 
     @Test
     void testAddSkillNameTooLong() {
-        List<String> listSkills = new ArrayList<>();
-        listSkills.add("A Decently Long Skill Name, Which as of the time of writing " +
-                "should exceed the limit of thirty characters");
+        List<Skill> listSkills = new ArrayList<>();
+        listSkills.add(new Skill(3,"A Decently Long Skill Name, Which as of the time of writing " +
+                "should exceed the limit of thirty characters"));
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -528,8 +532,8 @@ class EvidenceServiceTest {
 
     @Test
     void testAddSkillNameContainsIllegalSymbol() {
-        List<String> listSkills = new ArrayList<>();
-        listSkills.add("Dangerous Skill: ☢");
+        List<Skill> listSkills = new ArrayList<>();
+        listSkills.add(new Skill(3,"Dangerous Skill: ☢"));
 
         CheckException exception = Assertions.assertThrows(
                 CheckException.class,
@@ -544,8 +548,8 @@ class EvidenceServiceTest {
     void testSkillSavesUniquelyToUser() {
         Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndNameIgnoreCase(anyInt(), eq("SKILL"))).thenReturn(Optional.empty());
 
-        List<String> newSkill = new ArrayList<>();
-        newSkill.add("SKILL");
+        List<Skill> newSkill = new ArrayList<>();
+        newSkill.add(new Skill(null,"SKILL"));
         evidenceService.addSkills(evidence, newSkill);
 
         Mockito.verify(skillRepository, Mockito.times(1)).save(Mockito.any());
@@ -604,6 +608,7 @@ class EvidenceServiceTest {
     void testRequiredValidationIsCalledOnEvidenceEdit() throws Exception {
         setUserToStudent();
         setupEditEvidenceTests();
+        UserResponse user = UserResponse.newBuilder().setId(1).build();
 
         evidenceService.editEvidence(principal, evidenceDTO);
 
@@ -612,7 +617,7 @@ class EvidenceServiceTest {
 
         Mockito.verify(regexService, times(1)).checkInput(eq(RegexPattern.GENERAL_UNICODE), any(), anyInt(), anyInt(), eq("Title"));
         Mockito.verify(regexService, times(1)).checkInput(eq(RegexPattern.GENERAL_UNICODE), any(), anyInt(), anyInt(), eq("Description"));
-        Mockito.verify(evidenceService, times(1)).checkValidEvidenceDTO(evidenceDTO);
+        Mockito.verify(evidenceService, times(1)).checkValidEvidenceDTO(user, evidenceDTO);
         evidence = captor.getValue();
     }
 
@@ -637,6 +642,72 @@ class EvidenceServiceTest {
         Assertions.assertEquals(expectedUsersToHaveSave.size(), usersWithSavedEvidence.size());
     }
 
+
+    @Test
+    void testCannotEditAnotherUsersSkill() throws Exception {
+        setUserToStudent();
+        setupEditEvidenceTests();
+
+        List<Skill> otherUsersSkill = new ArrayList<>(List.of(new Skill(5, "Python")));
+        evidenceDTO.setSkills(otherUsersSkill);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndId(1, 5)).thenReturn(Optional.empty());
+
+        CheckException exception = Assertions.assertThrows(
+                CheckException.class,
+                () -> evidenceService.editEvidence(principal, evidenceDTO)
+        );
+
+        Assertions.assertEquals("Could not retrieve one or more skills", exception.getMessage());
+    }
+
+
+    @Test
+    void testEditSkillInvalidId() throws Exception {
+        setUserToStudent();
+        setupEditEvidenceTests();
+
+        List<Skill> otherUsersSkill = new ArrayList<>(List.of(new Skill(5, "Python")));
+        evidenceDTO.setSkills(otherUsersSkill);
+        Mockito.when(skillRepository.findDistinctByEvidenceUserIdAndId(1, 5)).thenReturn(Optional.of(otherUsersSkill.get(0)));
+
+        CheckException exception = Assertions.assertThrows(
+                CheckException.class,
+                () -> evidenceService.editEvidence(principal, evidenceDTO)
+        );
+
+        Assertions.assertEquals("Invalid Skill Id", exception.getMessage());
+    }
+
+
+    @Test
+    void testEditEvidenceRemoveSkills() throws Exception {
+        setUserToStudent();
+        setupEditEvidenceTests();
+
+        evidenceDTO.setSkills(new ArrayList<>());
+
+        Evidence changedEvidence = evidenceService.editEvidence(principal, evidenceDTO);
+
+        Assertions.assertEquals(0, changedEvidence.getSkills().size());
+    }
+
+
+    @Test
+    void testEditEvidenceChangeSkillName() throws Exception {
+        setUserToStudent();
+        setupEditEvidenceTests();
+
+        evidenceDTO.setSkills(new ArrayList<>(List.of(new Skill(1, "python"))));
+
+        Evidence changedEvidence = evidenceService.editEvidence(principal, evidenceDTO);
+
+        List<Skill> retrievedSkills = changedEvidence.getSkills().stream().toList();
+
+        Assertions.assertEquals(1, retrievedSkills.size());
+        Assertions.assertEquals("python", retrievedSkills.get(0).getName());
+    }
+
+
     // ---------------------------------------------------
 
 
@@ -646,6 +717,7 @@ class EvidenceServiceTest {
                 "Test Original title",
                 LocalDate.now().minusDays(1) ,
                 "Test Original Description");
+        //TODO CHECK PLEASE
         WebLinkDTO webLinkDTO = new WebLinkDTO( "Original Link", "https://localhost:8080");
         evidence.addWebLink(new WebLink(evidence, webLinkDTO));
         evidence.addSkill(new Skill("Java"));
@@ -674,8 +746,8 @@ class EvidenceServiceTest {
             Assertions.assertTrue(evidence.getWebLinks().stream().anyMatch(link -> link.getAlias().equals(webLinkDTO.getName())));
         }
         Assertions.assertEquals(evidence.getSkills().size(), evidenceDTO.getSkills().size());
-        for (String skillString : evidenceDTO.getSkills()) {
-            Assertions.assertTrue(evidence.getSkills().stream().anyMatch(skill -> skill.getName().equals(skillString)));
+        for (Skill skillInfo : evidenceDTO.getSkills()) {
+            Assertions.assertTrue(evidence.getSkills().stream().anyMatch(skill -> skill.getName().equals(skillInfo.getName())));
         }
         Assertions.assertEquals(evidence.getCategories().size(), evidenceDTO.getCategories().size());
         for (String categoryString : evidenceDTO.getCategories()) {

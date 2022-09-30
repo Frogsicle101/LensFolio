@@ -1,5 +1,7 @@
 package nz.ac.canterbury.seng302.portfolio.model.dto;
 
+import nz.ac.canterbury.seng302.portfolio.model.domain.evidence.Skill;
+
 import java.util.List;
 
 /**
@@ -12,8 +14,8 @@ public class EvidenceDTO {
     String description;
     List<WebLinkDTO> webLinks;
     List<String> categories;
-    List<String> skills;
-    /*
+    List<Skill> skills;
+    /**
      * The users associated with this piece of evidence.
      * Should NOT include the creator of the evidence.
      */
@@ -69,11 +71,11 @@ public class EvidenceDTO {
         this.categories = categories;
     }
 
-    public List<String> getSkills() {
+    public List<Skill> getSkills() {
         return skills;
     }
 
-    public void setSkills(List<String> skills) {
+    public void setSkills(List<Skill> skills) {
         this.skills = skills;
     }
 
@@ -106,7 +108,7 @@ public class EvidenceDTO {
         private String description;
         private List<WebLinkDTO> webLinks;
         private List<String> categories;
-        private List<String> skills;
+        private List<Skill> skills;
         private List<Integer> associateIds;
         private Long projectId;
 
@@ -140,7 +142,7 @@ public class EvidenceDTO {
             return this;
         }
 
-        public EvidenceDTOBuilder setSkills(List<String> skills) {
+        public EvidenceDTOBuilder setSkills(List<Skill> skills) {
             this.skills = skills;
             return this;
         }
