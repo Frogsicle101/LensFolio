@@ -39,7 +39,7 @@ function validateSkillInput(inputValue, showMessage) {
     let isValid = true
     let errorMessage = ""
 
-    if (inputValue.length > 30) {
+    if (inputValue.length > 30 && inputValue.indexOf(" ") === -1) {
         errorMessage = "Skill names cannot be longer than 30 characters."
         isValid = false
     } else if (! GENERAL_UNICODE_REGEX.test(inputValue)) {
@@ -131,14 +131,13 @@ function handleSkillInputPaste() {
     const invalidSkillNames = new Set()
     let errorMessage = ""
 
-    if (inputValues.length > 1) {
-        inputValues.forEach(skillName => {
-            if (validateSkillInput(skillName, false)) {
-                addUniqueSkill(skillName)
-            } else {
-                invalidSkillNames.add(skillName.length > 30 ? skillName.substring(0, 27) + "..." : skillName)
-            }
-        })
+    inputValues.forEach(skillName => {
+        if (validateSkillInput(skillName, false)) {
+            addUniqueSkill(skillName)
+        } else {
+            invalidSkillNames.add(skillName.length > 30 ? skillName.substring(0, 27) + "..." : skillName)
+        }
+    })
 
     updateSkillsInput()
     skillsInput.val("")
@@ -146,7 +145,7 @@ function handleSkillInputPaste() {
     if (invalidSkillNames.size > 0) {
         if (invalidSkillNames.size < 5) {
             let skillNamesString = []
-            invalidSkillNames.forEach( (el) => {
+            invalidSkillNames.forEach((el) => {
                 skillNamesString.push("\n" + el)
             })
             errorMessage = `${existingSkillFeedback} \nInvalid skill(s) not added: ${skillNamesString}`
