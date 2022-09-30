@@ -32,7 +32,7 @@ public class ProjectData {
         if (useExampleProject) {
             projectRepository.save(new Project("Project Seng302",
                     LocalDate.parse("2022-02-25"),
-                    LocalDate.parse("2022-09-30"),
+                    LocalDate.parse("2022-12-30"),
                     "SENG302 is all about putting all that you have learnt in" +
                             " other courses into a systematic development process to" +
                             " create software as a team."));
