@@ -65,6 +65,62 @@ public class TestUserData {
         repository.save(tempUser);
 
         tempUser = new User(
+                "spaghetti",
+                defaultPassword,
+                "Anna",
+                "",
+                "Steveson",
+                "Anne",
+                "",
+                femalePronouns,
+                "anna@gmail.com"
+        );
+        tempUser.addRole(UserRole.TEACHER);
+        repository.save(tempUser);
+
+        tempUser = new User(
+                "Brenda.Bren",
+                defaultPassword,
+                "Brenda",
+                "",
+                "Bren",
+                "Brenny",
+                "Big fan of teaching. Love hiking over the weekend",
+                femalePronouns,
+                "brenda@hotmail.com"
+        );
+        tempUser.addRole(UserRole.TEACHER);
+        repository.save(tempUser);
+
+        tempUser = new User(
+                "G-Man",
+                defaultPassword,
+                "Greg",
+                "",
+                "Whitelock",
+                "greggs",
+                "Everything the Greg way",
+                malePronouns,
+                "greggs@gmail.com"
+        );
+        tempUser.addRole(UserRole.TEACHER);
+        repository.save(tempUser);
+
+        tempUser = new User(
+                "Emma",
+                defaultPassword,
+                "Emma",
+                "",
+                "Johnson",
+                "ems",
+                "",
+                femalePronouns,
+                "emma.johnson@gmail.com"
+        );
+        tempUser.addRole(UserRole.TEACHER);
+        repository.save(tempUser);
+
+        tempUser = new User(
                 "Robert.abe1989",
                 "thib2eCuTh",
                 "Robert",
