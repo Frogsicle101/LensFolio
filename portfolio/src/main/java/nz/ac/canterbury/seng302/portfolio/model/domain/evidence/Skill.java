@@ -79,6 +79,10 @@ public class Skill {
         return frequency;
     }
 
+    public void removeEvidence(Evidence evidenceToRemove) {
+        evidence.remove(evidenceToRemove);
+    }
+
     /**
      * For testing returns the expected json string of the object.
      *

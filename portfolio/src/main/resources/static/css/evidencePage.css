@@ -199,6 +199,7 @@
     flex-direction: row;
     padding: 0.5rem;
     flex-wrap: wrap;
+    min-height: 3.7rem;
 }
 
 #tagInputChips {
@@ -209,9 +210,9 @@
 
 .noDisplayInput {
     flex: 1;
-    padding: 5px;
     outline: none;
     border: 0;
+    background: transparent;
 }
 
 .chipText {
