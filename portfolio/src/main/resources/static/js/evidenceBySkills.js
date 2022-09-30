@@ -133,9 +133,12 @@ $(document).on("click", ".sortableChip" , function (event) {
 
 //todo document
 function setChipToEditMode(chip) {
-    originalSkillName = chip.find(".chipText").text()
     chip.find(".chipText").attr("contenteditable", true)
-    chip.find(".noDisplayInput").focus()
+    const input = chip.find(".noDisplayInput")
+    if (!(input.is(":focus"))) {
+        originalSkillName = chip.find(".chipText").text()
+    }
+    input.focus()
 }
 
 
