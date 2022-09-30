@@ -49,25 +49,20 @@ function addUniqueSkill(skillName) {
  * Id and will be added to the user as a new skill.
  */
 function updateSkillInSkillsToCreate(newSkillName) {
-    let oneOrMoreUnderScores = new RegExp("[_]+", "g")
+    let oneOrMoreUnderScores = new RegExp("_+", "g")
+    let re = new RegExp(String.fromCharCode(160), "g");
     let skillNameFormatted = replaceWithStringFromSkillArray(newSkillName.replaceAll(oneOrMoreUnderScores, " "))
-    const originalId = skillsToCreate.get(originalSkillName)
-    let newId;
-    const match = skillsArray.find(skill => {return skill.name === skillNameFormatted})
-    if (match) {
-        newId = match.id
-    }
+    skillNameFormatted = skillNameFormatted.replaceAll(/  +/g, '_').replaceAll(re, '_').replaceAll(/_+/g, ' ')
+
+    const originalId = parseInt(skillsToCreate.get(originalSkillName), 10)
+
 
     skillsToCreate.delete(originalSkillName)
 
     if (typeof originalId === "number") {
-        if (typeof newId === "number") {
-            skillsToCreate.set(newSkillName, newId)
-        } else {
-            skillsToCreate.set(newSkillName, originalId)
-        }
+        skillsToCreate.set(skillNameFormatted, originalId)
     } else {
-        skillsToCreate.set(newSkillName, newId)
+        skillsToCreate.set(skillNameFormatted, undefined)
     }
 }
 
