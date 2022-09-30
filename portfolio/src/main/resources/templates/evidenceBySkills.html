@@ -72,7 +72,7 @@
             <form id="evidenceCreationForm">
                 <div class="modalBody">
                     <div class="form-group evidenceFormName">
-                        <label for="evidenceName" class="col-form-label required">Evidence Name:</label>
+                        <label for="evidenceName" class="col-form-label required">Evidence Name: *</label>
                         <span th:insert="fragments/icons.html :: infoTooltipIcon(title='Can include letters, numbers, and punctuation. Must be between 5 and 50 characters long.')"></span>
                         <input class="form-control text-input" id="evidenceName"
                                maxlength="50"
@@ -89,7 +89,7 @@
                     <!--/*@thymesVar id="projectStartDate" type="java.lang.String"*/-->
                     <!--/*@thymesVar id="evidenceMaxDate" type="java.time.LocalDate"*/-->
                     <div class="form-group evidenceFormDate">
-                        <label class="form-label required" for="evidenceDate">Date: </label>
+                        <label class="form-label required" for="evidenceDate">Date: *</label>
                         <span th:insert="fragments/icons.html :: infoTooltipIcon(title='This is the date the evidence occurred. It must fall within the project dates and not be in the future.')"></span>
                         <input class="form-control form-control-sm milestoneInputEndDate"
                                id="evidenceDate"
@@ -103,7 +103,7 @@
                         <small class="form-text text-muted" id="projectDatesLabel" th:text="'Project dates: ' + ${project.getStartDateFormatted()} + ' - ' + ${project.getEndDateFormatted()}"></small>
                     </div>
                     <div class="form-group evidenceFormDescription">
-                        <label for="evidenceDescription" class="col-form-label required">Description:</label>
+                        <label for="evidenceDescription" class="col-form-label required">Description: *</label>
                         <span th:insert="fragments/icons.html :: infoTooltipIcon(title='Can include letters, numbers, and punctuation. Must be between 5 and 500 characters long.')"></span>
                         <textarea class="form-control text-input"
                                   id="evidenceDescription"
