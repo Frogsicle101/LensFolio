@@ -811,14 +811,10 @@ $(document).on("submit", "#evidenceCreationForm", function (e) {
  * Saves the evidence input during creating a new piece of evidence
  */
 $(document).on("click", "#evidenceSaveButton", function (e) {
-
-    document.getElementById("skillsInput")
+    e.preventDefault()
     let eventPress = {"key": " "}
-    handleSkillInputKeypress(eventPress)
-    if ($("#skillsInput").val().length < 1) {
-        e.preventDefault()
-        handleEvidenceSave()
-    }
+    handleSkillInputKeypress(eventPress) // Sends a fake space input to create the final skill in the box
+    handleEvidenceSave()
 })
 
 
